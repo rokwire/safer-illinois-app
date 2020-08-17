@@ -1,0 +1,179 @@
+{
+  "rules": [
+    {
+      "test_type": "Antibody Test A1",
+      "category": "antibody",
+      "results": [
+        {
+          "result": "not present",
+          "category": "antibody.negavitve",
+          "status": "antibody.negavitve"
+        },
+        {
+          "result": "present",
+          "category": "antibody.positive",
+          "status": "antibody.positive"
+        }
+      ]
+    },
+    {
+      "test_type": "Covid-19 test B1",
+      "category": "PCR",
+      "results": [
+        {
+          "result": "positive",
+          "category": "PCR.positive",
+          "status": "PCR.positive"
+        },
+        {
+          "result": "negative",
+          "category": "PCR.negative",
+          "status": "PCR.negative"
+        }
+      ]
+    },
+    {
+      "test_type": "COVID-19 Antibody",
+      "category": "antibody",
+      "results": [
+        {
+          "result": "Positive",
+          "category": "antibody.positive",
+          "status": "antibody.positive"
+        },
+        {
+          "result": "Negative",
+          "category": "antibody.negative",
+          "status": "antibody.negative"
+        }
+      ]
+    },
+    {
+      "test_type": "COVID-19 Antigen",
+      "category": "PCR",
+      "results": [
+        {
+          "result": "Positive",
+          "category": "PCR.positive",
+          "status": "PCR.positive"
+        },
+        {
+          "result": "Negative",
+          "category": "PCR.negative",
+          "status": "PCR.negative"
+        }
+      ]
+    },
+    {
+      "test_type": "SARS-COV-2 BY PCR, BKR",
+      "category": "PCR",
+      "results": [
+        {
+          "result": "DETECTED",
+          "category": "PCR.positive",
+          "status": "PCR.positive"
+        },
+        {
+          "result": "Not Detected",
+          "category": "PCR.negative",
+          "status": "PCR.negative"
+        }
+      ]
+    },
+    {
+      "test_type": "COVID-19 PCR",
+      "category": "PCR",
+      "results": [
+        {
+          "result": "POSITIVE",
+          "category": "PCR.positive",
+          "status": "PCR.positive"
+        },
+        {
+          "result": "NEGATIVE",
+          "category": "PCR.negative",
+          "status": "PCR.negative"
+        },
+        {
+          "result": "INVALID",
+          "category": "PCR.invalid",
+          "status": "PCR.invalid"
+        }
+      ]
+    }
+  ],
+  
+  "statuses": {
+    "antibody.negavitve": {
+      "condition": "require-test",
+      "params": {
+        "interval": { "min": 0, "max": 4 },
+        "current_interval": { "min": 0, "max": 4 }
+      },
+      "success": null,
+      "fail": {
+        "health_status": "orange",
+        "priority": 1,
+        "next_step": "Get a test now"
+      }
+    },
+    "antibody.positive": {
+      "condition": "require-test",
+      "params": {
+        "interval": { "min": 0, "max": 4 },
+        "current_interval": { "min": 0, "max": 4 }
+      },
+      "success": {
+        "health_status": "green",
+        "priority": 1,
+        "next_step": "Monitor your test results",
+        "next_step_interval": 4
+        },
+      "fail": {
+        "health_status": "orange",
+        "priority": 1,
+        "next_step": "Get a test now"
+      }
+    },
+    "PCR.positive": {
+      "health_status": "red",
+      "priority": 11,
+      "next_step": "Isolate at home and call your healthcare provider"
+    },
+    "PCR.negative": {
+      "condition": "require-test",
+      "params": {
+        "interval": { "min": 0, "max": 4 },
+        "current_interval": { "min": 0, "max": 4 }
+      },
+      "success": {
+        "health_status": "yellow",
+        "priority": 1,
+        "next_step": "Monitor your test results"
+      },
+      "fail": {
+        "health_status": "orange",
+        "priority": 1,
+        "next_step": "Get a test now"
+      }
+    },
+    "PCR.invalid": {
+      "condition": "require-test",
+      "params": {
+        "interval": { "min": 0, "max": 1 },
+        "current_interval": { "min": 0, "max": 1 }
+      },
+      "success": {
+        "health_status": null,
+        "priority": 1,
+        "next_step": "Get another test asap",
+        "next_step_interval": 1
+      },
+      "fail": {
+        "health_status": "orange",
+        "priority": 1,
+        "next_step": "Get a test now"
+      }
+    }
+  }
+}

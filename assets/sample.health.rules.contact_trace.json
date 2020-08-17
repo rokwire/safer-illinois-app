@@ -1,0 +1,29 @@
+[
+  {
+    "duration": { "min": 120 },
+    "status": {
+      "condition": "timeout",
+      "params": {
+        "interval": { "min": 0, "max": 4 }
+      },
+      "success": {
+        "condition": "require-test",
+        "params": {
+          "interval": { "min": 5, "max": null }
+        },
+        "success": null,
+        "fail": {
+          "health_status": "orange",
+          "priority": 1,
+          "next_step": "Get a test now"
+        }
+      },
+      "fail": {
+        "health_status": "orange",
+        "priority": 2,
+        "next_step": "Take a COVID-19 test after {next_step_date}",
+        "next_step_interval": 4
+      }
+    }
+  }
+]
