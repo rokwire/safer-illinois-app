@@ -61,7 +61,7 @@ class OnboardingGetStartedPanel extends StatelessWidget with OnboardingPanel {
               ],),),),
               Column(children: <Widget>[Expanded(child: Container(),), Padding(
                 padding: EdgeInsets.all(16),
-                child: RoundedButton(
+                child: ScalableRoundedButton(
                   label: Localization().getStringEx(
                       'panel.onboarding.get_started.button.get_started.title',
                       'Get Started'),
