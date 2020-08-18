@@ -22,6 +22,7 @@ import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/ui/onboarding/OnboardingBackButton.dart';
+import 'package:illinois/ui/widgets/ScalableScrollView.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:illinois/service/Styles.dart';
 
@@ -64,10 +65,14 @@ class _OnboardingLoginPhoneConfirmPanelState extends State<OnboardingLoginPhoneC
         excludeFromSemantics: true,
         behavior: HitTestBehavior.translucent,
         onTap: ()=>FocusScope.of(context).requestFocus(new FocusNode()),
-        child: Stack(children: <Widget>[
-          Padding(
-            padding: EdgeInsets.only(left: 18, right: 18, top: 24, bottom: 24),
-            child: SafeArea( child: Column(
+        child:
+            ScalableScrollView(
+              scrollableChild:
+              Stack(children: <Widget>[
+              Padding(
+              padding: EdgeInsets.only(left: 18, right: 18, top: 24, bottom: 24),
+                child:
+              Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
@@ -155,34 +160,35 @@ class _OnboardingLoginPhoneConfirmPanelState extends State<OnboardingLoginPhoneC
                     ),
                   ),
                 ),
-                Expanded(child: Container()),
-                RoundedButton(
-                    label: Localization().getStringEx(
-                        "panel.onboarding.confirm_phone.button.confirm.label",
-                        "Confirm phone number"),
-                    hint: Localization().getStringEx(
-                        "panel.onboarding.confirm_phone.button.confirm.hint", ""),
-                    borderColor: Styles().colors.fillColorSecondary,
-                    backgroundColor: Styles().colors.background,
-                    textColor: Styles().colors.fillColorPrimary,
-                    onTap: () => _onTapConfirm())
-              ],
-            ),),),
-          Visibility(
-            visible: _isLoading,
-            child: Center(
-              child: CircularProgressIndicator(),
-            ),
-          ),
-          OnboardingBackButton(
-            padding: const EdgeInsets.only(left: 10, top: 30, right: 20, bottom: 20),
-            onTap:() {
-              Analytics.instance.logSelect(target: "Back");
-              Navigator.pop(context);
-            }),
+                ])),
+                Visibility(
+                  visible: _isLoading,
+                  child: Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+                OnboardingBackButton(
+                    padding: const EdgeInsets.only(left: 10, top: 30, right: 20, bottom: 20),
+                    onTap:() {
+                      Analytics.instance.logSelect(target: "Back");
+                      Navigator.pop(context);
+                    }),
+              ]),
+              bottomNotScrollableWidget:
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                child: ScalableRoundedButton(
+                  label: Localization().getStringEx(
+                      "panel.onboarding.confirm_phone.button.confirm.label",
+                      "Confirm phone number"),
+                  hint: Localization().getStringEx(
+                      "panel.onboarding.confirm_phone.button.confirm.hint", ""),
+                  borderColor: Styles().colors.fillColorSecondary,
+                  backgroundColor: Styles().colors.background,
+                  textColor: Styles().colors.fillColorPrimary,
+                  onTap: () => _onTapConfirm()))
+          ),),
 
-          ],),
-        ),
       );
   }
 
