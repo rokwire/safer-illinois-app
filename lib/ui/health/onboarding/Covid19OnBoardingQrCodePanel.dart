@@ -190,7 +190,7 @@ class _Covid19OnBoardingQrCodePanelState extends State<Covid19OnBoardingQrCodePa
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 16),
                       child: Visibility(visible: (_userHealthKeysLoading != true),
-                        child: RoundedButton(
+                        child: ScalableRoundedButton(
                           label: _getContinueButtonTitle,
                           hint: Localization().getStringEx("panel.health.covid19.qr_code.button.continue.hint", ""),
                           borderColor: Styles().colors.fillColorSecondaryVariant,
@@ -350,9 +350,12 @@ class _Covid19OnBoardingQrCodePanelState extends State<Covid19OnBoardingQrCodePa
                     children: <Widget>[
                       Image.asset(iconRes, excludeFromSemantics: true,),
                       Container(width: 7,),
-                      Semantics(button: true, excludeSemantics:false, child:
-                        Text(title, style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 14, color:Styles().colors.fillColorPrimary))),
-                      Expanded(child: Container(),),
+                      Expanded(child:
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          child: Semantics(button: true, excludeSemantics:false, child:
+                            Text(title, style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 14, color:Styles().colors.fillColorPrimary))),
+                      )),
                       Image.asset('images/chevron-right.png',excludeFromSemantics: true,),
                     ],
                   ))))),
