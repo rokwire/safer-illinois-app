@@ -240,13 +240,12 @@ class _Covid19OnBoardingQrCodePanelState extends State<Covid19OnBoardingQrCodePa
         Container(height: 20,),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32),
-          child: RoundedButton(
+          child: ScalableRoundedButton(
             label: Localization().getStringEx("panel.health.covid19.qr_code.primary.button.save.title", "Save Your Encryption Key"),
             hint: Localization().getStringEx("panel.health.covid19.qr_code.primary.button.save.hint", ""),
             borderColor: Styles().colors.fillColorSecondaryVariant,
             backgroundColor: Styles().colors.surface,
             fontSize: 16,
-            height: 40,
             padding: EdgeInsets.symmetric(vertical: 5),
             textColor: Styles().colors.fillColorPrimary,
             onTap: _onSaveImage,
