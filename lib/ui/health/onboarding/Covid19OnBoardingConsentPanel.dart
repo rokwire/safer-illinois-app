@@ -174,7 +174,7 @@ class _Covid19OnBoardingConsentPanelState extends State<Covid19OnBoardingConsent
           ),),
           Container(color: Styles().colors.white, child: Padding(
             padding: EdgeInsets.all(16),
-            child: RoundedButton(
+            child: ScalableRoundedButton(
               enabled: _canContinue,
               label:_canContinue? Localization().getStringEx('panel.health.onboarding.covid19.consent.button.consent.title', 'Next') : Localization().getStringEx('panel.health.onboarding.covid19.consent.button.scroll_to_continue.title', 'Scroll to Continue'),
               hint: Localization().getStringEx('panel.health.onboarding.covid19.consent.button.consent.hint', ''),
