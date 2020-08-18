@@ -507,6 +507,16 @@ class Storage with Service {
     _setBoolWithName(_exposureStartedKey, value);
   }
 
+  static const String _exposureReportTargetTimestampKey = 'exposure_report_target_timestamp';
+
+  int get exposureReportTargetTimestamp {
+    return _getIntWithName(_exposureReportTargetTimestampKey, defaultValue: null);
+  }
+
+  set exposureReportTargetTimestamp(int value) {
+    _setIntWithName(_exposureReportTargetTimestampKey, value);
+  }
+
   static const String _exposureLastReportedTimestampKey = 'exposure_last_reported_timestamp';
 
   int get exposureLastReportedTimestamp {
