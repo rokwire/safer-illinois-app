@@ -23,6 +23,7 @@ import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/onboarding/OnboardingBackButton.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
+import 'package:illinois/ui/widgets/ScalableScrollView.dart';
 
 class Covid19OnBoardingFinalPanel extends StatelessWidget with OnboardingPanel {
 
@@ -34,13 +35,9 @@ class Covid19OnBoardingFinalPanel extends StatelessWidget with OnboardingPanel {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Styles().colors.fillColorPrimary,
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            SafeArea(child:
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+        body: ScalableScrollView(
+              scrollableChild: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
                 Stack(
                   children: <Widget>[
@@ -68,13 +65,12 @@ class Covid19OnBoardingFinalPanel extends StatelessWidget with OnboardingPanel {
                           style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 28, color: Styles().colors.white),
                         ))
                 ),
-              ],)
-            ),
             Container(height: 11,),
-            Expanded(child: _buildMiddleContent()),
-            Padding(
+            _buildMiddleContent(),
+            ]),
+            bottomNotScrollableWidget: Padding(
               padding: EdgeInsets.only(top: 16, bottom: 22, left: 16, right: 16),
-              child: RoundedButton(
+              child: ScalableRoundedButton(
                 label: Localization().getStringEx("panel.health.onboarding.covid19.final.button.continue.title", "Get Started"),
                 hint: Localization().getStringEx("panel.health.onboarding.covid19.final.button.continue.hint", ""),
                 borderColor: Styles().colors.lightBlue,
@@ -83,7 +79,6 @@ class Covid19OnBoardingFinalPanel extends StatelessWidget with OnboardingPanel {
                 onTap: () => _goNext(context),
               ),
             )
-          ],
         ));
   }
 
@@ -111,9 +106,9 @@ class Covid19OnBoardingFinalPanel extends StatelessWidget with OnboardingPanel {
             style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.white),
           ),
         ),
-        Expanded(
-          child: Container(),
-        ),
+//        Expanded(
+//          child: Container(),
+//        ),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 24),
           child: Text(
@@ -139,9 +134,9 @@ class Covid19OnBoardingFinalPanel extends StatelessWidget with OnboardingPanel {
             style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.white),
           ),
         ),
-        Expanded(
-          child: Container(),
-        ),
+//        Expanded(
+//          child: Container(),
+//        ),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 24),
           child: Text(
