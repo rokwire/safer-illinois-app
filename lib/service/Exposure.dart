@@ -126,7 +126,6 @@ class Exposure with Service implements NotificationsListener {
   bool     _checkingReport;
   bool     _checkingExposures;
   int      _exposureMinDuration;
-  int      _exposureLogMinDuration;
 
   int      _logSessionId;
 
@@ -739,7 +738,6 @@ class Exposure with Service implements NotificationsListener {
 
   void _updateExposureMinDuration() {
     _exposureMinDuration    = (Config().settings['covid19ExposureServiceMinDuration']    ?? 7200) * 1000;
-    _exposureLogMinDuration = (Config().settings['covid19ExposureServiceLogMinDuration'] ??  120) * 1000;
   }
 
   Future<int> checkExposures() async {
