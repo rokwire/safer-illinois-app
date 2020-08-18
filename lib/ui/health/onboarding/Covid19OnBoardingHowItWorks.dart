@@ -144,7 +144,7 @@ class Covid19OnBoardingHowItWorks extends StatelessWidget with OnboardingPanel {
             ),),
             Container(color: Styles().colors.white, child: Padding(
               padding: const EdgeInsets.all(16),
-              child: RoundedButton(
+              child: ScalableRoundedButton(
                 label: Localization().getStringEx("panel.health.onboarding.covid19.how_it_works.button.next.title", "Next"),
                 hint: Localization().getStringEx("panel.health.onboarding.covid19.how_it_works.button.next.hint", ""),
                 borderColor: Styles().colors.lightBlue,
