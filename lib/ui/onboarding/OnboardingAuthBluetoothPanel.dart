@@ -23,6 +23,7 @@ import 'package:illinois/service/Localization.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/ui/onboarding/OnboardingBackButton.dart';
 import 'package:illinois/service/Styles.dart';
+import 'package:illinois/ui/widgets/ScalableScrollView.dart';
 import 'package:illinois/ui/widgets/SwipeDetector.dart';
 import 'package:illinois/ui/widgets/TrianglePainter.dart';
 
@@ -55,12 +56,10 @@ class _OnboardingAuthBluetoothPanelState extends State<OnboardingAuthBluetoothPa
         body: SwipeDetector(
             onSwipeLeft: () => _goNext(),
             onSwipeRight: () => _goBack(),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                SafeArea(child:
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+            child:
+            ScalableScrollView(
+                scrollableChild: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
                     Stack(
                       children: <Widget>[
@@ -99,11 +98,8 @@ class _OnboardingAuthBluetoothPanelState extends State<OnboardingAuthBluetoothPa
                               style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 28, color:Styles().colors.fillColorPrimary),
                             ))
                     ),
-                  ],)
-                ),
-                Container(height: 12, ),
-                Expanded(
-                    child: Padding(
+                    Container(height: 12, ),
+                    Padding(
                         padding: EdgeInsets.symmetric(horizontal: 24),
                         child: Align(
                           alignment: Alignment.topCenter,
@@ -117,13 +113,15 @@ class _OnboardingAuthBluetoothPanelState extends State<OnboardingAuthBluetoothPa
                                 fontSize: 20,
                                 color: Styles().colors.fillColorPrimary),
                           ),
-                        ))),
+                        ))
+                ]),
+                bottomNotScrollableWidget:
                 Container(color: Styles().colors.white, child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16,vertical: 20),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      RoundedButton(
+                      ScalableRoundedButton(
                         label: Localization().getStringEx(
                             'panel.onboarding.bluetooth.button.allow.title',
                             'Enable Bluetooth'),
@@ -164,9 +162,8 @@ class _OnboardingAuthBluetoothPanelState extends State<OnboardingAuthBluetoothPa
                       )
                     ],
                   ),
-                ),)
-              ],
-            )));
+                )
+            ))));
   }
 
   void _requestBluetooth(BuildContext context) {
