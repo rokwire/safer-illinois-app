@@ -373,116 +373,118 @@ class _Covid19OnBoardingQrCodePanelState extends State<Covid19OnBoardingQrCodePa
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Styles().colors.fillColorPrimary,
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.all(8),
-                          child: Row(
-                            children: <Widget>[
-                              Expanded(
-                                child: Center(
-                                  child: Text(
-                                    Localization().getStringEx("panel.health.covid19.qr_code.dialog.refresh_qr_code.title", "Reset my COVID-19 Secret QRcode"),
-                                    style: TextStyle(fontSize: 20, color: Colors.white),
-                                  ),
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () => Navigator.pop(context),
-                                child: Container(
-                                  height: 30,
-                                  width: 30,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.all(Radius.circular(15)),
-                                    border: Border.all(color: Styles().colors.white, width: 2),
-                                  ),
+            child: SingleChildScrollView(
+              child:Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Styles().colors.fillColorPrimary,
+                            borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.all(8),
+                            child: Row(
+                              children: <Widget>[
+                                Expanded(
                                   child: Center(
                                     child: Text(
-                                      '\u00D7',
-                                      style: TextStyle(
-                                        fontSize: 24,
-                                        color: Colors.white,
+                                      Localization().getStringEx("panel.health.covid19.qr_code.dialog.refresh_qr_code.title", "Reset my COVID-19 Secret QRcode"),
+                                      style: TextStyle(fontSize: 20, color: Colors.white),
+                                    ),
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () => Navigator.pop(context),
+                                  child: Container(
+                                    height: 30,
+                                    width: 30,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(Radius.circular(15)),
+                                      border: Border.all(color: Styles().colors.white, width: 2),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        '\u00D7',
+                                        style: TextStyle(
+                                          fontSize: 24,
+                                          color: Colors.white,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                Container(
-                  height: 26,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
-                  child: Text(
-                    Localization().getStringEx("panel.health.covid19.qr_code.dialog.refresh_qr_code.description", "Doing this will provide you a new COVID-19 Secret QRcode but your previous COVID-19 event history will be lost, continue?"),
-
-                    textAlign: TextAlign.left,
-                    style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Colors.black),
-                  ),
-                ),
-                Container(
-                  height: 26,
-                ),
-                Text(
-                  Localization().getStringEx("panel.health.covid19.qr_code.dialog.refresh_qr_code.confirm", "Are you sure?"),
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Colors.black),
-                ),
-                Container(
-                  height: 26,
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Expanded(
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: <Widget>[
-                            RoundedButton(
-                                onTap: () => _onConfirmRefreshQrCode(context, setState),
-                                backgroundColor: Colors.transparent,
-                                borderColor: Styles().colors.fillColorSecondary,
-                                textColor: Styles().colors.fillColorPrimary,
-                                label: Localization().getStringEx("app.common.yes", "Yes")),
-                            _isRefreshing ? Center(child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary),)) : Container()
-                          ],
-                        ),
-                      ),
-                      Container(
-                        width: 10,
-                      ),
-                      Expanded(
-                        child: RoundedButton(
-                            onTap: () {
-                              Analytics.instance.logAlert(text: "Refresh QR Code", selection: "No");
-                              Navigator.pop(context);
-                            },
-                            backgroundColor: Colors.transparent,
-                            borderColor: Styles().colors.fillColorSecondary,
-                            textColor: Styles().colors.fillColorPrimary,
-                            label: Localization().getStringEx("app.common.no", "No")),
-                      )
                     ],
                   ),
-                ),
-              ],
+                  Container(
+                    height: 26,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 18),
+                    child: Text(
+                      Localization().getStringEx("panel.health.covid19.qr_code.dialog.refresh_qr_code.description", "Doing this will provide you a new COVID-19 Secret QRcode but your previous COVID-19 event history will be lost, continue?"),
+
+                      textAlign: TextAlign.left,
+                      style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Colors.black),
+                    ),
+                  ),
+                  Container(
+                    height: 26,
+                  ),
+                  Text(
+                    Localization().getStringEx("panel.health.covid19.qr_code.dialog.refresh_qr_code.confirm", "Are you sure?"),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Colors.black),
+                  ),
+                  Container(
+                    height: 26,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Expanded(
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: <Widget>[
+                              ScalableRoundedButton(
+                                  onTap: () => _onConfirmRefreshQrCode(context, setState),
+                                  backgroundColor: Colors.transparent,
+                                  borderColor: Styles().colors.fillColorSecondary,
+                                  textColor: Styles().colors.fillColorPrimary,
+                                  label: Localization().getStringEx("app.common.yes", "Yes")),
+                              _isRefreshing ? Center(child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary),)) : Container()
+                            ],
+                          ),
+                        ),
+                        Container(
+                          width: 10,
+                        ),
+                        Expanded(
+                          child: ScalableRoundedButton(
+                              onTap: () {
+                                Analytics.instance.logAlert(text: "Refresh QR Code", selection: "No");
+                                Navigator.pop(context);
+                              },
+                              backgroundColor: Colors.transparent,
+                              borderColor: Styles().colors.fillColorSecondary,
+                              textColor: Styles().colors.fillColorPrimary,
+                              label: Localization().getStringEx("app.common.no", "No")),
+                        )
+                      ],
+                    ),
+                  ),
+                ],
+              )
             ),
           ),
         );
