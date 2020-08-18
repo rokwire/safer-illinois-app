@@ -964,7 +964,8 @@ class Health with Service implements NotificationsListener {
               healthStatus: (historyStatus.healthStatus != null) ? historyStatus.healthStatus : status.blob.healthStatus,
               priority: (historyStatus.priority != null) ? historyStatus.priority.abs() : status.blob.priority,
               nextStep: ((historyStatus.nextStep != null) || (historyStatus.healthStatus != null)) ? historyStatus.nextStep: status.blob.nextStep,
-              nextStepDateUtc: historyStatus.nextStepDateUtc(history.dateUtc),
+              nextStepDateUtc: ((historyStatus.nextStepInterval != null) || (historyStatus.healthStatus != null)) ? historyStatus.nextStepDateUtc(history.dateUtc) : status.blob.nextStepDateUtc,
+              reason: ((historyStatus.reason != null) || (historyStatus.healthStatus != null)) ? historyStatus.reason: status.blob.reason,
               historyBlob: history.blob,
             ),
           );

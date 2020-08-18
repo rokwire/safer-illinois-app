@@ -166,58 +166,60 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
   }
 
   Widget _buildReasonContent(){
-    Covid19HistoryBlob reason = widget.status?.blob?.historyBlob;
-    if(reason!=null){
-      String date = AppDateTime().formatUniLocalTimeFromUtcTime(widget.status.dateUtc, AppDateTime.covid19UpdateDateFormat);
-      String reasonName = "Unknown";
-      Widget reasonDetail = Container();
-      if(reason.isTest){
-        reasonName = reason.testType;
-        String testResult = reason.testResult;
+    String date = AppDateTime().formatUniLocalTimeFromUtcTime(widget.status?.dateUtc, AppDateTime.covid19UpdateDateFormat);
+    String reasonStatusText = widget.status?.blob?.reason;
 
-        reasonDetail = Row(
+    Covid19HistoryBlob reasonHistory = widget.status?.blob?.historyBlob;
+    String reasonHistoryName;
+    Widget reasonHistoryDetail;
+    if (reasonHistory != null) {
+      if (reasonHistory.isTest) {
+        reasonHistoryName = reasonHistory.testType;
+        
+        reasonHistoryDetail = Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Image.asset("images/icon-selected.png",excludeFromSemantics: true,),
               Container(width: 7,),
-              Text(Localization().getStringEx("panel.health.status_update.label.reason.result","Result:"), style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.bold)),
+              Text(Localization().getStringEx("panel.health.status_update.label.reason.result", "Result:"), style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.bold)),
               Container(width: 5,),
-              Text(testResult, style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.regular)),
+              Text(reasonHistory.testResult ?? '', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.regular)),
           ],);
 
-      } else if(reason.isSymptoms){
-        reasonName = Localization().getStringEx("panel.health.status_update.label.reason.symptoms.title","You reported new symptoms");
+      }
+      else if (reasonHistory.isSymptoms) {
+        reasonHistoryName = Localization().getStringEx("panel.health.status_update.label.reason.symptoms.title", "You reported new symptoms");
+        
         List<Widget> symptomLayouts = List();
-        List<HealthSymptom> symptoms = reason.symptoms;
-        if(symptoms?.isNotEmpty ?? false){
+        List<HealthSymptom> symptoms = reasonHistory.symptoms;
+        if (symptoms?.isNotEmpty ?? false) {
           symptoms.forEach((HealthSymptom symptom){
             symptomLayouts.add(Text(symptom?.name ?? "", style: TextStyle(color: Colors.white, fontSize: 14, fontFamily: Styles().fontFamilies.regular)));
           });
         }
 
-        reasonDetail = Column(
+        reasonHistoryDetail = Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: symptomLayouts,
         );
+      }
+      else if (reasonHistory.isContactTrace) {
+        reasonHistoryName = Localization().getStringEx("panel.health.status_update.label.reason.exposed.title","You were exposed to someone who was likely infected");
 
-      } else if (reason.isContactTrace){
-        reasonName = Localization().getStringEx("panel.health.status_update.label.reason.exposed.title","You were exposed to someone who was likely infected");
-        String exposureText = reason.traceDurationDisplayString ?? "";
-
-        reasonDetail = Row(
+        reasonHistoryDetail = Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Image.asset("images/icon-selected.png",excludeFromSemantics: true,),
             Container(width: 7,),
             Text(Localization().getStringEx("panel.health.status_update.label.reason.exposure.detail","Duration of exposure: "), style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.bold)),
             Container(width: 5,),
-            Text(exposureText, style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.regular)),
+            Text(reasonHistory.traceDurationDisplayString ?? "", style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.regular)),
           ],);
-      } else if (reason.isAction) {
-        reasonName = Localization().getStringEx("panel.health.status_update.label.reason.action.title", "You were required an action by health authorities");
-        String actionText = reason.actionDisplayString ?? "";
+      }
+      else if (reasonHistory.isAction) {
+        reasonHistoryName = Localization().getStringEx("panel.health.status_update.label.reason.action.title", "You were required an action by health authorities");
 
-        reasonDetail = Column(
+        reasonHistoryDetail = Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
           Row(
@@ -227,31 +229,55 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
               Container(width: 7,),
               Text(Localization().getStringEx("panel.health.status_update.label.reason.action.detail", "Action Required: "), style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.bold)),
             ],),
-          Text(actionText, style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.regular)),
+          Text(reasonHistory.actionDisplayString ?? "", style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.regular)),
           
 
         ],);
 
       }
+    }
+
+    if ((reasonStatusText != null) || (reasonHistoryName != null) || (reasonHistoryDetail != null)) {
+      List<Widget> content = <Widget>[
+        Container(height: 30,),
+        Text(Localization().getStringEx("panel.health.status_update.label.reason.title", "STATUS CHANGED BECAUSE:"), textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.bold),),
+        Container(height: 30,),
+      ];
+
+      if (date != null) {
+        content.addAll(<Widget>[
+          Text(date, textAlign: TextAlign.center,style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.bold),),
+          Container(height: 2,),
+        ]);
+      }
+
+      if (reasonHistoryName != null) {
+        content.addAll(<Widget>[
+          Text(reasonHistoryName,textAlign: TextAlign.center,style: TextStyle(color: Colors.white, fontSize: 18, fontFamily: Styles().fontFamilies.extraBold),),
+          Container(height: 9,),
+        ]);
+      }
+
+      if (reasonHistoryDetail != null) {
+        content.addAll(<Widget>[
+          reasonHistoryDetail,
+        ]);
+      }
+
+      if (reasonStatusText != null) {
+        content.addAll(<Widget>[
+          Container(height: 60,),
+          Text(reasonStatusText, textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 14, fontFamily: Styles().fontFamilies.bold),),
+          Container(height: 30,),
+        ]);
+      }
 
       return Container(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 32),
-          child: Column(children: <Widget>[
-            Container(height: 30,),
-            Text(Localization().getStringEx("panel.health.status_update.label.reason.title","STATUS CHANGED BECAUSE:"),textAlign: TextAlign.center,style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.bold),),
-            Container(height: 30,),
-            Text(date,textAlign: TextAlign.center,style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.bold),),
-            Container(height: 2,),
-            Text(reasonName,textAlign: TextAlign.center,style: TextStyle(color: Colors.white, fontSize: 18, fontFamily: Styles().fontFamilies.extraBold),),
-            Container(height: 9,),
-            reasonDetail,
-            Container(height: 30,),
-          ],),
+          padding: EdgeInsets.symmetric(horizontal: 48),
+          child: Column(children: content,),
         ),
       );
-    } else {
-      //TBD when we don't have History Record ?
     }
 
     return Container();

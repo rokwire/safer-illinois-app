@@ -296,12 +296,13 @@ class Covid19StatusBlob {
   final int priority;
   final String nextStep;
   final DateTime nextStepDateUtc;
+  final String reason;
   final Covid19HistoryBlob historyBlob;
 
   static const String _nextStepDateMacro = '{next_step_date}';
   static const String _nextStepDateFormat = 'MMMM d';
 
-  Covid19StatusBlob({this.healthStatus, this.priority, this.nextStep, this.nextStepDateUtc, this.historyBlob});
+  Covid19StatusBlob({this.healthStatus, this.priority, this.nextStep, this.nextStepDateUtc, this.reason, this.historyBlob});
 
 
   factory Covid19StatusBlob.fromJson(Map<String, dynamic> json) {
@@ -310,6 +311,7 @@ class Covid19StatusBlob {
       priority: json['priority'],
       nextStep: json['next_step'],
       nextStepDateUtc: healthDateTimeFromString(json['next_step_date']),
+      reason: json['reason'],
       historyBlob: Covid19HistoryBlob.fromJson(json['history_blob']),
     ) : null;
   }
@@ -320,6 +322,7 @@ class Covid19StatusBlob {
       'priority': priority,
       'next_step': nextStep,
       'next_step_date': healthDateTimeToString(nextStepDateUtc),
+      'reason': reason,
       'history_blob': historyBlob?.toJson(),
     };
   }
