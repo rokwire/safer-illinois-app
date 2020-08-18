@@ -15,14 +15,16 @@
         "fail": {
           "health_status": "orange",
           "priority": 1,
-          "next_step": "Get a test now"
+          "next_step": "Get a test now",
+          "reason": "Your status changed to Orange because you are past due for a test."
         }
       },
       "fail": {
         "health_status": "orange",
         "priority": 2,
         "next_step": "Take a COVID-19 test after {next_step_date}",
-        "next_step_interval": 4
+        "next_step_interval": 4,
+        "reason": "Your status changed to Orange because you received an exposure notification."
       }
     }
   }
