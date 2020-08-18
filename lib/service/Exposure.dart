@@ -791,11 +791,7 @@ class Exposure with Service implements NotificationsListener {
     // Map<int, int> scoringExposures = new Map<int, int>;
     // key = time interval, value = number of rpis in that time interval
     Map<int, Set<String>> scoringExposures = new Map<int, Set<String>>(); 
-
-    int currentTimestamp = DateTime.now().toUtc().millisecondsSinceEpoch;
-    int midnightTimestamp = (currentTimestamp ~/ _millisecondsInDay) * _millisecondsInDay;
-    int fiveDaysAgoMidnightTimestamp = midnightTimestamp - (5 * _millisecondsInDay);
-    int scoringDayThreshold = fiveDaysAgoMidnightTimestamp ~/ _rpiRefreshInterval;
+    int scoringDayThreshold = _evalScoringDayThreshold(histories: histories);
 
     for (ExposureTEK tek in reportedTEKs) {
       Map<String, int> rpisMap = await _loadTekRPIs(tek);
@@ -947,6 +943,22 @@ class Exposure with Service implements NotificationsListener {
 
     _checkingExposures = null; 
     return detected;
+  }
+
+  int _evalScoringDayThreshold({List<Covid19History> histories}) {
+    int scoringDateTimestamp;
+    Covid19History lastTest = Covid19History.mostRecentTest(histories);
+    DateTime lastTestDateUtc = lastTest?.dateUtc;
+    if (lastTestDateUtc != null) {
+      int lastTestTimestamp = lastTestDateUtc.millisecondsSinceEpoch;
+      scoringDateTimestamp = lastTestTimestamp - _millisecondsInDay; // a day before last test timestamp
+    }
+    else {
+      int currentTimestamp = DateTime.now().toUtc().millisecondsSinceEpoch;
+      int midnightTimestamp = (currentTimestamp ~/ _millisecondsInDay) * _millisecondsInDay;
+      scoringDateTimestamp = midnightTimestamp - (5 * _millisecondsInDay); // five days ago midnight timestamp
+    }
+    return scoringDateTimestamp ~/ _rpiRefreshInterval;
   }
 
   // Logging
