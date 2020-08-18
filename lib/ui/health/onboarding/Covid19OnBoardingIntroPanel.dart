@@ -22,6 +22,7 @@ import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/onboarding/OnboardingBackButton.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
+import 'package:illinois/ui/widgets/ScalableScrollView.dart';
 
 class Covid19OnBoardingIntroPanel extends StatelessWidget with OnboardingPanel {
 
@@ -33,7 +34,8 @@ class Covid19OnBoardingIntroPanel extends StatelessWidget with OnboardingPanel {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Styles().colors.fillColorPrimary,
-        body: Column(
+        body: ScalableScrollView(
+        scrollableChild: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
@@ -58,21 +60,19 @@ class Covid19OnBoardingIntroPanel extends StatelessWidget with OnboardingPanel {
                 style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.white),
               ),
             ),
-            Expanded(
-              child: Container(),
+            ]),
+          bottomNotScrollableWidget:
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 22),
+            child: ScalableRoundedButton(
+              label: Localization().getStringEx('panel.health.onboarding.covid19.intro.button.continue.title', 'Continue'),
+              hint: Localization().getStringEx('panel.health.onboarding.covid19.intro.button.continue.hint', ''),
+              borderColor: Styles().colors.lightBlue,
+              backgroundColor: Styles().colors.fillColorPrimary,
+              textColor: Styles().colors.white,
+              onTap: () => _goNext(context),
             ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 22),
-              child: RoundedButton(
-                label: Localization().getStringEx('panel.health.onboarding.covid19.intro.button.continue.title', 'Continue'),
-                hint: Localization().getStringEx('panel.health.onboarding.covid19.intro.button.continue.hint', ''),
-                borderColor: Styles().colors.lightBlue,
-                backgroundColor: Styles().colors.fillColorPrimary,
-                textColor: Styles().colors.white,
-                onTap: () => _goNext(context),
-              ),
-            )
-          ],
+          )
         ));
   }
 
