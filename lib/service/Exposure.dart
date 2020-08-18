@@ -934,7 +934,7 @@ class Exposure with Service implements NotificationsListener {
         }
         lastKey = k;
         
-        if (tempSum > _exposureLogMinDuration) {
+        if (tempSum > _exposureMinDuration) {
           scoringIsExposured = true;
           scoringEndTime = k;
           Log.d("Above the threshold! Trigger exposure notification");
