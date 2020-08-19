@@ -108,7 +108,7 @@ class _SettingsRolesPanelState extends State<SettingsRolesPanel> implements Noti
                   ),),
                   Container(width: gridSpacing,),
                   Expanded(child: RoleGridButton(
-                    title: Localization().getStringEx('panel.onboarding.roles.button.employee.title', 'University Employee'),
+                    title: Localization().getStringEx('panel.onboarding.roles.button.employee.title', 'Employee/Affiliate'),
                     hint: Localization().getStringEx('panel.onboarding.roles.button.employee.hint', ''),
                     iconPath: 'images/icon-persona-employee-normal.png',
                     selectedIconPath: 'images/icon-persona-employee-selected.png',

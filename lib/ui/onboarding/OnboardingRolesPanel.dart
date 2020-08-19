@@ -96,7 +96,7 @@ class _OnboardingRoleSelectionPanelState extends State<OnboardingRolesPanel> {
                 ),),
                 Container(height: gridSpacing,),
                 Flexible(flex: 1, child: RoleGridButton(
-                  title: Localization().getStringEx('panel.onboarding.roles.button.employee.title', 'University Employee'),
+                  title: Localization().getStringEx('panel.onboarding.roles.button.employee.title', 'Employee/Affiliate'),
                   hint: Localization().getStringEx('panel.onboarding.roles.button.employee.hint', ''),
                   iconPath: 'images/icon-persona-employee-normal.png',
                   selectedIconPath: 'images/icon-persona-employee-selected.png',
