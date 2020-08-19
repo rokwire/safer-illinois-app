@@ -17,8 +17,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-//TMP:
-import 'package:flutter/services.dart' show rootBundle;
+//TMP:  import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/model/Health2.dart';
@@ -1374,11 +1373,10 @@ class Health with Service implements NotificationsListener {
   // Consolidated Rules
 
   Future<HealthRulesSet2> _loadRules2({String countyId}) async {
-    //String url = "${Config().health2Url}/rules/county/$countyId/rules.json";
-    //Response response = await Network().get(url);
-    //String responseBody = (response?.statusCode == 200) ? response.body : null;
-//TMP:
-    String responseBody = await rootBundle.loadString('assets/sample.health.rules.json');
+    String url = "${Config().health2Url}/rules/county/$countyId/rules.json";
+    Response response = await Network().get(url);
+    String responseBody = (response?.statusCode == 200) ? response.body : null;
+//TMP:String responseBody = await rootBundle.loadString('assets/sample.health.rules.json');
     Map<String, dynamic> responseJson = (responseBody != null) ? AppJson.decodeMap(responseBody) : null;
     return (responseJson != null) ? HealthRulesSet2.fromJson(responseJson) : null;
   }
