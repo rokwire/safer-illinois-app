@@ -84,7 +84,7 @@ public class Constants {
     public static final String EXPOSURE_BLE_ACTION_FOUND = "edu.illinois.rokwire.exposure.ble.scan.ACTION_FOUND";
     public static final int EXPOSURE_NO_RSSI_VALUE = 127;
     public static final int EXPOSURE_MIN_RSSI_VALUE = -50;
-    public static final int EXPOSURE_MIN_DURATION_MILLIS = 2 * 60 * 1000; // 2 minutes
+    public static final int EXPOSURE_MIN_DURATION_MILLIS = 0; // 0 minute
     public static final UUID EXPOSURE_UUID_SERVICE = UUID.fromString("0000CD19-0000-1000-8000-00805F9B34FB");
     public static final ParcelUuid EXPOSURE_PARCEL_SERVICE_UUID = new ParcelUuid(EXPOSURE_UUID_SERVICE);
     public static final UUID EXPOSURE_UUID_CHARACTERISTIC = UUID.fromString("1f5bb1de-cdf0-4424-9d43-d8cc81a7f207");
