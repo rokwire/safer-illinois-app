@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import 'dart:collection';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:illinois/model/Health.dart';
@@ -38,6 +40,7 @@ import 'package:illinois/ui/widgets/LinkTileButton.dart';
 import 'package:illinois/ui/widgets/RibbonButton.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/ui/widgets/SectionTitlePrimary.dart';
+import 'package:illinois/ui/widgets/StatusInfoDialog.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:sprintf/sprintf.dart';
 
@@ -55,6 +58,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
   Covid19Status _status;
   bool          _loadingStatus;
   Covid19History _lastHistory;
+  String _currentCountyName;
 
   @override
   void initState() {
@@ -74,6 +78,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
     }
 
     _loadHistory();
+    _loadCountyName();
   }
 
   @override
@@ -126,6 +131,19 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
        setState(() {
          _lastHistory = Covid19History.mostRecent(history);
        });
+      }
+    });
+  }
+
+  void _loadCountyName(){
+    Health().loadCounties().then((List<HealthCounty> counties) {
+      LinkedHashMap<String, HealthCounty> _counties = HealthCounty.listToMap(counties);
+      if(counties != null && _counties.containsKey(Health().currentCountyId)) {
+        if(mounted){
+          setState((){
+            _currentCountyName = _counties[Health().currentCountyId].nameDisplayText;
+          });
+        }
       }
     });
   }
@@ -376,6 +394,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
                   Expanded(child:
                     Text(Localization().getStringEx("panel.covid19home.label.status.title","Current Status:"), style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.fillColorPrimary),),
                   ),
+                  IconButton(icon: Image.asset('images/icon-info-orange.png'), onPressed: () =>  StatusInfoDialog.show(context, _currentCountyName), padding: EdgeInsets.all(10),)
                 ],),
                 Container(height: 6,),
                 Row(
