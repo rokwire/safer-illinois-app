@@ -614,8 +614,21 @@ class Covid19History {
     if (histories != null) {
       DateTime nowUtc = DateTime.now().toUtc();
       for (int index = 0; index < histories.length; index++) {
-        Covid19History history =  histories[index];
+        Covid19History history = histories[index];
         if ((history.dateUtc != null) && (history.dateUtc.isBefore(nowUtc))) {
+          return history;
+        }
+      }
+    }
+    return null;
+  }
+
+  static Covid19History mostRecentTest(List<Covid19History> histories) {
+    if (histories != null) {
+      DateTime nowUtc = DateTime.now().toUtc();
+      for (int index = 0; index < histories.length; index++) {
+        Covid19History history = histories[index];
+        if (history.isTestVerified && (history.dateUtc != null) && (history.dateUtc.isBefore(nowUtc))) {
           return history;
         }
       }

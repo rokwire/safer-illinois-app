@@ -126,7 +126,8 @@ class Exposure with Service implements NotificationsListener {
   bool     _checkingReport;
   bool     _checkingExposures;
   int      _exposureMinDuration;
-  int      _exposureLogMinDuration;
+  int      _reportTargetTimestamp;
+  int      _lastReportTimestamp;
 
   int      _logSessionId;
 
@@ -150,7 +151,6 @@ class Exposure with Service implements NotificationsListener {
       BluetoothServices.notifyStatusChanged,
       Config.notifyConfigChanged,
       AppLivecycle.notifyStateChanged,
-      Health.notifyHealthStatusChanged,
       Health.notifyUserUpdated,
       Health.notifyUserPrivateKeyUpdated,
       Auth.notifyLoggedOut,
@@ -167,11 +167,17 @@ class Exposure with Service implements NotificationsListener {
 
   @override
   Future<void> initService() async {
+    _reportTargetTimestamp = Storage().exposureReportTargetTimestamp;
+    _lastReportTimestamp = Storage().exposureLastReportedTimestamp;
+
     await _openDatabase();
+    
     _initializePlugin().then((_) {
       _pluginInitialized = true;
     });
+    
     _updateExposureMinDuration();
+    
     _serviceInitialized = true;
   }
 
@@ -210,9 +216,6 @@ class Exposure with Service implements NotificationsListener {
       }
       else if (name == BluetoothServices.notifyStatusChanged) {
         _updatePlugin();
-      }
-      else if (name == Health.notifyHealthStatusChanged) {
-        checkReport();
       }
       else if (name == AppLivecycle.notifyStateChanged) {
         _onAppLivecycleStateChanged(param); 
@@ -298,7 +301,7 @@ class Exposure with Service implements NotificationsListener {
     await _methodChannel.invokeMethod(_expireTEKMethodName);
   }
 
-  Future<List<ExposureTEK>> loadTeks({int timestamp}) async {
+  Future<List<ExposureTEK>> loadTeks({int minStamp, int maxStamp}) async {
     List<ExposureTEK> teks;
     List<dynamic> json = await _methodChannel.invokeMethod(_teksMethodName);
     if (json != null) {
@@ -307,7 +310,9 @@ class Exposure with Service implements NotificationsListener {
         ExposureTEK tek;
         try { tek = ExposureTEK.fromJson((entry as Map)?.cast<String, dynamic>()); }
         catch(e) { print(e?.toString()); }
-        if ((timestamp == null) || ((tek.timestamp != null) && (timestamp <= tek.timestamp))) {
+        if (((minStamp == null) || (minStamp <= tek.timestamp)) &&
+            ((maxStamp == null) || (maxStamp >= tek.timestamp)))
+        {
           teks.add(tek);
         }
       }
@@ -334,7 +339,6 @@ class Exposure with Service implements NotificationsListener {
     if (call.method == _tecNotificationName) {
       NotificationService().notify(notifyTEKsUpdated, null);
       _clearExpiredLocalExposures();
-      checkReport();
     }
     else if (call.method == _exposureNotificationName) {
       _storeLocalExposure(call.arguments);
@@ -423,17 +427,19 @@ class Exposure with Service implements NotificationsListener {
     Storage().exposureStarted = value;
   }
 
-  static int get thresholdTimestamp {
-    // Two weeks before now is standard thresold for checking exposures
-    int currentTimestamp = DateTime.now().toUtc().millisecondsSinceEpoch;
-    int millisecondsInDay = 24 * 60 * 60 * 1000;
-    int midnightTimestamp = (currentTimestamp ~/ millisecondsInDay) * millisecondsInDay;
-    int twoWeeksAgoMidnightTimestamp = midnightTimestamp - (14 * millisecondsInDay);
-    return twoWeeksAgoMidnightTimestamp;
-  }
-
   static int get _currentTimestamp {
     return DateTime.now().toUtc().millisecondsSinceEpoch;
+  }
+
+  static int get thresholdTimestamp {
+    return getThresholdTimestamp(origin: _currentTimestamp);
+  }
+
+  static int getThresholdTimestamp({int origin}) {
+    // Two weeks before origin is standard thresold for checking exposures
+    int midnightTimestamp = (origin ~/ _millisecondsInDay) * _millisecondsInDay;
+    int twoWeeksAgoMidnightTimestamp = midnightTimestamp - (14 * _millisecondsInDay);
+    return twoWeeksAgoMidnightTimestamp;
   }
 
   // Local Exposures
@@ -652,9 +658,17 @@ class Exposure with Service implements NotificationsListener {
 
   // Report
 
+  set reportTargetTimestamp(int value) {
+    if (_reportTargetTimestamp != value) {
+      Storage().exposureReportTargetTimestamp = _reportTargetTimestamp = value;
+      checkReport();
+    }
+  }
+  
+
   Future<int> checkReport() async {
 
-    if (!_serviceEnabled || (Health().lastCovid19Status != kCovid19HealthStatusRed)) {
+    if (!_serviceEnabled || (_reportTargetTimestamp == null) || (_reportTargetTimestamp == _lastReportTimestamp)) {
       return 0;
     }
 
@@ -665,21 +679,20 @@ class Exposure with Service implements NotificationsListener {
     Log.d('Exposure: Checking local TEKs to report...');
     _checkingReport = true;
 
-    int lastReportedTimestamp = Storage().exposureLastReportedTimestamp;
-    if (lastReportedTimestamp == null) {
-      lastReportedTimestamp = Exposure.thresholdTimestamp;
+    int minTimestamp = getThresholdTimestamp(origin: _reportTargetTimestamp); // two weeks before the target;
+    if ((_lastReportTimestamp != null) && (minTimestamp < _lastReportTimestamp)) {
+      minTimestamp = _lastReportTimestamp;
     }
-    int nextReportTimestamp = Exposure._currentTimestamp;
 
     int result;
     await _expireTEK();
-    List<ExposureTEK> teks = await loadTeks(timestamp: lastReportedTimestamp);
+    List<ExposureTEK> teks = await loadTeks(maxStamp: _reportTargetTimestamp, minStamp: minTimestamp);
     if (teks == null) {
       Log.d('Failed to load local TEKs');
       result = null;
     }
     else if (teks.isEmpty) {
-      Log.d('No local TEKs newer than $lastReportedTimestamp.');
+      Log.d('No local TEKs newer than $_reportTargetTimestamp.');
       result = 0;
     }
     else if (!await reportTEKs(teks)) {
@@ -689,7 +702,7 @@ class Exposure with Service implements NotificationsListener {
     else {
       Log.d('Reported ${teks.length} local TEKs');
       Analytics().logHealth(action: Analytics.LogHealthReportExposuresAction);
-      Storage().exposureLastReportedTimestamp = nextReportTimestamp;
+      Storage().exposureLastReportedTimestamp = _lastReportTimestamp = _reportTargetTimestamp;
       result = teks.length;
     }
 
@@ -739,7 +752,6 @@ class Exposure with Service implements NotificationsListener {
 
   void _updateExposureMinDuration() {
     _exposureMinDuration    = (Config().settings['covid19ExposureServiceMinDuration']    ?? 7200) * 1000;
-    _exposureLogMinDuration = (Config().settings['covid19ExposureServiceLogMinDuration'] ??  120) * 1000;
   }
 
   Future<int> checkExposures() async {
@@ -793,11 +805,7 @@ class Exposure with Service implements NotificationsListener {
     // Map<int, int> scoringExposures = new Map<int, int>;
     // key = time interval, value = number of rpis in that time interval
     Map<int, Set<String>> scoringExposures = new Map<int, Set<String>>(); 
-
-    int currentTimestamp = DateTime.now().toUtc().millisecondsSinceEpoch;
-    int midnightTimestamp = (currentTimestamp ~/ _millisecondsInDay) * _millisecondsInDay;
-    int fiveDaysAgoMidnightTimestamp = midnightTimestamp - (5 * _millisecondsInDay);
-    int scoringDayThreshold = fiveDaysAgoMidnightTimestamp ~/ _rpiRefreshInterval;
+    int scoringDayThreshold = _evalScoringDayThreshold(histories: histories);
 
     for (ExposureTEK tek in reportedTEKs) {
       Map<String, int> rpisMap = await _loadTekRPIs(tek);
@@ -934,7 +942,7 @@ class Exposure with Service implements NotificationsListener {
         }
         lastKey = k;
         
-        if (tempSum > _exposureLogMinDuration) {
+        if (tempSum > _exposureMinDuration) {
           scoringIsExposured = true;
           scoringEndTime = k;
           Log.d("Above the threshold! Trigger exposure notification");
@@ -949,6 +957,22 @@ class Exposure with Service implements NotificationsListener {
 
     _checkingExposures = null; 
     return detected;
+  }
+
+  int _evalScoringDayThreshold({List<Covid19History> histories}) {
+    int scoringDateTimestamp;
+    Covid19History lastTest = Covid19History.mostRecentTest(histories);
+    DateTime lastTestDateUtc = lastTest?.dateUtc;
+    if (lastTestDateUtc != null) {
+      int lastTestTimestamp = lastTestDateUtc.millisecondsSinceEpoch;
+      scoringDateTimestamp = lastTestTimestamp - _millisecondsInDay; // a day before last test timestamp
+    }
+    else {
+      int currentTimestamp = DateTime.now().toUtc().millisecondsSinceEpoch;
+      int midnightTimestamp = (currentTimestamp ~/ _millisecondsInDay) * _millisecondsInDay;
+      scoringDateTimestamp = midnightTimestamp - (5 * _millisecondsInDay); // five days ago midnight timestamp
+    }
+    return scoringDateTimestamp ~/ _rpiRefreshInterval;
   }
 
   // Logging
