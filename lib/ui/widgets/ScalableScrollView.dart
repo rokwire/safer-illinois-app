@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import 'dart:math';
-
 import 'package:flutter/cupertino.dart';
 import 'package:illinois/ui/health/onboarding/Covid19OnBoardingConsentPanel.dart';
 
