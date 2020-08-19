@@ -107,7 +107,7 @@ class _OnboardingRoleSelectionPanelState extends State<OnboardingRolesPanel> {
                   onTap: _onRoleGridButton,
                 ),)
               ],),
-              Row(children: <Widget>[Expanded(child: RoleGridButton(
+              /*Row(children: <Widget>[Expanded(child: RoleGridButton(
                 title: Localization().getStringEx('panel.onboarding.roles.button.resident.title', 'Illinois Resident'),
                 hint: Localization().getStringEx('panel.onboarding.roles.button.resident.hint', ''),
                 iconPath: 'images/icon-persona-resident-normal.png',
@@ -118,7 +118,7 @@ class _OnboardingRoleSelectionPanelState extends State<OnboardingRolesPanel> {
                 data: UserRole.resident,
                 sortOrder: 7,
                 onTap: _onRoleGridButton,
-              ),)],)
+              ),)],)*/
             ],),),),),
 
         Container(color: Styles().colors.white, child: Padding(padding: EdgeInsets.only(left: 24, right: 24, top: 10, bottom: 20),
