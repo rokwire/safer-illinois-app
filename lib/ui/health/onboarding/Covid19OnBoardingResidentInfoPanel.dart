@@ -26,6 +26,7 @@ import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/health/onboarding/Covid19OnBoardingIndicator.dart';
 import 'package:illinois/ui/onboarding/OnboardingBackButton.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
+import 'package:illinois/ui/widgets/ScalableScrollView.dart';
 
 class Covid19OnBoardingResidentInfoPanel extends StatelessWidget with OnboardingPanel {
 
@@ -44,7 +45,8 @@ class Covid19OnBoardingResidentInfoPanel extends StatelessWidget with Onboarding
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Styles().colors.background,
-      body: SafeArea(child: Column(
+      body: ScalableScrollView(
+        scrollableChild: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
           Container(color: Styles().colors.white, child: Stack(children: <Widget>[
@@ -68,50 +70,54 @@ class Covid19OnBoardingResidentInfoPanel extends StatelessWidget with Onboarding
                   style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.fillColorPrimary),
                 )),
             ],)
-          ],),),
-          Expanded(child: Container(),),
-          Padding(padding: EdgeInsets.symmetric(vertical: 17, horizontal: 16), child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-            RoundedButton(
-              label: Localization().getStringEx('panel.health.onboarding.covid19.resident_info.button.passport.title', 'Passport'),
-              hint: Localization().getStringEx('panel.health.onboarding.covid19.resident_info.button.passport.hint', ''),
-              borderColor: Styles().colors.fillColorSecondary,
-              backgroundColor: Styles().colors.white,
-              textColor: Styles().colors.fillColorPrimary,
-              padding: EdgeInsets.symmetric(horizontal: 22),
-              onTap: () => _doScan(context, UserDocumentType.passport),
-            ),
-            Container(width: 16,),
-            Expanded(child: RoundedButton(
-              label: Localization().getStringEx('panel.health.onboarding.covid19.resident_info.button.drivers_license.title', "Driver's License"),
-              hint: Localization().getStringEx('panel.health.onboarding.covid19.resident_info.button.drivers_license.hint', ''),
-              borderColor: Styles().colors.fillColorSecondary,
-              backgroundColor: Styles().colors.white,
-              textColor: Styles().colors.fillColorPrimary,
-              onTap: () => _doScan(context, UserDocumentType.drivingLicense),
-            ),)
-          ],),),
-          GestureDetector(
-            onTap: () => _onTapVerifyLater(context),
-            behavior: HitTestBehavior.translucent,
-            child: Container(
-              child: Padding(
-                  padding: EdgeInsets.only(bottom: 20),
-                  child: Text(
-                      Localization().getStringEx('panel.health.onboarding.covid19.resident_info.button.verify_later.title', "Verify later"),
-                    style: TextStyle(
-                        fontFamily: Styles().fontFamilies.regular,
-                        fontSize: 16,
-                        color: Styles().colors.fillColorPrimary,
-                        decoration: TextDecoration.underline,
-                        decorationColor: Styles().colors.fillColorSecondary,
-                        decorationThickness: 1,
-                        decorationStyle: TextDecorationStyle.solid),
-                  )),
-            ),
+          ],),),]),
+          bottomNotScrollableWidget: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: <Widget>[
+            Padding(padding: EdgeInsets.symmetric(vertical: 17, horizontal: 16), child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+              Expanded(child:ScalableRoundedButton(
+                label: Localization().getStringEx('panel.health.onboarding.covid19.resident_info.button.passport.title', 'Passport'),
+                hint: Localization().getStringEx('panel.health.onboarding.covid19.resident_info.button.passport.hint', ''),
+                borderColor: Styles().colors.fillColorSecondary,
+                backgroundColor: Styles().colors.white,
+                textColor: Styles().colors.fillColorPrimary,
+                padding: EdgeInsets.symmetric(horizontal: 22),
+                onTap: () => _doScan(context, UserDocumentType.passport),
+              )),
+              Container(width: 16,),
+              Expanded(child: ScalableRoundedButton(
+                label: Localization().getStringEx('panel.health.onboarding.covid19.resident_info.button.drivers_license.title', "Driver's License"),
+                hint: Localization().getStringEx('panel.health.onboarding.covid19.resident_info.button.drivers_license.hint', ''),
+                borderColor: Styles().colors.fillColorSecondary,
+                backgroundColor: Styles().colors.white,
+                textColor: Styles().colors.fillColorPrimary,
+                onTap: () => _doScan(context, UserDocumentType.drivingLicense),
+              ),)
+            ],),),
+            GestureDetector(
+              onTap: () => _onTapVerifyLater(context),
+              behavior: HitTestBehavior.translucent,
+              child: Container(
+                child: Padding(
+                    padding: EdgeInsets.only(bottom: 20),
+                    child: Text(
+                        Localization().getStringEx('panel.health.onboarding.covid19.resident_info.button.verify_later.title', "Verify later"),
+                      style: TextStyle(
+                          fontFamily: Styles().fontFamilies.regular,
+                          fontSize: 16,
+                          color: Styles().colors.fillColorPrimary,
+                          decoration: TextDecoration.underline,
+                          decorationColor: Styles().colors.fillColorSecondary,
+                          decorationThickness: 1,
+                          decorationStyle: TextDecorationStyle.solid),
+                    )),
+              ),
           )
         ],
-      ),),
-    );
+      ),)
+    ));
   }
 
   void _goBack(BuildContext context) {

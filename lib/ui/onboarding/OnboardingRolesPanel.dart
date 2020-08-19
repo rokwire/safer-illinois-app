@@ -123,11 +123,10 @@ class _OnboardingRoleSelectionPanelState extends State<OnboardingRolesPanel> {
 
         Container(color: Styles().colors.white, child: Padding(padding: EdgeInsets.only(left: 24, right: 24, top: 10, bottom: 20),
           child: Stack(children:<Widget>[
-            RoundedButton(
+            ScalableRoundedButton(
                 label: _allowNext ? Localization().getStringEx('panel.onboarding.roles.button.continue.enabled.title', 'Confirm') : Localization().getStringEx('panel.onboarding.roles.button.continue.disabled.title', 'Select one'),
                 hint: Localization().getStringEx('panel.onboarding.roles.button.continue.hint', ''),
                 enabled: _allowNext,
-                height: 48,
                 backgroundColor: (_allowNext ? Styles().colors.white : Styles().colors.background),
                 borderColor: (_allowNext
                     ? Styles().colors.fillColorSecondary

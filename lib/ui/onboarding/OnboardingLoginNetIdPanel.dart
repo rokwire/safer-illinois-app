@@ -25,6 +25,7 @@ import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/ui/onboarding/OnboardingBackButton.dart';
 import 'package:illinois/service/Styles.dart';
+import 'package:illinois/ui/widgets/ScalableScrollView.dart';
 
 class OnboardingLoginNetIdPanel extends StatefulWidget with OnboardingPanel {
   final Map<String, dynamic> onboardingContext;
@@ -55,8 +56,10 @@ class _OnboardingLoginNetIdPanelState extends State<OnboardingLoginNetIdPanel> i
         backgroundColor: Styles().colors.background,
         body: Stack(
           children: <Widget>[
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+
+            ScalableScrollView(
+            scrollableChild: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
                 Stack(
                   children: <Widget>[
@@ -104,14 +107,14 @@ class _OnboardingLoginNetIdPanelState extends State<OnboardingLoginNetIdPanel> i
                 Container(
                   height: 32,
                 ),
-                Expanded(
-                  child: Container(),
-                ),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Padding(
+                ]),
+                bottomNotScrollableWidget:
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                Padding(
                     padding: EdgeInsets.all(24),
-                    child: RoundedButton(
+                    child: ScalableRoundedButton(
                         label: Localization().getStringEx('panel.onboarding.login.netid.button.continue.title', 'Log in with NetID'),
                         hint: Localization().getStringEx('panel.onboarding.login.netid.button.continue.hint', ''),
                         borderColor: Styles().colors.fillColorSecondary,
@@ -119,7 +122,6 @@ class _OnboardingLoginNetIdPanelState extends State<OnboardingLoginNetIdPanel> i
                         textColor: Styles().colors.fillColorPrimary,
                         onTap: () => _onLoginTapped()),
                   ),
-                ),
                 Row(
                   children: <Widget>[
                     Expanded(
@@ -147,8 +149,7 @@ class _OnboardingLoginNetIdPanelState extends State<OnboardingLoginNetIdPanel> i
                     )),
                   ],
                 )
-              ],
-            ),
+              ])),
             _progress
                 ? Container(
                     alignment: Alignment.center,

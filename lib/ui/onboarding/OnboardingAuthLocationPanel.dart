@@ -23,6 +23,7 @@ import 'package:illinois/service/Localization.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/ui/onboarding/OnboardingBackButton.dart';
 import 'package:illinois/service/Styles.dart';
+import 'package:illinois/ui/widgets/ScalableScrollView.dart';
 import 'package:illinois/ui/widgets/SwipeDetector.dart';
 
 class OnboardingAuthLocationPanel extends StatelessWidget with OnboardingPanel {
@@ -40,13 +41,10 @@ class OnboardingAuthLocationPanel extends StatelessWidget with OnboardingPanel {
         body: SwipeDetector(
             onSwipeLeft: () => _goNext(context),
             onSwipeRight: () => _goBack(context),
-            child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-            Expanded(flex: 2, child:
-              SingleChildScrollView(child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
+            child:ScalableScrollView( scrollableChild:
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
                   Stack(children: <Widget>[
                     Image.asset(
                       'images/share-location-header.png',
@@ -78,26 +76,26 @@ class OnboardingAuthLocationPanel extends StatelessWidget with OnboardingPanel {
                                   color: Styles().colors.fillColorPrimary),
                             )),
                       )),
-                  Container(
-                    height: 12,
-                  ),
-                Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 24),
-                        child: Align(
-                          alignment: Alignment.topCenter,
-                          child: Text(
-                            Localization().getStringEx(
-                                'panel.onboarding.location.label.description',
-                                "Required for exposure notifications to work on your phone"),
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                fontFamily: Styles().fontFamilies.regular,
-                                fontSize: 20,
-                                color: Styles().colors.fillColorPrimary),
-                          ),
-                        )),
-                ]))),
-                Expanded(flex: 1, child:
+                    Container(
+                      height: 12,
+                    ),
+                    Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 24),
+                            child: Align(
+                              alignment: Alignment.topCenter,
+                              child: Text(
+                                Localization().getStringEx(
+                                    'panel.onboarding.location.label.description',
+                                    "Required for exposure notifications to work on your phone"),
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontFamily: Styles().fontFamilies.regular,
+                                    fontSize: 20,
+                                    color: Styles().colors.fillColorPrimary),
+                              ),
+                            )),
+                ]),
+                bottomNotScrollableWidget:
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 24,vertical: 2),
                   child: Column(
@@ -144,8 +142,7 @@ class OnboardingAuthLocationPanel extends StatelessWidget with OnboardingPanel {
                       )
                     ],
                   ),
-                )),
-              ],
+                )
             )));
   }
 
