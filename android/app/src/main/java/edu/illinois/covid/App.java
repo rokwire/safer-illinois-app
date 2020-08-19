@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package edu.illinois.rokwire;
+package edu.illinois.covid;
 
 import android.app.Notification;
 import android.app.PendingIntent;

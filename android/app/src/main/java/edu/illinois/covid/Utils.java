@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package edu.illinois.rokwire;
+package edu.illinois.covid;
 
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -51,7 +51,7 @@ import java.util.List;
 import java.util.Locale;
 
 import androidx.core.content.ContextCompat;
-import edu.illinois.rokwire.maps.MapMarkerViewType;
+import edu.illinois.covid.maps.MapMarkerViewType;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;

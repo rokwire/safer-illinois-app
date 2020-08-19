@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package edu.illinois.rokwire;
+package edu.illinois.covid;
 
 import android.app.backup.BackupAgentHelper;
 import android.app.backup.BackupManager;

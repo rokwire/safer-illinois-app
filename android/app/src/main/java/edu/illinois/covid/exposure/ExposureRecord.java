@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package edu.illinois.rokwire.exposure;
+package edu.illinois.covid.exposure;
 
-import edu.illinois.rokwire.Constants;
+import edu.illinois.covid.Constants;
 
 class ExposureRecord {
     private long timestampCreated;

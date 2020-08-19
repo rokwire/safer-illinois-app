@@ -1,4 +1,4 @@
-package edu.illinois.rokwire.exposure.ble;
+package edu.illinois.covid.exposure.ble;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -6,8 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 
 import androidx.core.app.NotificationCompat;
-import edu.illinois.rokwire.MainActivity;
-import edu.illinois.rokwire.R;
+import edu.illinois.covid.MainActivity;
+import edu.illinois.covid.R;
 
 class NotificationCreator {
     private static final int ONGOING_NOTIFICATION_ID = 1;

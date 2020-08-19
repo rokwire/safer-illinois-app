@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package edu.illinois.rokwire.exposure.ble.scan;
+package edu.illinois.covid.exposure.ble.scan;
 
 import android.annotation.TargetApi;
 import android.bluetooth.le.ScanResult;
@@ -27,8 +27,8 @@ import android.util.Log;
 
 import java.util.ArrayList;
 
-import edu.illinois.rokwire.Constants;
-import edu.illinois.rokwire.exposure.ble.ExposureClient;
+import edu.illinois.covid.Constants;
+import edu.illinois.covid.exposure.ble.ExposureClient;
 
 public class ExposureBleReceiver extends BroadcastReceiver {
 

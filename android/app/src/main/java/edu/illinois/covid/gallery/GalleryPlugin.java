@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package edu.illinois.rokwire.gallery;
+package edu.illinois.covid.gallery;
 
 
 import android.content.ContentValues;
@@ -30,8 +30,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import edu.illinois.rokwire.Constants;
-import edu.illinois.rokwire.MainActivity;
+import edu.illinois.covid.Constants;
+import edu.illinois.covid.MainActivity;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;

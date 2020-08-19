@@ -53,7 +53,7 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
   bool _isLoading = false;
   bool _isDeleting = false;
   bool _isReposting = false;
-  bool _canRepost = false;
+
 
   @override
   void initState() {
@@ -65,7 +65,6 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
       Health.notifyUpdatedHistoryAvailable,
     ]);
 
-    _loadUser();
     _loadHistory();
   }
 
@@ -93,16 +92,6 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
     }
   }
 
-  void _loadUser() {
-    Health().loadUser().then((HealthUser user) {
-      if (mounted) {
-        setState(() {
-          _canRepost = user?.repost ?? false;
-        });
-      }
-    });
-  }
-
   void _loadHistory() {
 
     setState(() { _isLoading = true; });
@@ -121,7 +110,7 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
 
   void _repostHistory(){
 
-    if(_canRepost && !_isReposting) {
+    if(!_isReposting) {
       setState(() {
         _isReposting = true;
       });
@@ -234,7 +223,7 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
           height: 48,
           backgroundColor: Styles().colors.surface,
           fontSize: 16.0,
-          textColor: _canRepost ? Styles().colors.fillColorSecondary : Styles().colors.mediumGray,
+          textColor:  Styles().colors.fillColorSecondary,
           borderColor: Styles().colors.surfaceAccent,
           onTap: _onRepostClicked,
         ),

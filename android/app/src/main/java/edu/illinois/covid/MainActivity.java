@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package edu.illinois.rokwire;
+package edu.illinois.covid;
 
 import android.Manifest;
 import android.app.Activity;
@@ -63,12 +63,12 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
-import edu.illinois.rokwire.exposure.ExposurePlugin;
-import edu.illinois.rokwire.gallery.GalleryPlugin;
-import edu.illinois.rokwire.maps.MapActivity;
-import edu.illinois.rokwire.maps.MapDirectionsActivity;
-import edu.illinois.rokwire.maps.MapViewFactory;
-import edu.illinois.rokwire.maps.MapPickLocationActivity;
+import edu.illinois.covid.exposure.ExposurePlugin;
+import edu.illinois.covid.gallery.GalleryPlugin;
+import edu.illinois.covid.maps.MapActivity;
+import edu.illinois.covid.maps.MapDirectionsActivity;
+import edu.illinois.covid.maps.MapViewFactory;
+import edu.illinois.covid.maps.MapPickLocationActivity;
 import io.flutter.app.FlutterActivity;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
