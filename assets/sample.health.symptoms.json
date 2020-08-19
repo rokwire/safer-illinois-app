@@ -1,0 +1,64 @@
+[
+  {
+    "id": null,
+    "name": "gr0",
+    "symptoms": [
+      {
+        "id": "b669503f-938b-11ea-8f2a-0a58a9feac2a",
+        "name": "No symptoms"
+      }
+    ]
+  },
+  {
+    "id": "0952bb51-937b-11ea-8f2a-0a58a9feac2a",
+    "name": "gr1",
+    "symptoms": [
+      {
+        "id": "b41b12cc-93be-11ea-ae23-0a58a9feac2a",
+        "name": "Fever"
+      },
+      {
+        "id": "8f83787b-93c9-11ea-ae23-0a58a9feac2a",
+        "name": "Chills"
+      },
+      {
+        "id": "191df3ae-93ca-11ea-ae23-0a58a9feac2a",
+        "name": "Shaking or Shivering"
+      },
+      {
+        "id": "9ee1831e-93ca-11ea-ae23-0a58a9feac2a",
+        "name": "Muscle or joint pain"
+      },
+      {
+        "id": "acda4f1e-93ca-11ea-ae23-0a58a9feac2a",
+        "name": "Headache"
+      },
+      {
+        "id": "bad0cc3c-93ca-11ea-ae23-0a58a9feac2a",
+        "name": "Sore Throat"
+      },
+      {
+        "id": "d5afe77f-93ca-11ea-ae23-0a58a9feac2a",
+        "name": "Loss of taste and/or smell"
+      }
+    ]
+  },
+  {
+    "id": "0952df75-937b-11ea-8f2a-0a58a9feac2a",
+    "name": "gr2",
+    "symptoms": [
+      {
+        "id": "e35c8441-93ca-11ea-ae23-0a58a9feac2a",
+        "name": "Cough"
+      },
+      {
+        "id": "f3b23b65-93ca-11ea-ae23-0a58a9feac2a",
+        "name": "Shortness of breath"
+      },
+      {
+        "id": "05239c9e-93cb-11ea-ae23-0a58a9feac2a",
+        "name": "Difficulty breathing"
+      }
+    ]
+  }
+]
