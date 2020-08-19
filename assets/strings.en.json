@@ -772,7 +772,7 @@
     "com.illinois.features2.entry.remove_credit_card":"Remove your credit card info",
     "com.illinois.features2.entry.dont_share_location":"Don’t share your data with other users",
 
-    "com.illinois.covid19.status.long.orange": "Orange, Potential Exposure",
+    "com.illinois.covid19.status.long.orange": "Orange, Test Required",
     "com.illinois.covid19.status.long.green": "Green, Recent Antibodies",
     "com.illinois.covid19.status.long.yellow": "Yellow, Recent Negative Test",
     "com.illinois.covid19.status.long.red": "Red, Positive Test",
@@ -782,7 +782,7 @@
     "com.illinois.covid19.status.type.yellow": "Yellow",
     "com.illinois.covid19.status.type.red": "Red",
     "com.illinois.covid19.status.type.no change": "Unchanged",
-    "com.illinois.covid19.status.description.orange": "Potential Exposure",
+    "com.illinois.covid19.status.description.orange": "Test Required",
     "com.illinois.covid19.status.description.green": "Recent Antibodies",
     "com.illinois.covid19.status.description.yellow": "Recent Negative Test",
     "com.illinois.covid19.status.description.red": "Positive Test",

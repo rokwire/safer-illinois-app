@@ -772,7 +772,7 @@
 	"com.illinois.features2.entry.remove_credit_card":"删除信用卡信息",
 	"com.illinois.features2.entry.dont_share_location":"不和其他人分享我的数据",
 
-	"com.illinois.covid19.status.long.orange": "橙色, 潛在接觸",
+	"com.illinois.covid19.status.long.orange": "Orange, Test Required",
 	"com.illinois.covid19.status.long.green": "綠色，最近抗體",
 	"com.illinois.covid19.status.long.yellow": "黃色，最近的陰性測試",
 	"com.illinois.covid19.status.long.red": "紅色，陽性測試",
@@ -782,7 +782,7 @@
 	"com.illinois.covid19.status.type.yellow": "黄色",
 	"com.illinois.covid19.status.type.red": "红色",
 	"com.illinois.covid19.status.type.no change": "无变化",
-	"com.illinois.covid19.status.description.orange": "潛在接觸",
+	"com.illinois.covid19.status.description.orange": "Test Required",
 	"com.illinois.covid19.status.description.green": "最近抗體",
 	"com.illinois.covid19.status.description.yellow": "最近的陰性測試",
 	"com.illinois.covid19.status.description.red": "正面測試",
