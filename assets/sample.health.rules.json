@@ -1,4 +1,10 @@
 {
+	"defaults": {
+		"status": {
+			"health_status": "orange",
+			"next_step": "Take a SHIELD Saliva Test when you return to campus."
+		}
+	},
 	"tests" : {
 		"rules": [
 			{

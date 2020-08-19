@@ -10,8 +10,9 @@ class HealthRulesSet2 {
   final HealthSymptomsRulesSet2 symptoms;
   final HealthContactTraceRulesSet2 contactTrace;
   final HealthActionRulesSet2 actions;
+  final HealthDefaultsSet2 defaults;
 
-  HealthRulesSet2({this.tests, this.symptoms, this.contactTrace, this.actions});
+  HealthRulesSet2({this.tests, this.symptoms, this.contactTrace, this.actions, this.defaults});
 
   factory HealthRulesSet2.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthRulesSet2(
@@ -19,9 +20,26 @@ class HealthRulesSet2 {
       symptoms: HealthSymptomsRulesSet2.fromJson(json['symptoms']),
       contactTrace: HealthContactTraceRulesSet2.fromJson(json['contact_trace']),
       actions: HealthActionRulesSet2.fromJson(json['actions']),
+      defaults: HealthDefaultsSet2.fromJson(json['defaults']),
     ) : null;
   }
 }
+
+///////////////////////////////
+// HealthDefaultsSet2
+
+class HealthDefaultsSet2 {
+  final _HealthRuleStatus2 status;
+
+  HealthDefaultsSet2({this.status});
+
+  factory HealthDefaultsSet2.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthDefaultsSet2(
+      status: _HealthRuleStatus2.fromJson(json['status']),
+    ) : null;
+  }
+}
+
 
 
 ///////////////////////////////

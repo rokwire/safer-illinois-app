@@ -17,7 +17,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-//TMP:  import 'package:flutter/services.dart' show rootBundle;
+//TMP:
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/model/Health2.dart';
@@ -892,15 +893,25 @@ class Health with Service implements NotificationsListener {
       return null;
     }
 
-    Covid19Status status = Covid19Status(
-      dateUtc: null,
-      blob: Covid19StatusBlob(
-        healthStatus: kCovid19HealthStatusOrange,
-        priority: null,
-        nextStep: Localization().getStringEx('model.covid19.step.initial', 'Take a SHIELD Saliva Test when you return to campus.'),
-        historyBlob: null,
-      ),
-    );
+    
+    Covid19Status status;
+    HealthRuleStatus2 defaultStatus = rules?.defaults?.status?.eval(history: histories, historyIndex: -1, rules: rules);
+    if (defaultStatus != null) {
+      status = Covid19Status(
+        dateUtc: null,
+        blob: Covid19StatusBlob(
+          healthStatus: defaultStatus.healthStatus,
+          priority: defaultStatus.priority,
+          nextStep: defaultStatus.nextStep,
+          nextStepDateUtc: null,
+          reason: defaultStatus.reason,
+          historyBlob: null,
+        ),
+      );
+    }
+    else {
+      return null;
+    }
 
     // Start from older
     DateTime nowUtc = DateTime.now().toUtc();
@@ -1363,10 +1374,11 @@ class Health with Service implements NotificationsListener {
   // Consolidated Rules
 
   Future<HealthRulesSet2> _loadRules2({String countyId}) async {
-    String url = "${Config().health2Url}/rules/county/$countyId/rules.json";
-    Response response = await Network().get(url);
-    String responseBody = (response?.statusCode == 200) ? response.body : null;
-//TMP:String responseBody = await rootBundle.loadString('assets/sample.health.rules.json');
+    //String url = "${Config().health2Url}/rules/county/$countyId/rules.json";
+    //Response response = await Network().get(url);
+    //String responseBody = (response?.statusCode == 200) ? response.body : null;
+//TMP:
+    String responseBody = await rootBundle.loadString('assets/sample.health.rules.json');
     Map<String, dynamic> responseJson = (responseBody != null) ? AppJson.decodeMap(responseBody) : null;
     return (responseJson != null) ? HealthRulesSet2.fromJson(responseJson) : null;
   }
