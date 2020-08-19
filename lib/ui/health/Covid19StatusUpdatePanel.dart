@@ -25,6 +25,7 @@ import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/health/Covid19NextStepsPanel.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
+import 'package:illinois/ui/widgets/StatusInfoDialog.dart';
 
 class Covid19StatusUpdatePanel extends StatefulWidget {
   final Covid19Status status;
@@ -127,7 +128,7 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(county,textAlign: TextAlign.center,style: TextStyle(color: Colors.white, fontSize: 14, fontFamily: Styles().fontFamilies.regular),),
-            IconButton(icon: Image.asset('images/icon-info-orange.png'), onPressed: () => _onInfoButtonTapped(context), padding: EdgeInsets.all(10),)
+            IconButton(icon: Image.asset('images/icon-info-orange.png'), onPressed: () =>  StatusInfoDialog.show(context, _currentCountyName), padding: EdgeInsets.all(10),)
           ],
         ),
         Container(height: 25,),
@@ -303,129 +304,5 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
             )
           )
         ]);
-  }
-
-  Widget _buildRemoveMyInfoDialog(BuildContext context) {
-    return StatefulBuilder(
-      builder: (context, setState){
-        return ClipRRect(
-          borderRadius: BorderRadius.all(Radius.circular(8)),
-          child: Dialog(
-            backgroundColor: Styles().colors.surface,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(Localization().getStringEx("panel.health.status_update.info_dialog.label1", "Status color definitions can change depending on different counties."),
-                              style: TextStyle(color: Styles().colors.textSurface, fontFamily: Styles().fontFamilies.regular, fontSize: 16),
-                            ),
-                            Container(height: 10,),
-                            RichText(
-                              textScaleFactor: MediaQuery.textScaleFactorOf(context),
-                              text: TextSpan(
-                                text: Localization().getStringEx("panel.health.status_update.info_dialog.label2", "Status colors for "),
-                                style: TextStyle(color: Styles().colors.textSurface, fontFamily: Styles().fontFamilies.regular, fontSize: 16),
-                                children: <TextSpan>[
-                                  TextSpan(text: _currentCountyName, style: TextStyle(color: Styles().colors.textSurface, fontFamily: Styles().fontFamilies.bold, fontSize: 16)),
-                                  TextSpan(text: ':', style: TextStyle(color: Styles().colors.textSurface, fontFamily: Styles().fontFamilies.bold, fontSize: 16)),
-                                ],
-                              ),
-                            ),
-                            Container(height: 10,),
-                            Row(
-                              children: <Widget>[
-                                Image.asset('images/icon-member.png', color: covid19HealthStatusColor(kCovid19HealthStatusGreen),),
-                                Container(width: 8,),
-                                Expanded(
-                                  child: Text(Localization().getStringEx("com.illinois.covid19.status.long.green", "Green, Safe"),
-                                    style: TextStyle(color: Styles().colors.textSurface, fontFamily: Styles().fontFamilies.regular, fontSize: 16),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Container(height: 10,),
-                            Row(
-                              children: <Widget>[
-                                Image.asset('images/icon-member.png', color: covid19HealthStatusColor(kCovid19HealthStatusYellow),),
-                                Container(width: 8,),
-                                Expanded(
-                                  child: Text(Localization().getStringEx("com.illinois.covid19.status.long.yellow", "Yellow, Caution"),
-                                    style: TextStyle(color: Styles().colors.textSurface, fontFamily: Styles().fontFamilies.regular, fontSize: 16),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Container(height: 10,),
-                            Row(
-                              children: <Widget>[
-                                Image.asset('images/icon-member.png', color: covid19HealthStatusColor(kCovid19HealthStatusOrange),),
-                                Container(width: 8,),
-                                Expanded(
-                                  child: Text(Localization().getStringEx("com.illinois.covid19.status.long.orange", "Orange, Test Required"),
-                                    style: TextStyle(color: Styles().colors.textSurface, fontFamily: Styles().fontFamilies.regular, fontSize: 16),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Container(height: 10,),
-                            Row(
-                              children: <Widget>[
-                                Image.asset('images/icon-member.png', color: covid19HealthStatusColor(kCovid19HealthStatusRed),),
-                                Container(width: 8,),
-                                Expanded(
-                                  child: Text(Localization().getStringEx("com.illinois.covid19.status.long.red", "Red, Infected"),
-                                    style: TextStyle(color: Styles().colors.textSurface, fontFamily: Styles().fontFamilies.regular, fontSize: 16),
-                                  ),
-                                ),
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
-                      Container(height: 10,),
-                      GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: Container(
-                          height: 30,
-                          width: 30,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(15)),
-                            border: Border.all(color: Styles().colors.fillColorSecondary, width: 2),
-                          ),
-                          child: Center(
-                            child: Text(
-                              '\u00D7',
-                              style: TextStyle(
-                                fontSize: 24,
-                                color: Styles().colors.fillColorSecondary,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  void _onInfoButtonTapped(BuildContext context){
-    showDialog(context: context, builder: (context) => _buildRemoveMyInfoDialog(context));
   }
 }

@@ -32,6 +32,7 @@ import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/TransportationService.dart';
 import 'package:illinois/service/User.dart';
 import 'package:illinois/ui/health/Covid19InfoCenterPanel.dart';
+import 'package:illinois/ui/widgets/StatusInfoDialog.dart';
 import 'package:illinois/ui/widgets/TrianglePainter.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/utils/Utils.dart';
@@ -401,7 +402,14 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
       userHasHealthStatus ?
         Padding(
           padding: const EdgeInsets.only(bottom: 38),
-          child: Text(statusName, style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Styles().colors.textSurface),),) :
+          child:
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text(statusName, style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Styles().colors.textSurface),),
+              Container(width: 6,),
+              IconButton(icon: Image.asset('images/icon-info-orange.png'), onPressed: () =>  StatusInfoDialog.show(context, _selectedCounty?.nameDisplayText ?? ""), padding: EdgeInsets.all(10),)
+          ],)):
         Container(
           padding: EdgeInsets.only(bottom: 8),
           child: Text(noStatusDescription, style:TextStyle(color: Colors.black, fontSize: 18, fontFamily: Styles().fontFamilies.regular)),

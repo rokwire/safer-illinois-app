@@ -681,6 +681,8 @@
 	"panel.health.status_update.button.continue.hint":"",
 	"panel.health.status_update.info_dialog.label1": "状态颜色定义可能根据不同的县而变化.",
 	"panel.health.status_update.info_dialog.label2": "状态颜色 ",
+	"panel.health.status_update.info_dialog.label3": "Default status for new users is set to Orange.",
+	"panel.health.status_update.info_dialog.label4": "An up-to-date on-campus negative test result will reset your COVID-19 status to Yellow, and Building Entry will change to Granted.",
 	"panel.health.status_update.label.reason.title":"状态已更改，因为:",
 	"panel.health.status_update.label.reason.result":"结果:",
 	"panel.health.status_update.label.reason.symptoms.title":"你报告了新的症状",
@@ -786,5 +788,9 @@
 	"com.illinois.covid19.status.description.green": "最近抗體",
 	"com.illinois.covid19.status.description.yellow": "最近的陰性測試",
 	"com.illinois.covid19.status.description.red": "正面測試",
-	"com.illinois.covid19.status.description.no change": ""
+	"com.illinois.covid19.status.description.no change": "",
+	"com.illinois.covid19.status.info.description.orange": "Orange: First time user, Past due for test, Self-reported symptoms, Received exposure notification or Quarantined",
+	"com.illinois.covid19.status.info.description.green": "Green: Recent antibodies",
+	"com.illinois.covid19.status.info.description.yellow": "Yellow: Recent negative test",
+	"com.illinois.covid19.status.info.description.red": "Red: Positive test"
 }

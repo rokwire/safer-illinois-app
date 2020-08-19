@@ -681,6 +681,8 @@
     "panel.health.status_update.button.continue.hint":"",
     "panel.health.status_update.info_dialog.label1": "Las definiciones de color de estado pueden cambiar según los diferentes condados.",
     "panel.health.status_update.info_dialog.label2": "Colores de estado para",
+    "panel.health.status_update.info_dialog.label3": "Default status for new users is set to Orange.",
+    "panel.health.status_update.info_dialog.label4": "An up-to-date on-campus negative test result will reset your COVID-19 status to Yellow, and Building Entry will change to Granted.",
     "panel.health.status_update.label.reason.title":"ESTADO CAMBIÓ PORQUE:",
     "panel.health.status_update.label.reason.result":"Resultado",
     "panel.health.status_update.label.reason.symptoms.title":"Reportaste nuevos síntomas",
@@ -786,5 +788,9 @@
     "com.illinois.covid19.status.description.green": "Anticuerpos recientes",
     "com.illinois.covid19.status.description.yellow": "Prueba negativa reciente",
     "com.illinois.covid19.status.description.red": "Prueba positiva",
-    "com.illinois.covid19.status.description.no change": ""
+    "com.illinois.covid19.status.description.no change": "",
+    "com.illinois.covid19.status.info.description.orange": "Orange: First time user, Past due for test, Self-reported symptoms, Received exposure notification or Quarantined",
+    "com.illinois.covid19.status.info.description.green": "Green: Recent antibodies",
+    "com.illinois.covid19.status.info.description.yellow": "Yellow: Recent negative test",
+    "com.illinois.covid19.status.info.description.red": "Red: Positive test"
 }
