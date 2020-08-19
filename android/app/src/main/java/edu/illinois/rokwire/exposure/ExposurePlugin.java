@@ -278,7 +278,8 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler {
             tek = i_TEK_map.get(i);
         }
         byte[] rpiTek = (tek != null) ? tek.keySet().iterator().next() : null;
-        byte[] rpi = generateRpiForIntervalNumber(ENIntervalNumber, rpiTek);
+        boolean rpiOnly = false;
+        byte[] rpi = generateRpiForIntervalNumber(ENIntervalNumber, rpiTek, rpiOnly);
         Map<String, Object> retVal = new HashMap<>();
         retVal.put(RPI_MAP_KEY, rpi);
         retVal.put(TEK_MAP_KEY, rpiTek);
@@ -287,7 +288,7 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler {
         return retVal;
     }
 
-    private byte[] generateRpiForIntervalNumber(int enIntervalNumber, byte[] tek) {
+    private byte[] generateRpiForIntervalNumber(int enIntervalNumber, byte[] tek, boolean rpiOnly) {
         // generating RPIK with salt as null and passing in the correct parameters to the extractandexpand function of HKDF class
         // in the file HKDF.java
         byte[] salt = null;
@@ -334,11 +335,15 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler {
             System.out.println("Error while encrypting: " + e.toString());
         }
 
-        byte[] bluetoothpayload = new byte[20];
-        System.arraycopy(rpi_byte, 0, bluetoothpayload, 0, rpi_byte.length);
-        System.arraycopy(AEM_byte, 0, bluetoothpayload, rpi_byte.length, AEM_byte.length);
+        if(rpiOnly){
+            return rpi_byte;
+        } else {
+            byte[] bluetoothpayload = new byte[20];
+            System.arraycopy(rpi_byte, 0, bluetoothpayload, 0, rpi_byte.length);
+            System.arraycopy(AEM_byte, 0, bluetoothpayload, rpi_byte.length, AEM_byte.length);
 
-        return bluetoothpayload;
+            return bluetoothpayload;
+        }
     }
 
     private void uploadRPIUpdate(byte[] rpi, byte[] parentTek, long updateTime, int i, int ENInvertalNumber) {
@@ -777,7 +782,8 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler {
         int endENIntervalNumber = (int) (expireTimeInSecs / RPI_REFRESH_INTERVAL_SECS);
         Map<String, Long> rpiList = new HashMap<>();
         for (int intervalIndex = startENIntervalNumber; intervalIndex <= endENIntervalNumber; intervalIndex++) {
-            byte[] rpi = generateRpiForIntervalNumber(intervalIndex, tek);
+            boolean rpiOnly = true;
+            byte[] rpi = generateRpiForIntervalNumber(intervalIndex, tek, rpiOnly);
             String rpiString = Utils.Base64.encode(rpi);
             rpiList.put(rpiString, (long) intervalIndex * RPI_REFRESH_INTERVAL_SECS * 1000);
         }
