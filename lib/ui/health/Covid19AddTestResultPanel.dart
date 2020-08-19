@@ -205,7 +205,7 @@ class _Covid19AddTestResultPanelState extends State<Covid19AddTestResultPanel> i
                 Expanded(child: Container( alignment: Alignment.center,
                   child: Visibility(
                     visible: manualTestsDisabledVisible,
-                    child: Text(Localization().getStringEx( "panel.health.covid19.add_test.label.manual_tests_disabled","Test results from this health care provider will automatically appear if you have consented to Health Provider Test Results in settings"),
+                    child: Text(Localization().getStringEx( "panel.health.covid19.add_test.label.manual_tests_disabled","Test results from this health care provider will automatically appear if you have consented to Health Provider Test Results in settings and you are connected with your NetID."),
                           textAlign: TextAlign.center, style: TextStyle(fontSize: 16, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface),))
                 ),),
                 _canRetrieve ? Stack(
