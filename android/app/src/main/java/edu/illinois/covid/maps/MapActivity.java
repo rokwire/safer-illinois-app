@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package edu.illinois.rokwire.maps;
+package edu.illinois.covid.maps;
 
 import android.graphics.Color;
 import android.location.Location;
@@ -60,9 +60,9 @@ import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import edu.illinois.rokwire.Constants;
-import edu.illinois.rokwire.R;
-import edu.illinois.rokwire.Utils;
+import edu.illinois.covid.Constants;
+import edu.illinois.covid.R;
+import edu.illinois.covid.Utils;
 
 public class MapActivity extends AppCompatActivity implements PositionProvider {
     //region Class fields

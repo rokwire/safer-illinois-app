@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package edu.illinois.rokwire.exposure;
+package edu.illinois.covid.exposure;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -63,14 +63,14 @@ import java.util.UUID;
 
 import androidx.annotation.NonNull;
 import at.favre.lib.crypto.HKDF;
-import edu.illinois.rokwire.Constants;
-import edu.illinois.rokwire.MainActivity;
-import edu.illinois.rokwire.R;
-import edu.illinois.rokwire.Utils;
-import edu.illinois.rokwire.exposure.ble.ExposureClient;
-import edu.illinois.rokwire.exposure.ble.ExposureServer;
-import edu.illinois.rokwire.exposure.crypto.AES;
-import edu.illinois.rokwire.exposure.crypto.AES_CTR;
+import edu.illinois.covid.Constants;
+import edu.illinois.covid.MainActivity;
+import edu.illinois.covid.R;
+import edu.illinois.covid.Utils;
+import edu.illinois.covid.exposure.ble.ExposureClient;
+import edu.illinois.covid.exposure.ble.ExposureServer;
+import edu.illinois.covid.exposure.crypto.AES;
+import edu.illinois.covid.exposure.crypto.AES_CTR;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;

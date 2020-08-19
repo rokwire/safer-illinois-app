@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 
-package edu.illinois.rokwire.maps;
+package edu.illinois.covid.maps;
 
 public enum MapMarkerViewType {SINGLE, GROUP, UNKNOWN}

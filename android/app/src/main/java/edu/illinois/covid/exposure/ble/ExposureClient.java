@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package edu.illinois.rokwire.exposure.ble;
+package edu.illinois.covid.exposure.ble;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -41,11 +41,11 @@ import android.util.Log;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import androidx.core.content.ContextCompat;
-import edu.illinois.rokwire.Constants;
-import edu.illinois.rokwire.R;
-import edu.illinois.rokwire.Utils;
-import edu.illinois.rokwire.exposure.ble.scan.OreoScanner;
-import edu.illinois.rokwire.exposure.ble.scan.PreOreoScanner;
+import edu.illinois.covid.Constants;
+import edu.illinois.covid.R;
+import edu.illinois.covid.Utils;
+import edu.illinois.covid.exposure.ble.scan.OreoScanner;
+import edu.illinois.covid.exposure.ble.scan.PreOreoScanner;
 
 public class ExposureClient extends Service {
     private static final String TAG = "ExposureClient";

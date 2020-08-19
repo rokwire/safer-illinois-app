@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package edu.illinois.rokwire.exposure.ble.scan;
+package edu.illinois.covid.exposure.ble.scan;
 
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
-import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
 import android.os.ParcelUuid;
 import android.util.Log;
 
@@ -28,24 +30,26 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import edu.illinois.rokwire.Constants;
+import androidx.annotation.RequiresApi;
+import edu.illinois.covid.Constants;
 
-public class PreOreoScanner {
+public class OreoScanner {
 
-    private static final String TAG = PreOreoScanner.class.getSimpleName();
+    private static final String TAG = "OreoScanner";
 
+    private Context context;
     private BluetoothAdapter bluetoothAdapter;
 
-    private ScannerCallback discoverCallback;
+    private PendingIntent pendingIntent;
 
-    public PreOreoScanner(BluetoothAdapter bluetoothAdapter) {
+    public OreoScanner(Context context, BluetoothAdapter bluetoothAdapter) {
+        this.context = context;
         this.bluetoothAdapter = bluetoothAdapter;
     }
 
-    public void startScan(ScannerCallback callback) {
-        discoverCallback = callback;
-
-        // Use try catch to handle DeadObject exception
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void startScan() {
+        Log.d(TAG, "Started scan");
         try {
             ScanFilter.Builder scanFilterBuilder = new ScanFilter.Builder();
             scanFilterBuilder.setServiceUuid(new ParcelUuid(Constants.EXPOSURE_UUID_SERVICE));
@@ -57,64 +61,31 @@ public class PreOreoScanner {
                     setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES).
                     setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE).
                     setNumOfMatches(ScanSettings.MATCH_NUM_MAX_ADVERTISEMENT).
-                    setReportDelay(TimeUnit.SECONDS.toMillis(reportDelay));
+                    setPhy(ScanSettings.PHY_LE_ALL_SUPPORTED).
+                    setReportDelay(TimeUnit.SECONDS.toMillis(reportDelay)).
+                    setLegacy(true);
 
             ScanSettings scanSettings = scanSettingsBuilder.build();
+
+            Intent intent = new Intent(context, ExposureBleReceiver.class);
+            intent.setAction(Constants.EXPOSURE_BLE_ACTION_FOUND);
+            pendingIntent = PendingIntent.getBroadcast(context, 2, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             if (bluetoothAdapter != null) {
-                bluetoothAdapter.getBluetoothLeScanner().startScan(scanFilters, scanSettings, scanCallback);
+                bluetoothAdapter.getBluetoothLeScanner().startScan(scanFilters, scanSettings, pendingIntent);
             }
-            Log.d(TAG, "Started scan");
         } catch (Exception ex) {
             Log.e(TAG, "Start scan failed:");
             ex.printStackTrace();
-            // re-try
-            startScan(callback);
+            //re-try
+            startScan();
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void stopScan() {
-        if (discoverCallback != null) {
-            bluetoothAdapter.getBluetoothLeScanner().stopScan(scanCallback);
-            discoverCallback = null;
-        }
-    }
-
-    private void onResult(final ScanResult result) {
-        if (discoverCallback != null)
-            discoverCallback.onDevice(result);
-    }
-
-    private ScanCallback scanCallback = new ScanCallback() {
-        @Override
-        public void onScanResult(int callbackType, final ScanResult result) {
-            super.onScanResult(callbackType, result);
-            onResult(result);
-        }
-
-        @Override
-        public void onBatchScanResults(List<ScanResult> results) {
-            super.onBatchScanResults(results);
-            for (ScanResult result : results) {
-                onResult(result);
-            }
-        }
-
-        @Override
-        public void onScanFailed(int errorCode) {
-            super.onScanFailed(errorCode);
-            Log.e(TAG, "onScanFailed errorCode = " + errorCode);
-            if (errorCode == SCAN_FAILED_APPLICATION_REGISTRATION_FAILED) {
-                // re-try
-                startScan(discoverCallback);
-            }
-        }
-
-    };
-
-    //ScannerCallback
-
-    public static abstract class ScannerCallback {
-        public void onDevice(ScanResult result) {
+        if ((pendingIntent != null) && (bluetoothAdapter != null)) {
+            bluetoothAdapter.getBluetoothLeScanner().stopScan(pendingIntent);
+            pendingIntent = null;
         }
     }
 }

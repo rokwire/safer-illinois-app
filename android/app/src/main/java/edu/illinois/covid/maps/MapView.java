@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package edu.illinois.rokwire.maps;
+package edu.illinois.covid.maps;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -54,10 +54,10 @@ import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import edu.illinois.rokwire.Constants;
-import edu.illinois.rokwire.MainActivity;
-import edu.illinois.rokwire.R;
-import edu.illinois.rokwire.Utils;
+import edu.illinois.covid.Constants;
+import edu.illinois.covid.MainActivity;
+import edu.illinois.covid.R;
+import edu.illinois.covid.Utils;
 
 public class MapView extends FrameLayout implements OnMapReadyCallback {
 

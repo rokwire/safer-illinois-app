@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package edu.illinois.rokwire.exposure.ble;
+package edu.illinois.covid.exposure.ble;
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -38,8 +38,8 @@ import android.widget.Toast;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import androidx.annotation.Nullable;
-import edu.illinois.rokwire.BuildConfig;
-import edu.illinois.rokwire.Constants;
+import edu.illinois.covid.BuildConfig;
+import edu.illinois.covid.Constants;
 
 public class ExposureServer extends Service {
 

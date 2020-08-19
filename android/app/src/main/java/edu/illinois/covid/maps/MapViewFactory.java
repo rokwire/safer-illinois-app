@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package edu.illinois.rokwire.maps;
+package edu.illinois.covid.maps;
 
 import android.content.Context;
 
