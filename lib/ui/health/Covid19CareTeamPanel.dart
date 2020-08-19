@@ -24,6 +24,7 @@ import 'package:illinois/service/Styles.dart';
 import 'package:illinois/service/User.dart';
 import 'package:illinois/ui/WebPanel.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
+import 'package:illinois/utils/Utils.dart';
 import 'package:url_launcher/url_launcher.dart' as url_launcher;
 
 class Covid19CareTeamPanel extends StatefulWidget {
@@ -122,7 +123,6 @@ class _Covid19CareTeamPanelState extends State<Covid19CareTeamPanel> with Ticker
         ),
         Container(height: 12,),
         _buildAction(
-          title: Localization().getStringEx("panel.health.covid19.care_team.team.title.osf", "OSF Healthcare"),
           description: Localization().getStringEx("panel.health.covid19.care_team.team.description.osf", "We’ve partnered with OSF HealthCare and its OSF OnCall Connect program and the Illinois Department of Healthcare and Family Services to support you getting through COVID-19. Call the Nurse Hotline at 1-833-OSF-KNOW (833-673-5669) to learn more about the program, which includes delivery of a care kit and digital visits to monitor you over a 16-day period."),
           contact: Localization().getStringEx("panel.health.covid19.care_team.team.contact.osf", "1-833-673-5669"),
           semanticContact: Localization().getStringEx("panel.health.covid19.care_team.team.semantic_contact.osf", "18336735669"),
@@ -133,6 +133,7 @@ class _Covid19CareTeamPanelState extends State<Covid19CareTeamPanel> with Ticker
   }
 
   Widget _buildAction({String title, String description, String imageRes, String contact, String semanticContact = ''}){
+    bool _hasTitle = AppString.isStringNotEmpty(title);
     return Semantics( container: true,
     child: Container(
       decoration:  BoxDecoration(color: Styles().colors.white,
@@ -146,8 +147,12 @@ class _Covid19CareTeamPanelState extends State<Covid19CareTeamPanel> with Ticker
         children: <Widget>[
           Container(height: 10,),
           imageRes!=null ? Image.asset("images/"+imageRes, excludeFromSemantics: true,) : Container(),
-          Container(height: 6,),
-          Text(title,textAlign: TextAlign.left, style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 16, fontFamily: Styles().fontFamilies.bold),),
+          Visibility(visible:_hasTitle,
+              child: Container(height: 6,)
+          ),
+          Visibility(visible:_hasTitle,
+              child: Text(title??"",textAlign: TextAlign.left, style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 16, fontFamily: Styles().fontFamilies.bold),)
+          ),
           Container(height: 6,),
           Text(description,textAlign: TextAlign.left, style: TextStyle(color: Styles().colors.textSurface, fontSize: 14, fontFamily: Styles().fontFamilies.regular),),
           Container(height: 14,),
