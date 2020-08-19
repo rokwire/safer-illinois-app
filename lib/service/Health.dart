@@ -17,8 +17,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-//TMP:
-import 'package:flutter/services.dart' show rootBundle;
+//TMP:  import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/model/Health2.dart';
