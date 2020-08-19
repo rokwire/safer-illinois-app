@@ -7,7 +7,8 @@
     "status": {
       "health_status": "orange",
       "priority": 1,
-      "next_step": "Take a COVID-19 test now"
+      "next_step": "Take a COVID-19 test now",
+      "reason": "Your status changed to Orange because you self-reported symptoms consistent with the virus."
     }
   }
 ]

@@ -27,6 +27,7 @@ import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/BluetoothServices.dart';
 import 'package:illinois/service/Config.dart';
+import 'package:illinois/service/Exposure.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/LocationServices.dart';
@@ -254,6 +255,7 @@ class Health with Service implements NotificationsListener {
       Response response = await Network().put(url, body: post, auth: NetworkAuth.User);
       if (response?.statusCode == 200) {
         _lastCovid19Status = status?.blob?.healthStatus;
+        _updateExposureReportTarget(status: status);
         return true;
       }
     }
@@ -964,7 +966,8 @@ class Health with Service implements NotificationsListener {
               healthStatus: (historyStatus.healthStatus != null) ? historyStatus.healthStatus : status.blob.healthStatus,
               priority: (historyStatus.priority != null) ? historyStatus.priority.abs() : status.blob.priority,
               nextStep: ((historyStatus.nextStep != null) || (historyStatus.healthStatus != null)) ? historyStatus.nextStep: status.blob.nextStep,
-              nextStepDateUtc: historyStatus.nextStepDateUtc(history.dateUtc),
+              nextStepDateUtc: ((historyStatus.nextStepInterval != null) || (historyStatus.healthStatus != null)) ? historyStatus.nextStepDateUtc(history.dateUtc) : status.blob.nextStepDateUtc,
+              reason: ((historyStatus.reason != null) || (historyStatus.healthStatus != null)) ? historyStatus.reason: status.blob.reason,
               historyBlob: history.blob,
             ),
           );
@@ -994,6 +997,16 @@ class Health with Service implements NotificationsListener {
       );
       Storage().lastHealthCovid19Status = healthStatus;
       NotificationService().notify(notifyHealthStatusChanged, null);
+    }
+  }
+
+  void _updateExposureReportTarget({Covid19Status status}) {
+    if ((status != null) && (status.blob != null) &&
+        (status.blob.healthStatus == kCovid19HealthStatusRed) &&
+        /*(status.blob.historyBlob != null) && status.blob.historyBlob.isTest && */
+        (status.dateUtc != null))
+    {
+      Exposure().reportTargetTimestamp = status.dateUtc.millisecondsSinceEpoch;
     }
   }
 
