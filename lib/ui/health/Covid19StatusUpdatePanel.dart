@@ -372,7 +372,7 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
                                 Image.asset('images/icon-member.png', color: covid19HealthStatusColor(kCovid19HealthStatusOrange),),
                                 Container(width: 8,),
                                 Expanded(
-                                  child: Text(Localization().getStringEx("com.illinois.covid19.status.long.orange", "Orange, Likely Infected"),
+                                  child: Text(Localization().getStringEx("com.illinois.covid19.status.long.orange", "Orange, Test Required"),
                                     style: TextStyle(color: Styles().colors.textSurface, fontFamily: Styles().fontFamilies.regular, fontSize: 16),
                                   ),
                                 ),
