@@ -76,6 +76,8 @@ static NSTimeInterval const kExposureProcessInterval         =  10;     // 10 se
 static NSTimeInterval const kLocalNotificationInterval       =  60;     // 1 minute
 static NSTimeInterval const kExposureNotifyTickInterval      =   1;     // 1 sec
 static NSTimeInterval const kExposureMinDuration             = 120;     // 2 minutes
+static NSTimeInterval const kScanningWindow             = 4;     // 4 seconds of scanning
+static NSTimeInterval const kScanningWaitInterval             = 150;     // 2.5 minutes of latent period
 
 static int const kNoRssi = 127;
 static int const kMinRssi = -50;
@@ -145,6 +147,7 @@ static int const kMinRssi = -50;
 	NSTimeInterval                                   _localNotificationInterval;
 	NSTimeInterval                                   _exposureMinDuration;
 	int                                              _exposureMinRssi;
+	NSTimer* 										 _scannerTimer;
 }
 @property (nonatomic, readonly) int                exposureMinRssi;
 @property (nonatomic) UIBackgroundTaskIdentifier   bgTaskId;
@@ -383,17 +386,78 @@ static ExposurePlugin *g_Instance = nil;
 #pragma mark Central
 
 - (void)startCentral {
+	NSLog(@"intermittent scanner central start");
 	if (self.isCentralAuthorized && (_centralManager == nil)) {
 		_centralManager = [[CBCentralManager alloc] initWithDelegate:self queue:nil options:@{
 			CBCentralManagerOptionShowPowerAlertKey : [NSNumber numberWithBool:NO],
 		}];
+		// register timer event for pausing the scanner after 4 seconds
+		if (_scannerTimer != nil){
+			[_scannerTimer invalidate];
+			_scannerTimer = nil;
+		}
+		_scannerTimer = [NSTimer scheduledTimerWithTimeInterval: kScanningWindow 
+			target: self selector:@selector(stopScanning) userInfo:nil repeats:NO];
 	}
 	else {
 		[self startFailed];
 	}
 }
 
+- (void) startScanning {
+	NSLog(@"intermittent scanner temporary start");
+	if (_centralManager == nil){
+		_centralManager = [[CBCentralManager alloc] initWithDelegate:self queue:nil options:@{
+			CBCentralManagerOptionShowPowerAlertKey : [NSNumber numberWithBool:NO],
+		}];
+	} else {
+		if (self.isCentralInitialized) {
+			[_centralManager scanForPeripheralsWithServices:@[[CBUUID UUIDWithString:kServiceUuid]] options:@{ CBCentralManagerScanOptionAllowDuplicatesKey : @YES }];
+			[self checkStarted];
+		}
+	}
+	// pause scanner after 4 seconds
+	if (_scannerTimer != nil){
+		[_scannerTimer invalidate];
+		_scannerTimer = nil;
+	}
+	_scannerTimer = [NSTimer
+	scheduledTimerWithTimeInterval: kScanningWindow target: self
+	selector:@selector(stopScanning) userInfo:nil repeats:NO];
+
+}
+
+- (void) stopScanning {
+	NSLog(@"intermittent scanner temporary stop");
+		// process exposure 
+		NSInteger exposuresCount = _iosExposures.count + _androidExposures.count;
+		if (exposuresCount > 0){
+			[self processExposures];
+		}
+	
+		if (_centralManager != nil) {
+			if (_centralManager.isScanning) {
+				[_centralManager stopScan];
+			}
+		}
+		// schedule startScanning
+		if (_scannerTimer != nil){
+			[_scannerTimer invalidate];
+			_scannerTimer = nil;
+		}
+		_scannerTimer = [ NSTimer
+		scheduledTimerWithTimeInterval: kScanningWaitInterval target: self
+		selector:@selector(startScanning) userInfo:nil repeats:NO];
+}
+
 - (void)stopCentral {
+	NSLog(@"intermittent scanner central stop");
+	// process the recorded exposures
+	NSInteger exposuresCount = _iosExposures.count + _androidExposures.count;
+	if (exposuresCount > 0){
+		[self processExposures];
+	}
+
 	if (_centralManager != nil) {
 		if (_centralManager.isScanning) {
 			[_centralManager stopScan];
@@ -401,6 +465,12 @@ static ExposurePlugin *g_Instance = nil;
 
 		_centralManager.delegate = nil;
 		_centralManager = nil;
+	}
+	
+	// clean up intermittent scanner timer
+	if (_scannerTimer != nil){
+		[_scannerTimer invalidate];
+		_scannerTimer = nil;
 	}
 		
 	if (_exposuresTimer != nil) {
@@ -767,26 +837,31 @@ static ExposurePlugin *g_Instance = nil;
 #pragma mark Local Notifications
 
 - (void)updateLocalNotificationRequest {
+	// should only light the screen if in background && screen turned off && central is scanning
+	// ignore 
 	bool shouldHaveLocalNotificationRequest =
 		(UIApplication.sharedApplication.applicationState == UIApplicationStateBackground) &&
 		(UIScreen.mainScreen.brightness == 0) &&
-		(0 < _localNotificationInterval);
+		_centralManager.isScanning;
+		// (0 < _localNotificationInterval);
 	if (shouldHaveLocalNotificationRequest) {
-			NSTimeInterval currentTimeInterval = [[[NSDate alloc] init] timeIntervalSince1970];
-			if (_lastLocalNotificationTime == 0) {
-				NSLog(@"Exposure: scheduling a local notification");
-				_lastLocalNotificationTime = currentTimeInterval;
-			}
-			else if (_localNotificationInterval <= (currentTimeInterval - _lastLocalNotificationTime)) {
-				NSLog(@"Exposure: triggering a local notification");
-				_lastLocalNotificationTime = currentTimeInterval;
-				[self scheduleLocalNotificationRequest];
-			}
+		// do not perform periodic notification request
+		[self scheduleLocalNotificationRequest];
+			// NSTimeInterval currentTimeInterval = [[[NSDate alloc] init] timeIntervalSince1970];
+			// if (_lastLocalNotificationTime == 0) {
+			// 	NSLog(@"Exposure: scheduling a local notification");
+			// 	_lastLocalNotificationTime = currentTimeInterval;
+			// }
+			// else if (_localNotificationInterval <= (currentTimeInterval - _lastLocalNotificationTime)) {
+			// 	NSLog(@"Exposure: triggering a local notification");
+			// 	_lastLocalNotificationTime = currentTimeInterval;
+			// 	[self scheduleLocalNotificationRequest];
+			// }
 	}
-	else if (0 < _lastLocalNotificationTime) {
-		NSLog(@"Exposure: stopping local notifications");
-		_lastLocalNotificationTime = 0;
-	}
+	// else if (0 < _lastLocalNotificationTime) {
+	// 	NSLog(@"Exposure: stopping local notifications");
+	// 	_lastLocalNotificationTime = 0;
+	// }
 }
 
 - (void)scheduleLocalNotificationRequest {
@@ -1183,14 +1258,15 @@ static ExposurePlugin *g_Instance = nil;
 }
 
 - (void)updateExposuresTimer {
-	NSInteger exposuresCount = _iosExposures.count + _androidExposures.count;
-	if ((0 < exposuresCount) && (_exposuresTimer == nil)) {
-		_exposuresTimer = [NSTimer scheduledTimerWithTimeInterval:_exposureProcessInterval target:self selector:@selector(processExposures) userInfo:nil repeats:YES];
-	}
-	else if ((exposuresCount == 0) && (_exposuresTimer != nil)) {
-		[_exposuresTimer invalidate];
-		_exposuresTimer = nil;
-	}
+	// do not call process exposure according to this function.
+	// NSInteger exposuresCount = _iosExposures.count + _androidExposures.count;
+	// if ((0 < exposuresCount) && (_exposuresTimer == nil)) {
+	// 	_exposuresTimer = [NSTimer scheduledTimerWithTimeInterval:_exposureProcessInterval target:self selector:@selector(processExposures) userInfo:nil repeats:YES];
+	// }
+	// else if ((exposuresCount == 0) && (_exposuresTimer != nil)) {
+	// 	[_exposuresTimer invalidate];
+	// 	_exposuresTimer = nil;
+	// }
 }
 
 - (void)processExposures {
@@ -1211,11 +1287,12 @@ static ExposurePlugin *g_Instance = nil;
 			}
 			[expiredPeripheralUuid addObject:peripheralUuid];
 		}
-		else if (_exposurePingInterval <= lastHeardInterval) {
-			NSLog(@"ExposurePlugin: {%@} ping", peripheralUuid);
-			CBPeripheral *peripheral = [_peripherals objectForKey:peripheralUuid];
-			[peripheral readRSSI];
-		}
+		// pinging removed
+		// else if (_exposurePingInterval <= lastHeardInterval) {
+		// 	NSLog(@"ExposurePlugin: {%@} ping", peripheralUuid);
+		// 	CBPeripheral *peripheral = [_peripherals objectForKey:peripheralUuid];
+		// 	[peripheral readRSSI];
+		// }
 	}
 	
 	if (expiredPeripheralUuid != nil) {
