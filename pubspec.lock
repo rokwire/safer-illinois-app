@@ -16,12 +16,12 @@ packages:
     source: hosted
     version: "1.6.0"
   asn1lib:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       name: asn1lib
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.5.15"
+    version: "0.6.0"
   async:
     dependency: transitive
     description:
@@ -72,7 +72,7 @@ packages:
     source: hosted
     version: "0.4.5+1"
   convert:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: convert
       url: "https://pub.dartlang.org"
@@ -92,6 +92,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.4"
+  cryptography:
+    dependency: "direct main"
+    description:
+      name: cryptography
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.4.1"
   csslib:
     dependency: transitive
     description:
@@ -176,6 +183,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.9.4"
+  fixnum:
+    dependency: transitive
+    description:
+      name: fixnum
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.10.11"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -399,6 +413,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.2"
+  pc_steelcrypt:
+    dependency: transitive
+    description:
+      name: pc_steelcrypt
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.1.1"
   pedantic:
     dependency: transitive
     description:
@@ -509,6 +530,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.9.3"
+  steel_crypt:
+    dependency: "direct main"
+    description:
+      name: steel_crypt
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.2.1"
   stream_channel:
     dependency: transitive
     description:
