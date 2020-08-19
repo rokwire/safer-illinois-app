@@ -448,7 +448,7 @@ class _Covid19DebugCreateEventPanelState extends State<Covid19DebugCreateEventPa
     String date = healthDateTimeToString(DateTime.now().toUtc());
     return '''{
   "Date": "$date",
-  "ActionType": "test-pending",
+  "ActionType": "test_pending",
   "ActionText": "Your test is pending"
 }''';}
 

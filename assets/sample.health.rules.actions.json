@@ -47,7 +47,7 @@
     }
   },
   {
-    "type": "test-pending",
+    "type": "test_pending",
     "status": {
       "condition": "require-test",
       "params": {
