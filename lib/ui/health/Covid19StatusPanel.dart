@@ -401,7 +401,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
           ],),),),),
       userHasHealthStatus ?
         Padding(
-          padding: const EdgeInsets.only(bottom: 38),
+          padding: const EdgeInsets.only(bottom: 16),
           child:
           Row(
             mainAxisSize: MainAxisSize.min,
