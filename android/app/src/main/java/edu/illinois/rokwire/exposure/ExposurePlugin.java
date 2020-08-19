@@ -34,6 +34,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -74,6 +75,8 @@ import edu.illinois.rokwire.exposure.crypto.AES_CTR;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;
+
+import static edu.illinois.rokwire.Utils.Str.byteArrayToHexString;
 
 public class ExposurePlugin implements MethodChannel.MethodCallHandler {
 
@@ -138,6 +141,7 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler {
     private int exposureProcessIntervalInMillis;
     private int exposureMinDurationInMillis;
     private int exposureMinRssi;
+    private int exposureTxCalibration;
 
     // Helper constants
     private static final String TEK_MAP_KEY = "tek";
@@ -322,6 +326,8 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler {
 
         byte[] metadata = new byte[4];
         byte[] AEM_byte = new byte[4];
+        metadata[0] = (byte) exposureTxCalibration;
+        Log.d(TAG, "using AEM" + byteArrayToHexString(metadata));
         try {
             AEM_byte = AES_CTR.encrypt(AEMK, rpi_byte, metadata);
         } catch (Exception e) {
@@ -1259,6 +1265,7 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler {
                     }
                     break;
                 case Constants.EXPOSURE_PLUGIN_METHOD_NAME_TEK_RPIS:
+                    //    @TODO: finish java side native method call for rpi (without AEM) generation
                     Object parameters = call.arguments;
                     String tekString = Utils.Map.getValueFromPath(parameters, Constants.EXPOSURE_PLUGIN_TEK_PARAM_NAME, null);
                     byte[] tek = Utils.Base64.decode(tekString);
@@ -1271,6 +1278,9 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler {
                     changeTekExpireTime();
                     result.success(null);
                     break;
+                case Constants.EXPOSURE_PLUGIN_METHOD_NAME_CALIBRATION:
+                    exposureTxCalibration = Utils.Map.getValueFromPath(call.arguments, "calibration", 127);
+                    Log.d(TAG, "&&&&& " + Integer.toString(exposureTxCalibration));
                 default:
                     result.success(null);
                     break;

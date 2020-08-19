@@ -89,6 +89,8 @@ static int const kMinRssi = -50;
 @property (nonatomic, readonly) NSInteger      duration;
 @property (nonatomic, readonly) NSTimeInterval durationInterval;
 @property (nonatomic, readonly) int            rssi;
+@property (nonatomic, readonly) NSInteger      maxRSSI;
+@property (nonatomic, readonly) NSInteger      avgRSSI;
 
 - (instancetype)initWithTimestamp:(NSTimeInterval)timestamp rssi:(int)rssi;
 - (void)updateTimestamp:(NSTimeInterval)timestamp rssi:(int)rssi;
@@ -505,7 +507,9 @@ static ExposurePlugin *g_Instance = nil;
 }
 
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary<NSString *, id> *)advertisementData RSSI:(NSNumber *)RSSI {
-
+    
+    NSNumber *power = advertisementData[CBAdvertisementDataTxPowerLevelKey];
+    NSLog(@"the power = %.2f", [power doubleValue]);
 	CBUUID *serviceUuid = [CBUUID UUIDWithString:kServiceUuid];
 	if ([advertisementData inaAdvertisementDataContainsServiceWithUuid:serviceUuid]) {
 
@@ -944,12 +948,12 @@ static ExposurePlugin *g_Instance = nil;
 	}
 	//NSLog(@"ExposurePlugin: Obtain tek {%@}", tek);
 	
-	NSData* rpi = [self generateRPIForIntervalNumber:ENInvertalNumber tek:tekRecord.tek];
+	NSData* rpi = [self generateRPIForIntervalNumber:ENInvertalNumber tek:tekRecord.tek rpiOnly:false];
 	[self notifyRPI:rpi tek:tekRecord.tek updateType:(_rpi != nil) ? @"update" : @"init" timestamp:(currentTimestamp * 1000.0) _i:_i ENInvertalNumber:ENInvertalNumber];
 	return rpi;
 }
 
-- (NSData*)generateRPIForIntervalNumber:(uint32_t)ENInvertalNumber tek:(NSData*)tek {
+- (NSData*)generateRPIForIntervalNumber:(uint32_t)ENInvertalNumber tek:(NSData*)tek rpiOnly:(bool)rpiOnly {
 	//NSLog(@"ExposurePlugin: Refresh TEK");
 	
 	/* generate rpik and aemk based on tek */
@@ -981,7 +985,7 @@ static ExposurePlugin *g_Instance = nil;
 	//NSLog(@"ExposurePlugin: RPI_en {%@}", en_rpi);
 	
 	/* generate metadata for aem message */
-	NSData *metadata = [NSData dataWithBytes:(char[]){0x00,0x00,0x00,0x00} length:4];
+	NSData *metadata = [NSData dataWithBytes:(char[]){0xf4,0x00,0x00,0x00} length:4]; // 0xf4 = -12 Tx_calibration for all iOS
 	//NSLog(@"ExposurePlugin: metadata {%@}", metadata);
 	
 	 /* generate encrypted en_aem with AES-128-CTR */
@@ -991,8 +995,10 @@ static ExposurePlugin *g_Instance = nil;
 	/* contaticate en_rpi and en_aem to form the payload */
 	NSMutableData* ble_load = [NSMutableData data];
 	[ble_load appendData:en_rpi];
-	[ble_load appendData:en_aem];
-	//NSLog(@"ExposurePlugin: BLE_Payload {%@}", ble_load);
+    if (!rpiOnly){
+        [ble_load appendData:en_aem];
+    }
+	NSLog(@"ExposurePlugin: BLE_Payload {%@}", ble_load);
 	return ble_load;
 }
 
@@ -1035,7 +1041,7 @@ static ExposurePlugin *g_Instance = nil;
 	
 	NSMutableDictionary *rpis = [[NSMutableDictionary alloc] init];
 	for (uint32_t intervalIndex = startENInvertalNumber; intervalIndex <= endENInvertalNumber; intervalIndex++) {
-		NSData *rpi = [self generateRPIForIntervalNumber:intervalIndex tek:tek];
+		NSData *rpi = [self generateRPIForIntervalNumber:intervalIndex tek:tek rpiOnly:true];
 		NSString *rpiString = [rpi base64EncodedStringWithOptions:0];
 		NSInteger interval = (((NSInteger)intervalIndex) * kRPIRefreshInterval * 1000);
 		[rpis setObject:[NSNumber numberWithInteger:interval] forKey:rpiString];
@@ -1268,7 +1274,6 @@ static ExposurePlugin *g_Instance = nil;
 - (void)notifyExposure:(ExposureRecord*)record rpi:(NSData*)rpi peripheralUuid:(NSUUID*)peripheralUuid {
 	if (_exposureMinDuration <= record.durationInterval) {
 		NSString *rpiString = [rpi base64EncodedStringWithOptions:0];
-		NSTimeInterval currentTimeInterval = [[[NSDate alloc] init] timeIntervalSince1970];
 		NSLog(@"ExposurePlugin: Report Exposure: rpi: {%@} duration: %@", rpiString, @(record.duration));
 		
 		[_methodChannel invokeMethod:kExposureNotificationName arguments:@{
@@ -1278,7 +1283,8 @@ static ExposurePlugin *g_Instance = nil;
 
 			@"peripheralUuid":           [peripheralUuid UUIDString] ?: [NSNull null],
 			@"isiOSRecord":              [NSNumber numberWithBool:(peripheralUuid != nil)],
-			@"endTimestamp":             [NSNumber numberWithInteger:currentTimeInterval * 1000.0],
+            @"maxRSSI":                  [NSNumber numberWithInteger:record.maxRSSI],
+            @"avgRSSI":                  [NSNumber numberWithInteger:record.avgRSSI],
 		}];
 	}
 }
@@ -1349,6 +1355,9 @@ static ExposurePlugin *g_Instance = nil;
 	NSTimeInterval _timeUpdated;
 	int            _lastRSSI;
 	NSTimeInterval _durationInterval;
+    int            _maxRSSI;
+    long           _sumRSSI;
+    int            _cntRSSI;
 }
 @end
 
@@ -1359,7 +1368,10 @@ static ExposurePlugin *g_Instance = nil;
 		_lastRSSI = rssi;
 		_durationInterval = 0;
 		_timeCreated = _timeUpdated = timestamp;
-	}
+        _maxRSSI = -128;
+        _sumRSSI = 0;
+        _cntRSSI = 0;
+    }
 	return self;
 }
 
@@ -1367,6 +1379,11 @@ static ExposurePlugin *g_Instance = nil;
 	if ((ExposurePlugin.sharedInstance.exposureMinRssi <= _lastRSSI) && (_lastRSSI != kNoRssi)) {
 		_durationInterval += (timestamp - _timeUpdated);
 	}
+    if (rssi != kNoRssi){
+        _maxRSSI = (rssi > _maxRSSI) ? rssi : _maxRSSI;
+        _cntRSSI += 1;
+        _sumRSSI += rssi;
+    }
 	_lastRSSI = rssi;
 	_timeUpdated = timestamp;
 }
@@ -1389,6 +1406,14 @@ static ExposurePlugin *g_Instance = nil;
 
 - (int)rssi {
 	return _lastRSSI;
+}
+
+- (NSInteger)maxRSSI {
+    return _maxRSSI;
+}
+
+- (NSInteger)avgRSSI {
+    return (NSInteger) (roundf((float)_sumRSSI / (float)_cntRSSI));
 }
 
 @end

@@ -114,8 +114,9 @@ class ExposureRecord {
   final String rpi;
   final int    timestamp;
   final int    duration;
+  final int    maxRSSI;
 
-  ExposureRecord({this.id, this.rpi, this.timestamp, this.duration});
+  ExposureRecord({this.id, this.rpi, this.timestamp, this.duration, this.maxRSSI});
 
   DateTime get dateUtc {
     return (timestamp != null) ? DateTime.fromMillisecondsSinceEpoch(timestamp, isUtc: true) : null;

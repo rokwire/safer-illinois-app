@@ -15,6 +15,8 @@
  */
 
 import 'dart:async';
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart';
@@ -32,6 +34,10 @@ import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
 import 'package:illinois/service/Storage.dart';
 import 'package:illinois/utils/Utils.dart';
+import 'package:device_info/device_info.dart';
+import 'dart:io' show Platform;
+import 'package:cryptography/cryptography.dart';
+import 'package:steel_crypt/steel_crypt.dart';
 
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -57,6 +63,7 @@ class Exposure with Service implements NotificationsListener {
   static const String _expireTEKMethodName             = 'expireTEK';
   static const String _exposureRPIMethodName           = 'exposureRPILog';
   static const String _exposureRSSIMethodName          = 'exposureRSSILog';
+  static const String _exposureCalibrationMethodName   = 'rssiCalibration';
 
   static const String _settingsParamName               = 'settings';
   static const String _tekParamName                    = 'tek';
@@ -77,6 +84,8 @@ class Exposure with Service implements NotificationsListener {
   static const String _databaseExposureRPIField         = "RPI";
   static const String _databaseExposureDurationField    = "Duration";
   static const String _databaseExposureProcessedField   = "Processed";
+  static const String _databaseExposureAvgRSSIField     = "AvgRSSI";
+  static const String _databaseExposureMaxRSSIField     = "MaxRSSI";
 
   static const String _databaseRpiTable                 = "ExposureRpi";
   static const String _databaseRpiSessionIdField        = "SessionId";
@@ -242,8 +251,8 @@ class Exposure with Service implements NotificationsListener {
   // Initialize and Destroy
 
   bool get _serviceEnabled {
-    return  (Config().settings['covid19ExposureMonitorEnabled'] == true) &&
-      (Health().userExposureNotification == true);
+    return  (Config().settings['covid19ExposureMonitorEnabled'] == true);// &&
+    //  (Health().userExposureNotification == true);
   }
 
   bool get _pluginEnabled {
@@ -281,6 +290,30 @@ class Exposure with Service implements NotificationsListener {
   Future<void> _nativeStart({Map<String, dynamic> settings}) async {
     if (settings == null) {
       settings = Config().settings;
+    }
+    if (Platform.isAndroid) {
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      Map<String, dynamic> upload = {
+        "oem": androidInfo.manufacturer,
+        "model": androidInfo.model,
+      };
+      Response response = await Network().post(
+          'http://ec2-18-191-37-235.us-east-2.compute.amazonaws.com:8003/GetAndroidCalibration',
+          body: AppJson.encode(upload),
+          auth: NetworkAuth.App);
+      String body;
+      int calibration;
+      if (response.statusCode == 200) {
+        body = response.body;
+        calibration = int.parse(body);
+      }else{
+        calibration = 127;
+      }
+      Log.d('using cal = $calibration');
+      await _methodChannel.invokeMethod(_exposureCalibrationMethodName, {
+        'calibration': calibration,
+      });
     }
     if (await _methodChannel.invokeMethod(_startMethodName, { _settingsParamName: settings })) {
       _isPluginStarted = true;
@@ -359,7 +392,7 @@ class Exposure with Service implements NotificationsListener {
       String databasePath = await getDatabasesPath();
       String databaseFile = join(databasePath, _databaseName);
       _database = await openDatabase(databaseFile, version: _databaseVersion, onCreate: (db, version) async {
-        try { await db.execute("CREATE TABLE IF NOT EXISTS $_databaseExposureTable($_databaseExposureTimestampField INTEGER NOT NULL, $_databaseExposureRPIField TEXT NOT NULL, $_databaseExposureDurationField INTEGER NOT NULL, $_databaseExposureProcessedField INTEGER NOT NULL DEFAULT '0')",); } catch(e) { print(e?.toString()); }
+        try { await db.execute("CREATE TABLE IF NOT EXISTS $_databaseExposureTable($_databaseExposureTimestampField INTEGER NOT NULL, $_databaseExposureRPIField TEXT NOT NULL, $_databaseExposureDurationField INTEGER NOT NULL, $_databaseExposureProcessedField INTEGER NOT NULL DEFAULT '0', $_databaseExposureMaxRSSIField INTEGER NOT NULL, $_databaseExposureAvgRSSIField INTEGER NOT NULL)",); } catch(e) { print(e?.toString()); }
         try { await db.execute("CREATE TABLE IF NOT EXISTS $_databaseRpiTable($_databaseRpiSessionIdField INTEGER, $_databaseRpiTEKField TEXT, $_databaseRpiTEKStartTimeField INTEGER, $_databaseRpiRPIField TEXT, $_databaseRpiRPIStartTimeField INTEGER, $_databaseRpiEventField TEXT)",); } catch(e) { print(e?.toString()); }
         try { await db.execute("CREATE TABLE IF NOT EXISTS $_databaseContactTable($_databaseContactSessionIdField INTEGER, $_databaseContactStartTimeField INTEGER, $_databaseContactDurationField INTEGER, $_databaseContactRPIField TEXT, $_databaseContactSourceField TEXT, $_databaseContactAddressField TEXT)",); } catch(e) { print(e?.toString()); }
         try { await db.execute("CREATE TABLE IF NOT EXISTS $_databaseRssiTable($_databaseRssiSessionIdField INTEGER, $_databaseRssiTimestampField INTEGER, $_databaseRssiRSSIField INTEGER, $_databaseRssiRPIField TEXT, $_databaseRssiSourceField TEXT, $_databaseRssiAddressField TEXT)",); } catch(e) { print(e?.toString()); }
@@ -441,7 +474,7 @@ class Exposure with Service implements NotificationsListener {
   Future<List<ExposureRecord>> loadLocalExposures({int timestamp, bool processed }) async {
     List<ExposureRecord> result;
 
-    String query = "SELECT $_databaseRowID, $_databaseExposureTimestampField, $_databaseExposureRPIField, $_databaseExposureDurationField FROM $_databaseExposureTable";
+    String query = "SELECT $_databaseRowID, $_databaseExposureTimestampField, $_databaseExposureRPIField, $_databaseExposureDurationField, $_databaseExposureMaxRSSIField FROM $_databaseExposureTable";
     
     String where = '';
     if (timestamp != null) {
@@ -472,6 +505,7 @@ class Exposure with Service implements NotificationsListener {
           timestamp: record['$_databaseExposureTimestampField'],
           rpi:       record['$_databaseExposureRPIField'],
           duration:  record['$_databaseExposureDurationField'],
+          maxRSSI:   record['$_databaseExposureMaxRSSIField'],
         ));
       }
     }
@@ -527,6 +561,9 @@ class Exposure with Service implements NotificationsListener {
     int timestamp = (exposure != null) ? exposure['timestamp'] : null;
     int duration = (exposure != null) ? exposure['duration'] : null;
     Log.d('Exposure: Detected Exposure RPI: {$rpi} / duration: $duration ms');
+    int maxRSSI = (exposure != null) ? exposure['maxRSSI'] : null;
+    int avgRSSI = (exposure != null) ? exposure['avgRSSI'] : null;
+    Log.d("the recorded rpi = $rpi with avgRssi=$avgRSSI, maxRssi=$maxRSSI");
 
     if ((_database != null) && (rpi != null)) {
       try {
@@ -534,6 +571,8 @@ class Exposure with Service implements NotificationsListener {
           _databaseExposureTimestampField : timestamp ?? 0,
           _databaseExposureRPIField : rpi ?? "",
           _databaseExposureDurationField : duration ?? 0,
+          _databaseExposureMaxRSSIField: maxRSSI ?? 127,
+          _databaseExposureAvgRSSIField: avgRSSI ?? 127,
         });
         if (0 <= result) {
           NotificationService().notify(notifyExposureUpdated, null);
@@ -552,7 +591,6 @@ class Exposure with Service implements NotificationsListener {
       bool isiOSRecord = (exposure != null) ? exposure['isiOSRecord'] : null;
       String source = (isiOSRecord == true) ? 'iOSRecord' : 'AndroidRecord';
       String peripheralUuid = (exposure != null) ? exposure['peripheralUuid'] : null;
-      //int endTimestamp = (exposure != null) ? exposure['endTimestamp'] : null;
 
       try {
         await _database.insert(_databaseContactTable, {
@@ -789,7 +827,6 @@ class Exposure with Service implements NotificationsListener {
     int detected = 0;
     List<Covid19History> results;
 
-    
     // Map<int, int> scoringExposures = new Map<int, int>;
     // key = time interval, value = number of rpis in that time interval
     Map<int, Set<String>> scoringExposures = new Map<int, Set<String>>(); 
@@ -798,9 +835,11 @@ class Exposure with Service implements NotificationsListener {
     int midnightTimestamp = (currentTimestamp ~/ _millisecondsInDay) * _millisecondsInDay;
     int fiveDaysAgoMidnightTimestamp = midnightTimestamp - (5 * _millisecondsInDay);
     int scoringDayThreshold = fiveDaysAgoMidnightTimestamp ~/ _rpiRefreshInterval;
+    Base64Codec decoder = Base64Codec();
 
     for (ExposureTEK tek in reportedTEKs) {
       Map<String, int> rpisMap = await _loadTekRPIs(tek);
+      Log.d("expansion into rpi " + rpisMap.toString());
       if (rpisMap != null) {
         Set<String> rpisSet = Set.from(rpisMap.keys);
         Set<int> detectedExposures;
@@ -808,10 +847,21 @@ class Exposure with Service implements NotificationsListener {
         DateTime exposureDateUtc;
         int exposureDuration = 0;
         for (ExposureRecord exposure in exposures) {
-          if (rpisSet.contains(exposure.rpi) &&
-              ((exposure.timestamp + _rpiCheckExposureBuffer) >= rpisMap[exposure.rpi]) &&
-              ((exposure.timestamp - _rpiCheckExposureBuffer - _rpiRefreshInterval) < rpisMap[exposure.rpi])
+          Uint8List exposureRpiTruncated = decoder.decode(exposure.rpi);
+          Log.d("exposureRpiTruncated = $exposureRpiTruncated");
+          exposureRpiTruncated = exposureRpiTruncated.sublist(0, 16);
+          Log.d("exposureRpiTruncated[0:16] = $exposureRpiTruncated");
+          String exposureRpiOnly = base64Encode(exposureRpiTruncated);
+          if (rpisSet.contains(exposureRpiOnly) &&
+               ((exposure.timestamp + _rpiCheckExposureBuffer) >= rpisMap[exposure.rpi]) &&
+               ((exposure.timestamp - _rpiCheckExposureBuffer - _rpiRefreshInterval) < rpisMap[exposure.rpi])
           ) {
+            Log.d("matched $exposureRpiOnly from $exposure.rpi");
+            var retval = decryptAEM(tek, exposure.rpi.toString());
+            Log.d("decryted AEM = " + retval.toString());
+            Log.d("exposure.maxRSSI" + exposure.maxRSSI.toString());
+//            @TODO: attenuation = (int) AEM[0] - maxRSSI, use threshold provided by corona-warn app
+//            https://developers.google.com/android/exposure-notifications/ble-attenuation-overview
             DateTime exposureRecordDateUtc = exposure.dateUtc;
             if ((exposureRecordDateUtc != null) && ((exposureDateUtc == null) || exposureRecordDateUtc.isBefore(exposureDateUtc))) {
               exposureDateUtc = exposureRecordDateUtc;
@@ -949,6 +999,25 @@ class Exposure with Service implements NotificationsListener {
 
     _checkingExposures = null; 
     return detected;
+  }
+
+  Future<Uint8List> decryptAEM(ExposureTEK tek, String payload) async{
+    Base64Codec x = Base64Codec();
+    Hkdf hkdf = Hkdf(Hmac(sha256));
+    //get the aem key
+    Uint8List teklist = x.decode(tek.tek);
+    Uint8List rpilist = x.decode(payload);
+    SecretKey tekkey = SecretKey(List.from(teklist));
+    List<int> bytes = utf8.encode("EN-AEMK");
+    var tout = await hkdf.deriveKey(tekkey, outputLength: 16, info: bytes);
+    //start decrypt
+    Uint8List aemk = Uint8List.fromList(tout.extractSync());
+    Uint8List en_rpi = Uint8List.fromList(rpilist.take(16).toList());
+    Uint8List en_aem = Uint8List.fromList(rpilist.getRange(16, 20).toList());
+    AesCryptRaw aes = AesCryptRaw(key: aemk, padding: PaddingAES.none);
+    Uint8List decrypted = aes.ctr.decrypt(enc: en_aem, iv: en_rpi); //Encrypt.
+    Log.d("decrypted aem = $decrypted");
+    return decrypted;
   }
 
   // Logging

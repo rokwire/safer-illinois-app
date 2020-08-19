@@ -68,6 +68,7 @@ public class Constants {
     public static final String EXPOSURE_PLUGIN_METHOD_NAME_THICK = "exposureThick";
     public static final String EXPOSURE_PLUGIN_METHOD_NAME_RSSI_LOG = "exposureRSSILog";
     public static final String EXPOSURE_PLUGIN_METHOD_NAME_EXPIRE_TEK = "expireTEK";
+    public static final String EXPOSURE_PLUGIN_METHOD_NAME_CALIBRATION = "rssiCalibration";
     public static final String EXPOSURE_PLUGIN_SETTINGS_PARAM_NAME = "settings";
     public static final String EXPOSURE_PLUGIN_RPI_PARAM_NAME = "rpi";
     public static final String EXPOSURE_PLUGIN_TEK_METHOD_NAME = "tek";

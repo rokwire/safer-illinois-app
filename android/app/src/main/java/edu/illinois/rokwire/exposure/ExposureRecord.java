@@ -17,18 +17,25 @@
 package edu.illinois.rokwire.exposure;
 
 import edu.illinois.rokwire.Constants;
+import java.lang.Math;
 
 class ExposureRecord {
     private long timestampCreated;
     private long timestampUpdated;
     private int lastRssi;
     private long durationInterval;
+    private int maxRssi;
+    private int cntRssi;
+    private long sumRssi;
 
     ExposureRecord(long timestamp, int rssi) {
         this.timestampCreated = timestamp;
         this.timestampUpdated = timestamp;
         this.lastRssi = rssi;
         this.durationInterval = 0;
+        this.maxRssi = -128;
+        this.sumRssi = 0;
+        this.cntRssi = 0;
     }
 
     void updateTimeStamp(long timestamp, int rssi) {
@@ -38,6 +45,11 @@ class ExposureRecord {
         }
         if ((rssiMinValue <= lastRssi) && (lastRssi != Constants.EXPOSURE_NO_RSSI_VALUE)) {
             durationInterval += (timestamp - timestampUpdated);
+        }
+        if (rssi != Constants.EXPOSURE_NO_RSSI_VALUE){
+            maxRssi = (rssi > maxRssi) ? rssi : maxRssi;
+            sumRssi += rssi;
+            cntRssi += 1;
         }
         lastRssi = rssi;
         timestampUpdated = timestamp;
@@ -56,5 +68,13 @@ class ExposureRecord {
 
     long getTimestampUpdated() {
         return timestampUpdated;
+    }
+
+    int getMaxRssi() {
+        return maxRssi;
+    }
+
+    int getAvgRssi() {
+        return (int) (Math.round(sumRssi / cntRssi));
     }
 }
