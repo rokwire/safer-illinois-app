@@ -3,6 +3,46 @@ import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/AppDateTime.dart';
 
 ///////////////////////////////
+// HealthRulesSet2
+
+class HealthRulesSet2 {
+  final HealthTestRulesSet2 tests;
+  final HealthSymptomsRulesSet2 symptoms;
+  final HealthContactTraceRulesSet2 contactTrace;
+  final HealthActionRulesSet2 actions;
+  final HealthDefaultsSet2 defaults;
+
+  HealthRulesSet2({this.tests, this.symptoms, this.contactTrace, this.actions, this.defaults});
+
+  factory HealthRulesSet2.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthRulesSet2(
+      tests: HealthTestRulesSet2.fromJson(json['tests']),
+      symptoms: HealthSymptomsRulesSet2.fromJson(json['symptoms']),
+      contactTrace: HealthContactTraceRulesSet2.fromJson(json['contact_trace']),
+      actions: HealthActionRulesSet2.fromJson(json['actions']),
+      defaults: HealthDefaultsSet2.fromJson(json['defaults']),
+    ) : null;
+  }
+}
+
+///////////////////////////////
+// HealthDefaultsSet2
+
+class HealthDefaultsSet2 {
+  final _HealthRuleStatus2 status;
+
+  HealthDefaultsSet2({this.status});
+
+  factory HealthDefaultsSet2.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthDefaultsSet2(
+      status: _HealthRuleStatus2.fromJson(json['status']),
+    ) : null;
+  }
+}
+
+
+
+///////////////////////////////
 // HealthTestRulesSet2
 
 class HealthTestRulesSet2 {
@@ -99,7 +139,7 @@ class HealthTestRuleResult2 {
   static HealthTestRuleResult2 matchRuleResult(List<HealthTestRuleResult2> results, { Covid19HistoryBlob blob }) {
     if (results != null) {
       for (HealthTestRuleResult2 result in results) {
-        if (result.matchBlob(blob)) {
+        if (result._matchBlob(blob)) {
           return result;
         }
       }
@@ -107,8 +147,37 @@ class HealthTestRuleResult2 {
     return null;
   }
 
-  bool matchBlob(Covid19HistoryBlob blob) {
+  bool _matchBlob(Covid19HistoryBlob blob) {
     return ((testResult != null) && (testResult.toLowerCase() == blob?.testResult?.toLowerCase()));
+  }
+}
+
+///////////////////////////////
+// HealthSymptomsRulesSet2
+
+class HealthSymptomsRulesSet2 {
+  final List<HealthSymptomsRule2> rules;
+  final List<HealthSymptomsGroup> groups;
+
+  HealthSymptomsRulesSet2({this.rules, this.groups});
+
+  factory HealthSymptomsRulesSet2.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthSymptomsRulesSet2(
+      rules: HealthSymptomsRule2.listFromJson(json['rules']),
+      groups: HealthSymptomsGroup.listFromJson(json['groups']),
+    ) : null;
+  }
+
+  HealthSymptomsRule2 matchRule({ Covid19HistoryBlob blob }) {
+    if ((rules != null) && (groups != null) && (blob?.symptomsIds != null)) {
+     Map<String, int> counts = HealthSymptomsGroup.getCounts(groups, blob.symptomsIds);
+      for (HealthSymptomsRule2 rule in rules) {
+        if (rule._matchCounts(counts)) {
+          return rule;
+        }
+      }
+    }
+    return null;
   }
 }
 
@@ -151,18 +220,7 @@ class HealthSymptomsRule2 {
     return values;
   }
 
-  static HealthSymptomsRule2 matchRule(List<HealthSymptomsRule2> rules, { Map<String, int> counts }) {
-    if (rules != null) {
-      for (HealthSymptomsRule2 rule in rules) {
-        if (rule.matchCounts(counts)) {
-          return rule;
-        }
-      }
-    }
-    return null;
-  }
-
-  bool matchCounts(Map<String, int> testCounts) {
+  bool _matchCounts(Map<String, int> testCounts) {
     if (this.counts != null) {
       for (String groupName in this.counts.keys) {
         _HealthRuleIntValue2 value = this.counts[groupName];
@@ -174,6 +232,32 @@ class HealthSymptomsRule2 {
       }
     }
     return true;
+  }
+}
+
+///////////////////////////////
+// HealthContactTraceRulesSet2
+
+class HealthContactTraceRulesSet2 {
+  final List<HealthContactTraceRule2> rules;
+
+  HealthContactTraceRulesSet2({this.rules});
+
+  factory HealthContactTraceRulesSet2.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthContactTraceRulesSet2(
+      rules: HealthContactTraceRule2.listFromJson(json['rules']),
+    ) : null;
+  }
+
+  HealthContactTraceRule2 matchRule({ Covid19HistoryBlob blob }) {
+    if ((rules != null) && (blob != null)) {
+      for (HealthContactTraceRule2 rule in rules) {
+        if (rule._matchBlob(blob)) {
+          return rule;
+        }
+      }
+    }
+    return null;
   }
 }
 
@@ -205,19 +289,34 @@ class HealthContactTraceRule2 {
     return values;
   }
 
-  static HealthContactTraceRule2 matchRule(List<HealthContactTraceRule2> rules, { Covid19HistoryBlob blob }) {
-    if ((rules != null) && (blob != null)) {
-      for (HealthContactTraceRule2 rule in rules) {
-        if (rule.matchBlob(blob)) {
+  bool _matchBlob(Covid19HistoryBlob blob) {
+    return (duration != null) && duration.match(blob?.traceDurationInMinutes);
+  }
+}
+
+///////////////////////////////
+// HealthActionRulesSet2
+
+class HealthActionRulesSet2 {
+  final List<HealthActionRule2> rules;
+
+  HealthActionRulesSet2({this.rules});
+
+  factory HealthActionRulesSet2.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthActionRulesSet2(
+      rules: HealthActionRule2.listFromJson(json['rules']),
+    ) : null;
+  }
+
+  HealthActionRule2 matchRule({ Covid19HistoryBlob blob }) {
+    if (rules != null) {
+      for (HealthActionRule2 rule in rules) {
+        if (rule._matchBlob(blob)) {
           return rule;
         }
       }
     }
     return null;
-  }
-
-  bool matchBlob(Covid19HistoryBlob blob) {
-    return (duration != null) && duration.match(blob?.traceDurationInMinutes);
   }
 }
 
@@ -249,18 +348,7 @@ class HealthActionRule2 {
     return values;
   }
 
-  static HealthActionRule2 matchRule(List<HealthActionRule2> rules, { Covid19HistoryBlob blob }) {
-    if (rules != null) {
-      for (HealthActionRule2 rule in rules) {
-        if (rule.matchBlob(blob)) {
-          return rule;
-        }
-      }
-    }
-    return null;
-  }
-
-  bool matchBlob(Covid19HistoryBlob blob) {
+  bool _matchBlob(Covid19HistoryBlob blob) {
     return (type != null) && (type.toLowerCase() == blob?.actionType?.toLowerCase());
   }
 }
@@ -367,7 +455,7 @@ abstract class _HealthRuleStatus2 {
     return result;
   }
 
-  HealthRuleStatus2 eval({ List<Covid19History> history, int historyIndex, HealthTestRulesSet2 testRules });
+  HealthRuleStatus2 eval({ List<Covid19History> history, int historyIndex, HealthRulesSet2 rules });
 }
 
 ///////////////////////////////
@@ -394,7 +482,7 @@ class HealthRuleStatus2 extends _HealthRuleStatus2 {
     ) : null;
   }
 
-  HealthRuleStatus2 eval({ List<Covid19History> history, int historyIndex, HealthTestRulesSet2 testRules }) {
+  HealthRuleStatus2 eval({ List<Covid19History> history, int historyIndex, HealthRulesSet2 rules }) {
     return this;
   }
 
@@ -432,9 +520,10 @@ class HealthRuleReferenceStatus2 extends _HealthRuleStatus2 {
     ) : null;
   }
 
-  HealthRuleStatus2 eval({ List<Covid19History> history, int historyIndex, HealthTestRulesSet2 testRules }) {
-    _HealthRuleStatus2 status = testRules?.statuses[reference];
-    return status?.eval(history: history, historyIndex: historyIndex, testRules: testRules);
+  HealthRuleStatus2 eval({ List<Covid19History> history, int historyIndex, HealthRulesSet2 rules }) {
+    // Only test rules currently use reference status.
+    _HealthRuleStatus2 status = rules?.tests?.statuses[reference];
+    return status?.eval(history: history, historyIndex: historyIndex, rules: rules);
   }
 }
 
@@ -458,21 +547,21 @@ class HealthTestRuleConditionalStatus2 extends _HealthRuleStatus2 {
     ) : null;
   }
 
-  HealthRuleStatus2 eval({ List<Covid19History> history, int historyIndex, HealthTestRulesSet2 testRules }) {
+  HealthRuleStatus2 eval({ List<Covid19History> history, int historyIndex, HealthRulesSet2 rules }) {
     _HealthRuleStatus2 result;
     if (condition == 'require-test') {
-      result = _evalRequireTest(history: history, historyIndex: historyIndex, testRules: testRules);
+      result = _evalRequireTest(history: history, historyIndex: historyIndex, rules: rules);
     }
     else if (condition == 'require-symptoms') {
-      result = _evalRequireSymptoms(history: history, historyIndex: historyIndex, testRules: testRules);
+      result = _evalRequireSymptoms(history: history, historyIndex: historyIndex, rules: rules);
     }
     else if (condition == 'timeout') {
-      result = _evalTimeout(history: history, historyIndex: historyIndex, testRules: testRules);
+      result = _evalTimeout(history: history, historyIndex: historyIndex, rules: rules);
     }
-    return result?.eval(history: history, historyIndex: historyIndex, testRules: testRules);
+    return result?.eval(history: history, historyIndex: historyIndex, rules: rules);
   }
 
-  _HealthRuleStatus2 _evalRequireTest({ List<Covid19History> history, int historyIndex, HealthTestRulesSet2 testRules }) {
+  _HealthRuleStatus2 _evalRequireTest({ List<Covid19History> history, int historyIndex, HealthRulesSet2 rules }) {
     
     Covid19History historyEntry = ((history != null) && (historyIndex != null) && (0 <= historyIndex) && (historyIndex < history.length)) ? history[historyIndex] : null;
     DateTime historyDateMidnightLocal = historyEntry?.dateMidnightLocal;
@@ -499,7 +588,7 @@ class HealthTestRuleConditionalStatus2 extends _HealthRuleStatus2 {
             return successStatus; // any test matches
           }
           else {
-            HealthTestRuleResult2 entryRuleResult = testRules?.matchRuleResult(blob: entry?.blob);
+            HealthTestRuleResult2 entryRuleResult = rules?.tests?.matchRuleResult(blob: entry?.blob);
             if ((entryRuleResult != null) && (entryRuleResult.category != null) &&
                 (((category is String) && (category == entryRuleResult.category)) ||
                  ((category is Set) && category.contains(entryRuleResult.category))))
@@ -523,7 +612,7 @@ class HealthTestRuleConditionalStatus2 extends _HealthRuleStatus2 {
     return failStatus;
   }
 
-  _HealthRuleStatus2 _evalRequireSymptoms({ List<Covid19History> history, int historyIndex, HealthTestRulesSet2 testRules }) {
+  _HealthRuleStatus2 _evalRequireSymptoms({ List<Covid19History> history, int historyIndex, HealthRulesSet2 rules }) {
     Covid19History historyEntry = ((history != null) && (historyIndex != null) && (0 <= historyIndex) && (historyIndex < history.length)) ? history[historyIndex] : null;
     DateTime historyDateMidnightLocal = historyEntry?.dateMidnightLocal;
     if (historyDateMidnightLocal == null) {
@@ -558,7 +647,7 @@ class HealthTestRuleConditionalStatus2 extends _HealthRuleStatus2 {
     return failStatus;
   }
 
-  _HealthRuleStatus2 _evalTimeout({ List<Covid19History> history, int historyIndex, HealthTestRulesSet2 testRules }) {
+  _HealthRuleStatus2 _evalTimeout({ List<Covid19History> history, int historyIndex, HealthRulesSet2 rules }) {
     Covid19History historyEntry = ((history != null) && (historyIndex != null) && (0 <= historyIndex) && (historyIndex < history.length)) ? history[historyIndex] : null;
     DateTime historyDateMidnightLocal = historyEntry?.dateMidnightLocal;
     if (historyDateMidnightLocal == null) {
