@@ -853,8 +853,8 @@ class Exposure with Service implements NotificationsListener {
           Log.d("exposureRpiTruncated[0:16] = $exposureRpiTruncated");
           String exposureRpiOnly = base64Encode(exposureRpiTruncated);
           if (rpisSet.contains(exposureRpiOnly) &&
-               ((exposure.timestamp + _rpiCheckExposureBuffer) >= rpisMap[exposure.rpi]) &&
-               ((exposure.timestamp - _rpiCheckExposureBuffer - _rpiRefreshInterval) < rpisMap[exposure.rpi])
+               ((exposure.timestamp + _rpiCheckExposureBuffer) >= rpisMap[exposureRpiOnly]) &&
+               ((exposure.timestamp - _rpiCheckExposureBuffer - _rpiRefreshInterval) < rpisMap[exposureRpiOnly])
           ) {
             Log.d("matched $exposureRpiOnly from $exposure.rpi");
             var retval = decryptAEM(tek, exposure.rpi.toString());
