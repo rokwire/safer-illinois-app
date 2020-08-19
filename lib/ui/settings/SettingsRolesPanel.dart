@@ -34,6 +34,7 @@ class SettingsRolesPanel extends StatefulWidget {
 class _SettingsRolesPanelState extends State<SettingsRolesPanel> implements NotificationsListener {
   //User _user;
   Set<UserRole> _selectedRoles = Set<UserRole>();
+  bool _isResident;
 
   Timer _saveRolesTimer;
 
@@ -41,6 +42,7 @@ class _SettingsRolesPanelState extends State<SettingsRolesPanel> implements Noti
   void initState() {
     NotificationService().subscribe(this, User.notifyRolesUpdated);
     _selectedRoles = User().roles ?? Set<UserRole>();
+    _isResident = _selectedRoles.contains(UserRole.resident);
     super.initState();
   }
 
@@ -71,6 +73,7 @@ class _SettingsRolesPanelState extends State<SettingsRolesPanel> implements Noti
 
   Widget _buildContent() {
     final double gridSpacing = 5;
+
     return SingleChildScrollView(
       child: Container(
         color: Styles().colors.background,
@@ -88,9 +91,11 @@ class _SettingsRolesPanelState extends State<SettingsRolesPanel> implements Noti
             ),
             Padding(
               padding: EdgeInsets.only(left: 16, top: 8, right: 8, bottom: 16),
-              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-                Expanded(child: Column(children: <Widget>[
-                  RoleGridButton(
+              child:
+
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+                Row(children: <Widget>[
+                  Expanded(child: RoleGridButton(
                     title: Localization().getStringEx('panel.onboarding.roles.button.student.title', 'University Student'),
                     hint: Localization().getStringEx('panel.onboarding.roles.button.student.hint', ''),
                     iconPath: 'images/icon-persona-student-normal.png',
@@ -100,9 +105,23 @@ class _SettingsRolesPanelState extends State<SettingsRolesPanel> implements Noti
                     data: UserRole.student,
                     sortOrder: 1,
                     onTap: _onRoleGridButton,
-                  ),
-                  Container(height: gridSpacing,),
-                  RoleGridButton(
+                  ),),
+                  Container(width: gridSpacing,),
+                  Expanded(child: RoleGridButton(
+                    title: Localization().getStringEx('panel.onboarding.roles.button.employee.title', 'Employee/Affiliate'),
+                    hint: Localization().getStringEx('panel.onboarding.roles.button.employee.hint', ''),
+                    iconPath: 'images/icon-persona-employee-normal.png',
+                    selectedIconPath: 'images/icon-persona-employee-selected.png',
+                    selectedBackgroundColor: Styles().colors.accentColor3,
+                    selected: (_selectedRoles.contains(UserRole.employee)),
+                    data: UserRole.employee,
+                    sortOrder: 4,
+                    onTap: _onRoleGridButton,
+                  ),),
+                ]),
+                Container(height: gridSpacing,),
+                _isResident ? Row(children: <Widget>[
+                  Expanded(child: RoleGridButton(
                     title: Localization().getStringEx('panel.onboarding.roles.button.resident.title', 'Resident'),
                     hint: Localization().getStringEx('panel.onboarding.roles.button.resident.hint', ''),
                     iconPath: 'images/icon-persona-resident-normal.png',
@@ -113,23 +132,11 @@ class _SettingsRolesPanelState extends State<SettingsRolesPanel> implements Noti
                     data: UserRole.resident,
                     sortOrder: 7,
                     onTap: _onRoleGridButton,
-                  ),
-                ],)),
-                Container(width: gridSpacing,),
-                Expanded(child: Column(children: <Widget>[
-                  RoleGridButton(
-                    title: Localization().getStringEx('panel.onboarding.roles.button.employee.title', 'University Employee'),
-                    hint: Localization().getStringEx('panel.onboarding.roles.button.employee.hint', ''),
-                    iconPath: 'images/icon-persona-employee-normal.png',
-                    selectedIconPath: 'images/icon-persona-employee-selected.png',
-                    selectedBackgroundColor: Styles().colors.accentColor3,
-                    selected: (_selectedRoles.contains(UserRole.employee)),
-                    data: UserRole.employee,
-                    sortOrder: 4,
-                    onTap: _onRoleGridButton,
-                  ),
-                ],),),
-              ],)
+                  ),),
+                  Container(width: gridSpacing,),
+                  Expanded(child: Container()),
+                ]) : Container(),
+              ]),
             ),
           ],
         ),
