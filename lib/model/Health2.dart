@@ -3,6 +3,28 @@ import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/AppDateTime.dart';
 
 ///////////////////////////////
+// HealthRulesSet2
+
+class HealthRulesSet2 {
+  final HealthTestRulesSet2 tests;
+  final HealthSymptomsRulesSet2 symptoms;
+  final HealthContactTraceRulesSet2 contactTrace;
+  final HealthActionRulesSet2 actions;
+
+  HealthRulesSet2({this.tests, this.symptoms, this.contactTrace, this.actions});
+
+  factory HealthRulesSet2.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthRulesSet2(
+      tests: HealthTestRulesSet2.fromJson(json['tests']),
+      symptoms: HealthSymptomsRulesSet2.fromJson(json['symptoms']),
+      contactTrace: HealthContactTraceRulesSet2.fromJson(json['contact_trace']),
+      actions: HealthActionRulesSet2.fromJson(json['actions']),
+    ) : null;
+  }
+}
+
+
+///////////////////////////////
 // HealthTestRulesSet2
 
 class HealthTestRulesSet2 {
@@ -99,7 +121,7 @@ class HealthTestRuleResult2 {
   static HealthTestRuleResult2 matchRuleResult(List<HealthTestRuleResult2> results, { Covid19HistoryBlob blob }) {
     if (results != null) {
       for (HealthTestRuleResult2 result in results) {
-        if (result.matchBlob(blob)) {
+        if (result._matchBlob(blob)) {
           return result;
         }
       }
@@ -107,8 +129,37 @@ class HealthTestRuleResult2 {
     return null;
   }
 
-  bool matchBlob(Covid19HistoryBlob blob) {
+  bool _matchBlob(Covid19HistoryBlob blob) {
     return ((testResult != null) && (testResult.toLowerCase() == blob?.testResult?.toLowerCase()));
+  }
+}
+
+///////////////////////////////
+// HealthSymptomsRulesSet2
+
+class HealthSymptomsRulesSet2 {
+  final List<HealthSymptomsRule2> rules;
+  final List<HealthSymptomsGroup> groups;
+
+  HealthSymptomsRulesSet2({this.rules, this.groups});
+
+  factory HealthSymptomsRulesSet2.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthSymptomsRulesSet2(
+      rules: HealthSymptomsRule2.listFromJson(json['rules']),
+      groups: HealthSymptomsGroup.listFromJson(json['groups']),
+    ) : null;
+  }
+
+  HealthSymptomsRule2 matchRule({ Covid19HistoryBlob blob }) {
+    if ((rules != null) && (groups != null) && (blob?.symptomsIds != null)) {
+     Map<String, int> counts = HealthSymptomsGroup.getCounts(groups, blob.symptomsIds);
+      for (HealthSymptomsRule2 rule in rules) {
+        if (rule._matchCounts(counts)) {
+          return rule;
+        }
+      }
+    }
+    return null;
   }
 }
 
@@ -151,18 +202,7 @@ class HealthSymptomsRule2 {
     return values;
   }
 
-  static HealthSymptomsRule2 matchRule(List<HealthSymptomsRule2> rules, { Map<String, int> counts }) {
-    if (rules != null) {
-      for (HealthSymptomsRule2 rule in rules) {
-        if (rule.matchCounts(counts)) {
-          return rule;
-        }
-      }
-    }
-    return null;
-  }
-
-  bool matchCounts(Map<String, int> testCounts) {
+  bool _matchCounts(Map<String, int> testCounts) {
     if (this.counts != null) {
       for (String groupName in this.counts.keys) {
         _HealthRuleIntValue2 value = this.counts[groupName];
@@ -174,6 +214,32 @@ class HealthSymptomsRule2 {
       }
     }
     return true;
+  }
+}
+
+///////////////////////////////
+// HealthContactTraceRulesSet2
+
+class HealthContactTraceRulesSet2 {
+  final List<HealthContactTraceRule2> rules;
+
+  HealthContactTraceRulesSet2({this.rules});
+
+  factory HealthContactTraceRulesSet2.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthContactTraceRulesSet2(
+      rules: HealthContactTraceRule2.listFromJson(json['rules']),
+    ) : null;
+  }
+
+  HealthContactTraceRule2 matchRule({ Covid19HistoryBlob blob }) {
+    if ((rules != null) && (blob != null)) {
+      for (HealthContactTraceRule2 rule in rules) {
+        if (rule._matchBlob(blob)) {
+          return rule;
+        }
+      }
+    }
+    return null;
   }
 }
 
@@ -205,19 +271,34 @@ class HealthContactTraceRule2 {
     return values;
   }
 
-  static HealthContactTraceRule2 matchRule(List<HealthContactTraceRule2> rules, { Covid19HistoryBlob blob }) {
-    if ((rules != null) && (blob != null)) {
-      for (HealthContactTraceRule2 rule in rules) {
-        if (rule.matchBlob(blob)) {
+  bool _matchBlob(Covid19HistoryBlob blob) {
+    return (duration != null) && duration.match(blob?.traceDurationInMinutes);
+  }
+}
+
+///////////////////////////////
+// HealthActionRulesSet2
+
+class HealthActionRulesSet2 {
+  final List<HealthActionRule2> rules;
+
+  HealthActionRulesSet2({this.rules});
+
+  factory HealthActionRulesSet2.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthActionRulesSet2(
+      rules: HealthActionRule2.listFromJson(json['rules']),
+    ) : null;
+  }
+
+  HealthActionRule2 matchRule({ Covid19HistoryBlob blob }) {
+    if (rules != null) {
+      for (HealthActionRule2 rule in rules) {
+        if (rule._matchBlob(blob)) {
           return rule;
         }
       }
     }
     return null;
-  }
-
-  bool matchBlob(Covid19HistoryBlob blob) {
-    return (duration != null) && duration.match(blob?.traceDurationInMinutes);
   }
 }
 
@@ -249,18 +330,7 @@ class HealthActionRule2 {
     return values;
   }
 
-  static HealthActionRule2 matchRule(List<HealthActionRule2> rules, { Covid19HistoryBlob blob }) {
-    if (rules != null) {
-      for (HealthActionRule2 rule in rules) {
-        if (rule.matchBlob(blob)) {
-          return rule;
-        }
-      }
-    }
-    return null;
-  }
-
-  bool matchBlob(Covid19HistoryBlob blob) {
+  bool _matchBlob(Covid19HistoryBlob blob) {
     return (type != null) && (type.toLowerCase() == blob?.actionType?.toLowerCase());
   }
 }

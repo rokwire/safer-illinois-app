@@ -17,7 +17,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-//TMP:  import 'package:flutter/services.dart' show rootBundle;
+//TMP:
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/model/Health2.dart';
@@ -177,7 +178,7 @@ class Health with Service implements NotificationsListener {
     List<Covid19News> newsList;
     try {
       int limit = Config().settings['covid19NewsLimit'] ?? 10;
-      String url = "${Config().healthUrl}/covid19/news?limit=$limit"; // 'https://rokwire-assets.s3.us-east-2.amazonaws.com/v1.2/covid19.news.json'
+      String url = "${Config().healthUrl}/covid19/news?limit=$limit";
       Response response = await Network().get(url, auth: NetworkAuth.App);
       String responseString = ((response != null) && (response.statusCode == 200)) ? response.body : null;
       List<dynamic> responseList = AppJson.decode(responseString);
@@ -196,7 +197,7 @@ class Health with Service implements NotificationsListener {
 
   Future<Covid19FAQ> loadCovid19FAQs() async {
     try {
-      String url = "${Config().healthUrl}/covid19/faq"; // 'https://rokwire-assets.s3.us-east-2.amazonaws.com/v1.2/covid19.faq.json'
+      String url = "${Config().healthUrl}/covid19/faq";
       Response response = await Network().get(url, auth: NetworkAuth.App);
       String responseString = ((response != null) && (response.statusCode == 200)) ? response.body : null;
       Map<String, dynamic> responseJson = AppJson.decode(responseString);
@@ -211,7 +212,7 @@ class Health with Service implements NotificationsListener {
   Future<List<Covid19Resource>> loadCovid19Resources() async {
     List<Covid19Resource> resourcesList;
     try {
-      String url = "${Config().healthUrl}/covid19/resources"; // 'https://rokwire-assets.s3.us-east-2.amazonaws.com/v1.2/covid19.resources.json'
+      String url = "${Config().healthUrl}/covid19/resources";
       Response response = await Network().get(url, auth: NetworkAuth.App);
       String responseString = ((response != null) && (response.statusCode == 200)) ? response.body : null;
       List<dynamic> responseList = AppJson.decode(responseString);
@@ -478,12 +479,19 @@ class Health with Service implements NotificationsListener {
   }
 
   Future<List<HealthSymptomsGroup>> _loadSymptomsGroups2() async {
-    String url = "${Config().health2Url}/symptoms/symptoms.json";
-    Response response = await Network().get(url);
-    String responseBody = (response?.statusCode == 200) ? response.body : null;
-//TMP:String responseBody = await rootBundle.loadString('assets/sample.health.symptoms.json');
-    List<dynamic> responseJson = (responseBody != null) ? AppJson.decodeList(responseBody) : null;
-    return (responseJson != null) ? HealthSymptomsGroup.listFromJson(responseJson) : null;
+
+    if (_currentCountyId != null) {
+      HealthRulesSet2 rules = await _loadRules2(countyId: _currentCountyId);
+      return rules?.symptoms?.groups;
+    }
+    else {
+      String url = "${Config().health2Url}/symptoms/symptoms.json";
+      Response response = await Network().get(url);
+      String responseBody = (response?.statusCode == 200) ? response.body : null;
+      //TMP:String responseBody = await rootBundle.loadString('assets/sample.health.symptoms.json');
+      List<dynamic> responseJson = (responseBody != null) ? AppJson.decodeList(responseBody) : null;
+      return (responseJson != null) ? HealthSymptomsGroup.listFromJson(responseJson) : null;
+    }
   }
 
   // Network API: HealthCounty
@@ -880,16 +888,10 @@ class Health with Service implements NotificationsListener {
       }
     }
 
-    // We always need test rules as they take part in rules evaluation
-    HealthTestRulesSet2 testRules = await _loadTestRules2(countyId: countyId);
-    if (testRules == null) {
+    HealthRulesSet2 rules = await _loadRules2(countyId: countyId);
+    if (rules == null) {
       return null;
     }
-
-    List<HealthSymptomsRule2> symptomsRules;
-    List<HealthSymptomsGroup> symptomsGroups;
-    List<HealthContactTraceRule2> contactTraceRules;
-    List<HealthActionRule2> actionRules;
 
     Covid19Status status = Covid19Status(
       dateUtc: null,
@@ -910,53 +912,41 @@ class Health with Service implements NotificationsListener {
 
         HealthRuleStatus2 historyStatus;
         if (history.isTest && history.canTestUpdateStatus) {
-          if (testRules == null) {
-            testRules = await _loadTestRules2(countyId: countyId);
-            if (testRules == null) {
-              return null;
-            }
+          if (rules.tests != null) {
+            HealthTestRuleResult2 testRuleResult = rules.tests.matchRuleResult(blob: history?.blob);
+            historyStatus = testRuleResult?.status?.eval(history: histories, historyIndex: index, testRules: rules.tests);
+          }
+          else {
+            return null;
           }
           
-          HealthTestRuleResult2 testRuleResult = testRules.matchRuleResult(blob: history?.blob);
-          historyStatus = testRuleResult?.status?.eval(history: histories, historyIndex: index, testRules: testRules);
         }
         else if (history.isSymptoms) {
-          if (symptomsGroups == null) {
-            symptomsGroups = await _loadSymptomsGroups2();
-            if (symptomsGroups == null) {
-              return null;
-            }
+          if (rules.symptoms != null) {
+            HealthSymptomsRule2 symptomsRule = rules.symptoms.matchRule(blob: history?.blob);
+            historyStatus = symptomsRule?.status?.eval(history: histories, historyIndex: index, testRules: rules.tests);
           }
-          if (symptomsRules == null) {
-            symptomsRules = await _loadSymptomsRules2(countyId: countyId);
-            if (symptomsRules == null) {
-              return null;
-            }
+          else {
+            return null;
           }
-          
-          Map<String, int> symptomsCounts = HealthSymptomsGroup.getCounts(symptomsGroups, history?.blob?.symptomsIds);
-          HealthSymptomsRule2 symptomsRule = HealthSymptomsRule2.matchRule(symptomsRules, counts: symptomsCounts);
-          historyStatus = symptomsRule?.status?.eval(history: histories, historyIndex: index, testRules: testRules);
         }
         else if (history.isContactTrace) {
-          if (contactTraceRules == null) {
-            contactTraceRules = await _loadContactTraceRules2(countyId: countyId);
-            if (contactTraceRules == null) {
-              return null;
-            }
+          if (rules.contactTrace != null) {
+            HealthContactTraceRule2 contactTraceRule = rules.contactTrace.matchRule(blob: history?.blob);
+            historyStatus = contactTraceRule?.status?.eval(history: histories, historyIndex: index, testRules: rules.tests);
           }
-          HealthContactTraceRule2 contactTraceRule = HealthContactTraceRule2.matchRule(contactTraceRules, blob:history?.blob);
-          historyStatus = contactTraceRule?.status?.eval(history: histories, historyIndex: index, testRules: testRules);
+          else {
+            return null;
+          }
         }
         else if (history.isAction) {
-          if (actionRules == null) {
-            actionRules = await _loadActionRules2(countyId: countyId);
-            if (actionRules == null) {
-              return null;
-            }
+          if (rules.actions != null) {
+            HealthActionRule2 actionRule = rules.actions.matchRule(blob: history?.blob);
+            historyStatus = actionRule?.status?.eval(history: histories, historyIndex: index, testRules: rules.tests);
           }
-          HealthActionRule2 actionRule = HealthActionRule2.matchRule(actionRules, blob:history?.blob);
-          historyStatus = actionRule?.status?.eval(history: histories, historyIndex: index, testRules: testRules);
+          else {
+            return null;
+          }
         }
 
         if ((historyStatus != null) && historyStatus.canUpdateStatus(blob: status.blob)) {
@@ -1200,15 +1190,6 @@ class Health with Service implements NotificationsListener {
     return (responseJson != null) ? HealthTestRule.listFromJson(responseJson) : null;
   }
 
-  Future<HealthTestRulesSet2> _loadTestRules2({String countyId}) async {
-    String url = "${Config().health2Url}/rules/county/$countyId/tests.json";
-    Response response = await Network().get(url);
-    String responseBody = (response?.statusCode == 200) ? response.body : null;
-//TMP:String responseBody = await rootBundle.loadString('assets/sample.health.rules.tests.json');
-    Map<String, dynamic> responseJson = (responseBody != null) ? AppJson.decodeMap(responseBody) : null;
-    return (responseJson != null) ? HealthTestRulesSet2.fromJson(responseJson) : null;
-  }
-
   Future<bool> _markEventAsProcessed(Covid19Event event) async {
     String url = "${Config().healthUrl}/covid19/ctests/${event.id}";
     String post = AppJson.encode({'processed':true});
@@ -1278,15 +1259,6 @@ class Health with Service implements NotificationsListener {
     return (responseJson != null) ? HealthSymptomsRule.fromJson(responseJson) : null;
   }
 
-  Future<List<HealthSymptomsRule2>> _loadSymptomsRules2({String countyId}) async {
-    String url = "${Config().health2Url}/rules/county/$countyId/symptoms.json";
-    Response response = await Network().get(url);
-    String responseBody = (response?.statusCode == 200) ? response.body : null;
-//TMP:String responseBody = await rootBundle.loadString('assets/sample.health.rules.symptoms.json');
-    List<dynamic> responseJson = (responseBody != null) ? AppJson.decodeList(responseBody) : null;
-    return (responseJson != null) ? HealthSymptomsRule2.listFromJson(responseJson) : null;
-  }
-
   // Contact Trace processing
 
   // Used only from debug panel, see Exposure.checkExposures
@@ -1333,16 +1305,7 @@ class Health with Service implements NotificationsListener {
     return (responseJson != null) ? HealthContactTraceRule.listFromJson(responseJson) : null;
   }
 
-  Future<List<HealthContactTraceRule2>> _loadContactTraceRules2({String countyId}) async {
-    String url = "${Config().health2Url}/rules/county/$countyId/contact_trace.json";
-    Response response = await Network().get(url);
-    String responseBody = (response?.statusCode == 200) ? response.body : null;
-//TMP:String responseBody = await rootBundle.loadString('assets/sample.health.rules.contact_trace.json');
-    List<dynamic> responseJson = (responseBody != null) ? AppJson.decodeList(responseBody) : null;
-    return (responseJson != null) ? HealthContactTraceRule2.listFromJson(responseJson) : null;
-  }
-
-  // Orders processing
+  // Actions processing
 
   Future<bool> processAction(Map<String, dynamic> action) async {
    /*action = {
@@ -1398,19 +1361,20 @@ class Health with Service implements NotificationsListener {
     return false;
   }
 
-  Future<List<HealthActionRule2>> _loadActionRules2({String countyId}) async {
-    String url = "${Config().health2Url}/rules/county/$countyId/actions.json";
+  // Consolidated Rules
+
+  Future<HealthRulesSet2> _loadRules2({String countyId}) async {
+    String url = "${Config().health2Url}/rules/county/$countyId/rules.json";
     Response response = await Network().get(url);
     String responseBody = (response?.statusCode == 200) ? response.body : null;
-//TMP:String responseBody = await rootBundle.loadString('assets/sample.health.rules.actions.json');
-    List<dynamic> responseJson = (responseBody != null) ? AppJson.decodeList(responseBody) : null;
-    return (responseJson != null) ? HealthActionRule2.listFromJson(responseJson) : null;
+//TMP:String responseBody = await rootBundle.loadString('assets/sample.health.rules.json');
+    Map<String, dynamic> responseJson = (responseBody != null) ? AppJson.decodeMap(responseBody) : null;
+    return (responseJson != null) ? HealthRulesSet2.fromJson(responseJson) : null;
   }
 
   // Access
 
   Future<Map<String, dynamic>> _loadAccessRules({String countyId}) async {
-    //String url = "https://rokwire-ios-beta.s3.us-east-2.amazonaws.com/Assets/covid19_access_rules.json";
     String url = "${Config().healthUrl}/covid19/access-rules/county/$countyId";
     Response response = await Network().get(url, auth: NetworkAuth.App);
     String responseBody = (response?.statusCode == 200) ? response.body : null;
