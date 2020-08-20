@@ -55,7 +55,7 @@
 	<key>NSCalendarsUsageDescription</key>
 	<string>Your calendar will be used to let you set reminders for important events.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Allow Illinois to access Camera.</string>
+	<string>Permission to access the camera is needed for QR Code scanning.</string>
 	<key>NSContactsUsageDescription</key>
 	<string>Allow Illinois to access Contacts.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
