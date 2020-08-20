@@ -621,6 +621,8 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler {
             exposureParams.put(Constants.EXPOSURE_PLUGIN_DURATION_PARAM_NAME, record.getDuration());
             exposureParams.put(Constants.EXPOSURE_PLUGIN_IOS_RECORD_PARAM_NAME, isiOS);
             exposureParams.put(Constants.EXPOSURE_PLUGIN_PERIPHERAL_UUID_PARAM_NAME, peripheralUuid);
+            exposureParams.put("maxRSSI", record.getMaxRssi());
+            exposureParams.put("avgRSSI", record.getAvgRssi());
             invokeFlutterMethod(Constants.EXPOSURE_PLUGIN_EXPOSURE_METHOD_NAME, exposureParams);
         }
     }
