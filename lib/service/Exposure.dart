@@ -857,9 +857,12 @@ class Exposure with Service implements NotificationsListener {
                ((exposure.timestamp - _rpiCheckExposureBuffer - _rpiRefreshInterval) < rpisMap[exposureRpiOnly])
           ) {
             Log.d("matched $exposureRpiOnly from $exposure.rpi");
-            var retval = decryptAEM(tek, exposure.rpi.toString());
-            Log.d("decryted AEM = " + retval.toString());
-            Log.d("exposure.maxRSSI" + exposure.maxRSSI.toString());
+            Uint8List retval = await decryptAEM(tek, exposure.rpi.toString());
+            var bytes = new ByteData.view(retval.buffer);
+            int calibration = bytes.getInt8(0);
+            int attenuation = calibration - exposure.maxRSSI;
+//            Log.d("decryted AEM = " + retval.toString());
+            Log.d("exposure.maxRSSI" + exposure.maxRSSI.toString() + " calibration $calibration, attenuation $attenuation");
 //            @TODO: attenuation = (int) AEM[0] - maxRSSI, use threshold provided by corona-warn app
 //            https://developers.google.com/android/exposure-notifications/ble-attenuation-overview
             DateTime exposureRecordDateUtc = exposure.dateUtc;
