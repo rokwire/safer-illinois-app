@@ -26,6 +26,7 @@ import 'package:illinois/service/Storage.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
+import 'package:illinois/ui/widgets/ScalableScrollView.dart';
 
 
 import 'Covid19ReportTestPanel.dart';
@@ -127,7 +128,7 @@ class _Covid19AddTestResultPanelState extends State<Covid19AddTestResultPanel> i
 
   Widget _buildContent() {
     bool manualTestsDisabledVisible = (_selectedProviderItem != null) && (!_canManuallyEnterResult && !_canRetrieve);
-    return Container(
+    return SingleChildScrollView(
       child: Column(
         children: <Widget>[
           Row(children: <Widget>[
@@ -143,10 +144,11 @@ class _Covid19AddTestResultPanelState extends State<Covid19AddTestResultPanel> i
           child:Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Container(
-              padding: EdgeInsets.only(left: 24, right: 5, bottom: 19, top: 5),
-              child: Text(Localization().getStringEx("panel.health.covid19.add_test.label.information","Why is this information needed?"), textAlign:TextAlign.left,style: TextStyle(color: Styles().colors.textSurface, fontSize: 14, fontFamily: Styles().fontFamilies.regular),),
-            ),
+            Expanded(child:
+              Container(
+                padding: EdgeInsets.only(left: 24, right: 5, bottom: 19, top: 5),
+                child: Text(Localization().getStringEx("panel.health.covid19.add_test.label.information","Why is this information needed?"), textAlign:TextAlign.left,style: TextStyle(color: Styles().colors.textSurface, fontSize: 14, fontFamily: Styles().fontFamilies.regular),),
+            ),),
             Container(
               child: Semantics(
                 label: Localization().getStringEx( "panel.health.covid19.history.label.more_info.title","More Info"),
@@ -158,7 +160,6 @@ class _Covid19AddTestResultPanelState extends State<Covid19AddTestResultPanel> i
               ))
             ),
           ],)),
-          Expanded(child:
             Container(
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: Column(children: <Widget>[
@@ -202,15 +203,26 @@ class _Covid19AddTestResultPanelState extends State<Covid19AddTestResultPanel> i
                     )),
                   ),
                 ),
-                Expanded(child: Container( alignment: Alignment.center,
-                  child: Visibility(
-                    visible: manualTestsDisabledVisible,
-                    child: Text(Localization().getStringEx( "panel.health.covid19.add_test.label.manual_tests_disabled","Test results from this health care provider will automatically appear if you have consented to Health Provider Test Results in settings and you are connected with your NetID."),
-                          textAlign: TextAlign.center, style: TextStyle(fontSize: 16, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface),))
-                ),),
+                Row(children: <Widget>[
+                  Expanded(child: Container( alignment: Alignment.center,
+                    child: Visibility(
+                      visible: manualTestsDisabledVisible,
+                      child: Text(Localization().getStringEx( "panel.health.covid19.add_test.label.manual_tests_disabled","Test results from this health care provider will automatically appear if you have consented to Health Provider Test Results in settings and you are connected with your NetID."),
+                            textAlign: TextAlign.center, style: TextStyle(fontSize: 16, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface),))
+                  ),),
+                ],),
+            ])),
+          Container(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 36),
+          alignment: Alignment.bottomCenter,
+            child:
+            Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.stretch,children: <Widget>[
                 _canRetrieve ? Stack(
                   children: <Widget>[
-                    RoundedButton(
+                    ScalableRoundedButton(
                       label: Localization().getStringEx("panel.health.covid19.add_test.button.retreive.title","Retrieve Results"),
                       onTap: _canRetrieve?_onTapRetrieveResult: (){},
                       enabled: _canRetrieve,
@@ -221,18 +233,15 @@ class _Covid19AddTestResultPanelState extends State<Covid19AddTestResultPanel> i
                   ],
                 ) : Container(),
                 Container(height: (_canRetrieve && _canManuallyEnterResult) ? 12 : 0,),
-                _canManuallyEnterResult ? RoundedButton(
-                  label:  Localization().getStringEx("panel.health.covid19.add_test.button.enter_manually.title","Manually Enter"),
-                  onTap: _canManuallyEnterResult?_onTapEnterManualTest : (){},
-                  enabled: _canManuallyEnterResult,
-                  backgroundColor: Styles().colors.white,
-                  borderColor:_canManuallyEnterResult? Styles().colors.fillColorSecondary : Styles().colors.surfaceAccent ,
-                  textColor: _canManuallyEnterResult? Styles().colors.fillColorSecondary : Styles().colors.surfaceAccent ) : Container(),
+                _canManuallyEnterResult ? ScalableRoundedButton(
+                    label:  Localization().getStringEx("panel.health.covid19.add_test.button.enter_manually.title","Manually Enter"),
+                    onTap: _canManuallyEnterResult?_onTapEnterManualTest : (){},
+                    enabled: _canManuallyEnterResult,
+                    backgroundColor: Styles().colors.white,
+                    borderColor:_canManuallyEnterResult? Styles().colors.fillColorSecondary : Styles().colors.surfaceAccent ,
+                    textColor: _canManuallyEnterResult? Styles().colors.fillColorSecondary : Styles().colors.surfaceAccent ) : Container(),
                 Container(height: 26,)
-            ])))
-        ],
-      ),
-    );
+      ],))]));
   }
 
   List<DropdownMenuItem<ProviderDropDownItem>> _buildProviderDropDownItems() {
