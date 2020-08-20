@@ -266,7 +266,7 @@ class _Covid19AddTestResultPanelState extends State<Covid19AddTestResultPanel> i
   }
 
   void _onTapRetrieveResult() {
-    if(_selectedProviderItem?.item?.name == "OSF Healthcare") {
+    if(_canRetrieve) {
       Analytics.instance.logSelect(target: "Retrieve Results");
       OSFHealth().authenticate();
     }
