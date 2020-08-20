@@ -75,7 +75,7 @@ static NSTimeInterval const kExposurePingInterval            =  60;     // 1 min
 static NSTimeInterval const kExposureProcessInterval         =  10;     // 10 sec
 static NSTimeInterval const kLocalNotificationInterval       =  60;     // 1 minute
 static NSTimeInterval const kExposureNotifyTickInterval      =   1;     // 1 sec
-static NSTimeInterval const kExposureMinDuration             = 120;     // 2 minutes
+static NSTimeInterval const kExposureMinDuration             =	 0;     // 0 minute
 
 static int const kNoRssi = 127;
 static int const kMinRssi = -50;
@@ -1032,6 +1032,10 @@ static ExposurePlugin *g_Instance = nil;
 	/* obtain start/endENInvertalNumber and timestamp i for teks generation */
 	uint32_t startENInvertalNumber = timestampInterval / kRPIRefreshInterval;
 	uint32_t endENInvertalNumber = expirestampInterval / kRPIRefreshInterval;
+
+	/* handle TEKs without expirestamp (0 or -1), default to 1 day later */
+	if (endENInvertalNumber < startENInvertalNumber || endENInvertalNumber > startENInvertalNumber + kTEKRollingPeriod)
+		endENInvertalNumber = startENInvertalNumber + kTEKRollingPeriod;
 	
 	NSMutableDictionary *rpis = [[NSMutableDictionary alloc] init];
 	for (uint32_t intervalIndex = startENInvertalNumber; intervalIndex <= endENInvertalNumber; intervalIndex++) {
