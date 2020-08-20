@@ -769,6 +769,11 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler {
 
         int startENIntervalNumber = (int) (timestampInSecs / RPI_REFRESH_INTERVAL_SECS);
         int endENIntervalNumber = (int) (expireTimeInSecs / RPI_REFRESH_INTERVAL_SECS);
+
+        /* handle TEKs without expirestamp (0 or -1), default to 1 day later */
+        if (endENIntervalNumber < startENIntervalNumber || endENIntervalNumber > startENIntervalNumber + TEKRollingPeriod)
+            endENIntervalNumber = startENIntervalNumber + TEKRollingPeriod;
+
         Map<String, Long> rpiList = new HashMap<>();
         for (int intervalIndex = startENIntervalNumber; intervalIndex <= endENIntervalNumber; intervalIndex++) {
             byte[] rpi = generateRpiForIntervalNumber(intervalIndex, tek);
