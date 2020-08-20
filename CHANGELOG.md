@@ -10,5 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GitHub Issue templates.
 
 ### Changed
+- Handle TEKs without expirestamp in ExposurePlugin.java
+- Updated "covid19ExposureServiceLogMinDuration" setting to default to 0.
 - Update README and repository description.
 - Clean up CHANGELOG.
+
