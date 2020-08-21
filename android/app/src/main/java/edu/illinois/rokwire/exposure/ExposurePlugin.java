@@ -328,7 +328,7 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler {
         byte[] metadata = new byte[4];
         byte[] AEM_byte = new byte[4];
         metadata[0] = (byte) exposureTxCalibration;
-        Log.d(TAG, "using AEM" + byteArrayToHexString(metadata));
+//        Log.d(TAG, "using AEM" + byteArrayToHexString(metadata));
         try {
             AEM_byte = AES_CTR.encrypt(AEMK, rpi_byte, metadata);
         } catch (Exception e) {
@@ -1273,7 +1273,6 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler {
                     }
                     break;
                 case Constants.EXPOSURE_PLUGIN_METHOD_NAME_TEK_RPIS:
-                    //    @TODO: finish java side native method call for rpi (without AEM) generation
                     Object parameters = call.arguments;
                     String tekString = Utils.Map.getValueFromPath(parameters, Constants.EXPOSURE_PLUGIN_TEK_PARAM_NAME, null);
                     byte[] tek = Utils.Base64.decode(tekString);
@@ -1288,7 +1287,6 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler {
                     break;
                 case Constants.EXPOSURE_PLUGIN_METHOD_NAME_CALIBRATION:
                     exposureTxCalibration = Utils.Map.getValueFromPath(call.arguments, "calibration", 127);
-                    Log.d(TAG, "&&&&& " + Integer.toString(exposureTxCalibration));
                 default:
                     result.success(null);
                     break;

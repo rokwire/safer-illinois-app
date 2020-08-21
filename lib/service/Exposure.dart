@@ -118,6 +118,9 @@ class Exposure with Service implements NotificationsListener {
   static const int _rpiCheckExposureBuffer = (30 * 60 * 1000); // 30 min as buffer time
   static const int _millisecondsInDay = 24 * 60 * 60 * 1000; // 1 day, in milliseconds
   static const int _exposureExpireInterval = 14 * _millisecondsInDay; // 14 days, in milliseconds
+
+  static const int noRssiCalibration = 127;
+  static const int minAttenuation = 72;
   
   // Data
   final MethodChannel _methodChannel = const MethodChannel(_methodChannelName);
@@ -308,7 +311,7 @@ class Exposure with Service implements NotificationsListener {
         body = response.body;
         calibration = int.parse(body);
       }else{
-        calibration = 127;
+        calibration = noRssiCalibration;
       }
       Log.d('using cal = $calibration');
       await _methodChannel.invokeMethod(_exposureCalibrationMethodName, {
@@ -839,7 +842,6 @@ class Exposure with Service implements NotificationsListener {
 
     for (ExposureTEK tek in reportedTEKs) {
       Map<String, int> rpisMap = await _loadTekRPIs(tek);
-      Log.d("expansion into rpi " + rpisMap.toString());
       if (rpisMap != null) {
         Set<String> rpisSet = Set.from(rpisMap.keys);
         Set<int> detectedExposures;
@@ -848,23 +850,22 @@ class Exposure with Service implements NotificationsListener {
         int exposureDuration = 0;
         for (ExposureRecord exposure in exposures) {
           Uint8List exposureRpiTruncated = decoder.decode(exposure.rpi);
-          Log.d("exposureRpiTruncated = $exposureRpiTruncated");
           exposureRpiTruncated = exposureRpiTruncated.sublist(0, 16);
-          Log.d("exposureRpiTruncated[0:16] = $exposureRpiTruncated");
           String exposureRpiOnly = base64Encode(exposureRpiTruncated);
+          Uint8List retval = await decryptAEM(tek, exposure.rpi.toString());
+          var bytes = new ByteData.view(retval.buffer);
+          int calibration = bytes.getInt8(0);
+          int attenuation = calibration - exposure.maxRSSI;
+//            Log.d("decryted AEM = " + retval.toString());
+          Log.d("exposure.maxRSSI" + exposure.maxRSSI.toString() + " calibration $calibration, attenuation $attenuation");
+//            attenuation = (int) AEM[0] - maxRSSI, use threshold provided by corona-warn app
+//            https://developers.google.com/android/exposure-notifications/ble-attenuation-overview
           if (rpisSet.contains(exposureRpiOnly) &&
                ((exposure.timestamp + _rpiCheckExposureBuffer) >= rpisMap[exposureRpiOnly]) &&
-               ((exposure.timestamp - _rpiCheckExposureBuffer - _rpiRefreshInterval) < rpisMap[exposureRpiOnly])
+               ((exposure.timestamp - _rpiCheckExposureBuffer - _rpiRefreshInterval) < rpisMap[exposureRpiOnly]) &&
+               (attenuation < minAttenuation || calibration == noRssiCalibration || exposure.maxRSSI == 127)
           ) {
             Log.d("matched $exposureRpiOnly from $exposure.rpi");
-            Uint8List retval = await decryptAEM(tek, exposure.rpi.toString());
-            var bytes = new ByteData.view(retval.buffer);
-            int calibration = bytes.getInt8(0);
-            int attenuation = calibration - exposure.maxRSSI;
-//            Log.d("decryted AEM = " + retval.toString());
-            Log.d("exposure.maxRSSI" + exposure.maxRSSI.toString() + " calibration $calibration, attenuation $attenuation");
-//            @TODO: attenuation = (int) AEM[0] - maxRSSI, use threshold provided by corona-warn app
-//            https://developers.google.com/android/exposure-notifications/ble-attenuation-overview
             DateTime exposureRecordDateUtc = exposure.dateUtc;
             if ((exposureRecordDateUtc != null) && ((exposureDateUtc == null) || exposureRecordDateUtc.isBefore(exposureDateUtc))) {
               exposureDateUtc = exposureRecordDateUtc;
@@ -1019,7 +1020,6 @@ class Exposure with Service implements NotificationsListener {
     Uint8List en_aem = Uint8List.fromList(rpilist.getRange(16, 20).toList());
     AesCryptRaw aes = AesCryptRaw(key: aemk, padding: PaddingAES.none);
     Uint8List decrypted = aes.ctr.decrypt(enc: en_aem, iv: en_rpi); //Encrypt.
-    Log.d("decrypted aem = $decrypted");
     return decrypted;
   }
 

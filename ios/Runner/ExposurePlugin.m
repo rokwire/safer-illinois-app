@@ -508,8 +508,6 @@ static ExposurePlugin *g_Instance = nil;
 
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary<NSString *, id> *)advertisementData RSSI:(NSNumber *)RSSI {
     
-    NSNumber *power = advertisementData[CBAdvertisementDataTxPowerLevelKey];
-    NSLog(@"the power = %.2f", [power doubleValue]);
 	CBUUID *serviceUuid = [CBUUID UUIDWithString:kServiceUuid];
 	if ([advertisementData inaAdvertisementDataContainsServiceWithUuid:serviceUuid]) {
 
@@ -998,7 +996,7 @@ static ExposurePlugin *g_Instance = nil;
     if (!rpiOnly){
         [ble_load appendData:en_aem];
     }
-	NSLog(@"ExposurePlugin: BLE_Payload {%@}", ble_load);
+//	NSLog(@"ExposurePlugin: BLE_Payload {%@}", ble_load);
 	return ble_load;
 }
 
@@ -1413,6 +1411,9 @@ static ExposurePlugin *g_Instance = nil;
 }
 
 - (NSInteger)avgRSSI {
+    if (_cntRSSI == 0){
+        return (NSInteger) kNoRssi;
+    }
     return (NSInteger) (roundf((float)_sumRSSI / (float)_cntRSSI));
 }
 
