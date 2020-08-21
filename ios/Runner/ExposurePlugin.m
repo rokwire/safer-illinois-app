@@ -1407,6 +1407,9 @@ static ExposurePlugin *g_Instance = nil;
 }
 
 - (NSInteger)maxRSSI {
+    if (_maxRSSI == -128){
+        return kNoRssi;
+    }
     return _maxRSSI;
 }
 

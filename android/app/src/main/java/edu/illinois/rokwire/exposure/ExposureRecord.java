@@ -71,10 +71,16 @@ class ExposureRecord {
     }
 
     int getMaxRssi() {
+        if (maxRssi == -128) {
+            return Constants.EXPOSURE_NO_RSSI_VALUE;
+        }
         return maxRssi;
     }
 
     int getAvgRssi() {
-        return (int) (Math.round(sumRssi / cntRssi));
+        if (cntRssi == 0){
+            return Constants.EXPOSURE_NO_RSSI_VALUE;
+        }
+        return (Math.round((float)sumRssi / cntRssi));
     }
 }
