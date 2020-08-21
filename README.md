@@ -1,78 +1,28 @@
-# Safer Illinois App
-The official COVID-19 app of the University of Illinois. Powered by the [Rokwire Platform](https://rokwire.org/).
+# Pull request: 
 
-## Requirements
+This pull request add a new way to measure the attenuation of bluetooth signal as described by Google: https://developers.google.com/android/exposure-notifications/ble-attenuation-overview. This method helps us find attenuation values without the need of Tx_power of host devices. 
+This PR aims to replace the MinRSSI filtering you've included in earlier versions. (included in this PR) With the RSSI values we can also use it as a rough approximation of distance and improve the exposure scoring function. (not included in this PR)
 
-### [Flutter](https://flutter.dev/docs/get-started/install) v1.17.5
+Related change: 
 
-### [Android Studio](https://developer.android.com/studio) 3.6+
+1. RSSI values are stored in exposure data structures in both native and flutter. We collect average and maximum RSSI but used only maximum RSSI. This decision is made to better comply with the cumulative scoring method. 
+2. We use the first btye of the AEM region to share the calibration values as mentioned in Google documentation. Since Apple devices' Tx_power has very small variation, we hardcoded this value to be -12 (value of CBAdvertisementDataTxPowerLevelKey) for iOS. 
+3. RPI matching method is changed. Before this RPI || AEM is compared. We change the matching to compare RPI only.
+4. We set the minimum attenuation to be +72 as described by Corona-Warn App. This value has similar effect to MinRSSI = -90. This is subject to change when more real-world data and testing is avaliable.
+5. New columns added to local database in Flutter. To include this change at testing, uninstallation of an older version app is needed. Please help us handle this change to avoid uninstallation for users.
+6. In order to match each device with a calibration value, Google documentation has provided a table of measurements: https://developers.google.com/android/exposure-notifications/files/en-calibration-2020-08-12.csv. We implemented the sever side for your reference: https://github.com/lijianw97/cotracker_backend_testingFramework/commit/e8f35b01f02038bd26122914d81db71b16f0291b. The table of measurements is copied into server side database. In addition, one endpoint is introduced where the server provide calibration value given device OEM and model. 
 
-### [xCode](https://apps.apple.com/us/app/xcode/id497799835) 11.5
+# Files changed: 
+## ExposurePlugin.m & ExposureRecord.java & ExposurePlugin.java
+- Include calibration value in AEM
+- Change channel method 'tekRPIs' to support for RPI matching
+- Collect RSSI related values
 
-### [CocoaPods](https://guides.cocoapods.org/using/getting-started.html) 1.9.3+
+## Exposure.dart 
 
+- Change local database to store RSSI value
+- Introduced function to decrypt AEM region when checking for exposure
+- Update the RPI matching and attenuation filtering when checking for exposure
+- Request the server to find the calibration value for host device
 
-## Build
-
-
-### Clone this repo
-
-### Supply the following private configuration files:
-
-#### • /.travis.yml
-[No description available]
-
-
-#### • /secrets.tar.enc
-[No description available]
-
-#### • /assets/configs.json.enc
-1. JSON data with the following format:
-```
-{
-  "production": {
-    "config_url": "https://api.rokwire.illinois.edu/app/configs",
-    "api_key": "XXXXXXXX-XXXX-XXXX-XXXXXXXXXXXXXXXXX"
-  },
-  "dev": {
-    "config_url": "https://api-dev.rokwire.illinois.edu/app/configs",
-    "api_key": "XXXXXXXX-XXXX-XXXX-XXXXXXXXXXXXXXXXX"
-  },
-  "test": {
-    "config_url": "https://api-test.rokwire.illinois.edu/app/configs",
-    "api_key": "XXXXXXXX-XXXX-XXXX-XXXXXXXXXXXXXXXXX"
-  }
-}
-```
-2. Generate random 16-bytes AES128 key.
-3. AES encrypt the JSON string, CBC mode, PKCS7 padding, using the AES.
-4. Create a data blob contains the AES key at the beginning followed by the encrypted data.
-5. Get a base64 encoded string of the data blob and save it as /assets/configs.json.enc.
-
-Alternatively, you can use AESCrypt.encode from /lib/utils/Crypt.dart to generate content of /assets/configs.json.enc.
-
-#### • /ios/Runner/GoogleService-Info-Debug.plist
-#### • /ios/Runner/GoogleService-Info-Release.plist
-
-The Firebase configuration file for iOS generated from Google Firebase console.
-
-#### • /android/keys.properties
-Contains a GoogleMaps and Android Backup API keys.
-```
-googleMapsApiKey=XXXXXXXXXXXXXXXXXXXXXX-XXXXXXXXXXXXXXXX
-androidBackupApiKey=XXXXXXXXXXXXXXXXXXXXXX-XXXXXXXXXXXXXXXXXXXXXXXXXXX
-```
-
-#### • /android/app/src/debug/google-services.json
-#### • /android/app/src/release/google-services.json
-#### • /android/app/src/profile/google-services.json
-The Firebase configuration file for Android generated from Google Firebase console.
-
-### Build the project
-
-```
-$ flutter build apk
-$ flutter build ios
-```
-NB: You may need to update singing & capabilities content for Runner project by opening /ios/Runner.xcworkspace from xCode
-
+## Server
