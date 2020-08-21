@@ -255,8 +255,7 @@ class Exposure with Service implements NotificationsListener {
   // Initialize and Destroy
 
   bool get _serviceEnabled {
-    return  (Config().settings['covid19ExposureMonitorEnabled'] == true);// &&
-    //  (Health().userExposureNotification == true);
+    return  (Config().settings['covid19ExposureMonitorEnabled'] == true) && (Health().userExposureNotification == true);
   }
 
   bool get _pluginEnabled {
