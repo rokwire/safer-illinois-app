@@ -26,6 +26,7 @@ import 'package:illinois/service/Storage.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
+import 'package:illinois/utils/Utils.dart';
 
 
 import 'Covid19ReportTestPanel.dart';
@@ -79,6 +80,17 @@ class _Covid19AddTestResultPanelState extends State<Covid19AddTestResultPanel> i
     super.dispose();
   }
 
+  void handleOnFinished(dynamic param){
+    if(param is Map){
+      int processedEntriesCount = param['processedEntriesCount'];
+      if(processedEntriesCount == null || processedEntriesCount == 0){
+        AppAlert.showDialogResult(context, Localization().getStringEx("panel.health.covid19.add_test.message.no_result_found", "No results found",)).then((value) => Navigator.pop(context));
+      } else {
+        Navigator.pop(context);
+      }
+    }
+  }
+
   // NotificationsListener
   
   @override
@@ -87,7 +99,7 @@ class _Covid19AddTestResultPanelState extends State<Covid19AddTestResultPanel> i
       _retrieving = true;
     } else if (name == OSFHealth.notifyOnFetchFinished) {
       _retrieving = false;
-      Navigator.pop(context);
+      handleOnFinished(param);
     }
   }
 
@@ -126,7 +138,7 @@ class _Covid19AddTestResultPanelState extends State<Covid19AddTestResultPanel> i
   }
 
   Widget _buildContent() {
-    bool manualTestsDisabledVisible = (_selectedProviderItem != null) && (!_canManuallyEnterResult && !_canRetrieve);
+    bool manualTestsDisabledVisible = (_selectedProviderItem != null) && (!_canManuallyEnterResult && !_canRetrieve) && !_retrieving;
     return Container(
       child: Column(
         children: <Widget>[
@@ -209,6 +221,7 @@ class _Covid19AddTestResultPanelState extends State<Covid19AddTestResultPanel> i
                           textAlign: TextAlign.center, style: TextStyle(fontSize: 16, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface),))
                 ),),
                 _canRetrieve ? Stack(
+                  alignment: Alignment.center,
                   children: <Widget>[
                     RoundedButton(
                       label: Localization().getStringEx("panel.health.covid19.add_test.button.retreive.title","Retrieve Results"),
@@ -266,7 +279,7 @@ class _Covid19AddTestResultPanelState extends State<Covid19AddTestResultPanel> i
   }
 
   void _onTapRetrieveResult() {
-    if(_canRetrieve) {
+    if(_canRetrieve && !_retrieving) {
       Analytics.instance.logSelect(target: "Retrieve Results");
       OSFHealth().authenticate();
     }
@@ -349,9 +362,6 @@ class _Covid19AddTestResultPanelState extends State<Covid19AddTestResultPanel> i
   }
 
   bool get _canRetrieve {
-    if (_retrieving) {
-      return false;
-    }
     if (_selectedProviderItem?.item == null) { //'Other' provider
       return false;
     }

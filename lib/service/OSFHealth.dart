@@ -85,6 +85,7 @@ class OSFHealth with Service implements NotificationsListener {
   Future<void> _handleOSFAuthentication(String code) async{
     NotificationService().notify(notifyOnFetchBegin, null);
     NativeCommunicator().dismissSafariVC();
+    int processedEntriesCount = 0;
     try {
       Response response = await Network().post("${Config().osfBaseUrl}/oauth2/token",
           headers: {"Accept": "application/json"},
@@ -143,7 +144,7 @@ class OSFHealth with Service implements NotificationsListener {
               }
             }
             if(osfTests.isNotEmpty){
-              Health().processOsfTests(osfTests: osfTests);
+              processedEntriesCount = await Health().processOsfTests(osfTests: osfTests);
             }
           }
         }
@@ -152,7 +153,7 @@ class OSFHealth with Service implements NotificationsListener {
         AppToast.show("POST ${response.request.url.toString()} \n${response.reasonPhrase}");
       }
     } finally {
-      NotificationService().notify(notifyOnFetchFinished, null);
+      NotificationService().notify(notifyOnFetchFinished, {"processedEntriesCount": processedEntriesCount});
     }
   }
 

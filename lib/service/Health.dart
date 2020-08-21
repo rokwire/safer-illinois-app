@@ -1061,7 +1061,7 @@ class Health with Service implements NotificationsListener {
     }
   }
 
-  Future<void> processOsfTests({List<Covid19OSFTest> osfTests}) async {
+  Future<int> processOsfTests({List<Covid19OSFTest> osfTests}) async {
     if (osfTests != null) {
       List<Covid19OSFTest> processed = List<Covid19OSFTest>();
       DateTime lastOsfTestDate = Storage().lastHealthCovid19OsfTestDate;
@@ -1079,9 +1079,9 @@ class Health with Service implements NotificationsListener {
         }
       }
       if (latestOsfTestDate != null) {
-          Storage().lastHealthCovid19OsfTestDate = latestOsfTestDate;
+        Storage().lastHealthCovid19OsfTestDate = latestOsfTestDate;
       }
-      
+
       if (0 < processed.length) {
         NotificationService().notify(notifyHistoryUpdated, null);
 
@@ -1094,17 +1094,19 @@ class Health with Service implements NotificationsListener {
 
         for (Covid19OSFTest osfTest in processed) {
           Analytics().logHealth(
-            action: Analytics.LogHealthProviderTestProcessedAction,
-            status: newHealthStatus,
-            prevStatus: lastHealthStatus,
-            attributes: {
-              Analytics.LogHealthProviderName: osfTest.provider,
-              Analytics.LogHealthTestTypeName: osfTest.testType,
-              Analytics.LogHealthTestResultName: osfTest.testResult,
-            });
+              action: Analytics.LogHealthProviderTestProcessedAction,
+              status: newHealthStatus,
+              prevStatus: lastHealthStatus,
+              attributes: {
+                Analytics.LogHealthProviderName: osfTest.provider,
+                Analytics.LogHealthTestTypeName: osfTest.testType,
+                Analytics.LogHealthTestResultName: osfTest.testResult,
+              });
         }
       }
+      return processed.length;
     }
+    return 0;
   }
   
   Future<bool> processManualTest(Covid19ManualTest test) async {
