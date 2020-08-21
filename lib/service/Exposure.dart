@@ -852,39 +852,40 @@ class Exposure with Service implements NotificationsListener {
           Uint8List exposureRpiTruncated = decoder.decode(exposure.rpi);
           exposureRpiTruncated = exposureRpiTruncated.sublist(0, 16);
           String exposureRpiOnly = base64Encode(exposureRpiTruncated);
-          Uint8List retval = await decryptAEM(tek, exposure.rpi.toString());
-          var bytes = new ByteData.view(retval.buffer);
-          int calibration = bytes.getInt8(0);
-          int attenuation = calibration - exposure.maxRSSI;
-//            Log.d("decryted AEM = " + retval.toString());
-          Log.d("exposure.maxRSSI" + exposure.maxRSSI.toString() + " calibration $calibration, attenuation $attenuation");
-//            attenuation = (int) AEM[0] - maxRSSI, use threshold provided by corona-warn app
-//            https://developers.google.com/android/exposure-notifications/ble-attenuation-overview
           if (rpisSet.contains(exposureRpiOnly) &&
                ((exposure.timestamp + _rpiCheckExposureBuffer) >= rpisMap[exposureRpiOnly]) &&
-               ((exposure.timestamp - _rpiCheckExposureBuffer - _rpiRefreshInterval) < rpisMap[exposureRpiOnly]) &&
-               (attenuation < minAttenuation || calibration == noRssiCalibration || exposure.maxRSSI == 127)
+               ((exposure.timestamp - _rpiCheckExposureBuffer - _rpiRefreshInterval) < rpisMap[exposureRpiOnly])
           ) {
-            Log.d("matched $exposureRpiOnly from $exposure.rpi");
-            DateTime exposureRecordDateUtc = exposure.dateUtc;
-            if ((exposureRecordDateUtc != null) && ((exposureDateUtc == null) || exposureRecordDateUtc.isBefore(exposureDateUtc))) {
-              exposureDateUtc = exposureRecordDateUtc;
-            }
-            exposureDuration += exposure.duration;
-            if (detectedExposures == null) {
-              detectedExposures = Set<int>();
-            }
-            detectedExposures.add(exposure.id);
+            Uint8List retval = await decryptAEM(tek, exposure.rpi.toString());
+            var bytes = new ByteData.view(retval.buffer);
+            int calibration = bytes.getInt8(0);
+            int attenuation = calibration - exposure.maxRSSI;
+//            Log.d("decryted AEM = " + retval.toString());
+            Log.d("exposure.maxRSSI" + exposure.maxRSSI.toString() + " calibration $calibration, attenuation $attenuation");
+//            attenuation = (int) AEM[0] - maxRSSI, use threshold provided by corona-warn app
+//            https://developers.google.com/android/exposure-notifications/ble-attenuation-overview
+            if ((attenuation < minAttenuation || calibration == noRssiCalibration || exposure.maxRSSI == 127)) {
+              Log.d("matched $exposureRpiOnly from $exposure.rpi");
+              DateTime exposureRecordDateUtc = exposure.dateUtc;
+              if ((exposureRecordDateUtc != null) && ((exposureDateUtc == null) || exposureRecordDateUtc.isBefore(exposureDateUtc))) {
+                exposureDateUtc = exposureRecordDateUtc;
+              }
+              exposureDuration += exposure.duration;
+              if (detectedExposures == null) {
+                detectedExposures = Set<int>();
+              }
+              detectedExposures.add(exposure.id);
 
-            // increment the exposure in that time interval
-            int intervalNum = exposure.timestamp ~/ _rpiRefreshInterval;
-            if (intervalNum >= scoringDayThreshold) {
+              // increment the exposure in that time interval
+              int intervalNum = exposure.timestamp ~/ _rpiRefreshInterval;
+              if (intervalNum >= scoringDayThreshold) {
                 // filter out the date before the day threshold
                 Set<String> durationRPISet = scoringExposures[intervalNum];
                 if (durationRPISet == null) {
                   scoringExposures[intervalNum] = durationRPISet = Set<String>();
                 }
                 durationRPISet.add(exposure.rpi);
+              }
             }
           }
         }
