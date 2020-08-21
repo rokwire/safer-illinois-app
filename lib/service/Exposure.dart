@@ -120,6 +120,7 @@ class Exposure with Service implements NotificationsListener {
   static const int _exposureExpireInterval = 14 * _millisecondsInDay; // 14 days, in milliseconds
 
   static const int noRssiCalibration = 127;
+  static const int oldAEMPayload = 0;
   static const int minAttenuation = 72;
   
   // Data
@@ -864,7 +865,7 @@ class Exposure with Service implements NotificationsListener {
             Log.d("exposure.maxRSSI" + exposure.maxRSSI.toString() + " calibration $calibration, attenuation $attenuation");
 //            attenuation = (int) AEM[0] - maxRSSI, use threshold provided by corona-warn app
 //            https://developers.google.com/android/exposure-notifications/ble-attenuation-overview
-            if ((attenuation < minAttenuation || calibration == noRssiCalibration || exposure.maxRSSI == 127)) {
+            if ((attenuation < minAttenuation || calibration == noRssiCalibration || calibration == oldAEMPayload || exposure.maxRSSI == 127)) {
               Log.d("matched $exposureRpiOnly from $exposure.rpi");
               DateTime exposureRecordDateUtc = exposure.dateUtc;
               if ((exposureRecordDateUtc != null) && ((exposureDateUtc == null) || exposureRecordDateUtc.isBefore(exposureDateUtc))) {
