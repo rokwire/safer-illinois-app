@@ -529,6 +529,8 @@ class _TestLocation extends StatelessWidget{
       int nowMinutes = now.hour * 60 + now.minute;
 
       return startMinutes<nowMinutes && nowMinutes<endtMinutes;
+    }
+  }
 
   bool _determineWillOpen(HealthLocationDayOfOperation period) {
     String start = period?.openTime?.toUpperCase();
