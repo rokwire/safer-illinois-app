@@ -530,6 +530,8 @@ class _TestLocation extends StatelessWidget{
 
       return startMinutes<nowMinutes && nowMinutes<endtMinutes;
     }
+
+    return false;
   }
 
   bool _determineWillOpen(HealthLocationDayOfOperation period) {
