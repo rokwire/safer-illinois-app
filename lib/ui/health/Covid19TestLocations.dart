@@ -490,22 +490,25 @@ class _TestLocation extends StatelessWidget{
     return workingPeriods!=null? workingPeriods[currentWeekDay] : null;
   }
 
-  HealthLocationDayOfOperation _findNextPeriod(LinkedHashMap<int,HealthLocationDayOfOperation> workingPeriods){
-    int currentWeekDay = DateTime.now().weekday;
-    if(workingPeriods!=null && workingPeriods.isNotEmpty) {
-        int nextDay = currentWeekDay +1;
-        if(nextDay == DateTime.sunday) //start from the begining
-          return workingPeriods?.values?.toList()[0];
-        else {
-          for (int i = nextDay; i <= DateTime.sunday; i++) {
-            HealthLocationDayOfOperation period = workingPeriods[i];
-            if(period!=null)
-              return period;
-          } 
-          //If there is no nex period - reloop
-          return workingPeriods?.values?.toList()[0];
-        }
-    } 
+  HealthLocationDayOfOperation _findNextPeriod(
+      LinkedHashMap<int, HealthLocationDayOfOperation> workingPeriods) {
+    if (workingPeriods != null && workingPeriods.isNotEmpty) {
+      // Modulus math works better with 0 based indexes, and flutter uses 1 based
+      // weekdays
+      int currentWeekDay0 = DateTime.now().weekday - 1;
+      for (int offset = 1; offset < 7; offset++) {
+        // Take the current day (0 based), add the offset we want to check,
+        // modulus 7 to wrap it around in the array, and add 1 to get the flutter
+        // weekday index.
+        int offsetDay = ((currentWeekDay0 + i) % 7) + 1;
+
+        HealthLocationDayOfOperation period = workingPeriods[offsetDay];
+        if (period != null) return period;
+      }
+
+      //If there is no nex period - return the fist element
+      return workingPeriods?.values?.toList()[0];
+    }
     return null;
   }
 
