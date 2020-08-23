@@ -500,7 +500,7 @@ class _TestLocation extends StatelessWidget{
         // Take the current day (0 based), add the offset we want to check,
         // modulus 7 to wrap it around in the array, and add 1 to get the flutter
         // weekday index.
-        int offsetDay = ((currentWeekDay0 + i) % 7) + 1;
+        int offsetDay = ((currentWeekDay0 + offset) % 7) + 1;
 
         HealthLocationDayOfOperation period = workingPeriods[offsetDay];
         if (period != null) return period;
