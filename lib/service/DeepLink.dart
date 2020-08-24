@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
+import 'dart:async';
+
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
 import 'package:uni_links/uni_links.dart';
 
 class DeepLink with Service {
-  static const String notifyUri  = "edu.illinois.rokwire.deeplink.uri";
+  static const String notifyUri = "edu.illinois.rokwire.deeplink.uri";
+
+  List<Uri> _urisCache;
 
   static final DeepLink _deepLink = DeepLink._internal();
 
@@ -31,8 +35,46 @@ class DeepLink with Service {
 
   @override
   void createService() {
+    // Differentiate initial uri from updated uri
+
+    // Cache uris until UI is displayed
+    _urisCache = List<Uri>();
+
+    // 1. Initial Uri
+    getInitialUri().then((uri) {
+      _notifyUri(uri);
+    });
+
+    // 2. Updated uri
     getUriLinksStream().listen((Uri uri) async {
       NotificationService().notify(notifyUri, uri);
     });
+  }
+
+  @override
+  void initServiceUI() {
+    super.initServiceUI();
+    // Make delay as the root panel is not build yet
+    Timer(Duration(seconds: 2), _notifyCachedUris);
+  }
+
+  void _notifyCachedUris() {
+    if (_urisCache != null) {
+      List<Uri> urisCache = _urisCache;
+      _urisCache = null;
+      for (Uri uri in urisCache) {
+        _notifyUri(uri);
+      }
+    }
+  }
+
+  void _notifyUri(Uri uri) {
+    if (uri != null) {
+      if (_urisCache != null) {
+        _urisCache.add(uri);
+      } else {
+        NotificationService().notify(notifyUri, uri);
+      }
+    }
   }
 }
