@@ -268,7 +268,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
             label: Localization().getStringEx("panel.settings.home.connect.not_logged_in.netid.title", "Connect your NetID"),
             onTap: _onConnectNetIdClicked),);
       }
-      else if (code == 'phone') {
+      /*else if (code == 'phone') {
           contentList.add(Padding(
             padding: EdgeInsets.all(10),
             child: new RichText(
@@ -290,7 +290,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
             border: Border.all(color: Styles().colors.surfaceAccent, width: 0),
             label: Localization().getStringEx("panel.settings.home.connect.not_logged_in.phone.title", "Verify Your Phone Number"),
             onTap: _onPhoneVerClicked),);
-      }
+      }*/
     }
 
     return Padding(
@@ -437,13 +437,13 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
                 Text(Auth().phoneToken?.phone ?? "", style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 20)),
               ]))));
       }
-      else if (code == 'verify') {
+      /*else if (code == 'verify') {
         contentList.add(RibbonButton(
             borderRadius: borderRadius,
             border: Border.all(color: Styles().colors.surfaceAccent, width: 0),
             label: Localization().getStringEx("panel.settings.home.phone_ver.button.connect", "Verify Your Phone Number"),
             onTap: _onPhoneVerClicked));
-      }
+      }*/
       else if (code == 'disconnect') {
         contentList.add(RibbonButton(
             borderRadius: borderRadius,
