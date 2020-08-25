@@ -121,7 +121,7 @@ class _SettingsPersonalInfoPanelState extends State<SettingsPersonalInfoPanel> {
           visible: Auth().isShibbolethLoggedIn,
           child: Padding(
             padding: EdgeInsets.symmetric( vertical: 5),
-            child: RoundedButton(
+            child: ScalableRoundedButton(
               label: Localization().getStringEx("panel.profile_info.button.sign_out.title", "Sign Out"),
               hint: Localization().getStringEx("panel.profile_info.button.sign_out.hint", ""),
               backgroundColor: Styles().colors.background,
@@ -134,7 +134,7 @@ class _SettingsPersonalInfoPanelState extends State<SettingsPersonalInfoPanel> {
         ),
         Padding(
           padding: EdgeInsets.symmetric( vertical: 5),
-          child: RoundedButton(
+          child: ScalableRoundedButton(
             label: Localization().getStringEx("panel.profile_info.button.remove_my_information.title", "Remove My Information"),
             hint: Localization().getStringEx("panel.profile_info.button.remove_my_information.hint", ""),
             backgroundColor: Styles().colors.background,
@@ -353,31 +353,36 @@ class _PersonalInfoEntry extends StatelessWidget {
     return visible
         ? Container(
             margin: EdgeInsets.only(top: 25),
-            child: Row(
-              children: <Widget>[
+            child:
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text(
-                      title,
-                      style: TextStyle(
-                          fontFamily: Styles().fontFamilies.medium,
-                          fontSize: 14,
-                          letterSpacing: 0.5,
-                          color: Styles().colors.textBackground),
-                    ),
+                    Row(children: <Widget>[
+                      Expanded(child:
+                        Text(
+                          title,
+                          style: TextStyle(
+                              fontFamily: Styles().fontFamilies.medium,
+                              fontSize: 14,
+                              letterSpacing: 0.5,
+                              color: Styles().colors.textBackground),
+                        ),
+                      )
+                    ],),
                     Container(
                       height: 5,
                     ),
-                    Text(
-                      value,
-                      style:
+                    Row(children: <Widget>[
+                      Expanded(child:
+                        Text(
+                          value,
+                          style:
                           TextStyle(fontSize: 20, color: Styles().colors.fillColorPrimary),
-                    )
+                        ),)
+                    ],),
+
                   ],
                 ),
-              ],
-            ),
         )
         : Container();
   }
