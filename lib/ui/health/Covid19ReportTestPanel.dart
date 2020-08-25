@@ -177,7 +177,7 @@ class _Covid19ReportTestPanelSate extends State<Covid19ReportTestPanel>{
         GestureDetector(
           onTap: _onTapPickTime,
           child: Container(
-            height: 48,
+//            height: 48,
 //            width: 142,
             decoration: BoxDecoration(
                 border: Border.all(color: Styles().colors.surfaceAccent, width: 1),
@@ -186,12 +186,14 @@ class _Covid19ReportTestPanelSate extends State<Covid19ReportTestPanel>{
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Text(
-                  AppString.getDefaultEmptyString(value: dateText, defaultValue: ''),
-                  style: TextStyle(
-                      color: Styles().colors.fillColorPrimary,
-                      fontSize: 16,
-                      fontFamily: Styles().fontFamilies.medium),
+                Expanded(child:
+                  Text(
+                    AppString.getDefaultEmptyString(value: dateText, defaultValue: ''),
+                    style: TextStyle(
+                        color: Styles().colors.fillColorPrimary,
+                        fontSize: 16,
+                        fontFamily: Styles().fontFamilies.medium),
+                  ),
                 ),
                 Image.asset('images/icon-down-orange.png')
               ],
@@ -318,13 +320,13 @@ class _Covid19ReportTestPanelSate extends State<Covid19ReportTestPanel>{
         Container(
           padding: EdgeInsets.symmetric(vertical: 26),
           child: Center(
-            child: RoundedButton(
+            child: ScalableRoundedButton(
               label: Localization().getStringEx("panel.health.report_test.button.add_test.title", "Add Test"),
               backgroundColor: Colors.white,
               borderColor: Styles().colors.fillColorSecondary,
               textColor: Styles().colors.fillColorPrimary,
               onTap: _onTapAddTest,
-              height: 48,
+//              height: 48,
             ),
           )
           ,),
@@ -367,7 +369,6 @@ class _Covid19ReportTestPanelSate extends State<Covid19ReportTestPanel>{
         EdgeInsets.only(left: 12, right: 16),
         child: DropdownButtonHideUnderline(
             child: DropdownButton(
-
                 icon: enabled? Image.asset(
                     'images/icon-down-orange.png') : Container(),
                 isExpanded: true,
