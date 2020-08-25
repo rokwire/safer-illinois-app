@@ -47,7 +47,7 @@
 		<true/>
 	</dict>
 	<key>NSAppleMusicUsageDescription</key>
-	<string>Allow Illinois to access Media Library.</string>
+	<string>Allow access to Media Library.</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>Bluetooth will be used to enable the  COVID-19 exposure notification system.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
@@ -57,7 +57,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>Permission to access the camera is needed for QR Code scanning.</string>
 	<key>NSContactsUsageDescription</key>
-	<string>Allow Illinois to access Contacts.</string>
+	<string>Allow access to Contacts.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Permission for Location Services is needed to enable Bluetooth-based Exposure Notification. No location data is used or stored within the app, and no location data leaves the users device.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
@@ -67,17 +67,17 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Permission for Location Services is needed to enable Bluetooth-based Exposure Notification. No location data is used or stored within the app, and no location data leaves the users device.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Allow Illinois to access Microphone.</string>
+	<string>Allow access to Microphone.</string>
 	<key>NSMotionUsageDescription</key>
-	<string>Allow Illinois to access Accelerometer.</string>
+	<string>Allow access to Accelerometer.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Allow Illinois to access Photo Library.</string>
+	<string>Permission to access the Photo Library is needed for storing QR Codes.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Allow Illinois to access Photo Library.</string>
+	<string>Permission to access the Photo Library is needed for retrieving QR Codes.</string>
 	<key>NSRemindersUsageDescription</key>
 	<string>Your calendar will be used to let you set reminders for important events.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>Allow Illinois to send data to Apple’s speech recognition servers.</string>
+	<string>Allow sending data to Apple’s speech recognition servers.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>bluetooth-central</string>
