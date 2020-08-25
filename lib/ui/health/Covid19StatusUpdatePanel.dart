@@ -25,6 +25,7 @@ import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/health/Covid19NextStepsPanel.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
+import 'package:illinois/ui/widgets/ScalableScrollView.dart';
 import 'package:illinois/ui/widgets/StatusInfoDialog.dart';
 
 class Covid19StatusUpdatePanel extends StatefulWidget {
@@ -90,16 +91,17 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Styles().colors.fillColorPrimary,
-        body:Container(
+        body:
+        Container(
           child: Column(
             children: <Widget>[
               Expanded(
-                child: _loading? _buildLoading() : _buildContent(),
+                child:_loading? _buildLoading() : _buildContent(),
               ),
 //              _buildPageIndicator(),
               Container(
                 padding: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-                child: RoundedButton(
+                child: ScalableRoundedButton(
                   label: Localization().getStringEx("panel.health.status_update.button.continue.title","See Next Steps"),
                   backgroundColor: Styles().colors.fillColorPrimary,
                   borderColor: Styles().colors.fillColorSecondary,
@@ -117,8 +119,10 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
 
   Widget _buildContent(){
     String county = "$_currentCountyName ${Localization().getStringEx("app.common.label.county", "County")}";
-    return SingleChildScrollView(
-      child: Column(children: <Widget>[
+    return
+      SingleChildScrollView(
+      child:
+      Column(children: <Widget>[
         Container(height: 90,),
         Text(_updateDate,textAlign: TextAlign.center,style: TextStyle(color: Colors.white, fontSize: 16, fontFamily: Styles().fontFamilies.regular),),
         Container(height: 12,),
@@ -127,7 +131,9 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(county,textAlign: TextAlign.center,style: TextStyle(color: Colors.white, fontSize: 14, fontFamily: Styles().fontFamilies.regular),),
+            Expanded(child:
+              Text(county,textAlign: TextAlign.center,style: TextStyle(color: Colors.white, fontSize: 14, fontFamily: Styles().fontFamilies.regular),),
+            ),
             IconButton(icon: Image.asset('images/icon-info-orange.png'), onPressed: () =>  StatusInfoDialog.show(context, _currentCountyName), padding: EdgeInsets.all(10),)
           ],
         ),
@@ -136,6 +142,7 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            Expanded(child:
             Column(
               children: <Widget>[
                 CircleAvatar(child: Image.asset("images/icon-avatar-placeholder.png", excludeFromSemantics: true,),backgroundColor: _oldSatusColor, radius: 32,),
@@ -143,10 +150,11 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
                 Text(_oldStatusType,style:TextStyle(color: Styles().colors.white, fontSize: 14, fontFamily: Styles().fontFamilies.regular)),
                 Text(_oldStatusDescription,style:TextStyle(color: Styles().colors.white, fontSize: 14, fontFamily: Styles().fontFamilies.bold)),
               ],
-            ),
+            )),
             Container(width: 25,),
             Container(margin: EdgeInsets.only(top: 20), width: 16,child:Image.asset("images/icon-white-arrow-right.png", excludeFromSemantics: true)),
             Container(width: 25,),
+            Expanded(child:
             Column(
               children: <Widget>[
                 CircleAvatar(child: Image.asset("images/icon-avatar-placeholder.png", excludeFromSemantics: true),backgroundColor: _newSatusColor, radius: 32,),
@@ -154,7 +162,7 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
                 Text(_newStatusType,style:TextStyle(color: Styles().colors.white, fontSize: 14, fontFamily: Styles().fontFamilies.regular)),
                 Text(_newStatusDescription,style:TextStyle(color: Styles().colors.white, fontSize: 14, fontFamily: Styles().fontFamilies.bold)),
               ],
-            ),
+            )),
         ],)),
         Container(height: 24,),
         Container(
@@ -162,7 +170,8 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
           child: Container(height: 1, color: Styles().colors.surfaceAccent ,),
         ),
         _buildReasonContent(),
-        ],),
+        ],
+      ),
     );
   }
 
@@ -285,24 +294,30 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
   }
 
   Widget _buildLoading(){
-    return Column(
+    return SingleChildScrollView(child:Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          Expanded(
-            child: Container(
+//          Expanded(
+//            child:
+            Container(height: 48,),
+            Container(
                 padding: EdgeInsets.symmetric(horizontal: 24),
                 alignment:Alignment.center,child:
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                  Text(Localization().getStringEx("panel.health.status_update.label.loading","Hang tight while we update your status"),textAlign: TextAlign.center,style: TextStyle(color: Colors.white, fontSize: 28, fontFamily: Styles().fontFamilies.bold),),
+                  Row(children: <Widget>[
+                    Expanded(child:
+                    Text(Localization().getStringEx("panel.health.status_update.label.loading","Hang tight while we update your status"),textAlign: TextAlign.center,style: TextStyle(color: Colors.white, fontSize: 28, fontFamily: Styles().fontFamilies.bold),),)
+                  ],),
                   Container(height: 23,),
                   CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary), strokeWidth: 3,),
                   Container(height: 48,)
                   ],)
             )
-          )
-        ]);
+//          )
+        ])
+    );
   }
 }
