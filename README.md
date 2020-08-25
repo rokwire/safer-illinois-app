@@ -7,7 +7,7 @@ The official COVID-19 app of the University of Illinois. Powered by the [Rokwire
 
 ### [Android Studio](https://developer.android.com/studio) 3.6+
 
-### [xCode](https://apps.apple.com/us/app/xcode/id497799835) 11.5
+### [Xcode](https://apps.apple.com/us/app/xcode/id497799835) 11.5
 
 ### [CocoaPods](https://guides.cocoapods.org/using/getting-started.html) 1.9.3+
 
@@ -74,5 +74,5 @@ The Firebase configuration file for Android generated from Google Firebase conso
 $ flutter build apk
 $ flutter build ios
 ```
-NB: You may need to update singing & capabilities content for Runner project by opening /ios/Runner.xcworkspace from xCode
+NB: You may need to update singing & capabilities content for Runner project by opening /ios/Runner.xcworkspace from Xcode
 
