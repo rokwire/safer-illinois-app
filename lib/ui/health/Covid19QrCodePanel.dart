@@ -124,7 +124,7 @@ class _Covid19QrCodePanelState extends State<Covid19QrCodePanel> {
               Padding(padding: EdgeInsets.only(top: 24), child: Text(
                 Localization().getStringEx('panel.covid19.qr_code.description.heading.2', 'Save this QR code so that If you lose or replace your phone, you can retrieve your COVID-19 health information on your new phone.'),
                 style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 16, fontFamily: Styles().fontFamilies.bold),),),
-              Padding(padding: EdgeInsets.only(top: 24, bottom: 12), child: RoundedButton(
+              Padding(padding: EdgeInsets.only(top: 24, bottom: 12), child: ScalableRoundedButton(
                 label: Localization().getStringEx('panel.covid19.qr_code.button.save.title', 'Save'),
                 hint: '',
                 backgroundColor: Styles().colors.background,
