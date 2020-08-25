@@ -534,6 +534,7 @@
 	"panel.health.covid19.add_test.label.info.manually.text2": "手动输入",
 	"panel.health.covid19.add_test.label.info.manually.text3": "将由公共医疗机构进行审查和验证。一旦验证，状态可能会发生更改.",
 	"panel.health.covid19.add_test.label.manual_tests_disabled":"Test results from this health care provider will automatically appear if you have consented to Health Provider Test Results in settings and you are connected with your NetID.",
+	"panel.health.covid19.add_test.message.no_result_found": "No results found",
 
 	"panel.health.covid19.care_team.heading.title": "您的护理团队",
 	"panel.health.covid19.care_team.label.question": "我们是来帮忙的.",

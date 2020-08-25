@@ -60,22 +60,22 @@ static NSString* const kExposureRPIParamName                 = @"rpi";
 static NSString* const kExposureDurationParamName            = @"duration";
 static NSString* const kExposureRSSIParamName                = @"rssi";
 
-static NSString* const kExposureTimeoutIntervalSettingName   = @"covid19ExposureServiceTimeoutInterval";
-static NSString* const kExposurePingIntervalSettingName      = @"covid19ExposureServicePingInterval";
-static NSString* const kExposureProcessIntervalSettingName   = @"covid19ExposureServiceProcessInterval";
-static NSString* const kLocalNotificationIntervalSettingName = @"covid19ExposureServiceLocalNotificationInterval";
-static NSString* const kExposureMinDurationSettingName       = @"covid19ExposureServiceLogMinDuration";
-static NSString* const kExposureMinRssiSettingName           = @"covid19ExposureServiceMinRSSI";
+static NSString* const kExposureTimeoutIntervalSettingName    = @"covid19ExposureServiceTimeoutInterval";
+static NSString* const kExposurePingIntervalSettingName       = @"covid19ExposureServicePingInterval";
+static NSString* const kExposureScanWindowIntervalSettingName = @"covid19ExposureServiceScanWindowInterval";
+static NSString* const kExposureScanWaitIntervalSettingName   = @"covid19ExposureServiceScanWaitInterval";
+static NSString* const kExposureMinDurationSettingName        = @"covid19ExposureServiceLogMinDuration";
+static NSString* const kExposureMinRssiSettingName            = @"covid19ExposureServiceMinRSSI";
 
 static NSInteger const kRPIRefreshInterval    = (10 * 60);     // 10 mins
 static NSInteger const kTEKRollingPeriod      = (24 * 60 * 60) / kRPIRefreshInterval; // = 144 (kRPIRefreshInterval * kTEKRollingPeriod = 24 hours)
 
 static NSTimeInterval const kExposureTimeoutInterval         = 300;     // 5 minutes
 static NSTimeInterval const kExposurePingInterval            =  60;     // 1 minute
-static NSTimeInterval const kExposureProcessInterval         =  10;     // 10 sec
-static NSTimeInterval const kLocalNotificationInterval       =  60;     // 1 minute
+static NSTimeInterval const kExposureScanWindowInterval      =   4;     // 4 seconds of scanning
+static NSTimeInterval const kExposureScanWaitInterval        = 150;     // 2.5 minutes of latent period
 static NSTimeInterval const kExposureNotifyTickInterval      =   1;     // 1 sec
-static NSTimeInterval const kExposureMinDuration             = 120;     // 2 minutes
+static NSTimeInterval const kExposureMinDuration             =   0;     // 0 minute
 
 static int const kNoRssi = 127;
 static int const kMinRssi = -50;
@@ -130,19 +130,17 @@ static int const kMinRssi = -50;
 	NSMutableDictionary<NSUUID*, ExposureRecord*>*   _iosExposures;
 	NSMutableDictionary<NSData*, ExposureRecord*>*   _androidExposures;
 	
-	NSTimer*                                         _exposuresTimer;
+	NSTimer*                                         _scanTimer;
 	NSTimeInterval                                   _lastNotifyExposireThickTime;
 	
 	CLLocationManager*                               _locationManager;
 	CLBeaconRegion*                                  _beaconRegion;
 	bool                                             _monitoringLocation;
 
-	NSTimeInterval                                   _lastLocalNotificationTime;
-	
 	NSTimeInterval                                   _exposureTimeoutInterval;
 	NSTimeInterval                                   _exposurePingInterval;
-	NSTimeInterval                                   _exposureProcessInterval;
-	NSTimeInterval                                   _localNotificationInterval;
+	NSTimeInterval                                   _exposureScanWindowInterval;
+	NSTimeInterval                                   _exposureScanWaitInterval;
 	NSTimeInterval                                   _exposureMinDuration;
 	int                                              _exposureMinRssi;
 }
@@ -397,15 +395,46 @@ static ExposurePlugin *g_Instance = nil;
 	if (_centralManager != nil) {
 		if (_centralManager.isScanning) {
 			[_centralManager stopScan];
+			[self processExposures];
 		}
 
 		_centralManager.delegate = nil;
 		_centralManager = nil;
 	}
 		
-	if (_exposuresTimer != nil) {
-		[_exposuresTimer invalidate];
-		_exposuresTimer = nil;
+	if (_scanTimer != nil) {
+		[_scanTimer invalidate];
+		_scanTimer = nil;
+	}
+}
+
+- (void)startScanning {
+	if (_centralManager != nil) {
+		NSLog(@"ExposurePlugin: CBCentralManager scanForPeripheralsWithServices");
+		[_centralManager scanForPeripheralsWithServices:@[[CBUUID UUIDWithString:kServiceUuid]] options:@{ CBCentralManagerScanOptionAllowDuplicatesKey : @YES }];
+		
+		if (_scanTimer != nil) {
+			[_scanTimer invalidate];
+		}
+		_scanTimer = [NSTimer scheduledTimerWithTimeInterval:_exposureScanWindowInterval target:self selector:@selector(suspendScannig) userInfo:nil repeats:NO];
+
+		[self postLocalNotificationRequestIfNeeded];
+	}
+}
+
+- (void)suspendScannig {
+	if (_centralManager != nil) {
+		NSLog(@"ExposurePlugin: CBCentralManager stopScan");
+		if (_centralManager.isScanning) {
+			[_centralManager stopScan];
+		}
+		
+		if (_scanTimer != nil) {
+			[_scanTimer invalidate];
+		}
+		_scanTimer = [NSTimer scheduledTimerWithTimeInterval:_exposureScanWaitInterval target:self selector:@selector(startScanning) userInfo:nil repeats:NO];
+
+		[self processExposures];
 	}
 }
 
@@ -417,8 +446,12 @@ static ExposurePlugin *g_Instance = nil;
 	return (_centralManager != nil) && (_centralManager.state == CBManagerStatePoweredOn);
 }
 
+- (bool)isCentralScanning {
+	return (_centralManager.isScanning || (_scanTimer != nil));
+}
+
 - (bool)isCentralStarted {
-	return self.isCentralInitialized && _centralManager.isScanning;
+	return self.isCentralInitialized && self.isCentralScanning;
 }
 
 - (void)disconnectPeripheralWithUuid:(NSUUID*)peripheralUuid {
@@ -457,7 +490,6 @@ static ExposurePlugin *g_Instance = nil;
 		ExposureRecord *record = [_iosExposures objectForKey:peripheralUuid];
 		if (record != nil) {
 			[_iosExposures removeObjectForKey:peripheralUuid];
-			[self updateExposuresTimer];
 		}
 		
 		if ((rpi != nil) && (record != nil)) {
@@ -473,7 +505,6 @@ static ExposurePlugin *g_Instance = nil;
 	ExposureRecord *record = [_androidExposures objectForKey:rpi];
 	if (record != nil) {
 		[_androidExposures removeObjectForKey:rpi];
-		[self updateExposuresTimer];
 	}
 
 	if ((rpi != nil) && (record != nil)) {
@@ -496,7 +527,7 @@ static ExposurePlugin *g_Instance = nil;
 - (void)centralManagerDidUpdateState:(CBCentralManager *)central {
 	NSLog(@"ExposurePlugin: CBCentralManager didUpdateState: %@", @(central.state));
 	if (self.isCentralInitialized) {
-		[_centralManager scanForPeripheralsWithServices:@[[CBUUID UUIDWithString:kServiceUuid]] options:@{ CBCentralManagerScanOptionAllowDuplicatesKey : @YES }];
+		[self startScanning];
 		[self checkStarted];
 	}
 	else {
@@ -529,7 +560,6 @@ static ExposurePlugin *g_Instance = nil;
 				ExposureRecord * record = [_androidExposures objectForKey:rpi];
 				if (record != nil) {
 					[_androidExposures removeObjectForKey:rpi];
-					[self updateExposuresTimer];
 				}
 				if (rpi != nil && record != nil) {
 					[self notifyExposure:record rpi:rpi peripheralUuid:peripheralUuid];
@@ -609,7 +639,6 @@ static ExposurePlugin *g_Instance = nil;
 			ExposureRecord *record = [_iosExposures objectForKey:peripheralUuid];
 			if (record != nil) {
 				[_iosExposures removeObjectForKey:peripheralUuid];
-				[self updateExposuresTimer];
 			}
 			if ((rpi != nil) && (record != nil)) {
 				[self notifyExposure:record rpi:rpi peripheralUuid:peripheralUuid];
@@ -618,7 +647,6 @@ static ExposurePlugin *g_Instance = nil;
 			NSTimeInterval currentTimestamp = [[[NSDate alloc] init] timeIntervalSince1970];
 			record = [[ExposureRecord alloc] initWithTimestamp:currentTimestamp rssi:record.rssi];
 			[_iosExposures setObject:record forKey:peripheralUuid];
-			[self updateExposuresTimer];
 		}
 	}
 }
@@ -747,7 +775,6 @@ static ExposurePlugin *g_Instance = nil;
 
 - (void)locationManager:(CLLocationManager *)manager didRangeBeacons:(NSArray<CLBeacon*>*)beacons inRegion:(CLBeaconRegion *)clBeaconRegion {
 	//NSLog(@"ExposurePlugin didRangeBeacons:[<%@>] inRegion: %@", @(beacons.count), clBeaconRegion.identifier);
-	[self updateLocalNotificationRequest];
 }
 
 - (void)locationManager:(CLLocationManager *)manager rangingBeaconsDidFailForRegion:(CLBeaconRegion *)clBeaconRegion withError:(NSError *)error {
@@ -766,38 +793,22 @@ static ExposurePlugin *g_Instance = nil;
 
 #pragma mark Local Notifications
 
-- (void)updateLocalNotificationRequest {
-	bool shouldHaveLocalNotificationRequest =
-		(UIApplication.sharedApplication.applicationState == UIApplicationStateBackground) &&
-		(UIScreen.mainScreen.brightness == 0) &&
-		(0 < _localNotificationInterval);
-	if (shouldHaveLocalNotificationRequest) {
-			NSTimeInterval currentTimeInterval = [[[NSDate alloc] init] timeIntervalSince1970];
-			if (_lastLocalNotificationTime == 0) {
-				NSLog(@"Exposure: scheduling a local notification");
-				_lastLocalNotificationTime = currentTimeInterval;
-			}
-			else if (_localNotificationInterval <= (currentTimeInterval - _lastLocalNotificationTime)) {
-				NSLog(@"Exposure: triggering a local notification");
-				_lastLocalNotificationTime = currentTimeInterval;
-				[self scheduleLocalNotificationRequest];
-			}
+- (void)postLocalNotificationRequestIfNeeded {
+	if ((UIApplication.sharedApplication.applicationState == UIApplicationStateBackground) &&
+	   (UIScreen.mainScreen.brightness == 0))
+	{
+		NSLog(@"ExposurePlugin: Posting Exposure Local Notification");
+		
+		UNMutableNotificationContent* content = [[UNMutableNotificationContent alloc] init];
+		content.body = @"Checking for exposures...";
+		content.sound = nil;
+		
+		UNNotificationRequest* request = [UNNotificationRequest requestWithIdentifier:kLocalNotificationId content:content trigger:nil];
+		[[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request withCompletionHandler:^(NSError* error) {
+			//UIScreen.mainScreen.brightness = 0.01;
+		}];
 	}
-	else if (0 < _lastLocalNotificationTime) {
-		NSLog(@"Exposure: stopping local notifications");
-		_lastLocalNotificationTime = 0;
-	}
-}
 
-- (void)scheduleLocalNotificationRequest {
-	UNMutableNotificationContent* content = [[UNMutableNotificationContent alloc] init];
-	content.body = @"Checking for exposures...";
-	content.sound = nil;
-	
-	UNNotificationRequest* request = [UNNotificationRequest requestWithIdentifier:kLocalNotificationId content:content trigger:nil];
-	[[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request withCompletionHandler:^(NSError* error) {
-		//UIScreen.mainScreen.brightness = 0.01;
-	}];
 }
 
 #pragma mark App Livecycle Events
@@ -852,12 +863,12 @@ static ExposurePlugin *g_Instance = nil;
 #pragma mark Settings
 
 - (void)initSettings:(NSDictionary*)settings {
-	_exposureTimeoutInterval   = (settings != nil) ? [settings inaDoubleForKey:kExposureTimeoutIntervalSettingName   defaults:kExposureTimeoutInterval]   : kExposureTimeoutInterval;
-	_exposurePingInterval      = (settings != nil) ? [settings inaDoubleForKey:kExposurePingIntervalSettingName      defaults:kExposurePingInterval]      : kExposurePingInterval;
-	_exposureProcessInterval   = (settings != nil) ? [settings inaDoubleForKey:kExposureProcessIntervalSettingName   defaults:kExposureProcessInterval]   : kExposureProcessInterval;
-	_localNotificationInterval = (settings != nil) ? [settings inaDoubleForKey:kLocalNotificationIntervalSettingName defaults:kLocalNotificationInterval] : kLocalNotificationInterval;
-	_exposureMinDuration       = (settings != nil) ? [settings inaDoubleForKey:kExposureMinDurationSettingName       defaults:kExposureMinDuration]       : kExposureMinDuration;
-	_exposureMinRssi           = (settings != nil) ? [settings inaIntForKey:   kExposureMinRssiSettingName           defaults:kMinRssi]                   : kMinRssi;
+	_exposureTimeoutInterval    = (settings != nil) ? [settings inaDoubleForKey:kExposureTimeoutIntervalSettingName    defaults:kExposureTimeoutInterval]    : kExposureTimeoutInterval;
+	_exposurePingInterval       = (settings != nil) ? [settings inaDoubleForKey:kExposurePingIntervalSettingName       defaults:kExposurePingInterval]       : kExposurePingInterval;
+	_exposureScanWindowInterval = (settings != nil) ? [settings inaDoubleForKey:kExposureScanWindowIntervalSettingName defaults:kExposureScanWindowInterval] : kExposureScanWindowInterval;
+	_exposureScanWaitInterval   = (settings != nil) ? [settings inaDoubleForKey:kExposureScanWaitIntervalSettingName   defaults:kExposureScanWaitInterval]   : kExposureScanWaitInterval;
+	_exposureMinDuration        = (settings != nil) ? [settings inaDoubleForKey:kExposureMinDurationSettingName        defaults:kExposureMinDuration]        : kExposureMinDuration;
+	_exposureMinRssi            = (settings != nil) ? [settings inaIntForKey:   kExposureMinRssiSettingName            defaults:kMinRssi]                    : kMinRssi;
 }
 
 #pragma mark RPI
@@ -1032,6 +1043,10 @@ static ExposurePlugin *g_Instance = nil;
 	/* obtain start/endENInvertalNumber and timestamp i for teks generation */
 	uint32_t startENInvertalNumber = timestampInterval / kRPIRefreshInterval;
 	uint32_t endENInvertalNumber = expirestampInterval / kRPIRefreshInterval;
+
+	/* handle TEKs without expirestamp (0 or -1), default to 1 day later */
+	if (endENInvertalNumber < startENInvertalNumber || endENInvertalNumber > startENInvertalNumber + kTEKRollingPeriod)
+		endENInvertalNumber = startENInvertalNumber + kTEKRollingPeriod;
 	
 	NSMutableDictionary *rpis = [[NSMutableDictionary alloc] init];
 	for (uint32_t intervalIndex = startENInvertalNumber; intervalIndex <= endENInvertalNumber; intervalIndex++) {
@@ -1149,7 +1164,6 @@ static ExposurePlugin *g_Instance = nil;
 		NSLog(@"ExposurePlugin: {%@} registred", peripheralUuid);
 		record = [[ExposureRecord alloc] initWithTimestamp:currentTimestamp rssi:rssi];
 		[_iosExposures setObject:record forKey:peripheralUuid];
-		[self updateExposuresTimer];
 	}
 	else {
 		// Update existing
@@ -1171,7 +1185,6 @@ static ExposurePlugin *g_Instance = nil;
 		NSLog(@"ExposurePlugin: {%@} registred", rpi);
 		record = [[ExposureRecord alloc] initWithTimestamp:currentTimestamp rssi:rssi];
 		[_androidExposures setObject:record forKey:rpi];
-		[self updateExposuresTimer];
 	}
 	else {
 		// Update existing
@@ -1180,17 +1193,6 @@ static ExposurePlugin *g_Instance = nil;
 
 	[self notifyExposureTick:rpi rssi:rssi peripheralUuid:nil];
 	[self notifyRSSI:rssi rpi:rpi timestamp:(currentTimestamp * 1000.0) peripheralUuid:nil];
-}
-
-- (void)updateExposuresTimer {
-	NSInteger exposuresCount = _iosExposures.count + _androidExposures.count;
-	if ((0 < exposuresCount) && (_exposuresTimer == nil)) {
-		_exposuresTimer = [NSTimer scheduledTimerWithTimeInterval:_exposureProcessInterval target:self selector:@selector(processExposures) userInfo:nil repeats:YES];
-	}
-	else if ((exposuresCount == 0) && (_exposuresTimer != nil)) {
-		[_exposuresTimer invalidate];
-		_exposuresTimer = nil;
-	}
 }
 
 - (void)processExposures {
@@ -1211,11 +1213,12 @@ static ExposurePlugin *g_Instance = nil;
 			}
 			[expiredPeripheralUuid addObject:peripheralUuid];
 		}
-		else if (_exposurePingInterval <= lastHeardInterval) {
-			NSLog(@"ExposurePlugin: {%@} ping", peripheralUuid);
-			CBPeripheral *peripheral = [_peripherals objectForKey:peripheralUuid];
-			[peripheral readRSSI];
-		}
+//	ping disabled
+//	else if (_exposurePingInterval <= lastHeardInterval) {
+//		NSLog(@"ExposurePlugin: {%@} ping", peripheralUuid);
+//		CBPeripheral *peripheral = [_peripherals objectForKey:peripheralUuid];
+//		[peripheral readRSSI];
+//	}
 	}
 	
 	if (expiredPeripheralUuid != nil) {

@@ -374,6 +374,7 @@ abstract class _HealthRuleIntValue2 {
   bool match(int value);
   int get min;
   int get max;
+  int get scope;
 }
 
 ///////////////////////////////
@@ -394,6 +395,7 @@ class HealthRuleIntValue2 extends _HealthRuleIntValue2 {
 
   int get min { return value; }
   int get max { return value; }
+  int get scope { return null; }
 }
 
 ///////////////////////////////
@@ -402,13 +404,15 @@ class HealthRuleIntValue2 extends _HealthRuleIntValue2 {
 class HealthRuleIntInterval2 extends _HealthRuleIntValue2 {
   final int min;
   final int max;
+  final int scope;
   
-  HealthRuleIntInterval2({this.min, this.max});
+  HealthRuleIntInterval2({this.min, this.max, this.scope});
 
   factory HealthRuleIntInterval2.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthRuleIntInterval2(
       min: json['min'],
       max: json['max'],
+      scope: _scopeFromJson(json['scope']),
     ) : null;
   }
 
@@ -416,6 +420,26 @@ class HealthRuleIntInterval2 extends _HealthRuleIntValue2 {
     return (value != null) &&
       ((min == null) || (min <= value)) &&
       ((max == null) || (max >= value));
+  }
+
+  static int _scopeFromJson(dynamic value) {
+    if (value is String) {
+      if (value == 'future') {
+        return 1;
+      }
+      else if (value == 'past') {
+        return -1;
+      }
+    }
+    else if (value is int) {
+      if (0 < value) {
+        return 1;
+      }
+      else if (value < 0) {
+        return -1;
+      }
+    }
+    return null;
   }
 }
 
@@ -578,38 +602,59 @@ class HealthTestRuleConditionalStatus2 extends _HealthRuleStatus2 {
     if (category is List) {
       category = Set.from(category);
     }
-    for (int index = 0; index < history.length; index++) {
-      Covid19History entry = history[index];
-      if ((index != historyIndex) && entry.isTest && entry.canTestUpdateStatus) {
-        DateTime entryDateMidnightLocal = entry.dateMidnightLocal;
-        final difference = entryDateMidnightLocal.difference(historyDateMidnightLocal).inDays;
-        if (interval.match(difference)) {
-          if (category == null) {
-            return successStatus; // any test matches
-          }
-          else {
-            HealthTestRuleResult2 entryRuleResult = rules?.tests?.matchRuleResult(blob: entry?.blob);
-            if ((entryRuleResult != null) && (entryRuleResult.category != null) &&
-                (((category is String) && (category == entryRuleResult.category)) ||
-                 ((category is Set) && category.contains(entryRuleResult.category))))
-            {
-              return successStatus; // only tests from given category matches
-            }
-          }
+
+    int scope = interval.scope ?? 0;
+    if (0 < scope) { // check only newer items than the current
+      for (int index = historyIndex - 1; 0 <= index; index--) {
+        if (_evalRequireTestEntryFulfills(history[index], historyDateMidnightLocal: historyDateMidnightLocal, interval: interval, rules: rules, category: category)) {
+          return successStatus;
+        }
+      }
+    }
+    else if (0 < scope) { // check only older items than the current
+      for (int index = historyIndex + 1; index < history.length; index++) {
+        if (_evalRequireTestEntryFulfills(history[index], historyDateMidnightLocal: historyDateMidnightLocal, interval: interval, rules: rules, category: category)) {
+          return successStatus;
+        }
+      }
+    }
+    else { // check all history items
+      for (int index = 0; index < history.length; index++) {
+        if ((index != historyIndex) && _evalRequireTestEntryFulfills(history[index], historyDateMidnightLocal: historyDateMidnightLocal, interval: interval, rules: rules, category: category)) {
+          return successStatus;
         }
       }
     }
 
     // If positive time interval is not already expired - do not return failed status yet.
     _HealthRuleIntValue2 currentInterval = _HealthRuleIntValue2.fromJson(params['current_interval']);
-    if (currentInterval != null) {
-      final difference = AppDateTime.todayMidnightLocal.difference(historyDateMidnightLocal).inDays;
-      if (currentInterval.match(difference)) {
-        return successStatus;
-      }
+    if ((currentInterval != null) && _evalCurrentIntervalFulfills(currentInterval, historyDateMidnightLocal: historyDateMidnightLocal)) {
+      return successStatus;
     }
 
     return failStatus;
+  }
+
+  static bool _evalRequireTestEntryFulfills(Covid19History entry, { DateTime historyDateMidnightLocal,  _HealthRuleIntValue2 interval, HealthRulesSet2 rules, dynamic category }) {
+    if (entry.isTest && entry.canTestUpdateStatus) {
+      DateTime entryDateMidnightLocal = entry.dateMidnightLocal;
+      final difference = entryDateMidnightLocal.difference(historyDateMidnightLocal).inDays;
+      if (interval.match(difference)) {
+        if (category == null) {
+          return true; // any test matches
+        }
+        else {
+          HealthTestRuleResult2 entryRuleResult = rules?.tests?.matchRuleResult(blob: entry?.blob);
+          if ((entryRuleResult != null) && (entryRuleResult.category != null) &&
+              (((category is String) && (category == entryRuleResult.category)) ||
+                ((category is Set) && category.contains(entryRuleResult.category))))
+          {
+            return true; // only tests from given category matches
+          }
+        }
+      }
+    }
+    return false;
   }
 
   _HealthRuleStatus2 _evalRequireSymptoms({ List<Covid19History> history, int historyIndex, HealthRulesSet2 rules }) {
@@ -624,12 +669,24 @@ class HealthTestRuleConditionalStatus2 extends _HealthRuleStatus2 {
       return null;
     }
 
-    for (int index = 0; index < history.length; index++) {
-      Covid19History entry = history[index];
-      if ((index != historyIndex) && entry.isSymptoms) {
-        DateTime entryDateMidnightLocal = entry.dateMidnightLocal;
-        final difference = entryDateMidnightLocal.difference(historyDateMidnightLocal).inDays;
-        if (interval.match(difference)) {
+    int scope = interval.scope ?? 0;
+    if (0 < scope) { // check only newer items than the current
+      for (int index = historyIndex - 1; 0 <= index; index--) {
+        if (_evalRequireSymptomsEntryFulfills(history[index], historyDateMidnightLocal: historyDateMidnightLocal, interval: interval)) {
+          return successStatus;
+        }
+      }
+    }
+    else if (0 < scope) { // check only older items than the current
+      for (int index = historyIndex + 1; index < history.length; index++) {
+        if (_evalRequireSymptomsEntryFulfills(history[index], historyDateMidnightLocal: historyDateMidnightLocal, interval: interval)) {
+          return successStatus;
+        }
+      }
+    }
+    else { // check all history items
+      for (int index = 0; index < history.length; index++) {
+        if ((index != historyIndex) && _evalRequireSymptomsEntryFulfills(history[index], historyDateMidnightLocal: historyDateMidnightLocal, interval: interval)) {
           return successStatus;
         }
       }
@@ -637,14 +694,22 @@ class HealthTestRuleConditionalStatus2 extends _HealthRuleStatus2 {
 
     // If positive time interval is not already expired - do not return failed status yet.
     _HealthRuleIntValue2 currentInterval = _HealthRuleIntValue2.fromJson(params['current_interval']);
-    if (currentInterval != null) {
-      final difference = AppDateTime.todayMidnightLocal.difference(historyDateMidnightLocal).inDays;
-      if (currentInterval.match(difference)) {
-        return successStatus;
-      }
+    if ((currentInterval != null) && _evalCurrentIntervalFulfills(currentInterval, historyDateMidnightLocal: historyDateMidnightLocal)) {
+      return successStatus;
     }
 
     return failStatus;
+  }
+
+  static bool _evalRequireSymptomsEntryFulfills(Covid19History entry, { DateTime historyDateMidnightLocal,  _HealthRuleIntValue2 interval }) {
+    if (entry.isSymptoms) {
+      DateTime entryDateMidnightLocal = entry.dateMidnightLocal;
+      final difference = entryDateMidnightLocal.difference(historyDateMidnightLocal).inDays;
+      if (interval.match(difference)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   _HealthRuleStatus2 _evalTimeout({ List<Covid19History> history, int historyIndex, HealthRulesSet2 rules }) {
@@ -659,8 +724,20 @@ class HealthTestRuleConditionalStatus2 extends _HealthRuleStatus2 {
       return null;
     }
 
-    final difference = AppDateTime.todayMidnightLocal.difference(historyDateMidnightLocal).inDays;
-    return interval.match(difference) ? failStatus : successStatus; // while current time is within interval 'timeout' condition fails
+    return _evalCurrentIntervalFulfills(interval, historyDateMidnightLocal: historyDateMidnightLocal) ?
+      failStatus : successStatus; // while current time is within interval 'timeout' condition fails
   }
+
+  static bool _evalCurrentIntervalFulfills(_HealthRuleIntValue2 currentInterval, { DateTime historyDateMidnightLocal } ) {
+    if (currentInterval != null) {
+      final difference = AppDateTime.todayMidnightLocal.difference(historyDateMidnightLocal).inDays;
+      if (currentInterval.match(difference)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+
 }
 
