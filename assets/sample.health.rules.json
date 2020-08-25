@@ -114,7 +114,7 @@
 			"antibody.negavitve": {
 				"condition": "require-test",
 				"params": {
-					"interval": { "min": 0, "max": 4 },
+					"interval": { "min": 0, "max": 4, "scope": "future" },
 					"current_interval": { "min": 0, "max": 4 }
 				},
 				"success": null,
@@ -128,7 +128,7 @@
 			"antibody.positive": {
 				"condition": "require-test",
 				"params": {
-					"interval": { "min": 0, "max": 4 },
+					"interval": { "min": 0, "max": 4, "scope": "future" },
 					"current_interval": { "min": 0, "max": 4 }
 				},
 				"success": {
@@ -152,7 +152,7 @@
 			"PCR.negative": {
 				"condition": "require-test",
 				"params": {
-					"interval": { "min": 0, "max": 4 },
+					"interval": { "min": 0, "max": 4, "scope": "future" },
 					"current_interval": { "min": 0, "max": 4 }
 				},
 				"success": {
@@ -170,7 +170,7 @@
 			"PCR.invalid": {
 				"condition": "require-test",
 				"params": {
-					"interval": { "min": 0, "max": 1 },
+					"interval": { "min": 0, "max": 1, "scope": "future" },
 					"current_interval": { "min": 0, "max": 1 }
 				},
 				"success": {
@@ -279,12 +279,12 @@
 				"status": {
 					"condition": "timeout",
 					"params": {
-						"interval": { "min": 0, "max": 4 }
+						"interval": { "min": 0, "max": 4, "scope": "future" }
 					},
 					"success": {
 						"condition": "require-test",
 						"params": {
-							"interval": { "min": 5, "max": null }
+							"interval": { "min": 5, "max": null, "scope": "future" }
 						},
 						"success": null,
 						"fail": {
@@ -322,7 +322,7 @@
 				"status": {
 					"condition": "require-test",
 					"params": {
-						"interval": { "min": 0, "max": 4 },
+						"interval": { "min": 0, "max": 4, "scope": "future" },
 						"current_interval": { "min": 0, "max": 4 }
 					},
 					"success": {
@@ -360,7 +360,7 @@
 				"status": {
 					"condition": "require-test",
 					"params": {
-						"interval": { "min": 0, "max": 4 },
+						"interval": { "min": 0, "max": 4, "scope": "future" },
 						"current_interval": { "min": 0, "max": 4 }
 					},
 					"success": {
