@@ -263,6 +263,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
         _userAvatar(),
         Padding(padding: EdgeInsets.only(top: 8, bottom: 1), child: Text(
           userFullName,
+          textAlign: TextAlign.center,
           style: TextStyle(fontFamily: Styles().fontFamilies.extraBold, fontSize: 24, color: Styles().colors.fillColorPrimary),
         ),),
         Padding(padding: EdgeInsets.only(bottom: 10),
@@ -270,11 +271,18 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
             style: TextStyle(color: Styles().colors.mediumGray1, fontSize: 16, fontFamily: Styles().fontFamilies.regular, letterSpacing: 1),),),
         _buildCountyDropdown(),
         _buildStatusDetails(),
-        SmallRoundedButton(
-          label: Localization().getStringEx('panel.covid19_passport.button.info_center.title', 'Your COVID-19 info center'),
-          borderColor: Styles().colors.fillColorSecondary,
-          showChevron: true,
-          onTap: _onTapInfoCenter,)
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 36),
+          child:
+            ScalableRoundedButton(
+              label: Localization().getStringEx('panel.covid19_passport.button.info_center.title', 'Your COVID-19 info center'),
+              borderColor: Styles().colors.fillColorSecondary,
+              fontSize: 16,
+              textColor: Styles().colors.fillColorPrimary,
+              backgroundColor: Styles().colors.background,
+              showChevron: true,
+              onTap: _onTapInfoCenter,)
+        )
       ],
     )
     );
@@ -350,7 +358,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
       case true: accessText = Localization().getStringEx("panel.covid19_passport.label.access.granted","GRANTED"); break;
       case false: accessText = Localization().getStringEx("panel.covid19_passport.label.access.denied","DENIED"); break;
     }
-    return Container(
+    return SingleChildScrollView(child:Container(
       child: Column(children: <Widget>[
         Container(height: 15,),
         Image.asset(imageAsset, excludeFromSemantics: true,),
@@ -360,7 +368,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
         Container(height: 6,),
         Text(accessText, style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 28, color: Styles().colors.fillColorPrimary),),
       ],),
-    );
+    ));
   }
 
   Widget _buildQrCode(){
@@ -378,7 +386,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
       Localization().getStringEx('panel.covid19_passport.label.status.empty', "No available status for this County") :
       Localization().getStringEx('panel.covid19_passport.label.counties.empty', "No counties available");
     String qrCodeImageData = AppString.getDefaultEmptyString(value: authCardOrPhone, defaultValue: User().uuid);
-    return Column(children: <Widget>[
+    return SingleChildScrollView(child:Column(children: <Widget>[
       Visibility(
         visible: userHasHealthStatus,
         child: Container(
@@ -405,17 +413,25 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
           child:
           Row(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              Text(statusName, style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Styles().colors.textSurface),),
+              Expanded(child:
+                Text(statusName, style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Styles().colors.textSurface),),
+              ),
               Container(width: 6,),
               IconButton(icon: Image.asset('images/icon-info-orange.png'), onPressed: () =>  StatusInfoDialog.show(context, _selectedCounty?.nameDisplayText ?? ""), padding: EdgeInsets.all(10),)
           ],)):
         Container(
           padding: EdgeInsets.only(bottom: 8),
+          child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+          Expanded(
           child: Text(noStatusDescription, style:TextStyle(color: Colors.black, fontSize: 18, fontFamily: Styles().fontFamilies.regular)),
+        )])
         ),
 
-    ],);
+    ],));
   }
 
   Widget _buildCountyDropdown(){
@@ -431,10 +447,10 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
                 child: DropdownButtonHideUnderline(
                     child:DropdownButton(
                       icon: Icon(Icons.arrow_drop_down, color:Styles().colors.fillColorPrimary, semanticLabel: null,),
-                      isExpanded: false,
+                      isExpanded: true,
                       style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.fillColorPrimary,),
-                      hint: Text(_selectedCounty?.nameDisplayText ?? Localization().getStringEx('panel.covid19_passport.label.county.empty.hint',"Select a county..."),
-                        style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.fillColorPrimary,),),
+                      hint: Text(_selectedCounty?.nameDisplayText ?? Localization().getStringEx('panel.covid19_passport.label.county.empty.hint',"Select a county...",),
+                        style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.fillColorPrimary,),overflow: TextOverflow.ellipsis,),
                       items: _buildCountyDropdownItems(),
                       onChanged: (value) { _switchCounty(value); },
                     )
