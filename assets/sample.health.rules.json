@@ -114,8 +114,8 @@
 			"antibody.negavitve": {
 				"condition": "require-test",
 				"params": {
-					"interval": { "min": 0, "max": 4 },
-					"current_interval": { "min": 0, "max": 4 }
+					"interval": { "min": 0, "max": 5 },
+					"current_interval": { "min": 0, "max": 5 }
 				},
 				"success": null,
 				"fail": {
@@ -128,14 +128,14 @@
 			"antibody.positive": {
 				"condition": "require-test",
 				"params": {
-					"interval": { "min": 0, "max": 4 },
-					"current_interval": { "min": 0, "max": 4 }
+					"interval": { "min": 0, "max": 5 },
+					"current_interval": { "min": 0, "max": 5 }
 				},
 				"success": {
 					"health_status": "green",
 					"priority": 1,
 					"next_step": "Monitor your test results",
-					"next_step_interval": 4
+					"next_step_interval": 5
 					},
 				"fail": {
 					"health_status": "orange",
@@ -152,8 +152,8 @@
 			"PCR.negative": {
 				"condition": "require-test",
 				"params": {
-					"interval": { "min": 0, "max": 4 },
-					"current_interval": { "min": 0, "max": 4 }
+					"interval": { "min": 0, "max": 5 },
+					"current_interval": { "min": 0, "max": 5 }
 				},
 				"success": {
 					"health_status": "yellow",
@@ -322,8 +322,8 @@
 				"status": {
 					"condition": "require-test",
 					"params": {
-						"interval": { "min": 0, "max": 4 },
-						"current_interval": { "min": 0, "max": 4 }
+						"interval": { "min": 0, "max": 5 },
+						"current_interval": { "min": 0, "max": 5 }
 					},
 					"success": {
 						"health_status": "yellow",
@@ -360,8 +360,8 @@
 				"status": {
 					"condition": "require-test",
 					"params": {
-						"interval": { "min": 0, "max": 4 },
-						"current_interval": { "min": 0, "max": 4 }
+						"interval": { "min": 0, "max": 5 },
+						"current_interval": { "min": 0, "max": 5 }
 					},
 					"success": {
 						"health_status": "yellow",
