@@ -53,7 +53,7 @@ class _Covid19NextStepsPanelState extends State<Covid19NextStepsPanel> {
 //              _buildPageIndicator(),
               Container(
                 padding: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-                child: RoundedButton(
+                child: ScalableRoundedButton(
                   label: _nextStepRequiresTest? Localization().getStringEx("panel.health.next_steps.button.continue.title.find_locatio","Find location") :
                   Localization().getStringEx("panel.health.next_steps.button.continue.title.care_team","Get in Touch with Care Team") ,
                   backgroundColor: Styles().colors.fillColorPrimary,

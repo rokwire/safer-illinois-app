@@ -121,7 +121,7 @@ class _SettingsPersonalInfoPanelState extends State<SettingsPersonalInfoPanel> {
           visible: Auth().isShibbolethLoggedIn,
           child: Padding(
             padding: EdgeInsets.symmetric( vertical: 5),
-            child: RoundedButton(
+            child: ScalableRoundedButton(
               label: Localization().getStringEx("panel.profile_info.button.sign_out.title", "Sign Out"),
               hint: Localization().getStringEx("panel.profile_info.button.sign_out.hint", ""),
               backgroundColor: Styles().colors.background,
@@ -134,7 +134,7 @@ class _SettingsPersonalInfoPanelState extends State<SettingsPersonalInfoPanel> {
         ),
         Padding(
           padding: EdgeInsets.symmetric( vertical: 5),
-          child: RoundedButton(
+          child: ScalableRoundedButton(
             label: Localization().getStringEx("panel.profile_info.button.remove_my_information.title", "Remove My Information"),
             hint: Localization().getStringEx("panel.profile_info.button.remove_my_information.hint", ""),
             backgroundColor: Styles().colors.background,
@@ -204,60 +204,66 @@ class _SettingsPersonalInfoPanelState extends State<SettingsPersonalInfoPanel> {
                     ),
                   ],
                 ),
-                Container(
-                  height: 26,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
-                  child: Text(
-                    Localization().getStringEx("panel.profile_info.dialog.remove_my_information.title",
-                        "By answering YES all your personal information and preferences will be deleted from our systems. This action can not  be recovered.  After deleting the information we will return you to the first screen when you installed the app so you can start again or delete the app."),
-                    textAlign: TextAlign.left,
-                    style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Colors.black),
-                  ),
-                ),
-                Container(
-                  height: 26,
-                ),
-                Text(
-                  Localization().getStringEx("panel.profile_info.dialog.remove_my_information.subtitle", "Are you sure?"),
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Colors.black),
-                ),
-                Container(
-                  height: 26,
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Stack(
+                Expanded(child:
+                SingleChildScrollView(
+                  child: Column(children: <Widget>[
+
+                    Container(
+                      height: 26,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 18),
+                      child: Text(
+                        Localization().getStringEx("panel.profile_info.dialog.remove_my_information.title",
+                            "By answering YES all your personal information and preferences will be deleted from our systems. This action can not  be recovered.  After deleting the information we will return you to the first screen when you installed the app so you can start again or delete the app."),
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Colors.black),
+                      ),
+                    ),
+                    Container(
+                      height: 26,
+                    ),
+                    Text(
+                      Localization().getStringEx("panel.profile_info.dialog.remove_my_information.subtitle", "Are you sure?"),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Colors.black),
+                    ),
+                    Container(
+                      height: 26,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          RoundedButton(
-                              onTap: () => onConfirmRemoveMyInfo(context, setState),
+                          Stack(
+                            children: <Widget>[
+                              ScalableRoundedButton(
+                                  onTap: () => onConfirmRemoveMyInfo(context, setState),
+                                  backgroundColor: Colors.transparent,
+                                  borderColor: Styles().colors.fillColorSecondary,
+                                  textColor: Styles().colors.fillColorPrimary,
+                                  label: Localization().getStringEx("panel.profile_info.dialog.remove_my_information.yes.title", "Yes")),
+                              _isDeleting ? Align(alignment: Alignment.center, child: CircularProgressIndicator()) : Container()
+                            ],
+                          ),
+                          Container(
+                            height: 10,
+                          ),
+                          ScalableRoundedButton(
+                              onTap: () {
+                                Analytics.instance.logAlert(text: "Remove My Information", selection: "No");
+                                Navigator.pop(context);
+                              },
                               backgroundColor: Colors.transparent,
                               borderColor: Styles().colors.fillColorSecondary,
                               textColor: Styles().colors.fillColorPrimary,
-                              label: Localization().getStringEx("panel.profile_info.dialog.remove_my_information.yes.title", "Yes")),
-                          _isDeleting ? Align(alignment: Alignment.center, child: CircularProgressIndicator()) : Container()
+                              label: Localization().getStringEx("panel.profile_info.dialog.remove_my_information.no.title", "No"))
                         ],
                       ),
-                      Container(
-                        height: 10,
-                      ),
-                      RoundedButton(
-                          onTap: () {
-                            Analytics.instance.logAlert(text: "Remove My Information", selection: "No");
-                            Navigator.pop(context);
-                          },
-                          backgroundColor: Colors.transparent,
-                          borderColor: Styles().colors.fillColorSecondary,
-                          textColor: Styles().colors.fillColorPrimary,
-                          label: Localization().getStringEx("panel.profile_info.dialog.remove_my_information.no.title", "No"))
-                    ],
-                  ),
-                ),
+                    ),
+
+                ],),)),
               ],
             ),
           ),
@@ -353,31 +359,36 @@ class _PersonalInfoEntry extends StatelessWidget {
     return visible
         ? Container(
             margin: EdgeInsets.only(top: 25),
-            child: Row(
-              children: <Widget>[
+            child:
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text(
-                      title,
-                      style: TextStyle(
-                          fontFamily: Styles().fontFamilies.medium,
-                          fontSize: 14,
-                          letterSpacing: 0.5,
-                          color: Styles().colors.textBackground),
-                    ),
+                    Row(children: <Widget>[
+                      Expanded(child:
+                        Text(
+                          title,
+                          style: TextStyle(
+                              fontFamily: Styles().fontFamilies.medium,
+                              fontSize: 14,
+                              letterSpacing: 0.5,
+                              color: Styles().colors.textBackground),
+                        ),
+                      )
+                    ],),
                     Container(
                       height: 5,
                     ),
-                    Text(
-                      value,
-                      style:
+                    Row(children: <Widget>[
+                      Expanded(child:
+                        Text(
+                          value,
+                          style:
                           TextStyle(fontSize: 20, color: Styles().colors.fillColorPrimary),
-                    )
+                        ),)
+                    ],),
+
                   ],
                 ),
-              ],
-            ),
         )
         : Container();
   }

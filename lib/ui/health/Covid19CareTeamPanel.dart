@@ -169,8 +169,9 @@ class _Covid19CareTeamPanelState extends State<Covid19CareTeamPanel> with Ticker
               child:Row(children: <Widget>[
                 Image.asset("images/icon-phone.png", excludeFromSemantics: true,),
                 Container(width: 8,),
+                Expanded(child:
                 Text(contact,textAlign: TextAlign.left, style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 16, fontFamily: Styles().fontFamilies.bold),),
-                Expanded(child: Container()),
+                ),
                 Image.asset("images/chevron-right.png", excludeFromSemantics: true,),
             ],))
           )))),

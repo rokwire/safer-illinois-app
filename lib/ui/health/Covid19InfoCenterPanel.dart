@@ -232,9 +232,17 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
             child: Padding(padding: EdgeInsets.symmetric(horizontal: 16),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
                 Row(children: <Widget>[
-                  Text(headingText, style: TextStyle(letterSpacing: 0.5, fontFamily: Styles().fontFamilies.bold, fontSize: 12, color: Styles().colors.fillColorPrimary),),
-                  Expanded(child: Container(),),
-                  Text(dateText, style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 12, color: Styles().colors.textSurface),)
+                  Flexible(
+                    flex: 3,
+                    fit: FlexFit.tight,
+                    child: Text(headingText, style: TextStyle(letterSpacing: 0.5, fontFamily: Styles().fontFamilies.bold, fontSize: 12, color: Styles().colors.fillColorPrimary),),
+                  ),
+                  Flexible(
+                    flex: 2,
+                    fit: FlexFit.loose,
+                    child:
+                    Text(dateText, style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 12, color: Styles().colors.textSurface),)
+                  )
                 ],),
                 Container(height: 12,),
                 Text(historyTitle, style: TextStyle(fontFamily: Styles().fontFamilies.extraBold, fontSize: 20, color: Styles().colors.fillColorPrimary),),
@@ -261,7 +269,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
 
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Semantics(explicitChildNodes: true, child: RoundedButton(
+          child: Semantics(explicitChildNodes: true, child: ScalableRoundedButton(
             label: Localization().getStringEx("panel.covid19home.button.view_history.title", "View Health History"),
             hint: Localization().getStringEx("panel.covid19home.button.view_history.hint", ""),
             borderColor: Styles().colors.fillColorSecondary,
@@ -319,7 +327,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
 
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Semantics(explicitChildNodes: true, child: RoundedButton(
+          child: Semantics(explicitChildNodes: true, child: ScalableRoundedButton(
             label: Localization().getStringEx("panel.covid19home.button.find_test_locations.title", "Find test locations"),
             hint: Localization().getStringEx("panel.covid19home.button.find_test_locations.hint", ""),
             borderColor: Styles().colors.fillColorSecondary,
@@ -429,7 +437,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
         hasStatusCard
           ? Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Semantics(explicitChildNodes: true, child: RoundedButton(
+            child: Semantics(explicitChildNodes: true, child: ScalableRoundedButton(
               label: Localization().getStringEx("panel.covid19home.button.show_status_card.title","Show Status Card"),
               hint: '',
               borderColor: Styles().colors.fillColorSecondary,
@@ -510,6 +518,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
       child: RibbonButton(
         label: Localization().getStringEx("panel.covid19.button.health_history.title", "View Health History"),
         borderRadius: BorderRadius.circular(4),
+        height: null,
         onTap: ()=>_onTapTestHistory(),
       ),
     );
@@ -525,6 +534,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
         label: Localization().getStringEx("panel.covid19.button.covid_wellness_center.title", "COVID-19 Wellness Answer Center"),
         borderRadius: BorderRadius.circular(4),
         onTap: ()=>_onTapCovidWellnessCenter(),
+        height: null,
       ),
     );
   }
@@ -539,6 +549,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
         label: Localization().getStringEx("panel.covid19home.button.find_test_locations.title", "Find test locations"),
         hint: Localization().getStringEx("panel.covid19home.button.find_test_locations.hint", ""),
         borderRadius: BorderRadius.circular(4),
+        height: null,
         onTap: ()=>_onTapFindLocations(),
       ),
     );

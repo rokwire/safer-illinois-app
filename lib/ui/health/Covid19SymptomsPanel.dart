@@ -154,7 +154,7 @@ class _Covid19SymptomsPanelState extends State<Covid19SymptomsPanel> {
     bool enabled = (0 < _selectedSymptoms.length);
     return Padding(padding: EdgeInsets.only(top: 20, bottom: 20), child:
       Stack(children: <Widget>[
-        RoundedButton(label: Localization().getStringEx("panel.health.symptoms.button.submit.title","Submit"),
+        ScalableRoundedButton(label: Localization().getStringEx("panel.health.symptoms.button.submit.title","Submit"),
           backgroundColor: enabled ? Styles().colors.white : Styles().colors.whiteTransparent01,
           textColor: enabled ? Styles().colors.fillColorPrimary : Styles().colors.disabledTextColorTwo,
           fontFamily: Styles().fontFamilies.bold,
@@ -162,7 +162,6 @@ class _Covid19SymptomsPanelState extends State<Covid19SymptomsPanel> {
           padding: EdgeInsets.symmetric(horizontal: 32, ),
           borderColor: enabled ? Styles().colors.fillColorSecondary : Styles().colors.disabledTextColorTwo,
           borderWidth: 2,
-          height: 48,
           onTap:() { _onSubmit();  }
         ),
           Visibility(visible: (_submittingSymptoms == true), child:

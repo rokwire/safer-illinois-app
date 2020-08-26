@@ -161,7 +161,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
         context: context,
         titleWidget: _DebugContainer(
             child: Container(
-          height: 40,
+//          height: 40,
           child: Padding(
             //PS I know it is ugly..
             padding: EdgeInsets.only(top: 10),
@@ -261,6 +261,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
               ),
             )),);
           contentList.add(RibbonButton(
+            height: null,
             border: Border.all(color: Styles().colors.surfaceAccent, width: 0),
             borderRadius: _allRounding,
             label: Localization().getStringEx("panel.settings.home.connect.not_logged_in.netid.title", "Connect your NetID"),
@@ -331,6 +332,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
       
       if (code == 'roles') {
         customizationOptions.add(RibbonButton(
+            height: null,
             borderRadius: borderRadius,
             border: Border.all(color: Styles().colors.surfaceAccent, width: 0),
             label: Localization().getStringEx("panel.settings.home.customizations.role.title", "Who you are"),
@@ -395,6 +397,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
       }
       else if (code == 'connect') {
         contentList.add(RibbonButton(
+            height: null,
             borderRadius: borderRadius,
             border: Border.all(color: Styles().colors.surfaceAccent, width: 0),
             label: Localization().getStringEx("panel.settings.home.net_id.button.connect", "Connect your NetID"),
@@ -402,6 +405,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
       }
       else if (code == 'disconnect') {
         contentList.add(RibbonButton(
+            height: null,
             borderRadius: borderRadius,
             border: Border.all(color: Styles().colors.surfaceAccent, width: 0),
             label: Localization().getStringEx("panel.settings.home.net_id.button.disconnect", "Disconnect your NetID"),
@@ -444,6 +448,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
       }*/
       else if (code == 'disconnect') {
         contentList.add(RibbonButton(
+            height: null,
             borderRadius: borderRadius,
             border: Border.all(color: Styles().colors.surfaceAccent, width: 0),
             label: Localization().getStringEx("panel.settings.home.phone_ver.button.disconnect","Disconnect your Phone",),
@@ -516,6 +521,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
       BorderRadius borderRadius = _borderRadiusFromIndex(index, codes.length);
       if (code == 'covid19') {
         contentList.add(ToggleRibbonButton(
+          height: null,
           borderRadius: borderRadius,
           label: Localization().getStringEx("panel.settings.home.notifications.covid19", "COVID-19 notifications"),
           toggled: FirebaseMessaging().notifyCovid19,
@@ -663,8 +669,8 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
           children: <Widget>[
             Text(Localization().getStringEx('panel.settings.home.covid19.text.user.fail', 'Unable to retrieve user COVID-19 settings.') , style: TextStyle(color: Styles().colors.textBackground, fontFamily: Styles().fontFamilies.regular, fontSize: 16)),
             Container(height: 4,),
-            Row(children: <Widget>[
-              RoundedButton(
+//            Row(children: <Widget>[
+              ScalableRoundedButton(
                 label: Localization().getStringEx('panel.settings.home.covid19.button.retry.title', 'Retry'),
                 backgroundColor: Styles().colors.background,
                 fontSize: 16.0,
@@ -673,7 +679,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
                 borderColor: Styles().colors.fillColorPrimary,
                 onTap: _onTapCovid19Login
               ),
-            ],)
+//            ],)
         ],)
       ));
     }
@@ -684,6 +690,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
         BorderRadius borderRadius = _borderRadiusFromIndex(index, codes.length);
         if (code == 'exposure_notifications') {
           contentList.add(ToggleRibbonButton(
+              height: null,
               borderRadius: borderRadius,
               label: Localization().getStringEx("panel.settings.home.covid19.exposure_notifications", "Exposure Notifications"),
               toggled: (_healthUser?.exposureNotification == true),
@@ -692,6 +699,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
         }
         else if (code == 'provider_test_result') {
           contentList.add(ToggleRibbonButton(
+              height: null,
               borderRadius: borderRadius,
               label: Localization().getStringEx("panel.settings.home.covid19.provider_test_result", "Health Provider Test Results"),
               toggled: (_healthUser?.consent == true),
@@ -720,8 +728,8 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
         statusText = Localization().getStringEx('panel.settings.home.covid19.text.keys.missing.public', 'Missing COVID-19 public key');
         descriptionText = Localization().getStringEx('panel.settings.home.covid19.text.keys.reset', 'Reset the COVID-19 keys pair.');
         buttons =  <Widget>[
-          Expanded(child: Container(),),
-          _buildCovid19ResetButton(),
+          Expanded(child:
+            _buildCovid19ResetButton()),
         ];
       }
       else if ((_healthUserPrivateKey == null) || (_healthUserKeysPaired != true)) {
@@ -730,40 +738,44 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
           Localization().getStringEx('panel.settings.home.covid19.text.keys.mismatch', 'COVID-19 keys not paired');
         descriptionText = Localization().getStringEx('panel.settings.home.covid19.text.keys.transfer_or_reset', 'Transfer the COVID-19 private key from your other phone or reset the COVID-19 keys pair.');
         buttons =  <Widget>[
-          RoundedButton(
+          Expanded(child:
+          ScalableRoundedButton(
             label: Localization().getStringEx('panel.settings.home.covid19.button.load.title', 'Load'),
             backgroundColor: Styles().colors.background,
             fontSize: 16.0,
             padding: EdgeInsets.symmetric(horizontal: 24),
             textColor: Styles().colors.fillColorPrimary,
             borderColor: Styles().colors.fillColorPrimary,
-            onTap: _onTapLoadCovid19QrCode),
+            onTap: _onTapLoadCovid19QrCode),),
           Container(width: 8,),
-          RoundedButton(
+          Expanded(child:
+          ScalableRoundedButton(
             label: Localization().getStringEx('panel.settings.home.covid19.button.scan.title', 'Scan'),
             backgroundColor: Styles().colors.background,
             fontSize: 16.0,
             padding: EdgeInsets.symmetric(horizontal: 24),
             textColor: Styles().colors.fillColorPrimary,
             borderColor: Styles().colors.fillColorPrimary,
-            onTap: _onTapScanCovid19QrCode),
-          Expanded(child: Container(),),
-          _buildCovid19ResetButton(),
+            onTap: _onTapScanCovid19QrCode)),
+//          Expanded(child: Container(),),
+          Expanded(child:
+            _buildCovid19ResetButton(),
+          )
         ];
       }
       else {
         statusText = Localization().getStringEx('panel.settings.home.covid19.text.keys.paired', 'COVID-19 keys valid and paired');
         descriptionText = Localization().getStringEx('panel.settings.home.covid19.text.keys.qr_code', 'Show your COVID-19 secret QR code.');
         buttons =  <Widget>[
-          Expanded(child: Container(),),
-          RoundedButton(
+          Expanded(child:
+          ScalableRoundedButton(
             label: Localization().getStringEx('panel.settings.home.covid19.button.qr_code.title', 'QR Code'),
             backgroundColor: Styles().colors.background,
             fontSize: 16.0,
             padding: EdgeInsets.symmetric(horizontal: 24),
             textColor: Styles().colors.fillColorPrimary,
             borderColor: Styles().colors.fillColorPrimary,
-            onTap: _onTapShowCovid19QrCode)
+            onTap: _onTapShowCovid19QrCode))
         ];
       }
 
@@ -783,12 +795,10 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   Widget _buildCovid19ResetButton() {
     double buttonWidth = 100, buttonHeight = 48, progressSize = 24; 
     return Stack(children: <Widget>[
-      RoundedButton(
+      ScalableRoundedButton(
         label: Localization().getStringEx('panel.settings.home.covid19.button.reset.title', 'Reset'),
         backgroundColor: Styles().colors.background,
         fontSize: 16.0,
-        width: buttonWidth,
-        height: buttonHeight,
         textColor: Styles().colors.fillColorPrimary,
         borderColor: Styles().colors.fillColorPrimary,
         onTap: _onTapCovid19ResetKeys,
@@ -936,6 +946,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
       BorderRadius borderRadius = _borderRadiusFromIndex(index, codes.length);
       if (code == 'statement') {
         contentList.add(RibbonButton(
+          height: null,
           borderRadius: borderRadius,
           border: Border.all(color: Styles().colors.surfaceAccent, width: 0),
           label: Localization().getStringEx("panel.settings.home.privacy.privacy_statement.title", "Privacy Statement"),
@@ -967,6 +978,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
       BorderRadius borderRadius = _borderRadiusFromIndex(index, codes.length);
       if (code == 'personal_info') {
         contentList.add(RibbonButton(
+          height: null,
           border: Border.all(color: Styles().colors.surfaceAccent, width: 0),
           borderRadius: borderRadius,
           label: Localization().getStringEx("panel.settings.home.account.personal_info.title", "Personal Info"),
@@ -1008,7 +1020,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
         ),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-          child: RoundedButton(
+          child: ScalableRoundedButton(
             label: Localization().getStringEx("panel.settings.home.button.feedback.title", "Submit Feedback"),
             hint: Localization().getStringEx("panel.settings.home.button.feedback.hint", ""),
             backgroundColor: Styles().colors.background,
@@ -1063,7 +1075,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   Widget _buildDebug() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 18, vertical: 24),
-      child: RoundedButton(
+      child: ScalableRoundedButton(
         label: Localization().getStringEx("panel.profile_info.button.debug.title", "Debug"),
         hint: Localization().getStringEx("panel.profile_info.button.debug.hint", ""),
         backgroundColor: Styles().colors.background,
