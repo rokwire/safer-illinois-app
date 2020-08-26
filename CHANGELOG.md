@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Updated
 Fixed Xcode name in README.md (#1)
+Update test interval from 4 to 5 days (#52)
 
 ## [2.4.1] - 2020-08-25
 ### Fixed
