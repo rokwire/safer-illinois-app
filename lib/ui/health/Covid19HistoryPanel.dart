@@ -217,10 +217,9 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
     return Stack(
       alignment: Alignment.center,
       children: <Widget>[
-        RoundedButton(
+        ScalableRoundedButton(
           label: Localization().getStringEx("panel.health.covid19.history.button.repost_history.title", "Request my latest test again"),
           hint: Localization().getStringEx("panel.health.covid19.history.button.repost_history.hint", ""),
-          height: 48,
           backgroundColor: Styles().colors.surface,
           fontSize: 16.0,
           textColor:  Styles().colors.fillColorSecondary,
@@ -251,10 +250,9 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
 
   Widget _buildRemoveMyInfoButton() {
     return Stack(children: <Widget>[
-      RoundedButton(
+      ScalableRoundedButton(
         label: 'Delete my COVID-19 Events History',
         hint: '',
-        height: 48,
         backgroundColor: Styles().colors.surface,
         fontSize: 16.0,
         textColor: Styles().colors.fillColorSecondary,
@@ -492,24 +490,33 @@ class _Covid19HistoryEntryState extends State<_Covid19HistoryEntry> with SingleT
         details = Row(children: <Widget>[
           Image.asset(isManualTest? "images/u.png": "images/provider.png", excludeFromSemantics: true,),
           Container(width: 11,),
-          Semantics(label: Localization().getStringEx("panel.health.covid19.history.label.provider.hint", "provider: "), child:
-            Text( isManualTest? Localization().getStringEx("panel.health.covid19.history.label.provider.self_reported", "Self reported"):
-              (widget.history?.blob?.provider ?? Localization().getStringEx("app.common.label.other", "Other")),
-               style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface,))
-          )
+          Expanded(child:
+            Semantics(label: Localization().getStringEx("panel.health.covid19.history.label.provider.hint", "provider: "), child:
+              Text( isManualTest? Localization().getStringEx("panel.health.covid19.history.label.provider.self_reported", "Self reported"):
+                (widget.history?.blob?.provider ?? Localization().getStringEx("app.common.label.other", "Other")),
+                 style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface,))
+          ))
         ],);
       }
       else if (widget.history.isSymptoms) {
         title = Localization().getStringEx("panel.health.covid19.history.label.self_reported.title","Self Reported Symptoms");
-        details = Semantics(label: Localization().getStringEx("panel.health.covid19.history.label.self_reported.symptoms","symptoms: "), child:
-            Text(widget.history.blob?.symptomsDisplayString ?? '', style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground,))
-          );
+        details =
+          Row(children: <Widget>[
+            Expanded(child:
+              Semantics(label: Localization().getStringEx("panel.health.covid19.history.label.self_reported.symptoms","symptoms: "), child:
+               Text(widget.history.blob?.symptomsDisplayString ?? '', style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground,))
+              )
+            )
+          ],);
       }
       else if (widget.history.isContactTrace) {
         title = Localization().getStringEx("panel.health.covid19.history.label.contact_trace.title","Contact Trace");
-        details = Semantics(label: Localization().getStringEx("panel.health.covid19.history.label.contact_trace.details","contact trace: "), child:
-            Text(widget.history.blob?.traceDurationDisplayString ?? '', style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground,))
-          );
+        details =
+          Row(children: <Widget>[
+            Expanded(child:
+              Semantics(label: Localization().getStringEx("panel.health.covid19.history.label.contact_trace.details","contact trace: "), child:
+                Text(widget.history.blob?.traceDurationDisplayString ?? '', style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground,))
+          ))]);
       }
       else if (widget.history.isAction) {
         title = Localization().getStringEx("panel.health.covid19.history.label.action.title","Action Required");
@@ -528,10 +535,13 @@ class _Covid19HistoryEntryState extends State<_Covid19HistoryEntry> with SingleT
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
            children: <Widget>[
-              Text(AppDateTime().formatDateTime(widget.history?.dateUtc?.toLocal(),format:dateFormat) ?? '',style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface,)),
-              Container(height: 4,),
-              Text(title ?? '', style:TextStyle(fontSize: 20, fontFamily: Styles().fontFamilies.extraBold, color: Styles().colors.fillColorPrimary,)),
-              Container(height: 9,),
+             Text(AppDateTime().formatDateTime(widget.history?.dateUtc?.toLocal(),format:dateFormat) ?? '',style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface,)),
+             Container(height: 4,),
+             Row(children: <Widget>[
+              Expanded(child:
+                Text(title ?? '', style:TextStyle(fontSize: 20, fontFamily: Styles().fontFamilies.extraBold, color: Styles().colors.fillColorPrimary,)),
+             )]),
+             Container(height: 9,),
               details ?? Container(),
               !isTest? Container():
                 Container(height: 9,),
@@ -539,9 +549,10 @@ class _Covid19HistoryEntryState extends State<_Covid19HistoryEntry> with SingleT
               Row(children: <Widget>[
                Image.asset(isVerifiedTest? "images/certified-copy.png": "images/pending.png"),
                Container(width: 10,),
-               isVerifiedTest?
-                Text(Localization().getStringEx("panel.health.covid19.history.label.verified","Verified"),style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface,)):
-                Text(Localization().getStringEx("panel.health.covid19.history.label.verification_pending","Verification Pending"),style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface,)),
+                Expanded(child:   isVerifiedTest?
+                  Text(Localization().getStringEx("panel.health.covid19.history.label.verified","Verified"),style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface,)):
+                  Text(Localization().getStringEx("panel.health.covid19.history.label.verification_pending","Verification Pending"),style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface,)),
+                )
              ],),
            ],
           )
