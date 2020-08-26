@@ -59,13 +59,13 @@
 	<key>NSContactsUsageDescription</key>
 	<string>Allow access to Contacts.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Permission for Location Services is needed to enable Bluetooth-based Exposure Notification. No location data is used or stored within the app, and no location data leaves the users device.</string>
+	<string>No location data will be sent or received by this app. The location services are on so that Bluetooth can run in background.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Permission for Location Services is needed to enable Bluetooth-based Exposure Notification. No location data is used or stored within the app, and no location data leaves the users device.</string>
+	<string>No location data will be sent or received by this app. The location services are on so that Bluetooth can run in background.</string>
 	<key>NSLocationUsageDescription</key>
-	<string>Permission for Location Services is needed to enable Bluetooth-based Exposure Notification. No location data is used or stored within the app, and no location data leaves the users device.</string>
+	<string>No location data will be sent or received by this app. The location services are on so that Bluetooth can run in background.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Permission for Location Services is needed to enable Bluetooth-based Exposure Notification. No location data is used or stored within the app, and no location data leaves the users device.</string>
+	<string>No location data will be sent or received by this app. The location services are on so that Bluetooth can run in background.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Allow access to Microphone.</string>
 	<key>NSMotionUsageDescription</key>
