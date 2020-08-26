@@ -104,7 +104,7 @@ class OnboardingAuthLocationPanel extends StatelessWidget with OnboardingPanel {
                       ScalableRoundedButton(
                         label: Localization().getStringEx(
                             'panel.onboarding.location.button.allow.title',
-                            'Share my Location'),
+                            'Enable Location Services'),
                         hint: Localization().getStringEx(
                             'panel.onboarding.location.button.allow.hint',
                             ''),
