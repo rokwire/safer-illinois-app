@@ -5,6 +5,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Updated
+Fixed Xcode name in README.md (#1)
+
+## [2.4.1] - 2020-08-25
+### Fixed
+Introduced scopes in HealthRuleIntInterval2 (#47)
+
+## [2.4.0] - 2020-08-24
+### Added
+Show alert on no result (#35)
+
+### Changed
+Info.plist permission strings (#40)
+Hide phone login from settings. (#39)
+Handle deeplinks when the app was previously terminated. (#43)
+
+### Deleted
+Removed PrivacyData model class (unused).
+
+### Fixed
+Fix/location weekday rollover (#37)
 
 ## [2.3.6] - 2020-08-20
 ### Changed
