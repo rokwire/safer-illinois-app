@@ -10,6 +10,9 @@ Fixed Xcode name in README.md (#1)
 Update test interval from 4 to 5 days (#52)
 Change onboarding texts (#51)
 
+### Died
+Fixed crash in Consent onboarding panel when Accessibility is on (#55)
+
 ## [2.4.1] - 2020-08-25
 ### Fixed
 Introduced scopes in HealthRuleIntInterval2 (#47)
