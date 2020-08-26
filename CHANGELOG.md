@@ -5,12 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## [2.4.2] - 2020-08-26
 ### Updated
 Fixed Xcode name in README.md (#1)
 Update test interval from 4 to 5 days (#52)
 Change onboarding texts (#51)
 
-### Died
+### Fixed
 Fixed crash in Consent onboarding panel when Accessibility is on (#55)
 
 ## [2.4.1] - 2020-08-25
