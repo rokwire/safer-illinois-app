@@ -174,6 +174,7 @@ class ScalableRoundedButton extends StatelessWidget {
   final EdgeInsetsGeometry padding;
   final bool enabled;
   final bool showAdd;
+  final bool showChevron;
 
   ScalableRoundedButton(
       {this.label = '',
@@ -189,7 +190,9 @@ class ScalableRoundedButton extends StatelessWidget {
         this.borderWidth = 2.0,
         this.secondaryBorderColor,
         this.onTap,
-        this.showAdd = false});
+        this.showAdd = false,
+        this.showChevron = false
+      });
 
   @override
   Widget build(BuildContext context) {
@@ -232,6 +235,12 @@ class ScalableRoundedButton extends StatelessWidget {
                         color: textColor,
                       ),
                     )),
+                    Visibility(
+                        visible: showChevron,
+                        child: Padding(
+                          padding: EdgeInsets.only(left: 5),
+                          child: Image.asset('images/chevron-right.png'),
+                        )),
                     Visibility(
                         visible: showAdd,
                         child: Padding(

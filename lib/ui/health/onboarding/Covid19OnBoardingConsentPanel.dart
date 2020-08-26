@@ -67,7 +67,7 @@ class _Covid19OnBoardingConsentPanelState extends State<Covid19OnBoardingConsent
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Styles().colors.background,
-        body: _loading? _buildLoading() : _buildContent());
+        body: _buildContent());
   }
 
   Widget _buildContent(){
@@ -174,15 +174,27 @@ class _Covid19OnBoardingConsentPanelState extends State<Covid19OnBoardingConsent
           ),),
           Container(color: Styles().colors.white, child: Padding(
             padding: EdgeInsets.all(16),
-            child: ScalableRoundedButton(
-              enabled: _canContinue,
-              label:_canContinue? Localization().getStringEx('panel.health.onboarding.covid19.consent.button.consent.title', 'Next') : Localization().getStringEx('panel.health.onboarding.covid19.consent.button.scroll_to_continue.title', 'Scroll to Continue'),
-              hint: Localization().getStringEx('panel.health.onboarding.covid19.consent.button.consent.hint', ''),
-              borderColor: (_canContinue ? Styles().colors.lightBlue : Styles().colors.disabledTextColorTwo),
-              backgroundColor: (_canContinue ? Styles().colors.white : Styles().colors.background),
-              textColor: (_canContinue ? Styles().colors.fillColorPrimary : Styles().colors.disabledTextColorTwo),
-              onTap: () => _goNext(context),
-            ),
+            child: Stack(children: <Widget>[
+              ScalableRoundedButton(
+                enabled: _canContinue,
+                label:_canContinue? Localization().getStringEx('panel.health.onboarding.covid19.consent.button.consent.title', 'Next') : Localization().getStringEx('panel.health.onboarding.covid19.consent.button.scroll_to_continue.title', 'Scroll to Continue'),
+                hint: Localization().getStringEx('panel.health.onboarding.covid19.consent.button.consent.hint', ''),
+                borderColor: (_canContinue ? Styles().colors.lightBlue : Styles().colors.disabledTextColorTwo),
+                backgroundColor: (_canContinue ? Styles().colors.white : Styles().colors.background),
+                textColor: (_canContinue ? Styles().colors.fillColorPrimary : Styles().colors.disabledTextColorTwo),
+                onTap: () => _goNext(context),
+              ),
+              Visibility(visible: (_loading == true), child:
+                Center(child:
+                  Padding(padding: EdgeInsets.only(top: 10), child:
+                    Container(width: 24, height:24, child:
+                      CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorPrimary), strokeWidth: 2,)
+                    ),
+                  ),
+                ),
+              ),
+
+            ],),
           ),)
         ],
       ),
@@ -198,23 +210,13 @@ class _Covid19OnBoardingConsentPanelState extends State<Covid19OnBoardingConsent
     }
   }
 
-  Widget _buildLoading(){
-    return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Expanded(
-            child: Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary), strokeWidth: 2,),),
-          )
-          ]);
-  }
-
   void _goBack(BuildContext context) {
     Analytics.instance.logSelect(target: "Back");
     Navigator.of(context).pop();
   }
 
   void _goNext(BuildContext context) {
-    if (!_canContinue) {
+    if (!_canContinue || _loading) {
       return;
     }
     Analytics.instance.logSelect(target: "Continue");
@@ -231,22 +233,26 @@ class _Covid19OnBoardingConsentPanelState extends State<Covid19OnBoardingConsent
     setState(() {
       _loading = true;
     });
-    Health().loginUser(consent: _consent, exposureNotification: _exposureNotification).then((user){
-      if(user==null){
-        //Error
-        AppToast.show(Localization().getStringEx("panel.health.onboarding.covid19.consent.label.error.login","Unable to login in Health"));
-      } else {
-        _finishConsent();
+    Health().loginUser(consent: _consent, exposureNotification: _exposureNotification).then((user) {
+      if (mounted) {
+        setState(() {
+          _loading = false;
+        });
+        if(user==null){
+          //Error
+          AppToast.show(Localization().getStringEx("panel.health.onboarding.covid19.consent.label.error.login","Unable to login in Health"));
+        } else {
+          _finishConsent();
+        }
       }
-      setState(() {
-        _loading = false;
-      });
     }).catchError((_){
-      //Error
-      AppToast.show(Localization().getStringEx("panel.health.onboarding.covid19.consent.label.error.login","Unable to login in Health"));
-      setState(() {
-        _loading = false;
-      });
+      if (mounted) {
+        //Error
+        setState(() {
+          _loading = false;
+        });
+        AppToast.show(Localization().getStringEx("panel.health.onboarding.covid19.consent.label.error.login","Unable to login in Health"));
+        }
     });
   }
 

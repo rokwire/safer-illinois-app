@@ -183,7 +183,7 @@ class _Covid19GuidelinesPanelState extends State<Covid19GuidelinesPanel> impleme
                         return Container(
                           padding: EdgeInsets.only(left: 24, right: 5),
                           color: Styles().colors.white,
-                          height: 104,
+//                          height: 104,
                           child: Center(child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: <Widget>[
                             Padding(padding: EdgeInsets.only(right: 24), child:guidelineImage!=null? Image.asset(guidelineImage, excludeFromSemantics: true,) : Container(width: 72,),),
                             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
@@ -213,7 +213,7 @@ class _Covid19GuidelinesPanelState extends State<Covid19GuidelinesPanel> impleme
                     child: DropdownButtonHideUnderline(
                         child:DropdownButton(
                           icon: Icon(Icons.arrow_drop_down, color:Styles().colors.fillColorPrimary, semanticLabel: null,),
-                          isExpanded: false,
+                          isExpanded: true,
                           style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.fillColorPrimary,),
                           hint: Text(countyName != null ? "$countyName ${Localization().getStringEx("app.common.label.county", "County")}": Localization().getStringEx("panel.covid19_guidelines.label.county.empty","Select a county..."),
                             style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.fillColorPrimary,),),

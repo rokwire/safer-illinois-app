@@ -6,6 +6,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.4.2] - 2020-08-26
+### Updated
+Fixed Xcode name in README.md (#1)
+Update test interval from 4 to 5 days (#52)
+Change onboarding texts (#51)
+
+### Fixed
+Fixed crash in Consent onboarding panel when Accessibility is on (#55)
+
+## [2.4.1] - 2020-08-25
+### Fixed
+Introduced scopes in HealthRuleIntInterval2 (#47)
+
+## [2.4.0] - 2020-08-24
+### Added
+Show alert on no result (#35)
+
+### Changed
+Info.plist permission strings (#40)
+Hide phone login from settings. (#39)
+Handle deeplinks when the app was previously terminated. (#43)
+
+### Deleted
+Removed PrivacyData model class (unused).
+
+### Fixed
+Fix/location weekday rollover (#37)
+
 ## [2.3.6] - 2020-08-20
 ### Changed
 - Exposure iOS scanner updated into an intermittent scanner where the scanner works for at least 4 seconds and pause for 150 seconds and repeat.

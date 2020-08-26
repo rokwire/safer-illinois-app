@@ -406,7 +406,9 @@ class _TestLocation extends StatelessWidget{
                 children: <Widget>[
                   Image.asset('images/icon-time.png',excludeFromSemantics: true),
                   Container(width: 8,),
-                  _buildWorkTime(),
+                  Expanded(child:
+                    _buildWorkTime(),
+                  )
                 ],
               )
             )
@@ -434,6 +436,8 @@ class _TestLocation extends StatelessWidget{
     }
 
     return DropdownButton<HealthLocationDayOfOperation>(
+      isExpanded: true,
+      isDense: false,
       underline: Container(),
       value: period,
       onChanged: (value){},
@@ -442,14 +446,17 @@ class _TestLocation extends StatelessWidget{
         return items.map<Widget>((entry){
           return Row(
             children: <Widget>[
+              Expanded(child:
               Text(
                 _getPeriodText(entry, workingPeriods),
+                softWrap: true,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontFamily: Styles().fontFamilies.bold,
                   fontSize: 16,
                   color: Styles().colors.fillColorPrimary,
                 ),
-              ),
+              ),)
             ],
           );
         }).toList();
