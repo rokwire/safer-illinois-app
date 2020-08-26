@@ -106,7 +106,7 @@ class Covid19OnBoardingHowItWorks extends StatelessWidget with OnboardingPanel {
                         _Bullet(),
                         Expanded(
                           child: Text(
-                            Localization().getStringEx("panel.health.onboarding.covid19.how_it_works.line3.title", "Self-diagnose your COVID-19 symptoms and in doing so update your status."),
+                            Localization().getStringEx("panel.health.onboarding.covid19.how_it_works.line3.title", "Self-report your COVID-19 symptoms and in doing so update your status."),
                             style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color:Styles().colors.fillColorPrimary),
                           ),
                         ),

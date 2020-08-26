@@ -85,14 +85,24 @@ class OnboardingAuthNotificationsPanel extends StatelessWidget with OnboardingPa
                     padding: EdgeInsets.symmetric(horizontal: 24),
                     child: Align(
                         alignment: Alignment.topCenter,
-                        child: Text(
-                          Localization().getStringEx('panel.onboarding.notifications.label.description', 'Get notified about COVID-19 info'),
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontFamily: Styles().fontFamilies.regular,
-                              fontSize: 20,
-                              color: Styles().colors.fillColorPrimary),
-                        )),
+                        child: Column(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
+                          Text(
+                            Localization().getStringEx('panel.onboarding.notifications.label.description1', 'Get notified about COVID-19 info'),
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontFamily: Styles().fontFamilies.regular,
+                                fontSize: 20,
+                                color: Styles().colors.fillColorPrimary),
+                          ),
+                          Padding(padding: EdgeInsets.only(top: 10), child: Text(
+                            Localization().getStringEx('panel.onboarding.notifications.label.description2', 'This is required for Exposure Notifications to work in background on your phone'),
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontFamily: Styles().fontFamilies.regular,
+                                fontSize: 20,
+                                color: Styles().colors.fillColorPrimary),
+                          ),)
+                        ],)),
                   ),
                 ],
               ),
@@ -102,7 +112,7 @@ class OnboardingAuthNotificationsPanel extends StatelessWidget with OnboardingPa
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: <Widget>[
                     ScalableRoundedButton(
-                      label: Localization().getStringEx('panel.onboarding.notifications.button.allow.title', 'Receive Notifications'),
+                      label: Localization().getStringEx('panel.onboarding.notifications.button.allow.title', 'Enable Notifications'),
                       hint: Localization().getStringEx('panel.onboarding.notifications.button.allow.hint', ''),
                       borderColor: Styles().colors.fillColorSecondary,
                       backgroundColor: Styles().colors.background,
@@ -142,7 +152,7 @@ class OnboardingAuthNotificationsPanel extends StatelessWidget with OnboardingPa
   }
 
   void _onReceiveNotifications(BuildContext context) {
-    Analytics.instance.logSelect(target: 'Receive Notifications') ;
+    Analytics.instance.logSelect(target: 'Enable Notifications') ;
 
     //Android does not need for permission for user notifications
     if (Platform.isAndroid) {

@@ -55,7 +55,7 @@ class Covid19OnBoardingIntroPanel extends StatelessWidget with OnboardingPanel {
               padding: EdgeInsets.symmetric(horizontal: 24),
               child: Text(
                 Localization().getStringEx(
-                    'panel.health.onboarding.covid19.intro.label.description', 'Track and manage your health to help keep our Illinois community safe'),
+                    'panel.health.onboarding.covid19.intro.label.description', 'Manage your health to help keep our Illinois community safe'),
                 textAlign: TextAlign.center,
                 style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.white),
               ),
