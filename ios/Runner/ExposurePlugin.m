@@ -800,7 +800,7 @@ static ExposurePlugin *g_Instance = nil;
 		NSLog(@"ExposurePlugin: Posting Exposure Local Notification");
 		
 		UNMutableNotificationContent* content = [[UNMutableNotificationContent alloc] init];
-		content.body = @"Checking for exposures...";
+		content.body = @"Exposure Notification system checking";
 		content.sound = nil;
 		
 		UNNotificationRequest* request = [UNNotificationRequest requestWithIdentifier:kLocalNotificationId content:content trigger:nil];
