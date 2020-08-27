@@ -53,9 +53,8 @@
     <string name="save">保存</string>
 
     <!-- Exposure -->
-    <string name="exposure_notification_channel_description">建築物聯繫人跟踪通知</string>
-    <string name="exposure_notification_title">聯繫人跟踪</string>
-    <string name="exposure_notification_message">當前正在運行保護隱私的聯繫人跟踪</string>
-    <string name="exposure_notification_ticker">聯繫人跟踪</string>
-    <string name="exposure_request_bluetooth_on_message">允許曝光通知. 您要打開藍牙嗎?</string>
+    <string name="exposure_notification_channel_description">曝光通知系統</string>
+    <string name="exposure_notification_title">曝光通知系統檢查</string>
+    <string name="exposure_notification_ticker">曝光通知系統檢查</string>
+    <string name="exposure_request_bluetooth_on_message">允許曝光通知. 您要開啟藍牙嗎?</string>
 </resources>
