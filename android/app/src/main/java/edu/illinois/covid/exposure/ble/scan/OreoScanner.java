@@ -18,6 +18,7 @@ package edu.illinois.covid.exposure.ble.scan;
 
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
@@ -83,8 +84,11 @@ public class OreoScanner {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void stopScan() {
-        if ((pendingIntent != null) && (bluetoothAdapter != null)) {
-            bluetoothAdapter.getBluetoothLeScanner().stopScan(pendingIntent);
+        if (pendingIntent != null) {
+            BluetoothLeScanner bleScanner = (bluetoothAdapter != null) ? bluetoothAdapter.getBluetoothLeScanner() : null;
+            if (bleScanner != null) {
+                bleScanner.stopScan(pendingIntent);
+            }
             pendingIntent = null;
         }
     }
