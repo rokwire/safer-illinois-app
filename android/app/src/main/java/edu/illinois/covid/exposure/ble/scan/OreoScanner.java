@@ -71,8 +71,12 @@ public class OreoScanner {
             Intent intent = new Intent(context, ExposureBleReceiver.class);
             intent.setAction(Constants.EXPOSURE_BLE_ACTION_FOUND);
             pendingIntent = PendingIntent.getBroadcast(context, 2, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-            if (bluetoothAdapter != null) {
-                bluetoothAdapter.getBluetoothLeScanner().startScan(scanFilters, scanSettings, pendingIntent);
+
+            if ((pendingIntent != null) && (bluetoothAdapter != null)) {
+                BluetoothLeScanner bleScanner = bluetoothAdapter.getBluetoothLeScanner();
+                if (bleScanner != null) {
+                    bleScanner.startScan(scanFilters, scanSettings, pendingIntent);
+                }
             }
         } catch (Exception ex) {
             Log.e(TAG, "Start scan failed:");
