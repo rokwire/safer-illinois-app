@@ -12,6 +12,7 @@ Fixed crash in Android when bluetooth is not turned on [#70](https://github.com/
 
 ### Updated
 SettingsNewHomePanel and related child panels moved to settings2 section, class names updated to indicate the different panel group.
+SettingsDebugPanel moved to debug section, MessagingPanel renamed to SettingsDebugMessagingPanel.
 
 ### Deleted
 SettingsPrivacyCenterPanel (unused)
