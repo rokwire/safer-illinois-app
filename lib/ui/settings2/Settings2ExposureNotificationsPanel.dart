@@ -10,12 +10,12 @@ import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/RibbonButton.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 
-class SettingsExposureNotificationsPanel extends StatefulWidget{
-  SettingsExposureNotificationsPanel();
-  _SettingsExposureNotificationsPanelState createState() => _SettingsExposureNotificationsPanelState();
+class Settings2ExposureNotificationsPanel extends StatefulWidget{
+  Settings2ExposureNotificationsPanel();
+  _Settings2ExposureNotificationsPanelState createState() => _Settings2ExposureNotificationsPanelState();
 }
 
-class _SettingsExposureNotificationsPanelState extends State<SettingsExposureNotificationsPanel> implements NotificationsListener{
+class _Settings2ExposureNotificationsPanelState extends State<Settings2ExposureNotificationsPanel> implements NotificationsListener{
 
   bool _isDisabling = false;
   bool _isEnabling = false;
