@@ -25,7 +25,6 @@ import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/health/Covid19NextStepsPanel.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
-import 'package:illinois/ui/widgets/ScalableScrollView.dart';
 import 'package:illinois/ui/widgets/StatusInfoDialog.dart';
 
 class Covid19StatusUpdatePanel extends StatefulWidget {
