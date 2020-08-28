@@ -18,6 +18,7 @@ package edu.illinois.covid.exposure.ble.scan;
 
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
@@ -70,8 +71,12 @@ public class OreoScanner {
             Intent intent = new Intent(context, ExposureBleReceiver.class);
             intent.setAction(Constants.EXPOSURE_BLE_ACTION_FOUND);
             pendingIntent = PendingIntent.getBroadcast(context, 2, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-            if (bluetoothAdapter != null) {
-                bluetoothAdapter.getBluetoothLeScanner().startScan(scanFilters, scanSettings, pendingIntent);
+
+            if ((pendingIntent != null) && (bluetoothAdapter != null)) {
+                BluetoothLeScanner bleScanner = bluetoothAdapter.getBluetoothLeScanner();
+                if (bleScanner != null) {
+                    bleScanner.startScan(scanFilters, scanSettings, pendingIntent);
+                }
             }
         } catch (Exception ex) {
             Log.e(TAG, "Start scan failed:");
@@ -83,8 +88,11 @@ public class OreoScanner {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void stopScan() {
-        if ((pendingIntent != null) && (bluetoothAdapter != null)) {
-            bluetoothAdapter.getBluetoothLeScanner().stopScan(pendingIntent);
+        if (pendingIntent != null) {
+            BluetoothLeScanner bleScanner = (bluetoothAdapter != null) ? bluetoothAdapter.getBluetoothLeScanner() : null;
+            if (bleScanner != null) {
+                bleScanner.stopScan(pendingIntent);
+            }
             pendingIntent = null;
         }
     }
