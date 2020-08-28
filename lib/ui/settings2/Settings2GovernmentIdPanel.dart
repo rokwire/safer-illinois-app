@@ -34,13 +34,13 @@ import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/utils/Utils.dart';
 
-class SettingsGovernmentIdPanel extends StatefulWidget with OnboardingPanel {
+class Settings2GovernmentIdPanel extends StatefulWidget with OnboardingPanel {
 
   final Map<String,dynamic> initialData;
 
-  SettingsGovernmentIdPanel({this.initialData});
+  Settings2GovernmentIdPanel({this.initialData});
 
-  _SettingsGovernmentIdPanelPanelState createState() => _SettingsGovernmentIdPanelPanelState();
+  _Settings2GovernmentIdPanelPanelState createState() => _Settings2GovernmentIdPanelPanelState();
 
   @override
   bool get onboardingCanDisplay {
@@ -48,7 +48,7 @@ class SettingsGovernmentIdPanel extends StatefulWidget with OnboardingPanel {
   }
 }
 
-class _SettingsGovernmentIdPanelPanelState extends State<SettingsGovernmentIdPanel> {
+class _Settings2GovernmentIdPanelPanelState extends State<Settings2GovernmentIdPanel> {
 
   static const String kFirstNameFieldName   = 'firstName';
   static const String kMiddleNameFieldName  = 'middleName';
