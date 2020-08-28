@@ -38,7 +38,7 @@ import 'package:illinois/ui/onboarding/OnboardingLoginPhoneVerifyPanel.dart';
 import 'package:illinois/ui/settings2/Settings2ConsentPanel.dart';
 import 'package:illinois/ui/settings2/Settings2GovernmentIdPanel.dart';
 import 'package:illinois/ui/settings2/Settings2ExposureNotificationsPanel.dart';
-import 'package:illinois/ui/settings/SettingsDebugPanel.dart';
+import 'package:illinois/ui/settings/debug/SettingsDebugPanel.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/RibbonButton.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
