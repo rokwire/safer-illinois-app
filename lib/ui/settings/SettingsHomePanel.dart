@@ -48,7 +48,7 @@ import 'package:barcode_scan/barcode_scan.dart';
 import 'package:package_info/package_info.dart';
 import 'package:pointycastle/export.dart' as PointyCastle;
 
-import 'SettingsDebugPanel.dart';
+import 'debug/SettingsDebugPanel.dart';
 import 'SettingsPersonalInfoPanel.dart';
 
 class SettingsHomePanel extends StatefulWidget {
