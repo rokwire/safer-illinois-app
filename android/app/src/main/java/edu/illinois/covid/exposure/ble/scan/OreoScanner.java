@@ -89,7 +89,8 @@ public class OreoScanner {
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void stopScan() {
         if (pendingIntent != null) {
-            BluetoothLeScanner bleScanner = (bluetoothAdapter != null) ? bluetoothAdapter.getBluetoothLeScanner() : null;
+            // Check if bluetooth adapter is not null and is turned on.
+            BluetoothLeScanner bleScanner = ((bluetoothAdapter != null) && bluetoothAdapter.isEnabled() && (bluetoothAdapter.getState() == BluetoothAdapter.STATE_ON)) ? bluetoothAdapter.getBluetoothLeScanner() : null;
             if (bleScanner != null) {
                 bleScanner.stopScan(pendingIntent);
             }
