@@ -16,6 +16,8 @@ SettingsDebugPanel moved to debug section, MessagingPanel renamed to SettingsDeb
 
 ### Deleted
 SettingsPrivacyCenterPanel (unused)
+Covid19OnBoardingLoginNetIdPanel (unused)
+Covid19OnBoardingLoginPhonePanel (unused)
 
 
 ## [2.4.2] - 2020-08-26
