@@ -17,6 +17,7 @@
 package edu.illinois.covid.exposure.ble.scan;
 
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
@@ -74,7 +75,11 @@ public class PreOreoScanner {
 
     public void stopScan() {
         if (discoverCallback != null) {
-            bluetoothAdapter.getBluetoothLeScanner().stopScan(scanCallback);
+            // Check if bluetooth adapter is not null and is turned on.
+            BluetoothLeScanner bleScanner = ((bluetoothAdapter != null) && bluetoothAdapter.isEnabled() && (bluetoothAdapter.getState() == BluetoothAdapter.STATE_ON)) ? bluetoothAdapter.getBluetoothLeScanner() : null;
+            if (bleScanner != null) {
+                bleScanner.stopScan(scanCallback);
+            }
             discoverCallback = null;
         }
     }
