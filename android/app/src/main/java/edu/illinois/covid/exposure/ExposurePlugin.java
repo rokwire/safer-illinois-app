@@ -802,8 +802,10 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler {
     }
 
     private void unBindExposureServer() {
-        activityContext.unbindService(serverConnection);
-        serverStarted = false;
+        if (serverStarted) {
+            activityContext.unbindService(serverConnection);
+            serverStarted = false;
+        }
     }
 
     private ServiceConnection serverConnection = new ServiceConnection() {
@@ -839,8 +841,10 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler {
     }
 
     private void unBindExposureClient() {
-        activityContext.unbindService(clientConnection);
-        clientStarted = false;
+        if (clientStarted) {
+            activityContext.unbindService(clientConnection);
+            clientStarted = false;
+        }
     }
 
     private ServiceConnection clientConnection = new ServiceConnection() {
@@ -949,7 +953,10 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler {
     private void stopIosBgScan() {
         stopIosBgScanTimer();
         if (isIosBgScanning()) {
-            iosBgBluoetoothLeScanner.stopScan(iOSBackgroundScanCallback);
+            // Check if bluetooth is on.
+            if (iosBgBluetoothAdapter.isEnabled() && (iosBgBluetoothAdapter.getState() == BluetoothAdapter.STATE_ON)) {
+                iosBgBluoetoothLeScanner.stopScan(iOSBackgroundScanCallback);
+            }
             Log.d(TAG, "stopped ios bg scanning");
         } else {
             Log.d(TAG, "no ios bg scanner is scanning");

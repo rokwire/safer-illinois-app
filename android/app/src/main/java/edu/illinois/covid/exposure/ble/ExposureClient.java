@@ -251,7 +251,9 @@ public class ExposureClient extends Service {
         } else if (possibleRpi == null) {
             // this could be an ios device
             Log.d(TAG, "onScanResultFound: might be ios: " + scanResult.getDevice().getAddress());
-            rpiCallback.onIOSDeviceFound(scanResult);
+            if (rpiCallback != null) {
+                rpiCallback.onIOSDeviceFound(scanResult);
+            }
         }
     }
 

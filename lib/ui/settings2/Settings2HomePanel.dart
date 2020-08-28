@@ -35,22 +35,22 @@ import 'package:illinois/ui/health/Covid19HistoryPanel.dart';
 import 'package:illinois/ui/health/Covid19TransferEncryptionKeyPanel.dart';
 import 'package:illinois/ui/health/onboarding/Covid19OnBoardingResidentInfoPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginPhoneVerifyPanel.dart';
-import 'package:illinois/ui/settings/SettingsConsentPanel.dart';
-import 'package:illinois/ui/settings/SettingsExposureNotificationsPanel.dart';
-import 'package:illinois/ui/settings/SettingsGovernmentIdPanel.dart';
+import 'package:illinois/ui/settings2/Settings2ConsentPanel.dart';
+import 'package:illinois/ui/settings2/Settings2GovernmentIdPanel.dart';
+import 'package:illinois/ui/settings2/Settings2ExposureNotificationsPanel.dart';
+import 'package:illinois/ui/settings/debug/SettingsDebugPanel.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/RibbonButton.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/utils/Utils.dart';
 
-import 'SettingsDebugPanel.dart';
 
-class SettingsNewHomePanel extends StatefulWidget {
+class Settings2HomePanel extends StatefulWidget {
   @override
-  _SettingsNewHomePanelState createState() => _SettingsNewHomePanelState();
+  _Settings2HomePanelState createState() => _Settings2HomePanelState();
 }
 
-class _SettingsNewHomePanelState extends State<SettingsNewHomePanel> implements NotificationsListener {
+class _Settings2HomePanelState extends State<Settings2HomePanel> implements NotificationsListener {
 
   bool _isLoading = false;
   bool _isDeleting = false;
@@ -547,14 +547,14 @@ class _SettingsNewHomePanelState extends State<SettingsNewHomePanel> implements 
   void _onAddGovernmentId(){
     if(Auth()?.userPiiData?.hasPasportInfo ?? false){
       Navigator.push(context, CupertinoPageRoute(
-        builder: (context) => SettingsGovernmentIdPanel()
+        builder: (context) => Settings2GovernmentIdPanel()
       ));
     }
     else {
       Navigator.push(context, CupertinoPageRoute(
           builder: (context) => Covid19OnBoardingResidentInfoPanel(
             onSucceed: (Map<String,dynamic> data){
-              Navigator.pushReplacement(context, CupertinoPageRoute(builder: (context) => SettingsGovernmentIdPanel(initialData: data,)));
+              Navigator.pushReplacement(context, CupertinoPageRoute(builder: (context) => Settings2GovernmentIdPanel(initialData: data,)));
             },
             onCancel: ()=>Navigator.pop(context),
           )
@@ -606,12 +606,12 @@ class _SettingsNewHomePanelState extends State<SettingsNewHomePanel> implements 
 
   void _onExposureNotificationsTapped(){
     Analytics.instance.logSelect(target: "Exposure Notifications");
-    Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsExposureNotificationsPanel()));
+    Navigator.push(context, CupertinoPageRoute(builder: (context) => Settings2ExposureNotificationsPanel()));
   }
 
   void _onConsentTapped(){
     Analytics.instance.logSelect(target: "Consent");
-    Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsConsentPanel()));
+    Navigator.push(context, CupertinoPageRoute(builder: (context) => Settings2ConsentPanel()));
   }
 }
 
