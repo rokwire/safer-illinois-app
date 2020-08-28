@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Fixed crash in Android [#68](https://github.com/rokwire/safer-illinois-app/issues/68)
 Fixed crash in Android when bluetooth is not turned on [#70](https://github.com/rokwire/safer-illinois-app/issues/70)
 
+### Updated
+SettingsNewHomePanel and related child panels moved to settings2 section, class names updated to indicate the different panel group.
+
+### Deleted
+SettingsPrivacyCenterPanel (unused)
+
+
 ## [2.5.0] - 2020-08-27
 ### Fixed
 Fixed crash in Android [#61](https://github.com/rokwire/safer-illinois-app/issues/61)
