@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Fixed
 Fixed crash in Android [#61](https://github.com/rokwire/safer-illinois-app/issues/61)
+Fixed crash in Android [#68](https://github.com/rokwire/safer-illinois-app/issues/68)
 
 ## [2.4.2] - 2020-08-26
 ### Updated
