@@ -36,20 +36,25 @@ import 'package:path_provider/path_provider.dart';
 
 class Config with Service implements NotificationsListener {
 
-  static const String _configsAsset       = "configs.json.enc";
+  static const String _configsAsset = "configs.json.enc";
+  static const String _configsAssetSchools = "schools-configs.json.enc";
 
   static const String notifyUpgradeRequired     = "edu.illinois.rokwire.config.upgrade.required";
   static const String notifyUpgradeAvailable    = "edu.illinois.rokwire.config.upgrade.available";
   static const String notifyConfigChanged       = "edu.illinois.rokwire.config.changed";
+  static const String notifySchoolChanged       = "edu.illinois.rokwire.config.school.changed";
   static const String notifyEnvironmentChanged  = "edu.illinois.rokwire.config.environment.changed";
 
   Map<String, dynamic> _config;
   Map<String, dynamic> _configAsset;
+  List<dynamic> _schoolConfigs;
+  String _assetClientID;
+  String _configSchoolClientID;
   ConfigEnvironment    _configEnvironment;
   PackageInfo          _packageInfo;
   Directory            _appDocumentsDir; 
   DateTime             _pausedDateTime;
-  
+
   final Set<String>    _reportedUpgradeVersions = Set<String>();
 
   // Singletone Instance
@@ -80,6 +85,18 @@ class Config with Service implements NotificationsListener {
   Map<String, dynamic> get upgradeInfo             { return (_config != null) ? (_config['upgrade'] ?? {}) : {}; }
 
   Map<String, dynamic> get settings                { return (_config != null) ? (_config['settings'] ?? {}) : {}; }
+
+  List<dynamic> get schoolConfigs {
+    return _schoolConfigs ?? (_config != null ? (_config['clients'] ?? []) : []);
+  }
+
+  String get rokmetroBaseURL {
+    return "services.rokmetro.com";
+  }
+
+  String get clientID               {
+    return _assetClientID ?? (_config != null ? (_config['clientID'] ?? null) : null);
+  }
 
   String get shibbolethAuthTokenUrl { return otherUniversityServices['shibboleth_auth_token_url']; }  // "https://{shibboleth_client_id}:{shibboleth_client_secret}@shibboleth.illinois.edu/idp/profile/oidc/token"
   String get shibbolethOauthHostUrl { return otherUniversityServices['shibboleth_oauth_host_url']; }  // "shibboleth.illinois.edu"
@@ -124,6 +141,10 @@ class Config with Service implements NotificationsListener {
     return kReleaseMode ? (settings['refreshTimeout'] ?? 0) : 0;
   }
 
+  bool get useMultiTenant {
+    return  _configSchoolClientID != "uiuc";
+  }
+
   // Initialization
 
   @override
@@ -145,7 +166,7 @@ class Config with Service implements NotificationsListener {
 
     _configEnvironment = configEnvFromString(Storage().configEnvironment) ??
       (kReleaseMode ? ConfigEnvironment.production : ConfigEnvironment.dev);
-
+    _configSchoolClientID = Storage().configSchool;
     _packageInfo = await PackageInfo.fromPlatform();
     _appDocumentsDir = await getApplicationDocumentsDirectory();
     Log.d('Application Documents Directory: ${_appDocumentsDir.path}');
@@ -178,12 +199,27 @@ class Config with Service implements NotificationsListener {
     }
   }
 
-  Future<Map<String, dynamic>> _loadFromAssets() async {
+  Future<Map<String, dynamic>> _loadFromAssets(String configAsset) async {
     try {
-      String configsStrEnc = await rootBundle.loadString('assets/$_configsAsset');
+      String configsStrEnc = await rootBundle.loadString('assets/$configAsset');
       String configsStr = (configsStrEnc != null) ? AESCrypt.decode(configsStrEnc) : null;
       Map<String, dynamic> configs = AppJson.decode(configsStr);
       String configTarget = configEnvToString(_configEnvironment);
+      _assetClientID = configs['clientID'];
+      return (configs != null) ? configs[configTarget] : null;
+    } catch (e) {
+      print(e.toString());
+    }
+    return null;
+  }
+
+  Future<Map<String, dynamic>> _loadFromAssetString(String configsStrEnc) async {
+    try {
+      String configsStr = (configsStrEnc != null) ? AESCrypt.decode(
+          configsStrEnc) : null;
+      Map<String, dynamic> configs = AppJson.decode(configsStr);
+      String configTarget = configEnvToString(_configEnvironment);
+      _assetClientID = configs['clientID'];
       return (configs != null) ? configs[configTarget] : null;
     } catch (e) {
       print(e.toString());
@@ -199,6 +235,20 @@ class Config with Service implements NotificationsListener {
       print(e.toString());
       return null;
     }
+  }
+
+  Map<String, dynamic> _schoolConfigForClientID(String clientID) {
+    if (AppString.isStringEmpty(clientID) || AppCollection.isCollectionEmpty(schoolConfigs)) {
+      return null;
+    }
+
+    for (dynamic config in schoolConfigs) {
+      if (config is Map && config['clientID'] == clientID) {
+        return config;
+      }
+    }
+
+    return null;
   }
 
   Map<String, dynamic> _configFromJsonString(String configJsonString) {
@@ -240,20 +290,58 @@ class Config with Service implements NotificationsListener {
     _config = await _loadFromFile(_configFile);
 
     if (_config == null) {
-      _configAsset = await _loadFromAssets();
-      String configString = await _loadAsStringFromNet();
-      _configAsset = null;
+      Map<String, dynamic> schoolConfig = _schoolConfigForClientID(_configSchoolClientID);
+      if (_configSchoolClientID == null || (useMultiTenant && (schoolConfig == null || schoolConfig['config_asset'] == null))) {
+        _configAsset = await _loadFromAssets(_configsAssetSchools);
+        String configString = await _loadAsStringFromNet();
+        _configAsset = null;
+        _assetClientID = null;
 
-      _config = (configString != null) ? _configFromJsonString(configString) : null;
-      if (_config != null) {
-        _configFile.writeAsStringSync(configString, flush: true);
-        NotificationService().notify(notifyConfigChanged, null);
-        
-        _checkUpgrade();
+        _config = (configString != null) ? _configFromJsonString(configString) : null;
+        if (_config != null) {
+          _schoolConfigs = _config['clients'];
+          NotificationService().notify(notifyConfigChanged, null);
+          _checkUpgrade();
+        }
+//        _schoolConfigs = (configString != null) ? _schoolConfigsFromJsonString(configString) : null;
+//        NotificationService().notify(notifySchoolConfigsChanged, null);
+
+//      if (_schoolConfigs != null) {
+//        _checkUpgrade();
+//      }
+      } else {
+        if (useMultiTenant) {
+          _configAsset = await _loadFromAssetString(schoolConfig['config_asset']);
+          String configString = await _loadAsStringFromNet();
+          _configAsset = null;
+          _assetClientID = null;
+
+          _config =
+          (configString != null) ? _configFromJsonString(configString) : null;
+          if (_config != null) {
+            _configFile.writeAsStringSync(configString, flush: true);
+            NotificationService().notify(notifyConfigChanged, null);
+//          _checkUpgrade();
+          }
+        } else {
+          _configAsset = await _loadFromAssets(_configsAsset);
+          String configString = await _loadAsStringFromNet();
+          _configAsset = null;
+          _assetClientID = null;
+
+          _config =
+          (configString != null) ? _configFromJsonString(configString) : null;
+          if (_config != null) {
+            _configFile.writeAsStringSync(configString, flush: true);
+            NotificationService().notify(notifyConfigChanged, null);
+
+            _checkUpgrade();
+          }
+        }
       }
     }
     else {
-      _checkUpgrade();
+//      _checkUpgrade();
       _updateFromNet();
     }
   }
@@ -358,6 +446,21 @@ class Config with Service implements NotificationsListener {
     }
   }
 
+  // School
+  set configSchoolClientID(String configSchoolClientID) {
+    if (_configSchoolClientID != configSchoolClientID) {
+      _configSchoolClientID = configSchoolClientID;
+      Storage().configSchool = configSchoolClientID;
+    }
+    _init().then((_) {
+      NotificationService().notify(notifySchoolChanged, null);
+    });
+  }
+
+  String get configSchoolClientID {
+    return _configSchoolClientID;
+  }
+
   // Environment
 
   set configEnvironment(ConfigEnvironment configEnvironment) {
@@ -365,7 +468,7 @@ class Config with Service implements NotificationsListener {
       _configEnvironment = configEnvironment;
       Storage().configEnvironment = configEnvToString(_configEnvironment);
 
-      _init().then((_){
+      _init().then((_) {
         NotificationService().notify(notifyEnvironmentChanged, null);
       });
     }
@@ -394,7 +497,7 @@ class Config with Service implements NotificationsListener {
           }
         }
       }
-      on Exception catch(e) {
+      on Exception catch (e) {
         print(e.toString());
       }
     }

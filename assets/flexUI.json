@@ -27,7 +27,7 @@
 		"settings.privacy": ["statement"],
 		"settings.account": ["personal_info"],
 
-		"onboarding":["get_started", "notifications_auth", "location_auth", "bluetooth_auth", "roles", "login_netid", "login_phone", "verify_phone", "confirm_phone", "resident_info", "review_scan", "covid19_intro", "covid19_how_works", "covid19_consent", "covid19_qrcode", "covid19_final"],
+		"onboarding":["get_started", "school_selection", "notifications_auth", "location_auth", "bluetooth_auth", "roles", "login_netid", "login_phone", "verify_phone", "confirm_phone", "resident_info", "review_scan", "covid19_intro", "covid19_how_works", "covid19_consent", "covid19_qrcode", "covid19_final"],
 
 		"features": ["converge", "create_poll", "mtd_bus_number", "parking_lot_directions"]
 	},
@@ -126,7 +126,8 @@
 			"create_event"                  : false,
 			"converge"                      : true,
 			"mtd_bus_number"                : true,
-			"parking_lot_directions"        : true
+			"parking_lot_directions"        : true,
+			"onboarding.school_selection"	: true
 		}
 	}
 }

@@ -142,7 +142,7 @@ class User with Service implements NotificationsListener {
     _client = client = http.Client();
 
     String userUuid = _userData.uuid;
-    String url = (Config().userProfileUrl != null) ? "${Config().userProfileUrl}/$userUuid" : null;
+    String url = (Config().userProfileUrl != null) ? "${Config().userProfileUrl}/profiles/$userUuid" : null;
     Map<String, String> headers = {"Accept": "application/json","content-type":"application/json"};
     final response = await Network().put(url, body: json.encode(_userData.toJson()), headers: headers, client: _client, auth: NetworkAuth.App);
     String responseBody = response?.body;
@@ -169,7 +169,7 @@ class User with Service implements NotificationsListener {
   }
 
   Future<UserData> requestUser(String uuid) async {
-    String url = ((Config().userProfileUrl != null) && (uuid != null) && (0 < uuid.length)) ? '${Config().userProfileUrl}/$uuid' : null;
+    String url = ((Config().userProfileUrl != null) && (uuid != null) && (0 < uuid.length)) ? '${Config().userProfileUrl}/profiles/$uuid' : null;
 
     final response = await Network().get(url, auth: NetworkAuth.App);
 
@@ -190,7 +190,7 @@ class User with Service implements NotificationsListener {
 
   Future<UserData> _requestCreateUser() async {
     try {
-      final response = await Network().post(Config().userProfileUrl, auth: NetworkAuth.App, timeout: 10);
+      final response = await Network().post("${Config().userProfileUrl}/profiles", auth: NetworkAuth.App, timeout: 10);
       if ((response != null) && (response.statusCode == 200)) {
         String responseBody = response.body;
         Map<String, dynamic> jsonData = AppJson.decode(responseBody);
@@ -208,7 +208,7 @@ class User with Service implements NotificationsListener {
   Future<void> deleteUser() async{
     String userUuid = _userData?.uuid;
     if((Config().userProfileUrl != null) && (userUuid != null)) {
-      await Network().delete("${Config().userProfileUrl}/$userUuid", headers: {"Accept": "application/json", "content-type": "application/json"}, auth: NetworkAuth.App);
+      await Network().delete("${Config().userProfileUrl}/profiles/$userUuid", headers: {"Accept": "application/json", "content-type": "application/json"}, auth: NetworkAuth.App);
 
       _clearStoredUserData();
       _notifyUserDeleted();
@@ -250,7 +250,7 @@ class User with Service implements NotificationsListener {
     String currentUserUuid = _userData?.uuid;
     bool userSwitched = (currentUserUuid != null) && (currentUserUuid != applyUserUuid);
     if (userSwitched && _removeFCMToken(_userData)) {
-      String url = "${Config().userProfileUrl}/${_userData.uuid}";
+      String url = "${Config().userProfileUrl}/profiles/${_userData.uuid}";
       Map<String, String> headers = {"Accept": "application/json","content-type":"application/json"};
       String post = json.encode(_userData.toJson());
       Network().put(url, body: post, headers: headers, auth: NetworkAuth.App);

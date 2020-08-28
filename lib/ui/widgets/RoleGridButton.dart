@@ -76,7 +76,7 @@ class RoleGridButton extends StatelessWidget {
                 boxShadow: [BoxShadow(color: Styles().colors.blackTransparent018, offset: Offset(2, 2), blurRadius: 6),],
                 ),
             child: Padding(padding: EdgeInsets.symmetric(horizontal: 28, vertical: 18), child: Column(children: <Widget>[
-              Image.asset((this.selected ? this.selectedIconPath : this.iconPath)),
+              _getImage(),
               Container(height: 18,),
               Text(title,
                     textAlign: TextAlign.center,
@@ -98,5 +98,13 @@ class RoleGridButton extends StatelessWidget {
         ),
       ],
     )));
+  }
+
+  Widget _getImage() {
+    if (this.selected) {
+      return Uri.parse(this.selectedIconPath).isAbsolute ? Image.network(this.selectedIconPath) : Image.asset(this.selectedIconPath);
+    } else {
+      return Uri.parse(this.iconPath).isAbsolute ? Image.network(this.iconPath) : Image.asset(this.iconPath);
+    }
   }
 }

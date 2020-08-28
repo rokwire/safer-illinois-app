@@ -122,7 +122,15 @@ class Assets with Service implements NotificationsListener {
 
   Future<void> _loadFromNet() async {
     try {
-      http.Response response = (Config().assetsUrl != null) ? await Network().get("${Config().assetsUrl}/$_assetsName") : null;
+      http.Response response;
+      if (Config().useMultiTenant) {
+        Map<String, String> queryParameters = {'filename': _assetsName};
+        response = (Config().assetsUrl != null) ? await Network()
+            .get(AppUrl.addQueryParameters(Config().assetsUrl, queryParameters),
+            auth: NetworkAuth.User) : null;
+      } else {
+        response = (Config().assetsUrl != null) ? await Network().get("${Config().assetsUrl}/$_assetsName") : null;
+      }
       String assetsContent =  ((response != null) && (response.statusCode == 200)) ? response.body : null;
       await _applyAssetsContent(assetsContent, cacheContent: true, notifyUpdate: true);
     } catch (e) {

@@ -35,6 +35,8 @@ import 'package:illinois/ui/onboarding/OnboardingLoginPhonePanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingAuthNotificationsPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingRolesPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginPhoneVerifyPanel.dart';
+import 'package:illinois/ui/onboarding/OnboardingSchoolPanel.dart';
+
 
 class Onboarding with Service implements NotificationsListener {
 
@@ -150,6 +152,9 @@ class Onboarding with Service implements NotificationsListener {
       if (code == 'get_started') {
         return OnboardingGetStartedPanel(onboardingContext: context);
       }
+      else if (code == 'school_selection') {
+        return OnboardingSchoolsPanel(onboardingContext: context);
+      }
       else if (code == 'notifications_auth') {
         return OnboardingAuthNotificationsPanel(onboardingContext: context);
       }
@@ -202,6 +207,9 @@ class Onboarding with Service implements NotificationsListener {
   static String _getPanelCode({OnboardingPanel panel}) {
     if (panel is OnboardingGetStartedPanel) {
       return 'get_started';
+    }
+    else if (panel is OnboardingSchoolsPanel) {
+      return 'school_selection';
     }
     else if (panel is OnboardingAuthNotificationsPanel) {
       return 'notifications_auth';

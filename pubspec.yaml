@@ -35,6 +35,8 @@ dependencies:
   firebase_core: ^0.4.3+3
   firebase_messaging: ^6.0.9
   firebase_crashlytics: ^0.1.2+5
+  firebase_auth: ^0.14.0+5
+  cloud_firestore: ^0.12.9+5
   firebase_ml_vision: ^0.9.4
   # End Firebase
   logger: ^0.7.0+2
@@ -58,7 +60,8 @@ dependencies:
   dotted_border: ^1.0.5
   flutter_image_compress: ^0.6.8
   barcode_scan: 2.0.2 # Explicitly use older version of the plugin. The latest one does not work!
-
+  archive: ^2.0.13
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter

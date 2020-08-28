@@ -146,6 +146,16 @@ class AppVersion {
 }
 
 class AppUrl {
+  static String addQueryParameters(String url, Map<String, String> queryParameters) {
+    if (url != null) {
+      var uri = Uri.parse(url);
+      Map<String, String> urlParams = uri.queryParameters;
+      queryParameters.addAll(urlParams);
+      uri = uri.replace(queryParameters: queryParameters);
+      url = uri.toString();
+    }
+    return url;
+  }
   
   static String getScheme(String url) {
     try {

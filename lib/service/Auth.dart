@@ -15,6 +15,7 @@
  */
 
 import 'dart:io';
+import 'dart:convert';
 import 'dart:convert' as json;
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
@@ -37,6 +38,7 @@ import 'package:illinois/service/Storage.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart' as url_launcher;
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:illinois/service/User.dart';
 import 'package:illinois/utils/Utils.dart';
@@ -46,6 +48,7 @@ import 'package:illinois/utils/Utils.dart';
 class Auth with Service implements NotificationsListener {
 
   static const String REDIRECT_URI = 'edu.illinois.covid://covid.illinois.edu/shib-auth';
+  // static const String REDIRECT_URI = 'edu.illinois.rokwire://rokwire.illinois.edu/shib-auth';
 
   static const String notifyStarted  = "edu.illinois.rokwire.auth.started";
   static const String notifyAuthTokenChanged  = "edu.illinois.rokwire.auth.authtoken.changed";
@@ -62,8 +65,13 @@ class Auth with Service implements NotificationsListener {
 
   static final Auth _auth = Auth._internal();
 
+  String _rokwireAccessToken;
+  String get rokwireAccessToken{ return _rokwireAccessToken; }
+  String _userAuthGroups;
+
   AuthToken _authToken;
   AuthToken get authToken{ return _authToken; }
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
   ShibbolethToken get shibbolethToken{ return _authToken is ShibbolethToken ? _authToken : null; }
   PhoneToken get phoneToken{ return _authToken is PhoneToken ? _authToken : null; }
@@ -80,13 +88,15 @@ class Auth with Service implements NotificationsListener {
   File _authCardCacheFile;
 
   Future<Http.Response> _refreshTokenFuture;
+  Future<String> _getRokwireTokenFuture;
+  Future<Http.Response> _refreshShibbolethTokenFuture;
+  Future<Http.Response> _refreshFirebaseTokenFuture;
 
   Future<Uint8List> get photoImageBytes async{
     Uint8List bytes;
     if(Auth().isShibbolethLoggedIn){
       bytes = await Auth().authCard.photoBytes;
-    }
-    else if(Auth().isPhoneLoggedIn){
+    } else if(Auth().isPhoneLoggedIn){
       bytes = await Auth().userPiiData.photoBytes;
     }
     return bytes;
@@ -112,6 +122,9 @@ class Auth with Service implements NotificationsListener {
     _authToken = Storage().authToken;
     _authInfo = Storage().authInfo;
 
+    _rokwireAccessToken = Storage().rokwireAccessToken;
+    _userAuthGroups = Storage().userAuthGroups;
+
     _authCardCacheFile = await _getAuthCardCacheFile();
     _authCard = await _loadAuthCardFromCache();
 
@@ -128,7 +141,7 @@ class Auth with Service implements NotificationsListener {
 
   @override
   Set<Service> get serviceDependsOn {
-    return Set.from([Storage()]);
+    return Set.from([Storage(), Config()]);
   }
 
   bool get isLoggedIn {
@@ -148,10 +161,16 @@ class Auth with Service implements NotificationsListener {
   }
 
   bool get isEventEditor {
+    if (Config().useMultiTenant) {
+      return isMemberOf('events_approver');
+    }
     return authInfo?.userGroupMembership?.contains('urn:mace:uiuc.edu:urbana:authman:app-rokwire-service-policy-rokwire event approvers') ?? false;
   }
 
   bool get isStadiumPollManager {
+    if (Config().useMultiTenant) {
+      return isMemberOf('stadium_poll_manager');
+    }
     return authInfo?.userGroupMembership?.contains('urn:mace:uiuc.edu:urbana:authman:app-rokwire-service-policy-rokwire stadium poll manager') ?? false;
   }
 
@@ -160,17 +179,27 @@ class Auth with Service implements NotificationsListener {
   }
 
   bool isMemberOf(String groupName) {
+    if (Config().useMultiTenant) {
+      return _userAuthGroups?.contains(groupName) ?? false;
+    }
     return authInfo?.userGroupMembership?.contains(groupName) ?? false;
   }
 
   void logout(){
     _clear(true);
+    _signOutFirebase();
   }
 
-  void _clear([bool notify = false]){
+  void _clear([bool notify = false]) {
+    _rokwireAccessToken = null;
+    _userAuthGroups = null;
+
     _authToken = null;
     _authInfo = null;
     _authCard = null;
+
+    _saveRokwireToken();
+    _saveAuthGroups();
 
     _applyUserPiiData(null, null);
 
@@ -186,11 +215,72 @@ class Auth with Service implements NotificationsListener {
     }
   }
 
+  Future<void> _signOutFirebase() async {
+    return _firebaseAuth.signOut();
+  }
+
+  Future<String> _getRokwireAccessToken({String idToken, bool saveToken = true}) async{
+    Map<String, String> headers;
+    NetworkAuth auth = NetworkAuth.ProviderUser;
+    if (AppString.isStringEmpty(idToken)) {
+      if (AppString.isStringEmpty(authToken?.idToken)) {
+        return null;
+      }
+    } else {
+      headers = {
+        HttpHeaders.authorizationHeader : "Bearer $idToken"
+      };
+      auth = NetworkAuth.App;
+    }
+
+    if (AppString.isStringEmpty(Config().rokwireAuthUrl)) {
+      return null;
+    }
+
+    if (_getRokwireTokenFuture != null){
+      return await _getRokwireTokenFuture;
+    }
+
+    if (_refreshShibbolethTokenFuture != null){
+      await Future.wait([_refreshShibbolethTokenFuture]);
+    }
+
+    if (_refreshFirebaseTokenFuture != null){
+      await Future.wait([_refreshFirebaseTokenFuture]);
+    }
+
+    Log.d("Auth: will refresh rokwire access token");
+
+    String url = '${Config().rokwireAuthUrl}/swap-token';
+
+    _getRokwireTokenFuture = Network().get(url, headers: headers, auth: auth).then((tokenResponse) {
+      _getRokwireTokenFuture = null;
+      String rokwireToken = ((tokenResponse != null) && (tokenResponse.statusCode == 200)) ? tokenResponse.body : null;
+      if (saveToken) {
+        _setRokwireAccessToken(rokwireToken);
+      }
+      return rokwireToken;
+    });
+
+    return _getRokwireTokenFuture;
+  }
+
+  void _setRokwireAccessToken(String rokwireToken) {
+    _rokwireAccessToken = rokwireToken;
+    _saveRokwireToken();
+    try {
+      _userAuthGroups = parseJWT(rokwireToken)['groups'];
+    } catch(e) {
+      print(e.toString());
+      _userAuthGroups = null;
+    }
+    _saveAuthGroups();
+  }
+
   ////////////////////////
   // Shibboleth Oauth
 
   void authenticateWithShibboleth(){
-    
     if ((Config().shibbolethOauthHostUrl != null) && (Config().shibbolethOauthPathUrl != null) && (Config().shibbolethClientId != null)) {
       Uri uri = Uri.https(
         Config().shibbolethOauthHostUrl,
@@ -218,7 +308,7 @@ class Auth with Service implements NotificationsListener {
 
     NativeCommunicator().dismissSafariVC();
 
-    // 1. Request Tokens 
+    // 1. Request Tokens
     AuthToken newAuthToken = await _loadShibbolethAuthTokenWithCode(code);
     if(newAuthToken == null){
       _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
@@ -232,22 +322,33 @@ class Auth with Service implements NotificationsListener {
       return;
     }
 
-    // 3. Request User Pii Pid
-    String newUserPiiPid = await _loadPidWithShibbolethAuth(email: newAuthInfo?.email, optAuthToken: newAuthToken);
+    String idToken = newAuthToken?.idToken;
+    if (Config().useMultiTenant) {
+      // 3. Request rokwire access token
+      String rokwireToken = await _getRokwireAccessToken(idToken: newAuthToken?.idToken, saveToken: false);
+      if(rokwireToken == null){
+        _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
+        return;
+      }
+      idToken = rokwireToken;
+    }    
+
+    // 4. Request User Pii Pid
+    String newUserPiiPid = await _loadPidWithShibbolethAuth(email: newAuthInfo?.email, optAuthToken: idToken);
     if(newUserPiiPid == null){
       _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
       return;
     }
 
-    // 4. Request UserPiiData
-    String newUserPiiDataString = await _loadUserPiiDataStringFromNet(pid: newUserPiiPid, optAuthToken: newAuthToken);
+    // 5. Request UserPiiData
+    String newUserPiiDataString = await _loadUserPiiDataStringFromNet(pid: newUserPiiPid, optAuthToken: idToken);
     UserPiiData newUserPiiData = _userPiiDataFromJsonString(newUserPiiDataString);
     if(newUserPiiData == null || AppCollection.isCollectionEmpty(newUserPiiData?.uuidList)){
       _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
       return;
     }
 
-    // 5. Request UserData
+    // 6. Request UserData
     UserData newUserData;
     try {
       newUserData = await User().requestUser(newUserPiiData.uuidList.first);
@@ -257,32 +358,36 @@ class Auth with Service implements NotificationsListener {
       return;
     }
     
-    // 6. Load Auth Card
+    // 7. Load Auth Card
     String jsonString = ((0 < (newAuthInfo?.uin?.length ?? 0))) ? await _loadAuthCardStringFromNet(optAuthToken: newAuthToken, optAuthInfo: newAuthInfo) : null;
     AuthCard authCard = _authCardFromJsonString(jsonString);
 
     // Everything is fine - cleanup and store new tokens and data
-    // 7. Clear everything before proceed further. Notification is not required at this stage
+    // 8. Clear everything before proceed further. Notification is not required at this stage
     _clear(false);
 
-    // 8. Store everythong and notify everyone
-    // 8.1 AuthToken
+    // 9. Store everythong and notify everyone
+    // 9.1 AuthToken
     _authToken = newAuthToken;
     _saveAuthToken();
     _notifyAuthTokenChanged();
 
-    // 8.2 AuthInfo
+    // 9.2 AuthInfo
     _authInfo = newAuthInfo;
     _saveAuthInfo();
     _notifyAuthInfoChanged();
 
-    // 8.3 UserPiiData
+    if (Config().useMultiTenant) {
+       _setRokwireAccessToken(idToken);
+    }
+
+    // 9.3 UserPiiData
     _applyUserPiiData(newUserPiiData, newUserPiiDataString);
 
-    // 8.4 UserData
+    // 9.4 UserData
     User().applyUserData(newUserData, applyCachedSettings: true);
 
-    // 6.2 Update UserPiiData if need and then apply
+    // 9.5 Update UserPiiData if need and then apply
     if(newUserPiiData.updateFromAuthInfo(newAuthInfo)){
       storeUserPiiData(newUserPiiData);
     }
@@ -290,7 +395,7 @@ class Auth with Service implements NotificationsListener {
       _applyUserPiiData(newUserPiiData, newUserPiiDataString);
     }
 
-    // 8.5 AuthCard
+    // 9.6 AuthCard
     _applyAuthCard(authCard, jsonString);
 
     _notifyAuthLoginSucceeded(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
@@ -379,6 +484,31 @@ class Auth with Service implements NotificationsListener {
   }
 
   ///Returns 'true' if phone number was validate successfully, otherwise - false
+  Future<bool> firebaseValidatePhoneNumber(String code, String verificationId) async {
+    _notifyAuthStarted();
+
+    if (AppString.isStringEmpty(verificationId) || AppString.isStringEmpty(code)) {
+      _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginPhoneActionName);
+      return false;
+    }
+    AuthCredential _authCredential = PhoneAuthProvider.getCredential(
+        verificationId: verificationId, smsCode: code);
+
+    AuthResult value = await _firebaseAuth.signInWithCredential(_authCredential);
+    // 1. Validate phone and code
+    if(value.user == null) {
+      _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginPhoneActionName);
+      return false;
+    }
+
+    IdTokenResult token = await value.user.getIdToken(refresh: true);
+    AuthToken newAuthToken = PhoneToken(phone: value.user.phoneNumber, idToken:token.token);
+
+    return signInPhoneNumber(newAuthToken, value.user.phoneNumber);
+  }
+
+
+  ///Returns 'true' if phone number was validate successfully, otherwise - false
   Future<bool> validatePhoneNumber(String code, String phoneNumber) async {
 
     _notifyAuthStarted();
@@ -395,15 +525,30 @@ class Auth with Service implements NotificationsListener {
       return false;
     }
 
+    return signInPhoneNumber(newAuthToken, phoneNumber);
+  }
+
+  Future<bool> signInPhoneNumber(AuthToken newAuthToken, String phoneNumber) async {
+    String idToken;
+
+    if (Config().useMultiTenant) {
+      String rokwireToken = await _getRokwireAccessToken(idToken: newAuthToken?.idToken, saveToken: false);
+      if(rokwireToken == null){
+        _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginPhoneActionName);
+        return false;
+      }
+      idToken = rokwireToken;
+    }
+
     // 2. Pii Pid
-    String newUserPiiPid = await _loadPidWithPhoneAuth(phone: phoneNumber, optAuthToken: newAuthToken);
+    String newUserPiiPid = await _loadPidWithPhoneAuth(phone: phoneNumber, optAuthToken: idToken);
     if(newUserPiiPid == null) {
       _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginPhoneActionName);
       return false;
     }
 
     // 3. UserPiiData
-    String newUserPiiDataString = await _loadUserPiiDataStringFromNet(pid: newUserPiiPid, optAuthToken: newAuthToken);
+    String newUserPiiDataString = await _loadUserPiiDataStringFromNet(pid: newUserPiiPid, optAuthToken: idToken);
     UserPiiData newUserPiiData = _userPiiDataFromJsonString(newUserPiiDataString);
     if(newUserPiiData == null || AppCollection.isCollectionEmpty(newUserPiiData?.uuidList)){
       _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginPhoneActionName);
@@ -429,6 +574,10 @@ class Auth with Service implements NotificationsListener {
     _authToken = newAuthToken;
     _saveAuthToken();
     _notifyAuthTokenChanged();
+
+    if (Config().useMultiTenant) {
+      _setRokwireAccessToken(idToken);
+    }
 
     // 6.2 UserPiiData
     _applyUserPiiData(newUserPiiData, newUserPiiDataString);
@@ -464,27 +613,30 @@ class Auth with Service implements NotificationsListener {
 
   /// UserPIIData
 
-  Future<String> _loadPidWithPhoneAuth({String phone, AuthToken optAuthToken}) async {
+  Future<String> _loadPidWithPhoneAuth({String phone, String optAuthToken}) async {
     return await _loadPidWithData(
       data:{'uuid' : User().uuid, 'phone': phone},
       optAuthToken: optAuthToken
     );
   }
 
-  Future<String> _loadPidWithShibbolethAuth({String email, AuthToken optAuthToken}) async {
+  Future<String> _loadPidWithShibbolethAuth({String email, String optAuthToken}) async {
     return await _loadPidWithData(
         data:{'uuid' : User().uuid, 'email': email,},
         optAuthToken: optAuthToken
     );
   }
 
-  Future<String> _loadPidWithData({Map<String,String> data, AuthToken optAuthToken}) async {
+  Future<String> _loadPidWithData({Map<String,String> data, String optAuthToken}) async {
     String url = (Config().userProfileUrl != null) ? '${Config().userProfileUrl}/pii' : null;
-    optAuthToken = (optAuthToken != null) ? optAuthToken : authToken;
+    // optAuthToken = (optAuthToken != null) ? optAuthToken : authToken;
+    if (optAuthToken == null) {
+      return null;
+    }
 
     final response = await Network().post(url,
-        headers: {'Content-Type':'application/json', HttpHeaders.authorizationHeader: "${optAuthToken?.tokenType} ${optAuthToken?.idToken}"},
-        body: json.jsonEncode(data),
+      headers: {'Content-Type':'application/json', Network.RokwireApiKey: Config().rokwireApiKey, HttpHeaders.authorizationHeader: "Bearer $optAuthToken"},
+      body: json.jsonEncode(data),
     );
     String responseBody = ((response != null) && (response.statusCode == 200)) ? response.body : null;
     Map<String, dynamic> jsonData = (responseBody != null) ? AppJson.decode(responseBody) : null;
@@ -577,13 +729,19 @@ class Auth with Service implements NotificationsListener {
     return _userPiiDataFromJsonString(await _loadUserPiiDataStringFromCache());
   }
 
-  Future<String> _loadUserPiiDataStringFromNet({String pid, AuthToken optAuthToken}) async {
+  Future<String> _loadUserPiiDataStringFromNet({String pid, String optAuthToken}) async {
     pid = (pid != null) ? pid : Storage().userPid;
-    optAuthToken = (optAuthToken != null) ? optAuthToken : authToken;
+    // optAuthToken = (optAuthToken != null) ? optAuthToken : authToken;
+    if (optAuthToken == null) {
+      return null;
+    }
+    
     try {
       String url = (Config().userProfileUrl != null) ? '${Config().userProfileUrl}/pii/$pid' : null;
       final response = await Network().get(url, headers: {
-        HttpHeaders.authorizationHeader: "${optAuthToken?.tokenType} ${optAuthToken?.idToken}"
+        // HttpHeaders.authorizationHeader: "${optAuthToken?.tokenType} ${optAuthToken?.idToken}"
+        Network.RokwireApiKey: Config().rokwireApiKey,
+        HttpHeaders.authorizationHeader: "Bearer $optAuthToken"
       });
       return ((response != null) && (response.statusCode == 200)) ? response.body : null;
     }
@@ -605,7 +763,7 @@ class Auth with Service implements NotificationsListener {
     }
   }
 
-  Future<UserPiiData> reloadUserPiiData({String pid, AuthToken optAuthToken}) async {
+  Future<UserPiiData> reloadUserPiiData({String pid, String optAuthToken}) async {
     String jsonString = await _loadUserPiiDataStringFromNet(pid: pid, optAuthToken: optAuthToken);
     UserPiiData userPiiData = _userPiiDataFromJsonString(jsonString);
     if(userPiiData != null && userPiiData != _userPiiData) { // Redo: Ensure the request is not failed - do not remove it!!!!
@@ -680,8 +838,7 @@ class Auth with Service implements NotificationsListener {
       };
       Response response = (url != null) ? await Network().post(url, headers: headers) : null;
       return (response != null) && (response.statusCode == 200) ? response.body : null;
-    }
-    catch(e) {
+    } catch(e) {
       print(e.toString());
       return null;
     }
@@ -718,8 +875,28 @@ class Auth with Service implements NotificationsListener {
   }
 
   // Refresh Token
+  Future<void> doRefreshToken(NetworkAuth auth) async {
+    if (Config().useMultiTenant) {
+      if (auth == NetworkAuth.Access) {
+        return _refreshShibbolethToken();
+      } else if (auth == NetworkAuth.ProviderUser) {
+        if (isShibbolethLoggedIn) {
+          return _refreshShibbolethToken();
+        } else if (isPhoneLoggedIn) {
+          return _refreshFirebaseToken();
+        }
+      } else if (auth == NetworkAuth.User) {
+        String idToken = Auth().authToken?.idToken;
+        if (AppString.isStringNotEmpty(idToken)) {
+          return _getRokwireAccessToken();
+        }
+      }
+    } else {
+      return _refreshShibbolethToken();
+    }
+  }
 
-  Future<void> doRefreshToken() async {
+  Future<void> _refreshShibbolethToken() async {
 
     if(!isShibbolethLoggedIn){
       return; // Execute only if the user is loggedin
@@ -729,12 +906,12 @@ class Auth with Service implements NotificationsListener {
       return;
     }
 
-    if(_refreshTokenFuture != null){
-      await Future.wait([_refreshTokenFuture]);
+    if(_refreshShibbolethTokenFuture != null){
+      await Future.wait([_refreshShibbolethTokenFuture]);
       return;
     }
 
-    Log.d("Auth: will refresh token");
+    Log.d("Auth: will refresh Shibboleth token");
 
     String tokenUriStr = Config().shibbolethAuthTokenUrl
         .replaceAll("{shibboleth_client_id}", Config().shibbolethClientId)
@@ -743,10 +920,10 @@ class Auth with Service implements NotificationsListener {
       "refresh_token": authToken?.refreshToken,
       "grant_type": "refresh_token",
     };
-    _refreshTokenFuture = Network().post(
+    _refreshShibbolethTokenFuture = Network().post(
         tokenUriStr, body: body, refreshToken: false)
         .then((tokenResponse){
-      _refreshTokenFuture = null;
+      _refreshShibbolethTokenFuture = null;
       try {
         String tokenResponseBody = ((tokenResponse != null) && (tokenResponse.statusCode == 200)) ? tokenResponse.body : null;
         var bodyMap = (tokenResponseBody != null) ? AppJson.decode(tokenResponseBody) : null;
@@ -761,18 +938,58 @@ class Auth with Service implements NotificationsListener {
         }
         Log.d("Auth: did refresh token: ${authToken?.idToken}");
         _notifyAuthTokenChanged();
-      }
-      catch(e) {
+      } catch(e) {
         print(e.toString());
         logout();
       }
 
       return;
     });
-    return _refreshTokenFuture;
+
+    return _refreshShibbolethTokenFuture;
+  }
+
+  Future<void> _refreshFirebaseToken() async {
+    if (!isPhoneLoggedIn) {
+      return;
+    }
+
+    if (_firebaseAuth.currentUser() == null) {
+      return;
+    }
+
+    if(_refreshFirebaseTokenFuture != null){
+      await Future.wait([_refreshFirebaseTokenFuture]);
+      return;
+    }
+
+    Log.d("Auth: will refresh Firebase token");
+
+    _refreshFirebaseTokenFuture = _firebaseAuth.currentUser().then((user) async {
+      IdTokenResult token = await user.getIdToken(refresh: true);
+
+      _refreshFirebaseTokenFuture = null;
+      AuthToken newAuthToken = PhoneToken(phone: user.phoneNumber, idToken: token.token);
+
+      _authToken = newAuthToken;
+      _saveAuthToken();
+      _notifyAuthTokenChanged();
+
+      return;
+    });
+
+    return _refreshFirebaseTokenFuture;
   }
 
   // Utils
+
+  void _saveRokwireToken() {
+    Storage().rokwireAccessToken = rokwireAccessToken;
+  }
+
+  void _saveAuthGroups() {
+    Storage().userAuthGroups = _userAuthGroups;
+  }
 
   void _saveAuthToken() {
     Storage().authToken = authToken;
@@ -787,6 +1004,25 @@ class Auth with Service implements NotificationsListener {
       _authCard = null;
       _saveAuthCardStringToCache(null);
     }
+  }
+
+  Map<String, dynamic> parseJWT(String token) {
+    if (token == null) {
+      throw Exception('Token is null');
+    }
+
+    final parts = token.split('.');
+    if (parts.length != 3) {
+      throw Exception('Invalid token');
+    }
+
+    String payload = utf8.decode(base64.decode(base64.normalize(parts[1])));
+    final payloadMap = json.jsonDecode(payload);
+    if (payloadMap is! Map<String, dynamic>) {
+      throw Exception('Invalid payload');
+    }
+
+    return payloadMap;
   }
 
   ////////
@@ -874,5 +1110,5 @@ class Auth with Service implements NotificationsListener {
   }
 
 }
-
+  
 enum VerificationMethod { call, sms }

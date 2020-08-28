@@ -32,6 +32,7 @@ import 'Crashlytics.dart';
 enum NetworkAuth {
   App,
   User,
+  ProviderUser,
   Access,
 }
 
@@ -107,8 +108,10 @@ class Network  {
         if (url != null) {
 
           Map<String, String> requestHeaders = _prepareHeaders(headers, auth, url);
-          
           Future<Http.Response> response;
+
+          url = _addClientID(url);
+
           if (body != null) {
             response = _get2(url, headers: requestHeaders, body: body, encoding: encoding, timeout: timeout, client: client);
           }
@@ -142,7 +145,7 @@ class Network  {
     _saveCookiesFromResponse(url, response);
 
     if (refreshToken && (response is Http.Response) && _requiresRefreshToken(response, auth)) {
-      await Auth().doRefreshToken();
+      await Auth().doRefreshToken(auth);
       return _get(url, body: body, headers: headers, auth: auth, client: client, timeout: timeout);
     }
     else {
@@ -153,6 +156,8 @@ class Network  {
   Future<Http.Response> _post(url, { body, Encoding encoding, Map<String, String> headers, NetworkAuth auth, int timeout}) async{
     if (Connectivity().isNotOffline) {
       try {
+        url = _addClientID(url);
+
         Future<Http.Response> response = (url != null) ? Http.post(url, headers: _prepareHeaders(headers, auth, url), body: body, encoding: encoding) : null;
         return ((response != null) && (timeout != null)) ? response.timeout(Duration(seconds: timeout), onTimeout: _responseTimeoutHandler) : response;
       } catch (e) {
@@ -172,7 +177,7 @@ class Network  {
     _saveCookiesFromResponse(url, response);
 
     if (refreshToken && (response is Http.Response) && _requiresRefreshToken(response, auth)) {
-      await Auth().doRefreshToken();
+      await Auth().doRefreshToken(auth);
       return _post(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout);
     }
     else {
@@ -183,11 +188,13 @@ class Network  {
   Future<Http.Response> _put(url, { body, Encoding encoding, Map<String, String> headers, NetworkAuth auth, int timeout, Http.Client client }) async {
     if (Connectivity().isNotOffline) {
       try {
+        url = _addClientID(url);
+
         Future<Http.Response> response = (url != null) ?
           ((client != null) ?
-            client.put(url, headers: _prepareHeaders(headers, auth, url), body: body, encoding: encoding) :
-              Http.put(url, headers: _prepareHeaders(headers, auth, url), body: body, encoding: encoding)) :
-            null;
+          client.put(url, headers: _prepareHeaders(headers, auth, url), body: body, encoding: encoding) :
+          Http.put(url, headers: _prepareHeaders(headers, auth, url), body: body, encoding: encoding)) :
+          null;
 
         return ((response != null) && (timeout != null)) ? response.timeout(Duration(seconds: timeout), onTimeout: _responseTimeoutHandler) : response;
 
@@ -208,7 +215,7 @@ class Network  {
     _saveCookiesFromResponse(url, response);
 
     if (refreshToken && (response is Http.Response) && _requiresRefreshToken(response, auth)) {
-      await Auth().doRefreshToken();
+      await Auth().doRefreshToken(auth);
       return _put(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout, client: client);
     }
     else {
@@ -219,6 +226,8 @@ class Network  {
   Future<Http.Response> _patch(url, { body, Encoding encoding, Map<String, String> headers, NetworkAuth auth, int timeout }) async {
     if (Connectivity().isNotOffline) {
       try {
+        url = _addClientID(url);
+
         Future<Http.Response> response = (url != null) ? Http.patch(url, headers: _prepareHeaders(headers, auth, url), body: body, encoding: encoding) : null;
         return ((response != null) && (timeout != null)) ? response.timeout(Duration(seconds: timeout), onTimeout: _responseTimeoutHandler) : response;
       } catch (e) {
@@ -238,7 +247,7 @@ class Network  {
     _saveCookiesFromResponse(url, response);
 
     if (refreshToken && (response is Http.Response) && _requiresRefreshToken(response, auth)) {
-      await Auth().doRefreshToken();
+      await Auth().doRefreshToken(auth);
       return _patch(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout);
     }
     else {
@@ -249,6 +258,8 @@ class Network  {
   Future<Http.Response> _delete(url, { Map<String, String> headers, NetworkAuth auth, int timeout }) async {
     if (Connectivity().isNotOffline) {
       try {
+        url = _addClientID(url);
+
         Future<Http.Response> response = (url != null) ? Http.delete(url, headers: _prepareHeaders(headers, auth, url)) : null;
         return ((response != null) && (timeout != null)) ? response.timeout(Duration(seconds: timeout), onTimeout: _responseTimeoutHandler) : response;
       } catch (e) {
@@ -268,7 +279,7 @@ class Network  {
     _saveCookiesFromResponse(url, response);
 
     if (refreshToken && (response is Http.Response) && _requiresRefreshToken(response, auth)) {
-      await Auth().doRefreshToken();
+      await Auth().doRefreshToken(auth);
       return _delete(url, headers: headers, auth: auth, timeout: timeout);
     }
     else {
@@ -279,6 +290,8 @@ class Network  {
   Future<String> _read(url, { Map<String, String> headers, NetworkAuth auth, int timeout = 60 }) async {
     if (Connectivity().isNotOffline) {
       try {
+        url = _addClientID(url);
+
         Future<String> response = (url != null) ? Http.read(url, headers: _prepareHeaders(headers, auth, url)) : null;
         return ((response != null) && (timeout != null)) ? response.timeout(Duration(seconds: timeout)) : response;
       } catch (e) {
@@ -296,6 +309,8 @@ class Network  {
   Future<Uint8List> _readBytes(url, { Map<String, String> headers, NetworkAuth auth, int timeout = 60 }) async{
     if (Connectivity().isNotOffline) {
       try {
+        url = _addClientID(url);
+
         Future<Uint8List> response = (url != null) ? Http.readBytes(url, headers: _prepareHeaders(headers, auth, url)) : null;
         return ((response != null) && (timeout != null)) ? response.timeout(Duration(seconds: timeout), onTimeout: _responseBytesHandler) : response;
       } catch (e) {
@@ -311,32 +326,33 @@ class Network  {
   }
 
   Map<String, String> _prepareHeaders(Map<String, String> headers, NetworkAuth auth, String url) {
+    if (headers == null) {
+      headers = new Map();
+    }
 
-    if (auth == NetworkAuth.App) {
+    if (auth == NetworkAuth.App || auth == NetworkAuth.User || auth == NetworkAuth.ProviderUser) {
       String rokwireApiKey = Config().rokwireApiKey;
-      if ((rokwireApiKey != null) && rokwireApiKey.isNotEmpty) {
-        if (headers == null) {
-          headers = new Map();
-        }
+      if (AppString.isStringNotEmpty(rokwireApiKey)) {
         headers[RokwireApiKey] = rokwireApiKey;
       }
     }
-    else if (auth == NetworkAuth.User) {
+    
+    if (auth == NetworkAuth.User) {
+      String idToken = Auth().rokwireAccessToken;
+      if (AppString.isStringNotEmpty(idToken)) {
+        headers[HttpHeaders.authorizationHeader] = "Bearer $idToken";
+      }
+    }
+    else if (auth == NetworkAuth.ProviderUser) {
       String idToken = Auth().authToken?.idToken;
       String tokenType = Auth().authToken?.tokenType ?? 'Bearer';
-      if ((idToken != null) && idToken.isNotEmpty) {
-        if (headers == null) {
-          headers = new Map();
-        }
+      if (AppString.isStringNotEmpty(idToken)) {
         headers[HttpHeaders.authorizationHeader] = "$tokenType $idToken";
       }
     }
     else if (auth == NetworkAuth.Access) {
       String accessToken = Auth().authToken?.accessToken;
-      if ((accessToken != null) && accessToken.isNotEmpty) {
-        if (headers == null) {
-          headers = new Map();
-        }
+      if (AppString.isStringNotEmpty(accessToken)) {
         headers['access_token'] = accessToken;
       }
     }
@@ -344,23 +360,27 @@ class Network  {
     //cookies
     String cookies = _loadCookiesForRequest(url);
     if (AppString.isStringNotEmpty(cookies)) {
-      if (headers == null) {
-        headers = new Map();
-      }
       headers["Cookie"] = cookies;
     }
 
     return headers;
   }
 
+  String _addClientID(String url) {
+    if (url != null && Config().rokmetroBaseURL != null && Config().clientID != null && url.contains(Config().rokmetroBaseURL)) {
+      url = AppUrl.addQueryParameters(url, {'clientID': Config().clientID});
+    }
+    return url;
+  }
+
   bool _requiresRefreshToken(Http.Response response, NetworkAuth auth){
     return (response != null
-       && (
-//          response.statusCode == 400 || 
+        && (
+//          response.statusCode == 400 ||
             response.statusCode == 401
         )
         && Auth().isLoggedIn
-        && (NetworkAuth.User == auth || NetworkAuth.Access == auth));
+        && (NetworkAuth.User == auth || NetworkAuth.ProviderUser == auth || NetworkAuth.Access == auth));
   }
 
   void _saveCookiesFromResponse(String url, Http.Response response) {

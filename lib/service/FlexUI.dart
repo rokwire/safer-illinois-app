@@ -102,7 +102,8 @@ class FlexUI with Service implements NotificationsListener {
 
   @override
   void onNotification(String name, dynamic param) {
-    if ((name == User.notifyUserUpdated) ||
+    if ((name == Config.notifyConfigChanged) ||
+        (name == User.notifyUserUpdated) ||
         (name == User.notifyRolesUpdated) ||
         (name == Auth.notifyAuthTokenChanged) ||
         (name == Auth.notifyCardChanged) || 

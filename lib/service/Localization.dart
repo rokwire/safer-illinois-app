@@ -157,7 +157,15 @@ class Localization with Service implements NotificationsListener {
     Map<String, dynamic> jsonData;
     try {
       String assetName = 'strings.$language.json';
-      http.Response response = (Config().assetsUrl != null) ? await Network().get("${Config().assetsUrl}/$assetName") : null;
+      http.Response response;
+      if (Config().useMultiTenant) {
+        Map<String, String> queryParameters = {'filename': assetName};
+        response = (Config().assetsUrl != null) ? await Network()
+            .get(AppUrl.addQueryParameters(Config().assetsUrl, queryParameters),
+            auth: NetworkAuth.User) : null;
+      } else {
+        response = (Config().assetsUrl != null) ? await Network().get("${Config().assetsUrl}/$assetName") : null;
+      }
       String jsonString = ((response != null) && (response.statusCode == 200)) ? response.body : null;
       jsonData = (jsonString != null) ? AppJson.decode(jsonString) : null;
       if ((jsonData != null) && jsonData.isNotEmpty && ((strings == null) || !DeepCollectionEquality().equals(jsonData, strings))) {

@@ -276,6 +276,34 @@ class Storage with Service {
     _setIntWithName(authCardTimeKey, value);
   }
 
+  static const String rokwireTokenKey  = '_rokwire_token';
+
+  String get rokwireAccessToken {
+    try {
+      String rokwireToken = _getStringWithName(rokwireTokenKey);
+      return rokwireToken;
+    } on Exception catch (e) { print(e.toString()); }
+    return null;
+  }
+
+  set rokwireAccessToken(String value) {
+    _setStringWithName(rokwireTokenKey, value);
+  }
+
+  static const String authGroupsKey  = '_auth_groups';
+
+  String get userAuthGroups {
+    try {
+      String userGroups = _getStringWithName(authGroupsKey);
+      return userGroups;
+    } on Exception catch (e) { print(e.toString()); }
+    return null;
+  }
+
+  set userAuthGroups(String value) {
+    _setStringWithName(authGroupsKey, value);
+  }
+
   /////////////////////
   // Date offset
 
@@ -416,6 +444,15 @@ class Storage with Service {
 
   /////////////
   // Config
+  static const String _configSchoolKey = 'config_school';
+
+  String get configSchool {
+    return _getStringWithName(_configSchoolKey);
+  }
+
+  set configSchool(String value) {
+    _setStringWithName(_configSchoolKey, value);
+  }
 
   static const String _configEnvKey = 'config_environment';
 

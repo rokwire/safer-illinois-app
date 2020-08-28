@@ -46,6 +46,7 @@ xcuserdata
 /secrets.tar.enc
 
 /assets/configs.json.enc
+/assets/schools-configs.json.enc
 
 /ios/Runner/GoogleService-Info-Debug.plist
 /ios/Runner/GoogleService-Info-Release.plist
@@ -55,3 +56,4 @@ xcuserdata
 /android/app/src/release/google-services.json
 /android/app/src/profile/google-services.json
 
+*.DS_Store
