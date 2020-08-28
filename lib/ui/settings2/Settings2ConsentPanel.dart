@@ -9,12 +9,12 @@ import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/RibbonButton.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 
-class SettingsConsentPanel extends StatefulWidget{
-  SettingsConsentPanel();
-  _SettingsConsentPanelState createState() => _SettingsConsentPanelState();
+class Settings2ConsentPanel extends StatefulWidget{
+  Settings2ConsentPanel();
+  _Settings2ConsentPanelState createState() => _Settings2ConsentPanelState();
 }
 
-class _SettingsConsentPanelState extends State<SettingsConsentPanel> implements NotificationsListener{
+class _Settings2ConsentPanelState extends State<Settings2ConsentPanel> implements NotificationsListener{
 
   bool _isDisabling = false;
   bool _isEnabling = false;

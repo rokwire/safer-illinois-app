@@ -48,7 +48,7 @@ import 'package:barcode_scan/barcode_scan.dart';
 import 'package:package_info/package_info.dart';
 import 'package:pointycastle/export.dart' as PointyCastle;
 
-import 'SettingsDebugPanel.dart';
+import 'debug/SettingsDebugPanel.dart';
 import 'SettingsPersonalInfoPanel.dart';
 
 class SettingsHomePanel extends StatefulWidget {
@@ -724,12 +724,15 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
     else {
       String statusText, descriptionText;
       List<Widget> buttons;
-      if ((_healthUser?.publicKey == null)) {
+      if (_healthUser?.publicKey == null) {
         statusText = Localization().getStringEx('panel.settings.home.covid19.text.keys.missing.public', 'Missing COVID-19 public key');
         descriptionText = Localization().getStringEx('panel.settings.home.covid19.text.keys.reset', 'Reset the COVID-19 keys pair.');
         buttons =  <Widget>[
-          Expanded(child:
-            _buildCovid19ResetButton()),
+          Expanded(child: Container()),
+          Container(width: 8,),
+          Expanded(child: Container()),
+          Container(width: 8,),
+          Expanded(child: _buildCovid19ResetButton()),
         ];
       }
       else if ((_healthUserPrivateKey == null) || (_healthUserKeysPaired != true)) {
@@ -738,41 +741,39 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
           Localization().getStringEx('panel.settings.home.covid19.text.keys.mismatch', 'COVID-19 keys not paired');
         descriptionText = Localization().getStringEx('panel.settings.home.covid19.text.keys.transfer_or_reset', 'Transfer the COVID-19 private key from your other phone or reset the COVID-19 keys pair.');
         buttons =  <Widget>[
-          Expanded(child:
-          ScalableRoundedButton(
+          Expanded(child: ScalableRoundedButton(
             label: Localization().getStringEx('panel.settings.home.covid19.button.load.title', 'Load'),
             backgroundColor: Styles().colors.background,
             fontSize: 16.0,
-            padding: EdgeInsets.symmetric(horizontal: 24),
             textColor: Styles().colors.fillColorPrimary,
             borderColor: Styles().colors.fillColorPrimary,
             onTap: _onTapLoadCovid19QrCode),),
           Container(width: 8,),
-          Expanded(child:
-          ScalableRoundedButton(
+          Expanded(child: ScalableRoundedButton(
             label: Localization().getStringEx('panel.settings.home.covid19.button.scan.title', 'Scan'),
             backgroundColor: Styles().colors.background,
             fontSize: 16.0,
-            padding: EdgeInsets.symmetric(horizontal: 24),
             textColor: Styles().colors.fillColorPrimary,
             borderColor: Styles().colors.fillColorPrimary,
             onTap: _onTapScanCovid19QrCode)),
-//          Expanded(child: Container(),),
+          Container(width: 8,),
           Expanded(child:
             _buildCovid19ResetButton(),
-          )
+          ),
         ];
       }
       else {
         statusText = Localization().getStringEx('panel.settings.home.covid19.text.keys.paired', 'COVID-19 keys valid and paired');
         descriptionText = Localization().getStringEx('panel.settings.home.covid19.text.keys.qr_code', 'Show your COVID-19 secret QR code.');
         buttons =  <Widget>[
-          Expanded(child:
-          ScalableRoundedButton(
+          Expanded(child: Container()),
+          Container(width: 8,),
+          Expanded(child: Container()),
+          Container(width: 8,),
+          Expanded(child: ScalableRoundedButton(
             label: Localization().getStringEx('panel.settings.home.covid19.button.qr_code.title', 'QR Code'),
             backgroundColor: Styles().colors.background,
             fontSize: 16.0,
-            padding: EdgeInsets.symmetric(horizontal: 24),
             textColor: Styles().colors.fillColorPrimary,
             borderColor: Styles().colors.fillColorPrimary,
             onTap: _onTapShowCovid19QrCode))
