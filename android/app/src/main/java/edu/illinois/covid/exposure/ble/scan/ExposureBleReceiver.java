@@ -17,6 +17,7 @@
 package edu.illinois.covid.exposure.ble.scan;
 
 import android.annotation.TargetApi;
+import android.app.ActivityManager;
 import android.bluetooth.le.ScanResult;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -26,6 +27,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import edu.illinois.covid.Constants;
 import edu.illinois.covid.exposure.ble.ExposureClient;
@@ -49,7 +51,10 @@ public class ExposureBleReceiver extends BroadcastReceiver {
             }
             Intent bleClientIntent = new Intent(context, ExposureClient.class);
             bleClientIntent.putExtra(Constants.EXPOSURE_BLE_DEVICE_FOUND, scanResult);
-            context.startService(bleClientIntent);
+            boolean exposureClientRunning = isExposureClientServiceRunning(context);
+            if (exposureClientRunning) {
+                context.startService(bleClientIntent);
+            }
         }
     }
 
@@ -75,5 +80,20 @@ public class ExposureBleReceiver extends BroadcastReceiver {
             Log.d(TAG, "extras are null");
         }
         return null;
+    }
+
+    private boolean isExposureClientServiceRunning(Context context) {
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        if (manager != null) {
+            List<ActivityManager.RunningServiceInfo> runningServices = manager.getRunningServices(Integer.MAX_VALUE);
+            if ((runningServices != null) && !runningServices.isEmpty()) {
+                for (ActivityManager.RunningServiceInfo service : runningServices) {
+                    if (ExposureClient.class.getName().equals(service.service.getClassName())) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 }
