@@ -953,7 +953,10 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler {
     private void stopIosBgScan() {
         stopIosBgScanTimer();
         if (isIosBgScanning()) {
-            iosBgBluoetoothLeScanner.stopScan(iOSBackgroundScanCallback);
+            // Check if bluetooth is on.
+            if (iosBgBluetoothAdapter.isEnabled() && (iosBgBluetoothAdapter.getState() == BluetoothAdapter.STATE_ON)) {
+                iosBgBluoetoothLeScanner.stopScan(iOSBackgroundScanCallback);
+            }
             Log.d(TAG, "stopped ios bg scanning");
         } else {
             Log.d(TAG, "no ios bg scanner is scanning");
