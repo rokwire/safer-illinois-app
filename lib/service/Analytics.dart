@@ -276,6 +276,7 @@ class Analytics with Service implements NotificationsListener {
       User.notifyUserDeleted,
       NativeCommunicator.notifyMapRouteStart,
       NativeCommunicator.notifyMapRouteFinish,
+      Config.notifySchoolChanged,
     ]);
 
   }
@@ -388,6 +389,10 @@ class Analytics with Service implements NotificationsListener {
       _updateUserRoles();
     }
     else if (name == User.notifyUserDeleted) {
+      _updateSessionUuid();
+      _updateUserRoles();
+    }
+    else if (name == Config.notifySchoolChanged) {
       _updateSessionUuid();
       _updateUserRoles();
     }

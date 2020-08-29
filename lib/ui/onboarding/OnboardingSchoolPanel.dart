@@ -16,6 +16,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:illinois/model/Config.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/FlexUI.dart';
 import 'package:illinois/service/NotificationService.dart';
@@ -38,14 +39,14 @@ class OnboardingSchoolsPanel extends StatefulWidget with OnboardingPanel {
 }
 
 class _OnboardingSchoolsSelectionPanelState extends State<OnboardingSchoolsPanel> implements NotificationsListener {
-  String _selectedSchool;
+  SchoolConfig _selectedSchool;
   bool _updating = false;
 
   bool get _allowNext => _selectedSchool != null;
 
   @override
   void initState() {
-    _selectedSchool = Config().configSchoolClientID ?? null;
+    _selectedSchool = Config().schoolConfig;
     super.initState();
   }
 
@@ -120,9 +121,9 @@ class _OnboardingSchoolsSelectionPanelState extends State<OnboardingSchoolsPanel
   Widget _buildSchoolButtons() {
     final double gridSpacing = 5;
     List<Widget> schoolButtonRows = [];
-    if (AppCollection.isCollectionNotEmpty(Config().schoolConfigs)) {
+    if (AppCollection.isCollectionNotEmpty(Config().schoolConfigsList)) {
       List<Widget> row = [];
-      for (dynamic config in Config().schoolConfigs) {
+      for (dynamic config in Config().schoolConfigsList) {
         if (config is Map) {
           if (row.length == 3) {
             schoolButtonRows.add(Row(children: row));
@@ -140,8 +141,8 @@ class _OnboardingSchoolsSelectionPanelState extends State<OnboardingSchoolsPanel
               iconPath: config['icon_url'],
               selectedIconPath: config['icon_url'],
               selectedBackgroundColor: Styles().colors.fillColorSecondary,
-              selected: (_selectedSchool == config['clientID']),
-              data: config['clientID'],
+              selected: (_selectedSchool?.clientID == config['clientID']),
+              data: SchoolConfig.fromJson(config),
               sortOrder: 1,
               onTap: _onSchoolGridButton,
             ),)
@@ -214,9 +215,9 @@ class _OnboardingSchoolsSelectionPanelState extends State<OnboardingSchoolsPanel
   void _onSchoolGridButton(RoleGridButton button) {
     if (button != null) {
 
-      String configSchool = button.data as String;
+      SchoolConfig configSchool = button.data as SchoolConfig;
 
-      Analytics.instance.logSelect(target: "School: " + configSchool);
+      Analytics.instance.logSelect(target: "School: " + configSchool?.name);
 
       _selectedSchool = configSchool;
 
@@ -227,7 +228,7 @@ class _OnboardingSchoolsSelectionPanelState extends State<OnboardingSchoolsPanel
   void _onExploreClicked() {
     Analytics.instance.logSelect(target:"Confirm");
     if (_selectedSchool != null && !_updating) {
-      Config().configSchoolClientID = _selectedSchool;
+      Config().schoolConfig = _selectedSchool;
       setState(() { _updating = true; });
       FlexUI().update().then((_){
         if (mounted) {

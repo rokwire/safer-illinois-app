@@ -71,8 +71,8 @@ class User with Service implements NotificationsListener {
 
   @override
   Future<void> initService() async {
-    if (Config().configSchoolClientID != null) {
-      _userData = Storage().getUserDataForClientID(Config().configSchoolClientID);
+    if (Config().schoolConfig != null) {
+      _userData = Storage().getUserDataForClientID(Config().schoolConfig?.clientID);
 
       if (_userData == null) {
         await _createUser();
@@ -95,6 +95,7 @@ class User with Service implements NotificationsListener {
     else if(name == AppLivecycle.notifyStateChanged && param == AppLifecycleState.resumed){
       //_loadUser();
     } else if(name == Config.notifySchoolChanged) {
+      _userData = null;
       initService();
     }
   }
@@ -163,7 +164,7 @@ class User with Service implements NotificationsListener {
       UserData update = UserData.fromJson(jsonData);
       if (update != null) {
         _userData = update;
-        Storage().setUserDataForClientID(_userData, Config().configSchoolClientID);
+        Storage().setUserDataForClientID(_userData, Config().schoolConfig?.clientID);
         //_notifyUserUpdated();
       }
     }
@@ -227,7 +228,7 @@ class User with Service implements NotificationsListener {
         }
       }
       if (_userData != null) {
-        Storage().setUserDataForClientID(_userData, Config().configSchoolClientID);
+        Storage().setUserDataForClientID(_userData, Config().schoolConfig?.clientID);
         _notifyUserUpdated();
       }
     }
@@ -268,7 +269,7 @@ class User with Service implements NotificationsListener {
     }
 
     _userData = userData;
-    Storage().setUserDataForClientID(_userData, Config().configSchoolClientID);
+    Storage().setUserDataForClientID(_userData, Config().schoolConfig?.clientID);
     Storage().userRoles = userData?.roles;
 
     if (userSwitched) {
@@ -282,7 +283,7 @@ class User with Service implements NotificationsListener {
 
   void _clearStoredUserData(){
     _userData = null;
-    Storage().setUserDataForClientID(null, Config().configSchoolClientID);
+    Storage().setUserDataForClientID(null, Config().schoolConfig?.clientID);
     Auth().logout();
     Storage().onBoardingPassed = false;
   }
@@ -531,7 +532,7 @@ class User with Service implements NotificationsListener {
   set roles(Set<UserRole> userRoles) {
     if (_userData != null) {
       _userData.roles = userRoles;
-      Storage().setUserDataForClientID(_userData, Config().configSchoolClientID);
+      Storage().setUserDataForClientID(_userData, Config().schoolConfig?.clientID);
       Storage().userRoles = userRoles;
       _updateUser().then((_){
         _notifyUserRolesUpdated();

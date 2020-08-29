@@ -128,6 +128,7 @@ class _AppState extends State<App> implements NotificationsListener {
       Config.notifyUpgradeAvailable,
       Config.notifyUpgradeRequired,
       User.notifyUserDeleted,
+      Config.notifySchoolChanged,
     ]);
 
     AppLivecycle.instance.ensureBinding();
@@ -222,6 +223,9 @@ class _AppState extends State<App> implements NotificationsListener {
       });
     }
     else if (name == User.notifyUserDeleted) {
+      _resetUI();
+    }
+    else if (name == Config.notifySchoolChanged && Config().schoolConfig == null) {
       _resetUI();
     }
   }

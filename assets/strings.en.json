@@ -279,6 +279,9 @@
     "panel.settings.home.covid19.button.load.title": "Load",
     "panel.settings.home.covid19.button.scan.title": "Scan",
     "panel.settings.home.covid19.button.qr_code.title": "QR Code",
+    "panel.settings.home.school.title": "School",
+    "panel.settings.home.school.message": "Your School: ",
+    "panel.settings.home.school.button.switch": "Switch Schools",
 
     "panel.settings.label.offline.phone_ver":"Verify Your Phone Number is not available while offline.",
 

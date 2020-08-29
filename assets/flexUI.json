@@ -16,7 +16,7 @@
 		"browse.all": ["athletics", "saved", "covid19", "dining", "events", "quick_polls", "wellness", "groups"],
 		"browse.content": ["settings", "my_illini", "laundry",  "illini_cash", "meal_plan", "parking", "feedback", "create_event", "create_stadium_poll", "state_farm_wayfinding"],
 
-		"settings": ["user_info", "connect", "customizations", "connected", "notifications", "covid19", "privacy", "account", "feedback"],
+		"settings": ["user_info", "connect", "customizations", "connected", "notifications", "covid19", "privacy", "school","account", "feedback"],
 		"settings.connect": ["netid", "phone"],
 		"settings.customizations": ["roles"],
 		"settings.connected": ["netid", "phone"],
@@ -26,6 +26,7 @@
 		"settings.covid19": ["exposure_notifications", "provider_test_result", "qr_code"],
 		"settings.privacy": ["statement"],
 		"settings.account": ["personal_info"],
+		"settings.school": ["info", "switch"],
 
 		"onboarding":["get_started", "school_selection", "notifications_auth", "location_auth", "bluetooth_auth", "roles", "login_netid", "login_phone", "verify_phone", "confirm_phone", "resident_info", "review_scan", "covid19_intro", "covid19_how_works", "covid19_consent", "covid19_qrcode", "covid19_final"],
 

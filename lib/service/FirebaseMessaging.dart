@@ -97,7 +97,8 @@ class FirebaseMessaging with Service implements NotificationsListener {
       User.notifyUserUpdated,
       User.notifyUserDeleted,
       AppLivecycle.notifyStateChanged,
-      LocalNotifications.notifySelected
+      LocalNotifications.notifySelected,
+      Config.notifySchoolChanged,
     ]);
   }
 
@@ -156,6 +157,9 @@ class FirebaseMessaging with Service implements NotificationsListener {
       _updateSubscriptions();
     }
     else if (name == User.notifyUserDeleted) {
+      _updateSubscriptions();
+    }
+    else if (name == Config.notifySchoolChanged) {
       _updateSubscriptions();
     }
     else if (name == AppLivecycle.notifyStateChanged) {

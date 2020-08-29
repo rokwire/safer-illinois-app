@@ -16,6 +16,7 @@
 
 import 'dart:convert';
 import 'package:illinois/model/Auth.dart';
+import 'package:illinois/model/Config.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/AppDateTime.dart';
 import 'package:illinois/service/Log.dart';
@@ -448,12 +449,17 @@ class Storage with Service {
   // Config
   static const String _configSchoolKey = 'config_school';
 
-  String get configSchool {
-    return _getStringWithName(_configSchoolKey);
+  SchoolConfig get schoolConfig {
+    try {
+      String jsonString = _getStringWithName(_configSchoolKey);
+      dynamic jsonData = AppJson.decode(jsonString);
+      return (jsonData != null) ? SchoolConfig.fromJson(jsonData) : null;
+    } on Exception catch (e) { print(e.toString()); }
+    return null;
   }
 
-  set configSchool(String value) {
-    _setStringWithName(_configSchoolKey, value);
+  set schoolConfig(SchoolConfig value) {
+    _setStringWithName(_configSchoolKey, value != null ? json.encode(value.toJson()) : null);
   }
 
   static const String _configEnvKey = 'config_environment';

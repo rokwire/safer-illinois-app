@@ -139,6 +139,9 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
       else if (code == 'covid19') {
         contentList.add(_buildCovid19Settings());
       }
+      else if (code == 'school') {
+        contentList.add(_buildSelectedSchool());
+      }
       else if (code == 'privacy') {
         contentList.add(_buildPrivacy());
       }
@@ -1000,6 +1003,47 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
     if (Auth().isLoggedIn) {
       Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsPersonalInfoPanel()));
     }
+  }
+
+  // School
+
+  Widget _buildSelectedSchool() {
+    List<Widget> contentList = List();
+
+    List<dynamic> codes = FlexUI()['settings.school'] ?? [];
+    for (int index = 0; index < codes.length; index++) {
+      String code = codes[index];
+      BorderRadius borderRadius = _borderRadiusFromIndex(index, codes.length);
+      if (code == 'info') {
+        contentList.add(
+            Semantics( container: true,
+                child: Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(borderRadius: borderRadius, border: Border.all(color: Styles().colors.surfaceAccent, width: 0.5)),
+                    child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+                          Text(Localization().getStringEx("panel.settings.home.school.message", "Your School: "),
+                              style: TextStyle(color: Styles().colors.textBackground, fontFamily: Styles().fontFamilies.regular, fontSize: 16)),
+                          Text(Config().schoolConfig?.name ?? "",
+                              style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 20)),
+                        ])))));
+      }
+      else if (code == 'switch') {
+        contentList.add(RibbonButton(
+            height: null,
+            borderRadius: borderRadius,
+            border: Border.all(color: Styles().colors.surfaceAccent, width: 0),
+            label: Localization().getStringEx("panel.settings.home.school.button.switch", "Switch Schools"),
+            onTap: _onSwitchSchoolsClicked));
+      }
+    }
+
+    return _OptionsSection(title: Localization().getStringEx("panel.settings.home.school.title", "School"), widgets: contentList);
+  }
+
+  void _onSwitchSchoolsClicked() {
+    Config().switchSchools();
   }
 
   // Feedback

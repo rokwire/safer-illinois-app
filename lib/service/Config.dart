@@ -20,6 +20,7 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:illinois/model/Config.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/Log.dart';
@@ -47,9 +48,9 @@ class Config with Service implements NotificationsListener {
 
   Map<String, dynamic> _config;
   Map<String, dynamic> _configAsset;
-  List<dynamic>        _schoolConfigs;
+  List<dynamic>        _schoolConfigsList;
   String               _assetClientID;
-  String               _configSchoolClientID;
+  SchoolConfig         _schoolConfig;
   ConfigEnvironment    _configEnvironment;
   PackageInfo          _packageInfo;
   Directory            _appDocumentsDir; 
@@ -86,7 +87,7 @@ class Config with Service implements NotificationsListener {
 
   Map<String, dynamic> get settings                { return (_config != null) ? (_config['settings'] ?? {}) : {}; }
 
-  List<dynamic> get schoolConfigs                  { return _schoolConfigs ?? (_config != null ? (_config['clients'] ?? []) : []); }
+  List<dynamic> get schoolConfigsList              { return _schoolConfigsList ?? (_config != null ? (_config['clients'] ?? []) : []); }
   String get clientID                              { return _assetClientID ?? (_config != null ? (_config['clientID'] ?? null) : null); }
   String get rokmetroBaseURL                       { return "services.rokmetro.com"; }
 
@@ -138,7 +139,7 @@ class Config with Service implements NotificationsListener {
   }
 
   bool get useMultiTenant {
-    return  _configSchoolClientID != "uiuc";
+    return  _schoolConfig != "uiuc";
   }
 
   // Initialization
@@ -161,10 +162,10 @@ class Config with Service implements NotificationsListener {
   Future<void> initService() async {
     _configEnvironment = configEnvFromString(Storage().configEnvironment) ??
       (kReleaseMode ? ConfigEnvironment.production : ConfigEnvironment.dev);
-    _configSchoolClientID = Storage().configSchool;
     _packageInfo = await PackageInfo.fromPlatform();
     _appDocumentsDir = await getApplicationDocumentsDirectory();
     Log.d('Application Documents Directory: ${_appDocumentsDir.path}');
+    schoolConfig = Storage().schoolConfig;
 
     await _init();
   }
@@ -236,12 +237,12 @@ class Config with Service implements NotificationsListener {
     }
   }
 
-  Map<String, dynamic> _schoolConfigForClientID(String clientID) {
-    if (AppString.isStringEmpty(clientID) || AppCollection.isCollectionEmpty(schoolConfigs)) {
+  Map<String, dynamic> schoolConfigForClientID(String clientID) {
+    if (AppString.isStringEmpty(clientID) || AppCollection.isCollectionEmpty(schoolConfigsList)) {
       return null;
     }
 
-    for (dynamic config in schoolConfigs) {
+    for (dynamic config in schoolConfigsList) {
       if (config is Map && config['clientID'] == clientID) {
         return config;
       }
@@ -288,8 +289,7 @@ class Config with Service implements NotificationsListener {
     _config = await _loadFromFile(_configFile);
 
     if (_config == null) {
-      Map<String, dynamic> schoolConfig = _schoolConfigForClientID(_configSchoolClientID);
-      if (_configSchoolClientID == null || (useMultiTenant && (schoolConfig == null || schoolConfig['config_asset'] == null))) {
+      if (_schoolConfig == null || (useMultiTenant && (_schoolConfig == null || _schoolConfig.configAsset == null))) {
         _configAsset = await _loadFromAssets(_configsAssetSchools);
         String configString = await _loadAsStringFromNet();
         _configAsset = null;
@@ -297,14 +297,14 @@ class Config with Service implements NotificationsListener {
 
         _config = (configString != null) ? _configFromJsonString(configString) : null;
         if (_config != null) {
-          _schoolConfigs = _config['clients'];
+          _schoolConfigsList = _config['clients'];
           _checkUpgrade();
         }
 
-        if (_schoolConfigs == null) {
-          _schoolConfigs = [];
+        if (_schoolConfigsList == null) {
+          _schoolConfigsList = [];
         }
-        _schoolConfigs.insert(0, {"clientID" : "uiuc", "name" : "UIUC", "icon_url" : "https://upload.wikimedia.org/wikipedia/commons/7/7c/Illinois_Block_I.png"});
+        _schoolConfigsList.insert(0, {"clientID" : "uiuc", "name" : "UIUC", "icon_url" : "https://upload.wikimedia.org/wikipedia/commons/7/7c/Illinois_Block_I.png"});
         NotificationService().notify(notifyConfigChanged, null);
 
 //        _schoolConfigs = (configString != null) ? _schoolConfigsFromJsonString(configString) : null;
@@ -315,7 +315,7 @@ class Config with Service implements NotificationsListener {
 //      }
       } else {
         if (useMultiTenant) {
-          _configAsset = await _loadFromAssetString(schoolConfig['config_asset']);
+          _configAsset = await _loadFromAssetString(_schoolConfig.configAsset);
           String configString = await _loadAsStringFromNet();
           _configAsset = null;
           _assetClientID = null;
@@ -348,6 +348,14 @@ class Config with Service implements NotificationsListener {
       _checkUpgrade();
       _updateFromNet();
     }
+  }
+
+  void switchSchools() {
+    if (_configFile.existsSync()) {
+      _configFile.deleteSync();
+    }
+    Storage().onBoardingPassed = false;
+    schoolConfig = null;
   }
 
   void _updateFromNet() {
@@ -451,18 +459,18 @@ class Config with Service implements NotificationsListener {
   }
 
   // School
-  set configSchoolClientID(String configSchoolClientID) {
-    if (_configSchoolClientID != configSchoolClientID) {
-      _configSchoolClientID = configSchoolClientID;
-      Storage().configSchool = configSchoolClientID;
+  set schoolConfig(SchoolConfig newSchoolConfig) {
+    if (_schoolConfig != newSchoolConfig) {
+      _schoolConfig = newSchoolConfig;
+      Storage().schoolConfig = newSchoolConfig;
     }
     _init().then((_) {
       NotificationService().notify(notifySchoolChanged, null);
     });
   }
 
-  String get configSchoolClientID {
-    return _configSchoolClientID;
+  SchoolConfig get schoolConfig {
+    return _schoolConfig;
   }
 
   // Environment

@@ -113,6 +113,7 @@ class Auth with Service implements NotificationsListener {
       DeepLink.notifyUri,
       AppLivecycle.notifyStateChanged,
       User.notifyUserDeleted,
+      Config.notifySchoolChanged,
     ]);
   }
 
@@ -1094,6 +1095,9 @@ class Auth with Service implements NotificationsListener {
       }
     }
     else if (name == User.notifyUserDeleted) {
+      logout();
+    }
+    else if (name == Config.notifySchoolChanged) {
       logout();
     }
   }

@@ -105,7 +105,7 @@ class Network  {
   Future<Http.Response> _get(url, { String body, Encoding encoding, Map<String, String> headers, NetworkAuth auth, int timeout, Http.Client client} ) async {
     if (Connectivity().isNotOffline) {
       try {
-        if (url != null) {
+        if (AppString.isStringNotEmpty(url)) {
 
           Map<String, String> requestHeaders = _prepareHeaders(headers, auth, url);
           Future<Http.Response> response;
@@ -158,7 +158,7 @@ class Network  {
       try {
         url = _addClientID(url);
 
-        Future<Http.Response> response = (url != null) ? Http.post(url, headers: _prepareHeaders(headers, auth, url), body: body, encoding: encoding) : null;
+        Future<Http.Response> response = (AppString.isStringNotEmpty(url)) ? Http.post(url, headers: _prepareHeaders(headers, auth, url), body: body, encoding: encoding) : null;
         return ((response != null) && (timeout != null)) ? response.timeout(Duration(seconds: timeout), onTimeout: _responseTimeoutHandler) : response;
       } catch (e) {
         Log.e(e.toString());
@@ -190,7 +190,7 @@ class Network  {
       try {
         url = _addClientID(url);
 
-        Future<Http.Response> response = (url != null) ?
+        Future<Http.Response> response = (AppString.isStringNotEmpty(url)) ?
           ((client != null) ?
           client.put(url, headers: _prepareHeaders(headers, auth, url), body: body, encoding: encoding) :
           Http.put(url, headers: _prepareHeaders(headers, auth, url), body: body, encoding: encoding)) :
@@ -228,7 +228,7 @@ class Network  {
       try {
         url = _addClientID(url);
 
-        Future<Http.Response> response = (url != null) ? Http.patch(url, headers: _prepareHeaders(headers, auth, url), body: body, encoding: encoding) : null;
+        Future<Http.Response> response = (AppString.isStringNotEmpty(url)) ? Http.patch(url, headers: _prepareHeaders(headers, auth, url), body: body, encoding: encoding) : null;
         return ((response != null) && (timeout != null)) ? response.timeout(Duration(seconds: timeout), onTimeout: _responseTimeoutHandler) : response;
       } catch (e) {
         Log.e(e.toString());
@@ -260,7 +260,7 @@ class Network  {
       try {
         url = _addClientID(url);
 
-        Future<Http.Response> response = (url != null) ? Http.delete(url, headers: _prepareHeaders(headers, auth, url)) : null;
+        Future<Http.Response> response = (AppString.isStringNotEmpty(url)) ? Http.delete(url, headers: _prepareHeaders(headers, auth, url)) : null;
         return ((response != null) && (timeout != null)) ? response.timeout(Duration(seconds: timeout), onTimeout: _responseTimeoutHandler) : response;
       } catch (e) {
         Log.e(e.toString());
@@ -292,7 +292,7 @@ class Network  {
       try {
         url = _addClientID(url);
 
-        Future<String> response = (url != null) ? Http.read(url, headers: _prepareHeaders(headers, auth, url)) : null;
+        Future<String> response = (AppString.isStringNotEmpty(url)) ? Http.read(url, headers: _prepareHeaders(headers, auth, url)) : null;
         return ((response != null) && (timeout != null)) ? response.timeout(Duration(seconds: timeout)) : response;
       } catch (e) {
         Log.e(e.toString());
@@ -311,7 +311,7 @@ class Network  {
       try {
         url = _addClientID(url);
 
-        Future<Uint8List> response = (url != null) ? Http.readBytes(url, headers: _prepareHeaders(headers, auth, url)) : null;
+        Future<Uint8List> response = (AppString.isStringNotEmpty(url)) ? Http.readBytes(url, headers: _prepareHeaders(headers, auth, url)) : null;
         return ((response != null) && (timeout != null)) ? response.timeout(Duration(seconds: timeout), onTimeout: _responseBytesHandler) : response;
       } catch (e) {
         Log.e(e.toString());
@@ -382,7 +382,7 @@ class Network  {
   }
 
   String _addClientID(String url) {
-    if (url != null && Config().rokmetroBaseURL != null && Config().clientID != null && url.contains(Config().rokmetroBaseURL)) {
+    if (AppString.isStringNotEmpty(url) && Config().rokmetroBaseURL != null && Config().clientID != null && url.contains(Config().rokmetroBaseURL)) {
       url = AppUrl.addQueryParameters(url, {'clientID': Config().clientID});
     }
     return url;

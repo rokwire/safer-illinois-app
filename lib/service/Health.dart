@@ -478,7 +478,6 @@ class Health with Service implements NotificationsListener {
   }
 
   Future<List<HealthSymptomsGroup>> _loadSymptomsGroups2() async {
-
     if (_currentCountyId != null) {
       HealthRulesSet2 rules = await _loadRules2(countyId: _currentCountyId);
       return rules?.symptoms?.groups;
@@ -486,7 +485,7 @@ class Health with Service implements NotificationsListener {
     else {
       Response response;
       if (Config().useMultiTenant) {
-        String url = "${Config().healthUrl}/covid19/symptoms/symptoms.json";
+        String url = AppUrl.addQueryParameters("${Config().healthUrl}/covid19/assets", {'filename': 'symptoms.json'});
         response = await Network().get(url, auth: NetworkAuth.User, analyticsAnonymous: true);
       } else {
         String url = "${Config().health2Url}/symptoms/symptoms.json";
@@ -1390,7 +1389,7 @@ class Health with Service implements NotificationsListener {
   Future<HealthRulesSet2> _loadRules2({String countyId}) async {
     Response response;
     if (Config().useMultiTenant) {
-      String url = "${Config().healthUrl}/covid19/rules/county/$countyId/actions.json";
+      String url = AppUrl.addQueryParameters("${Config().healthUrl}/covid19/assets", {'filename': 'rules.json', 'countyID': countyId});
       response = await Network().get(url, auth: NetworkAuth.User, analyticsAnonymous: true);
     } else {
       String url = "${Config().health2Url}/rules/county/$countyId/rules.json";
