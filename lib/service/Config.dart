@@ -139,7 +139,7 @@ class Config with Service implements NotificationsListener {
   }
 
   bool get useMultiTenant {
-    return  _schoolConfig != "uiuc";
+    return _schoolConfig?.clientID != "uiuc";
   }
 
   // Initialization
@@ -286,46 +286,29 @@ class Config with Service implements NotificationsListener {
   }
 
   Future<void> _init() async {
+    if (_schoolConfig == null || AppCollection.isCollectionEmpty(schoolConfigsList) || (useMultiTenant && _schoolConfig.configAsset == null)) {
+      _loadSchoolConfigsFromNet();
+    }
+
     _config = await _loadFromFile(_configFile);
 
     if (_config == null) {
-      if (_schoolConfig == null || (useMultiTenant && (_schoolConfig == null || _schoolConfig.configAsset == null))) {
-        _configAsset = await _loadFromAssets(_configsAssetSchools);
-        String configString = await _loadAsStringFromNet();
-        _configAsset = null;
-        _assetClientID = null;
-
-        _config = (configString != null) ? _configFromJsonString(configString) : null;
-        if (_config != null) {
-          _schoolConfigsList = _config['clients'];
-          _checkUpgrade();
-        }
-
-        if (_schoolConfigsList == null) {
-          _schoolConfigsList = [];
-        }
-        _schoolConfigsList.insert(0, {"clientID" : "uiuc", "name" : "UIUC", "icon_url" : "https://upload.wikimedia.org/wikipedia/commons/7/7c/Illinois_Block_I.png"});
-        NotificationService().notify(notifyConfigChanged, null);
-
-//        _schoolConfigs = (configString != null) ? _schoolConfigsFromJsonString(configString) : null;
-//        NotificationService().notify(notifySchoolConfigsChanged, null);
-
-//      if (_schoolConfigs != null) {
-//        _checkUpgrade();
-//      }
-      } else {
+      if (_schoolConfig != null) {
         if (useMultiTenant) {
-          _configAsset = await _loadFromAssetString(_schoolConfig.configAsset);
-          String configString = await _loadAsStringFromNet();
-          _configAsset = null;
-          _assetClientID = null;
+          if ( _schoolConfig.configAsset != null) {
+            _configAsset =
+            await _loadFromAssetString(_schoolConfig.configAsset);
+            String configString = await _loadAsStringFromNet();
+            _configAsset = null;
+            _assetClientID = null;
 
-          _config =
-          (configString != null) ? _configFromJsonString(configString) : null;
-          if (_config != null) {
-            _configFile.writeAsStringSync(configString, flush: true);
-            NotificationService().notify(notifyConfigChanged, null);
+            _config =
+            (configString != null) ? _configFromJsonString(configString) : null;
+            if (_config != null) {
+              _configFile.writeAsStringSync(configString, flush: true);
+              NotificationService().notify(notifyConfigChanged, null);
 //          _checkUpgrade();
+            }
           }
         } else {
           _configAsset = await _loadFromAssets(_configsAsset);
@@ -350,10 +333,26 @@ class Config with Service implements NotificationsListener {
     }
   }
 
-  void switchSchools() {
-    if (_configFile.existsSync()) {
-      _configFile.deleteSync();
+  Future<void> _loadSchoolConfigsFromNet() async {
+    _configAsset = await _loadFromAssets(_configsAssetSchools);
+    String configString = await _loadAsStringFromNet();
+    _configAsset = null;
+    _assetClientID = null;
+
+    _config = (configString != null) ? _configFromJsonString(configString) : null;
+    if (_config != null) {
+      _schoolConfigsList = _config['clients'];
+      _checkUpgrade();
     }
+
+    if (_schoolConfigsList == null) {
+      _schoolConfigsList = [];
+    }
+    _schoolConfigsList.insert(0, {"clientID" : "uiuc", "name" : "UIUC", "icon_url" : "https://upload.wikimedia.org/wikipedia/commons/7/7c/Illinois_Block_I.png"});
+    NotificationService().notify(notifyConfigChanged, null);
+  }
+
+  void switchSchools() {
     Storage().onBoardingPassed = false;
     schoolConfig = null;
   }
@@ -461,6 +460,9 @@ class Config with Service implements NotificationsListener {
   // School
   set schoolConfig(SchoolConfig newSchoolConfig) {
     if (_schoolConfig != newSchoolConfig) {
+      if (_configFile.existsSync()) {
+        _configFile.deleteSync();
+      }
       _schoolConfig = newSchoolConfig;
       Storage().schoolConfig = newSchoolConfig;
     }
