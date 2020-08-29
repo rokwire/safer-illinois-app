@@ -326,13 +326,16 @@ class Network  {
   }
 
   Map<String, String> _prepareHeaders(Map<String, String> headers, NetworkAuth auth, String url) {
-    if (headers == null) {
-      headers = new Map();
+    if (auth == NetworkAuth.User && !Config().useMultiTenant) {
+      auth = NetworkAuth.ProviderUser;
     }
 
     if (auth == NetworkAuth.App || auth == NetworkAuth.User || auth == NetworkAuth.ProviderUser) {
       String rokwireApiKey = Config().rokwireApiKey;
       if (AppString.isStringNotEmpty(rokwireApiKey)) {
+        if (headers == null) {
+          headers = new Map();
+        }
         headers[RokwireApiKey] = rokwireApiKey;
       }
     }
@@ -340,6 +343,9 @@ class Network  {
     if (auth == NetworkAuth.User) {
       String idToken = Auth().rokwireAccessToken;
       if (AppString.isStringNotEmpty(idToken)) {
+        if (headers == null) {
+          headers = new Map();
+        }
         headers[HttpHeaders.authorizationHeader] = "Bearer $idToken";
       }
     }
@@ -347,12 +353,18 @@ class Network  {
       String idToken = Auth().authToken?.idToken;
       String tokenType = Auth().authToken?.tokenType ?? 'Bearer';
       if (AppString.isStringNotEmpty(idToken)) {
+        if (headers == null) {
+          headers = new Map();
+        }
         headers[HttpHeaders.authorizationHeader] = "$tokenType $idToken";
       }
     }
     else if (auth == NetworkAuth.Access) {
       String accessToken = Auth().authToken?.accessToken;
       if (AppString.isStringNotEmpty(accessToken)) {
+        if (headers == null) {
+          headers = new Map();
+        }
         headers['access_token'] = accessToken;
       }
     }
@@ -360,6 +372,9 @@ class Network  {
     //cookies
     String cookies = _loadCookiesForRequest(url);
     if (AppString.isStringNotEmpty(cookies)) {
+      if (headers == null) {
+        headers = new Map();
+      }
       headers["Cookie"] = cookies;
     }
 

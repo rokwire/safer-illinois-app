@@ -60,6 +60,7 @@ class User with Service implements NotificationsListener {
     NotificationService().subscribe(this, [
       AppLivecycle.notifyStateChanged,
       FirebaseMessaging.notifyToken,
+      Config.notifySchoolChanged,
     ]);
   }
 
@@ -70,13 +71,14 @@ class User with Service implements NotificationsListener {
 
   @override
   Future<void> initService() async {
+    if (Config().configSchoolClientID != null) {
+      _userData = Storage().getUserDataForClientID(Config().configSchoolClientID);
 
-    _userData = Storage().userData;
-    
-    if (_userData == null) {
-      await _createUser();
-    } else if (_userData.uuid != null) {
-      await _loadUser();
+      if (_userData == null) {
+        await _createUser();
+      } else if (_userData.uuid != null) {
+        await _loadUser();
+      }
     }
   }
 
@@ -92,6 +94,8 @@ class User with Service implements NotificationsListener {
     }
     else if(name == AppLivecycle.notifyStateChanged && param == AppLifecycleState.resumed){
       //_loadUser();
+    } else if(name == Config.notifySchoolChanged) {
+      initService();
     }
   }
 
@@ -142,7 +146,7 @@ class User with Service implements NotificationsListener {
     _client = client = http.Client();
 
     String userUuid = _userData.uuid;
-    String url = (Config().userProfileUrl != null) ? "${Config().userProfileUrl}/profiles/$userUuid" : null;
+    String url = (Config().userProfileUrl != null) ? ((Config().useMultiTenant) ? "${Config().userProfileUrl}/profiles/$userUuid" : "${Config().userProfileUrl}/$userUuid") : null;
     Map<String, String> headers = {"Accept": "application/json","content-type":"application/json"};
     final response = await Network().put(url, body: json.encode(_userData.toJson()), headers: headers, client: _client, auth: NetworkAuth.App);
     String responseBody = response?.body;
@@ -158,7 +162,8 @@ class User with Service implements NotificationsListener {
       Map<String, dynamic> jsonData = AppJson.decode(responseBody);
       UserData update = UserData.fromJson(jsonData);
       if (update != null) {
-        Storage().userData = _userData = update;
+        _userData = update;
+        Storage().setUserDataForClientID(_userData, Config().configSchoolClientID);
         //_notifyUserUpdated();
       }
     }
@@ -169,7 +174,7 @@ class User with Service implements NotificationsListener {
   }
 
   Future<UserData> requestUser(String uuid) async {
-    String url = ((Config().userProfileUrl != null) && (uuid != null) && (0 < uuid.length)) ? '${Config().userProfileUrl}/profiles/$uuid' : null;
+    String url = ((Config().userProfileUrl != null) && (uuid != null) && (0 < uuid.length)) ? ((Config().useMultiTenant) ? "${Config().userProfileUrl}/profiles/$uuid" : "${Config().userProfileUrl}/$uuid") : null;
 
     final response = await Network().get(url, auth: NetworkAuth.App);
 
@@ -190,7 +195,7 @@ class User with Service implements NotificationsListener {
 
   Future<UserData> _requestCreateUser() async {
     try {
-      final response = await Network().post("${Config().userProfileUrl}/profiles", auth: NetworkAuth.App, timeout: 10);
+      final response = await Network().post(((Config().useMultiTenant) ? "${Config().userProfileUrl}/profiles" : "${Config().userProfileUrl}"), auth: NetworkAuth.App, timeout: 10);
       if ((response != null) && (response.statusCode == 200)) {
         String responseBody = response.body;
         Map<String, dynamic> jsonData = AppJson.decode(responseBody);
@@ -208,7 +213,7 @@ class User with Service implements NotificationsListener {
   Future<void> deleteUser() async{
     String userUuid = _userData?.uuid;
     if((Config().userProfileUrl != null) && (userUuid != null)) {
-      await Network().delete("${Config().userProfileUrl}/profiles/$userUuid", headers: {"Accept": "application/json", "content-type": "application/json"}, auth: NetworkAuth.App);
+      await Network().delete(((Config().useMultiTenant) ? "${Config().userProfileUrl}/profiles/$userUuid" : "${Config().userProfileUrl}/$userUuid"), headers: {"Accept": "application/json", "content-type": "application/json"}, auth: NetworkAuth.App);
 
       _clearStoredUserData();
       _notifyUserDeleted();
@@ -222,7 +227,7 @@ class User with Service implements NotificationsListener {
         }
       }
       if (_userData != null) {
-        Storage().userData = _userData;
+        Storage().setUserDataForClientID(_userData, Config().configSchoolClientID);
         _notifyUserUpdated();
       }
     }
@@ -250,7 +255,7 @@ class User with Service implements NotificationsListener {
     String currentUserUuid = _userData?.uuid;
     bool userSwitched = (currentUserUuid != null) && (currentUserUuid != applyUserUuid);
     if (userSwitched && _removeFCMToken(_userData)) {
-      String url = "${Config().userProfileUrl}/profiles/${_userData.uuid}";
+      String url = ((Config().useMultiTenant) ? "${Config().userProfileUrl}/profiles/${_userData.uuid}" : "${Config().userProfileUrl}/${_userData.uuid}");
       Map<String, String> headers = {"Accept": "application/json","content-type":"application/json"};
       String post = json.encode(_userData.toJson());
       Network().put(url, body: post, headers: headers, auth: NetworkAuth.App);
@@ -263,7 +268,7 @@ class User with Service implements NotificationsListener {
     }
 
     _userData = userData;
-    Storage().userData = _userData;
+    Storage().setUserDataForClientID(_userData, Config().configSchoolClientID);
     Storage().userRoles = userData?.roles;
 
     if (userSwitched) {
@@ -277,7 +282,7 @@ class User with Service implements NotificationsListener {
 
   void _clearStoredUserData(){
     _userData = null;
-    Storage().userData = null;
+    Storage().setUserDataForClientID(null, Config().configSchoolClientID);
     Auth().logout();
     Storage().onBoardingPassed = false;
   }
@@ -526,7 +531,7 @@ class User with Service implements NotificationsListener {
   set roles(Set<UserRole> userRoles) {
     if (_userData != null) {
       _userData.roles = userRoles;
-      Storage().userData = _userData;
+      Storage().setUserDataForClientID(_userData, Config().configSchoolClientID);
       Storage().userRoles = userRoles;
       _updateUser().then((_){
         _notifyUserRolesUpdated();

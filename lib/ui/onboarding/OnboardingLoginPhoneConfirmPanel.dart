@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:illinois/service/Auth.dart';
+import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Analytics.dart';
@@ -32,9 +34,10 @@ class OnboardingLoginPhoneConfirmPanel extends StatefulWidget with OnboardingPan
 
   final Map<String, dynamic> onboardingContext;
   final String phoneNumber;
+  final String verificationId;
   final ValueSetter<dynamic> onFinish;
 
-  OnboardingLoginPhoneConfirmPanel({this.onboardingContext, this.phoneNumber, this.onFinish});
+  OnboardingLoginPhoneConfirmPanel({this.onboardingContext, this.phoneNumber, this.verificationId, this.onFinish});
 
   @override
   _OnboardingLoginPhoneConfirmPanelState createState() => _OnboardingLoginPhoneConfirmPanelState();
@@ -59,6 +62,27 @@ class _OnboardingLoginPhoneConfirmPanelState extends State<OnboardingLoginPhoneC
         Localization().getStringEx(
             'panel.onboarding.confirm_phone.description.send', 'A one time code has been sent to %s. Enter your code below to continue.'),
         [maskedPhoneNumber]);
+
+    if (Config().useMultiTenant) {
+      AuthCredential authCredential = (widget.onboardingContext != null) ? widget.onboardingContext["authCredential"] : null;
+      if (authCredential != null) {
+        setState(() {
+          _isLoading = true;
+        });
+        Auth()
+            .firebaseSignInWithCredential(authCredential)
+            .then((success) => {
+          _onPhoneVerified(success)
+        }).whenComplete((){
+          if(mounted) {
+            setState(() {
+              _isLoading = false;
+            });
+          }
+        });
+      }
+    }
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: GestureDetector(
@@ -204,22 +228,40 @@ class _OnboardingLoginPhoneConfirmPanelState extends State<OnboardingLoginPhoneC
     if (AppString.isStringNotEmpty(_verificationErrorMsg)) {
       return;
     }
-    String phoneNumber = (widget.onboardingContext != null) ? widget.onboardingContext["phone"] : widget.phoneNumber;
+
+
     setState(() {
       _isLoading = true;
     });
 
-    Auth()
-        .validatePhoneNumber(_codeController.text, phoneNumber)
-        .then((success) => {
-          _onPhoneVerified(success)
-        }).whenComplete((){
-          if(mounted) {
-            setState(() {
-              _isLoading = false;
-            });
-          }
-    });
+    if (Config().useMultiTenant) {
+      String verificationId = (widget.onboardingContext != null) ? widget.onboardingContext["verificationId"] : widget.verificationId;
+      Auth()
+          .firebaseValidatePhoneNumber(_codeController.text, verificationId)
+          .then((success) => {
+        _onPhoneVerified(success)
+      }).whenComplete((){
+        if(mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      });
+    } else {
+      String phoneNumber = (widget.onboardingContext != null) ? widget.onboardingContext["phone"] : widget.phoneNumber;
+
+      Auth()
+          .validatePhoneNumber(_codeController.text, phoneNumber)
+          .then((success) => {
+        _onPhoneVerified(success)
+      }).whenComplete((){
+        if(mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      });
+    }
   }
 
   void _onPhoneVerified(bool success) {

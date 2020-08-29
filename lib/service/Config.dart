@@ -36,8 +36,8 @@ import 'package:path_provider/path_provider.dart';
 
 class Config with Service implements NotificationsListener {
 
-  static const String _configsAsset = "configs.json.enc";
-  static const String _configsAssetSchools = "schools-configs.json.enc";
+  static const String _configsAsset             = "configs.json.enc";
+  static const String _configsAssetSchools      = "schools-configs.json.enc";
 
   static const String notifyUpgradeRequired     = "edu.illinois.rokwire.config.upgrade.required";
   static const String notifyUpgradeAvailable    = "edu.illinois.rokwire.config.upgrade.available";
@@ -47,9 +47,9 @@ class Config with Service implements NotificationsListener {
 
   Map<String, dynamic> _config;
   Map<String, dynamic> _configAsset;
-  List<dynamic> _schoolConfigs;
-  String _assetClientID;
-  String _configSchoolClientID;
+  List<dynamic>        _schoolConfigs;
+  String               _assetClientID;
+  String               _configSchoolClientID;
   ConfigEnvironment    _configEnvironment;
   PackageInfo          _packageInfo;
   Directory            _appDocumentsDir; 
@@ -86,17 +86,9 @@ class Config with Service implements NotificationsListener {
 
   Map<String, dynamic> get settings                { return (_config != null) ? (_config['settings'] ?? {}) : {}; }
 
-  List<dynamic> get schoolConfigs {
-    return _schoolConfigs ?? (_config != null ? (_config['clients'] ?? []) : []);
-  }
-
-  String get rokmetroBaseURL {
-    return "services.rokmetro.com";
-  }
-
-  String get clientID               {
-    return _assetClientID ?? (_config != null ? (_config['clientID'] ?? null) : null);
-  }
+  List<dynamic> get schoolConfigs                  { return _schoolConfigs ?? (_config != null ? (_config['clients'] ?? []) : []); }
+  String get clientID                              { return _assetClientID ?? (_config != null ? (_config['clientID'] ?? null) : null); }
+  String get rokmetroBaseURL                       { return "services.rokmetro.com"; }
 
   String get shibbolethAuthTokenUrl { return otherUniversityServices['shibboleth_auth_token_url']; }  // "https://{shibboleth_client_id}:{shibboleth_client_secret}@shibboleth.illinois.edu/idp/profile/oidc/token"
   String get shibbolethOauthHostUrl { return otherUniversityServices['shibboleth_oauth_host_url']; }  // "shibboleth.illinois.edu"
@@ -141,6 +133,10 @@ class Config with Service implements NotificationsListener {
     return kReleaseMode ? (settings['refreshTimeout'] ?? 0) : 0;
   }
 
+  bool get allowResidentLogin {
+    return settings['allowResidentLogin'] ?? false;
+  }
+
   bool get useMultiTenant {
     return  _configSchoolClientID != "uiuc";
   }
@@ -163,7 +159,6 @@ class Config with Service implements NotificationsListener {
 
   @override
   Future<void> initService() async {
-
     _configEnvironment = configEnvFromString(Storage().configEnvironment) ??
       (kReleaseMode ? ConfigEnvironment.production : ConfigEnvironment.dev);
     _configSchoolClientID = Storage().configSchool;
@@ -205,7 +200,9 @@ class Config with Service implements NotificationsListener {
       String configsStr = (configsStrEnc != null) ? AESCrypt.decode(configsStrEnc) : null;
       Map<String, dynamic> configs = AppJson.decode(configsStr);
       String configTarget = configEnvToString(_configEnvironment);
-      _assetClientID = configs['clientID'];
+      if (configs != null) {
+        _assetClientID = configs['clientID'];
+      }
       return (configs != null) ? configs[configTarget] : null;
     } catch (e) {
       print(e.toString());
@@ -219,7 +216,9 @@ class Config with Service implements NotificationsListener {
           configsStrEnc) : null;
       Map<String, dynamic> configs = AppJson.decode(configsStr);
       String configTarget = configEnvToString(_configEnvironment);
-      _assetClientID = configs['clientID'];
+      if (configs != null) {
+        _assetClientID = configs['clientID'];
+      }
       return (configs != null) ? configs[configTarget] : null;
     } catch (e) {
       print(e.toString());
@@ -286,7 +285,6 @@ class Config with Service implements NotificationsListener {
   }
 
   Future<void> _init() async {
-    
     _config = await _loadFromFile(_configFile);
 
     if (_config == null) {
@@ -300,9 +298,15 @@ class Config with Service implements NotificationsListener {
         _config = (configString != null) ? _configFromJsonString(configString) : null;
         if (_config != null) {
           _schoolConfigs = _config['clients'];
-          NotificationService().notify(notifyConfigChanged, null);
           _checkUpgrade();
         }
+
+        if (_schoolConfigs == null) {
+          _schoolConfigs = [];
+        }
+        _schoolConfigs.insert(0, {"clientID" : "uiuc", "name" : "UIUC", "icon_url" : "https://upload.wikimedia.org/wikipedia/commons/7/7c/Illinois_Block_I.png"});
+        NotificationService().notify(notifyConfigChanged, null);
+
 //        _schoolConfigs = (configString != null) ? _schoolConfigsFromJsonString(configString) : null;
 //        NotificationService().notify(notifySchoolConfigsChanged, null);
 
@@ -341,7 +345,7 @@ class Config with Service implements NotificationsListener {
       }
     }
     else {
-//      _checkUpgrade();
+      _checkUpgrade();
       _updateFromNet();
     }
   }

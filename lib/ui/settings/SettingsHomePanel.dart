@@ -22,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:illinois/model/Health.dart';
+import 'package:illinois/service/AppNavigation.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Connectivity.dart';
 import 'package:illinois/service/AppDateTime.dart';
@@ -36,6 +37,7 @@ import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/ui/WebPanel.dart';
 import 'package:illinois/ui/health/Covid19QrCodePanel.dart';
+import 'package:illinois/ui/onboarding/OnboardingLoginPhoneVerifyPanel.dart';
 import 'package:illinois/ui/settings/SettingsRolesPanel.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
@@ -267,7 +269,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
             label: Localization().getStringEx("panel.settings.home.connect.not_logged_in.netid.title", "Connect your NetID"),
             onTap: _onConnectNetIdClicked),);
       }
-      /*else if (code == 'phone') {
+      else if (Config().allowResidentLogin && code == 'phone') {
           contentList.add(Padding(
             padding: EdgeInsets.all(10),
             child: new RichText(
@@ -289,7 +291,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
             border: Border.all(color: Styles().colors.surfaceAccent, width: 0),
             label: Localization().getStringEx("panel.settings.home.connect.not_logged_in.phone.title", "Verify Your Phone Number"),
             onTap: _onPhoneVerClicked),);
-      }*/
+      }
     }
 
     return Padding(
@@ -305,20 +307,20 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
     Auth().authenticateWithShibboleth();
   }
 
-  /*void _onPhoneVerClicked() {
+  void _onPhoneVerClicked() {
     Analytics.instance.logSelect(target: "Phone Verification");
     if (Connectivity().isNotOffline) {
       Navigator.push(context, CupertinoPageRoute(settings: RouteSettings(), builder: (context) => OnboardingLoginPhoneVerifyPanel(onFinish: _didPhoneVer,)));
     } else {
       AppAlert.showOfflineMessage(context, Localization().getStringEx('panel.settings.label.offline.phone_ver', 'Verify Your Phone Number is not available while offline.'));
     }
-  }*/
+  }
 
-  /*void _didPhoneVer(_) {
+  void _didPhoneVer(_) {
     Navigator.of(context)?.popUntil((Route route){
       return AppNavigation.routeRootWidget(route, context: context)?.runtimeType == widget.runtimeType;
     });
-  }*/
+  }
 
   // Customizations
 
@@ -439,13 +441,13 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
                 Text(Auth().phoneToken?.phone ?? "", style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 20)),
               ]))));
       }
-      /*else if (code == 'verify') {
+      else if (Config().allowResidentLogin && code == 'verify') {
         contentList.add(RibbonButton(
             borderRadius: borderRadius,
             border: Border.all(color: Styles().colors.surfaceAccent, width: 0),
             label: Localization().getStringEx("panel.settings.home.phone_ver.button.connect", "Verify Your Phone Number"),
             onTap: _onPhoneVerClicked));
-      }*/
+      }
       else if (code == 'disconnect') {
         contentList.add(RibbonButton(
             height: null,

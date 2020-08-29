@@ -46,7 +46,6 @@ class _OnboardingSchoolsSelectionPanelState extends State<OnboardingSchoolsPanel
   @override
   void initState() {
     _selectedSchool = Config().configSchoolClientID ?? null;
-    _onExploreClicked();
     super.initState();
   }
 
@@ -121,7 +120,6 @@ class _OnboardingSchoolsSelectionPanelState extends State<OnboardingSchoolsPanel
   Widget _buildSchoolButtons() {
     final double gridSpacing = 5;
     List<Widget> schoolButtonRows = [];
-    Config().schoolConfigs.insert(0, {"clientID" : "uiuc", "name" : "UIUC", "icon_url" : "https://upload.wikimedia.org/wikipedia/commons/7/7c/Illinois_Block_I.png"});
     if (AppCollection.isCollectionNotEmpty(Config().schoolConfigs)) {
       List<Widget> row = [];
       for (dynamic config in Config().schoolConfigs) {

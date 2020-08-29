@@ -48,7 +48,6 @@ import 'package:illinois/utils/Utils.dart';
 class Auth with Service implements NotificationsListener {
 
   static const String REDIRECT_URI = 'edu.illinois.covid://covid.illinois.edu/shib-auth';
-  // static const String REDIRECT_URI = 'edu.illinois.rokwire://rokwire.illinois.edu/shib-auth';
 
   static const String notifyStarted  = "edu.illinois.rokwire.auth.started";
   static const String notifyAuthTokenChanged  = "edu.illinois.rokwire.auth.authtoken.changed";
@@ -175,6 +174,9 @@ class Auth with Service implements NotificationsListener {
   }
 
   bool get isDebugManager {
+    if (Config().useMultiTenant) {
+      return isMemberOf('debug_manager');
+    }
     return authInfo?.userGroupMembership?.contains('urn:mace:uiuc.edu:urbana:authman:app-rokwire-service-policy-rokwire debug') ?? false;
   }
 
@@ -494,7 +496,11 @@ class Auth with Service implements NotificationsListener {
     AuthCredential _authCredential = PhoneAuthProvider.getCredential(
         verificationId: verificationId, smsCode: code);
 
-    AuthResult value = await _firebaseAuth.signInWithCredential(_authCredential);
+    return firebaseSignInWithCredential(_authCredential);
+  }
+
+  Future<bool> firebaseSignInWithCredential(AuthCredential cred) async {
+    AuthResult value = await _firebaseAuth.signInWithCredential(cred);
     // 1. Validate phone and code
     if(value.user == null) {
       _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginPhoneActionName);
@@ -504,7 +510,7 @@ class Auth with Service implements NotificationsListener {
     IdTokenResult token = await value.user.getIdToken(refresh: true);
     AuthToken newAuthToken = PhoneToken(phone: value.user.phoneNumber, idToken:token.token);
 
-    return signInPhoneNumber(newAuthToken, value.user.phoneNumber);
+    return signInPhoneNumber(newAuthToken);
   }
 
 
@@ -525,11 +531,12 @@ class Auth with Service implements NotificationsListener {
       return false;
     }
 
-    return signInPhoneNumber(newAuthToken, phoneNumber);
+    return signInPhoneNumber(newAuthToken);
   }
 
-  Future<bool> signInPhoneNumber(AuthToken newAuthToken, String phoneNumber) async {
+  Future<bool> signInPhoneNumber(AuthToken newAuthToken) async {
     String idToken;
+    String phoneNumber = newAuthToken is PhoneToken ? newAuthToken.phone : null;
 
     if (Config().useMultiTenant) {
       String rokwireToken = await _getRokwireAccessToken(idToken: newAuthToken?.idToken, saveToken: false);

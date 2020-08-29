@@ -71,6 +71,7 @@ class FlexUI with Service implements NotificationsListener {
       Auth.notifyCardChanged,
       Auth.notifyUserPiiDataChanged,
       AppLivecycle.notifyStateChanged,
+      Config.notifyConfigChanged,
     ]);
   }
 

@@ -70,7 +70,10 @@ class Assets with Service implements NotificationsListener {
 
   @override
   void createService() {
-    NotificationService().subscribe(this, AppLivecycle.notifyStateChanged);
+    NotificationService().subscribe(this, [
+      AppLivecycle.notifyStateChanged,
+      Config.notifyConfigChanged,
+    ]);
   }
 
   @override
@@ -163,6 +166,8 @@ class Assets with Service implements NotificationsListener {
   void onNotification(String name, dynamic param) {
     if (name == AppLivecycle.notifyStateChanged) {
       _onAppLivecycleStateChanged(param);
+    } else if (name == Config.notifyConfigChanged) {
+      initService();
     }
   }
 

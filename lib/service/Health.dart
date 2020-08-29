@@ -484,8 +484,15 @@ class Health with Service implements NotificationsListener {
       return rules?.symptoms?.groups;
     }
     else {
-      String url = "${Config().health2Url}/symptoms/symptoms.json";
-      Response response = await Network().get(url);
+      Response response;
+      if (Config().useMultiTenant) {
+        String url = "${Config().healthUrl}/covid19/symptoms/symptoms.json";
+        response = await Network().get(url, auth: NetworkAuth.User, analyticsAnonymous: true);
+      } else {
+        String url = "${Config().health2Url}/symptoms/symptoms.json";
+        response = await Network().get(url);
+      }
+
       String responseBody = (response?.statusCode == 200) ? response.body : null;
       //TMP:String responseBody = await rootBundle.loadString('assets/sample.health.symptoms.json');
       List<dynamic> responseJson = (responseBody != null) ? AppJson.decodeList(responseBody) : null;
@@ -1309,8 +1316,14 @@ class Health with Service implements NotificationsListener {
   }
 
   Future<List<HealthContactTraceRule>> _loadContactTraceRules({String countyId}) async {
-    String url = "https://rokwire-ios-beta.s3.us-east-2.amazonaws.com/Assets/covid19_contact_trace_rules.json";
-    Response response = await Network().get(url, auth: NetworkAuth.App);
+    Response response;
+    if (Config().useMultiTenant) {
+      String url = "${Config().healthUrl}/covid19/rules/county/$countyId/contact_trace.json";
+      response = await Network().get(url, auth: NetworkAuth.User, analyticsAnonymous: true);
+    } else {
+      String url = "https://rokwire-ios-beta.s3.us-east-2.amazonaws.com/Assets/covid19_contact_trace_rules.json";
+      response = await Network().get(url, auth: NetworkAuth.App);
+    }
     String responseBody = (response?.statusCode == 200) ? response.body : null;
     List<dynamic> responseJson = (responseBody != null) ? AppJson.decodeList(responseBody) : null; 
     return (responseJson != null) ? HealthContactTraceRule.listFromJson(responseJson) : null;
@@ -1375,8 +1388,14 @@ class Health with Service implements NotificationsListener {
   // Consolidated Rules
 
   Future<HealthRulesSet2> _loadRules2({String countyId}) async {
-    String url = "${Config().health2Url}/rules/county/$countyId/rules.json";
-    Response response = await Network().get(url);
+    Response response;
+    if (Config().useMultiTenant) {
+      String url = "${Config().healthUrl}/covid19/rules/county/$countyId/actions.json";
+      response = await Network().get(url, auth: NetworkAuth.User, analyticsAnonymous: true);
+    } else {
+      String url = "${Config().health2Url}/rules/county/$countyId/rules.json";
+      response = await Network().get(url);
+    }
     String responseBody = (response?.statusCode == 200) ? response.body : null;
 //TMP:String responseBody = await rootBundle.loadString('assets/sample.health.rules.json');
     Map<String, dynamic> responseJson = (responseBody != null) ? AppJson.decodeMap(responseBody) : null;

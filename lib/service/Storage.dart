@@ -118,15 +118,17 @@ class Storage with Service {
 
   static const String userKey  = 'user';
 
-  UserData get userData {
-    final String userToString = _getStringWithName(userKey);
+  UserData getUserDataForClientID(String clientID) {
+    String clientIDKey = clientID != null ? "-$clientID" : "";
+    final String userToString = _getStringWithName(userKey + clientIDKey);
     final Map<String, dynamic> userToJson = AppJson.decode(userToString);
     return (userToJson != null) ? UserData.fromJson(userToJson) : null;
   }
 
-  set userData(UserData user) {
+  void setUserDataForClientID(UserData user, String clientID) {
+    String clientIDKey = clientID != null ? "-$clientID" : "";
     String userToString = (user != null) ? json.encode(user) : null;
-    _setStringWithName(userKey, userToString);
+    _setStringWithName(userKey + clientIDKey, userToString);
   }
 
   /////////////
@@ -416,29 +418,29 @@ class Storage with Service {
   //////////////
   // Permanent subscription
 
-  static const String firebaseSubscriptionTopisKey  = 'firebase_subscription_topis';
+  static const String firebaseSubscriptionTopicsKey  = 'firebase_subscription_topics';
 
-  Set<String> get firebaseSubscriptionTopis {
-    List<String> topicsList = _getStringListWithName(firebaseSubscriptionTopisKey);
+  Set<String> get firebaseSubscriptionTopics {
+    List<String> topicsList = _getStringListWithName(firebaseSubscriptionTopicsKey);
     return (topicsList != null) ? Set.from(topicsList) : null;
   }
 
-  set firebaseSubscriptionTopis(Set<String> value) {
+  set firebaseSubscriptionTopics(Set<String> value) {
     List<String> topicsList = (value != null) ? List.from(value) : null;
-    _setStringListWithName(firebaseSubscriptionTopisKey, topicsList);
+    _setStringListWithName(firebaseSubscriptionTopicsKey, topicsList);
   }
 
   void addFirebaseSubscriptionTopic(String value) {
-    Set<String> topis = firebaseSubscriptionTopis ?? Set();
-    topis.add(value);
-    firebaseSubscriptionTopis = topis;
+    Set<String> topics = firebaseSubscriptionTopics ?? Set();
+    topics.add(value);
+    firebaseSubscriptionTopics = topics;
   }
 
   void removeFirebaseSubscriptionTopic(String value) {
-    Set<String> topis = firebaseSubscriptionTopis;
-    if (topis != null) {
-      topis.remove(value);
-      firebaseSubscriptionTopis = topis;
+    Set<String> topics = firebaseSubscriptionTopics;
+    if (topics != null) {
+      topics.remove(value);
+      firebaseSubscriptionTopics = topics;
     }
   }
 

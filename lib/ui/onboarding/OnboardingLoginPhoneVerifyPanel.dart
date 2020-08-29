@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:illinois/service/Auth.dart';
+import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Analytics.dart';
@@ -49,6 +51,7 @@ class _OnboardingLoginPhoneVerifyPanelState
   TextEditingController _phoneNumberController = TextEditingController();
   VerificationMethod _verificationMethod = VerificationMethod.sms;
   String _validationErrorMsg;
+  String _smsVerificationCode;
 
   bool _isLoading = false;
 
@@ -215,7 +218,7 @@ class _OnboardingLoginPhoneVerifyPanelState
         ));
   }
 
-  void _onTapNext() {
+  void _onTapNext() async {
     if (_isLoading) {
       return;
     }
@@ -232,19 +235,35 @@ class _OnboardingLoginPhoneVerifyPanelState
         kReleaseMode) {
       phoneNumber = '+1$phoneNumber';
     }
+    final FirebaseAuth _auth = FirebaseAuth.instance;
     setState(() {
       _isLoading = true;
     });
-    Auth()
-        .initiatePhoneNumber(phoneNumber, _verificationMethod)
-        .then((success) => {_onPhoneInitiated(phoneNumber, success)})
-        .whenComplete(() {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    });
+
+    if (Config().useMultiTenant) {
+      await _auth.verifyPhoneNumber(
+          phoneNumber: phoneNumber,
+          timeout: Duration(seconds: 5),
+          verificationCompleted: (authCredential) => _firebaseVerificationComplete(authCredential, context),
+          verificationFailed: (authException) => _firebaseVerificationFailed(authException, context),
+          codeAutoRetrievalTimeout: (verificationId) => _firebaseCodeAutoRetrievalTimeout(verificationId),
+          // called when the SMS code is sent
+          codeSent: (verificationId, [code]) => _firebaseSMSCodeSent(verificationId, [code], phoneNumber, context));
+      setState(() {
+        _isLoading = false;
+      });
+    } else {
+      Auth()
+          .initiatePhoneNumber(phoneNumber, _verificationMethod)
+          .then((success) => {_onPhoneInitiated(phoneNumber, success)})
+          .whenComplete(() {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      });
+    }
   }
 
   void _onMethodChanged(VerificationMethod method) {
@@ -270,6 +289,67 @@ class _OnboardingLoginPhoneVerifyPanelState
     else {
       Navigator.push(context, CupertinoPageRoute(builder: (context) => OnboardingLoginPhoneConfirmPanel(phoneNumber: phoneNumber, onFinish: widget.onFinish)));
     }
+  }
+
+  void _firebaseOnSignIn(bool success) {
+    if (success) {
+      if (widget.onFinish != null) {
+        widget.onFinish(widget);
+      }
+    } else {
+      setState(() {
+        _validationErrorMsg = Localization().getStringEx(
+            "panel.onboarding.verify_phone.validation.server_error.text",
+            "Please enter a valid phone number");
+      });
+    }
+  }
+
+  void _firebaseVerificationComplete(AuthCredential authCredential, BuildContext context) {
+    print("Retrieved sign-in code automatically");
+
+    if (widget.onboardingContext != null) {
+      widget.onboardingContext["authCredential"] = authCredential;
+      Onboarding().next(context, widget);
+    } else {
+      Auth()
+          .firebaseSignInWithCredential(authCredential)
+          .then((success) => {
+        _firebaseOnSignIn(success)
+      });
+    }
+  }
+
+  void _firebaseSMSCodeSent(String verificationId, List<int> code, String phoneNumber, BuildContext context) {
+    // set the verification code so that we can use it to log the user in
+    print("SMS CODE SENT IS $verificationId");
+    _smsVerificationCode = verificationId;
+    if (widget.onboardingContext != null) {
+      widget.onboardingContext["phone"] = phoneNumber;
+      widget.onboardingContext["verificationId"] = _smsVerificationCode;
+      Onboarding().next(context, widget);
+    } else {
+      Navigator.push(context, CupertinoPageRoute(builder: (context) =>
+          OnboardingLoginPhoneConfirmPanel(phoneNumber: phoneNumber,
+              verificationId: _smsVerificationCode,
+              onFinish: widget.onFinish)));
+    }
+  }
+
+  void _firebaseVerificationFailed(AuthException authException, BuildContext context) {
+    String error = authException.message;
+    print("Verification failed $error");
+    setState(() {
+      _validationErrorMsg = Localization().getStringEx(
+          "panel.onboarding.verify_phone.validation.server_error.text",
+          "Failed to send validation code");
+    });
+  }
+
+  void _firebaseCodeAutoRetrievalTimeout(String verificationId) {
+    // set the verification code so that we can use it to log the user in
+    print("Auto retrieval timed out. Verify code is: $verificationId");
+    _smsVerificationCode = verificationId;
   }
 
   void _validateUserInput() {
