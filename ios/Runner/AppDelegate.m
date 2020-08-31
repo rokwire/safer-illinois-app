@@ -21,12 +21,15 @@
 #import "AppDelegate.h"
 #import "GeneratedPluginRegistrant.h"
 #import "AppKeys.h"
-#import "MapView.h"
-#import "MapController.h"
-#import "MapDirectionsController.h"
-#import "MapLocationPickerController.h"
+//Disable GoogleMaps & MapsIndoors in Safer 2.4
+//#import "MapView.h"
+//#import "MapController.h"
+//#import "MapDirectionsController.h"
+//#import "MapLocationPickerController.h"
 #import "ExposurePlugin.h"
 #import "GalleryPlugin.h"
+#import "FlutterCompletion.h"
+
 
 #import "NSArray+InaTypedValue.h"
 #import "NSDictionary+InaTypedValue.h"
@@ -35,8 +38,9 @@
 #import "UIColor+InaParse.h"
 #import "Bluetooth+InaUtils.h"
 
-#import <GoogleMaps/GoogleMaps.h>
-#import <MapsIndoors/MapsIndoors.h>
+//Disable GoogleMaps & MapsIndoors in Safer 2.4
+//#import <GoogleMaps/GoogleMaps.h>
+//#import <MapsIndoors/MapsIndoors.h>
 #import <Firebase/Firebase.h>
 #import <ZXingObjC/ZXingObjC.h>
 #import <MicroBlink/Microblink.h>
@@ -123,14 +127,15 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 	[GeneratedPluginRegistrant registerWithRegistry:self];
 
 	// Setup MapPlugin
-	NSObject<FlutterPluginRegistrar>*registrar = [self registrarForPlugin:@"MapPlugin"];
-	MapViewFactory *factory = [[MapViewFactory alloc] initWithMessenger:registrar.messenger];
-	[registrar registerViewFactory:factory withId:@"mapview"];
+	// Disable GoogleMaps & MapsIndoors in Safer 2.4
+	// NSObject<FlutterPluginRegistrar>*registrar = [self registrarForPlugin:@"MapPlugin"];
+	// MapViewFactory *factory = [[MapViewFactory alloc] initWithMessenger:registrar.messenger];
+	// [registrar registerViewFactory:factory withId:@"mapview"];
 	
 	// Setup ExposurePlugin
 	[ExposurePlugin registerWithRegistrar:[self registrarForPlugin:@"ExposurePlugin"]];
 
-	// Setup ExposurePlugin
+	// Setup GalleryPlugin
 	[GalleryPlugin registerWithRegistrar:[self registrarForPlugin:@"GalleryPlugin"]];
 	
 	// Setup supported & preffered orientation
@@ -294,18 +299,20 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 	self.keys = [parameters inaDictForKey:@"keys"];
 	
 	// Initialize Google Maps SDK
-	NSString *googleMapsAPIKey = [_keys uiucConfigStringForPathKey:@"google.maps.api_key"];
+	// Disable GoogleMaps & MapsIndoors in Safer 2.4
+	/*NSString *googleMapsAPIKey = [_keys uiucConfigStringForPathKey:@"google.maps.api_key"];
 	if (0 < googleMapsAPIKey.length) {
 		[GMSServices provideAPIKey:googleMapsAPIKey];
-	}
+	}*/
 
 	// Initialize Maps Indoors SDK
-	NSString *mapsIndoorsAPIKey = [_keys uiucConfigStringForPathKey:@"mapsindoors.api_key"];
+	// Disable GoogleMaps & MapsIndoors in Safer 2.4
+	/*NSString *mapsIndoorsAPIKey = [_keys uiucConfigStringForPathKey:@"mapsindoors.api_key"];
 	if ((0 < mapsIndoorsAPIKey.length) && (0 < googleMapsAPIKey.length)) {
 		[MapsIndoors provideAPIKey:mapsIndoorsAPIKey googleAPIKey:googleMapsAPIKey];
-	}
+	}*/
 
-	// Initialize MicroBlink SDK
+	// Initialize MicroBlink SDK - done on first SDK launch
 	/*NSString *microBlinkLicenseKey = [_keys uiucConfigStringForPathKey:@"microblink.blink_id.license_key.ios"];
 	if (0 < microBlinkLicenseKey.length) {
 		@try {
@@ -319,24 +326,30 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 }
 
 - (void)handleDirectionsWithParameters:(NSDictionary*)parameters result:(FlutterResult)result {
-	MapDirectionsController *directionsController = [[MapDirectionsController alloc] initWithParameters:parameters completionHandler:^(id returnValue) {
+	// Disable GoogleMaps & MapsIndoors in Safer 2.4
+	/* MapDirectionsController *directionsController = [[MapDirectionsController alloc] initWithParameters:parameters completionHandler:^(id returnValue) {
 		result(returnValue);
 	}];
-	[self.navigationViewController pushViewController:directionsController animated:YES];
+	[self.navigationViewController pushViewController:directionsController animated:YES];*/
+	result(nil);
 }
 
 - (void)handlePickLocationWithParameters:(NSDictionary*)parameters result:(FlutterResult)result {
-	MapLocationPickerController *pickLocationController = [[MapLocationPickerController alloc] initWithParameters:parameters completionHandler:^(id returnValue) {
+	// Disable GoogleMaps & MapsIndoors in Safer 2.4
+	/*MapLocationPickerController *pickLocationController = [[MapLocationPickerController alloc] initWithParameters:parameters completionHandler:^(id returnValue) {
 		result(returnValue);
 	}];
-	[self.navigationViewController pushViewController:pickLocationController animated:YES];
+	[self.navigationViewController pushViewController:pickLocationController animated:YES];*/
+	result(nil);
 }
 
 - (void)handleMapWithParameters:(NSDictionary*)parameters result:(FlutterResult)result {
-	MapController *mapController = [[MapController alloc] initWithParameters:parameters completionHandler:^(id returnValue) {
+	// Disable GoogleMaps & MapsIndoors in Safer 2.4
+	/*MapController *mapController = [[MapController alloc] initWithParameters:parameters completionHandler:^(id returnValue) {
 		result(returnValue);
 	}];
-	[self.navigationViewController pushViewController:mapController animated:YES];
+	[self.navigationViewController pushViewController:mapController animated:YES];*/
+	result(nil);
 }
 
 - (void)handleShowNotificationWithParameters:(NSDictionary*)parameters result:(FlutterResult)result {
