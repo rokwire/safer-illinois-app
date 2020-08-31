@@ -118,6 +118,11 @@ class _Covid19DebugSymptomsPanelState extends State<Covid19DebugSymptomsPanel> {
   List<Widget> _buildGroup(HealthSymptomsGroup group) {
     List<Widget> result = <Widget>[];
     if (group.symptoms != null) {
+      result.add(Padding(padding: EdgeInsets.only(left: 15, top: 20, bottom: 10), child:
+        Row(children: <Widget>[
+          Text(group.name, style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.fillColorPrimary),),
+        ],)
+      ));
       for (HealthSymptom symptom in group.symptoms) {
         result.addAll(_buildSymptom(symptom));
       }

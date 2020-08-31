@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Fixed
  - Fixed CHANGELOG format. [#79](https://github.com/rokwire/safer-illinois-app/issues/79)
 
+### Changed
+ - New symptoms and rules. [#84](https://github.com/rokwire/safer-illinois-app/issues/84)
+
+
 ## [2.5.1] - 2020-08-28
 ### Fixed
 - Fixed crash in Android [#68](https://github.com/rokwire/safer-illinois-app/issues/68)
