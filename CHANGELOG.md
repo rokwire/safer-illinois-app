@@ -10,8 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Acknowledged "covid19ReportExposuresWhilePositive" settings flag for reporting red users after the date of becoming red. [#87](https://github.com/rokwire/safer-illinois-app/issues/87)
 
 ### Deleted
- - Unlink GoogleMaps and MapsIndoors plugins from iOS native side (unused). [#90](https://github.com/rokwire/safer-illinois-app/issues/90)
-
+ - Unlink GoogleMaps and MapsIndoors pods from iOS native side (unused). [#90](https://github.com/rokwire/safer-illinois-app/issues/90)
+ - Unlink Microblink pod from iOS native side (unused). [#92](https://github.com/rokwire/safer-illinois-app/issues/92)
 
 ## [2.4.3] - 2020-08-28
 ### Fixed
