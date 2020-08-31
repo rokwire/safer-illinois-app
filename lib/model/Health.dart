@@ -1865,14 +1865,16 @@ class HealthSymptom {
 class HealthSymptomsGroup {
   final String id;
   final String name;
+  final bool visible;
   final List<HealthSymptom> symptoms;
 
-  HealthSymptomsGroup({this.id, this.name, this.symptoms});
+  HealthSymptomsGroup({this.id, this.name, this.visible, this.symptoms});
 
   factory HealthSymptomsGroup.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthSymptomsGroup(
       id: json['id'],
       name: json['name'],
+      visible: json['visible'],
       symptoms: HealthSymptom.listFromJson(json['symptoms']),
     ) : null;
   }
@@ -1881,6 +1883,7 @@ class HealthSymptomsGroup {
     return {
       'id': id,
       'name': name,
+      'visible': visible,
       'symptoms': HealthSymptom.listToJson(symptoms),
     };
   }
