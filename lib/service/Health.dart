@@ -241,6 +241,7 @@ class Health with Service implements NotificationsListener {
       if (response?.statusCode == 200) {
         Covid19Status status = await Covid19Status.decryptedFromJson(AppJson.decodeMap(response.body), _userPrivateKey);
         _lastCovid19Status = status?.blob?.healthStatus;
+        _updateExposureReportTarget(status: status);
         return status;
       }
     }
