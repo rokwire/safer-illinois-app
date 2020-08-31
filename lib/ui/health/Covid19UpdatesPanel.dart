@@ -17,6 +17,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_html/style.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Assets.dart';
@@ -325,8 +326,7 @@ class _Covid19UpdatesPanelState extends State<Covid19UpdatesPanel> with TickerPr
     if(AppCollection.isCollectionNotEmpty(faqGeneralEntries)) {
       faqGeneralEntries.forEach((entry) {
         TextStyle titleStyle = TextStyle(fontSize: 16, fontFamily: Styles().fontFamilies.extraBold, color: Styles().colors.textBackground);
-        TextStyle descriptionStyle = TextStyle(fontSize: 16, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground);
-        widgets.add(_buildGeneralFaqEntry(entry, titleStyle, descriptionStyle));
+        widgets.add(_buildGeneralFaqEntry(entry, titleStyle));
       });
       widgets.add(Container(height: 32,));
       return Container(
@@ -376,9 +376,8 @@ class _Covid19UpdatesPanelState extends State<Covid19UpdatesPanel> with TickerPr
     if (AppCollection.isCollectionNotEmpty(questions)) {
       questions.forEach((Covid19FAQEntry entry) {
         TextStyle titleStyle = TextStyle(fontSize: 16, fontFamily: Styles().fontFamilies.bold, color: Styles().colors.fillColorPrimary);
-        TextStyle descriptionStyle = TextStyle(fontSize: 16, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground);
         Widget faqQuestionEntry = Container(
-          padding: EdgeInsets.only(top: 16, left: 16, right: 16), color: Styles().colors.white, child: _buildGeneralFaqEntry(entry, titleStyle, descriptionStyle,question: true),);
+          padding: EdgeInsets.only(top: 16, left: 16, right: 16), color: Styles().colors.white, child: _buildGeneralFaqEntry(entry, titleStyle, question: true),);
         widgets.add(faqQuestionEntry);
       });
     }
@@ -428,7 +427,7 @@ class _Covid19UpdatesPanelState extends State<Covid19UpdatesPanel> with TickerPr
     ])));
   }
 
-  Widget _buildGeneralFaqEntry(Covid19FAQEntry entry, TextStyle titleStyle, TextStyle descriptionStyle,{bool question = false}) {
+  Widget _buildGeneralFaqEntry(Covid19FAQEntry entry, TextStyle titleStyle,{bool question = false}) {
     if (entry == null) {
       return Container();
     }
@@ -441,7 +440,7 @@ class _Covid19UpdatesPanelState extends State<Covid19UpdatesPanel> with TickerPr
 //        Semantics(label: question? Localization().getStringEx('panel.covid19.faq.answer.label',"Answer: "): " . ", child:
       Padding(padding: EdgeInsets.only(top: 12),
         child: Html(data: AppString.getDefaultEmptyString(value: entry.description),
-          defaultTextStyle: descriptionStyle,
+          style: {"body":Style(fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground)},
           onLinkTap: (url) => _onLinkTap(url),),)
 //    ),
     ])));

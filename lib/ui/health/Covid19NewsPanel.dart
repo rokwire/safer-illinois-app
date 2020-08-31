@@ -17,6 +17,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_html/style.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Localization.dart';
@@ -104,7 +105,9 @@ class _Covid19NewsPanelState extends State<Covid19NewsPanel> implements Notifica
                       child: Html(
                         data: htmlContent,
                         onLinkTap: (url) => _onLinkTap(url),
-                        defaultTextStyle: TextStyle(fontSize: 16, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground),
+                        style: {
+                          "body": Style(fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground)
+                        },
                       ),
                     ),
                   )
