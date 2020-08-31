@@ -287,7 +287,7 @@ class Config with Service implements NotificationsListener {
 
   Future<void> _init() async {
     if (_schoolConfig == null || AppCollection.isCollectionEmpty(schoolConfigsList) || (useMultiTenant && _schoolConfig.configAsset == null)) {
-      _loadSchoolConfigsFromNet();
+      await _loadSchoolConfigsFromNet();
     }
 
     _config = await _loadFromFile(_configFile);

@@ -1097,7 +1097,7 @@ class Auth with Service implements NotificationsListener {
     else if (name == User.notifyUserDeleted) {
       logout();
     }
-    else if (name == Config.notifySchoolChanged) {
+    else if (name == Config.notifySchoolChanged && Config().schoolConfig == null) {
       logout();
     }
   }
