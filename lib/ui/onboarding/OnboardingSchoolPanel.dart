@@ -156,60 +156,6 @@ class _OnboardingSchoolsSelectionPanelState extends State<OnboardingSchoolsPanel
     }
 
     return Column(children: schoolButtonRows);
-
-//    return Column(children: <Widget>[
-//      Row(children: <Widget>[
-//        Flexible(flex: 1, child: RoleGridButton(
-//          title: Localization().getStringEx('panel.onboarding.schools.button.uiuc.title', 'UIUC'),
-//          hint: Localization().getStringEx('panel.onboarding.schools.button.uiuc.hint', ''),
-//          iconPath: 'images/icon-persona-student-normal.png',
-//          selectedIconPath: 'images/icon-persona-student-selected.png',
-//          selectedBackgroundColor: Styles().colors.fillColorSecondary,
-//          selected: (_selectedSchool == ConfigSchool.uiuc),
-//          data: ConfigSchool.uiuc,
-//          sortOrder: 1,
-//          onTap: _onSchoolGridButton,
-//        ),),
-//        Container(height: gridSpacing,),
-//        Flexible(flex: 1, child: RoleGridButton(
-//          title: Localization().getStringEx('panel.onboarding.schools.button.uic.title', 'UIC'),
-//          hint: Localization().getStringEx('panel.onboarding.schools.button.uic.hint', ''),
-//          iconPath: 'images/icon-persona-employee-normal.png',
-//          selectedIconPath: 'images/icon-persona-employee-selected.png',
-//          selectedBackgroundColor: Styles().colors.accentColor3,
-//          selected: (_selectedSchool == ConfigSchool.uic),
-//          data: ConfigSchool.uic,
-//          sortOrder: 4,
-//          onTap: _onSchoolGridButton,
-//        ),)
-//      ],),
-//      Row(children: <Widget>[
-//        Expanded(child: RoleGridButton(
-//          title: Localization().getStringEx('panel.onboarding.schools.button.uis.title', 'UIS'),
-//          hint: Localization().getStringEx('panel.onboarding.schools.button.uis.hint', ''),
-//          iconPath: 'images/icon-persona-resident-normal.png',
-//          selectedIconPath: 'images/icon-persona-resident-selected.png',
-//          selectedBackgroundColor: Styles().colors.fillColorPrimary,
-//          selectedTextColor: Colors.white,
-//          selected: (_selectedSchool == ConfigSchool.uis),
-//          data: ConfigSchool.uis,
-//          sortOrder: 7,
-//          onTap: _onSchoolGridButton,
-//        ),),
-////            Container(height: gridSpacing,),
-////            Flexible(flex: 1, child: RoleGridButton(
-////              title: Localization().getStringEx('panel.onboarding.schools.button.none.title', 'None'),
-////              hint: Localization().getStringEx('panel.onboarding.schools.button.uic.hint', ''),
-////              iconPath: 'images/icon-persona-resident-normal.png',
-////              selectedIconPath: 'images/icon-persona-resident-selected.png',
-////              selectedBackgroundColor: Styles().colors.accentColor2,
-////              selected: (_selectedSchool == ConfigSchool.none),
-////              data: ConfigSchool.none,
-////              sortOrder: 10,
-////              onTap: _onSchoolGridButton,
-////            ),)
-//      ],),
-//    ],);
   }
 
   void _onSchoolGridButton(RoleGridButton button) {
