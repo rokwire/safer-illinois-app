@@ -310,8 +310,8 @@ class Exposure with Service implements NotificationsListener {
         ExposureTEK tek;
         try { tek = ExposureTEK.fromJson((entry as Map)?.cast<String, dynamic>()); }
         catch(e) { print(e?.toString()); }
-        if (((minStamp == null) || (minStamp <= tek.timestamp)) &&
-            ((maxStamp == null) || (maxStamp >= tek.timestamp)))
+        if (((minStamp == null) || ((tek.timestamp != null) && (minStamp <= tek.timestamp))) &&
+            ((maxStamp == null) || ((tek.timestamp != null) && (maxStamp >= tek.timestamp))))
         {
           teks.add(tek);
         }
@@ -668,8 +668,21 @@ class Exposure with Service implements NotificationsListener {
 
   Future<int> checkReport() async {
 
-    if (!_serviceEnabled || (_reportTargetTimestamp == null) || (_reportTargetTimestamp == _lastReportTimestamp)) {
+    if (!_serviceEnabled) {
       return 0;
+    }
+    
+    bool reportWhilePositive = Config().settings['covid19ReportExposuresWhilePositive'] ?? false;
+
+    if (reportWhilePositive) {
+      if (Health().lastCovid19Status != kCovid19HealthStatusRed) {
+        return 0;
+      }
+    }
+    else {
+      if ((_reportTargetTimestamp == null) || (_reportTargetTimestamp <= _lastReportTimestamp)) {
+        return 0;
+      }
     }
 
     if (_checkingReport == true) {
@@ -679,14 +692,26 @@ class Exposure with Service implements NotificationsListener {
     Log.d('Exposure: Checking local TEKs to report...');
     _checkingReport = true;
 
-    int minTimestamp = getThresholdTimestamp(origin: _reportTargetTimestamp); // two weeks before the target;
-    if ((_lastReportTimestamp != null) && (minTimestamp < _lastReportTimestamp)) {
-      minTimestamp = _lastReportTimestamp;
+    int minTimestamp, maxTimestamp;
+    if (reportWhilePositive) {
+      minTimestamp = Storage().exposureLastReportedTimestamp;
+      if (minTimestamp == null) {
+        minTimestamp = Exposure.thresholdTimestamp;
+      }
+      maxTimestamp = Exposure._currentTimestamp;
     }
+    else {
+      minTimestamp = getThresholdTimestamp(origin: _reportTargetTimestamp); // two weeks before the target;
+      if ((_lastReportTimestamp != null) && (minTimestamp < _lastReportTimestamp)) {
+        minTimestamp = _lastReportTimestamp;
+      }
+      maxTimestamp = _reportTargetTimestamp;
+    }
+
 
     int result;
     await _expireTEK();
-    List<ExposureTEK> teks = await loadTeks(maxStamp: _reportTargetTimestamp, minStamp: minTimestamp);
+    List<ExposureTEK> teks = await loadTeks(minStamp: minTimestamp, maxStamp: maxTimestamp);
     if (teks == null) {
       Log.d('Failed to load local TEKs');
       result = null;
@@ -702,7 +727,7 @@ class Exposure with Service implements NotificationsListener {
     else {
       Log.d('Reported ${teks.length} local TEKs');
       Analytics().logHealth(action: Analytics.LogHealthReportExposuresAction);
-      Storage().exposureLastReportedTimestamp = _lastReportTimestamp = _reportTargetTimestamp;
+      Storage().exposureLastReportedTimestamp = _lastReportTimestamp = maxTimestamp;
       result = teks.length;
     }
 
