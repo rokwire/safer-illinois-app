@@ -343,6 +343,8 @@ class Config with Service implements NotificationsListener {
     if (_config != null) {
       _schoolConfigsList = _config['clients'];
       _checkUpgrade();
+    } else {
+      _schoolConfigsList = null;
     }
 
     if (_schoolConfigsList == null) {
