@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
  - New symptoms and rules. [#84](https://github.com/rokwire/safer-illinois-app/issues/84)
+ - Acknowledged "covid19ReportExposuresWhilePositive" settings flag for reporting red users after the date of becoming red. [#87](https://github.com/rokwire/safer-illinois-app/issues/87)
 
 
 ## [2.5.1] - 2020-08-28
