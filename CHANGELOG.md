@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  
 ### Changed
  - Prevent screenshots in Android. [#97](https://github.com/rokwire/safer-illinois-app/issues/97)
+- Acknowledged "covid19ExposureExpireDays" and "covid19ExposureActiveDays" in Exposure service [#100](https://github.com/rokwire/safer-illinois-app/issues/100)
 
 ### Changed
  - New symptoms and rules. [#84](https://github.com/rokwire/safer-illinois-app/issues/84)
