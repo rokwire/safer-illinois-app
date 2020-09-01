@@ -39,7 +39,6 @@ allprojects {
         flatDir {
             dirs '../lib'
         }
-        maven { url 'https://maven.microblink.com' }
         maven { url 'https://jitpack.io' }
     }
 }
