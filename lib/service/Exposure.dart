@@ -108,7 +108,6 @@ class Exposure with Service implements NotificationsListener {
   static const int _rpiRefreshInterval = (10 * 60 * 1000); // 10 min, in milisconds
   static const int _rpiCheckExposureBuffer = (30 * 60 * 1000); // 30 min as buffer time
   static const int _millisecondsInDay = 24 * 60 * 60 * 1000; // 1 day, in milliseconds
-  static const int _exposureExpireInterval = 14 * _millisecondsInDay; // 14 days, in milliseconds
   
   // Data
   final MethodChannel _methodChannel = const MethodChannel(_methodChannelName);
@@ -438,8 +437,12 @@ class Exposure with Service implements NotificationsListener {
   static int getThresholdTimestamp({int origin}) {
     // Two weeks before origin is standard thresold for checking exposures
     int midnightTimestamp = (origin ~/ _millisecondsInDay) * _millisecondsInDay;
-    int twoWeeksAgoMidnightTimestamp = midnightTimestamp - (14 * _millisecondsInDay);
+    int twoWeeksAgoMidnightTimestamp = midnightTimestamp - _exposureExpireInterval;
     return twoWeeksAgoMidnightTimestamp;
+  }
+
+  static int get _exposureExpireInterval {
+    return (Config().settings['covid19ExposureExpireDays'] ?? 14) * _millisecondsInDay;
   }
 
   // Local Exposures
@@ -672,7 +675,7 @@ class Exposure with Service implements NotificationsListener {
       return 0;
     }
     
-    bool reportWhilePositive = Config().settings['covid19ReportExposuresWhilePositive'] ?? false;
+    bool reportWhilePositive = Config().settings['covid19ExposureReportWhilePositive'] ?? false;
 
     if (reportWhilePositive) {
       if (Health().lastCovid19Status != kCovid19HealthStatusRed) {
