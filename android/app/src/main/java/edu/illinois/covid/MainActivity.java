@@ -17,9 +17,7 @@
 package edu.illinois.covid;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.Application;
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -38,37 +36,18 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
-import com.mapsindoors.mapssdk.MapsIndoors;
-import com.microblink.MicroblinkSDK;
-import com.microblink.entities.recognizers.Recognizer;
-import com.microblink.entities.recognizers.RecognizerBundle;
-import com.microblink.entities.recognizers.blinkid.generic.BlinkIdCombinedRecognizer;
-import com.microblink.entities.recognizers.blinkid.generic.DriverLicenseDetailedInfo;
-import com.microblink.entities.recognizers.blinkid.mrtd.MrzResult;
-import com.microblink.entities.recognizers.blinkid.passport.PassportRecognizer;
-import com.microblink.intent.IntentDataTransferMode;
-import com.microblink.recognition.InvalidLicenceKeyException;
-import com.microblink.results.date.Date;
-import com.microblink.uisettings.ActivityRunner;
-import com.microblink.uisettings.BlinkIdUISettings;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
 import edu.illinois.covid.exposure.ExposurePlugin;
 import edu.illinois.covid.gallery.GalleryPlugin;
-import edu.illinois.covid.maps.MapActivity;
-import edu.illinois.covid.maps.MapDirectionsActivity;
-import edu.illinois.covid.maps.MapViewFactory;
-import edu.illinois.covid.maps.MapPickLocationActivity;
 import io.flutter.app.FlutterActivity;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -94,16 +73,6 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
     private Set<Integer> supportedScreenOrientations;
 
     private RequestLocationCallback rlCallback;
-
-    // BlinkId
-    private static final int BLINK_ID_REQUEST_CODE = 3;
-    private BlinkIdCombinedRecognizer blinkIdCombinedRecognizer;
-    private PassportRecognizer blinkIdPassportRecognizer;
-    private RecognizerBundle blinkIdRecognizerBundle;
-    private boolean scanning = false;
-    private boolean microblinkInitialized = false;
-    private MethodChannel.Result scanMethodChannelResult;
-
     // Gallery Plugin
     private GalleryPlugin galleryPlugin;
 
@@ -167,10 +136,6 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
     private void registerPlugins() {
         GeneratedPluginRegistrant.registerWith(this);
 
-        // MapView
-        Registrar registrar = registrarFor("MapPlugin");
-        registrar.platformViewRegistry().registerViewFactory("mapview", new MapViewFactory(this, registrar));
-
         // ExposureNotifications
         Registrar exposureRegistrar = registrarFor("ExposurePlugin");
         exposurePlugin = ExposurePlugin.registerWith(exposureRegistrar);
@@ -199,61 +164,6 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
             return;
         }
         this.keys = keysMap;
-
-        // Google Maps cannot be initialized dynamically. Its api key has to be in AndroidManifest.xml file.
-        // Read it from config for MapsIndoors.
-        String googleMapsApiKey = Utils.Map.getValueFromPath(keysMap, "google.maps.api_key", null);
-
-        // MapsIndoors
-        String mapsIndoorsApiKey = Utils.Map.getValueFromPath(keysMap, "mapsindoors.api_key", null);
-        if (!Utils.Str.isEmpty(mapsIndoorsApiKey)) {
-            MapsIndoors.initialize(
-                    getApplicationContext(),
-                    mapsIndoorsApiKey
-            );
-        }
-        if (!Utils.Str.isEmpty(googleMapsApiKey)) {
-            MapsIndoors.setGoogleAPIKey(googleMapsApiKey);
-        }
-    }
-
-    private void launchMapsDirections(Object explore, Object options) {
-        Intent intent = new Intent(this, MapDirectionsActivity.class);
-        if (explore instanceof HashMap) {
-            HashMap singleExplore = (HashMap) explore;
-            intent.putExtra("explore", singleExplore);
-        } else if (explore instanceof ArrayList) {
-            ArrayList exploreList = (ArrayList) explore;
-            intent.putExtra("explore", exploreList);
-        }
-        HashMap optionsMap = (options instanceof HashMap) ? (HashMap) options : null;
-        if (optionsMap != null) {
-            intent.putExtra("options", optionsMap);
-        }
-        startActivity(intent);
-    }
-
-    private void launchMap(Object target, Object options, Object markers) {
-        HashMap targetMap = (target instanceof HashMap) ? (HashMap) target : null;
-        HashMap optionsMap = (options instanceof HashMap) ? (HashMap) options : null;
-        ArrayList<HashMap> markersValues = (markers instanceof  ArrayList) ? ( ArrayList<HashMap>) markers : null;
-        Intent intent = new Intent(this, MapActivity.class);
-        Bundle serializableExtras = new Bundle();
-        serializableExtras.putSerializable("target", targetMap);
-        serializableExtras.putSerializable("options", optionsMap);
-        serializableExtras.putSerializable("markers", markersValues);
-        intent.putExtras(serializableExtras);
-        startActivity(intent);
-    }
-
-    private void launchMapsLocationPick(Object exploreParam) {
-        HashMap explore = null;
-        if (exploreParam instanceof HashMap) {
-            explore = (HashMap) exploreParam;
-        }
-        Intent locationPickerIntent =  new Intent(this, MapPickLocationActivity.class);
-        locationPickerIntent.putExtra("explore", explore);
-        startActivityForResult(locationPickerIntent, Constants.SELECT_LOCATION_ACTIVITY_RESULT_CODE);
     }
 
     private void launchNotification(MethodCall methodCall) {
@@ -473,236 +383,6 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
         return barcodeImageData;
     }
 
-    //region BlinkId
-
-    private void handleMicroBlinkScan(Object params) {
-        if (!microblinkInitialized) {
-            initMicroblinkSdk();
-        }
-        if (!microblinkInitialized) {
-            Log.i(TAG, "Cannot start scanning! Microblink has not been initialized!");
-            if (scanMethodChannelResult != null) {
-                scanMethodChannelResult.success(null);
-            }
-            return;
-        }
-        if (scanning) {
-            Log.d(TAG, "Blink Id is currently scanning!");
-            if (scanMethodChannelResult != null) {
-                scanMethodChannelResult.success(null);
-            }
-        } else {
-            scanning = true;
-            List<String> recognizersList = Arrays.asList("combined", "passport"); // by default
-            if (params instanceof HashMap) {
-                HashMap paramsMap = (HashMap) params;
-                Object recognizersObject = paramsMap.get("recognizers");
-                if (recognizersObject instanceof List) {
-                    recognizersList = (List) recognizersObject;
-                }
-            }
-            List<Recognizer> recognizers = new ArrayList<>();
-            for (String recognizerParam : recognizersList) {
-                if ("combined".equals(recognizerParam)) {
-                    blinkIdCombinedRecognizer = new BlinkIdCombinedRecognizer();
-                    blinkIdCombinedRecognizer.setEncodeFaceImage(true);
-                    recognizers.add(blinkIdCombinedRecognizer);
-                } else if ("passport".equals(recognizerParam)) {
-                    blinkIdPassportRecognizer = new PassportRecognizer();
-                    blinkIdPassportRecognizer.setEncodeFaceImage(true);
-                    recognizers.add(blinkIdPassportRecognizer);
-                }
-            }
-            blinkIdRecognizerBundle = new RecognizerBundle(recognizers);
-            BlinkIdUISettings uiSettings = new BlinkIdUISettings(blinkIdRecognizerBundle);
-            ActivityRunner.startActivityForResult(this, BLINK_ID_REQUEST_CODE, uiSettings);
-        }
-    }
-
-    private void initMicroblinkSdk() {
-        String blinkIdLicenseKey = Utils.Map.getValueFromPath(keys, "microblink.blink_id.license_key", null);
-        if (Utils.Str.isEmpty(blinkIdLicenseKey)) {
-            Log.e(TAG, "Microblink BlinkId license key is missing from config keys!");
-            return;
-        }
-        try {
-            MicroblinkSDK.setLicenseKey(blinkIdLicenseKey, this);
-            MicroblinkSDK.setIntentDataTransferMode(IntentDataTransferMode.PERSISTED_OPTIMISED);
-            microblinkInitialized = true;
-        } catch (InvalidLicenceKeyException | NullPointerException e) {
-            Log.e(TAG, "Microblink failed to initialize:");
-            e.printStackTrace();
-        }
-    }
-
-    private void onBlinkIdScanSuccess(Intent data) {
-        Log.d(TAG, "onBlinkIdScanSuccess");
-        if (blinkIdRecognizerBundle != null) {
-            blinkIdRecognizerBundle.loadFromIntent(data);
-        }
-        if ((blinkIdCombinedRecognizer != null) && (blinkIdCombinedRecognizer.getResult().getResultState() == Recognizer.Result.State.Valid)) {
-            onCombinedRecognizerResult(blinkIdCombinedRecognizer.getResult());
-        } else if ((blinkIdPassportRecognizer != null) && (blinkIdPassportRecognizer.getResult().getResultState() == Recognizer.Result.State.Valid)) {
-            onPassportRecognizerResult(blinkIdPassportRecognizer.getResult());
-        }
-    }
-
-    private void onBlinkIdScanCanceled() {
-        Log.d(TAG, "onBlinkIdScanCanceled");
-        unInitBlinkId();
-        if (scanMethodChannelResult != null) {
-            scanMethodChannelResult.success(null);
-        }
-    }
-
-    private void onCombinedRecognizerResult(BlinkIdCombinedRecognizer.Result combinedRecognizerResult) {
-        Log.d(TAG, "onCombinedRecognizerResult");
-        HashMap<String, Object> scanResult = null;
-        if (combinedRecognizerResult != null) {
-            scanResult = new HashMap<>();
-
-            String base64FaceImage = Base64.encodeToString(combinedRecognizerResult.getEncodedFaceImage(), Base64.NO_WRAP);
-
-            scanResult.put("firstName", Utils.Str.nullIfEmpty(combinedRecognizerResult.getFirstName()));
-            scanResult.put("lastName", Utils.Str.nullIfEmpty(combinedRecognizerResult.getLastName()));
-            scanResult.put("fullName", Utils.Str.nullIfEmpty(combinedRecognizerResult.getFullName()));
-            scanResult.put("sex", Utils.Str.nullIfEmpty(combinedRecognizerResult.getSex()));
-            scanResult.put("address", Utils.Str.nullIfEmpty(combinedRecognizerResult.getAddress()));
-
-            scanResult.put("dateOfBirth", Utils.Str.nullIfEmpty(formatBlinkIdDate(combinedRecognizerResult.getDateOfBirth().getDate())));
-            scanResult.put("dateOfExpiry", Utils.Str.nullIfEmpty(formatBlinkIdDate(combinedRecognizerResult.getDateOfExpiry().getDate())));
-            scanResult.put("dateOfIssue", Utils.Str.nullIfEmpty(formatBlinkIdDate(combinedRecognizerResult.getDateOfIssue().getDate())));
-
-            scanResult.put("documentNumber", Utils.Str.nullIfEmpty(combinedRecognizerResult.getDocumentNumber()));
-
-            scanResult.put("placeOfBirth", Utils.Str.nullIfEmpty(combinedRecognizerResult.getPlaceOfBirth()));
-            scanResult.put("nationality", Utils.Str.nullIfEmpty(combinedRecognizerResult.getNationality()));
-            scanResult.put("race", Utils.Str.nullIfEmpty(combinedRecognizerResult.getRace()));
-            scanResult.put("religion", Utils.Str.nullIfEmpty(combinedRecognizerResult.getReligion()));
-            scanResult.put("profession", Utils.Str.nullIfEmpty(combinedRecognizerResult.getProfession()));
-            scanResult.put("maritalStatus", Utils.Str.nullIfEmpty(combinedRecognizerResult.getMaritalStatus()));
-            scanResult.put("residentialStatus", Utils.Str.nullIfEmpty(combinedRecognizerResult.getResidentialStatus()));
-            scanResult.put("employer", Utils.Str.nullIfEmpty(combinedRecognizerResult.getEmployer()));
-            scanResult.put("personalIdNumber", Utils.Str.nullIfEmpty(combinedRecognizerResult.getPersonalIdNumber()));
-            scanResult.put("documentAdditionalNumber", Utils.Str.nullIfEmpty(combinedRecognizerResult.getDocumentAdditionalNumber()));
-            scanResult.put("issuingAuthority", Utils.Str.nullIfEmpty(combinedRecognizerResult.getIssuingAuthority()));
-
-            scanResult.put("mrz", getScanRezultFromMrz(combinedRecognizerResult.getMrzResult()));
-            scanResult.put("driverLicenseDetailedInfo", getScanResultFromDriverLicenseDetailedInfo(combinedRecognizerResult.getDriverLicenseDetailedInfo()));
-
-            scanResult.put("base64FaceImage", Utils.Str.nullIfEmpty(base64FaceImage));
-        }
-        unInitBlinkId();
-        if (scanMethodChannelResult != null) {
-            scanMethodChannelResult.success(scanResult);
-        }
-    }
-
-    private void onPassportRecognizerResult(PassportRecognizer.Result passportRecognizerResult) {
-        Log.d(TAG, "onPassportRecognizerResult");
-        HashMap<String, Object> scanResult = null;
-        if (passportRecognizerResult != null) {
-            scanResult = new HashMap<>();
-
-            String base64FaceImage = Base64.encodeToString(passportRecognizerResult.getEncodedFaceImage(), Base64.NO_WRAP);
-
-            scanResult.put("firstName", null);
-            scanResult.put("lastName", null);
-            scanResult.put("fullName", null);
-            scanResult.put("sex", null);
-            scanResult.put("address", null);
-
-            scanResult.put("dateOfBirth", null);
-            scanResult.put("dateOfExpiry", null);
-            scanResult.put("dateOfIssue", null);
-
-            scanResult.put("documentNumber", null);
-
-            scanResult.put("placeOfBirth", null);
-            scanResult.put("nationality", null);
-            scanResult.put("race", null);
-            scanResult.put("religion", null);
-            scanResult.put("profession", null);
-            scanResult.put("maritalStatus", null);
-            scanResult.put("residentialStatus", null);
-            scanResult.put("employer", null);
-            scanResult.put("personalIdNumber", null);
-            scanResult.put("documentAdditionalNumber", null);
-            scanResult.put("issuingAuthority", null);
-
-            scanResult.put("mrz", getScanRezultFromMrz(passportRecognizerResult.getMrzResult()));
-            scanResult.put("driverLicenseDetailedInfo", null);
-
-            scanResult.put("base64FaceImage", Utils.Str.nullIfEmpty(base64FaceImage));
-        }
-        unInitBlinkId();
-        if (scanMethodChannelResult != null) {
-            scanMethodChannelResult.success(scanResult);
-        }
-    }
-
-    private HashMap<String, Object> getScanResultFromDriverLicenseDetailedInfo(DriverLicenseDetailedInfo driverLicenseDetailedInfo) {
-        HashMap<String, Object> scanResult = null;
-        if (driverLicenseDetailedInfo != null) {
-            scanResult = new HashMap<>();
-
-            scanResult.put("restrictions", Utils.Str.nullIfEmpty(driverLicenseDetailedInfo.getRestrictions()));
-            scanResult.put("endorsements", Utils.Str.nullIfEmpty(driverLicenseDetailedInfo.getEndorsements()));
-            scanResult.put("vehicleClass", Utils.Str.nullIfEmpty(driverLicenseDetailedInfo.getVehicleClass()));
-        }
-        return scanResult;
-    }
-
-    private HashMap<String, Object> getScanRezultFromMrz(MrzResult mrzRezult) {
-        HashMap<String, Object> scanResult = null;
-        if (mrzRezult != null) {
-            scanResult = new HashMap<>();
-
-            scanResult.put("primaryID", Utils.Str.nullIfEmpty(mrzRezult.getPrimaryId()));
-            scanResult.put("secondaryID", Utils.Str.nullIfEmpty(mrzRezult.getSecondaryId()));
-            scanResult.put("issuer", Utils.Str.nullIfEmpty(mrzRezult.getIssuer()));
-            scanResult.put("issuerName", Utils.Str.nullIfEmpty(mrzRezult.getIssuerName()));
-            scanResult.put("dateOfBirth", Utils.Str.nullIfEmpty(formatBlinkIdDate(mrzRezult.getDateOfBirth().getDate())));
-            scanResult.put("dateOfExpiry", Utils.Str.nullIfEmpty(formatBlinkIdDate(mrzRezult.getDateOfExpiry().getDate())));
-            scanResult.put("documentNumber", Utils.Str.nullIfEmpty(mrzRezult.getDocumentNumber()));
-            scanResult.put("nationality", Utils.Str.nullIfEmpty(mrzRezult.getNationality()));
-            scanResult.put("nationalityName", Utils.Str.nullIfEmpty(mrzRezult.getNationalityName()));
-            scanResult.put("gender", Utils.Str.nullIfEmpty(mrzRezult.getGender()));
-            scanResult.put("documentCode", Utils.Str.nullIfEmpty(mrzRezult.getDocumentCode()));
-            scanResult.put("alienNumber", Utils.Str.nullIfEmpty(mrzRezult.getAlienNumber()));
-            scanResult.put("applicationReceiptNumber", Utils.Str.nullIfEmpty(mrzRezult.getApplicationReceiptNumber()));
-            scanResult.put("immigrantCaseNumber", Utils.Str.nullIfEmpty(mrzRezult.getImmigrantCaseNumber()));
-
-            scanResult.put("opt1", Utils.Str.nullIfEmpty(mrzRezult.getOpt1()));
-            scanResult.put("opt2", Utils.Str.nullIfEmpty(mrzRezult.getOpt2()));
-            scanResult.put("mrzText", Utils.Str.nullIfEmpty(mrzRezult.getMrzText()));
-
-            scanResult.put("sanitizedOpt1", Utils.Str.nullIfEmpty(mrzRezult.getSanitizedOpt1()));
-            scanResult.put("sanitizedOpt2", Utils.Str.nullIfEmpty(mrzRezult.getSanitizedOpt2()));
-            scanResult.put("sanitizedNationality", Utils.Str.nullIfEmpty(mrzRezult.getSanitizedNationality()));
-            scanResult.put("sanitizedIssuer", Utils.Str.nullIfEmpty(mrzRezult.getSanitizedIssuer()));
-            scanResult.put("sanitizedDocumentCode", Utils.Str.nullIfEmpty(mrzRezult.getSanitizedDocumentCode()));
-            scanResult.put("sanitizedDocumentNumber", Utils.Str.nullIfEmpty(mrzRezult.getSanitizedDocumentNumber()));
-        }
-        return scanResult;
-    }
-
-    private void unInitBlinkId() {
-        blinkIdRecognizerBundle = null;
-        blinkIdCombinedRecognizer = null;
-        blinkIdPassportRecognizer = null;
-        scanning = false;
-    }
-
-    private String formatBlinkIdDate(Date date) {
-        if (date == null) {
-            return null;
-        }
-        return String.format(Locale.getDefault(), "%02d/%02d/%4d", date.getMonth(), date.getDay(), date.getYear());
-    }
-
-    //endregion
-
     private Object handleHealthRsiPrivateKey(Object params) {
         String userId = null;
         String value = null;
@@ -738,25 +418,6 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == Constants.SELECT_LOCATION_ACTIVITY_RESULT_CODE) {
-            if (resultCode == Activity.RESULT_OK) {
-                pickLocationResult.success(data != null ? data.getStringExtra("location") : null);
-            } else {
-                pickLocationResult.success(null);
-            }
-        } else if (requestCode == BLINK_ID_REQUEST_CODE) {
-            if (resultCode == Activity.RESULT_OK) {
-                onBlinkIdScanSuccess(data);
-            } else {
-                onBlinkIdScanCanceled();
-            }
-        }
-
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
     /**
      * Overrides {@link io.flutter.plugin.common.MethodChannel.MethodCallHandler} onMethodCall()
      */
@@ -771,22 +432,13 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
                     result.success(true);
                     break;
                 case Constants.MAP_DIRECTIONS_KEY:
-                    Object explore = methodCall.argument("explore");
-                    Object optionsObj = methodCall.argument("options");
-                    launchMapsDirections(explore, optionsObj);
-                    result.success(true);
+                    result.success(null);
                     break;
                 case Constants.MAP_PICK_LOCATION_KEY:
-                    pickLocationResult = result;
-                    launchMapsLocationPick(methodCall.argument("explore"));
-                    // Result is called on latter step
+                    result.success(null);
                     break;
                 case Constants.MAP_KEY:
-                    Object target = methodCall.argument("target");
-                    Object options = methodCall.argument("options");
-                    Object markers = methodCall.argument("markers");
-                    launchMap(target, options,markers);
-                    result.success(true);
+                    result.success(null);
                     break;
                 case Constants.SHOW_NOTIFICATION_KEY:
                     launchNotification(methodCall);
@@ -798,9 +450,7 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
                     result.success(false);
                     break;
                 case Constants.APP_MICRO_BLINK_SCAN_KEY:
-                    scanMethodChannelResult = result;
-                    handleMicroBlinkScan(methodCall.arguments);
-                    // Result is called on latter step
+                    result.success(null);
                     break;
                 case Constants.APP_ENABLED_ORIENTATIONS_KEY:
                     Object orientations = methodCall.argument("orientations");
