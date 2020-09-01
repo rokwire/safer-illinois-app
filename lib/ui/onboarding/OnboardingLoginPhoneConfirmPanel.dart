@@ -56,7 +56,7 @@ class _OnboardingLoginPhoneConfirmPanelState extends State<OnboardingLoginPhoneC
 
   @override
   Widget build(BuildContext context) {
-    String phoneNumber = Auth().phoneToken?.phone;
+    String phoneNumber = (widget.onboardingContext != null) ? widget.onboardingContext["phone"] : null;
     String maskedPhoneNumber = AppString.getMaskedPhoneNumber(phoneNumber);
     String description = sprintf(
         Localization().getStringEx(
