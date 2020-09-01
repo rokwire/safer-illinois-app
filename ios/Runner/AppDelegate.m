@@ -214,6 +214,16 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 	NSLog(@"applicationDidEnterBackground:");
 }
 
+- (void)applicationWillResignActive:(UIApplication *)application{
+    NSLog(@"applicationWillResignActive:");
+    self.window.hidden = YES;
+}
+
+- (void)applicationDidBecomeActive:(UIApplication *)application{
+    NSLog(@"applicationDidBecomeActive:");
+    self.window.hidden = NO;
+}
+
 #pragma mark Launch Screen
 
 - (void)setupLaunchScreen {
