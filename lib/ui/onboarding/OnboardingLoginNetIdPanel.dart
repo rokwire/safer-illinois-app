@@ -17,6 +17,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:illinois/service/Auth.dart';
+import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/FlexUI.dart';
 import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Localization.dart';
@@ -72,7 +73,7 @@ class _OnboardingLoginNetIdPanelState extends State<OnboardingLoginNetIdPanel> i
                         ),
                       ],
                     ),
-                    Container(margin: EdgeInsets.only(top: 80, bottom: 20),child: Center(child: Image.asset('images/icon-orange-i.png', excludeFromSemantics: true,))),
+                    Container(margin: EdgeInsets.only(top: 80, bottom: 20),child: Center(child: Image.network(Config().schoolConfig?.iconURL, height: 100, excludeFromSemantics: true,))),
                     Align(
                       alignment: Alignment.topLeft,
                       child: OnboardingBackButton(padding: EdgeInsets.only(top: 24, left:12.5, right: 20, bottom: 20),

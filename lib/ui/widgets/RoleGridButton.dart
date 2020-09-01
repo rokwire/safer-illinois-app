@@ -102,9 +102,9 @@ class RoleGridButton extends StatelessWidget {
 
   Widget _getImage() {
     if (this.selected) {
-      return Uri.parse(this.selectedIconPath).isAbsolute ? Image.network(this.selectedIconPath) : Image.asset(this.selectedIconPath);
+      return Uri.parse(this.selectedIconPath).isAbsolute ? Image.network(this.selectedIconPath, height: 100,) : Image.asset(this.selectedIconPath);
     } else {
-      return Uri.parse(this.iconPath).isAbsolute ? Image.network(this.iconPath) : Image.asset(this.iconPath);
+      return Uri.parse(this.iconPath).isAbsolute ? Image.network(this.iconPath, height: 100,) : Image.asset(this.iconPath);
     }
   }
 }

@@ -414,14 +414,30 @@ class Auth with Service implements NotificationsListener {
   }
 
   Future<AuthToken> _loadShibbolethAuthTokenWithCode(String code) async{
-    String tokenUriStr = Config().shibbolethAuthTokenUrl
-        .replaceAll("{shibboleth_client_id}", Config().shibbolethClientId)
-        .replaceAll("{shibboleth_client_secret}", Config().shibbolethClientSecret);
-    Map<String,dynamic> bodyData = {
-      'code': code,
-      'grant_type': 'authorization_code',
-      'redirect_uri': REDIRECT_URI,
-    };
+    String tokenUriStr;
+    Map<String,dynamic> bodyData;
+
+    if (Config().shibbolethAuthTokenUrl.contains("{shibboleth_client_id}")) {
+      tokenUriStr = Config().shibbolethAuthTokenUrl
+          .replaceAll("{shibboleth_client_id}", Config().shibbolethClientId)
+          .replaceAll("{shibboleth_client_secret}", Config().shibbolethClientSecret);
+      bodyData = {
+        'code': code,
+        'grant_type': 'authorization_code',
+        'redirect_uri': REDIRECT_URI,
+      };
+    } else {
+      tokenUriStr = Config().shibbolethAuthTokenUrl;
+      bodyData = {
+        'code': code,
+        'grant_type': 'authorization_code',
+        'redirect_uri': REDIRECT_URI,
+        'client_id': Config().shibbolethClientId,
+        'client_secret': Config().shibbolethClientSecret,
+      };
+    }
+
+
     Http.Response response;
     try {
       response = await Network().post(tokenUriStr,body: bodyData);
