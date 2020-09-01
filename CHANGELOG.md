@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ## Fixed
  - Fixed CHANGELOG format. [#79](https://github.com/rokwire/safer-illinois-app/issues/79)
+ 
+### Changed
+ - Prevent screenshots in Android. [#97](https://github.com/rokwire/safer-illinois-app/issues/97)
 
 ### Changed
  - New symptoms and rules. [#84](https://github.com/rokwire/safer-illinois-app/issues/84)
