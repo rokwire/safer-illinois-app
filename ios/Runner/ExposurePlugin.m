@@ -60,25 +60,12 @@ static NSString* const kExposureRPIParamName                 = @"rpi";
 static NSString* const kExposureDurationParamName            = @"duration";
 static NSString* const kExposureRSSIParamName                = @"rssi";
 
-static NSString* const kExposureTimeoutIntervalSettingName    = @"covid19ExposureServiceTimeoutInterval";
-static NSString* const kExposurePingIntervalSettingName       = @"covid19ExposureServicePingInterval";
-static NSString* const kExposureScanWindowIntervalSettingName = @"covid19ExposureServiceScanWindowInterval";
-static NSString* const kExposureScanWaitIntervalSettingName   = @"covid19ExposureServiceScanWaitInterval";
-static NSString* const kExposureMinDurationSettingName        = @"covid19ExposureServiceLogMinDuration";
-static NSString* const kExposureMinRssiSettingName            = @"covid19ExposureServiceMinRSSI";
-
 static NSInteger const kRPIRefreshInterval    = (10 * 60);     // 10 mins
 static NSInteger const kTEKRollingPeriod      = (24 * 60 * 60) / kRPIRefreshInterval; // = 144 (kRPIRefreshInterval * kTEKRollingPeriod = 24 hours)
 
-static NSTimeInterval const kExposureTimeoutInterval         = 300;     // 5 minutes
-static NSTimeInterval const kExposurePingInterval            =  60;     // 1 minute
-static NSTimeInterval const kExposureScanWindowInterval      =   4;     // 4 seconds of scanning
-static NSTimeInterval const kExposureScanWaitInterval        = 150;     // 2.5 minutes of latent period
 static NSTimeInterval const kExposureNotifyTickInterval      =   1;     // 1 sec
-static NSTimeInterval const kExposureMinDuration             =   0;     // 0 minute
 
 static int const kNoRssi = 127;
-static int const kMinRssi = -50;
 
 ////////////////////////////////////
 // ExposureRecord
@@ -863,12 +850,12 @@ static ExposurePlugin *g_Instance = nil;
 #pragma mark Settings
 
 - (void)initSettings:(NSDictionary*)settings {
-	_exposureTimeoutInterval    = (settings != nil) ? [settings inaDoubleForKey:kExposureTimeoutIntervalSettingName    defaults:kExposureTimeoutInterval]    : kExposureTimeoutInterval;
-	_exposurePingInterval       = (settings != nil) ? [settings inaDoubleForKey:kExposurePingIntervalSettingName       defaults:kExposurePingInterval]       : kExposurePingInterval;
-	_exposureScanWindowInterval = (settings != nil) ? [settings inaDoubleForKey:kExposureScanWindowIntervalSettingName defaults:kExposureScanWindowInterval] : kExposureScanWindowInterval;
-	_exposureScanWaitInterval   = (settings != nil) ? [settings inaDoubleForKey:kExposureScanWaitIntervalSettingName   defaults:kExposureScanWaitInterval]   : kExposureScanWaitInterval;
-	_exposureMinDuration        = (settings != nil) ? [settings inaDoubleForKey:kExposureMinDurationSettingName        defaults:kExposureMinDuration]        : kExposureMinDuration;
-	_exposureMinRssi            = (settings != nil) ? [settings inaIntForKey:   kExposureMinRssiSettingName            defaults:kMinRssi]                    : kMinRssi;
+	_exposureTimeoutInterval    = (settings != nil) ? [settings inaDoubleForKey:@"covid19ExposureServiceTimeoutInterval"    defaults:300] : 300; // 5 minutes
+	_exposurePingInterval       = (settings != nil) ? [settings inaDoubleForKey:@"covid19ExposureServicePingInterval"       defaults: 60] :  60; // 1 minute
+	_exposureScanWindowInterval = (settings != nil) ? [settings inaDoubleForKey:@"covid19ExposureServiceScanWindowInterval" defaults:  4] :   4; // 4 seconds of scanning
+	_exposureScanWaitInterval   = (settings != nil) ? [settings inaDoubleForKey:@"covid19ExposureServiceScanWaitInterval"   defaults:150] : 150; // 2.5 minutes of latent period
+	_exposureMinDuration        = (settings != nil) ? [settings inaDoubleForKey:@"covid19ExposureServiceLogMinDuration"     defaults:  0] :   0; // 0 seconds
+	_exposureMinRssi            = (settings != nil) ? [settings inaIntForKey:   @"covid19ExposureServiceMinRSSI"            defaults:-90] : -90;
 }
 
 #pragma mark RPI
