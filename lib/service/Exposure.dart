@@ -667,23 +667,29 @@ class Exposure with Service implements NotificationsListener {
       checkReport();
     }
   }
-  
 
   Future<int> checkReport() async {
 
     if (!_serviceEnabled) {
       return 0;
     }
-    
-    bool reportWhilePositive = Config().settings['covid19ExposureReportWhilePositive'] ?? false;
 
-    if (reportWhilePositive) {
-      if (Health().lastCovid19Status != kCovid19HealthStatusRed) {
+    dynamic exposureActiveDays = Config().settings['covid19ExposureActiveDays'] ?? 0;
+    int activeInterval = (exposureActiveDays is int) ? (exposureActiveDays * _millisecondsInDay) : null;
+
+    if (activeInterval != null) {
+      
+      if (_reportTargetTimestamp == null) {
+        return 0;
+      }
+      else if (_shouldStopReport(activeInterval: activeInterval)) {
+        Storage().exposureReportTargetTimestamp = _reportTargetTimestamp = null;
+        await _expireTEK(); 
         return 0;
       }
     }
     else {
-      if ((_reportTargetTimestamp == null) || (_reportTargetTimestamp <= _lastReportTimestamp)) {
+      if (Health().lastCovid19Status != kCovid19HealthStatusRed) {
         return 0;
       }
     }
@@ -695,25 +701,26 @@ class Exposure with Service implements NotificationsListener {
     Log.d('Exposure: Checking local TEKs to report...');
     _checkingReport = true;
 
-    int minTimestamp, maxTimestamp;
-    if (reportWhilePositive) {
-      minTimestamp = Storage().exposureLastReportedTimestamp;
-      if (minTimestamp == null) {
-        minTimestamp = Exposure.thresholdTimestamp;
-      }
-      maxTimestamp = Exposure._currentTimestamp;
-    }
-    else {
+    int minTimestamp, maxTimestamp, currentTimestamp = _currentTimestamp;
+    if (activeInterval != null) {
       minTimestamp = getThresholdTimestamp(origin: _reportTargetTimestamp); // two weeks before the target;
       if ((_lastReportTimestamp != null) && (minTimestamp < _lastReportTimestamp)) {
-        minTimestamp = _lastReportTimestamp;
+        minTimestamp = _lastReportTimestamp; // not earlier since the last report
       }
-      maxTimestamp = _reportTargetTimestamp;
+      maxTimestamp = _reportTargetTimestamp + activeInterval;
+      if (currentTimestamp < maxTimestamp) {
+        maxTimestamp = currentTimestamp;    // not later than now
+      }
+    }
+    else {
+      int thresholdTimestamp = getThresholdTimestamp(origin: currentTimestamp);
+      minTimestamp = ((_lastReportTimestamp != null) && (thresholdTimestamp < _lastReportTimestamp)) ?
+        _lastReportTimestamp : thresholdTimestamp; // not earlier since thresholdTimestamp (two weeks before now)
+      maxTimestamp = currentTimestamp;
     }
 
 
     int result;
-    await _expireTEK();
     List<ExposureTEK> teks = await loadTeks(minStamp: minTimestamp, maxStamp: maxTimestamp);
     if (teks == null) {
       Log.d('Failed to load local TEKs');
@@ -721,6 +728,7 @@ class Exposure with Service implements NotificationsListener {
     }
     else if (teks.isEmpty) {
       Log.d('No local TEKs newer than $_reportTargetTimestamp.');
+      Storage().exposureLastReportedTimestamp = _lastReportTimestamp = maxTimestamp;
       result = 0;
     }
     else if (!await reportTEKs(teks)) {
@@ -734,8 +742,30 @@ class Exposure with Service implements NotificationsListener {
       result = teks.length;
     }
 
+    // Check again after processing
+    if (_shouldStopReport(activeInterval: activeInterval)) {
+      Storage().exposureReportTargetTimestamp = _reportTargetTimestamp = null;
+      await _expireTEK(); 
+    }
+      
     _checkingReport = null;
     return result;
+  }
+
+  bool _shouldStopReport({int activeInterval} ) {
+    if ((_reportTargetTimestamp != null) && (activeInterval != null) && (_lastReportTimestamp != null)) {
+
+      // If last report is after the active threshold
+      if ((_reportTargetTimestamp + activeInterval) <= _lastReportTimestamp) {
+        return true;
+      }
+
+      // If user status is not red any more and the last report is after the report target, i.e. we have reported some TEKs
+      if ((Health().lastCovid19Status != kCovid19HealthStatusRed) && (_reportTargetTimestamp < _lastReportTimestamp)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   // Monitor
