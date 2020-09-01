@@ -130,6 +130,7 @@ static int const kNoRssi = 127;
 	NSTimeInterval                                   _exposureScanWaitInterval;
 	NSTimeInterval                                   _exposureMinDuration;
 	int                                              _exposureMinRssi;
+	int                                              _exposureExpireDays;
 }
 @property (nonatomic, readonly) int                exposureMinRssi;
 @property (nonatomic) UIBackgroundTaskIdentifier   bgTaskId;
@@ -855,6 +856,7 @@ static ExposurePlugin *g_Instance = nil;
 	_exposureScanWindowInterval = (settings != nil) ? [settings inaDoubleForKey:@"covid19ExposureServiceScanWindowInterval" defaults:  4] :   4; // 4 seconds of scanning
 	_exposureScanWaitInterval   = (settings != nil) ? [settings inaDoubleForKey:@"covid19ExposureServiceScanWaitInterval"   defaults:150] : 150; // 2.5 minutes of latent period
 	_exposureMinDuration        = (settings != nil) ? [settings inaDoubleForKey:@"covid19ExposureServiceLogMinDuration"     defaults:  0] :   0; // 0 seconds
+	_exposureExpireDays         = (settings != nil) ? [settings inaIntForKey:   @"covid19ExposureExpireDays"                defaults: 14] :  14; // 14 days
 	_exposureMinRssi            = (settings != nil) ? [settings inaIntForKey:   @"covid19ExposureServiceMinRSSI"            defaults:-90] : -90;
 }
 
@@ -921,8 +923,8 @@ static ExposurePlugin *g_Instance = nil;
 			tekRecord = [[TEKRecord alloc] initWithTEK:tek expire:_iExpire];
 			[_teks setObject:tekRecord forKey:[NSNumber numberWithInt: _i]];
 
-			if (_teks.count > 15) { // [0 - 14] gives 15 entries alltogether
-				uint32_t thresholdI = _i - 14 * kTEKRollingPeriod;
+			if (_teks.count > (_exposureExpireDays + 1)) { // [0 - 14] gives 15 entries alltogether
+				uint32_t thresholdI = _i - _exposureExpireDays * kTEKRollingPeriod;
 				for (NSNumber *tekI in _teks.allKeys) {
 					if ([tekI intValue] < thresholdI) {
 						[_teks removeObjectForKey:tekI];
