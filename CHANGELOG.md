@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Changed
  - Prevent screenshots. [#97](https://github.com/rokwire/safer-illinois-app/issues/97)
+ - Acknowledged "covid19ExposureExpireDays" and "covid19ExposureActiveDays" in Exposure service [#100](https://github.com/rokwire/safer-illinois-app/issues/100)
 
 ### Deleted
  - Remove GoogleMaps, MapsIndoors and MicroBlink Android native side (unused). [#95](https://github.com/rokwire/safer-illinois-app/issues/95)
