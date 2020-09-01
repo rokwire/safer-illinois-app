@@ -138,6 +138,7 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler {
     private int exposureProcessIntervalInMillis;
     private int exposureMinDurationInMillis;
     private int exposureMinRssi;
+    private int exposureExpireDays;
 
     // Helper constants
     private static final String TEK_MAP_KEY = "tek";
@@ -252,12 +253,12 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler {
             tek.put(bytes, expireIntervalNumber);
             i_TEK_map.put(i, tek); // putting the TEK map as a value for the current i
 
-            // handling more than 14 i values in the map
-            if (i_TEK_map.size() >= 14) {
+            // handling more than 14 (exposureExpireDays) i values in the map
+            if (i_TEK_map.size() >= exposureExpireDays) {
                 Iterator<Integer> it = i_TEK_map.keySet().iterator();
                 while (it.hasNext()) {
                     int key = it.next();
-                    if (key <= i - 14)
+                    if (key <= i - exposureExpireDays)
                         it.remove();
                 }
             }
@@ -400,6 +401,9 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler {
 
         // Exposure Min RSSI
         this.exposureMinRssi = Utils.Map.getValueFromPath(settings, "covid19ExposureServiceMinRSSI", Constants.EXPOSURE_MIN_RSSI_VALUE);
+
+        // Exposure Expire Days
+        this.exposureExpireDays = Utils.Map.getValueFromPath(settings, "covid19ExposureExpireDays", 14);
     }
 
     //endregion
