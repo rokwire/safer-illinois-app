@@ -107,6 +107,142 @@
 						"status": "PCR.invalid"
 					}
 				]
+			},
+			{
+				"test_type": "COVID-19 PCR",
+				"category": "PCR",
+				"results": [
+					{
+						"result": "POSITIVE",
+						"category": "PCR.positive",
+						"status": "PCR.positive"
+					},
+					{
+						"result": "NEGATIVE",
+						"category": "PCR.negative",
+						"status": "PCR.negative"
+					},
+					{
+						"result": "INVALID",
+						"category": "PCR.invalid",
+						"status": "PCR.invalid"
+					}
+				]
+			},
+			{
+				"test_type": "SARS-COV-2 BY PCR",
+				"category": "PCR",
+				"results": [
+					{
+						"result": "DETECTED",
+						"category": "PCR.positive",
+						"status": "PCR.positive"
+					},
+					{
+						"result": "NOT DETECTED",
+						"category": "PCR.negative",
+						"status": "PCR.negative"
+					},
+					{
+						"result": "INVALID RESULT",
+						"category": "PCR.invalid",
+						"status": "PCR.invalid"
+					},
+					{
+						"result": "INDETERMINATE",
+						"category": "PCR.invalid",
+						"status": "PCR.invalid"
+					}
+				]
+			},
+			{
+				"test_type": "COVID19 BY RRT/PCR (IDPH/MDHHS STATE HEALTH LAB)",
+				"category": "PCR",
+				"results": [
+					{
+						"result": "DETECTED",
+						"category": "PCR.positive",
+						"status": "PCR.positive"
+					},
+					{
+						"result": "NOT DETECTED",
+						"category": "PCR.negative",
+						"status": "PCR.negative"
+					},
+					{
+						"result": " INDETERMINATE/INCONCLUSIVE",
+						"category": "PCR.invalid",
+						"status": "PCR.invalid"
+					}
+				]
+			},
+			{
+				"test_type": "COVID19 BY RRT/PCR (NON INTERFACED LAB)",
+				"category": "PCR",
+				"results": [
+					{
+						"result": "DETECTED",
+						"category": "PCR.positive",
+						"status": "PCR.positive"
+					},
+					{
+						"result": "NOT DETECTED",
+						"category": "PCR.negative",
+						"status": "PCR.negative"
+					},
+					{
+						"result": " INDETERMINATE/INCONCLUSIVE",
+						"category": "PCR.invalid",
+						"status": "PCR.invalid"
+					}
+				]
+			},
+			{
+				"test_type": "PRE PROCEDURAL SCREEN SARS-COV-2 PCR [1230105976]/ PRE PROCEDURE SCREEN SARS-COV-2 PCR",
+				"category": "PCR",
+				"results": [
+					{
+						"result": "DETECTED",
+						"category": "PCR.positive",
+						"status": "PCR.positive"
+					},
+					{
+						"result": "NOT DETECTED",
+						"category": "PCR.negative",
+						"status": "PCR.negative"
+					},
+					{
+						"result": "INVALID RESULT",
+						"category": "PCR.invalid",
+						"status": "PCR.invalid"
+					},
+					{
+						"result": " INDETERMINATE",
+						"category": "PCR.invalid",
+						"status": "PCR.invalid"
+					}
+				]
+			},
+			{
+				"test_type": "SEVERE ACUTE RESPIRATORY SYNDROME CORONAVIRUS 2 - MAYO COVID",
+				"category": "SAR",
+				"results": [
+					{
+						"result": "DETECTED",
+						"category": "SAR.positive",
+						"status": "SAR.positive"
+					},
+					{
+						"result": "NOT DETECTED",
+						"category": "SAR.negative",
+						"status": "SAR.negative"
+					},
+					{
+						"result": "INDETERMINATE/INCONCLUSIVE",
+						"category": "SAR.invalid",
+						"status": "SAR.invalid"
+					}
+				]
 			}
 		],
 		
@@ -168,6 +304,48 @@
 				}
 			},
 			"PCR.invalid": {
+				"condition": "require-test",
+				"params": {
+					"interval": { "min": 0, "max": 1 },
+					"current_interval": { "min": 0, "max": 1 }
+				},
+				"success": {
+					"health_status": null,
+					"priority": 1,
+					"next_step": "Get another test asap",
+					"next_step_interval": 1
+				},
+				"fail": {
+					"health_status": "orange",
+					"priority": 1,
+					"next_step": "Get a test now",
+					"reason": "Your status changed to Orange because you are past due for a test."
+				}
+			},
+			"SAR.positive": {
+				"health_status": "red",
+				"priority": 11,
+				"next_step": "Isolate at home and call your healthcare provider"
+			},
+			"SAR.negative": {
+				"condition": "require-test",
+				"params": {
+					"interval": { "min": 0, "max": 5 },
+					"current_interval": { "min": 0, "max": 5 }
+				},
+				"success": {
+					"health_status": "yellow",
+					"priority": 1,
+					"next_step": "Monitor your test results"
+				},
+				"fail": {
+					"health_status": "orange",
+					"priority": 1,
+					"next_step": "Get a test now",
+					"reason": "Your status changed to Orange because you are past due for a test."
+				}
+			},
+			"SAR.invalid": {
 				"condition": "require-test",
 				"params": {
 					"interval": { "min": 0, "max": 1 },
