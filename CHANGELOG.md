@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Changed
+ - Updated health rules. [#107](https://github.com/rokwire/safer-illinois-app/issues/107)
+ - Do not process pending events if we failed to load history. [#94](https://github.com/rokwire/safer-illinois-app/issues/94)
+
 ## Fixed
  - Fixed CHANGELOG format. [#79](https://github.com/rokwire/safer-illinois-app/issues/79)
  
