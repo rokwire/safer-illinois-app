@@ -163,9 +163,7 @@ class Localization with Service implements NotificationsListener {
       http.Response response;
       if (Config().useMultiTenant) {
         Map<String, String> queryParameters = {'filename': assetName};
-        response = (Config().assetsUrl != null) ? await Network()
-            .get(AppUrl.addQueryParameters(Config().assetsUrl, queryParameters),
-            auth: NetworkAuth.User) : null;
+        response = (Config().assetsUrl != null) ? await Network().get(AppUrl.addQueryParameters(Config().assetsUrl, queryParameters), auth: NetworkAuth.App) : null;
       } else {
         response = (Config().assetsUrl != null) ? await Network().get("${Config().assetsUrl}/$assetName") : null;
       }

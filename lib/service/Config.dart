@@ -17,6 +17,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart' show rootBundle;
@@ -296,14 +297,12 @@ class Config with Service implements NotificationsListener {
       if (_schoolConfig != null) {
         if (useMultiTenant) {
           if ( _schoolConfig.configAsset != null) {
-            _configAsset =
-            await _loadFromAssetString(_schoolConfig.configAsset);
+            _configAsset = await _loadFromAssetString(_schoolConfig.configAsset);
             String configString = await _loadAsStringFromNet();
             _configAsset = null;
             _assetClientID = null;
 
-            _config =
-            (configString != null) ? _configFromJsonString(configString) : null;
+            _config = (configString != null) ? _configFromJsonString(configString) : null;
             if (_config != null) {
               _configFile.writeAsStringSync(configString, flush: true);
               NotificationService().notify(notifyConfigChanged, null);

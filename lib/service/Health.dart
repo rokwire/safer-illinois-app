@@ -37,6 +37,7 @@ import 'package:illinois/service/Network.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
 import 'package:illinois/service/Storage.dart';
+import 'package:illinois/service/Styles.dart';
 import 'package:illinois/service/User.dart';
 import 'package:illinois/utils/Crypt.dart';
 import 'package:illinois/utils/Utils.dart';
@@ -492,7 +493,7 @@ class Health with Service implements NotificationsListener {
       Response response;
       if (Config().useMultiTenant) {
         String url = AppUrl.addQueryParameters("${Config().healthUrl}/covid19/assets", {'filename': 'symptoms.json'});
-        response = await Network().get(url, auth: NetworkAuth.User, analyticsAnonymous: true);
+        response = await Network().get(url, auth: NetworkAuth.App, analyticsAnonymous: true);
       } else {
         String url = "${Config().health2Url}/symptoms/symptoms.json";
         response = await Network().get(url);
@@ -1396,7 +1397,7 @@ class Health with Service implements NotificationsListener {
     Response response;
     if (Config().useMultiTenant) {
       String url = AppUrl.addQueryParameters("${Config().healthUrl}/covid19/assets", {'filename': 'rules.json', 'countyID': countyId});
-      response = await Network().get(url, auth: NetworkAuth.User, analyticsAnonymous: true);
+      response = await Network().get(url, auth: NetworkAuth.App, analyticsAnonymous: true);
     } else {
       String url = "${Config().health2Url}/rules/county/$countyId/rules.json";
       response = await Network().get(url);
@@ -1421,6 +1422,25 @@ class Health with Service implements NotificationsListener {
     return (accessRules != null) && (accessRules[healthStatus] == kCovid19AccessGranted);
   }
 
+  // Status card color
+  Future<Color> loadStatusCardColor() async {
+    String healthUrl =Config().healthUrl;
+    String url = "$healthUrl/covid19/color";
+
+    try {
+      final response = await Network().get(url);
+      String responseBody = response.body;
+      if ((response != null) && (response.statusCode == 200)) {
+        Map<String, dynamic> jsonData = AppJson.decode(responseBody);
+        String colorHex = jsonData["color"];
+        return AppString.isStringNotEmpty(colorHex) ? UiColors.fromHex(colorHex) : null;
+      } else {
+        Log.e('Failed to load buss color');
+        Log.e(responseBody);
+      }
+    } catch(e){}
+    return null;
+  }
 
   // Health User
 
@@ -1617,7 +1637,7 @@ class Health with Service implements NotificationsListener {
         _healthUser = user;
         return user;
       }
-      throw Exception("${response?.statusCode ?? '000'} ${response?.body ?? 'Unknown error occured'}");
+      throw Exception("${response?.statusCode ?? '000'} ${response?.body ?? 'Unknown error occurred'}");
     }
     throw Exception("User not logged in");
   }
