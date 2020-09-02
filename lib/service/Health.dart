@@ -1022,7 +1022,12 @@ class Health with Service implements NotificationsListener {
         List<Covid19History> histories = await loadCovid19History();
         if (histories != null) {
           for (Covid19Event event in events) {
-            if (!Covid19History.listContainsEvent(histories, event)) {
+            if (Covid19History.listContainsEvent(histories, event)) {
+              // mark it as processed without duplicating the histyr entry
+              await _markEventAsProcessed(event);
+            }
+            else {
+              // add history entry and mark as processed
               Covid19History eventHistory = await _applyEventHistory(event);
               if (eventHistory != null) {
                 await _markEventAsProcessed(event);
