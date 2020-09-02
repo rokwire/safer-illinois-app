@@ -341,7 +341,7 @@ class Network  {
     }
     
     if (auth == NetworkAuth.User) {
-      String idToken = Auth().rokwireAccessToken;
+      String idToken = Auth().rokwireAccessToken?.accessToken;
       if (AppString.isStringNotEmpty(idToken)) {
         if (headers == null) {
           headers = new Map();

@@ -145,6 +145,27 @@ class AppVersion {
   }
 }
 
+class AppToken {
+  static Map<String, dynamic> parseJWT(String token) {
+    if (token == null) {
+      throw Exception('Token is null');
+    }
+
+    final parts = token.split('.');
+    if (parts.length != 3) {
+      throw Exception('Invalid token');
+    }
+
+    String payload = utf8.decode(base64.decode(base64.normalize(parts[1])));
+    final payloadMap = json.decode(payload);
+    if (payloadMap is! Map<String, dynamic>) {
+      throw Exception('Invalid payload');
+    }
+
+    return payloadMap;
+  }
+}
+
 class AppUrl {
   static String addQueryParameters(String url, Map<String, String> queryParameters) {
     if (url != null) {

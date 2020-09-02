@@ -281,16 +281,16 @@ class Storage with Service {
 
   static const String rokwireTokenKey  = '_rokwire_token';
 
-  String get rokwireAccessToken {
+  RokwireToken get rokwireAccessToken {
     try {
-      String rokwireToken = _getStringWithName(rokwireTokenKey);
-      return rokwireToken;
+      String tokenString = _getStringWithName(rokwireTokenKey);
+      return (tokenString != null) ? RokwireToken.fromToken(tokenString) : null;
     } on Exception catch (e) { print(e.toString()); }
     return null;
   }
 
-  set rokwireAccessToken(String value) {
-    _setStringWithName(rokwireTokenKey, value);
+  set rokwireAccessToken(RokwireToken value) {
+    _setStringWithName(rokwireTokenKey, value?.accessToken);
   }
 
   static const String authGroupsKey  = '_auth_groups';

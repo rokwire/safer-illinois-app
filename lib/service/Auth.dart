@@ -64,9 +64,8 @@ class Auth with Service implements NotificationsListener {
 
   static final Auth _auth = Auth._internal();
 
-  String _rokwireAccessToken;
-  String get rokwireAccessToken{ return _rokwireAccessToken; }
-  String _userAuthGroups;
+  RokwireToken _rokwireAccessToken;
+  RokwireToken get rokwireAccessToken{ return _rokwireAccessToken; }
 
   AuthToken _authToken;
   AuthToken get authToken{ return _authToken; }
@@ -123,7 +122,6 @@ class Auth with Service implements NotificationsListener {
     _authInfo = Storage().authInfo;
 
     _rokwireAccessToken = Storage().rokwireAccessToken;
-    _userAuthGroups = Storage().userAuthGroups;
 
     _authCardCacheFile = await _getAuthCardCacheFile();
     _authCard = await _loadAuthCardFromCache();
@@ -183,7 +181,7 @@ class Auth with Service implements NotificationsListener {
 
   bool isMemberOf(String groupName) {
     if (Config().useMultiTenant) {
-      return _userAuthGroups?.contains(groupName) ?? false;
+      return _rokwireAccessToken?.groups?.contains(groupName) ?? false;
     }
     return authInfo?.userGroupMembership?.contains(groupName) ?? false;
   }
@@ -195,14 +193,12 @@ class Auth with Service implements NotificationsListener {
 
   void _clear([bool notify = false]) {
     _rokwireAccessToken = null;
-    _userAuthGroups = null;
 
     _authToken = null;
     _authInfo = null;
     _authCard = null;
 
     _saveRokwireToken();
-    _saveAuthGroups();
 
     _applyUserPiiData(null, null);
 
@@ -258,26 +254,20 @@ class Auth with Service implements NotificationsListener {
 
     _getRokwireTokenFuture = Network().get(url, headers: headers, auth: auth).then((tokenResponse) {
       _getRokwireTokenFuture = null;
-      String rokwireToken = ((tokenResponse != null) && (tokenResponse.statusCode == 200)) ? tokenResponse.body : null;
+      String tokenString = ((tokenResponse != null) && (tokenResponse.statusCode == 200)) ? tokenResponse.body : null;
       if (saveToken) {
+        RokwireToken rokwireToken = RokwireToken.fromToken(tokenString);
         _setRokwireAccessToken(rokwireToken);
       }
-      return rokwireToken;
+      return tokenString;
     });
 
     return _getRokwireTokenFuture;
   }
 
-  void _setRokwireAccessToken(String rokwireToken) {
+  void _setRokwireAccessToken(RokwireToken rokwireToken) {
     _rokwireAccessToken = rokwireToken;
     _saveRokwireToken();
-    try {
-      _userAuthGroups = parseJWT(rokwireToken)['groups'];
-    } catch(e) {
-      print(e.toString());
-      _userAuthGroups = null;
-    }
-    _saveAuthGroups();
   }
 
   ////////////////////////
@@ -381,7 +371,11 @@ class Auth with Service implements NotificationsListener {
     _notifyAuthInfoChanged();
 
     if (Config().useMultiTenant) {
-       _setRokwireAccessToken(idToken);
+      RokwireToken rokwireToken = RokwireToken.fromToken(idToken);
+
+      if (rokwireToken != null) {
+        _setRokwireAccessToken(rokwireToken);
+      }
     }
 
     // 9.3 UserPiiData
@@ -600,7 +594,11 @@ class Auth with Service implements NotificationsListener {
     _notifyAuthTokenChanged();
 
     if (Config().useMultiTenant) {
-      _setRokwireAccessToken(idToken);
+      RokwireToken rokwireToken = RokwireToken.fromToken(idToken);
+
+      if (rokwireToken != null) {
+        _setRokwireAccessToken(rokwireToken);
+      }
     }
 
     // 6.2 UserPiiData
@@ -1011,10 +1009,6 @@ class Auth with Service implements NotificationsListener {
     Storage().rokwireAccessToken = rokwireAccessToken;
   }
 
-  void _saveAuthGroups() {
-    Storage().userAuthGroups = _userAuthGroups;
-  }
-
   void _saveAuthToken() {
     Storage().authToken = authToken;
   }
@@ -1028,25 +1022,6 @@ class Auth with Service implements NotificationsListener {
       _authCard = null;
       _saveAuthCardStringToCache(null);
     }
-  }
-
-  Map<String, dynamic> parseJWT(String token) {
-    if (token == null) {
-      throw Exception('Token is null');
-    }
-
-    final parts = token.split('.');
-    if (parts.length != 3) {
-      throw Exception('Invalid token');
-    }
-
-    String payload = utf8.decode(base64.decode(base64.normalize(parts[1])));
-    final payloadMap = json.jsonDecode(payload);
-    if (payloadMap is! Map<String, dynamic>) {
-      throw Exception('Invalid payload');
-    }
-
-    return payloadMap;
   }
 
   ////////

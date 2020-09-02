@@ -185,7 +185,7 @@ class _Covid19OnBoardingQrCodePanelState extends State<Covid19OnBoardingQrCodePa
                   ),
                   Expanded( child:
                     Padding(padding: EdgeInsets.symmetric(horizontal: 24),
-                      child: (_userHealthKeysLoading == true) ? _buildWatingContent() : _buildPrivateKeyContent()
+                      child: (_userHealthKeysLoading == true) ? _buildWaitingContent() : _buildPrivateKeyContent()
                     )),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 16),
@@ -206,7 +206,7 @@ class _Covid19OnBoardingQrCodePanelState extends State<Covid19OnBoardingQrCodePa
     );
   }
 
-  Widget _buildWatingContent(){
+  Widget _buildWaitingContent(){
     return Center(child:
       CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary), strokeWidth: 2,)
     );

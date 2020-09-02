@@ -18,6 +18,37 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:illinois/utils/Utils.dart';
 
+class RokwireToken {
+  String accessToken;
+  String uid;
+  String clientID;
+  String email;
+  String phone;
+  String auth;
+  String groups;
+
+  RokwireToken({this.accessToken, this.uid, this.clientID, this.email,
+    this.phone, this.auth, this.groups});
+
+  factory RokwireToken.fromToken(String token) {
+    if (AppString.isStringEmpty(token)) {
+      return null;
+    }
+
+    Map<String, dynamic> json = AppToken.parseJWT(token);
+
+    return (json != null) ? RokwireToken(
+        accessToken: token,
+        uid: AppString.isStringNotEmpty(json["uid"]) ? json["uid"] : "",
+        clientID: AppString.isStringNotEmpty(json["clientID"]) ? json["clientID"] : "",
+        email: AppString.isStringNotEmpty(json["email"]) ? json["email"] : "",
+        phone: AppString.isStringNotEmpty(json["phone"]) ? json["phone"] : "",
+        auth: AppString.isStringNotEmpty(json["auth"]) ? json["auth"] : "",
+        groups: AppString.isStringNotEmpty(json["groups"]) ? json["groups"] : "",
+    ) : null;
+  }
+}
+
 abstract class AuthToken {
   String get idToken => null;
   String get accessToken => null;

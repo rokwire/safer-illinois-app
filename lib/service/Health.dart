@@ -132,6 +132,12 @@ class Health with Service implements NotificationsListener {
     }
     else if (name == FirebaseMessaging.notifyCovid19Action) {
       processAction(param);
+    } else if (name == Config.notifySchoolChanged) {
+      if (Config().schoolConfig != null) {
+        _onUserLoginChanged();
+      } else {
+        _clearLocalUserData();
+      }
     }
   }
 
@@ -1427,6 +1433,9 @@ class Health with Service implements NotificationsListener {
   }
 
   String get _userId {
+    if (Config().useMultiTenant) {
+      return Auth().rokwireAccessToken?.uid;
+    }
     return Auth().authInfo?.uin ?? Auth().phoneToken?.phone;
   }
 
@@ -1675,21 +1684,25 @@ class Health with Service implements NotificationsListener {
     if (await _clearUser()) {
       NativeCommunicator().removeHealthRSAPrivateKey(userId: _userId);
 
-      Storage().currentHealthCountyId = _currentCountyId = null;
-      Storage().lastHealthProvider = null;
-      Storage().lastHealthCovid19Status = null;
-      Storage().lastHealthCovid19OsfTestDate = null;
-      _healthUserPrivateKey = null;
-      _healthUser = null;
-
-      NotificationService().notify(notifyCountyChanged, null);
-      NotificationService().notify(notifyStatusChanged, null);
-      NotificationService().notify(notifyHistoryUpdated, null);
-      NotificationService().notify(notifyUserUpdated, null);
+      _clearLocalUserData();
 
       return true;
     }
     return false;
+  }
+
+  void _clearLocalUserData() {
+    Storage().currentHealthCountyId = _currentCountyId = null;
+    Storage().lastHealthProvider = null;
+    Storage().lastHealthCovid19Status = null;
+    Storage().lastHealthCovid19OsfTestDate = null;
+    _healthUserPrivateKey = null;
+    _healthUser = null;
+
+    NotificationService().notify(notifyCountyChanged, null);
+    NotificationService().notify(notifyStatusChanged, null);
+    NotificationService().notify(notifyHistoryUpdated, null);
+    NotificationService().notify(notifyUserUpdated, null);
   }
 
   Future<bool> clearUserData() async {
