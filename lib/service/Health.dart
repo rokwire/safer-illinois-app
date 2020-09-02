@@ -1020,12 +1020,14 @@ class Health with Service implements NotificationsListener {
       result = List<Covid19Event>();
       if (0 < events.length) {
         List<Covid19History> histories = await loadCovid19History();
-        for (Covid19Event event in events) {
-          if (!Covid19History.listContainsEvent(histories, event)) {
-            Covid19History eventHistory = await _applyEventHistory(event);
-            if (eventHistory != null) {
-              await _markEventAsProcessed(event);
-              result.add(event);
+        if (histories != null) {
+          for (Covid19Event event in events) {
+            if (!Covid19History.listContainsEvent(histories, event)) {
+              Covid19History eventHistory = await _applyEventHistory(event);
+              if (eventHistory != null) {
+                await _markEventAsProcessed(event);
+                result.add(event);
+              }
             }
           }
         }
