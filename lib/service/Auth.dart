@@ -46,7 +46,7 @@ import 'package:illinois/utils/Utils.dart';
 
 class Auth with Service implements NotificationsListener {
 
-  static const String REDIRECT_URI = 'edu.illinois.rokwire://rokwire.illinois.edu/shib-auth';
+  static const String REDIRECT_URI = 'edu.illinois.covid://covid.illinois.edu/shib-auth';
 
   static const String notifyStarted  = "edu.illinois.rokwire.auth.started";
   static const String notifyAuthTokenChanged  = "edu.illinois.rokwire.auth.authtoken.changed";
