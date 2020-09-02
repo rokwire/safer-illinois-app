@@ -109,27 +109,6 @@
 				]
 			},
 			{
-				"test_type": "COVID-19 PCR",
-				"category": "PCR",
-				"results": [
-					{
-						"result": "POSITIVE",
-						"category": "PCR.positive",
-						"status": "PCR.positive"
-					},
-					{
-						"result": "NEGATIVE",
-						"category": "PCR.negative",
-						"status": "PCR.negative"
-					},
-					{
-						"result": "INVALID",
-						"category": "PCR.invalid",
-						"status": "PCR.invalid"
-					}
-				]
-			},
-			{
 				"test_type": "SARS-COV-2 BY PCR",
 				"category": "PCR",
 				"results": [
