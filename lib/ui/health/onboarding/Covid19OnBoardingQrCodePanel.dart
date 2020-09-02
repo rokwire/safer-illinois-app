@@ -274,7 +274,7 @@ class _Covid19OnBoardingQrCodePanelState extends State<Covid19OnBoardingQrCodePa
                   ))
           ),
           Container(height: 15,),
-          Text(Localization().getStringEx("panel.health.covid19.qr_code.secondary.description.1", "Do you want to transfer your QR encyrption key to this device to retreive your previous health information?\n\nSelect which one applies to you below. You can always transfer a QR encryption key to this device at a later time using the “Transfer Your COVID-19 Encyrption Key” in the COVID-19 info center or in your app settings."),
+          Text(Localization().getStringEx("panel.health.covid19.qr_code.secondary.description.1", "Do you want to transfer your QR encryption key to this device to retrieve your previous health information?\n\nSelect which one applies to you below. You can always transfer a QR encryption key to this device at a later time using the “Transfer Your COVID-19 Encyrption Key” in the COVID-19 info center or in your app settings."),
             textAlign: TextAlign.left,
             style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color:Styles().colors.fillColorPrimary),
           ),

@@ -25,6 +25,7 @@ import 'package:illinois/model/Health.dart';
 import 'package:illinois/model/UserData.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Auth.dart';
+import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
@@ -160,15 +161,28 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
   void _loadColorOfTheDay() {
     _loadingProgress++;
     NativeCommunicator().getDeviceId().then((deviceId) {
-      TransportationService().loadBussColor(deviceId: deviceId, userId: User().uuid).then((color) {
-        if (mounted) {
-          setState(() {
-            _colorOfTheDay = color;
-            _loadingProgress--;
-          });
-          _checkNetIdStatus();
-        }
-      });
+      if (Config().useMultiTenant) {
+        Health().loadStatusCardColor().then((color) {
+          if (mounted) {
+            setState(() {
+              _colorOfTheDay = color;
+              _loadingProgress--;
+            });
+            _checkNetIdStatus();
+          }
+        });
+      }
+      else {
+        TransportationService().loadBussColor(deviceId: deviceId, userId: User().uuid).then((color) {
+          if (mounted) {
+            setState(() {
+              _colorOfTheDay = color;
+              _loadingProgress--;
+            });
+            _checkNetIdStatus();
+          }
+        });
+      }
     });
   }
 

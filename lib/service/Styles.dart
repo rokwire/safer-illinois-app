@@ -126,7 +126,7 @@ class Styles extends Service implements NotificationsListener{
       http.Response response;
       if (Config().useMultiTenant) {
         Map<String, String> queryParameters = {'filename' : _assetsName};
-        response = (Config().assetsUrl != null) ? await Network().get(AppUrl.addQueryParameters(Config().assetsUrl, queryParameters), auth: NetworkAuth.User) : null;
+        response = (Config().assetsUrl != null) ? await Network().get(AppUrl.addQueryParameters(Config().assetsUrl, queryParameters), auth: NetworkAuth.App) : null;
       } else {
         response = (Config().assetsUrl != null) ? await Network().get("${Config().assetsUrl}/$_assetsName") : null;
       }

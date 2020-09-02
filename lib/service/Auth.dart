@@ -15,7 +15,6 @@
  */
 
 import 'dart:io';
-import 'dart:convert';
 import 'dart:convert' as json;
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
@@ -47,7 +46,7 @@ import 'package:illinois/utils/Utils.dart';
 
 class Auth with Service implements NotificationsListener {
 
-  static const String REDIRECT_URI = 'edu.illinois.covid://covid.illinois.edu/shib-auth';
+  static const String REDIRECT_URI = 'edu.illinois.rokwire://rokwire.illinois.edu/shib-auth';
 
   static const String notifyStarted  = "edu.illinois.rokwire.auth.started";
   static const String notifyAuthTokenChanged  = "edu.illinois.rokwire.auth.authtoken.changed";
@@ -85,7 +84,7 @@ class Auth with Service implements NotificationsListener {
   AuthCard get authCard{ return _authCard; }
   File _authCardCacheFile;
 
-  Future<Http.Response> _refreshTokenFuture;
+  // Future<Http.Response> _refreshTokenFuture;
   Future<String> _getRokwireTokenFuture;
   Future<Http.Response> _refreshShibbolethTokenFuture;
   Future<Http.Response> _refreshFirebaseTokenFuture;

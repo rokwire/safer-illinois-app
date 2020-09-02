@@ -187,12 +187,12 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
   Widget _buildHistoryList(){
     return Container(child:
     Column(children: <Widget>[
-        Container(
-          padding: EdgeInsets.symmetric(vertical: 24),
-          child: Text(Localization().getStringEx("panel.health.covid19.history.label.description","View your COVID-19 event history.",),
-              style: TextStyle(color: Styles().colors.textSurface, fontSize: 16, fontFamily: Styles().fontFamilies.regular),
-          ),
-        ),
+        // Container(
+        //   padding: EdgeInsets.symmetric(vertical: 24),
+        //   child: Text(Localization().getStringEx("panel.health.covid19.history.label.description","View your COVID-19 event history.",),
+        //       style: TextStyle(color: Styles().colors.textSurface, fontSize: 16, fontFamily: Styles().fontFamilies.regular),
+        //   ),
+        // ),
         Expanded(child:
         new ListView.builder(
         itemCount: (kReleaseMode && (Config().configEnvironment != ConfigEnvironment.dev)) ?
