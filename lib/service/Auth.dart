@@ -316,15 +316,18 @@ class Auth with Service implements NotificationsListener {
     }
 
     String idToken = newAuthToken?.idToken;
+    RokwireToken rokwireToken;
     if (Config().useMultiTenant) {
       // 3. Request rokwire access token
-      String rokwireToken = await _getRokwireAccessToken(idToken: newAuthToken?.idToken, saveToken: false);
-      if(rokwireToken == null){
+      String rokwireTokenString = await _getRokwireAccessToken(idToken: newAuthToken?.idToken, saveToken: false);
+      if(rokwireTokenString == null){
         _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
         return;
       }
-      idToken = rokwireToken;
-    }    
+      idToken = rokwireTokenString;
+      rokwireToken = RokwireToken.fromToken(idToken);
+      newAuthInfo?.uin = rokwireToken?.uid;
+    }
 
     // 4. Request User Pii Pid
     String newUserPiiPid = await _loadPidWithShibbolethAuth(email: newAuthInfo?.email, optAuthToken: idToken);
@@ -371,8 +374,6 @@ class Auth with Service implements NotificationsListener {
     _notifyAuthInfoChanged();
 
     if (Config().useMultiTenant) {
-      RokwireToken rokwireToken = RokwireToken.fromToken(idToken);
-
       if (rokwireToken != null) {
         _setRokwireAccessToken(rokwireToken);
       }

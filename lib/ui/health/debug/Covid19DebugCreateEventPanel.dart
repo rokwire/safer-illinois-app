@@ -472,7 +472,15 @@ class _Covid19DebugCreateEventPanelState extends State<Covid19DebugCreateEventPa
       'encrypted_key': encryptedKey,
       'encrypted_blob': encryptedBlob
     });
-    
+    if (Config().useMultiTenant) {
+      post = AppJson.encode({
+        'provider_id': providerId,
+        'uid': Auth().rokwireAccessToken?.uid,
+        'encrypted_key': encryptedKey,
+        'encrypted_blob': encryptedBlob
+      });
+    }
+
     Response response = await Network().post(url, body:post, headers: { Network.RokwireHSApiKey : Config().healthApiKey });
     if (response == null) {
       return Localization().getStringEx("panel.health.covid19.debug.create.label.error.timeout","Request Timeout");
