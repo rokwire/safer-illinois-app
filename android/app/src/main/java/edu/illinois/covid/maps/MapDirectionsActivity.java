@@ -101,8 +101,8 @@ public class MapDirectionsActivity extends MapActivity {
     //region Map views initialization
 
     @Override
-    protected void afterMapControlInitialized() {
-        super.afterMapControlInitialized();
+    protected void afterMapInitialized() {
+        super.afterMapInitialized();
         buildExploreMarker();
         buildPolygon();
         if (buildRouteAfterInitialization) {

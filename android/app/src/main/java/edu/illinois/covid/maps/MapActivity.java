@@ -166,9 +166,10 @@ public class MapActivity extends AppCompatActivity {
         double longitude = Utils.Map.getValueFromPath(target, "longitude", Constants.DEFAULT_INITIAL_CAMERA_POSITION.longitude);
         double zoom = Utils.Map.getValueFromPath(target, "zoom", Constants.DEFAULT_CAMERA_ZOOM);
         googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(CameraPosition.fromLatLngZoom(new LatLng(latitude, longitude), (float)zoom)));
+        afterMapInitialized();
     }
 
-    protected void afterMapControlInitialized() {
+    protected void afterMapInitialized() {
         fillMarkers();
     }
 
