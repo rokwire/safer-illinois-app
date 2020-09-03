@@ -52,7 +52,7 @@ import edu.illinois.covid.MainActivity;
 import edu.illinois.covid.R;
 import edu.illinois.covid.Utils;
 
-public class MapView extends FrameLayout implements OnMapReadyCallback {
+public class MapView extends FrameLayout implements OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener {
 
     private Context context;
     private int mapId;
@@ -138,6 +138,8 @@ public class MapView extends FrameLayout implements OnMapReadyCallback {
         googleMap = map;
         enableMyLocation(enableLocationValue);
         googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(CameraPosition.fromLatLngZoom(Constants.DEFAULT_INITIAL_CAMERA_POSITION, Constants.DEFAULT_CAMERA_ZOOM)));
+        googleMap.setOnMapClickListener(this);
+        googleMap.setOnMarkerClickListener(this);
         showExploresOnMap();
         relocateMyLocationButton();
     }
@@ -288,7 +290,14 @@ public class MapView extends FrameLayout implements OnMapReadyCallback {
         cameraZoom = currentCameraZoom;
     }
 
-    private boolean onMarkerClicked(Marker marker) {
+    /***
+     * implements GoogleMap.OnMarkerClickListener
+     *
+     * @param marker
+     * @return
+     */
+    @Override
+    public boolean onMarkerClick(Marker marker) {
         Object rawData = Utils.Explore.optExploreMarkerRawData(marker);
         if (rawData != null) {
             if (rawData instanceof HashMap) {
@@ -317,7 +326,13 @@ public class MapView extends FrameLayout implements OnMapReadyCallback {
         return false;
     }
 
-    private boolean onMapClick() {
+    /***
+     * implements GoogleMap.OnMapClickListener
+     *
+     * @param latLng
+     */
+    @Override
+    public void onMapClick(LatLng latLng) {
         JSONObject jsonArgs = new JSONObject();
         try {
             jsonArgs.put("mapId", mapId);
@@ -326,7 +341,6 @@ public class MapView extends FrameLayout implements OnMapReadyCallback {
         }
         String methodArguments = jsonArgs.toString();
         MainActivity.invokeFlutterMethod("map.explore.clear", methodArguments);
-        return true;
     }
 
     private void relocateMyLocationButton() {
