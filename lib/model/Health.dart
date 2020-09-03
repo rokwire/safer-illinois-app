@@ -1344,33 +1344,25 @@ class HealthServiceLocation {
 // HealthLocationDayOfOperation
 
 class HealthLocationDayOfOperation {
-  String name;
-  String openTime;
-  String closeTime;
+  final String name;
+  final String openTime;
+  final String closeTime;
 
-  int weekDay;
-  TimeOfDay openTimeObj;
-  TimeOfDay closeTimeObj;
+  final int weekDay;
+  final int openMinutes;
+  final int closeMinutes;
 
-  HealthLocationDayOfOperation({name, openTime, closeTime})
-    : name = name,
-      openTime = openTime,
-      closeTime = closeTime
-  {
-    if (name != null)
-      weekDay = AppDateTime.getWeekDayFromString(name.toLowerCase());
-    if (openTime != null)
-      openTimeObj = TimeOfDay.fromDateTime(AppDateTime().dateTimeFromString(openTime.toUpperCase(), format: "hh:mma"));
-    if (closeTime != null)
-      closeTimeObj = TimeOfDay.fromDateTime(AppDateTime().dateTimeFromString(closeTime.toUpperCase(), format: "hh:mma"));
-  }
+  HealthLocationDayOfOperation({this.name, this.openTime, this.closeTime}) :
+    weekDay = (name != null) ? AppDateTime.getWeekDayFromString(name.toLowerCase()) : null,
+    openMinutes = _timeMinutes(openTime),
+    closeMinutes = _timeMinutes(closeTime);
 
   factory HealthLocationDayOfOperation.fromJson(Map<String,dynamic> json){
-    return HealthLocationDayOfOperation(
+    return (json != null) ? HealthLocationDayOfOperation(
       name: json["name"],
       openTime: json["open_time"],
       closeTime: json["close_time"],
-    );
+    ) : null;
   }
 
   String get displayString{
@@ -1378,27 +1370,18 @@ class HealthLocationDayOfOperation {
   }
 
   bool get isOpen {
-    int nowWeekDay = DateTime.now().weekday;
-    TimeOfDay now = TimeOfDay.now();
-
-    if (openTimeObj != null && closeTimeObj != null) {
-      int openMinutes = openTimeObj.hour * 60 + openTimeObj.minute;
-      int closeMinutes = closeTimeObj.hour * 60 + closeTimeObj.minute;
-      int nowMinutes = now.hour * 60 + now.minute;
-
+    if ((openMinutes != null) && (closeMinutes != null)) {
+      int nowWeekDay = DateTime.now().weekday;
+      int nowMinutes = _timeOfDayMinutes(TimeOfDay.now());
       return nowWeekDay == weekDay && openMinutes < nowMinutes && nowMinutes < closeMinutes;
     }
-
     return false;
   }
 
   bool get willOpen {
-    int nowWeekDay = DateTime.now().weekday;
-    TimeOfDay now = TimeOfDay.now();
-    if (openTimeObj != null) {
-      int openMinutes = openTimeObj.hour * 60 + openTimeObj.minute;
-      int nowMinutes = now.hour * 60 + now.minute;
-
+    if (openMinutes != null) {
+      int nowWeekDay = DateTime.now().weekday;
+      int nowMinutes = _timeOfDayMinutes(TimeOfDay.now());
       return nowWeekDay == weekDay && nowMinutes < openMinutes;
     }
 
@@ -1417,6 +1400,18 @@ class HealthLocationDayOfOperation {
       }
     }
     return values;
+  }
+
+  // Helper function for conversion work time string to number of minutes
+
+  static int _timeMinutes(String time, {String format = 'hh:mma'}) {
+    DateTime dateTime = (time != null) ? AppDateTime().dateTimeFromString(time.toUpperCase(), format: format) : null;
+    TimeOfDay timeOfDay = (dateTime != null) ? TimeOfDay.fromDateTime(dateTime) : null;
+    return _timeOfDayMinutes(timeOfDay);
+  }
+
+  static int _timeOfDayMinutes(TimeOfDay timeOfDay) {
+    return (timeOfDay != null) ? (timeOfDay.hour * 60 + timeOfDay.minute) : null;
   }
 }
 
