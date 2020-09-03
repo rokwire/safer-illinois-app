@@ -81,13 +81,8 @@
 	//_gmsMapView.settings.compassButton = YES;
 	//_gmsMapView.settings.myLocationButton = YES;
 	[self.view addSubview:_gmsMapView];
-
-	_mpMapControl = [[MPMapControl alloc] initWithMap:_gmsMapView];
-	_mpMapControl.delegate = self;
-	[_mpMapControl showUserPosition:YES];
 	
 	NSDictionary *options = [_parameters inaDictForKey:@"options"];
-	[_mpMapControl setFloorSelectorHidden:((options != nil) && [options inaBoolForKey:@"hideLevels"])];
 	
 	if ((options != nil) && [options inaBoolForKey:@"showDebugLocation"]) {
 		_debugStatusLabel = [[UILabel alloc] initWithFrame:CGRectZero];

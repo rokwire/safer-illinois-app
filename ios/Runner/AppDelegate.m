@@ -36,7 +36,6 @@
 #import "Bluetooth+InaUtils.h"
 
 #import <GoogleMaps/GoogleMaps.h>
-#import <MapsIndoors/MapsIndoors.h>
 #import <Firebase/Firebase.h>
 #import <ZXingObjC/ZXingObjC.h>
 #import <MicroBlink/Microblink.h>
@@ -297,12 +296,6 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 	NSString *googleMapsAPIKey = [_keys uiucConfigStringForPathKey:@"google.maps.api_key"];
 	if (0 < googleMapsAPIKey.length) {
 		[GMSServices provideAPIKey:googleMapsAPIKey];
-	}
-
-	// Initialize Maps Indoors SDK
-	NSString *mapsIndoorsAPIKey = [_keys uiucConfigStringForPathKey:@"mapsindoors.api_key"];
-	if ((0 < mapsIndoorsAPIKey.length) && (0 < googleMapsAPIKey.length)) {
-		[MapsIndoors provideAPIKey:mapsIndoorsAPIKey googleAPIKey:googleMapsAPIKey];
 	}
 
 	// Initialize MicroBlink SDK
