@@ -1348,7 +1348,22 @@ class HealthLocationDayOfOperation {
   String openTime;
   String closeTime;
 
-  HealthLocationDayOfOperation({this.name, this.openTime, this.closeTime});
+  int weekDay;
+  TimeOfDay openTimeObj;
+  TimeOfDay closeTimeObj;
+
+  HealthLocationDayOfOperation({name, openTime, closeTime})
+    : name = name,
+      openTime = openTime,
+      closeTime = closeTime
+  {
+    if (name != null)
+      weekDay = AppDateTime.getWeekDayFromString(name.toLowerCase());
+    if (openTime != null)
+      openTimeObj = TimeOfDay.fromDateTime(AppDateTime().dateTimeFromString(openTime.toUpperCase(), format: "hh:mma"));
+    if (closeTime != null)
+      closeTimeObj = TimeOfDay.fromDateTime(AppDateTime().dateTimeFromString(closeTime.toUpperCase(), format: "hh:mma"));
+  }
 
   factory HealthLocationDayOfOperation.fromJson(Map<String,dynamic> json){
     return HealthLocationDayOfOperation(
@@ -1360,6 +1375,34 @@ class HealthLocationDayOfOperation {
 
   String get displayString{
     return "$name $openTime to $closeTime";
+  }
+
+  bool get isOpen {
+    int nowWeekDay = DateTime.now().weekday;
+    TimeOfDay now = TimeOfDay.now();
+
+    if (openTimeObj != null && closeTimeObj != null) {
+      int openMinutes = openTimeObj.hour * 60 + openTimeObj.minute;
+      int closeMinutes = closeTimeObj.hour * 60 + closeTimeObj.minute;
+      int nowMinutes = now.hour * 60 + now.minute;
+
+      return nowWeekDay == weekDay && openMinutes < nowMinutes && nowMinutes < closeMinutes;
+    }
+
+    return false;
+  }
+
+  bool get willOpen {
+    int nowWeekDay = DateTime.now().weekday;
+    TimeOfDay now = TimeOfDay.now();
+    if (openTimeObj != null) {
+      int openMinutes = openTimeObj.hour * 60 + openTimeObj.minute;
+      int nowMinutes = now.hour * 60 + now.minute;
+
+      return nowWeekDay == weekDay && nowMinutes < openMinutes;
+    }
+
+    return false;
   }
 
   static List<HealthLocationDayOfOperation> listFromJson(List<dynamic> json) {
