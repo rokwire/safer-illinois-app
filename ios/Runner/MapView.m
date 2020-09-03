@@ -204,6 +204,7 @@
 				marker.zIndex = 1;
 				marker.userData = @{ @"explore" : explore };
 				[_markers addObject:marker];
+				marker.map = _mapView;
 				
 				if (bounds == nil) {
 					bounds = [[GMSCoordinateBounds alloc] initWithCoordinate:marker.position coordinate:marker.position];
@@ -239,12 +240,7 @@
 		if ((iconView != nil) && (exploreLocation != nil)) {
 			iconView.displayMode =  (_mapView.camera.zoom < kMarkerThresold1Zoom) ? MapMarkerDisplayMode_Plain : ((_mapView.camera.zoom < kMarkerThresold2Zoom) ? MapMarkerDisplayMode_Title : MapMarkerDisplayMode_Extended);
 		}
-
-		if (marker.map == nil) {
-			marker.map = _mapView;
-		}
 	}
-
 }
 
 #pragma mark GMSMapViewDelegate
