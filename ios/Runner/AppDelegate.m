@@ -24,7 +24,6 @@
 #import "MapView.h"
 #import "MapController.h"
 #import "MapDirectionsController.h"
-#import "MapLocationPickerController.h"
 #import "ExposurePlugin.h"
 #import "GalleryPlugin.h"
 
@@ -239,9 +238,6 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 	else if ([call.method isEqualToString:@"directions"]) {
 		[self handleDirectionsWithParameters:parameters result:result];
 	}
-	else if ([call.method isEqualToString:@"pickLocation"]) {
-		[self handlePickLocationWithParameters:parameters result:result];
-	}
 	else if ([call.method isEqualToString:@"map"]) {
 		[self handleMapWithParameters:parameters result:result];
 	}
@@ -316,13 +312,6 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 		result(returnValue);
 	}];
 	[self.navigationViewController pushViewController:directionsController animated:YES];
-}
-
-- (void)handlePickLocationWithParameters:(NSDictionary*)parameters result:(FlutterResult)result {
-	MapLocationPickerController *pickLocationController = [[MapLocationPickerController alloc] initWithParameters:parameters completionHandler:^(id returnValue) {
-		result(returnValue);
-	}];
-	[self.navigationViewController pushViewController:pickLocationController animated:YES];
 }
 
 - (void)handleMapWithParameters:(NSDictionary*)parameters result:(FlutterResult)result {
