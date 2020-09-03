@@ -21,13 +21,15 @@
 #import <UIKit/UIKit.h>
 #import "FlutterCompletion.h"
 #import <GoogleMaps/GoogleMaps.h>
+#import <MapsIndoors/MapsIndoors.h>
 
-@interface MapController : UIViewController<FlutterCompletionHandler, GMSMapViewDelegate, CLLocationManagerDelegate> {
+@interface MapController : UIViewController<FlutterCompletionHandler, GMSMapViewDelegate, MPMapControlDelegate, CLLocationManagerDelegate> {
 }
 @property (nonatomic, strong) NSDictionary*         parameters;
 @property (nonatomic, strong) FlutterCompletion     completionHandler;
 
 @property (nonatomic, strong) GMSMapView*           gmsMapView;
+@property (nonatomic, strong) MPMapControl*         mpMapControl;
 @property (nonatomic, strong) UILabel*              debugStatusLabel;
 
 @property (nonatomic, strong) CLLocationManager*    clLocationManager;
