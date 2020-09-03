@@ -427,7 +427,9 @@ class _TestLocation extends StatelessWidget{
       workingPeriods = Map<int,HealthLocationDayOfOperation>.fromIterable(workTimes, key: (period) => period?.weekDay);
       items = workingPeriods?.values?.toList()?? List();
       period = _determineTodayPeriod(workingPeriods);
-      period = period.isOpen ? period : _findNextPeriod(workingPeriods);
+      if ((period == null) || !period.isOpen) {
+        period = _findNextPeriod(workingPeriods);  
+      }
     } else {
       return Container(
         child: Text(Localization().getStringEx("panel.covid19_test_locations.work_time.unknown","Unknown working time"))
