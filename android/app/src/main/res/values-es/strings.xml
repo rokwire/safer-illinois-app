@@ -53,9 +53,8 @@
     <string name="save">Salvar</string>
 
     <!-- Exposure -->
-    <string name="exposure_notification_channel_description">Notificación de seguimiento de contactos del edificio</string>
-    <string name="exposure_notification_title">Seguimiento de contactos</string>
-    <string name="exposure_notification_message">El seguimiento de contactos para preservar la privacidad se está ejecutando actualmente</string>
-    <string name="exposure_notification_ticker">Seguimiento de contactos</string>
-    <string name="exposure_request_bluetooth_on_message">Permitir notificaciones de exposición. ¿Quieres encender el bluetooth?</string>
+    <string name="exposure_notification_channel_description">Sistema de notificación de exposición</string>
+    <string name="exposure_notification_title">Comprobación del sistema de notificación de exposición</string>
+    <string name="exposure_notification_ticker">Comprobación del sistema de notificación de exposición</string>
+    <string name="exposure_request_bluetooth_on_message">Permitir notificaciones de exposición. ¿Quieres activar Bluetooth?</string>
 </resources>

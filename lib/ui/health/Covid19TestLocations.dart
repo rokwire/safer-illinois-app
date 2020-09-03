@@ -18,6 +18,7 @@ import 'dart:collection';
 
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/AppDateTime.dart';
+import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:location/location.dart' as Core;
 import 'package:flutter/material.dart';
@@ -360,25 +361,28 @@ class _TestLocation extends StatelessWidget{
               ),
             ),
             Semantics(button: true,
-            child: Container(
-                padding: EdgeInsets.only(top: 8, bottom: 4),
-                child: Row(
-                  children: <Widget>[
-                    Image.asset('images/icon-location.png',excludeFromSemantics: true),
-                    Container(width: 8,),
-                    Expanded(child:
-                      Text(
-                        distance>0? '$distanceText' + distanceSufix:
-                        (testLocation?.fullAddress?? Localization().getStringEx("panel.covid19_test_locations.distance.unknown","unknown distance")),
-                        style: TextStyle(
-                          fontFamily: Styles().fontFamilies.regular,
-                          fontSize: 16,
-                          color: Styles().colors.textSurface,
-                        ),
+            child: GestureDetector(
+              onTap: _onTapAddress,
+              child: Container(
+                  padding: EdgeInsets.only(top: 8, bottom: 4),
+                  child: Row(
+                    children: <Widget>[
+                      Image.asset('images/icon-location.png',excludeFromSemantics: true),
+                      Container(width: 8,),
+                      Expanded(child:
+                        Text(
+                          distance>0? '$distanceText' + distanceSufix:
+                          (testLocation?.fullAddress?? Localization().getStringEx("panel.covid19_test_locations.distance.unknown","unknown distance")),
+                          style: TextStyle(
+                            fontFamily: Styles().fontFamilies.regular,
+                            fontSize: 16,
+                            color: Styles().colors.textSurface,
+                          ),
+                        )
                       )
-                    )
-                  ],
-                ))),
+                    ],
+                  )),
+            )),
             /*Semantics(label: Localization().getStringEx("panel.covid19_test_locations.call.hint","Call"), button: true, child:
             GestureDetector(
               onTap: _onTapContact,
@@ -423,12 +427,13 @@ class _TestLocation extends StatelessWidget{
     HealthLocationDayOfOperation period;
     LinkedHashMap<int,HealthLocationDayOfOperation> workingPeriods;
     List<HealthLocationDayOfOperation> workTimes = testLocation?.daysOfOperation;
-    if(workTimes?.isNotEmpty?? false){
-      workingPeriods = workTimes!=null?Map<int,HealthLocationDayOfOperation>.fromIterable(workTimes,key:
-        (period)=>AppDateTime.getWeekDayFromString(period is HealthLocationDayOfOperation? period?.name?.toLowerCase(): null)): null;
+    if(workTimes?.isNotEmpty ?? false){
+      workingPeriods = Map<int,HealthLocationDayOfOperation>.fromIterable(workTimes, key: (period) => period?.weekDay);
       items = workingPeriods?.values?.toList()?? List();
       period = _determineTodayPeriod(workingPeriods);
-      period = _determineIsOpen(period) ? period : _findNextPeriod(workingPeriods);
+      if ((period == null) || !period.isOpen) {
+        period = _findNextPeriod(workingPeriods);  
+      }
     } else {
       return Container(
         child: Text(Localization().getStringEx("panel.covid19_test_locations.work_time.unknown","Unknown working time"))
@@ -479,16 +484,16 @@ class _TestLocation extends StatelessWidget{
   }
 
   String _getPeriodText(HealthLocationDayOfOperation period, LinkedHashMap<int,HealthLocationDayOfOperation> workingPeriods){
-  String openText = Localization().getStringEx("panel.covid19_test_locations.work_time.open_until","Open until");
-  String closedText = Localization().getStringEx("panel.covid19_test_locations.work_time.closed_until","Closed until");
-  if(_determineIsOpen(period)){ //This is the active Period
-    String end = period?.closeTime;
-    return "$openText $end";
-  } else { 
-    //Closed until the next open period
-    HealthLocationDayOfOperation nextPeriod = _findNextPeriod(workingPeriods);
-    String nextOpenTime = nextPeriod!=null? nextPeriod.name +" "+nextPeriod.openTime : " ";
-    return "$closedText $nextOpenTime";
+    String openText = Localization().getStringEx("panel.covid19_test_locations.work_time.open_until","Open until");
+    String closedText = Localization().getStringEx("panel.covid19_test_locations.work_time.closed_until","Closed until");
+    if(period.isOpen){ //This is the active Period
+      String end = period?.closeTime;
+      return "$openText $end";
+    } else {
+      //Closed until the next open period
+      HealthLocationDayOfOperation nextPeriod = _findNextPeriod(workingPeriods);
+      String nextOpenTime = nextPeriod!=null? nextPeriod.name +" "+nextPeriod.openTime : " ";
+      return "$closedText $nextOpenTime";
     }
   }
 
@@ -503,7 +508,7 @@ class _TestLocation extends StatelessWidget{
       // First, check if the current day period will open today
       int currentWeekDay = DateTime.now().weekday;
       HealthLocationDayOfOperation period = workingPeriods[currentWeekDay];
-      if (_determineWillOpen(period)) return period;
+      if (period.willOpen) return period;
 
       // Modulus math works better with 0 based indexes, and flutter uses 1 based
       // weekdays
@@ -561,6 +566,22 @@ class _TestLocation extends StatelessWidget{
   /*void _onTapContact() async{
     await url_launcher.launch("tel:"+testLocation?.contact ?? "");
   }*/
+
+  void _onTapAddress(){
+    Analytics.instance.logSelect(target: "COVID-19 Test Location");
+    NativeCommunicator().launchMap(
+        target: {
+          'latitude': testLocation?.latitude,
+          'longitude': testLocation?.longitude,
+          'zoom': 17,
+        },
+        markers: [{
+          'name': testLocation?.name,
+          'latitude': testLocation?.latitude,
+          'longitude': testLocation?.longitude,
+          'description': null,
+        }]);
+  }
 }
 
 enum ProviderDropDownItemType{

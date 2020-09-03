@@ -1344,22 +1344,48 @@ class HealthServiceLocation {
 // HealthLocationDayOfOperation
 
 class HealthLocationDayOfOperation {
-  String name;
-  String openTime;
-  String closeTime;
+  final String name;
+  final String openTime;
+  final String closeTime;
 
-  HealthLocationDayOfOperation({this.name, this.openTime, this.closeTime});
+  final int weekDay;
+  final int openMinutes;
+  final int closeMinutes;
+
+  HealthLocationDayOfOperation({this.name, this.openTime, this.closeTime}) :
+    weekDay = (name != null) ? AppDateTime.getWeekDayFromString(name.toLowerCase()) : null,
+    openMinutes = _timeMinutes(openTime),
+    closeMinutes = _timeMinutes(closeTime);
 
   factory HealthLocationDayOfOperation.fromJson(Map<String,dynamic> json){
-    return HealthLocationDayOfOperation(
+    return (json != null) ? HealthLocationDayOfOperation(
       name: json["name"],
       openTime: json["open_time"],
       closeTime: json["close_time"],
-    );
+    ) : null;
   }
 
   String get displayString{
     return "$name $openTime to $closeTime";
+  }
+
+  bool get isOpen {
+    if ((openMinutes != null) && (closeMinutes != null)) {
+      int nowWeekDay = DateTime.now().weekday;
+      int nowMinutes = _timeOfDayMinutes(TimeOfDay.now());
+      return nowWeekDay == weekDay && openMinutes < nowMinutes && nowMinutes < closeMinutes;
+    }
+    return false;
+  }
+
+  bool get willOpen {
+    if (openMinutes != null) {
+      int nowWeekDay = DateTime.now().weekday;
+      int nowMinutes = _timeOfDayMinutes(TimeOfDay.now());
+      return nowWeekDay == weekDay && nowMinutes < openMinutes;
+    }
+
+    return false;
   }
 
   static List<HealthLocationDayOfOperation> listFromJson(List<dynamic> json) {
@@ -1374,6 +1400,18 @@ class HealthLocationDayOfOperation {
       }
     }
     return values;
+  }
+
+  // Helper function for conversion work time string to number of minutes
+
+  static int _timeMinutes(String time, {String format = 'hh:mma'}) {
+    DateTime dateTime = (time != null) ? AppDateTime().dateTimeFromString(time.toUpperCase(), format: format) : null;
+    TimeOfDay timeOfDay = (dateTime != null) ? TimeOfDay.fromDateTime(dateTime) : null;
+    return _timeOfDayMinutes(timeOfDay);
+  }
+
+  static int _timeOfDayMinutes(TimeOfDay timeOfDay) {
+    return (timeOfDay != null) ? (timeOfDay.hour * 60 + timeOfDay.minute) : null;
   }
 }
 
@@ -1865,14 +1903,16 @@ class HealthSymptom {
 class HealthSymptomsGroup {
   final String id;
   final String name;
+  final bool visible;
   final List<HealthSymptom> symptoms;
 
-  HealthSymptomsGroup({this.id, this.name, this.symptoms});
+  HealthSymptomsGroup({this.id, this.name, this.visible, this.symptoms});
 
   factory HealthSymptomsGroup.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthSymptomsGroup(
       id: json['id'],
       name: json['name'],
+      visible: json['visible'],
       symptoms: HealthSymptom.listFromJson(json['symptoms']),
     ) : null;
   }
@@ -1881,6 +1921,7 @@ class HealthSymptomsGroup {
     return {
       'id': id,
       'name': name,
+      'visible': visible,
       'symptoms': HealthSymptom.listToJson(symptoms),
     };
   }

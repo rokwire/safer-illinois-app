@@ -107,6 +107,121 @@
 						"status": "PCR.invalid"
 					}
 				]
+			},
+			{
+				"test_type": "SARS-COV-2 BY PCR",
+				"category": "PCR",
+				"results": [
+					{
+						"result": "DETECTED",
+						"category": "PCR.positive",
+						"status": "PCR.positive"
+					},
+					{
+						"result": "NOT DETECTED",
+						"category": "PCR.negative",
+						"status": "PCR.negative"
+					},
+					{
+						"result": "INVALID RESULT",
+						"category": "PCR.invalid",
+						"status": "PCR.invalid"
+					},
+					{
+						"result": "INDETERMINATE",
+						"category": "PCR.invalid",
+						"status": "PCR.invalid"
+					}
+				]
+			},
+			{
+				"test_type": "COVID19 BY RRT/PCR (IDPH/MDHHS STATE HEALTH LAB)",
+				"category": "PCR",
+				"results": [
+					{
+						"result": "DETECTED",
+						"category": "PCR.positive",
+						"status": "PCR.positive"
+					},
+					{
+						"result": "NOT DETECTED",
+						"category": "PCR.negative",
+						"status": "PCR.negative"
+					},
+					{
+						"result": " INDETERMINATE/INCONCLUSIVE",
+						"category": "PCR.invalid",
+						"status": "PCR.invalid"
+					}
+				]
+			},
+			{
+				"test_type": "COVID19 BY RRT/PCR (NON INTERFACED LAB)",
+				"category": "PCR",
+				"results": [
+					{
+						"result": "DETECTED",
+						"category": "PCR.positive",
+						"status": "PCR.positive"
+					},
+					{
+						"result": "NOT DETECTED",
+						"category": "PCR.negative",
+						"status": "PCR.negative"
+					},
+					{
+						"result": " INDETERMINATE/INCONCLUSIVE",
+						"category": "PCR.invalid",
+						"status": "PCR.invalid"
+					}
+				]
+			},
+			{
+				"test_type": "PRE PROCEDURAL SCREEN SARS-COV-2 PCR [1230105976]/ PRE PROCEDURE SCREEN SARS-COV-2 PCR",
+				"category": "PCR",
+				"results": [
+					{
+						"result": "DETECTED",
+						"category": "PCR.positive",
+						"status": "PCR.positive"
+					},
+					{
+						"result": "NOT DETECTED",
+						"category": "PCR.negative",
+						"status": "PCR.negative"
+					},
+					{
+						"result": "INVALID RESULT",
+						"category": "PCR.invalid",
+						"status": "PCR.invalid"
+					},
+					{
+						"result": " INDETERMINATE",
+						"category": "PCR.invalid",
+						"status": "PCR.invalid"
+					}
+				]
+			},
+			{
+				"test_type": "SEVERE ACUTE RESPIRATORY SYNDROME CORONAVIRUS 2 - MAYO COVID",
+				"category": "SAR",
+				"results": [
+					{
+						"result": "DETECTED",
+						"category": "SAR.positive",
+						"status": "SAR.positive"
+					},
+					{
+						"result": "NOT DETECTED",
+						"category": "SAR.negative",
+						"status": "SAR.negative"
+					},
+					{
+						"result": "INDETERMINATE/INCONCLUSIVE",
+						"category": "SAR.invalid",
+						"status": "SAR.invalid"
+					}
+				]
 			}
 		],
 		
@@ -185,6 +300,48 @@
 					"next_step": "Get a test now",
 					"reason": "Your status changed to Orange because you are past due for a test."
 				}
+			},
+			"SAR.positive": {
+				"health_status": "red",
+				"priority": 11,
+				"next_step": "Isolate at home and call your healthcare provider"
+			},
+			"SAR.negative": {
+				"condition": "require-test",
+				"params": {
+					"interval": { "min": 0, "max": 5, "scope": "future" },
+					"current_interval": { "min": 0, "max": 5 }
+				},
+				"success": {
+					"health_status": "yellow",
+					"priority": 1,
+					"next_step": "Monitor your test results"
+				},
+				"fail": {
+					"health_status": "orange",
+					"priority": 1,
+					"next_step": "Get a test now",
+					"reason": "Your status changed to Orange because you are past due for a test."
+				}
+			},
+			"SAR.invalid": {
+				"condition": "require-test",
+				"params": {
+					"interval": { "min": 0, "max": 1, "scope": "future" },
+					"current_interval": { "min": 0, "max": 1 }
+				},
+				"success": {
+					"health_status": null,
+					"priority": 1,
+					"next_step": "Get another test asap",
+					"next_step_interval": 1
+				},
+				"fail": {
+					"health_status": "orange",
+					"priority": 1,
+					"next_step": "Get a test now",
+					"reason": "Your status changed to Orange because you are past due for a test."
+				}
 			}
 		}
 	},
@@ -193,8 +350,18 @@
 		"rules": [
 			{
 				"counts": {
-					"gr1": { "min": 2 },
-					"gr2": { "min": 1 }
+					"gr-2.4-1": { "min": 1 }
+				},
+				"status": {
+					"health_status": "orange",
+					"priority": 1,
+					"next_step": "Take a COVID-19 test now",
+					"reason": "Your status changed to Orange because you self-reported symptoms consistent with the virus."
+				}
+			},
+			{
+				"counts": {
+					"gr-2.5-1": { "min": 1 }
 				},
 				"status": {
 					"health_status": "orange",
@@ -208,7 +375,8 @@
 		"groups": [
 			{
 				"id": null,
-				"name": "gr0",
+				"name": "gr-2.4-0",
+				"visible": false,
 				"symptoms": [
 					{
 						"id": "b669503f-938b-11ea-8f2a-0a58a9feac2a",
@@ -217,8 +385,9 @@
 				]
 			},
 			{
-				"id": "0952bb51-937b-11ea-8f2a-0a58a9feac2a",
-				"name": "gr1",
+				"id": null,
+				"name": "gr-2.4-1",
+				"visible": false,
 				"symptoms": [
 					{
 						"id": "b41b12cc-93be-11ea-ae23-0a58a9feac2a",
@@ -233,16 +402,16 @@
 						"name": "Shaking or Shivering"
 					},
 					{
+						"id": "f3b23b65-93ca-11ea-ae23-0a58a9feac2a",
+						"name": "Shortness of breath"
+					},
+					{
+						"id": "05239c9e-93cb-11ea-ae23-0a58a9feac2a",
+						"name": "Difficulty breathing"
+					},
+					{
 						"id": "9ee1831e-93ca-11ea-ae23-0a58a9feac2a",
 						"name": "Muscle or joint pain"
-					},
-					{
-						"id": "acda4f1e-93ca-11ea-ae23-0a58a9feac2a",
-						"name": "Headache"
-					},
-					{
-						"id": "bad0cc3c-93ca-11ea-ae23-0a58a9feac2a",
-						"name": "Sore Throat"
 					},
 					{
 						"id": "d5afe77f-93ca-11ea-ae23-0a58a9feac2a",
@@ -251,25 +420,57 @@
 				]
 			},
 			{
-				"id": "0952df75-937b-11ea-8f2a-0a58a9feac2a",
-				"name": "gr2",
+				"id": null,
+				"name": "gr-2.5-1",
+				"visible": true,
 				"symptoms": [
+					{
+						"id": "7c76102e-7c99-4743-80a6-5f09503fe92a",
+						"name": "Fever or chills"
+					},
 					{
 						"id": "e35c8441-93ca-11ea-ae23-0a58a9feac2a",
 						"name": "Cough"
 					},
 					{
-						"id": "f3b23b65-93ca-11ea-ae23-0a58a9feac2a",
-						"name": "Shortness of breath"
+						"id": "ef5ebc2f-7f0c-4373-9ae0-9d2095dd2e62",
+						"name": "Shortness of breath or difficulty breathing"
 					},
 					{
-						"id": "05239c9e-93cb-11ea-ae23-0a58a9feac2a",
-						"name": "Difficulty breathing"
+						"id": "d3859c19-fdf4-408c-8da5-7b882baa845d",
+						"name": "Fatigue"
+					},
+					{
+						"id": "7b3b3997-de7c-4a7d-8106-51aa1fbcbf5b",
+						"name": "Muscle or body aches"
+					},
+					{
+						"id": "acda4f1e-93ca-11ea-ae23-0a58a9feac2a",
+						"name": "Headache"
+					},
+					{
+						"id": "0f8a0f45-4207-4823-8482-50ec141d1ddf",
+						"name": "New loss of taste or smell"
+					},
+					{
+						"id": "bad0cc3c-93ca-11ea-ae23-0a58a9feac2a",
+						"name": "Sore Throat"
+					},
+					{
+						"id": "09e1e994-387c-437b-aeca-5534b7f52ffa",
+						"name": "Congestion or runny nose"
+					},
+					{
+						"id": "64f38a81-0591-4fd1-bb00-5395b8c0d97d",
+						"name": "Nausea or vomiting"
+					},
+					{
+						"id": "c7aa955f-02b5-46a5-ab47-d51850de2b3c",
+						"name": "Diarrhea"
 					}
 				]
 			}
 		]
-		
 	},
 	
 	"contact_trace": {
