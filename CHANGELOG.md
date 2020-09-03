@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - New symptoms and rules. [#84](https://github.com/rokwire/safer-illinois-app/issues/84)
  - Acknowledged "covid19ReportExposuresWhilePositive" settings flag for reporting red users after the date of becoming red. [#87](https://github.com/rokwire/safer-illinois-app/issues/87)
 
+### Removed
+ - Removed MapsIndoors library from native sides [#108](https://github.com/rokwire/safer-illinois-app/issues/108).
 
 ## [2.5.1] - 2020-08-28
 ### Fixed
