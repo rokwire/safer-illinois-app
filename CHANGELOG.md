@@ -8,24 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.5.2] - 2020-09-03
 ### Changed
- - Updated health rules. [#107](https://github.com/rokwire/safer-illinois-app/issues/107)
- - Do not process pending events if we failed to load history. [#94](https://github.com/rokwire/safer-illinois-app/issues/94)
- - Mark pending event that persist in history table as processed.
-
-## Fixed
- - Fixed CHANGELOG format. [#79](https://github.com/rokwire/safer-illinois-app/issues/79)
- - Fix issue with _determineIsOpen not checking weekDay. [#111](https://github.com/rokwire/safer-illinois-app/pull/111)
- 
-### Changed
- - Prevent screenshots in Android. [#97](https://github.com/rokwire/safer-illinois-app/issues/97)
+- Updated health rules. [#107](https://github.com/rokwire/safer-illinois-app/issues/107)
+- Do not process pending events if we failed to load history. [#94](https://github.com/rokwire/safer-illinois-app/issues/94)
+- Mark pending event that persist in history table as processed.
+- Prevent screenshots in Android. [#97](https://github.com/rokwire/safer-illinois-app/issues/97)
 - Acknowledged "covid19ExposureExpireDays" and "covid19ExposureActiveDays" in Exposure service [#100](https://github.com/rokwire/safer-illinois-app/issues/100)
+- New symptoms and rules. [#84](https://github.com/rokwire/safer-illinois-app/issues/84)
+- Acknowledged "covid19ReportExposuresWhilePositive" settings flag for reporting red users after the date of becoming red. [#87](https://github.com/rokwire/safer-illinois-app/issues/87)
 
-### Changed
- - New symptoms and rules. [#84](https://github.com/rokwire/safer-illinois-app/issues/84)
- - Acknowledged "covid19ReportExposuresWhilePositive" settings flag for reporting red users after the date of becoming red. [#87](https://github.com/rokwire/safer-illinois-app/issues/87)
-
+### Fixed
+- Fixed CHANGELOG format. [#79](https://github.com/rokwire/safer-illinois-app/issues/79)
+- Fix issue with _determineIsOpen not checking weekDay. [#111](https://github.com/rokwire/safer-illinois-app/pull/111)
+ 
 ### Removed
- - Removed MapsIndoors library from native sides [#108](https://github.com/rokwire/safer-illinois-app/issues/108).
+- Removed MapsIndoors library from native sides [#108](https://github.com/rokwire/safer-illinois-app/issues/108).
 
 ## [2.5.1] - 2020-08-28
 ### Fixed
@@ -84,7 +80,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated "covid19ExposureServiceLogMinDuration" setting to default to 0.
 
 ## [2.3.5] - 2020-08-19
-## Changed
+### Changed
 - Update description for camera usage. [#25](https://github.com/rokwire/safer-illinois-app/issues/25)
 
 ## [2.3.4] - 2020-08-19
