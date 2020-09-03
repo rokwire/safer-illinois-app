@@ -279,13 +279,6 @@
 	}
 }
 
-#pragma mark MPDirectionsRendererDelegate
-
-- (void)floorDidChange:(NSNumber*)floor {
-	[self updateMarkers];
-}
-
-
 @end
 
 /////////////////////////////////

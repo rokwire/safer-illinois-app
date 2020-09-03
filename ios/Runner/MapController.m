@@ -192,11 +192,5 @@
 - (void)mapView:(GMSMapView *)mapView idleAtCameraPosition:(GMSCameraPosition *)position {
 }
 
-#pragma mark MPMapControlDelegate
-
-- (void)floorDidChange:(NSNumber*)floor {
-	NSLog(@"Maps Indoors: floorDidChange: %d", floor.intValue);
-}
-
 @end
 

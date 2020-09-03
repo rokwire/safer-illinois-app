@@ -252,14 +252,6 @@
 	}
 }
 
-#pragma mark MPDirectionsRendererDelegate
-
-- (void)floorDidChange: (nonnull NSNumber*)floor {
-	[self updateCustomLocationMarker];
-	[self updateSelectedMarker];
-}
-
-
 @end
 
 
