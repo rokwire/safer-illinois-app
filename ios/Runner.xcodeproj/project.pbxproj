@@ -39,7 +39,6 @@
 		269F83EE22D73EB400CC11A4 /* NSDate+UIUCUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 269F83EA22D73EB400CC11A4 /* NSDate+UIUCUtils.m */; };
 		269F83EF22D73EB400CC11A4 /* UIColor+InaParse.m in Sources */ = {isa = PBXBuildFile; fileRef = 269F83EC22D73EB400CC11A4 /* UIColor+InaParse.m */; };
 		269F83F222D744E200CC11A4 /* CGGeometry+InaUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 269F83F122D744E200CC11A4 /* CGGeometry+InaUtils.m */; };
-		269F83FC22D77E5500CC11A4 /* MapDirectionsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 269F83FB22D77E5500CC11A4 /* MapDirectionsController.m */; };
 		26A170EB22DDFB6500299773 /* button-icon-nav-next.png in Resources */ = {isa = PBXBuildFile; fileRef = 26A170E822DDFB6500299773 /* button-icon-nav-next.png */; };
 		26A170EC22DDFB6500299773 /* button-icon-nav-prev.png in Resources */ = {isa = PBXBuildFile; fileRef = 26A170E922DDFB6500299773 /* button-icon-nav-prev.png */; };
 		26A170ED22DDFB6500299773 /* button-icon-nav-clear.png in Resources */ = {isa = PBXBuildFile; fileRef = 26A170EA22DDFB6500299773 /* button-icon-nav-clear.png */; };
@@ -126,8 +125,6 @@
 		269F83ED22D73EB400CC11A4 /* NSDate+UIUCUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDate+UIUCUtils.h"; sourceTree = "<group>"; };
 		269F83F022D744E200CC11A4 /* CGGeometry+InaUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CGGeometry+InaUtils.h"; sourceTree = "<group>"; };
 		269F83F122D744E200CC11A4 /* CGGeometry+InaUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "CGGeometry+InaUtils.m"; sourceTree = "<group>"; };
-		269F83FA22D77E5500CC11A4 /* MapDirectionsController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapDirectionsController.h; sourceTree = "<group>"; };
-		269F83FB22D77E5500CC11A4 /* MapDirectionsController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MapDirectionsController.m; sourceTree = "<group>"; };
 		26A170E822DDFB6500299773 /* button-icon-nav-next.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-icon-nav-next.png"; sourceTree = "<group>"; };
 		26A170E922DDFB6500299773 /* button-icon-nav-prev.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-icon-nav-prev.png"; sourceTree = "<group>"; };
 		26A170EA22DDFB6500299773 /* button-icon-nav-clear.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-icon-nav-clear.png"; sourceTree = "<group>"; };
@@ -323,8 +320,6 @@
 				2696995922C38B4000B3290E /* AppKeys.m */,
 				266FA50123E0388B00F800F5 /* MapController.h */,
 				266FA50223E0388B00F800F5 /* MapController.m */,
-				269F83FA22D77E5500CC11A4 /* MapDirectionsController.h */,
-				269F83FB22D77E5500CC11A4 /* MapDirectionsController.m */,
 				26B340352331163A0031CF70 /* MapLocationPickerController.h */,
 				26B340362331163A0031CF70 /* MapLocationPickerController.m */,
 				2696997E22C3A14A00B3290E /* MapView.h */,
@@ -594,7 +589,6 @@
 				26C90CF02361D13E0092E07F /* NSDictionary+UIUCConfig.m in Sources */,
 				269F83F222D744E200CC11A4 /* CGGeometry+InaUtils.m in Sources */,
 				B6EA372423A7EF76001D78A5 /* Bluetooth+InaUtils.m in Sources */,
-				269F83FC22D77E5500CC11A4 /* MapDirectionsController.m in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
 				268F647D22DF09D900A85AFD /* NSArray+InaTypedValue.m in Sources */,
 				2696995D22C38B4000B3290E /* AppKeys.m in Sources */,

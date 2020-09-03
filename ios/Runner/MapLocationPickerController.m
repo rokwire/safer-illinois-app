@@ -27,25 +27,19 @@
 
 #import <Foundation/Foundation.h>
 #import <GoogleMaps/GoogleMaps.h>
-#import <MapsIndoors/MapsIndoors.h>
 
 
-@interface MapLocationPickerController () <GMSMapViewDelegate, MPMapControlDelegate>
+@interface MapLocationPickerController () <GMSMapViewDelegate>
 
 @property (nonatomic, strong) NSDictionary*         explore;
 
 @property (nonatomic, strong) GMSMapView*           gmsMapView;
-@property (nonatomic, strong) MPMapControl*         mpMapControl;
 
 @property (nonatomic, strong) UILabel*              locationLabel;
 
 @property (nonatomic, strong) GMSMarker*            customLocationMarker;
 @property (nonatomic, strong) GMSMarker*            selectedMarker;
 
-@end
-
-@interface MPLocation(InaUtils)
-@property (nonatomic, readonly) NSString* displayDescriptin;
 @end
 
 
@@ -82,9 +76,6 @@
 	_gmsMapView = [GMSMapView mapWithFrame:CGRectZero camera:camera];
 	_gmsMapView.delegate = self;
 
-	_mpMapControl = [[MPMapControl alloc] initWithMap:_gmsMapView];
-	_mpMapControl.delegate = self;
-
 	_locationLabel = [[UILabel alloc] initWithFrame:CGRectZero];
 	_locationLabel.font = [UIFont systemFontOfSize:16];
 	_locationLabel.numberOfLines = 0;
@@ -116,23 +107,6 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-	
-	NSDictionary *initalLocation = [_explore inaDictForKey:@"location"];
-
-	if (initalLocation != nil) {
-		NSString *locationId = [initalLocation inaStringForKey:@"location_id"];
-		MPLocation *location = (locationId != nil) ? [_mpMapControl getLocationById:locationId] : nil;
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-		GMSMarker *marker = (location != nil) ? location.marker : nil;
-#pragma clang diagnostic pop
-		if (marker == nil) {
-			marker = [self createCustomLocationMarkerFromExploreData:_explore];
-		}
-		_mpMapControl.currentFloor = [initalLocation inaNumberForKey:@"floor"];
-		_gmsMapView.selectedMarker = _selectedMarker = marker;
-	}
-	
-    [self updateLocationLabelFromMarker:_selectedMarker];
 }
 
 #pragma mark Location Handling
@@ -150,13 +124,10 @@
 
 - (void)updateLocationLabelFromMarker:(GMSMarker*)marker {
 	if (marker != nil) {
-	    MPLocation *location = [_mpMapControl getLocation:marker];
-		NSString *locationName = (location != nil) ? location.name : marker.title;
-		
 		NSString *html = [NSString stringWithFormat:@"<html>\
 			<head><style>body{ font-family: Helvetica; font-weight: regular; font-size: 18px; color:#000000 } </style></head>\
 			<body><center>%@</center></body>\
-		</html>", [NSString stringWithFormat:@"%@: %@", NSLocalizedString(@"Location", nil), [NSString stringWithFormat:@"<b>%@</b>", locationName]]];
+		</html>", [NSString stringWithFormat:@"%@", NSLocalizedString(@"Location", nil)]];
 
 		_locationLabel.attributedText = [[NSAttributedString alloc]
 			initWithData:[html dataUsingEncoding:NSUTF8StringEncoding]
@@ -182,7 +153,6 @@
 		@"description" : @"",
 		@"latitude" : @(coordinate.latitude),
 		@"longitude" : @(coordinate.longitude),
-		@"floor" : _mpMapControl.currentFloor ?: @(0)
 	};
 
 	return [self createCustomLocationMarkerFromExploreData:explore];
@@ -227,49 +197,11 @@
 }
 
 - (void)updateCustomLocationMarker {
-	if (_customLocationMarker != nil) {
-		NSNumber *markerFloor = nil;
-		if ([_customLocationMarker.userData isKindOfClass:[NSDictionary class]]) {
-			NSDictionary *eventLocation = [_customLocationMarker.userData inaDictForKey:@"location"];
-			markerFloor = [eventLocation inaNumberForKey:@"floor"];
-		}
-		else if ([_customLocationMarker.userData isKindOfClass:[MPLocation class]]) {
-			markerFloor = [(MPLocation*)(_customLocationMarker.userData) floor];
-		}
-		
-		bool markerVisible = (markerFloor == nil) || (markerFloor.intValue == _mpMapControl.currentFloor.intValue);
-		if (markerVisible && (_customLocationMarker.map == nil)) {
-			_customLocationMarker.map = _gmsMapView;
-		}
-		else if (!markerVisible && (_customLocationMarker.map != nil)) {
-			_customLocationMarker.map = nil;
-		}
-	}
 }
 
 - (void)updateSelectedMarker {
 	if (_selectedMarker != nil) {
-		NSNumber *markerFloor = nil;
-		if (_selectedMarker == _customLocationMarker) {
-			NSDictionary *eventLocation = [_customLocationMarker.userData inaDictForKey:@"location"];
-			markerFloor = [eventLocation inaNumberForKey:@"floor"];
-		}
-		else {
-		    MPLocation *location = [_mpMapControl getLocation:_selectedMarker];
-		    if (location != nil) {
-		    	markerFloor = location.floor;
-			}
-			else {
-				markerFloor = @(0);
-			}
-		}
-
-		if (markerFloor.intValue == _mpMapControl.currentFloor.intValue) {
-			_gmsMapView.selectedMarker = _selectedMarker;
-		}
-		else {
 			_gmsMapView.selectedMarker = nil;
-		}
 	}
 }
 
@@ -287,17 +219,6 @@
 		NSDictionary *locationData = nil;
 		if (_selectedMarker == _customLocationMarker) {
 			locationData = _selectedMarker.userData;
-		}
-		else {
-			MPLocation *location = [_mpMapControl getLocation:_selectedMarker];
-			locationData = @{ @"location" : @{
-				@"location_id" : location.locationId ?: @"",
-				@"name" : location.name ?: @"",
-				@"description" : location.displayDescriptin ?: @"",
-				@"latitude" : @(_selectedMarker.position.latitude),
-				@"longitude" : @(_selectedMarker.position.longitude),
-				@"floor" : location.floor ?: @(0)
-			}};
 		}
 		
 		NSData *jsonData = [NSJSONSerialization dataWithJSONObject:locationData options:0 error:NULL];
@@ -341,32 +262,4 @@
 
 @end
 
-@implementation MPLocation(InaUtils)
 
-- (NSString*)displayDescriptin {
-	if (0 < self.descr.length) {
-		return self.descr;
-	}
-	else {
-		NSMutableString *customDescr = [[NSMutableString alloc] init];
-		if (0 < self.type.length) {
-			[customDescr appendString:self.type];
-		}
-		if (0 < self.building.length) {
-			if (0 < customDescr.length) {
-				[customDescr appendString:@", "];
-			}
-			[customDescr appendString:self.building];
-		}
-		if ((0 < self.venue.length) && ![self.venue isEqualToString:self.building]) {
-			if (0 < customDescr.length) {
-				[customDescr appendString:@", "];
-			}
-			[customDescr appendString:self.venue];
-		}
-		return customDescr;
-	}
-
-}
-
-@end
