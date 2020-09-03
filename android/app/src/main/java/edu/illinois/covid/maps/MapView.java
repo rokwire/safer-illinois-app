@@ -19,7 +19,6 @@ package edu.illinois.covid.maps;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewParent;
@@ -37,10 +36,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 import com.google.maps.android.ui.IconGenerator;
-import com.mapsindoors.mapssdk.FloorSelectorInterface;
-import com.mapsindoors.mapssdk.MPLocation;
-import com.mapsindoors.mapssdk.MapControl;
-import com.mapsindoors.mapssdk.errors.MIError;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -52,8 +47,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import edu.illinois.covid.Constants;
 import edu.illinois.covid.MainActivity;
 import edu.illinois.covid.R;
@@ -67,7 +60,6 @@ public class MapView extends FrameLayout implements OnMapReadyCallback {
     private Activity activity;
     private com.google.android.gms.maps.MapView googleMapView;
     private GoogleMap googleMap;
-    private MapControl mapControl;
     private List<Object> explores;
     private List<Marker> markers;
 
@@ -92,10 +84,6 @@ public class MapView extends FrameLayout implements OnMapReadyCallback {
 
     public void onDestroy() {
         clearMarkers();
-        if (mapControl != null) {
-            mapControl.onDestroy();
-            mapControl = null;
-        }
         if (googleMapView != null) {
             googleMapView.onDestroy();
         }
@@ -144,17 +132,6 @@ public class MapView extends FrameLayout implements OnMapReadyCallback {
         markerGroupLayoutView = (inflater != null) ? inflater.inflate(R.layout.marker_group_layout, null) : null;
     }
 
-    private void initMapControl() {
-        mapControl = new MapControl(activity);
-        mapControl.setGoogleMap(googleMap, googleMapView);
-        mapControl.addOnCameraMoveListener(this::updateMarkers);
-        mapControl.setOnMarkerClickListener(this::onMarkerClicked);
-        mapControl.setOnMapClickListener(this::onMapClick);
-        mapControl.setOnFloorUpdateListener((building, i) -> updateMarkersVisibility());
-
-        mapControl.init(this::mapControlDidInit);
-    }
-
     @Override
     public void onMapReady(GoogleMap map) {
         onResume();
@@ -163,7 +140,6 @@ public class MapView extends FrameLayout implements OnMapReadyCallback {
         googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(CameraPosition.fromLatLngZoom(Constants.DEFAULT_INITIAL_CAMERA_POSITION, Constants.DEFAULT_CAMERA_ZOOM)));
         showExploresOnMap();
         relocateMyLocationButton();
-        initMapControl();
     }
 
     private void acknowledgeLocationEnabledFromArgs() {
@@ -177,37 +153,6 @@ public class MapView extends FrameLayout implements OnMapReadyCallback {
             }
         }
         this.enableLocationValue = myLocationEnabled;
-    }
-
-    private void mapControlDidInit(MIError error) {
-        if (error != null) {
-            Log.d(MapViewController.class.getCanonicalName(), error.message);
-        } else {
-            if (activity != null) {
-                activity.runOnUiThread(this::mapControlInitIsReady);
-            }
-        }
-    }
-
-    private void mapControlInitIsReady() {
-        if (mapControl != null) {
-            mapControl.selectFloor(0);
-            // =======================================================================================
-            //
-            // This is a workaround for a current issue in the default floor selector. Without it,
-            // the floor selector will only show up once we pan away from our building and back...
-            //
-            // This issue is still present in the current SDK version (3.1.3-beta-4)
-            // =======================================================================================
-            //
-            final FloorSelectorInterface floorSelector = mapControl.getFloorSelector();
-            if (floorSelector != null) {
-                // Hide without animating
-                floorSelector.show(false, false);
-                // ...and show without animating
-                floorSelector.show(true, false);
-            }
-        }
     }
 
     private void moveCameraToSpecificPosition() {
@@ -343,17 +288,6 @@ public class MapView extends FrameLayout implements OnMapReadyCallback {
         cameraZoom = currentCameraZoom;
     }
 
-    private void updateMarkersVisibility() {
-        int currentFloorIndex = (mapControl != null) ? mapControl.getCurrentFloorIndex() : 0;
-        if (markers != null && !markers.isEmpty()) {
-            for (Marker marker : markers) {
-                Integer markerFloor = Utils.Explore.optMarkerLocationFloor(marker);
-                boolean markerVisible = (markerFloor == null) || (currentFloorIndex == markerFloor);
-                marker.setVisible(markerVisible);
-            }
-        }
-    }
-
     private boolean onMarkerClicked(Marker marker) {
         Object rawData = Utils.Explore.optExploreMarkerRawData(marker);
         if (rawData != null) {
@@ -383,7 +317,7 @@ public class MapView extends FrameLayout implements OnMapReadyCallback {
         return false;
     }
 
-    private boolean onMapClick(@NonNull LatLng latLng, @Nullable List<MPLocation> list) {
+    private boolean onMapClick() {
         JSONObject jsonArgs = new JSONObject();
         try {
             jsonArgs.put("mapId", mapId);
