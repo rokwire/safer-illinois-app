@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Fixed
  - Fixed CHANGELOG format. [#79](https://github.com/rokwire/safer-illinois-app/issues/79)
+ - Fix issue with _determineIsOpen not checking weekDay. [#111](https://github.com/rokwire/safer-illinois-app/pull/111)
  
 ### Changed
  - Prevent screenshots in Android. [#97](https://github.com/rokwire/safer-illinois-app/issues/97)
