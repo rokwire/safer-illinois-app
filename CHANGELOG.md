@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.5.5] - 2020-09-04
+### Changed
+ - Build number to 505
+
 ## [2.4.5] - 2020-09-01
 ### Changed
  - Prevent screenshots. [#97](https://github.com/rokwire/safer-illinois-app/issues/97)
