@@ -486,7 +486,7 @@ class _TestLocation extends StatelessWidget{
   String _getPeriodText(HealthLocationDayOfOperation period, LinkedHashMap<int,HealthLocationDayOfOperation> workingPeriods){
     String openText = Localization().getStringEx("panel.covid19_test_locations.work_time.open_until","Open until");
     String closedText = Localization().getStringEx("panel.covid19_test_locations.work_time.closed_until","Closed until");
-    if(period.isOpen){ //This is the active Period
+    if((period != null) && period.isOpen){ //This is the active Period
       String end = period?.closeTime;
       return "$openText $end";
     } else {
@@ -508,7 +508,7 @@ class _TestLocation extends StatelessWidget{
       // First, check if the current day period will open today
       int currentWeekDay = DateTime.now().weekday;
       HealthLocationDayOfOperation period = workingPeriods[currentWeekDay];
-      if (period.willOpen) return period;
+      if ((period != null) && period.willOpen) return period;
 
       // Modulus math works better with 0 based indexes, and flutter uses 1 based
       // weekdays
