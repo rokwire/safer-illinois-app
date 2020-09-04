@@ -53,8 +53,9 @@
     <string name="save">Save</string>
 
     <!-- Exposure -->
-    <string name="exposure_notification_channel_description">Exposure Notification system</string>
-    <string name="exposure_notification_title">Exposure Notification system checking</string>
-    <string name="exposure_notification_ticker">Exposure Notification system checking</string>
-    <string name="exposure_request_bluetooth_on_message">Allow exposure notifications. Do you want to turn on Bluetooth?</string>
+    <string name="exposure_notification_channel_description">Building contact tracing notification</string>
+    <string name="exposure_notification_title">Contact tracing</string>
+    <string name="exposure_notification_message">Privacy-preserving contact tracing is currently running</string>
+    <string name="exposure_notification_ticker">Contact tracing</string>
+    <string name="exposure_request_bluetooth_on_message">Allow exposure notifications. Do you want to turn the bluetooth on?</string>
 </resources>

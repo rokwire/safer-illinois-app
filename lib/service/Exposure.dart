@@ -108,6 +108,7 @@ class Exposure with Service implements NotificationsListener {
   static const int _rpiRefreshInterval = (10 * 60 * 1000); // 10 min, in milisconds
   static const int _rpiCheckExposureBuffer = (30 * 60 * 1000); // 30 min as buffer time
   static const int _millisecondsInDay = 24 * 60 * 60 * 1000; // 1 day, in milliseconds
+  static const int _exposureExpireInterval = 14 * _millisecondsInDay; // 14 days, in milliseconds
   
   // Data
   final MethodChannel _methodChannel = const MethodChannel(_methodChannelName);
@@ -309,8 +310,8 @@ class Exposure with Service implements NotificationsListener {
         ExposureTEK tek;
         try { tek = ExposureTEK.fromJson((entry as Map)?.cast<String, dynamic>()); }
         catch(e) { print(e?.toString()); }
-        if (((minStamp == null) || ((tek.timestamp != null) && (minStamp <= tek.timestamp))) &&
-            ((maxStamp == null) || ((tek.timestamp != null) && (maxStamp >= tek.timestamp))))
+        if (((minStamp == null) || (minStamp <= tek.timestamp)) &&
+            ((maxStamp == null) || (maxStamp >= tek.timestamp)))
         {
           teks.add(tek);
         }
@@ -437,12 +438,8 @@ class Exposure with Service implements NotificationsListener {
   static int getThresholdTimestamp({int origin}) {
     // Two weeks before origin is standard thresold for checking exposures
     int midnightTimestamp = (origin ~/ _millisecondsInDay) * _millisecondsInDay;
-    int twoWeeksAgoMidnightTimestamp = midnightTimestamp - _exposureExpireInterval;
+    int twoWeeksAgoMidnightTimestamp = midnightTimestamp - (14 * _millisecondsInDay);
     return twoWeeksAgoMidnightTimestamp;
-  }
-
-  static int get _exposureExpireInterval {
-    return (Config().settings['covid19ExposureExpireDays'] ?? 14) * _millisecondsInDay;
   }
 
   // Local Exposures
@@ -667,31 +664,12 @@ class Exposure with Service implements NotificationsListener {
       checkReport();
     }
   }
+  
 
   Future<int> checkReport() async {
 
-    if (!_serviceEnabled) {
+    if (!_serviceEnabled || (_reportTargetTimestamp == null) || (_reportTargetTimestamp == _lastReportTimestamp)) {
       return 0;
-    }
-
-    dynamic exposureActiveDays = Config().settings['covid19ExposureActiveDays'] ?? 0;
-    int activeInterval = (exposureActiveDays is int) ? (exposureActiveDays * _millisecondsInDay) : null;
-
-    if (activeInterval != null) {
-      
-      if (_reportTargetTimestamp == null) {
-        return 0;
-      }
-      else if (_shouldStopReport(activeInterval: activeInterval)) {
-        Storage().exposureReportTargetTimestamp = _reportTargetTimestamp = null;
-        await _expireTEK(); 
-        return 0;
-      }
-    }
-    else {
-      if (Health().lastCovid19Status != kCovid19HealthStatusRed) {
-        return 0;
-      }
     }
 
     if (_checkingReport == true) {
@@ -701,34 +679,20 @@ class Exposure with Service implements NotificationsListener {
     Log.d('Exposure: Checking local TEKs to report...');
     _checkingReport = true;
 
-    int minTimestamp, maxTimestamp, currentTimestamp = _currentTimestamp;
-    if (activeInterval != null) {
-      minTimestamp = getThresholdTimestamp(origin: _reportTargetTimestamp); // two weeks before the target;
-      if ((_lastReportTimestamp != null) && (minTimestamp < _lastReportTimestamp)) {
-        minTimestamp = _lastReportTimestamp; // not earlier since the last report
-      }
-      maxTimestamp = _reportTargetTimestamp + activeInterval;
-      if (currentTimestamp < maxTimestamp) {
-        maxTimestamp = currentTimestamp;    // not later than now
-      }
+    int minTimestamp = getThresholdTimestamp(origin: _reportTargetTimestamp); // two weeks before the target;
+    if ((_lastReportTimestamp != null) && (minTimestamp < _lastReportTimestamp)) {
+      minTimestamp = _lastReportTimestamp;
     }
-    else {
-      int thresholdTimestamp = getThresholdTimestamp(origin: currentTimestamp);
-      minTimestamp = ((_lastReportTimestamp != null) && (thresholdTimestamp < _lastReportTimestamp)) ?
-        _lastReportTimestamp : thresholdTimestamp; // not earlier since thresholdTimestamp (two weeks before now)
-      maxTimestamp = currentTimestamp;
-    }
-
 
     int result;
-    List<ExposureTEK> teks = await loadTeks(minStamp: minTimestamp, maxStamp: maxTimestamp);
+    await _expireTEK();
+    List<ExposureTEK> teks = await loadTeks(maxStamp: _reportTargetTimestamp, minStamp: minTimestamp);
     if (teks == null) {
       Log.d('Failed to load local TEKs');
       result = null;
     }
     else if (teks.isEmpty) {
       Log.d('No local TEKs newer than $_reportTargetTimestamp.');
-      Storage().exposureLastReportedTimestamp = _lastReportTimestamp = maxTimestamp;
       result = 0;
     }
     else if (!await reportTEKs(teks)) {
@@ -738,34 +702,12 @@ class Exposure with Service implements NotificationsListener {
     else {
       Log.d('Reported ${teks.length} local TEKs');
       Analytics().logHealth(action: Analytics.LogHealthReportExposuresAction);
-      Storage().exposureLastReportedTimestamp = _lastReportTimestamp = maxTimestamp;
+      Storage().exposureLastReportedTimestamp = _lastReportTimestamp = _reportTargetTimestamp;
       result = teks.length;
     }
 
-    // Check again after processing
-    if (_shouldStopReport(activeInterval: activeInterval)) {
-      Storage().exposureReportTargetTimestamp = _reportTargetTimestamp = null;
-      await _expireTEK(); 
-    }
-      
     _checkingReport = null;
     return result;
-  }
-
-  bool _shouldStopReport({int activeInterval} ) {
-    if ((_reportTargetTimestamp != null) && (activeInterval != null) && (_lastReportTimestamp != null)) {
-
-      // If last report is after the active threshold
-      if ((_reportTargetTimestamp + activeInterval) <= _lastReportTimestamp) {
-        return true;
-      }
-
-      // If user status is not red any more and the last report is after the report target, i.e. we have reported some TEKs
-      if ((Health().lastCovid19Status != kCovid19HealthStatusRed) && (_reportTargetTimestamp < _lastReportTimestamp)) {
-        return true;
-      }
-    }
-    return false;
   }
 
   // Monitor

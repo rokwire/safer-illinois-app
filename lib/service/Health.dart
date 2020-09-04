@@ -241,7 +241,6 @@ class Health with Service implements NotificationsListener {
       if (response?.statusCode == 200) {
         Covid19Status status = await Covid19Status.decryptedFromJson(AppJson.decodeMap(response.body), _userPrivateKey);
         _lastCovid19Status = status?.blob?.healthStatus;
-        _updateExposureReportTarget(status: status);
         return status;
       }
     }
@@ -1020,19 +1019,12 @@ class Health with Service implements NotificationsListener {
       result = List<Covid19Event>();
       if (0 < events.length) {
         List<Covid19History> histories = await loadCovid19History();
-        if (histories != null) {
-          for (Covid19Event event in events) {
-            if (Covid19History.listContainsEvent(histories, event)) {
-              // mark it as processed without duplicating the histyr entry
+        for (Covid19Event event in events) {
+          if (!Covid19History.listContainsEvent(histories, event)) {
+            Covid19History eventHistory = await _applyEventHistory(event);
+            if (eventHistory != null) {
               await _markEventAsProcessed(event);
-            }
-            else {
-              // add history entry and mark as processed
-              Covid19History eventHistory = await _applyEventHistory(event);
-              if (eventHistory != null) {
-                await _markEventAsProcessed(event);
-                result.add(event);
-              }
+              result.add(event);
             }
           }
         }
@@ -1070,16 +1062,13 @@ class Health with Service implements NotificationsListener {
   }
 
   Future<int> processOsfTests({List<Covid19OSFTest> osfTests}) async {
-
-    List<HealthTestType> testTypes = await loadHealthServiceTestTypes();
-    Set<String> testTypeSet = testTypes != null ? testTypes.map((entry) => entry.name).toSet() : null;
     if (osfTests != null) {
       List<Covid19OSFTest> processed = List<Covid19OSFTest>();
       DateTime lastOsfTestDate = Storage().lastHealthCovid19OsfTestDate;
       DateTime latestOsfTestDate;
 
       for (Covid19OSFTest osfTest in osfTests) {
-        if ((testTypeSet != null && testTypeSet.contains(osfTest.testType)) && osfTest.dateUtc != null && (lastOsfTestDate == null || lastOsfTestDate.isBefore(osfTest.dateUtc))) {
+        if ((osfTest.dateUtc != null) && (lastOsfTestDate == null || lastOsfTestDate.isBefore(osfTest.dateUtc))) {
           Covid19History testHistory = await _applyOsfTestHistory(osfTest);
           if (testHistory != null) {
             processed.add(osfTest);
