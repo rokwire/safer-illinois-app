@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Fixed
+ - Add null check before using instance props. [#119](https://github.com/rokwire/safer-illinois-app/pull/119)
+
 
 ## [2.5.2] - 2020-09-03
 ### Changed
@@ -12,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Do not process pending events if we failed to load history. [#94](https://github.com/rokwire/safer-illinois-app/issues/94)
  - Mark pending event that persist in history table as processed.
 
-## Fixed
+### Fixed
  - Fixed CHANGELOG format. [#79](https://github.com/rokwire/safer-illinois-app/issues/79)
  - Fix issue with _determineIsOpen not checking weekDay. [#111](https://github.com/rokwire/safer-illinois-app/pull/111)
  
