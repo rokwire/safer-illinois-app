@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Mark pending event that persist in history table as processed.
 
 ### Fixed
+ - Add null check before using instance props. [#119](https://github.com/rokwire/safer-illinois-app/pull/119)
  - Fix issue with _determineIsOpen not checking weekDay. [#111](https://github.com/rokwire/safer-illinois-app/pull/111)
 
 ## [2.4.5] - 2020-09-01
