@@ -18,8 +18,6 @@ package edu.illinois.covid;
 
 import android.os.ParcelUuid;
 
-import com.google.android.gms.maps.model.LatLng;
-
 import java.util.UUID;
 
 public class Constants {
@@ -42,19 +40,6 @@ public class Constants {
     static final String DEVICE_ID_KEY = "deviceId";
     static final String HEALTH_RSI_PRIVATE_KEY = "healthRSAPrivateKey";
     static final String BARCODE_KEY = "barcode";
-
-    //Maps
-    public static final LatLng DEFAULT_INITIAL_CAMERA_POSITION = new LatLng(40.102116, -88.227129); //Illinois University: Center of Campus //(40.096230, -88.235899); // State Farm Center
-    public static final float DEFAULT_CAMERA_ZOOM = 17.0f;
-    static final float FIRST_THRESHOLD_MARKER_ZOOM = 16.0f;
-    static final float SECOND_THRESHOLD_MARKER_ZOOM = 16.89f;
-    static final int MARKER_TITLE_MAX_SYMBOLS_NUMBER = 15;
-    public static final double EXPLORE_LOCATION_THRESHOLD_DISTANCE = 200.0; //meters
-    static final int SELECT_LOCATION_ACTIVITY_RESULT_CODE = 2;
-    public static final String LOCATION_PICKER_DATA_FORMAT = "{\"location\":{\"latitude\":%f,\"longitude\":%f,\"floor\":%d,\"description\":\"%s\",\"location_id\":\"%s\",\"name\":\"%s\"}}";
-    public static final float INDOORS_BUILDING_ZOOM = 17.0f;
-    public static final String ANALYTICS_ROUTE_LOCATION_FORMAT = "{\"latitude\":%f,\"longitude\":%f,\"floor\":%d}";
-    public static final String ANALYTICS_USER_LOCATION_FORMAT = "{\"latitude\":%f,\"longitude\":%f,\"floor\":%d,\"timestamp\":%d}";
 
     //Health
     static final String HEALTH_SHARED_PREFS_FILE_NAME = "health_shared_prefs";

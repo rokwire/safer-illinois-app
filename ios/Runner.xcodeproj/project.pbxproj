@@ -11,8 +11,6 @@
 		2605FF54236C13A6002F71BE /* GoogleService-Info-Debug.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2605FF52236C13A6002F71BE /* GoogleService-Info-Debug.plist */; };
 		2605FF55236C13A6002F71BE /* GoogleService-Info-Release.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2605FF53236C13A6002F71BE /* GoogleService-Info-Release.plist */; };
 		2626D94B22DC99C800F6BC2F /* NSString+InaJson.m in Sources */ = {isa = PBXBuildFile; fileRef = 2626D94922DC99C700F6BC2F /* NSString+InaJson.m */; };
-		2626D94E22DCB80000F6BC2F /* MapMarkerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2626D94D22DCB80000F6BC2F /* MapMarkerView.m */; };
-		266FA50323E0388B00F800F5 /* MapController.m in Sources */ = {isa = PBXBuildFile; fileRef = 266FA50223E0388B00F800F5 /* MapController.m */; };
 		268F30F122E5DD7900547FE1 /* travel-mode-walk@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 268F30ED22E5DD7900547FE1 /* travel-mode-walk@2x.png */; };
 		268F30F222E5DD7900547FE1 /* travel-mode-transit@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 268F30EE22E5DD7900547FE1 /* travel-mode-transit@2x.png */; };
 		268F30F322E5DD7900547FE1 /* travel-mode-bicycle@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 268F30EF22E5DD7900547FE1 /* travel-mode-bicycle@2x.png */; };
@@ -31,7 +29,6 @@
 		2696995D22C38B4000B3290E /* AppKeys.m in Sources */ = {isa = PBXBuildFile; fileRef = 2696995922C38B4000B3290E /* AppKeys.m */; };
 		2696995E22C38B4000B3290E /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2696995A22C38B4000B3290E /* AppDelegate.m */; };
 		2696996022C38C1D00B3290E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2696995F22C38C1D00B3290E /* main.m */; };
-		2696998022C3A14A00B3290E /* MapView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2696997F22C3A14A00B3290E /* MapView.m */; };
 		269F83E622D73E7400CC11A4 /* maps-icon-marker-circle-10@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 269F83E222D73E7400CC11A4 /* maps-icon-marker-circle-10@2x.png */; };
 		269F83E722D73E7400CC11A4 /* maps-icon-marker-circle-30@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 269F83E322D73E7400CC11A4 /* maps-icon-marker-circle-30@2x.png */; };
 		269F83E822D73E7400CC11A4 /* maps-icon-marker-circle-20@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 269F83E422D73E7400CC11A4 /* maps-icon-marker-circle-20@2x.png */; };
@@ -39,11 +36,9 @@
 		269F83EE22D73EB400CC11A4 /* NSDate+UIUCUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 269F83EA22D73EB400CC11A4 /* NSDate+UIUCUtils.m */; };
 		269F83EF22D73EB400CC11A4 /* UIColor+InaParse.m in Sources */ = {isa = PBXBuildFile; fileRef = 269F83EC22D73EB400CC11A4 /* UIColor+InaParse.m */; };
 		269F83F222D744E200CC11A4 /* CGGeometry+InaUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 269F83F122D744E200CC11A4 /* CGGeometry+InaUtils.m */; };
-		269F83FC22D77E5500CC11A4 /* MapDirectionsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 269F83FB22D77E5500CC11A4 /* MapDirectionsController.m */; };
 		26A170EB22DDFB6500299773 /* button-icon-nav-next.png in Resources */ = {isa = PBXBuildFile; fileRef = 26A170E822DDFB6500299773 /* button-icon-nav-next.png */; };
 		26A170EC22DDFB6500299773 /* button-icon-nav-prev.png in Resources */ = {isa = PBXBuildFile; fileRef = 26A170E922DDFB6500299773 /* button-icon-nav-prev.png */; };
 		26A170ED22DDFB6500299773 /* button-icon-nav-clear.png in Resources */ = {isa = PBXBuildFile; fileRef = 26A170EA22DDFB6500299773 /* button-icon-nav-clear.png */; };
-		26B340372331163A0031CF70 /* MapLocationPickerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 26B340362331163A0031CF70 /* MapLocationPickerController.m */; };
 		26B3403A2331195C0031CF70 /* UILabel+InaMeasure.m in Sources */ = {isa = PBXBuildFile; fileRef = 26B340392331195C0031CF70 /* UILabel+InaMeasure.m */; };
 		26C07E2E247677A600E28D43 /* ExposurePlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 26C07E2D247677A600E28D43 /* ExposurePlugin.m */; };
 		26C90CED2361CF480092E07F /* NSDictionary+InaPathKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 26C90CEC2361CF480092E07F /* NSDictionary+InaPathKey.m */; };
@@ -393,7 +388,6 @@
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				A6EAEE2D144BCA7DA3F58188 /* [CP] Embed Pods Frameworks */,
 				263F851F234C9C8B00397B65 /* ShellScript */,
-				7566F6C06D2127BA706144EC /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -537,21 +531,6 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		7566F6C06D2127BA706144EC /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		9740EEB61CF901F6004384FC /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -594,12 +573,10 @@
 				26C90CF02361D13E0092E07F /* NSDictionary+UIUCConfig.m in Sources */,
 				269F83F222D744E200CC11A4 /* CGGeometry+InaUtils.m in Sources */,
 				B6EA372423A7EF76001D78A5 /* Bluetooth+InaUtils.m in Sources */,
-				269F83FC22D77E5500CC11A4 /* MapDirectionsController.m in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
 				268F647D22DF09D900A85AFD /* NSArray+InaTypedValue.m in Sources */,
 				2696995D22C38B4000B3290E /* AppKeys.m in Sources */,
 				268F647A22DF050400A85AFD /* CLLocationCoordinate2D+InaUtils.m in Sources */,
-				2626D94E22DCB80000F6BC2F /* MapMarkerView.m in Sources */,
 				269F83EE22D73EB400CC11A4 /* NSDate+UIUCUtils.m in Sources */,
 				B681B2B923DEFD9E00093A67 /* NSData+InaHex.m in Sources */,
 				26FA06BE22CCA9B5003B78E4 /* NSDictionary+InaTypedValue.m in Sources */,
@@ -608,13 +585,10 @@
 				26C90CED2361CF480092E07F /* NSDictionary+InaPathKey.m in Sources */,
 				26ECB3262487AD0900479487 /* Security+UIUCUtils.m in Sources */,
 				26FAB1C922EB3502008E987C /* NSDictionary+UIUCExplore.m in Sources */,
-				266FA50323E0388B00F800F5 /* MapController.m in Sources */,
 				2696996022C38C1D00B3290E /* main.m in Sources */,
 				2696995E22C38B4000B3290E /* AppDelegate.m in Sources */,
 				26B3403A2331195C0031CF70 /* UILabel+InaMeasure.m in Sources */,
 				26FAB1CC22EB35C7008E987C /* NSDate+InaUtils.m in Sources */,
-				2696998022C3A14A00B3290E /* MapView.m in Sources */,
-				26B340372331163A0031CF70 /* MapLocationPickerController.m in Sources */,
 				26ECB3232487938C00479487 /* CommonCrypto+UIUCUtils.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
