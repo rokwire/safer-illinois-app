@@ -26,6 +26,7 @@ class NotificationCreator {
 
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                         .setContentTitle(context.getString(R.string.exposure_notification_title))
+                        .setContentText(context.getString(R.string.exposure_notification_message))
                         .setSmallIcon(R.drawable.app_icon)
                         .setContentIntent(pendingIntent)
                         .setTicker(context.getString(R.string.exposure_notification_ticker));

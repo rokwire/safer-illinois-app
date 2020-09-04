@@ -103,9 +103,7 @@ class _Covid19SymptomsPanelState extends State<Covid19SymptomsPanel> {
     List<Widget> result = <Widget>[];
     if (_symptomsGroups != null) {
       for (HealthSymptomsGroup group in _symptomsGroups) {
-        if (group.visible != false) {
-          result.addAll(_buildGroup(group));
-        }
+        result.addAll(_buildGroup(group));
       }
     }
     if (0 < result.length) {
@@ -161,6 +159,7 @@ class _Covid19SymptomsPanelState extends State<Covid19SymptomsPanel> {
           textColor: enabled ? Styles().colors.fillColorPrimary : Styles().colors.disabledTextColorTwo,
           fontFamily: Styles().fontFamilies.bold,
           fontSize: 16,
+          padding: EdgeInsets.symmetric(horizontal: 32, ),
           borderColor: enabled ? Styles().colors.fillColorSecondary : Styles().colors.disabledTextColorTwo,
           borderWidth: 2,
           onTap:() { _onSubmit();  }

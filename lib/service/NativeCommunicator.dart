@@ -113,6 +113,28 @@ class NativeCommunicator with Service {
     }
   }
 
+  Future<String> launchSelectLocation({dynamic explore}) async {
+    try {
+
+      String lastPageName = Analytics().currentPageName;
+      Map<String, dynamic> lastPageAttributes = Analytics().currentPageAttributes;
+      Analytics().logPage(name: 'MapSelectLocation');
+      Analytics().logMapShow();
+
+      dynamic jsonData = (explore != null) ? explore.toJson() : null;
+      String result = await _platformChannel.invokeMethod('pickLocation', {"explore": jsonData});
+
+      Analytics().logMapHide();
+      Analytics().logPage(name: lastPageName, attributes: lastPageAttributes);
+      return result;
+
+    } on PlatformException catch (e) {
+      print(e.message);
+    }
+
+    return null;
+  }
+
   Future<void> launchMap({dynamic target, dynamic markers}) async {
     try {
       String lastPageName = Analytics().currentPageName;

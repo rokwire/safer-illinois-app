@@ -24,10 +24,12 @@ import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/OSFHealth.dart';
 import 'package:illinois/service/Storage.dart';
 import 'package:illinois/service/Styles.dart';
-import 'package:illinois/ui/health/Covid19ReportTestPanel.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/utils/Utils.dart';
+
+
+import 'Covid19ReportTestPanel.dart';
 
 class Covid19AddTestResultPanel extends StatefulWidget {
 

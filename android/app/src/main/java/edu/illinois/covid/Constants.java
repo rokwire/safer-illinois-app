@@ -27,6 +27,7 @@ public class Constants {
     //Flutter communication methods
     static final String APP_INIT_KEY = "init";
     static final String MAP_DIRECTIONS_KEY = "directions";
+    static final String MAP_PICK_LOCATION_KEY = "pickLocation";
     static final String MAP_KEY = "map";
     static final String SHOW_NOTIFICATION_KEY = "showNotification";
     static final String APP_DISMISS_SAFARI_VC_KEY = "dismissSafariVC";
