@@ -209,17 +209,17 @@
 					{
 						"result": "DETECTED",
 						"category": "SAR.positive",
-						"status": "SAR.positive"
+						"status": "PCR.positive"
 					},
 					{
 						"result": "NOT DETECTED",
 						"category": "SAR.negative",
-						"status": "SAR.negative"
+						"status": "PCR.negative"
 					},
 					{
 						"result": "INDETERMINATE/INCONCLUSIVE",
 						"category": "SAR.invalid",
-						"status": "SAR.invalid"
+						"status": "PCR.invalid"
 					}
 				]
 			}
@@ -283,48 +283,6 @@
 				}
 			},
 			"PCR.invalid": {
-				"condition": "require-test",
-				"params": {
-					"interval": { "min": 0, "max": 1, "scope": "future" },
-					"current_interval": { "min": 0, "max": 1 }
-				},
-				"success": {
-					"health_status": null,
-					"priority": 1,
-					"next_step": "Get another test asap",
-					"next_step_interval": 1
-				},
-				"fail": {
-					"health_status": "orange",
-					"priority": 1,
-					"next_step": "Get a test now",
-					"reason": "Your status changed to Orange because you are past due for a test."
-				}
-			},
-			"SAR.positive": {
-				"health_status": "red",
-				"priority": 11,
-				"next_step": "Isolate at home and call your healthcare provider"
-			},
-			"SAR.negative": {
-				"condition": "require-test",
-				"params": {
-					"interval": { "min": 0, "max": 5, "scope": "future" },
-					"current_interval": { "min": 0, "max": 5 }
-				},
-				"success": {
-					"health_status": "yellow",
-					"priority": 1,
-					"next_step": "Monitor your test results"
-				},
-				"fail": {
-					"health_status": "orange",
-					"priority": 1,
-					"next_step": "Get a test now",
-					"reason": "Your status changed to Orange because you are past due for a test."
-				}
-			},
-			"SAR.invalid": {
 				"condition": "require-test",
 				"params": {
 					"interval": { "min": 0, "max": 1, "scope": "future" },
