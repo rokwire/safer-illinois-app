@@ -237,7 +237,13 @@
 						"interval": { "min": 0, "max": 4, "scope": "future" },
 						"current_interval": { "min": 0, "max": 4 }
 					},
-					"success": null,
+					"success": {
+						"health_status": null,
+						"priority": null,
+						"next_step": "Monitor your test results",
+						"next_step_interval": 4,
+						"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+					},
 					"fail": {
 						"health_status": "orange",
 						"priority": 1,
@@ -251,7 +257,13 @@
 						"interval": { "min": 0, "max": 8, "scope": "future" },
 						"current_interval": { "min": 0, "max": 8 }
 					},
-					"success": null,
+					"success": {
+						"health_status": null,
+						"priority": null,
+						"next_step": "Monitor your test results",
+						"next_step_interval": 8,
+						"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+					},
 					"fail": {
 						"health_status": "orange",
 						"priority": 1,
@@ -275,8 +287,9 @@
 						"health_status": "green",
 						"priority": 1,
 						"next_step": "Monitor your test results",
-						"next_step_interval": 4
-						},
+						"next_step_interval": 4,
+						"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+					},
 					"fail": {
 						"health_status": "orange",
 						"priority": 1,
@@ -294,8 +307,9 @@
 						"health_status": "green",
 						"priority": 1,
 						"next_step": "Monitor your test results",
-						"next_step_interval": 8
-						},
+						"next_step_interval": 8,
+						"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+					},
 					"fail": {
 						"health_status": "orange",
 						"priority": 1,
@@ -323,7 +337,9 @@
 					"success": {
 						"health_status": "yellow",
 						"priority": 1,
-						"next_step": "Monitor your test results"
+						"next_step": "Monitor your test results",
+						"next_step_interval": 4,
+						"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
 					},
 					"fail": {
 						"health_status": "orange",
@@ -341,7 +357,9 @@
 					"success": {
 						"health_status": "yellow",
 						"priority": 1,
-						"next_step": "Monitor your test results"
+						"next_step": "Monitor your test results",
+						"next_step_interval": 8,
+						"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
 					},
 					"fail": {
 						"health_status": "orange",
@@ -359,9 +377,10 @@
 				},
 				"success": {
 					"health_status": null,
-					"priority": 1,
+					"priority": null,
 					"next_step": "Get another test asap",
-					"next_step_interval": 1
+					"next_step_interval": 1,
+					"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
 				},
 				"fail": {
 					"health_status": "orange",
@@ -561,8 +580,10 @@
 						"success": {
 							"health_status": "yellow",
 							"priority": -1,
-							"next_step": "Resume testing on your assigned days"
-						},
+							"next_step": "Resume testing on your assigned days",
+							"next_step_interval": 4,
+							"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+							},
 						"fail": {
 							"health_status": "orange",
 							"priority": -1,
@@ -579,7 +600,9 @@
 						"success": {
 							"health_status": "yellow",
 							"priority": -1,
-							"next_step": "Resume testing on your assigned days"
+							"next_step": "Resume testing on your assigned days",
+							"next_step_interval": 8,
+							"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
 						},
 						"fail": {
 							"health_status": "orange",
@@ -598,7 +621,13 @@
 						"interval": { "min": -1, "max": 1 },
 						"current_interval": { "min": -1, "max": 1 }
 					},
-					"success": null,
+					"success": {
+						"health_status": null,
+						"priority": null,
+						"next_step": "Monitor your test results",
+						"next_step_interval": 1,
+						"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+					},
 					"fail": {
 						"health_status": "orange",
 						"priority": 1,
@@ -623,8 +652,10 @@
 						"success": {
 							"health_status": "yellow",
 							"priority": 1,
-							"next_step": "Monitor your test results"
-						},
+							"next_step": "Monitor your test results",
+							"next_step_interval": 4,
+							"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+							},
 						"fail": {
 							"health_status": "orange",
 							"priority": 1,
@@ -641,7 +672,9 @@
 						"success": {
 							"health_status": "yellow",
 							"priority": 1,
-							"next_step": "Monitor your test results"
+							"next_step": "Monitor your test results",
+							"next_step_interval": 8,
+							"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
 						},
 						"fail": {
 							"health_status": "orange",

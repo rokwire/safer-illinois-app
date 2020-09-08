@@ -169,19 +169,37 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
   }
 
   Widget _buildNextStepPrimarySection() {
-    return Health().isUserLoggedIn ? SectionTitlePrimary(
-      title: Localization().getStringEx("panel.covid19home.top_heading.title", "Stay Healthy"),
-      iconPath: 'images/icon-health.png',
-      children: <Widget>[
+    if (Health().isUserLoggedIn) {
+      
+      List<Widget> entries = <Widget>[
         _buildMostRecentEvent(),
-        Container(height: 10,),
         _buildNextStepSection(),
-        Container(height: 10,),
         _buildSymptomCheckInSection(),
-        Container(height: 10,),
         _buildAddTestResultSection(),
-        Container(height: 20,),
-      ],) : Container();
+      ];
+      
+      List<Widget> content = <Widget>[];
+      for (Widget entry in entries) {
+        if (entry != null) {
+          if (content.isNotEmpty) {
+            content.add(Container(height: 10,),);
+          }
+          content.add(entry);
+        }
+      }
+      
+      if (content.isNotEmpty) {
+        content.add(Container(height: 20,),);
+      }
+
+      return SectionTitlePrimary(
+        title: Localization().getStringEx("panel.covid19home.top_heading.title", "Stay Healthy"),
+        iconPath: 'images/icon-health.png',
+        children: content,);
+    }
+    else {
+      return Container();
+    }
   }
 
   Widget _buildHealthPrimarySection() {
@@ -202,7 +220,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
   }
   Widget _buildMostRecentEvent(){
     if(_lastHistory?.blob == null) {
-      return Container();
+      return null;
     }
     String headingText = Localization().getStringEx("panel.covid19home.label.most_recent_event.title", "MOST RECENT EVENT");
     DateTime entryDate = _lastHistory.dateUtc;
@@ -287,7 +305,8 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
   Widget _buildNextStepSection() {
     String nextStepTitle = _status?.blob?.displayNextStep;
     String nextStepHtml = _status?.blob?.displayNextStepHtml;
-    bool hasNextStep = AppString.isStringNotEmpty(nextStepTitle) || AppString.isStringNotEmpty(nextStepHtml);
+    String warningTitle = _status?.blob?.displayWarning;
+    bool hasNextStep = AppString.isStringNotEmpty(nextStepTitle) || AppString.isStringNotEmpty(nextStepHtml) || AppString.isStringNotEmpty(warningTitle);
     String headingText = hasNextStep ? Localization().getStringEx("panel.covid19home.label.next_step.title", "NEXT STEP") : '';
     String headingDate = (hasNextStep && (_status?.blob?.nextStepDateUtc != null)) ? AppDateTime().formatDateTime(_status.blob.nextStepDateUtc.toLocal(), format: "MMMM dd, yyyy") : '';
 
@@ -310,6 +329,13 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
       content.addAll(<Widget>[
           Container(height: 12,),
           Html(data: nextStepHtml, onLinkTap: (url) => _onTapLink(url), defaultTextStyle: TextStyle(fontSize: 16, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground),),
+      ]);
+    }
+
+    if (AppString.isStringNotEmpty(warningTitle)) {
+      content.addAll(<Widget>[
+          Container(height: 12,),
+          Text(warningTitle, style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Styles().colors.fillColorPrimary),),
       ]);
     }
 
@@ -351,6 +377,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
       ],),
     ));
   }
+
 
   Widget _buildSymptomCheckInSection() {
     String title = Localization().getStringEx("panel.covid19home.label.check_in.title","Symptom Check-in");
