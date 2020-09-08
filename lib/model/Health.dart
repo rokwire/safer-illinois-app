@@ -339,6 +339,18 @@ class Covid19StatusBlob {
     return nextStep;
   }
 
+  String get displayReason {
+    if (reason != null) {
+      if (reason.contains(_nextStepDateMacro)) {
+        if (nextStepDateUtc != null) {
+          String nextStepDateString = AppDateTime().formatDateTime(nextStepDateUtc.toLocal(), format: _nextStepDateFormat);
+          return reason.replaceAll(_nextStepDateMacro, nextStepDateString);
+        }
+      }
+    }
+    return reason;
+  }
+
   bool get requiresTest {
     return nextStep?.toLowerCase()?.contains("test") ?? false;  // TBD
   }
