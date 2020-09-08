@@ -11,7 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
  - Added 'test-user' condition [#125](https://github.com/rokwire/safer-illinois-app/issues/125).
-
+ - Added 'next_step_html' to status rules and status blob. Acknowleged in Info and Next Steps panels. [#128](https://github.com/rokwire/safer-illinois-app/issues/128).
+ 
 ## [2.5.5] - 2020-09-04
 ### Changed
  - Updated health rules. [#107](https://github.com/rokwire/safer-illinois-app/issues/107)
