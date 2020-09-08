@@ -906,6 +906,7 @@ class Health with Service implements NotificationsListener {
           nextStepHtml: defaultStatus.nextStepHtml,
           nextStepDateUtc: null,
           reason: defaultStatus.reason,
+          warning: defaultStatus.warning,
           historyBlob: null,
         ),
       );
@@ -970,6 +971,7 @@ class Health with Service implements NotificationsListener {
               nextStepHtml: ((historyStatus.nextStep != null) || (historyStatus.nextStepHtml != null) || (historyStatus.healthStatus != null)) ? historyStatus.nextStepHtml : status.blob.nextStepHtml,
               nextStepDateUtc: ((historyStatus.nextStepInterval != null) || (historyStatus.healthStatus != null)) ? historyStatus.nextStepDateUtc(history.dateUtc) : status.blob.nextStepDateUtc,
               reason: ((historyStatus.reason != null) || (historyStatus.healthStatus != null)) ? historyStatus.reason: status.blob.reason,
+              warning: ((historyStatus.warning != null) || (historyStatus.healthStatus != null)) ? historyStatus.warning: status.blob.warning,
               historyBlob: history.blob,
             ),
           );
@@ -1396,7 +1398,7 @@ class Health with Service implements NotificationsListener {
     return (responseJson != null) ? HealthRulesSet2.fromJson(responseJson) : null;
   }
 
-  // Access
+  // Access Rules
 
   Future<Map<String, dynamic>> _loadAccessRules({String countyId}) async {
     String url = "${Config().healthUrl}/covid19/access-rules/county/$countyId";
