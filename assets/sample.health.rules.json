@@ -209,17 +209,17 @@
 					{
 						"result": "DETECTED",
 						"category": "SAR.positive",
-						"status": "SAR.positive"
+						"status": "PCR.positive"
 					},
 					{
 						"result": "NOT DETECTED",
 						"category": "SAR.negative",
-						"status": "SAR.negative"
+						"status": "PCR.negative"
 					},
 					{
 						"result": "INDETERMINATE/INCONCLUSIVE",
 						"category": "SAR.invalid",
-						"status": "SAR.invalid"
+						"status": "PCR.invalid"
 					}
 				]
 			}
@@ -227,36 +227,81 @@
 		
 		"statuses": {
 			"antibody.negavitve": {
-				"condition": "require-test",
+				"condition": "test-user",
 				"params": {
-					"interval": { "min": 0, "max": 5, "scope": "future" },
-					"current_interval": { "min": 0, "max": 5 }
+					"roles": "undergraduate"
 				},
-				"success": null,
+				"success": {
+					"condition": "require-test",
+					"params": {
+						"interval": { "min": 0, "max": 4, "scope": "future" },
+						"current_interval": { "min": 0, "max": 4 }
+					},
+					"success": null,
+					"fail": {
+						"health_status": "orange",
+						"priority": 1,
+						"next_step": "Get a test now",
+						"reason": "Your status changed to Orange because you are past due for a test."
+					}
+				},
 				"fail": {
-					"health_status": "orange",
-					"priority": 1,
-					"next_step": "Get a test now",
-					"reason": "Your status changed to Orange because you are past due for a test."
+					"condition": "require-test",
+					"params": {
+						"interval": { "min": 0, "max": 8, "scope": "future" },
+						"current_interval": { "min": 0, "max": 8 }
+					},
+					"success": null,
+					"fail": {
+						"health_status": "orange",
+						"priority": 1,
+						"next_step": "Get a test now",
+						"reason": "Your status changed to Orange because you are past due for a test."
+					}
 				}
 			},
 			"antibody.positive": {
-				"condition": "require-test",
+				"condition": "test-user",
 				"params": {
-					"interval": { "min": 0, "max": 5, "scope": "future" },
-					"current_interval": { "min": 0, "max": 5 }
+					"roles": "undergraduate"
 				},
 				"success": {
-					"health_status": "green",
-					"priority": 1,
-					"next_step": "Monitor your test results",
-					"next_step_interval": 5
+					"condition": "require-test",
+					"params": {
+						"interval": { "min": 0, "max": 4, "scope": "future" },
+						"current_interval": { "min": 0, "max": 4 }
 					},
+					"success": {
+						"health_status": "green",
+						"priority": 1,
+						"next_step": "Monitor your test results",
+						"next_step_interval": 4
+						},
+					"fail": {
+						"health_status": "orange",
+						"priority": 1,
+						"next_step": "Get a test now",
+						"reason": "Your status changed to Orange because you are past due for a test."
+					}
+				},
 				"fail": {
-					"health_status": "orange",
-					"priority": 1,
-					"next_step": "Get a test now",
-					"reason": "Your status changed to Orange because you are past due for a test."
+					"condition": "require-test",
+					"params": {
+						"interval": { "min": 0, "max": 8, "scope": "future" },
+						"current_interval": { "min": 0, "max": 8 }
+					},
+					"success": {
+						"health_status": "green",
+						"priority": 1,
+						"next_step": "Monitor your test results",
+						"next_step_interval": 8
+						},
+					"fail": {
+						"health_status": "orange",
+						"priority": 1,
+						"next_step": "Get a test now",
+						"reason": "Your status changed to Orange because you are past due for a test."
+					}
 				}
 			},
 			"PCR.positive": {
@@ -265,66 +310,48 @@
 				"next_step": "Isolate at home and call your healthcare provider"
 			},
 			"PCR.negative": {
-				"condition": "require-test",
+				"condition": "test-user",
 				"params": {
-					"interval": { "min": 0, "max": 5, "scope": "future" },
-					"current_interval": { "min": 0, "max": 5 }
+					"roles": "undergraduate"
 				},
 				"success": {
-					"health_status": "yellow",
-					"priority": 1,
-					"next_step": "Monitor your test results"
+					"condition": "require-test",
+					"params": {
+						"interval": { "min": 0, "max": 4, "scope": "future" },
+						"current_interval": { "min": 0, "max": 4 }
+					},
+					"success": {
+						"health_status": "yellow",
+						"priority": 1,
+						"next_step": "Monitor your test results"
+					},
+					"fail": {
+						"health_status": "orange",
+						"priority": 1,
+						"next_step": "Get a test now",
+						"reason": "Your status changed to Orange because you are past due for a test."
+					}
 				},
 				"fail": {
-					"health_status": "orange",
-					"priority": 1,
-					"next_step": "Get a test now",
-					"reason": "Your status changed to Orange because you are past due for a test."
+					"condition": "require-test",
+					"params": {
+						"interval": { "min": 0, "max": 8, "scope": "future" },
+						"current_interval": { "min": 0, "max": 8 }
+					},
+					"success": {
+						"health_status": "yellow",
+						"priority": 1,
+						"next_step": "Monitor your test results"
+					},
+					"fail": {
+						"health_status": "orange",
+						"priority": 1,
+						"next_step": "Get a test now",
+						"reason": "Your status changed to Orange because you are past due for a test."
+					}
 				}
 			},
 			"PCR.invalid": {
-				"condition": "require-test",
-				"params": {
-					"interval": { "min": 0, "max": 1, "scope": "future" },
-					"current_interval": { "min": 0, "max": 1 }
-				},
-				"success": {
-					"health_status": null,
-					"priority": 1,
-					"next_step": "Get another test asap",
-					"next_step_interval": 1
-				},
-				"fail": {
-					"health_status": "orange",
-					"priority": 1,
-					"next_step": "Get a test now",
-					"reason": "Your status changed to Orange because you are past due for a test."
-				}
-			},
-			"SAR.positive": {
-				"health_status": "red",
-				"priority": 11,
-				"next_step": "Isolate at home and call your healthcare provider"
-			},
-			"SAR.negative": {
-				"condition": "require-test",
-				"params": {
-					"interval": { "min": 0, "max": 5, "scope": "future" },
-					"current_interval": { "min": 0, "max": 5 }
-				},
-				"success": {
-					"health_status": "yellow",
-					"priority": 1,
-					"next_step": "Monitor your test results"
-				},
-				"fail": {
-					"health_status": "orange",
-					"priority": 1,
-					"next_step": "Get a test now",
-					"reason": "Your status changed to Orange because you are past due for a test."
-				}
-			},
-			"SAR.invalid": {
 				"condition": "require-test",
 				"params": {
 					"interval": { "min": 0, "max": 1, "scope": "future" },
@@ -521,21 +548,45 @@
 			{
 				"type": "quarantine-off",
 				"status": {
-					"condition": "require-test",
+					"condition": "test-user",
 					"params": {
-						"interval": { "min": 0, "max": 5, "scope": "future" },
-						"current_interval": { "min": 0, "max": 5 }
+						"roles": "undergraduate"
 					},
 					"success": {
-						"health_status": "yellow",
-						"priority": -1,
-						"next_step": "Resume testing on your assigned days"
+						"condition": "require-test",
+						"params": {
+							"interval": { "min": 0, "max": 4, "scope": "future" },
+							"current_interval": { "min": 0, "max": 4 }
+						},
+						"success": {
+							"health_status": "yellow",
+							"priority": -1,
+							"next_step": "Resume testing on your assigned days"
+						},
+						"fail": {
+							"health_status": "orange",
+							"priority": -1,
+							"next_step": "Get a test now",
+							"reason": "Your status changed to Orange because you are past due for a test."
+						}
 					},
 					"fail": {
-						"health_status": "orange",
-						"priority": -1,
-						"next_step": "Get a test now",
-						"reason": "Your status changed to Orange because you are past due for a test."
+						"condition": "require-test",
+						"params": {
+							"interval": { "min": 0, "max": 8, "scope": "future" },
+							"current_interval": { "min": 0, "max": 8 }
+						},
+						"success": {
+							"health_status": "yellow",
+							"priority": -1,
+							"next_step": "Resume testing on your assigned days"
+						},
+						"fail": {
+							"health_status": "orange",
+							"priority": -1,
+							"next_step": "Get a test now",
+							"reason": "Your status changed to Orange because you are past due for a test."
+						}
 					}
 				}
 			},
@@ -559,21 +610,45 @@
 			{
 				"type": "test_pending",
 				"status": {
-					"condition": "require-test",
+					"condition": "test-user",
 					"params": {
-						"interval": { "min": 0, "max": 5, "scope": "future" },
-						"current_interval": { "min": 0, "max": 5 }
+						"roles": "undergraduate"
 					},
 					"success": {
-						"health_status": "yellow",
-						"priority": 1,
-						"next_step": "Monitor your test results"
+						"condition": "require-test",
+						"params": {
+							"interval": { "min": 0, "max": 4, "scope": "future" },
+							"current_interval": { "min": 0, "max": 4 }
+						},
+						"success": {
+							"health_status": "yellow",
+							"priority": 1,
+							"next_step": "Monitor your test results"
+						},
+						"fail": {
+							"health_status": "orange",
+							"priority": 1,
+							"next_step": "Get a test now",
+							"reason": "Your status changed to Orange because you are past due for a test."
+						}
 					},
 					"fail": {
-						"health_status": "orange",
-						"priority": 1,
-						"next_step": "Get a test now",
-						"reason": "Your status changed to Orange because you are past due for a test."
+						"condition": "require-test",
+						"params": {
+							"interval": { "min": 0, "max": 8, "scope": "future" },
+							"current_interval": { "min": 0, "max": 8 }
+						},
+						"success": {
+							"health_status": "yellow",
+							"priority": 1,
+							"next_step": "Monitor your test results"
+						},
+						"fail": {
+							"health_status": "orange",
+							"priority": 1,
+							"next_step": "Get a test now",
+							"reason": "Your status changed to Orange because you are past due for a test."
+						}
 					}
 				}
 			}
