@@ -1,6 +1,7 @@
 
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/AppDateTime.dart';
+import 'package:illinois/service/Auth.dart';
 
 ///////////////////////////////
 // HealthRulesSet2
@@ -579,6 +580,9 @@ class HealthTestRuleConditionalStatus2 extends _HealthRuleStatus2 {
     else if (condition == 'require-symptoms') {
       result = _evalRequireSymptoms(history: history, historyIndex: historyIndex, rules: rules);
     }
+    else if (condition == 'test-user') {
+      result = _evalTestUser(history: history, historyIndex: historyIndex, rules: rules);
+    }
     else if (condition == 'timeout') {
       result = _evalTimeout(history: history, historyIndex: historyIndex, rules: rules);
     }
@@ -707,6 +711,31 @@ class HealthTestRuleConditionalStatus2 extends _HealthRuleStatus2 {
       final difference = entryDateMidnightLocal.difference(historyDateMidnightLocal).inDays;
       if (interval.match(difference)) {
         return true;
+      }
+    }
+    return false;
+  }
+
+  _HealthRuleStatus2 _evalTestUser({ List<Covid19History> history, int historyIndex, HealthRulesSet2 rules }) {
+    dynamic roles = params['roles'];
+    if ((roles != null) && !_matchUserRoles(roles: roles)) {
+      return failStatus;
+    }
+    return successStatus;
+  }
+
+  static bool _matchUserRoles({dynamic roles}) {
+    String userRole = Auth().authCard?.role?.toLowerCase();
+    if (userRole != null) {
+      if (roles is String) {
+        return roles.toLowerCase() == userRole;
+      }
+      else if (roles is List) {
+        for (dynamic role in roles) {
+          if ((role is String) && (role.toLowerCase() == userRole)) {
+            return true;
+          }
+        }
       }
     }
     return false;
