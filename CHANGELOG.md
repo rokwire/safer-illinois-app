@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Removed SAR status entries from sample health rules. Use PCR entries instead that actually contain the same status rules.
  - Fixed warnings.
 
+### Added
+ - Added 'test-user' condition [#125](https://github.com/rokwire/safer-illinois-app/issues/125).
+
 ## [2.5.5] - 2020-09-04
 ### Changed
  - Updated health rules. [#107](https://github.com/rokwire/safer-illinois-app/issues/107)
