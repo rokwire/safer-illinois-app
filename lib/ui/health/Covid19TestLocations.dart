@@ -17,7 +17,6 @@
 import 'dart:collection';
 
 import 'package:illinois/service/Analytics.dart';
-import 'package:illinois/service/AppDateTime.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:location/location.dart' as Core;
 import 'package:flutter/material.dart';
@@ -525,7 +524,7 @@ class _TestLocation extends StatelessWidget{
     return null;
   }
 
-  bool _determineIsOpen(HealthLocationDayOfOperation period){
+  /*bool _determineIsOpen(HealthLocationDayOfOperation period){
     String start = period?.openTime?.toUpperCase();
     String end = period?.closeTime?.toUpperCase();
     TimeOfDay startPeriod = start!=null? TimeOfDay.fromDateTime(AppDateTime().dateTimeFromString(start,format: "hh:mma")) : null;
@@ -540,9 +539,9 @@ class _TestLocation extends StatelessWidget{
     }
 
     return false;
-  }
+  }*/
 
-  bool _determineWillOpen(HealthLocationDayOfOperation period) {
+  /*bool _determineWillOpen(HealthLocationDayOfOperation period) {
     String start = period?.openTime?.toUpperCase();
     TimeOfDay startPeriod = start != null
         ? TimeOfDay.fromDateTime(
@@ -557,7 +556,7 @@ class _TestLocation extends StatelessWidget{
     }
 
     return false;
-  }
+  }*/
 
   /*void _onTapContact() async{
     await url_launcher.launch("tel:"+testLocation?.contact ?? "");
