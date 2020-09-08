@@ -283,8 +283,8 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
   }
 
   Widget _buildNextStepSection() {
-    String headingText = (_status?.blob?.nextStep != null) ? Localization().getStringEx("panel.covid19home.label.next_step.title", "NEXT STEP") : '';
     String nextStepTitle = _status?.blob?.displayNextStep ?? '';
+    String headingText = (0 < nextStepTitle.length) ? Localization().getStringEx("panel.covid19home.label.next_step.title", "NEXT STEP") : '';
     String headingDate = (_status?.blob?.nextStepDateUtc != null) ? AppDateTime().formatDateTime(_status.blob.nextStepDateUtc.toLocal(), format:"MMMM dd, yyyy") : '';
     String scheduleText = (_status?.blob?.nextStepDateUtc != null) ? sprintf(Localization().getStringEx("panel.covid19home.label.schedule_after.title", "Schedule after %s"), [AppDateTime().formatDateTime(_status.blob.nextStepDateUtc.toLocal(), format:"MMMM dd")]) : '';
 

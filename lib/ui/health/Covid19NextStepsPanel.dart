@@ -108,6 +108,6 @@ class _Covid19NextStepsPanelState extends State<Covid19NextStepsPanel> {
   }
 
   bool get _nextStepRequiresTest{
-    return widget.status?.blob?.nextStep?.contains("test"); //TBD
+    return widget.status?.blob?.requiresTest ?? false; 
   }
 }
