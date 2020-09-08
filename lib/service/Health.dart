@@ -488,7 +488,7 @@ class Health with Service implements NotificationsListener {
       String url = "${Config().health2Url}/symptoms/symptoms.json";
       Response response = await Network().get(url);
       String responseBody = (response?.statusCode == 200) ? response.body : null;
-      //TMP:String responseBody = await rootBundle.loadString('assets/sample.health.symptoms.json');
+//TMP:String responseBody = await rootBundle.loadString('assets/sample.health.symptoms.json');
       List<dynamic> responseJson = (responseBody != null) ? AppJson.decodeList(responseBody) : null;
       return (responseJson != null) ? HealthSymptomsGroup.listFromJson(responseJson) : null;
     }
@@ -903,6 +903,7 @@ class Health with Service implements NotificationsListener {
           healthStatus: defaultStatus.healthStatus,
           priority: defaultStatus.priority,
           nextStep: defaultStatus.nextStep,
+          nextStepHtml: defaultStatus.nextStepHtml,
           nextStepDateUtc: null,
           reason: defaultStatus.reason,
           historyBlob: null,
@@ -965,7 +966,8 @@ class Health with Service implements NotificationsListener {
             blob: Covid19StatusBlob(
               healthStatus: (historyStatus.healthStatus != null) ? historyStatus.healthStatus : status.blob.healthStatus,
               priority: (historyStatus.priority != null) ? historyStatus.priority.abs() : status.blob.priority,
-              nextStep: ((historyStatus.nextStep != null) || (historyStatus.healthStatus != null)) ? historyStatus.nextStep: status.blob.nextStep,
+              nextStep: ((historyStatus.nextStep != null) || (historyStatus.nextStepHtml != null) || (historyStatus.healthStatus != null)) ? historyStatus.nextStep : status.blob.nextStep,
+              nextStepHtml: ((historyStatus.nextStep != null) || (historyStatus.nextStepHtml != null) || (historyStatus.healthStatus != null)) ? historyStatus.nextStepHtml : status.blob.nextStepHtml,
               nextStepDateUtc: ((historyStatus.nextStepInterval != null) || (historyStatus.healthStatus != null)) ? historyStatus.nextStepDateUtc(history.dateUtc) : status.blob.nextStepDateUtc,
               reason: ((historyStatus.reason != null) || (historyStatus.healthStatus != null)) ? historyStatus.reason: status.blob.reason,
               historyBlob: history.blob,
