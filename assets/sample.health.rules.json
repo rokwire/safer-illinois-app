@@ -307,7 +307,7 @@
 			"PCR.positive": {
 				"health_status": "red",
 				"priority": 11,
-				"next_step": "Isolate at home and call your healthcare provider"
+				"next_step_html": "<h3>You have been placed in mandatory isolation.</h3><ul><h6><li>Stay home. Do not go to work, school, or public areas.</li></h6><h6><li>Separate yourself from others in your home.</li></h6><h6><li>Contact Champaign-Urbana Public Health District immediately at <a href='mailto:coronavirus@c-uphd.org'>coronavirus@c-uphd.org</a></li></h6><h6><li>More Info: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Quarantine and Isolation</a></li></h6></ul>"
 			},
 			"PCR.negative": {
 				"condition": "test-user",

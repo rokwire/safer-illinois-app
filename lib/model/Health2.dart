@@ -491,17 +491,19 @@ class HealthRuleStatus2 extends _HealthRuleStatus2 {
   final int priority;
 
   final String nextStep;
+  final String nextStepHtml;
   final int nextStepInterval;
 
   final String reason;
 
-  HealthRuleStatus2({this.healthStatus, this.priority, this.nextStep, this.nextStepInterval, this.reason });
+  HealthRuleStatus2({this.healthStatus, this.priority, this.nextStep, this.nextStepHtml, this.nextStepInterval, this.reason });
 
   factory HealthRuleStatus2.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthRuleStatus2(
       healthStatus: json['health_status'],
       priority: json['priority'],
       nextStep: json['next_step'],
+      nextStepHtml: json['next_step_html'],
       nextStepInterval: json['next_step_interval'],
       reason: json['reason'],
     ) : null;
