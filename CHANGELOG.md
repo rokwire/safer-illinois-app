@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Changed
+ - Integrate maps for test locations [#132](https://github.com/rokwire/safer-illinois-app/issues/132).
+ - Use next step HTML in exposure rules [#133](https://github.com/rokwire/safer-illinois-app/issues/133).
+ - Various minor fixes.
+
+## [2.5.6] - 2020-09-08
+### Changed
  - Removed SAR status entries from sample health rules. Use PCR entries instead that actually contain the same status rules.
  - Fixed warnings.
 
