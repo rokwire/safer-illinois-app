@@ -17,6 +17,7 @@
 import 'dart:collection';
 
 import 'package:illinois/service/Analytics.dart';
+import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:location/location.dart' as Core;
 import 'package:flutter/material.dart';
