@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## [2.5.7] - 2020-09-09
 ### Changed
  - Integrate maps for test locations [#132](https://github.com/rokwire/safer-illinois-app/issues/132).
  - Use next step HTML in exposure rules [#133](https://github.com/rokwire/safer-illinois-app/issues/133).
