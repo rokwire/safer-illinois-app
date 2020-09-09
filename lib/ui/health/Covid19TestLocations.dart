@@ -579,9 +579,9 @@ class _TestLocation extends StatelessWidget{
           },
           markers: [{
             'name': testLocation?.name,
+            'description': testLocation?.fullAddress,
             'latitude': testLocation?.latitude,
             'longitude': testLocation?.longitude,
-            'description': null,
           }]);
     }
   }
