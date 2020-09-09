@@ -358,7 +358,9 @@ class Covid19StatusBlob {
   }
 
   bool get requiresTest {
-    return nextStep?.toLowerCase()?.contains("test") ?? false;  // TBD
+    // TBD
+    return (nextStep?.toLowerCase()?.contains("test") ?? false) ||
+      (nextStepHtml?.toLowerCase()?.contains("test") ?? false);  
   }
 
   String get localizedHealthStatus {
