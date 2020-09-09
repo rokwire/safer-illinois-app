@@ -568,18 +568,22 @@ class _TestLocation extends StatelessWidget{
 
   void _onTapAddress(){
     Analytics.instance.logSelect(target: "COVID-19 Test Location");
-    NativeCommunicator().launchMap(
-        target: {
-          'latitude': testLocation?.latitude,
-          'longitude': testLocation?.longitude,
-          'zoom': 17,
-        },
-        markers: [{
-          'name': testLocation?.name,
-          'latitude': testLocation?.latitude,
-          'longitude': testLocation?.longitude,
-          'description': null,
-        }]);
+    double lat = testLocation?.latitude;
+    double lng = testLocation?.longitude;
+    if ((lat != null) && (lng != null)) {
+      NativeCommunicator().launchMap(
+          target: {
+            'latitude': testLocation?.latitude,
+            'longitude': testLocation?.longitude,
+            'zoom': 17,
+          },
+          markers: [{
+            'name': testLocation?.name,
+            'latitude': testLocation?.latitude,
+            'longitude': testLocation?.longitude,
+            'description': null,
+          }]);
+    }
   }
 }
 
