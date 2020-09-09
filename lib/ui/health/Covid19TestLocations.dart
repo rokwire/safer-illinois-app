@@ -359,25 +359,28 @@ class _TestLocation extends StatelessWidget{
               ),
             ),
             Semantics(button: true,
-            child: Container(
-                padding: EdgeInsets.only(top: 8, bottom: 4),
-                child: Row(
-                  children: <Widget>[
-                    Image.asset('images/icon-location.png',excludeFromSemantics: true),
-                    Container(width: 8,),
-                    Expanded(child:
-                      Text(
-                        distance>0? '$distanceText' + distanceSufix:
-                        (testLocation?.fullAddress?? Localization().getStringEx("panel.covid19_test_locations.distance.unknown","unknown distance")),
-                        style: TextStyle(
-                          fontFamily: Styles().fontFamilies.regular,
-                          fontSize: 16,
-                          color: Styles().colors.textSurface,
-                        ),
+            child: GestureDetector(
+              onTap: _onTapAddress,
+              child: Container(
+                  padding: EdgeInsets.only(top: 8, bottom: 4),
+                  child: Row(
+                    children: <Widget>[
+                      Image.asset('images/icon-location.png',excludeFromSemantics: true),
+                      Container(width: 8,),
+                      Expanded(child:
+                        Text(
+                          distance>0? '$distanceText' + distanceSufix:
+                          (testLocation?.fullAddress?? Localization().getStringEx("panel.covid19_test_locations.distance.unknown","unknown distance")),
+                          style: TextStyle(
+                            fontFamily: Styles().fontFamilies.regular,
+                            fontSize: 16,
+                            color: Styles().colors.textSurface,
+                          ),
+                        )
                       )
-                    )
-                  ],
-                ))),
+                    ],
+                  )),
+            )),
             /*Semantics(label: Localization().getStringEx("panel.covid19_test_locations.call.hint","Call"), button: true, child:
             GestureDetector(
               onTap: _onTapContact,
@@ -561,6 +564,22 @@ class _TestLocation extends StatelessWidget{
   /*void _onTapContact() async{
     await url_launcher.launch("tel:"+testLocation?.contact ?? "");
   }*/
+
+  void _onTapAddress(){
+    Analytics.instance.logSelect(target: "COVID-19 Test Location");
+    NativeCommunicator().launchMap(
+        target: {
+          'latitude': testLocation?.latitude,
+          'longitude': testLocation?.longitude,
+          'zoom': 17,
+        },
+        markers: [{
+          'name': testLocation?.name,
+          'latitude': testLocation?.latitude,
+          'longitude': testLocation?.longitude,
+          'description': null,
+        }]);
+  }
 }
 
 enum ProviderDropDownItemType{
