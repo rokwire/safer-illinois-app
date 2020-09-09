@@ -37,9 +37,7 @@ target 'Runner' do
   use_frameworks!
   use_modular_headers!
   
-  # Disable GoogleMaps & MapsIndoors in Safer 2.4  
-  # pod 'GoogleMaps', '3.3.0'
-  # pod 'MapsIndoors', '3.8.0'
+  pod 'GoogleMaps', '3.3.0'
 
   # Disable Microblink in Safer 2.4  
   # pod 'PPBlinkID', '~> 5.3.0'
