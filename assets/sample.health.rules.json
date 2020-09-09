@@ -544,7 +544,7 @@
 					"fail": {
 						"health_status": "orange",
 						"priority": 2,
-						"next_step_html": "<h3>You have likely been exposed to a person who is infected with Covid-19.</h3><ul><h6><li>You must quarantine yourself immediately.</li></h6><h6><li>Stay home. Do not go to work, school, or public areas.</li></h6><h6><li>Separate yourself from others in your home.</li></h6><h6><li>Contact <a href='mailto:shieldteam30@illinois.edu'>shieldteam30@illinois.edu</a> for guidance.</li></h6><h6><li>Get tested after {next_step_date} to see if you have developed the disease.</li></h6></ul>",
+						"next_step_html": "<h3>You have likely been exposed to a person who is infected with COVID-19.</h3><ul><h6><li>You must quarantine yourself immediately.</li></h6><h6><li>Stay home. Do not go to work, school, or public areas.</li></h6><h6><li>Separate yourself from others in your home.</li></h6><h6><li>Contact <a href='mailto:shieldteam30@illinois.edu'>shieldteam30@illinois.edu</a> for guidance.</li></h6><h6><li>Get tested after {next_step_date} to see if you have developed the disease.</li></h6><h6><li>More Info: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Quarantine and Isolation</a></li></h6></ul>",
 						"next_step_interval": 4,
 						"reason": "Your status changed to Orange because you received an exposure notification."
 					}
