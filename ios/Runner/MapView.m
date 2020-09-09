@@ -31,12 +31,11 @@
 #import "NSDictionary+UIUCExplore.h"
 
 #import <GoogleMaps/GoogleMaps.h>
-#import <MapsIndoors/MapsIndoors.h>
 
 /////////////////////////////////
 // MapView
 
-@interface MapView()<GMSMapViewDelegate, MPMapControlDelegate> {
+@interface MapView()<GMSMapViewDelegate> {
 	int64_t       _mapId;
 	NSArray*      _explores;
 	NSMutableSet* _markers;
@@ -45,7 +44,6 @@
 	bool          _enabled;
 }
 @property (nonatomic, readonly) GMSMapView*     mapView;
-@property (nonatomic, readonly) MPMapControl*   mapControl;
 @end
 
 @implementation MapView
@@ -59,9 +57,6 @@
 		_mapView.settings.compassButton = YES;
 		_mapView.accessibilityElementsHidden = NO;
 		[self addSubview:_mapView];
-
-		_mapControl = [[MPMapControl alloc] initWithMap:_mapView];
-		_mapControl.delegate = self;
 		
 		_markers = [[NSMutableSet alloc] init];
 		_enabled = true;
@@ -209,6 +204,7 @@
 				marker.zIndex = 1;
 				marker.userData = @{ @"explore" : explore };
 				[_markers addObject:marker];
+				marker.map = _mapView;
 				
 				if (bounds == nil) {
 					bounds = [[GMSCoordinateBounds alloc] initWithCoordinate:marker.position coordinate:marker.position];
@@ -232,8 +228,6 @@
 }
 
 - (void)updateMarkers {
-
-	int currentFloor = _mapControl.currentFloor.intValue;
 	
 	for (GMSMarker *marker in _markers) {
 		NSDictionary *explore = nil, *exploreLocation = nil;
@@ -246,22 +240,7 @@
 		if ((iconView != nil) && (exploreLocation != nil)) {
 			iconView.displayMode =  (_mapView.camera.zoom < kMarkerThresold1Zoom) ? MapMarkerDisplayMode_Plain : ((_mapView.camera.zoom < kMarkerThresold2Zoom) ? MapMarkerDisplayMode_Title : MapMarkerDisplayMode_Extended);
 		}
-
-		NSNumber *markerFloor = nil;
-		if (exploreLocation != nil) {
-			markerFloor = [exploreLocation inaNumberForKey:@"floor"];
-		}
-		
-		bool markerVisible = ((markerFloor == nil) || (markerFloor.intValue == currentFloor));
-
-		if (markerVisible && (marker.map == nil)) {
-			marker.map = _mapView;
-		}
-		else if (!markerVisible && (marker.map != nil)) {
-			marker.map = nil;
-		}
 	}
-
 }
 
 #pragma mark GMSMapViewDelegate
@@ -295,13 +274,6 @@
 		[self updateMarkers];
 	}
 }
-
-#pragma mark MPDirectionsRendererDelegate
-
-- (void)floorDidChange:(NSNumber*)floor {
-	[self updateMarkers];
-}
-
 
 @end
 
