@@ -18,6 +18,7 @@ package edu.illinois.covid;
 
 import android.Manifest;
 import android.app.Application;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -49,6 +50,9 @@ import java.util.UUID;
 
 import edu.illinois.covid.exposure.ExposurePlugin;
 import edu.illinois.covid.gallery.GalleryPlugin;
+import edu.illinois.covid.maps.MapActivity;
+import edu.illinois.covid.maps.MapDirectionsActivity;
+import edu.illinois.covid.maps.MapViewFactory;
 import io.flutter.app.FlutterActivity;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -66,14 +70,13 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
 
     private ExposurePlugin exposurePlugin;
 
-    private static MethodChannel.Result pickLocationResult;
-
     private HashMap keys;
 
     private int preferredScreenOrientation;
     private Set<Integer> supportedScreenOrientations;
 
     private RequestLocationCallback rlCallback;
+
     // Gallery Plugin
     private GalleryPlugin galleryPlugin;
 
@@ -139,6 +142,10 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
     private void registerPlugins() {
         GeneratedPluginRegistrant.registerWith(this);
 
+        // MapView
+        Registrar registrar = registrarFor("MapPlugin");
+        registrar.platformViewRegistry().registerViewFactory("mapview", new MapViewFactory(this, registrar));
+
         // ExposureNotifications
         Registrar exposureRegistrar = registrarFor("ExposurePlugin");
         exposurePlugin = ExposurePlugin.registerWith(exposureRegistrar);
@@ -167,6 +174,35 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
             return;
         }
         this.keys = keysMap;
+    }
+
+    private void launchMapsDirections(Object explore, Object options) {
+        Intent intent = new Intent(this, MapDirectionsActivity.class);
+        if (explore instanceof HashMap) {
+            HashMap singleExplore = (HashMap) explore;
+            intent.putExtra("explore", singleExplore);
+        } else if (explore instanceof ArrayList) {
+            ArrayList exploreList = (ArrayList) explore;
+            intent.putExtra("explore", exploreList);
+        }
+        HashMap optionsMap = (options instanceof HashMap) ? (HashMap) options : null;
+        if (optionsMap != null) {
+            intent.putExtra("options", optionsMap);
+        }
+        startActivity(intent);
+    }
+
+    private void launchMap(Object target, Object options, Object markers) {
+        HashMap targetMap = (target instanceof HashMap) ? (HashMap) target : null;
+        HashMap optionsMap = (options instanceof HashMap) ? (HashMap) options : null;
+        ArrayList<HashMap> markersValues = (markers instanceof  ArrayList) ? ( ArrayList<HashMap>) markers : null;
+        Intent intent = new Intent(this, MapActivity.class);
+        Bundle serializableExtras = new Bundle();
+        serializableExtras.putSerializable("target", targetMap);
+        serializableExtras.putSerializable("options", optionsMap);
+        serializableExtras.putSerializable("markers", markersValues);
+        intent.putExtras(serializableExtras);
+        startActivity(intent);
     }
 
     private void launchNotification(MethodCall methodCall) {
@@ -435,13 +471,17 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
                     result.success(true);
                     break;
                 case Constants.MAP_DIRECTIONS_KEY:
-                    result.success(null);
-                    break;
-                case Constants.MAP_PICK_LOCATION_KEY:
-                    result.success(null);
+                    Object explore = methodCall.argument("explore");
+                    Object optionsObj = methodCall.argument("options");
+                    launchMapsDirections(explore, optionsObj);
+                    result.success(true);
                     break;
                 case Constants.MAP_KEY:
-                    result.success(null);
+                    Object target = methodCall.argument("target");
+                    Object options = methodCall.argument("options");
+                    Object markers = methodCall.argument("markers");
+                    launchMap(target, options,markers);
+                    result.success(true);
                     break;
                 case Constants.SHOW_NOTIFICATION_KEY:
                     launchNotification(methodCall);

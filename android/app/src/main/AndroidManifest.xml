@@ -58,6 +58,9 @@
         tools:replace="android:allowBackup"
         android:usesCleartextTraffic="true">
         <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${mapsApiKey}"/>
+        <meta-data
             android:name="com.google.android.backup.api_key"
             android:value="${backupApiKey}" />
         <activity
