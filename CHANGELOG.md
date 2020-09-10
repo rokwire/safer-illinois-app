@@ -6,9 +6,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.5.8] - 2020-09-10
+### Changed
+ - Remove restriction for taking app screenshots in Android [#138](https://github.com/rokwire/safer-illinois-app/issues/138).
+
+## [2.5.7] - 2020-09-09
+### Changed
+ - Integrate maps for test locations [#132](https://github.com/rokwire/safer-illinois-app/issues/132).
+ - Use next step HTML in exposure rules [#133](https://github.com/rokwire/safer-illinois-app/issues/133).
+ - Various minor fixes.
+
+## [2.5.6] - 2020-09-08
+### Changed
+ - Removed SAR status entries from sample health rules. Use PCR entries instead that actually contain the same status rules.
+ - Fixed warnings.
+
+### Added
+ - Added 'test-user' condition [#125](https://github.com/rokwire/safer-illinois-app/issues/125).
+ - Added 'next_step_html' to status rules and status blob. Acknowleged in Info and Next Steps panels. [#128](https://github.com/rokwire/safer-illinois-app/issues/128).
+ - Added 'warning' to status rules and status blob. Acknowleged in Info panel. [#127](https://github.com/rokwire/safer-illinois-app/issues/127).
+ 
 ## [2.5.5] - 2020-09-04
 ### Changed
- - Build number to 505
+ - Updated health rules. [#107](https://github.com/rokwire/safer-illinois-app/issues/107)
+ - Do not process pending events if we failed to load history. [#94](https://github.com/rokwire/safer-illinois-app/issues/94)
+ - Mark pending event that persist in history table as processed.
+
+### Fixed
+ - Add null check before using instance props. [#119](https://github.com/rokwire/safer-illinois-app/pull/119)
+ - Fix issue with _determineIsOpen not checking weekDay. [#111](https://github.com/rokwire/safer-illinois-app/pull/111)
 
 ## [2.4.5] - 2020-09-01
 ### Changed

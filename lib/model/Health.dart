@@ -295,14 +295,16 @@ class Covid19StatusBlob {
   final String healthStatus;
   final int priority;
   final String nextStep;
+  final String nextStepHtml;
   final DateTime nextStepDateUtc;
   final String reason;
+  final String warning;
   final Covid19HistoryBlob historyBlob;
 
   static const String _nextStepDateMacro = '{next_step_date}';
-  static const String _nextStepDateFormat = 'MMMM d';
+  static const String _nextStepDateFormat = 'EEEE, MMM d';
 
-  Covid19StatusBlob({this.healthStatus, this.priority, this.nextStep, this.nextStepDateUtc, this.reason, this.historyBlob});
+  Covid19StatusBlob({this.healthStatus, this.priority, this.nextStep, this.nextStepHtml, this.nextStepDateUtc, this.reason, this.warning, this.historyBlob});
 
 
   factory Covid19StatusBlob.fromJson(Map<String, dynamic> json) {
@@ -310,8 +312,10 @@ class Covid19StatusBlob {
       healthStatus: json['health_status'],
       priority: json['priority'],
       nextStep: json['next_step'],
+      nextStepHtml: json['next_step_html'],
       nextStepDateUtc: healthDateTimeFromString(json['next_step_date']),
       reason: json['reason'],
+      warning: json['warning'],
       historyBlob: Covid19HistoryBlob.fromJson(json['history_blob']),
     ) : null;
   }
@@ -321,22 +325,42 @@ class Covid19StatusBlob {
       'health_status': healthStatus,
       'priority': priority,
       'next_step': nextStep,
+      'next_step_html': nextStepHtml,
       'next_step_date': healthDateTimeToString(nextStepDateUtc),
       'reason': reason,
+      'warning': warning,
       'history_blob': historyBlob?.toJson(),
     };
   }
 
   String get displayNextStep {
-    if (nextStep != null) {
-      if (nextStep.contains(_nextStepDateMacro)) {
-        if (nextStepDateUtc != null) {
-          String nextStepDateString = AppDateTime().formatDateTime(nextStepDateUtc.toLocal(), format: _nextStepDateFormat);
-          return nextStep.replaceAll(_nextStepDateMacro, nextStepDateString);
-        }
-      }
+    return _processMacros(nextStep);
+  }
+
+  String get displayNextStepHtml {
+    return _processMacros(nextStepHtml);
+  }
+
+  String get displayReason {
+    return _processMacros(reason);
+  }
+
+  String get displayWarning {
+    return _processMacros(warning);
+  }
+
+  String _processMacros(String value) {
+    if ((value != null) && (nextStepDateUtc != null) && value.contains(_nextStepDateMacro)) {
+      String nextStepDateString = AppDateTime().formatDateTime(nextStepDateUtc.toLocal(), format: _nextStepDateFormat);
+      return value.replaceAll(_nextStepDateMacro, nextStepDateString);
     }
-    return nextStep;
+    return value;
+  }
+
+  bool get requiresTest {
+    // TBD
+    return (nextStep?.toLowerCase()?.contains("test") ?? false) ||
+      (nextStepHtml?.toLowerCase()?.contains("test") ?? false);  
   }
 
   String get localizedHealthStatus {
@@ -1344,22 +1368,48 @@ class HealthServiceLocation {
 // HealthLocationDayOfOperation
 
 class HealthLocationDayOfOperation {
-  String name;
-  String openTime;
-  String closeTime;
+  final String name;
+  final String openTime;
+  final String closeTime;
 
-  HealthLocationDayOfOperation({this.name, this.openTime, this.closeTime});
+  final int weekDay;
+  final int openMinutes;
+  final int closeMinutes;
+
+  HealthLocationDayOfOperation({this.name, this.openTime, this.closeTime}) :
+    weekDay = (name != null) ? AppDateTime.getWeekDayFromString(name.toLowerCase()) : null,
+    openMinutes = _timeMinutes(openTime),
+    closeMinutes = _timeMinutes(closeTime);
 
   factory HealthLocationDayOfOperation.fromJson(Map<String,dynamic> json){
-    return HealthLocationDayOfOperation(
+    return (json != null) ? HealthLocationDayOfOperation(
       name: json["name"],
       openTime: json["open_time"],
       closeTime: json["close_time"],
-    );
+    ) : null;
   }
 
   String get displayString{
     return "$name $openTime to $closeTime";
+  }
+
+  bool get isOpen {
+    if ((openMinutes != null) && (closeMinutes != null)) {
+      int nowWeekDay = DateTime.now().weekday;
+      int nowMinutes = _timeOfDayMinutes(TimeOfDay.now());
+      return nowWeekDay == weekDay && openMinutes < nowMinutes && nowMinutes < closeMinutes;
+    }
+    return false;
+  }
+
+  bool get willOpen {
+    if (openMinutes != null) {
+      int nowWeekDay = DateTime.now().weekday;
+      int nowMinutes = _timeOfDayMinutes(TimeOfDay.now());
+      return nowWeekDay == weekDay && nowMinutes < openMinutes;
+    }
+
+    return false;
   }
 
   static List<HealthLocationDayOfOperation> listFromJson(List<dynamic> json) {
@@ -1374,6 +1424,18 @@ class HealthLocationDayOfOperation {
       }
     }
     return values;
+  }
+
+  // Helper function for conversion work time string to number of minutes
+
+  static int _timeMinutes(String time, {String format = 'hh:mma'}) {
+    DateTime dateTime = (time != null) ? AppDateTime().dateTimeFromString(time.toUpperCase(), format: format) : null;
+    TimeOfDay timeOfDay = (dateTime != null) ? TimeOfDay.fromDateTime(dateTime) : null;
+    return _timeOfDayMinutes(timeOfDay);
+  }
+
+  static int _timeOfDayMinutes(TimeOfDay timeOfDay) {
+    return (timeOfDay != null) ? (timeOfDay.hour * 60 + timeOfDay.minute) : null;
   }
 }
 
