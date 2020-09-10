@@ -27,7 +27,6 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Base64;
 import android.util.Log;
-import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -85,8 +84,6 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
 
     private ExposurePlugin exposurePlugin;
 
-    private static MethodChannel.Result pickLocationResult;
-
     private HashMap keys;
 
     private int preferredScreenOrientation;
@@ -109,8 +106,6 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
 
         registerPlugins();
         instance = this;
@@ -715,13 +710,7 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == Constants.SELECT_LOCATION_ACTIVITY_RESULT_CODE) {
-            if (resultCode == Activity.RESULT_OK) {
-                pickLocationResult.success(data != null ? data.getStringExtra("location") : null);
-            } else {
-                pickLocationResult.success(null);
-            }
-        } else if (requestCode == BLINK_ID_REQUEST_CODE) {
+        if (requestCode == BLINK_ID_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
                 onBlinkIdScanSuccess(data);
             } else {
