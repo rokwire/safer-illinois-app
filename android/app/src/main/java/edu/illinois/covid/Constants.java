@@ -49,8 +49,6 @@ public class Constants {
     static final float SECOND_THRESHOLD_MARKER_ZOOM = 16.89f;
     static final int MARKER_TITLE_MAX_SYMBOLS_NUMBER = 15;
     public static final double EXPLORE_LOCATION_THRESHOLD_DISTANCE = 200.0; //meters
-    static final int SELECT_LOCATION_ACTIVITY_RESULT_CODE = 2;
-    public static final String LOCATION_PICKER_DATA_FORMAT = "{\"location\":{\"latitude\":%f,\"longitude\":%f,\"floor\":%d,\"description\":\"%s\",\"location_id\":\"%s\",\"name\":\"%s\"}}";
     public static final float INDOORS_BUILDING_ZOOM = 17.0f;
     public static final String ANALYTICS_ROUTE_LOCATION_FORMAT = "{\"latitude\":%f,\"longitude\":%f,\"floor\":%d}";
     public static final String ANALYTICS_USER_LOCATION_FORMAT = "{\"latitude\":%f,\"longitude\":%f,\"floor\":%d,\"timestamp\":%d}";

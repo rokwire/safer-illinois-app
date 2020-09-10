@@ -84,8 +84,6 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
 
     private ExposurePlugin exposurePlugin;
 
-    private static MethodChannel.Result pickLocationResult;
-
     private HashMap keys;
 
     private int preferredScreenOrientation;
@@ -712,13 +710,7 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == Constants.SELECT_LOCATION_ACTIVITY_RESULT_CODE) {
-            if (resultCode == Activity.RESULT_OK) {
-                pickLocationResult.success(data != null ? data.getStringExtra("location") : null);
-            } else {
-                pickLocationResult.success(null);
-            }
-        } else if (requestCode == BLINK_ID_REQUEST_CODE) {
+        if (requestCode == BLINK_ID_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
                 onBlinkIdScanSuccess(data);
             } else {
