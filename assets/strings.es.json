@@ -47,31 +47,6 @@
     "toggle_button.status.unchecked": "sin marcar",
     "toggle_button.status.checkbox": "casilla de verificación",
 
-    "panel.menu.button.events.title":"Eventos",
-    "panel.menu.button.events.hint":"",
-    "panel.menu.button.dining.title":"Comida",
-    "panel.menu.button.dining.hint":"",
-    "panel.menu.button.athletics.title":"Atletismo",
-    "panel.menu.button.athletics.hint":"",
-    "panel.menu.button.settings.title":"Configuración",
-    "panel.menu.button.settings.hint":"",
-    "panel.menu.button.illini_cash.title":"Illini Cash",
-    "panel.menu.button.illini_cash.hint":"",
-    "panel.menu.button.create_event.title":"Crear un evento",
-    "panel.menu.button.create_event.hint":"",
-    "panel.menu.button.order_history.title":"Historial de pedidos",
-    "panel.menu.button.order_history.hint":"",
-    "panel.menu.button.sign_out.title":"Cerrar sesión",
-    "panel.menu.button.sign_out.hint":"",
-    "panel.menu.button.sign_in.title":"Iniciar sesión",
-    "panel.menu.button.sign_in.hint":"",
-    "panel.menu.button.create_account.title":"Crear cuenta",
-    "panel.menu.button.create_account.hint":"",
-    "panel.menu.label.sign_in_as":"Ingresado como",
-    "panel.menu.label.verified_as":"Verificado como ",
-    "panel.menu.label.connected_netid":"NetID conectado",
-    "panel.menu.label.confirm_sign_out":"¿Está seguro de que desea cerrar sesión?",
-
     "panel.onboarding.button.continue.title":"Continuar",
     "panel.onboarding.button.continue.hint":"",
 
@@ -186,11 +161,6 @@
     "panel.onboarding.base.not_now.hint":"",
     "panel.onboarding.base.not_now.title":"No en este momento",
 
-    "panel.settings.sports.heading":"Configuraciónes",
-    "panel.settings.categories.header.title":"SUS CATEGORíAS",
-    "panel.settings.categories.heading":"Sus categorías",
-    "panel.settings.categories.description":"Toque para seguir las categorías que más le interesen",
-
     "panel.settings.feedback.label.title": "Proporcionar comentarios",
 
     "panel.settings.privacy_statement.label.title": "Declaración de privacidad",
@@ -231,9 +201,6 @@
     "panel.settings.home.logout.no":"No",
     "panel.settings.home.security.reset_password":"Restablecer la contraseña",
     "panel.settings.home.security.face_id":"Usar Face ID",
-    "panel.settings.home.notifications.reminders":"Recordatorios de eventos",
-    "panel.settings.home.notifications.athletics_updates":"Actualizaciones de atletismo",
-    "panel.settings.home.notifications.dining":"Especiales de comidas",
     "panel.settings.home.notifications.covid19":"Notificaciones COVID-19",
     "panel.settings.home.privacy.title":"Privacidad",
     "panel.settings.home.privacy.edit_my_privacy.title":"Editar mi privacidad",
@@ -384,12 +351,6 @@
     "panel.covid19_wellness_center.label.description": "Si tiene problemas con la aplicación o obtiene un resultado de prueba, comuníquese con el Centro de respuestas de bienestar de COVID para obtener ayuda.",
     "panel.covid19_wellness_center.label.email": "Envíe un correo electrónico al Centro de respuestas de bienestar de Covid al",
     "panel.covid19_wellness_center.label.phone": "Llame al Centro de respuestas al",
-
-    "panel.covid19_news.header.title": "COVID-19",
-    "panel.covid19_news.news.posted.label": "Publicado en %s",
-
-    "panel.covid19_campus_updates.header.title": "Actualizaciones del campus",
-    "panel.covid19_campus_updates.sub_title.title": "Universidad de Illinois COVID-19 actualizaciones",
 
     "panel.covid19.qr_code.title": "Código QR de COVID-19",
     "panel.covid19.qr_code.description.heading.1": "Si usa más de un dispositivo con la aplicación Safer Illinois, use este código QR para transferir el secreto necesario para decodificar su información de salud COVID-19.",
@@ -665,13 +626,6 @@
 
     "widget.health.onboarding.indicator9.label.hint": "Proceso de incorporación de Covid-19",
 
-    "widget.card.button.favorite.on.title":"Agregar a favoritos",
-    "widget.card.button.favorite.on.hint":"",
-    "widget.card.button.favorite.off.title":"Eliminar de favoritos",
-    "widget.card.button.favorite.off.hint":"",
-    "widget.card.label.interests":"Debido a su interés en:",
-    "widget.card.label.converge":"partido",
-
     "panel.health.status_update.heading.title":"Actualización de estado",
     "panel.health.status_update.label.status_change":"Según sus resultados, su estado ha cambiado de",
     "panel.health.status_update.label.status_change.to":" a ",
@@ -702,27 +656,6 @@
     "panel.health.symptoms.button.submit.title":"Enviar",
     "panel.health.symptoms.label.success.submit.message":"Sus síntomas han sido procesados.",
     "panel.health.symptoms.label.error.submit":"Error al enviar los síntomas.",
-
-    "widget.home_campus_tools.label.campus_tools":"Recursos del campus",
-    "widget.home_campus_tools.button.events.title":"Eventos",
-    "widget.home_campus_tools.button.events.hint":"",
-    "widget.home_campus_tools.button.dining.title":"Comida",
-    "widget.home_campus_tools.button.dining.hint":"",
-    "widget.home_campus_tools.button.athletics.title":"Atletismo",
-    "widget.home_campus_tools.button.athletics.hint":"",
-    "widget.home_campus_tools.button.illini_cash.title":"Illini Cash",
-    "widget.home_campus_tools.button.illini_cash.hint":"",
-    "widget.home_campus_tools.button.my_illini.title":"My Illini",
-    "widget.home_campus_tools.header.my_illini.title": "Mi Illini",
-    "widget.home_campus_tools.button.my_illini.hint": "",
-    "widget.home_campus_tools.button.covid19.title":"COVID-19",
-    "widget.home_campus_tools.button.covid19.hint":"",
-
-    "widget.home_covid19_info.label.covid19": "COVID-19 Información",
-    "widget.home_covid19_info.label.info.title": "Ayuda a mantener seguro a Illinois",
-    "widget.home_covid19_info.label.info.description": "Únete a la lucha contra COVID-19 siguiendo y gestionando tu salud",
-
-    "widget.covid19_news_card.read_more.hint":"Toca dos veces para leer más",
 
     "model.explore.time.today": "Hoy",
     "model.explore.time.tomorrow": "Mañana",
