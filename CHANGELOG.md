@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## [2.6.3] - 2020-09-11
 ### Changed
  - Remove "ASAP" label in Next Steps panel [#143](https://github.com/rokwire/safer-illinois-app/issues/143).
  - Remove restriction for taking screenshots in Android [#138](https://github.com/rokwire/safer-illinois-app/issues/138).
