@@ -176,7 +176,7 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
 
   Widget _buildReasonContent(){
     String date = AppDateTime().formatUniLocalTimeFromUtcTime(widget.status?.dateUtc, AppDateTime.covid19UpdateDateFormat);
-    String reasonStatusText = widget.status?.blob?.reason;
+    String reasonStatusText = widget.status?.blob?.displayReason;
 
     Covid19HistoryBlob reasonHistory = widget.status?.blob?.historyBlob;
     String reasonHistoryName;

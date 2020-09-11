@@ -696,7 +696,6 @@
     "panel.health.next_steps.button.continue.title.find_locatio": "Encontrar ubicacion",
     "panel.health.next_steps.button.continue.title.care_team": "Póngase en contacto con Care Team",
     "panel.health.next_steps.label.next_steps": "PRÓXIMOS PASOS",
-    "panel.health.next_steps.label.asap": "Lo antes posible",
 
     "panel.health.symptoms.heading.title":"¿Estás experimentando alguno de estos síntomas?",
     "panel.health.symptoms.label.error.loading":"Error al cargar los síntomas.",
