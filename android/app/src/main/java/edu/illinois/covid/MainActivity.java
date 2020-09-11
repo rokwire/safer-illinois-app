@@ -38,7 +38,6 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
-import com.mapsindoors.mapssdk.MapsIndoors;
 import com.microblink.MicroblinkSDK;
 import com.microblink.entities.recognizers.Recognizer;
 import com.microblink.entities.recognizers.RecognizerBundle;
@@ -68,7 +67,6 @@ import edu.illinois.covid.gallery.GalleryPlugin;
 import edu.illinois.covid.maps.MapActivity;
 import edu.illinois.covid.maps.MapDirectionsActivity;
 import edu.illinois.covid.maps.MapViewFactory;
-import edu.illinois.covid.maps.MapPickLocationActivity;
 import io.flutter.app.FlutterActivity;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -85,8 +83,6 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
     private static MainActivity instance = null;
 
     private ExposurePlugin exposurePlugin;
-
-    private static MethodChannel.Result pickLocationResult;
 
     private HashMap keys;
 
@@ -199,22 +195,6 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
             return;
         }
         this.keys = keysMap;
-
-        // Google Maps cannot be initialized dynamically. Its api key has to be in AndroidManifest.xml file.
-        // Read it from config for MapsIndoors.
-        String googleMapsApiKey = Utils.Map.getValueFromPath(keysMap, "google.maps.api_key", null);
-
-        // MapsIndoors
-        String mapsIndoorsApiKey = Utils.Map.getValueFromPath(keysMap, "mapsindoors.api_key", null);
-        if (!Utils.Str.isEmpty(mapsIndoorsApiKey)) {
-            MapsIndoors.initialize(
-                    getApplicationContext(),
-                    mapsIndoorsApiKey
-            );
-        }
-        if (!Utils.Str.isEmpty(googleMapsApiKey)) {
-            MapsIndoors.setGoogleAPIKey(googleMapsApiKey);
-        }
     }
 
     private void launchMapsDirections(Object explore, Object options) {
@@ -244,16 +224,6 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
         serializableExtras.putSerializable("markers", markersValues);
         intent.putExtras(serializableExtras);
         startActivity(intent);
-    }
-
-    private void launchMapsLocationPick(Object exploreParam) {
-        HashMap explore = null;
-        if (exploreParam instanceof HashMap) {
-            explore = (HashMap) exploreParam;
-        }
-        Intent locationPickerIntent =  new Intent(this, MapPickLocationActivity.class);
-        locationPickerIntent.putExtra("explore", explore);
-        startActivityForResult(locationPickerIntent, Constants.SELECT_LOCATION_ACTIVITY_RESULT_CODE);
     }
 
     private void launchNotification(MethodCall methodCall) {
@@ -740,13 +710,7 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == Constants.SELECT_LOCATION_ACTIVITY_RESULT_CODE) {
-            if (resultCode == Activity.RESULT_OK) {
-                pickLocationResult.success(data != null ? data.getStringExtra("location") : null);
-            } else {
-                pickLocationResult.success(null);
-            }
-        } else if (requestCode == BLINK_ID_REQUEST_CODE) {
+        if (requestCode == BLINK_ID_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
                 onBlinkIdScanSuccess(data);
             } else {
@@ -775,11 +739,6 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
                     Object optionsObj = methodCall.argument("options");
                     launchMapsDirections(explore, optionsObj);
                     result.success(true);
-                    break;
-                case Constants.MAP_PICK_LOCATION_KEY:
-                    pickLocationResult = result;
-                    launchMapsLocationPick(methodCall.argument("explore"));
-                    // Result is called on latter step
                     break;
                 case Constants.MAP_KEY:
                     Object target = methodCall.argument("target");

@@ -16,12 +16,16 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Styles.dart';
+import 'package:illinois/ui/WebPanel.dart';
 import 'package:illinois/ui/health/Covid19CareTeamPanel.dart';
 import 'package:illinois/ui/health/Covid19TestLocations.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
+import 'package:illinois/utils/Utils.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Covid19NextStepsPanel extends StatefulWidget {
   final Covid19Status status;
@@ -59,7 +63,7 @@ class _Covid19NextStepsPanelState extends State<Covid19NextStepsPanel> {
                   backgroundColor: Styles().colors.fillColorPrimary,
                   borderColor: Styles().colors.fillColorSecondary,
                   textColor: Styles().colors.white,
-                  onTap:_onContinueTap,
+                  onTap:_onTapContinue,
                 ),
               )
             ],
@@ -69,32 +73,53 @@ class _Covid19NextStepsPanelState extends State<Covid19NextStepsPanel> {
   }
 
   Widget _buildContent(){
-    return SingleChildScrollView(
-      child: Column(children: <Widget>[
-        Container(height: 165,),
-        Text(Localization().getStringEx("panel.health.next_steps.label.next_steps","NEXT STEPS"), style: TextStyle(color: Colors.white, fontSize: 28, fontFamily: Styles().fontFamilies.bold)),
-        Container(height: 29,),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 8),
-          child: Container(height: 1, color: Styles().colors.surfaceAccent ,),
-        ),
-        Container(height: 34,),
-        Padding(padding: EdgeInsets.symmetric(horizontal: 32), child:
-        Text(widget.status?.blob?.displayNextStep ?? " ", textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 20, fontFamily: Styles().fontFamilies.extraBold)),
-        ),
+    List<Widget> content = <Widget>[
+      Container(height: 125,),
+      Text(Localization().getStringEx("panel.health.next_steps.label.next_steps","NEXT STEPS"), style: TextStyle(color: Colors.white, fontSize: 28, fontFamily: Styles().fontFamilies.bold)),
+      Container(height: 29,),
+      Container(
+        padding: EdgeInsets.symmetric(horizontal: 8),
+        child: Container(height: 1, color: Styles().colors.surfaceAccent ,),
+      ),
+      Container(height: 24,),
+    ];
+    
+    String nextStepTitle = widget.status?.blob?.displayNextStep;
+    if (AppString.isStringNotEmpty(nextStepTitle)) {
+      content.addAll(<Widget>[
         Container(height: 12,),
-        Container(child:Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Image.asset("images/icon-calendar.png", excludeFromSemantics: true),
-            Container(width: 8,),
-            Text(Localization().getStringEx("panel.health.next_steps.label.asap","ASAP"), style: TextStyle(color: Colors.white, fontSize: 16, fontFamily: Styles().fontFamilies.regular)),
-          ],)),
-      ],),
+        Padding(padding: EdgeInsets.symmetric(horizontal: 32), child:
+          Text(widget.status?.blob?.displayNextStep ?? " ", textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 20, fontFamily: Styles().fontFamilies.extraBold),),
+        ),
+      ]);
+    }
+
+    String nextStepHtml = widget.status?.blob?.displayNextStepHtml;
+    if (AppString.isStringNotEmpty(nextStepHtml)) {
+      content.addAll(<Widget>[
+          Container(height: 12,),
+          Padding(padding: EdgeInsets.symmetric(horizontal: 32), child:
+            Html(data: nextStepHtml, onLinkTap: (url) => _onTapLink(url), defaultTextStyle: TextStyle(fontSize: 16, fontFamily: Styles().fontFamilies.regular, color: Colors.white),),
+          ),
+      ]);
+    }
+
+    return SingleChildScrollView(
+      child: Column(children: content,),
     );
   }
 
-  void _onContinueTap(){
+  void _onTapLink(String url) {
+    if (AppString.isStringNotEmpty(url)) {
+      if (AppUrl.launchInternal(url)) {
+        Navigator.push(context, CupertinoPageRoute(builder: (context) => WebPanel(url: url)));
+      } else {
+        launch(url);
+      }
+    }
+  }
+
+  void _onTapContinue(){
     if(_nextStepRequiresTest) {
       Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19TestLocationsPanel())).then((dynamic) {
         Navigator.pop(context);
@@ -108,6 +133,6 @@ class _Covid19NextStepsPanelState extends State<Covid19NextStepsPanel> {
   }
 
   bool get _nextStepRequiresTest{
-    return widget.status?.blob?.nextStep?.contains("test"); //TBD
+    return widget.status?.blob?.requiresTest ?? false; 
   }
 }

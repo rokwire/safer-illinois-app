@@ -696,7 +696,6 @@
 	"panel.health.next_steps.button.continue.title.find_locatio": "查找位置",
 	"panel.health.next_steps.button.continue.title.care_team": "联系护理团队",
 	"panel.health.next_steps.label.next_steps": "下一步行动",
-	"panel.health.next_steps.label.asap": "尽快",
 
 	"panel.health.symptoms.heading.title":"你有这些症状吗?",
 	"panel.health.symptoms.label.error.loading":"未能加载症状.",

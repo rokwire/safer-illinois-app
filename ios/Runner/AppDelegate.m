@@ -24,7 +24,6 @@
 #import "MapView.h"
 #import "MapController.h"
 #import "MapDirectionsController.h"
-#import "MapLocationPickerController.h"
 #import "ExposurePlugin.h"
 #import "GalleryPlugin.h"
 
@@ -36,7 +35,6 @@
 #import "Bluetooth+InaUtils.h"
 
 #import <GoogleMaps/GoogleMaps.h>
-#import <MapsIndoors/MapsIndoors.h>
 #import <Firebase/Firebase.h>
 #import <ZXingObjC/ZXingObjC.h>
 #import <MicroBlink/Microblink.h>
@@ -240,9 +238,6 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 	else if ([call.method isEqualToString:@"directions"]) {
 		[self handleDirectionsWithParameters:parameters result:result];
 	}
-	else if ([call.method isEqualToString:@"pickLocation"]) {
-		[self handlePickLocationWithParameters:parameters result:result];
-	}
 	else if ([call.method isEqualToString:@"map"]) {
 		[self handleMapWithParameters:parameters result:result];
 	}
@@ -299,12 +294,6 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 		[GMSServices provideAPIKey:googleMapsAPIKey];
 	}
 
-	// Initialize Maps Indoors SDK
-	NSString *mapsIndoorsAPIKey = [_keys uiucConfigStringForPathKey:@"mapsindoors.api_key"];
-	if ((0 < mapsIndoorsAPIKey.length) && (0 < googleMapsAPIKey.length)) {
-		[MapsIndoors provideAPIKey:mapsIndoorsAPIKey googleAPIKey:googleMapsAPIKey];
-	}
-
 	// Initialize MicroBlink SDK
 	/*NSString *microBlinkLicenseKey = [_keys uiucConfigStringForPathKey:@"microblink.blink_id.license_key.ios"];
 	if (0 < microBlinkLicenseKey.length) {
@@ -323,13 +312,6 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 		result(returnValue);
 	}];
 	[self.navigationViewController pushViewController:directionsController animated:YES];
-}
-
-- (void)handlePickLocationWithParameters:(NSDictionary*)parameters result:(FlutterResult)result {
-	MapLocationPickerController *pickLocationController = [[MapLocationPickerController alloc] initWithParameters:parameters completionHandler:^(id returnValue) {
-		result(returnValue);
-	}];
-	[self.navigationViewController pushViewController:pickLocationController animated:YES];
 }
 
 - (void)handleMapWithParameters:(NSDictionary*)parameters result:(FlutterResult)result {
