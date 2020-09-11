@@ -696,7 +696,6 @@
     "panel.health.next_steps.button.continue.title.find_locatio": "Find location",
     "panel.health.next_steps.button.continue.title.care_team": "Get in Touch with Care Team",
     "panel.health.next_steps.label.next_steps": "NEXT STEPS",
-    "panel.health.next_steps.label.asap": "ASAP",
 
     "panel.health.symptoms.heading.title":"Are you experiencing any of these symptoms?",
     "panel.health.symptoms.label.error.loading":"Failed to load symptoms.",
