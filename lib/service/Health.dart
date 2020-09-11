@@ -89,7 +89,6 @@ class Health with Service implements NotificationsListener {
       AppLivecycle.notifyStateChanged,
       Auth.notifyLoginChanged,
       Config.notifyConfigChanged,
-      FirebaseMessaging.notifyCovid19Action,
     ]);
   }
 
@@ -129,9 +128,6 @@ class Health with Service implements NotificationsListener {
     }
     else if (name == Config.notifyConfigChanged) {
       _servicePublicKey = RsaKeyHelper.parsePublicKeyFromPem(Config().healthPublicKey);
-    }
-    else if (name == FirebaseMessaging.notifyCovid19Action) {
-      processAction(param);
     }
   }
 
