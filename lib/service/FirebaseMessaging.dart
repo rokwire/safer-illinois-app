@@ -39,13 +39,9 @@ class FirebaseMessaging with Service implements NotificationsListener {
 
   static const String notifyToken                 = "edu.illinois.rokwire.firebase.messaging.token";
   static const String notifyPopupMessage          = "edu.illinois.rokwire.firebase.messaging.message.popup";
-  static const String notifyScoreMessage          = "edu.illinois.rokwire.firebase.messaging.message.score";
   static const String notifyConfigUpdate          = "edu.illinois.rokwire.firebase.messaging.config.update";
-  static const String notifyPollOpen              = "edu.illinois.rokwire.firebase.messaging.poll.create";
-  static const String notifyEventDetail           = "edu.illinois.rokwire.firebase.messaging.event.detail";
-  static const String notifyCovid19Notification   = "edu.illinois.rokwire.firebase.messaging.health.covid19.notification";
-  static const String notifyAthleticsGameStarted  = "edu.illinois.rokwire.firebase.messaging.athletics_game.started";
   static const String notifySettingUpdated        = "edu.illinois.rokwire.firebase.messaging.setting.updated";
+  static const String notifyCovid19Notification   = "edu.illinois.rokwire.firebase.messaging.health.covid19.notification";
 
   // Topic names
   static const List<String> _permanentTopis = [
@@ -326,20 +322,8 @@ class FirebaseMessaging with Service implements NotificationsListener {
     else if (type == "popup_message") {
       NotificationService().notify(notifyPopupMessage, data);
     }
-    else if (type == "poll_open") {
-      NotificationService().notify(notifyPollOpen, data);
-    }
-    else if (type == "event_detail") {
-      NotificationService().notify(notifyEventDetail, data);
-    }
     else if (type == "health.covid19.notification") {
       NotificationService().notify(notifyCovid19Notification, data);
-    }
-    else if (type == "athletics_game_started") {
-      NotificationService().notify(notifyAthleticsGameStarted, data);
-    }
-    else if (_isScoreTypeMessage(type)) {
-      NotificationService().notify(notifyScoreMessage, data);
     }
     else {
       Log.d("FCM: unknown message type: $type");

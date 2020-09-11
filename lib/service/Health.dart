@@ -28,7 +28,6 @@ import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/BluetoothServices.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Exposure.dart';
-import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/LocationServices.dart';
 import 'package:illinois/service/Log.dart';
