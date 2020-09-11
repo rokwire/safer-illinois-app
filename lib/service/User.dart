@@ -328,24 +328,6 @@ class User with Service implements NotificationsListener {
     return userUpdated;
   }
 
-  // Privacy
-
-  int get privacyLevel {
-    return _userData?.privacyLevel ?? UserData.PrivacyLevel;
-  }
-
-  bool privacyMatch(int requredPrivacyLevel) {
-    return (this.privacyLevel >= requredPrivacyLevel);
-  }
-
-  bool get favoritesStarVisible {
-    return privacyMatch(2);
-  }
-
-  bool get showTicketsConfirmationModal {
-    return !privacyMatch(4);
-  }
-
   //Favorites
   void switchFavorite(Favorite favorite) {
     if(isFavorite(favorite))

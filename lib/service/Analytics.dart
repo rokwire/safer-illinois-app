@@ -71,7 +71,6 @@ class Analytics with Service implements NotificationsListener {
   static const String   LogStdLocationName                 = "location";
   static const String   LogStdSessionUuidName              = "session_uuid";
   static const String   LogStdUserUuidName                 = "user_uuid";
-  static const String   LogStdUserPrivacyLevelName         = "user_privacy_level";
   static const String   LogStdUserRolesName                = "user_roles";
   static const String   LogStdAccessibilityName            = "accessibility";
   
@@ -93,7 +92,6 @@ class Analytics with Service implements NotificationsListener {
 //  LogStdLocationName,
     LogStdSessionUuidName,
     LogStdUserUuidName,
-    LogStdUserPrivacyLevelName,
     LogStdUserRolesName,
     LogStdAccessibilityName,
   ];
@@ -500,7 +498,7 @@ class Analytics with Service implements NotificationsListener {
   }
 
   Map<String, dynamic> get _location {
-    LocationData location = User().privacyMatch(3) ? LocationServices().lastLocation : null;
+    LocationData location = LocationServices().lastLocation;
     return (location != null) ? {
       'latitude': location.latitude,
       'longitude': location.longitude,
@@ -620,7 +618,7 @@ class Analytics with Service implements NotificationsListener {
   // Public Accessories
 
   void logEvent(Map<String, dynamic> event, { List<String> defaultAttributes = DefaultAttributes, bool anonymous = true}) {
-    if ((event != null) && User().privacyMatch(2)) {
+    if (event != null) {
       
       event[LogEventPageName] = _currentPageName;
 
@@ -667,9 +665,6 @@ class Analytics with Service implements NotificationsListener {
         }
         else if (attributeName == LogStdUserUuidName) {
           analyticsEvent[LogStdUserUuidName]= ((User().uuid != null) && (anonymous != false)) ? User.analyticsUuid : User().uuid;
-        }
-        else if (attributeName == LogStdUserPrivacyLevelName) {
-          analyticsEvent[LogStdUserPrivacyLevelName]= User().privacyLevel;
         }
         else if (attributeName == LogStdUserRolesName) {
           analyticsEvent[LogStdUserRolesName]= _userRoles;

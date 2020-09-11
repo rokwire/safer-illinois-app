@@ -91,12 +91,6 @@ class UserData {
     };
   }
 
-  // Privacy
-
-  int get privacyLevel {
-    return PrivacyLevel;
-  }
-
   // Interests
 
   //switch the whole category (no subCategories ) //Athletics/Recreation/Entertainment/etc
