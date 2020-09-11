@@ -594,49 +594,10 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
     );
   }
   
-
-  /*Widget _buildCampusUpdatesSection() {
-    String title = Localization().getStringEx("panel.covid19home.label.campus_updates.title","Campus Updates");
-    return Semantics(container: true, child:
-      InkWell(onTap: () => _onTapCampusUpdates(), child:
-        Container(
-          padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16
-          ),
-          decoration: BoxDecoration(color: Styles().colors.surface, borderRadius: BorderRadius.all(Radius.circular(4)), boxShadow: [BoxShadow(color: Styles().colors.blackTransparent018, spreadRadius: 2.0, blurRadius: 6.0, offset: Offset(2, 2))] ),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-            Row(children: <Widget>[
-              Expanded(child:
-                Text(title, style: TextStyle(fontFamily: Styles().fontFamilies.extraBold, fontSize: 20, color: Styles().colors.fillColorPrimary),),
-              ),
-              Image.asset('images/chevron-right.png'),
-            ],),
-          ],),),),
-      );
-  }*/
-
-  /*Widget _buildAboutButton() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(4),
-        boxShadow: [BoxShadow(color: Color.fromRGBO(19, 41, 75, 0.3), spreadRadius: 2.0, blurRadius: 8.0, offset: Offset(0, 2))],
-      ),
-      child: RibbonButton(
-        label: Localization().getStringEx("panel.covid19home.button.about.title","About"),
-        borderRadius: BorderRadius.circular(4),
-        onTap: ()=>_onTapAbout(),
-      ),
-    );
-  }*/
-
   void _onTapCountryGuidelines() {
     Analytics.instance.logSelect(target: "COVID-19 County Guidlines");
     Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19GuidelinesPanel(status: _status)));
   }
-
-  /*void _onTapCampusUpdates() {
-    Analytics.instance.logSelect(target: "COVID-19 Campus Updates");
-    Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19UpdatesPanel()));
-  }*/
 
   void _onTapCareTeam() {
     Analytics.instance.logSelect(target: "Your Care Team");
@@ -682,11 +643,6 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
       }
     }
   }
-
-  /*void _onTapAbout() {
-    Analytics.instance.logSelect(target: "About");
-    Navigator.push(context, CupertinoPageRoute(builder: (context)=>Covid19AboutPanel()));
-  }*/
 }
 
 class _Covid19HomeHeaderBar extends AppBar {

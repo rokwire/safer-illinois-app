@@ -31,7 +31,6 @@ import 'package:illinois/ui/health/Covid19HistoryPanel.dart';
 import 'package:illinois/ui/health/Covid19InfoCenterPanel.dart';
 import 'package:illinois/ui/health/Covid19StatusPanel.dart';
 import 'package:illinois/ui/health/Covid19StatusUpdatePanel.dart';
-import 'package:illinois/ui/health/Covid19UpdatesPanel.dart';
 import 'package:illinois/ui/widgets/PopupDialog.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/service/Styles.dart';
@@ -58,7 +57,6 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
     super.initState();
     NotificationService().subscribe(this, [
       FirebaseMessaging.notifyPopupMessage,
-      FirebaseMessaging.notifyCovid19Message,
       FirebaseMessaging.notifyCovid19Notification,
       Localization.notifyStringsUpdated,
       User.notifyFavoritesUpdated,
@@ -82,9 +80,6 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
   void onNotification(String name, dynamic param) {
     if (name == FirebaseMessaging.notifyPopupMessage) {
       _onFirebasePopupMessage(param);
-    }
-    else if (name == FirebaseMessaging.notifyCovid19Message) {
-      _onFirebaseCovid19Message(param);
     }
     else if (name == Localization.notifyStringsUpdated) {
       setState(() { });
@@ -208,10 +203,6 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
         return PopupDialog(displayText: displayText, positiveButtonText: positiveButtonText);
       },
     );
-  }
-
-  Future<void> _onFirebaseCovid19Message(Map<String, dynamic> content) async {
-    Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19UpdatesPanel()));
   }
 
   Future<void> _onFirebaseCovid19Notification(Map<String, dynamic> notification) async {

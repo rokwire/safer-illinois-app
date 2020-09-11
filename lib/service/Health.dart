@@ -171,63 +171,6 @@ class Health with Service implements NotificationsListener {
     }
   }
 
-  // Network API: Covid19News, Covid19FAQ, Covid19Resource
-
-  Future<List<Covid19News>> loadCovid19News() async {
-    List<Covid19News> newsList;
-    try {
-      int limit = Config().settings['covid19NewsLimit'] ?? 10;
-      String url = "${Config().healthUrl}/covid19/news?limit=$limit";
-      Response response = await Network().get(url, auth: NetworkAuth.App);
-      String responseString = ((response != null) && (response.statusCode == 200)) ? response.body : null;
-      List<dynamic> responseList = AppJson.decode(responseString);
-      if (responseList != null) {
-        newsList = List();
-        for (dynamic responseEntry in responseList) {
-          newsList.add(Covid19News.fromJson(responseEntry));
-        }
-      }
-    }
-    catch(e) {
-      print(e.toString());
-    }
-    return newsList;
-  }
-
-  Future<Covid19FAQ> loadCovid19FAQs() async {
-    try {
-      String url = "${Config().healthUrl}/covid19/faq";
-      Response response = await Network().get(url, auth: NetworkAuth.App);
-      String responseString = ((response != null) && (response.statusCode == 200)) ? response.body : null;
-      Map<String, dynamic> responseJson = AppJson.decode(responseString);
-      return (responseJson != null) ? Covid19FAQ.fromJson(responseJson) : null;
-    }
-    catch(e) {
-      print(e.toString());
-    }
-    return null;
-  }
-
-  Future<List<Covid19Resource>> loadCovid19Resources() async {
-    List<Covid19Resource> resourcesList;
-    try {
-      String url = "${Config().healthUrl}/covid19/resources";
-      Response response = await Network().get(url, auth: NetworkAuth.App);
-      String responseString = ((response != null) && (response.statusCode == 200)) ? response.body : null;
-      List<dynamic> responseList = AppJson.decode(responseString);
-      if (responseList != null) {
-        resourcesList = List();
-        for (dynamic responseEntry in responseList) {
-          resourcesList.add(Covid19Resource.fromJson(responseEntry));
-        }
-      }
-    }
-    catch(e) {
-      print(e.toString());
-    }
-    return resourcesList;
-  }
-
   // Network API: Covid19Status
 
   Future<Covid19Status> loadCovid19Status() async {
