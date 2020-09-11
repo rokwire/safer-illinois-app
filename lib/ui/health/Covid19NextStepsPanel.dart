@@ -104,17 +104,6 @@ class _Covid19NextStepsPanelState extends State<Covid19NextStepsPanel> {
       ]);
     }
 
-    content.addAll(<Widget>[
-      Container(height: 24,),
-      Container(child:Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Image.asset("images/icon-calendar.png", excludeFromSemantics: true),
-          Container(width: 8,),
-          Text(Localization().getStringEx("panel.health.next_steps.label.asap","ASAP"), style: TextStyle(color: Colors.white, fontSize: 16, fontFamily: Styles().fontFamilies.regular)),
-        ],)),
-    ]);
-
     return SingleChildScrollView(
       child: Column(children: content,),
     );

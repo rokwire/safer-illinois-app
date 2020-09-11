@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Changed
+ - Remove "ASAP" label in Next Steps panel [#143](https://github.com/rokwire/safer-illinois-app/issues/143).
  - Remove restriction for taking screenshots in Android [#138](https://github.com/rokwire/safer-illinois-app/issues/138).
  - Removed SAR status entries from sample health rules. Use PCR entries instead that actually contain the same status rules.
  - Integrate maps for test locations [#132](https://github.com/rokwire/safer-illinois-app/issues/132).
