@@ -361,19 +361,6 @@ class FirebaseMessaging with Service implements NotificationsListener {
     return "config_update";
   }
 
-  bool _isScoreTypeMessage(String type) {
-    return type == "football" ||
-        type == "mbball" ||
-        type == "wbball" ||
-        type == "mvball" ||
-        type == "wvball" ||
-        type == "mtennis" ||
-        type == "wtennis" ||
-        type == "baseball" ||
-        type == "softball" ||
-        type == "wsoc";
-  }
-
   void _onConfigUpdate(Map<String, dynamic> data) {
     int interval = 5 * 60; // 5 minutes
     var rng = new Random();
