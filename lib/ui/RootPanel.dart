@@ -23,7 +23,6 @@ import 'package:illinois/service/FlexUI.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Service.dart';
-import 'package:illinois/service/User.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/NotificationService.dart';
@@ -59,7 +58,6 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
       FirebaseMessaging.notifyPopupMessage,
       FirebaseMessaging.notifyCovid19Notification,
       Localization.notifyStringsUpdated,
-      User.notifyFavoritesUpdated,
       FlexUI.notifyChanged,
       Health.notifyStatusUpdated,
       DeepLink.notifyUri

@@ -87,7 +87,6 @@ class FirebaseMessaging with Service implements NotificationsListener {
   void createService() {
     NotificationService().subscribe(this, [
       User.notifyRolesUpdated,
-      User.notifyInterestsUpdated,
       User.notifyUserUpdated,
       User.notifyUserDeleted,
       AppLivecycle.notifyStateChanged,
