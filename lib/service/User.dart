@@ -38,8 +38,6 @@ class User with Service implements NotificationsListener {
   static const String notifyUserDeleted = "edu.illinois.rokwire.user.deleted";
   static const String notifyRolesUpdated  = "edu.illinois.rokwire.user.roles.updated";
 
-  static final String sportsInterestCategory = "sports";
-
   UserData _userData;
 
   http.Client _client = http.Client();
