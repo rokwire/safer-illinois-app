@@ -1411,7 +1411,7 @@ class Health with Service implements NotificationsListener {
   Future<HealthRulesSet2> _loadRules2({String countyId}) async {
     Response response;
     if (Config().useMultiTenant) {
-      String url = AppUrl.addQueryParameters("${Config().healthUrl}/covid19/assets", {'filename': 'rules.json', 'countyID': countyId});
+      String url = AppUrl.addQueryParameters("${Config().healthUrl}/covid19/assets", {'filename': 'rules.json', 'countyID': countyId, 'version': '1'});
       response = await Network().get(url, auth: NetworkAuth.App, analyticsAnonymous: true);
     } else {
       String url = "${Config().health2Url}/rules/county/$countyId/rules.json";
