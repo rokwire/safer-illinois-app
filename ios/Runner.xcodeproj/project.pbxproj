@@ -43,7 +43,6 @@
 		26A170EB22DDFB6500299773 /* button-icon-nav-next.png in Resources */ = {isa = PBXBuildFile; fileRef = 26A170E822DDFB6500299773 /* button-icon-nav-next.png */; };
 		26A170EC22DDFB6500299773 /* button-icon-nav-prev.png in Resources */ = {isa = PBXBuildFile; fileRef = 26A170E922DDFB6500299773 /* button-icon-nav-prev.png */; };
 		26A170ED22DDFB6500299773 /* button-icon-nav-clear.png in Resources */ = {isa = PBXBuildFile; fileRef = 26A170EA22DDFB6500299773 /* button-icon-nav-clear.png */; };
-		26B340372331163A0031CF70 /* MapLocationPickerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 26B340362331163A0031CF70 /* MapLocationPickerController.m */; };
 		26B3403A2331195C0031CF70 /* UILabel+InaMeasure.m in Sources */ = {isa = PBXBuildFile; fileRef = 26B340392331195C0031CF70 /* UILabel+InaMeasure.m */; };
 		26C07E2E247677A600E28D43 /* ExposurePlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 26C07E2D247677A600E28D43 /* ExposurePlugin.m */; };
 		26C90CED2361CF480092E07F /* NSDictionary+InaPathKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 26C90CEC2361CF480092E07F /* NSDictionary+InaPathKey.m */; };
@@ -132,8 +131,6 @@
 		26A170E922DDFB6500299773 /* button-icon-nav-prev.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-icon-nav-prev.png"; sourceTree = "<group>"; };
 		26A170EA22DDFB6500299773 /* button-icon-nav-clear.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-icon-nav-clear.png"; sourceTree = "<group>"; };
 		26B34034233112320031CF70 /* FlutterCompletion.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FlutterCompletion.h; sourceTree = "<group>"; };
-		26B340352331163A0031CF70 /* MapLocationPickerController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapLocationPickerController.h; sourceTree = "<group>"; };
-		26B340362331163A0031CF70 /* MapLocationPickerController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MapLocationPickerController.m; sourceTree = "<group>"; };
 		26B340382331195C0031CF70 /* UILabel+InaMeasure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UILabel+InaMeasure.h"; sourceTree = "<group>"; };
 		26B340392331195C0031CF70 /* UILabel+InaMeasure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UILabel+InaMeasure.m"; sourceTree = "<group>"; };
 		26C07E2C247677A600E28D43 /* ExposurePlugin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ExposurePlugin.h; sourceTree = "<group>"; };
@@ -325,8 +322,6 @@
 				266FA50223E0388B00F800F5 /* MapController.m */,
 				269F83FA22D77E5500CC11A4 /* MapDirectionsController.h */,
 				269F83FB22D77E5500CC11A4 /* MapDirectionsController.m */,
-				26B340352331163A0031CF70 /* MapLocationPickerController.h */,
-				26B340362331163A0031CF70 /* MapLocationPickerController.m */,
 				2696997E22C3A14A00B3290E /* MapView.h */,
 				2696997F22C3A14A00B3290E /* MapView.m */,
 				2626D94C22DCB80000F6BC2F /* MapMarkerView.h */,
@@ -696,7 +691,6 @@
 				26B3403A2331195C0031CF70 /* UILabel+InaMeasure.m in Sources */,
 				26FAB1CC22EB35C7008E987C /* NSDate+InaUtils.m in Sources */,
 				2696998022C3A14A00B3290E /* MapView.m in Sources */,
-				26B340372331163A0031CF70 /* MapLocationPickerController.m in Sources */,
 				26ECB3232487938C00479487 /* CommonCrypto+UIUCUtils.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

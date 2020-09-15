@@ -301,24 +301,13 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   }
 
   void _onConnectNetIdClicked() {
-    Analytics.instance.logSelect(target: "Connect netId");
-    Auth().authenticateWithShibboleth();
-  }
-
-  /*void _onPhoneVerClicked() {
-    Analytics.instance.logSelect(target: "Phone Verification");
     if (Connectivity().isNotOffline) {
-      Navigator.push(context, CupertinoPageRoute(settings: RouteSettings(), builder: (context) => OnboardingLoginPhoneVerifyPanel(onFinish: _didPhoneVer,)));
+      Analytics.instance.logSelect(target: "Connect netId");
+      Auth().authenticateWithShibboleth();
     } else {
-      AppAlert.showOfflineMessage(context, Localization().getStringEx('panel.settings.label.offline.phone_ver', 'Verify Your Phone Number is not available while offline.'));
+      AppAlert.showOfflineMessage(context);
     }
-  }*/
-
-  /*void _didPhoneVer(_) {
-    Navigator.of(context)?.popUntil((Route route){
-      return AppNavigation.routeRootWidget(route, context: context)?.runtimeType == widget.runtimeType;
-    });
-  }*/
+  }
 
   // Customizations
 
@@ -347,8 +336,12 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   }
 
   void _onWhoAreYouClicked() {
-    Analytics.instance.logSelect(target: "Who are you");
-    Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsRolesPanel()));
+    if (Connectivity().isNotOffline) {
+      Analytics.instance.logSelect(target: "Who are you");
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsRolesPanel()));
+    } else {
+      AppAlert.showOfflineMessage(context);
+    }
   }
 
   // Connected
@@ -536,8 +529,12 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   }
 
   void _onCovid19Toggled() {
-    Analytics.instance.logSelect(target: "COVID-19 notifications");
-    FirebaseMessaging().notifyCovid19 = !FirebaseMessaging().notifyCovid19;
+    if (Connectivity().isNotOffline) {
+      Analytics.instance.logSelect(target: "COVID-19 notifications");
+      FirebaseMessaging().notifyCovid19 = !FirebaseMessaging().notifyCovid19;
+    } else {
+      AppAlert.showOfflineMessage(context);
+    }
   }
 
   //TBD move to Health service
@@ -816,124 +813,154 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
 
   
   void _onExposureNotifications() {
-    Analytics.instance.logSelect(target: "Exposure Notifications");
-    bool exposureNotification = _healthUser?.exposureNotification ?? false;
-    _updateHealthUser(exposureNotification: !exposureNotification);
+    if (Connectivity().isNotOffline) {
+      Analytics.instance.logSelect(target: "Exposure Notifications");
+      bool exposureNotification = _healthUser?.exposureNotification ?? false;
+      _updateHealthUser(exposureNotification: !exposureNotification);
+    } else {
+      AppAlert.showOfflineMessage(context);
+    }
   }
 
   void _onProviderTestResult() {
-    Analytics.instance.logSelect(target: "Health Provider Test Results");
-    bool consent = _healthUser?.consent ?? false;
-    _updateHealthUser(consent: !consent);
+    if (Connectivity().isNotOffline) {
+      Analytics.instance.logSelect(target: "Health Provider Test Results");
+      bool consent = _healthUser?.consent ?? false;
+      _updateHealthUser(consent: !consent);
+    } else {
+      AppAlert.showOfflineMessage(context);
+    }
   }
 
   void _onTapCovid19Login() {
-    Analytics.instance.logSelect(target: "Retry");
-    _loadHealthUser();
+    if (Connectivity().isNotOffline) {
+      Analytics.instance.logSelect(target: "Retry");
+      _loadHealthUser();
+    } else {
+      AppAlert.showOfflineMessage(context);
+    }
   }
 
   void _onTapCovid19ResetKeys() {
-    Analytics.instance.logSelect(target: "Reset");
-    String message = Localization().getStringEx('panel.settings.home.covid19.alert.reset.prompt', 'Doing this will provide you a new COVID-19 Secret QRcode but your previous COVID-19 event history will be lost, continue?');
-    if (_refreshingHealthUserKeys != true) {
-      showDialog(
-        context: context,
-        builder: (BuildContext buildContext) {
-          return AlertDialog(
-            content: Text(message, style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 16, fontFamily: Styles().fontFamilies.bold)),
-            actions: <Widget>[
-              FlatButton(
-                child: Text(Localization().getStringEx("dialog.yes.title", "Yes"), style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 16, fontFamily: Styles().fontFamilies.bold)),
-                onPressed: () {
-                  Analytics.instance.logAlert(text: message, selection: "Yes");
-                  Navigator.pop(buildContext, true);
-                }
-              ),
-              FlatButton(
-                child: Text(Localization().getStringEx("dialog.no.title", "No"), style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 16, fontFamily: Styles().fontFamilies.bold)),
-                onPressed: () {
-                  Analytics.instance.logAlert(text: message, selection: "No");
-                  Navigator.pop(buildContext, false);
-                }
-              ),
-            ],
-          );
-        }
-      ).then((result) {
-        if (result == true) {
-          _refreshHealthRSAKeys();
-        }
-      });
+    if (Connectivity().isNotOffline) {
+      Analytics.instance.logSelect(target: "Reset");
+      String message = Localization().getStringEx(
+          'panel.settings.home.covid19.alert.reset.prompt', 'Doing this will provide you a new COVID-19 Secret QRcode but your previous COVID-19 event history will be lost, continue?');
+      if (_refreshingHealthUserKeys != true) {
+        showDialog(
+            context: context,
+            builder: (BuildContext buildContext) {
+              return AlertDialog(
+                content: Text(message, style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 16, fontFamily: Styles().fontFamilies.bold)),
+                actions: <Widget>[
+                  FlatButton(
+                      child: Text(
+                          Localization().getStringEx("dialog.yes.title", "Yes"), style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 16, fontFamily: Styles().fontFamilies.bold)),
+                      onPressed: () {
+                        Analytics.instance.logAlert(text: message, selection: "Yes");
+                        Navigator.pop(buildContext, true);
+                      }
+                  ),
+                  FlatButton(
+                      child: Text(Localization().getStringEx("dialog.no.title", "No"), style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 16, fontFamily: Styles().fontFamilies.bold)),
+                      onPressed: () {
+                        Analytics.instance.logAlert(text: message, selection: "No");
+                        Navigator.pop(buildContext, false);
+                      }
+                  ),
+                ],
+              );
+            }
+        ).then((result) {
+          if (result == true) {
+            _refreshHealthRSAKeys();
+          }
+        });
+      }
+    } else {
+      AppAlert.showOfflineMessage(context);
     }
   }
 
   void _onTapShowCovid19QrCode() {
-    Analytics.instance.logSelect(target: "Show COVID-19 Secret QRcode");
-    Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19QrCodePanel()));
+    if (Connectivity().isNotOffline) {
+      Analytics.instance.logSelect(target: "Show COVID-19 Secret QRcode");
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19QrCodePanel()));
+    }
   }
 
   void _onTapScanCovid19QrCode() {
-    Analytics.instance.logSelect(target: "Scan COVID-19 Secret QRcode");
-    BarcodeScanner.scan().then((result) {
-      // barcode_scan plugin returns 8 digits when it cannot read the qr code. Prevent it from storing such values
-      if (AppString.isStringEmpty(result) || (result.length <= 8)) {
-        AppAlert.showDialogResult(context, Localization().getStringEx('panel.settings.home.covid19.alert.qr_code.scan.failed.msg', 'Failed to read QR code.'));
-      }
-      else {
-        _onCovid19QrCodeScanSucceeded(result);
-      }
-    });
+    if (Connectivity().isNotOffline) {
+      Analytics.instance.logSelect(target: "Scan COVID-19 Secret QRcode");
+      BarcodeScanner.scan().then((result) {
+        // barcode_scan plugin returns 8 digits when it cannot read the qr code. Prevent it from storing such values
+        if (AppString.isStringEmpty(result) || (result.length <= 8)) {
+          AppAlert.showDialogResult(context, Localization().getStringEx('panel.settings.home.covid19.alert.qr_code.scan.failed.msg', 'Failed to read QR code.'));
+        }
+        else {
+          _onCovid19QrCodeScanSucceeded(result);
+        }
+      });
+    } else {
+      AppAlert.showOfflineMessage(context);
+    }
   }
 
   void _onTapLoadCovid19QrCode() {
-    Analytics.instance.logSelect(target: "Load COVID-19 Secret QRcode");
-    Covid19Utils.loadQRCodeImageFromPictures().then((String qrCodeString) {
-      _onCovid19QrCodeScanSucceeded(qrCodeString);
-    });
+    if (Connectivity().isNotOffline) {
+      Analytics.instance.logSelect(target: "Load COVID-19 Secret QRcode");
+      Covid19Utils.loadQRCodeImageFromPictures().then((String qrCodeString) {
+        _onCovid19QrCodeScanSucceeded(qrCodeString);
+      });
+    } else {
+      AppAlert.showOfflineMessage(context);
+    }
   }
 
   void _onCovid19QrCodeScanSucceeded(String result) {
+    if (Connectivity().isNotOffline) {
+      PointyCastle.PrivateKey privateKey;
+      try {
+        Uint8List pemCompressedData = (result != null) ? base64.decode(result) : null;
+        List<int> pemData = (pemCompressedData != null) ? GZipDecoder().decodeBytes(pemCompressedData) : null;
+        privateKey = (pemData != null) ? RsaKeyHelper.parsePrivateKeyFromPemData(pemData) : null;
+      }
+      catch (e) {
+        print(e?.toString());
+      }
 
-    PointyCastle.PrivateKey privateKey;
-    try {
-      Uint8List pemCompressedData = (result != null) ? base64.decode(result) : null;
-      List<int> pemData = (pemCompressedData != null) ? GZipDecoder().decodeBytes(pemCompressedData) : null;
-      privateKey = (pemData != null) ? RsaKeyHelper.parsePrivateKeyFromPemData(pemData) : null;
-    }
-    catch (e) {
-      print(e?.toString());
-    }
-    
-    if (privateKey != null) {
-      RsaKeyHelper.verifyRsaKeyPair(PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey>(_healthUser?.publicKey, privateKey)).then((bool result) {
-        if (mounted) {
-          if (result == true) {
-            Health().setUserRSAPrivateKey(privateKey).then((success) {
-              if (mounted) {
-                String resultMessage = success ? Localization().getStringEx(
-                    'panel.settings.home.covid19.alert.qr_code.transfer.succeeded.msg', 'COVID-19 secret transferred successfully.') : Localization()
-                    .getStringEx('panel.settings.home.covid19.alert.qr_code.transfer.failed.msg', 'Failed to transfer COVID-19 secret.');
-                AppAlert.showDialogResult(context, resultMessage).then((_){
-                  if (success) {
-                    setState(() {
-                      _healthUserPrivateKey = privateKey;
-                      _healthUserKeysPaired = true;
-                    });
-                  }
-                });
-              }
-            });
+      if (privateKey != null) {
+        RsaKeyHelper.verifyRsaKeyPair(PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey>(_healthUser?.publicKey, privateKey)).then((bool result) {
+          if (mounted) {
+            if (result == true) {
+              Health().setUserRSAPrivateKey(privateKey).then((success) {
+                if (mounted) {
+                  String resultMessage = success ? Localization().getStringEx(
+                      'panel.settings.home.covid19.alert.qr_code.transfer.succeeded.msg', 'COVID-19 secret transferred successfully.') : Localization()
+                      .getStringEx('panel.settings.home.covid19.alert.qr_code.transfer.failed.msg', 'Failed to transfer COVID-19 secret.');
+                  AppAlert.showDialogResult(context, resultMessage).then((_) {
+                    if (success) {
+                      setState(() {
+                        _healthUserPrivateKey = privateKey;
+                        _healthUserKeysPaired = true;
+                      });
+                    }
+                  });
+                }
+              });
+            }
+            else {
+              AppAlert.showDialogResult(context, Localization().getStringEx('panel.health.covid19.alert.qr_code.not_match.msg', 'COVID-19 secret key does not match existing public RSA key.'));
+            }
           }
-          else {
-            AppAlert.showDialogResult(context, Localization().getStringEx('panel.health.covid19.alert.qr_code.not_match.msg', 'COVID-19 secret key does not match existing public RSA key.'));
-          }
-        }
-      });
+        });
+      }
+      else {
+        AppAlert.showDialogResult(context, Localization().getStringEx('panel.health.covid19.alert.qr_code.invalid.msg', 'Invalid QR code.'));
+      }
+    } else {
+      AppAlert.showOfflineMessage(context);
     }
-    else {
-      AppAlert.showDialogResult(context, Localization().getStringEx('panel.health.covid19.alert.qr_code.invalid.msg', 'Invalid QR code.'));
-    }
-
   }
 
   // Privacy
@@ -962,9 +989,14 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   }
 
   void _onPrivacyStatementClicked() {
-    Analytics.instance.logSelect(target: "Privacy Statement");
-    if (Config().privacyPolicyUrl != null) {
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => WebPanel(url: Config().privacyPolicyUrl, title: Localization().getStringEx("panel.settings.privacy_statement.label.title", "Privacy Statement"),)));
+    if (Connectivity().isNotOffline) {
+      Analytics.instance.logSelect(target: "Privacy Statement");
+      if (Config().privacyPolicyUrl != null) {
+        Navigator.push(context, CupertinoPageRoute(
+            builder: (context) => WebPanel(url: Config().privacyPolicyUrl, title: Localization().getStringEx("panel.settings.privacy_statement.label.title", "Privacy Statement"),)));
+      }
+    } else {
+      AppAlert.showOfflineMessage(context);
     }
   }
 
@@ -994,9 +1026,13 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   }
 
   void _onPersonalInfoClicked() {
-    Analytics.instance.logSelect(target: "Personal Info");
-    if (Auth().isLoggedIn) {
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsPersonalInfoPanel()));
+    if (Connectivity().isNotOffline) {
+      Analytics.instance.logSelect(target: "Personal Info");
+      if (Auth().isLoggedIn) {
+        Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsPersonalInfoPanel()));
+      }
+    } else {
+      AppAlert.showOfflineMessage(context);
     }
   }
 
@@ -1053,21 +1089,25 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   }
 
   void _onFeedbackClicked() {
-    Analytics.instance.logSelect(target: "Provide Feedback");
+    if (Connectivity().isNotOffline) {
+      Analytics.instance.logSelect(target: "Provide Feedback");
 
-    if (Connectivity().isNotOffline && (Config().feedbackUrl != null)) {
-      String email = Auth().userPiiData?.email;
-      String name =  Auth().userPiiData?.fullName;
-      String phone = Auth().phoneToken?.phone;
-      String params = _constructFeedbackParams(email, phone, name);
-      String feedbackUrl = Config().feedbackUrl + params;
+      if (Connectivity().isNotOffline && (Config().feedbackUrl != null)) {
+        String email = Auth().userPiiData?.email;
+        String name = Auth().userPiiData?.fullName;
+        String phone = Auth().phoneToken?.phone;
+        String params = _constructFeedbackParams(email, phone, name);
+        String feedbackUrl = Config().feedbackUrl + params;
 
-      String panelTitle = Localization().getStringEx('panel.settings.feedback.label.title', 'PROVIDE FEEDBACK');
-      Navigator.push(
-          context, CupertinoPageRoute(builder: (context) => WebPanel(url: feedbackUrl, title: panelTitle,)));
-    }
-    else {
-      AppAlert.showOfflineMessage(context, Localization().getStringEx('panel.settings.label.offline.feedback', 'Providing a Feedback is not available while offline.'));
+        String panelTitle = Localization().getStringEx('panel.settings.feedback.label.title', 'PROVIDE FEEDBACK');
+        Navigator.push(
+            context, CupertinoPageRoute(builder: (context) => WebPanel(url: feedbackUrl, title: panelTitle,)));
+      }
+      else {
+        AppAlert.showOfflineMessage(context, Localization().getStringEx('panel.settings.label.offline.feedback', 'Providing a Feedback is not available while offline.'));
+      }
+    } else {
+      AppAlert.showOfflineMessage(context);
     }
   }
 
@@ -1083,7 +1123,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
         fontSize: 16.0,
         textColor: Styles().colors.fillColorPrimary,
         borderColor: Styles().colors.fillColorSecondary,
-        onTap: _onDebugClicked(),
+        onTap: _onDebugClicked,
       ),
     ); 
   }

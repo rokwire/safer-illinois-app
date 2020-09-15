@@ -175,6 +175,7 @@ class ScalableRoundedButton extends StatelessWidget {
   final bool enabled;
   final bool showAdd;
   final bool showChevron;
+  final bool showExternalLink;
 
   ScalableRoundedButton(
       {this.label = '',
@@ -191,7 +192,8 @@ class ScalableRoundedButton extends StatelessWidget {
         this.secondaryBorderColor,
         this.onTap,
         this.showAdd = false,
-        this.showChevron = false
+        this.showChevron = false,
+        this.showExternalLink = false,
       });
 
   @override
@@ -246,6 +248,12 @@ class ScalableRoundedButton extends StatelessWidget {
                         child: Padding(
                           padding: EdgeInsets.only(left: 5),
                           child: Image.asset('images/icon-add-20x18.png'),
+                        )),
+                    Visibility(
+                        visible: showExternalLink,
+                        child: Padding(
+                          padding: EdgeInsets.only(left: 5),
+                          child: Image.asset('images/external-link.png'),
                         ))
                   ],)),
             ),

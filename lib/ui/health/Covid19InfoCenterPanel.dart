@@ -18,14 +18,18 @@ import 'dart:collection';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_html/style.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/AppDateTime.dart';
 import 'package:illinois/service/Config.dart';
+import 'package:illinois/service/Connectivity.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Styles.dart';
+import 'package:illinois/ui/WebPanel.dart';
 import 'package:illinois/ui/health/Covid19AddTestResultPanel.dart';
 import 'package:illinois/ui/health/Covid19CareTeamPanel.dart';
 import 'package:illinois/ui/health/Covid19GuidelinesPanel.dart';
@@ -42,7 +46,7 @@ import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/ui/widgets/SectionTitlePrimary.dart';
 import 'package:illinois/ui/widgets/StatusInfoDialog.dart';
 import 'package:illinois/utils/Utils.dart';
-import 'package:sprintf/sprintf.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Covid19InfoCenterPanel extends StatefulWidget {
   final Covid19Status status;
@@ -167,19 +171,37 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
   }
 
   Widget _buildNextStepPrimarySection() {
-    return Health().isUserLoggedIn ? SectionTitlePrimary(
-      title: Localization().getStringEx("panel.covid19home.top_heading.title", "Stay Healthy"),
-      iconPath: 'images/icon-health.png',
-      children: <Widget>[
+    if (Health().isUserLoggedIn) {
+      
+      List<Widget> entries = <Widget>[
         _buildMostRecentEvent(),
-        Container(height: 10,),
         _buildNextStepSection(),
-        Container(height: 10,),
         _buildSymptomCheckInSection(),
-        Container(height: 10,),
         _buildAddTestResultSection(),
-        Container(height: 20,),
-      ],) : Container();
+      ];
+      
+      List<Widget> content = <Widget>[];
+      for (Widget entry in entries) {
+        if (entry != null) {
+          if (content.isNotEmpty) {
+            content.add(Container(height: 10,),);
+          }
+          content.add(entry);
+        }
+      }
+      
+      if (content.isNotEmpty) {
+        content.add(Container(height: 20,),);
+      }
+
+      return SectionTitlePrimary(
+        title: Localization().getStringEx("panel.covid19home.top_heading.title", "Stay Healthy"),
+        iconPath: 'images/icon-health.png',
+        children: content,);
+    }
+    else {
+      return Container();
+    }
   }
 
   Widget _buildHealthPrimarySection() {
@@ -200,7 +222,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
   }
   Widget _buildMostRecentEvent(){
     if(_lastHistory?.blob == null) {
-      return Container();
+      return null;
     }
     String headingText = Localization().getStringEx("panel.covid19home.label.most_recent_event.title", "MOST RECENT EVENT");
     DateTime entryDate = _lastHistory.dateUtc;
@@ -283,10 +305,41 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
   }
 
   Widget _buildNextStepSection() {
-    String headingText = (_status?.blob?.nextStep != null) ? Localization().getStringEx("panel.covid19home.label.next_step.title", "NEXT STEP") : '';
-    String nextStepTitle = _status?.blob?.displayNextStep ?? '';
-    String headingDate = (_status?.blob?.nextStepDateUtc != null) ? AppDateTime().formatDateTime(_status.blob.nextStepDateUtc.toLocal(), format:"MMMM dd, yyyy") : '';
-    String scheduleText = (_status?.blob?.nextStepDateUtc != null) ? sprintf(Localization().getStringEx("panel.covid19home.label.schedule_after.title", "Schedule after %s"), [AppDateTime().formatDateTime(_status.blob.nextStepDateUtc.toLocal(), format:"MMMM dd")]) : '';
+    String nextStepTitle = _status?.blob?.displayNextStep;
+    String nextStepHtml = _status?.blob?.displayNextStepHtml;
+    String warningTitle = _status?.blob?.displayWarning;
+    bool hasNextStep = AppString.isStringNotEmpty(nextStepTitle) || AppString.isStringNotEmpty(nextStepHtml) || AppString.isStringNotEmpty(warningTitle);
+    String headingText = hasNextStep ? Localization().getStringEx("panel.covid19home.label.next_step.title", "NEXT STEP") : '';
+    String headingDate = (hasNextStep && (_status?.blob?.nextStepDateUtc != null)) ? AppDateTime().formatDateTime(_status.blob.nextStepDateUtc.toLocal(), format: "MMMM dd, yyyy") : '';
+
+    List<Widget> content = <Widget>[
+      Row(children: <Widget>[
+        Text(headingText, style: TextStyle(letterSpacing: 0.5, fontFamily: Styles().fontFamilies.bold, fontSize: 12, color: Styles().colors.fillColorPrimary),),
+        Expanded(child: Container(),),
+        Text(headingDate, style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 12, color: Styles().colors.textSurface),)
+      ],),
+    ];
+
+    if (AppString.isStringNotEmpty(nextStepTitle)) {
+      content.addAll(<Widget>[
+          Container(height: 12,),
+          Text(nextStepTitle, style: TextStyle(fontFamily: Styles().fontFamilies.extraBold, fontSize: 20, color: Styles().colors.fillColorPrimary),),
+      ]);
+    }
+
+    if (AppString.isStringNotEmpty(nextStepHtml)) {
+      content.addAll(<Widget>[
+          Container(height: 12,),
+          Html(data: nextStepHtml, onLinkTap: (url) => _onTapLink(url), style:{ 'body' : Style(fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground)},),
+      ]);
+    }
+
+    if (AppString.isStringNotEmpty(warningTitle)) {
+      content.addAll(<Widget>[
+          Container(height: 12,),
+          Text(warningTitle, style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Styles().colors.fillColorPrimary),),
+      ]);
+    }
 
     return Semantics(container: true, child: Container(
       padding: EdgeInsets.symmetric(vertical: 16),
@@ -295,20 +348,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
         Stack(children: <Widget>[
           Visibility(visible: (_loadingStatus != true),
             child: Padding(padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-                Row(children: <Widget>[
-                  Text(headingText, style: TextStyle(letterSpacing: 0.5, fontFamily: Styles().fontFamilies.bold, fontSize: 12, color: Styles().colors.fillColorPrimary),),
-                  Expanded(child: Container(),),
-                  Text(headingDate, style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 12, color: Styles().colors.textSurface),)
-                ],),
-                Container(height: 12,),
-                Text(nextStepTitle, style: TextStyle(fontFamily: Styles().fontFamilies.extraBold, fontSize: 20, color: Styles().colors.fillColorPrimary),),
-                scheduleText.isNotEmpty ? Container(height: 12,) : Container(),
-                scheduleText.isNotEmpty ? Row(children: <Widget>[
-                    Visibility(visible: scheduleText.isNotEmpty, child: Padding(padding: EdgeInsets.only(right: 8), child: Image.asset('images/icon-calendar.png', excludeFromSemantics: true, ),),),
-                    Text(scheduleText,style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textSurface),),
-                ],) : Container(),
-              ],),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: content),
             ),
           ),
           Visibility(visible: (_loadingStatus == true),
@@ -339,6 +379,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
       ],),
     ));
   }
+
 
   Widget _buildSymptomCheckInSection() {
     String title = Localization().getStringEx("panel.covid19home.label.check_in.title","Symptom Check-in");
@@ -554,90 +595,92 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
       ),
     );
   }
-  
-
-  /*Widget _buildCampusUpdatesSection() {
-    String title = Localization().getStringEx("panel.covid19home.label.campus_updates.title","Campus Updates");
-    return Semantics(container: true, child:
-      InkWell(onTap: () => _onTapCampusUpdates(), child:
-        Container(
-          padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16
-          ),
-          decoration: BoxDecoration(color: Styles().colors.surface, borderRadius: BorderRadius.all(Radius.circular(4)), boxShadow: [BoxShadow(color: Styles().colors.blackTransparent018, spreadRadius: 2.0, blurRadius: 6.0, offset: Offset(2, 2))] ),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-            Row(children: <Widget>[
-              Expanded(child:
-                Text(title, style: TextStyle(fontFamily: Styles().fontFamilies.extraBold, fontSize: 20, color: Styles().colors.fillColorPrimary),),
-              ),
-              Image.asset('images/chevron-right.png'),
-            ],),
-          ],),),),
-      );
-  }*/
-
-  /*Widget _buildAboutButton() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(4),
-        boxShadow: [BoxShadow(color: Color.fromRGBO(19, 41, 75, 0.3), spreadRadius: 2.0, blurRadius: 8.0, offset: Offset(0, 2))],
-      ),
-      child: RibbonButton(
-        label: Localization().getStringEx("panel.covid19home.button.about.title","About"),
-        borderRadius: BorderRadius.circular(4),
-        onTap: ()=>_onTapAbout(),
-      ),
-    );
-  }*/
 
   void _onTapCountryGuidelines() {
-    Analytics.instance.logSelect(target: "COVID-19 County Guidlines");
-    Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19GuidelinesPanel(status: _status)));
+    if(Connectivity().isNotOffline) {
+      Analytics.instance.logSelect(target: "COVID-19 County Guidlines");
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19GuidelinesPanel(status: _status)));
+    } else{
+      AppAlert.showOfflineMessage(context);
+    }
   }
 
-  /*void _onTapCampusUpdates() {
-    Analytics.instance.logSelect(target: "COVID-19 Campus Updates");
-    Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19UpdatesPanel()));
-  }*/
-
   void _onTapCareTeam() {
-    Analytics.instance.logSelect(target: "Your Care Team");
-    Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19CareTeamPanel(status: _status,)));
+    if(Connectivity().isNotOffline) {
+      Analytics.instance.logSelect(target: "Your Care Team");
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19CareTeamPanel(status: _status,)));
+    } else{
+      AppAlert.showOfflineMessage(context);
+    }
   }
 
   void _onTapReportTest(){
-    Analytics.instance.logSelect(target: "COVID-19 Report Test");
-    Navigator.push(context, CupertinoPageRoute(builder: (context)=>Covid19AddTestResultPanel()));
+    if(Connectivity().isNotOffline) {
+      Analytics.instance.logSelect(target: "COVID-19 Report Test");
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19AddTestResultPanel()));
+    } else{
+      AppAlert.showOfflineMessage(context);
+    }
   }
 
   void _onTapTestHistory(){
-    Analytics.instance.logSelect(target: "COVID-19 Test History");
-    Navigator.push(context, CupertinoPageRoute(builder: (context)=>Covid19HistoryPanel()));
+    if(Connectivity().isNotOffline) {
+      Analytics.instance.logSelect(target: "COVID-19 Test History");
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19HistoryPanel()));
+    } else{
+      AppAlert.showOfflineMessage(context);
+    }
   }
 
   void _onTapFindLocations(){
-    Analytics.instance.logSelect(target: "COVID-19 Find Test Locations");
-    Navigator.push(context, CupertinoPageRoute(builder: (context)=>Covid19TestLocationsPanel()));
+    if(Connectivity().isNotOffline) {
+      Analytics.instance.logSelect(target: "COVID-19 Find Test Locations");
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19TestLocationsPanel()));
+    } else{
+      AppAlert.showOfflineMessage(context);
+    }
   }
 
   void _onTapShowStatusCard(){
-    Analytics.instance.logSelect(target: "Show Status Card");
-    Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19StatusPanel()));
+    if(Connectivity().isNotOffline) {
+      Analytics.instance.logSelect(target: "Show Status Card");
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19StatusPanel()));
+    } else{
+      AppAlert.showOfflineMessage(context);
+    }
   }
 
   void _onTapSymptomCheckIn() {
-    Analytics.instance.logSelect(target: "Symptom Check-in");
-    Navigator.push(context, CupertinoPageRoute(builder: (context)=>Covid19SymptomsPanel()));
+    if(Connectivity().isNotOffline) {
+      Analytics.instance.logSelect(target: "Symptom Check-in");
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19SymptomsPanel()));
+    } else{
+      AppAlert.showOfflineMessage(context);
+    }
   }
 
   void _onTapCovidWellnessCenter(){
-    Analytics.instance.logSelect(target: "Wellness Center");
-    Navigator.push(context, CupertinoPageRoute(builder: (context)=>Covid19WellnessCenter()));
+    if(Connectivity().isNotOffline) {
+      Analytics.instance.logSelect(target: "Wellness Center");
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19WellnessCenter()));
+    } else{
+      AppAlert.showOfflineMessage(context);
+    }
   }
 
-  /*void _onTapAbout() {
-    Analytics.instance.logSelect(target: "About");
-    Navigator.push(context, CupertinoPageRoute(builder: (context)=>Covid19AboutPanel()));
-  }*/
+  void _onTapLink(String url) {
+    if (Connectivity().isNotOffline) {
+      if (AppString.isStringNotEmpty(url)) {
+        if (AppUrl.launchInternal(url)) {
+          Navigator.push(context, CupertinoPageRoute(builder: (context) => WebPanel(url: url)));
+        } else {
+          launch(url);
+        }
+      }
+    } else {
+      AppAlert.showOfflineMessage(context);
+    }
+  }
 }
 
 class _Covid19HomeHeaderBar extends AppBar {

@@ -241,6 +241,7 @@ class Health with Service implements NotificationsListener {
       if (response?.statusCode == 200) {
         Covid19Status status = await Covid19Status.decryptedFromJson(AppJson.decodeMap(response.body), _userPrivateKey);
         _lastCovid19Status = status?.blob?.healthStatus;
+        _updateExposureReportTarget(status: status);
         return status;
       }
     }
@@ -487,7 +488,7 @@ class Health with Service implements NotificationsListener {
       String url = "${Config().health2Url}/symptoms/symptoms.json";
       Response response = await Network().get(url);
       String responseBody = (response?.statusCode == 200) ? response.body : null;
-      //TMP:String responseBody = await rootBundle.loadString('assets/sample.health.symptoms.json');
+//TMP:String responseBody = await rootBundle.loadString('assets/sample.health.symptoms.json');
       List<dynamic> responseJson = (responseBody != null) ? AppJson.decodeList(responseBody) : null;
       return (responseJson != null) ? HealthSymptomsGroup.listFromJson(responseJson) : null;
     }
@@ -902,8 +903,10 @@ class Health with Service implements NotificationsListener {
           healthStatus: defaultStatus.healthStatus,
           priority: defaultStatus.priority,
           nextStep: defaultStatus.nextStep,
+          nextStepHtml: defaultStatus.nextStepHtml,
           nextStepDateUtc: null,
           reason: defaultStatus.reason,
+          warning: defaultStatus.warning,
           historyBlob: null,
         ),
       );
@@ -964,9 +967,11 @@ class Health with Service implements NotificationsListener {
             blob: Covid19StatusBlob(
               healthStatus: (historyStatus.healthStatus != null) ? historyStatus.healthStatus : status.blob.healthStatus,
               priority: (historyStatus.priority != null) ? historyStatus.priority.abs() : status.blob.priority,
-              nextStep: ((historyStatus.nextStep != null) || (historyStatus.healthStatus != null)) ? historyStatus.nextStep: status.blob.nextStep,
+              nextStep: ((historyStatus.nextStep != null) || (historyStatus.nextStepHtml != null) || (historyStatus.healthStatus != null)) ? historyStatus.nextStep : status.blob.nextStep,
+              nextStepHtml: ((historyStatus.nextStep != null) || (historyStatus.nextStepHtml != null) || (historyStatus.healthStatus != null)) ? historyStatus.nextStepHtml : status.blob.nextStepHtml,
               nextStepDateUtc: ((historyStatus.nextStepInterval != null) || (historyStatus.healthStatus != null)) ? historyStatus.nextStepDateUtc(history.dateUtc) : status.blob.nextStepDateUtc,
               reason: ((historyStatus.reason != null) || (historyStatus.healthStatus != null)) ? historyStatus.reason: status.blob.reason,
+              warning: ((historyStatus.warning != null) || (historyStatus.healthStatus != null)) ? historyStatus.warning: status.blob.warning,
               historyBlob: history.blob,
             ),
           );
@@ -1019,12 +1024,19 @@ class Health with Service implements NotificationsListener {
       result = List<Covid19Event>();
       if (0 < events.length) {
         List<Covid19History> histories = await loadCovid19History();
-        for (Covid19Event event in events) {
-          if (!Covid19History.listContainsEvent(histories, event)) {
-            Covid19History eventHistory = await _applyEventHistory(event);
-            if (eventHistory != null) {
+        if (histories != null) {
+          for (Covid19Event event in events) {
+            if (Covid19History.listContainsEvent(histories, event)) {
+              // mark it as processed without duplicating the histyr entry
               await _markEventAsProcessed(event);
-              result.add(event);
+            }
+            else {
+              // add history entry and mark as processed
+              Covid19History eventHistory = await _applyEventHistory(event);
+              if (eventHistory != null) {
+                await _markEventAsProcessed(event);
+                result.add(event);
+              }
             }
           }
         }
@@ -1062,13 +1074,16 @@ class Health with Service implements NotificationsListener {
   }
 
   Future<int> processOsfTests({List<Covid19OSFTest> osfTests}) async {
+
+    List<HealthTestType> testTypes = await loadHealthServiceTestTypes();
+    Set<String> testTypeSet = testTypes != null ? testTypes.map((entry) => entry.name).toSet() : null;
     if (osfTests != null) {
       List<Covid19OSFTest> processed = List<Covid19OSFTest>();
       DateTime lastOsfTestDate = Storage().lastHealthCovid19OsfTestDate;
       DateTime latestOsfTestDate;
 
       for (Covid19OSFTest osfTest in osfTests) {
-        if ((osfTest.dateUtc != null) && (lastOsfTestDate == null || lastOsfTestDate.isBefore(osfTest.dateUtc))) {
+        if ((testTypeSet != null && testTypeSet.contains(osfTest.testType)) && osfTest.dateUtc != null && (lastOsfTestDate == null || lastOsfTestDate.isBefore(osfTest.dateUtc))) {
           Covid19History testHistory = await _applyOsfTestHistory(osfTest);
           if (testHistory != null) {
             processed.add(osfTest);
@@ -1383,7 +1398,7 @@ class Health with Service implements NotificationsListener {
     return (responseJson != null) ? HealthRulesSet2.fromJson(responseJson) : null;
   }
 
-  // Access
+  // Access Rules
 
   Future<Map<String, dynamic>> _loadAccessRules({String countyId}) async {
     String url = "${Config().healthUrl}/covid19/access-rules/county/$countyId";

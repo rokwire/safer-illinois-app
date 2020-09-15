@@ -360,13 +360,13 @@ class AppAlert {
     return alertDismissed;
   }
 
-  static Future<bool> showOfflineMessage(BuildContext context, String message) async {
+  static Future<bool> showOfflineMessage(BuildContext context, [String message]) async {
     return showDialog(context: context, builder: (context) {
       return AlertDialog(
         content: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
           Text(Localization().getStringEx("app.offline.message.title", "You appear to be offline"), style: TextStyle(fontSize: 18),),
-          Container(height:16),
-          Text(message, textAlign: TextAlign.center,),
+          Container(height: AppString.isStringNotEmpty(message) ? 16 : 0),
+          AppString.isStringNotEmpty(message) ? Text(message, textAlign: TextAlign.center,) : Container(),
         ],),
         actions: <Widget>[
           FlatButton(
