@@ -485,8 +485,9 @@ class Health with Service implements NotificationsListener {
       return rules?.symptoms?.groups;
     }
     else {
-      String url = "${Config().health2Url}/symptoms/symptoms.json";
-      Response response = await Network().get(url);
+      String url = "${Config().healthUrl}/covid19/symptoms";
+      String appVersion = AppVersion.majorVersion(Config().appVersion, 2);
+      Response response = await Network().get(url, auth: NetworkAuth.App, headers: { Network.RokwireVersion : appVersion });
       String responseBody = (response?.statusCode == 200) ? response.body : null;
 //TMP:String responseBody = await rootBundle.loadString('assets/sample.health.symptoms.json');
       List<dynamic> responseJson = (responseBody != null) ? AppJson.decodeList(responseBody) : null;
