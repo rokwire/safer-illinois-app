@@ -479,8 +479,8 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
   }
 
   String get _userRoleString { // Simplified - show resident for the rest of the situations
-    if(Auth().isShibbolethLoggedIn && AppString.isStringNotEmpty(Auth()?.authCard?.role)){
-      return Auth()?.authCard?.role;
+    if(Auth().isShibbolethLoggedIn && AppString.isStringNotEmpty(Auth()?.authCard?.studentLevel)){
+      return Auth()?.authCard?.studentLevel;  // Use studentLevel instead of role Ref: issue #168
     }
     return UserRole.toRoleString(UserRole.resident);
   }
