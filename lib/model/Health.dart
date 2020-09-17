@@ -1297,6 +1297,7 @@ class HealthServiceLocation {
       notes: json["notes"],
       latitude: AppJson.doubleValue(json["latitude"]),
       longitude: AppJson.doubleValue(json["longitude"]),
+      waitTimeColor: HealthServiceLocation.waitTimeColorFromString(json['wait_time_color']),
       availableTests: jsoTests!=null ? List.from(jsoTests) : null,
       daysOfOperation: jsonDaysOfOperation!=null ? HealthLocationDayOfOperation.listFromJson(jsonDaysOfOperation) : null,
     ) : null;
@@ -1317,6 +1318,7 @@ class HealthServiceLocation {
       'notes': notes,
       'latitude': latitude,
       'longitude': longitude,
+      'wait_time_color': HealthServiceLocation.waitTimeColorToKeyString(waitTimeColor),
       'available_tests': availableTests,
     };
   }
