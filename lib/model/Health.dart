@@ -1275,9 +1275,10 @@ class HealthServiceLocation {
   String notes;
   double latitude;
   double longitude;
+  HealthLocationWaitTimeColor waitTimeColor;
   List<String> availableTests;
   List<HealthLocationDayOfOperation> daysOfOperation;
-  HealthServiceLocation({this.id, this.name, this.availableTests, this.contact, this.city, this.address1, this.address2, this.state, this.country, this.zip, this.url, this.notes, this.latitude, this.longitude, this.daysOfOperation});
+  HealthServiceLocation({this.id, this.name, this.availableTests, this.contact, this.city, this.address1, this.address2, this.state, this.country, this.zip, this.url, this.notes, this.latitude, this.longitude, this.waitTimeColor, this.daysOfOperation});
 
   factory HealthServiceLocation.fromJson(Map<String, dynamic> json) {
     List jsoTests = json['available_tests'];
@@ -1296,6 +1297,7 @@ class HealthServiceLocation {
       notes: json["notes"],
       latitude: AppJson.doubleValue(json["latitude"]),
       longitude: AppJson.doubleValue(json["longitude"]),
+      waitTimeColor: HealthServiceLocation.waitTimeColorFromString(json['wait_time_color']),
       availableTests: jsoTests!=null ? List.from(jsoTests) : null,
       daysOfOperation: jsonDaysOfOperation!=null ? HealthLocationDayOfOperation.listFromJson(jsonDaysOfOperation) : null,
     ) : null;
@@ -1316,6 +1318,7 @@ class HealthServiceLocation {
       'notes': notes,
       'latitude': latitude,
       'longitude': longitude,
+      'wait_time_color': HealthServiceLocation.waitTimeColorToKeyString(waitTimeColor),
       'available_tests': availableTests,
     };
   }
@@ -1361,6 +1364,66 @@ class HealthServiceLocation {
       }
     }
     return json;
+  }
+
+
+  static HealthLocationWaitTimeColor waitTimeColorFromString(String colorString) {
+    if (colorString == 'red') {
+      return HealthLocationWaitTimeColor.red;
+    } else if (colorString == 'yellow') {
+      return HealthLocationWaitTimeColor.yellow;
+    } else if (colorString == 'green') {
+      return HealthLocationWaitTimeColor.green;
+    } else if (colorString == 'grey') {
+      return HealthLocationWaitTimeColor.grey;
+    } else {
+      return null;
+    }
+  }
+
+  static String waitTimeColorToKeyString(HealthLocationWaitTimeColor color) {
+    switch (color) {
+      case HealthLocationWaitTimeColor.red:
+        return 'red';
+      case HealthLocationWaitTimeColor.yellow:
+        return 'yellow';
+      case HealthLocationWaitTimeColor.green:
+        return 'green';
+      case HealthLocationWaitTimeColor.grey:
+        return 'grey';
+      default:
+        return null;
+    }
+  }
+
+  static String waitTimeColorToDisplayString(HealthLocationWaitTimeColor color) {
+    switch (color) {
+      case HealthLocationWaitTimeColor.red:
+        return Localization().getStringEx('model.covid19.location.wait_time.color.red', 'Long');
+      case HealthLocationWaitTimeColor.yellow:
+        return Localization().getStringEx('model.covid19.location.wait_time.color.yellow', 'Medium');
+      case HealthLocationWaitTimeColor.green:
+        return Localization().getStringEx('model.covid19.location.wait_time.color.green', 'Short');
+      case HealthLocationWaitTimeColor.grey:
+        return Localization().getStringEx('model.covid19.location.wait_time.color.grey', 'Closed');
+      default:
+        return null;
+    }
+  }
+
+  static Color waitTimeColorHex(HealthLocationWaitTimeColor color) {
+    switch (color) {
+      case HealthLocationWaitTimeColor.red:
+        return Styles().colors.healthLocationWaitTimeColorRed;
+      case HealthLocationWaitTimeColor.yellow:
+        return Styles().colors.healthLocationWaitTimeColorYellow;
+      case HealthLocationWaitTimeColor.green:
+        return Styles().colors.healthLocationWaitTimeColorGreen;
+      case HealthLocationWaitTimeColor.grey:
+        return Styles().colors.healthLocationWaitTimeColorGrey;
+      default:
+        return Styles().colors.whiteTransparent06;
+    }
   }
 }
 
@@ -1438,6 +1501,11 @@ class HealthLocationDayOfOperation {
     return (timeOfDay != null) ? (timeOfDay.hour * 60 + timeOfDay.minute) : null;
   }
 }
+
+///////////////////////////////
+// HealthLocationWaitTimeColor
+
+enum HealthLocationWaitTimeColor { red, yellow, green, grey }
 
 ///////////////////////////////
 // HealthTestType

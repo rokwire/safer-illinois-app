@@ -352,6 +352,7 @@
 	"panel.covid19_test_locations.work_time.closed_until": "关闭到",
 	"panel.covid19_test_locations.all_providers.text": "所有提供者",
 	"panel.covid19_test_locations.call.hint": "呼叫",
+	"panel.covid19_test_locations.wait_time.label": "等待時間",
 
 	"panel.covid19.header.title": "COVID-19",
 	"panel.covid19.latest_update.title": "最近更新",
@@ -740,6 +741,11 @@
 	"model.covid19.status.color.red": "已感染",
 
     "model.covid19.step.initial": "與您的醫療保健提供者一起進行COVID-19測試",
+
+	"model.covid19.location.wait_time.color.red": "長",
+	"model.covid19.location.wait_time.color.yellow": "中",
+	"model.covid19.location.wait_time.color.green": "短",
+	"model.covid19.location.wait_time.color.grey": "關閉",
 
 	"logic.date_time.greeting.morning": "早上好",
 	"logic.date_time.greeting.afternoon": "下午好",
