@@ -289,6 +289,11 @@ class UiColors {
 
   Color get lightBlue                  => _colorMap['lightBlue'];
 
+  Color get healthLocationWaitTimeColorRed        => _colorMap['healthLocationWaitTimeColorRed'];
+  Color get healthLocationWaitTimeColorYellow     => _colorMap['healthLocationWaitTimeColorYellow'];
+  Color get healthLocationWaitTimeColorGreen      => _colorMap['healthLocationWaitTimeColorGreen'];
+  Color get healthLocationWaitTimeColorGrey       => _colorMap['healthLocationWaitTimeColorGrey'];
+
   Color getColor(String key){
     dynamic color = _colorMap[key];
     return (color is Color) ? color : null;
