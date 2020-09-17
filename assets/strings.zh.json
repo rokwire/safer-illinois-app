@@ -303,6 +303,12 @@
 	"panel.covid19_passport.label.access.granted": "授予",
 	"panel.covid19_passport.label.access.denied": "否认",
     "panel.covid19_passport.message.missing_id_info": "找不到Illini ID信息. 您的I-Card可能已过期。请与ID中心联系.",
+	"panel.covid19_passport.button.show_page_1.title": "Show page 1 of 2",
+	"panel.covid19_passport.button.show_page_1.hint": "",
+	"panel.covid19_passport.button.show_page_2.title": "Show page 2 of 2",
+	"panel.covid19_passport.button.show_page_2.hint": "",
+	"panel.covid19_passport.label.page_1": "Page 1",
+	"panel.covid19_passport.label.page_2": "Page 2",
 
 	"panel.covid19_guidelines.header.title": "縣準則",
 	"panel.covid19_guidelines.description.title": "遵循這些當前準則，有助於阻止COVID-19的傳播。",
