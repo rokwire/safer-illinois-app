@@ -339,6 +339,11 @@ class _TestLocation extends StatelessWidget{
     String distanceSufix = Localization().getStringEx("panel.covid19_test_locations.distance.text","mi away get directions");
     String distanceText = distance?.toStringAsFixed(2);
     HealthLocationWaitTimeColor waitTimeColor = testLocation.waitTimeColor;
+    bool isWaitTimeAvailable = (waitTimeColor == HealthLocationWaitTimeColor.red) ||
+        (waitTimeColor == HealthLocationWaitTimeColor.yellow) ||
+        (waitTimeColor == HealthLocationWaitTimeColor.green);
+    String waitTimeText = Localization().getStringEx('panel.covid19_test_locations.wait_time.label', 'Wait Time') +
+        (isWaitTimeAvailable ? '' : (' ' + Localization().getStringEx('panel.covid19_test_locations.wait_time.unavailable', 'Unavailable')));
     return
       Semantics(button: false, container: true, child:
         Container(
@@ -421,7 +426,7 @@ class _TestLocation extends StatelessWidget{
                           ),
                         ),
                         Text(
-                          Localization().getStringEx('panel.covid19_test_locations.wait_time.label', 'Wait Time'),
+                          waitTimeText,
                           style: TextStyle(
                             fontFamily: Styles().fontFamilies.regular,
                             fontSize: 16,
