@@ -6,7 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Changed
+
+## [2.6.8] - 2020-09-18
+### Changed
  - Change wait time colors and labels [#167](https://github.com/rokwire/safer-illinois-app/issues/167).
+ - Upgrade flutter for Safer Illinois to v. 1.20.4 [#82](https://github.com/rokwire/safer-illinois-app/issues/82).
 
 ## [2.6.7] - 2020-09-17
 ### Changed
