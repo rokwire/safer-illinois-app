@@ -338,6 +338,12 @@ class _TestLocation extends StatelessWidget{
 
     String distanceSufix = Localization().getStringEx("panel.covid19_test_locations.distance.text","mi away get directions");
     String distanceText = distance?.toStringAsFixed(2);
+    HealthLocationWaitTimeColor waitTimeColor = testLocation.waitTimeColor;
+    bool isWaitTimeAvailable = (waitTimeColor == HealthLocationWaitTimeColor.red) ||
+        (waitTimeColor == HealthLocationWaitTimeColor.yellow) ||
+        (waitTimeColor == HealthLocationWaitTimeColor.green);
+    String waitTimeText = Localization().getStringEx('panel.covid19_test_locations.wait_time.label', 'Wait Time') +
+        (isWaitTimeAvailable ? '' : (' ' + Localization().getStringEx('panel.covid19_test_locations.wait_time.unavailable', 'Unavailable')));
     return
       Semantics(button: false, container: true, child:
         Container(
@@ -403,7 +409,35 @@ class _TestLocation extends StatelessWidget{
                 ],
               ))
             )),*/
-            Semantics(explicitChildNodes:true,button: false, child:
+            Container(
+                padding: EdgeInsets.only(top: 4),
+                child: Row(
+                  children: <Widget>[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.only(right: 8),
+                          child: Container(
+                            width: 16,
+                            height: 16,
+                            decoration: BoxDecoration(color: HealthServiceLocation.waitTimeColorHex(waitTimeColor), shape: BoxShape.circle),
+                          ),
+                        ),
+                        Text(
+                          waitTimeText,
+                          style: TextStyle(
+                            fontFamily: Styles().fontFamilies.regular,
+                            fontSize: 16,
+                            color: Styles().colors.textSurface,
+                          ),
+                        )
+                      ],
+                    )
+                  ],
+                )),
+              Semantics(explicitChildNodes:true,button: false, child:
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[

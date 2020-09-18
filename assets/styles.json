@@ -51,7 +51,12 @@
     "healthStatusOrange"                    :"#F29835",
     "healthStatusRed"                       :"#FF4F4F",
 
-    "lightBlue"                             :"#42b9ea"
+    "lightBlue"                             :"#42b9ea",
+
+    "healthLocationWaitTimeColorRed"        :"#ff0000",
+    "healthLocationWaitTimeColorYellow"     :"#ffff00",
+    "healthLocationWaitTimeColorGreen"      :"#00ff00",
+    "healthLocationWaitTimeColorGrey"       :"#808080"
   },
   "font_family": {
     "black": "ProximaNovaBlack",

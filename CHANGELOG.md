@@ -5,6 +5,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Changed
+ - Change wait time colors and labels [#167](https://github.com/rokwire/safer-illinois-app/issues/167).
+
+## [2.6.7] - 2020-09-17
+### Changed
+ - Rework swiper and fix the VoiceOver accessibility [#158] (https://github.com/rokwire/safer-illinois-app/issues/158)
+ - Show wait time for each test location [#160](https://github.com/rokwire/safer-illinois-app/issues/160).
+
+ 
+## [2.6.6] - 2020-09-16
+### Changed
+ - Load symptoms and rules from the new Health API [#152](https://github.com/rokwire/safer-illinois-app/issues/152).
 
 ## [2.6.3] - 2020-09-11
 ### Changed
