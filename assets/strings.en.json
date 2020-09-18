@@ -359,6 +359,7 @@
     "panel.covid19_test_locations.all_providers.text": "All Providers",
     "panel.covid19_test_locations.call.hint": "Call",
     "panel.covid19_test_locations.wait_time.label": "Wait Time",
+    "panel.covid19_test_locations.wait_time.unavailable": "Unavailable",
 
     "panel.covid19.header.title": "COVID-19",
     "panel.covid19.latest_update.title": "Latest Update",
@@ -747,11 +748,6 @@
     "model.covid19.status.color.red": "Infected",
 
     "model.covid19.step.initial": "Take a SHIELD Saliva Test when you return to campus.",
-
-    "model.covid19.location.wait_time.color.red": "Long",
-    "model.covid19.location.wait_time.color.yellow": "Medium",
-    "model.covid19.location.wait_time.color.green": "Short",
-    "model.covid19.location.wait_time.color.grey": "Closed",
 
     "logic.date_time.greeting.morning": "Good morning",
     "logic.date_time.greeting.afternoon": "Good afternoon",

@@ -54,7 +54,7 @@
 
     "healthLocationWaitTimeColorRed"        :"#ff0000",
     "healthLocationWaitTimeColorYellow"     :"#ffff00",
-    "healthLocationWaitTimeColorGreen"      :"#008000",
+    "healthLocationWaitTimeColorGreen"      :"#00ff00",
     "healthLocationWaitTimeColorGrey"       :"#808080"
   },
   "font_family": {

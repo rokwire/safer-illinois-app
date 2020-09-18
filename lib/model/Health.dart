@@ -1396,21 +1396,6 @@ class HealthServiceLocation {
     }
   }
 
-  static String waitTimeColorToDisplayString(HealthLocationWaitTimeColor color) {
-    switch (color) {
-      case HealthLocationWaitTimeColor.red:
-        return Localization().getStringEx('model.covid19.location.wait_time.color.red', 'Long');
-      case HealthLocationWaitTimeColor.yellow:
-        return Localization().getStringEx('model.covid19.location.wait_time.color.yellow', 'Medium');
-      case HealthLocationWaitTimeColor.green:
-        return Localization().getStringEx('model.covid19.location.wait_time.color.green', 'Short');
-      case HealthLocationWaitTimeColor.grey:
-        return Localization().getStringEx('model.covid19.location.wait_time.color.grey', 'Closed');
-      default:
-        return null;
-    }
-  }
-
   static Color waitTimeColorHex(HealthLocationWaitTimeColor color) {
     switch (color) {
       case HealthLocationWaitTimeColor.red:
@@ -1419,10 +1404,8 @@ class HealthServiceLocation {
         return Styles().colors.healthLocationWaitTimeColorYellow;
       case HealthLocationWaitTimeColor.green:
         return Styles().colors.healthLocationWaitTimeColorGreen;
-      case HealthLocationWaitTimeColor.grey:
-        return Styles().colors.healthLocationWaitTimeColorGrey;
       default:
-        return Styles().colors.whiteTransparent06;
+        return Styles().colors.healthLocationWaitTimeColorGrey;
     }
   }
 }
