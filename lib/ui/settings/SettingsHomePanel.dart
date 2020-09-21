@@ -1123,16 +1123,14 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
         fontSize: 16.0,
         textColor: Styles().colors.fillColorPrimary,
         borderColor: Styles().colors.fillColorSecondary,
-        onTap: _onDebugClicked,
+        onTap: () { _onDebugClicked(); },
       ),
     ); 
   }
 
-  Function _onDebugClicked() {
-    return () {
-      Analytics.instance.logSelect(target: "Debug");
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsDebugPanel()));
-    };
+  void _onDebugClicked() {
+    Analytics.instance.logSelect(target: "Debug");
+    Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsDebugPanel()));
   }
 
   //Version Info
