@@ -280,7 +280,7 @@ class Auth with Service implements NotificationsListener {
     _applyUserPiiData(newUserPiiData, newUserPiiDataString);
 
     // 8.4 UserData
-    User().applyUserData(newUserData, applyCachedSettings: true);
+    User().applyUserData(newUserData);
 
     // 6.2 Update UserPiiData if need and then apply
     if(newUserPiiData.updateFromAuthInfo(newAuthInfo)){
@@ -434,7 +434,7 @@ class Auth with Service implements NotificationsListener {
     _applyUserPiiData(newUserPiiData, newUserPiiDataString);
 
     // 6.3 apply UserData
-    User().applyUserData(newUserData, applyCachedSettings: true);
+    User().applyUserData(newUserData);
 
     // 6.4 notifyLoggedIn event
     _notifyAuthLoginSucceeded(analyticsAction: Analytics.LogAuthLoginPhoneActionName);

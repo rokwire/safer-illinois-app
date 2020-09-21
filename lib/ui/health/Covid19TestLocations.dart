@@ -27,7 +27,6 @@ import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Storage.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/service/Styles.dart';
-import 'package:illinois/service/User.dart';
 import 'package:illinois/service/LocationServices.dart';
 
 class Covid19TestLocationsPanel extends StatefulWidget {
@@ -126,22 +125,18 @@ class _Covid19TestLocationsPanelState extends State<Covid19TestLocationsPanel>{
 
   void _loadLocationsServicesData(){
 
-    if (User().privacyMatch(2)) {
-      LocationServices.instance.status.then((LocationServicesStatus locationServicesStatus) {
-        _locationServicesStatus = locationServicesStatus;
+    LocationServices.instance.status.then((LocationServicesStatus locationServicesStatus) {
+      _locationServicesStatus = locationServicesStatus;
 
-        if (_locationServicesStatus == LocationServicesStatus.PermissionNotDetermined) {
-          LocationServices.instance.requestPermission().then((LocationServicesStatus locationServicesStatus) {
-            _locationServicesStatus = locationServicesStatus;
-            _sortLocations();
-          });
-        } else {
+      if (_locationServicesStatus == LocationServicesStatus.PermissionNotDetermined) {
+        LocationServices.instance.requestPermission().then((LocationServicesStatus locationServicesStatus) {
+          _locationServicesStatus = locationServicesStatus;
           _sortLocations();
-        }
-      });
-    } else {
-      _sortLocations();
-    }
+        });
+      } else {
+        _sortLocations();
+      }
+    });
   }
 
   Widget _buildCountyField(){
@@ -323,7 +318,7 @@ class _Covid19TestLocationsPanelState extends State<Covid19TestLocationsPanel>{
   }
 
   bool get _userLocationEnabled {
-    return User().privacyMatch(2) && (_locationServicesStatus == LocationServicesStatus.PermissionAllowed);
+    return (_locationServicesStatus == LocationServicesStatus.PermissionAllowed);
   }
 }
 

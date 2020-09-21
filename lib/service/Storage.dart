@@ -129,26 +129,6 @@ class Storage with Service {
     _setStringWithName(userKey, userToString);
   }
 
-  /////////////
-  // UserRoles
-
-  static const String userRolesKey  = 'user_roles';
-
-  List<dynamic> get userRolesJson {
-    final String userRolesToString = _getStringWithName("user_roles");
-    return AppJson.decode(userRolesToString);
-  }
-
-  Set<UserRole> get userRoles {
-    final List<dynamic> userRolesToJson = userRolesJson;
-    return (userRolesToJson != null) ? Set.from(userRolesToJson.map((value)=>UserRole.fromString(value))) : null;
-  }
-
-  set userRoles(Set<UserRole> userRoles) {
-    String userRolesToString = (userRoles != null) ? json.encode(userRoles.toList()) : null;
-    _setStringWithName(userRolesKey, userRolesToString);
-  }
-
   static const String phoneNumberKey  = 'user_phone_number';
 
   String get phoneNumber {

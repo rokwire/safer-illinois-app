@@ -132,7 +132,7 @@ class Onboarding with Service implements NotificationsListener {
         while (nextPanelIndex < _contentCodes.length) {
           String nextPanelCode = _contentCodes[nextPanelIndex];
           OnboardingPanel nextPanel = _createPanel(code: nextPanelCode, context: panel?.onboardingContext ?? {});
-          if (nextPanel.onboardingCanDisplay) {
+          if ((nextPanel != null) && nextPanel.onboardingCanDisplay) {
             return nextPanel as Widget;
           }
           else {

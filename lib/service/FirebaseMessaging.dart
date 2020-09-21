@@ -39,15 +39,9 @@ class FirebaseMessaging with Service implements NotificationsListener {
 
   static const String notifyToken                 = "edu.illinois.rokwire.firebase.messaging.token";
   static const String notifyPopupMessage          = "edu.illinois.rokwire.firebase.messaging.message.popup";
-  static const String notifyScoreMessage          = "edu.illinois.rokwire.firebase.messaging.message.score";
   static const String notifyConfigUpdate          = "edu.illinois.rokwire.firebase.messaging.config.update";
-  static const String notifyPollOpen              = "edu.illinois.rokwire.firebase.messaging.poll.create";
-  static const String notifyEventDetail           = "edu.illinois.rokwire.firebase.messaging.event.detail";
-  static const String notifyCovid19Message        = "edu.illinois.rokwire.firebase.messaging.health.covid19.detail";
-  static const String notifyCovid19Action         = "edu.illinois.rokwire.firebase.messaging.health.covid19.action";
-  static const String notifyCovid19Notification   = "edu.illinois.rokwire.firebase.messaging.health.covid19.notification";
-  static const String notifyAthleticsGameStarted  = "edu.illinois.rokwire.firebase.messaging.athletics_game.started";
   static const String notifySettingUpdated        = "edu.illinois.rokwire.firebase.messaging.setting.updated";
+  static const String notifyCovid19Notification   = "edu.illinois.rokwire.firebase.messaging.health.covid19.notification";
 
   // Topic names
   static const List<String> _permanentTopis = [
@@ -93,7 +87,6 @@ class FirebaseMessaging with Service implements NotificationsListener {
   void createService() {
     NotificationService().subscribe(this, [
       User.notifyRolesUpdated,
-      User.notifyInterestsUpdated,
       User.notifyUserUpdated,
       User.notifyUserDeleted,
       AppLivecycle.notifyStateChanged,
@@ -328,26 +321,8 @@ class FirebaseMessaging with Service implements NotificationsListener {
     else if (type == "popup_message") {
       NotificationService().notify(notifyPopupMessage, data);
     }
-    else if (type == "poll_open") {
-      NotificationService().notify(notifyPollOpen, data);
-    }
-    else if (type == "event_detail") {
-      NotificationService().notify(notifyEventDetail, data);
-    }
-    else if ((type == "health.covid19.message") || (type == "health.covid19")) {
-      NotificationService().notify(notifyCovid19Message, data);
-    }
-    else if (type == "health.covid19.action") {
-      NotificationService().notify(notifyCovid19Action, data);
-    }
     else if (type == "health.covid19.notification") {
       NotificationService().notify(notifyCovid19Notification, data);
-    }
-    else if (type == "athletics_game_started") {
-      NotificationService().notify(notifyAthleticsGameStarted, data);
-    }
-    else if (_isScoreTypeMessage(type)) {
-      NotificationService().notify(notifyScoreMessage, data);
     }
     else {
       Log.d("FCM: unknown message type: $type");
@@ -385,19 +360,6 @@ class FirebaseMessaging with Service implements NotificationsListener {
     return "config_update";
   }
 
-  bool _isScoreTypeMessage(String type) {
-    return type == "football" ||
-        type == "mbball" ||
-        type == "wbball" ||
-        type == "mvball" ||
-        type == "wvball" ||
-        type == "mtennis" ||
-        type == "wtennis" ||
-        type == "baseball" ||
-        type == "softball" ||
-        type == "wsoc";
-  }
-
   void _onConfigUpdate(Map<String, dynamic> data) {
     int interval = 5 * 60; // 5 minutes
     var rng = new Random();
@@ -425,21 +387,12 @@ class FirebaseMessaging with Service implements NotificationsListener {
   bool get notifyCovid19                      { return _getNotifySetting('notify_covid19'); } 
        set notifyCovid19(bool value)          { _setNotifySetting('notify_covid19', value); }
 
-  bool get _notifySettingsAvailable  {
-    return User().privacyMatch(4);
-  }
-
   bool _getNotifySetting(String name) {
-    if (_notifySettingsAvailable) {
-      return Storage().getNotifySetting(name) ?? true;
-    }
-    else {
-      return false;
-    }
+    return Storage().getNotifySetting(name) ?? true;
   } 
 
   void _setNotifySetting(String name, bool value) {
-    if (_notifySettingsAvailable && (_getNotifySetting(name) != value)) {
+    if (_getNotifySetting(name) != value) {
       Storage().setNotifySetting(name, value);
       NotificationService().notify(notifySettingUpdated, name);
 

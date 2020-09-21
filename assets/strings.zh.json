@@ -47,31 +47,6 @@
 	"toggle_button.status.unchecked":"未选中",
 	"toggle_button.status.checkbox":"复选框",
 
-	"panel.menu.button.events.title":"活动",
-	"panel.menu.button.events.hint":"",
-	"panel.menu.button.dining.title":"用餐",
-	"panel.menu.button.dining.hint":"",
-	"panel.menu.button.athletics.title":"体育",
-	"panel.menu.button.athletics.hint":"",
-	"panel.menu.button.settings.title":"设置",
-	"panel.menu.button.settings.hint":"",
-	"panel.menu.button.illini_cash.title":"Illini现金",
-	"panel.menu.button.illini_cash.hint":"",
-	"panel.menu.button.create_event.title":"创建活动",
-	"panel.menu.button.create_event.hint":"",
-	"panel.menu.button.order_history.title":"订单历史记录",
-	"panel.menu.button.order_history.hint":"",
-	"panel.menu.button.sign_out.title":"退出",
-	"panel.menu.button.sign_out.hint":"",
-	"panel.menu.button.sign_in.title":"登录",
-	"panel.menu.button.sign_in.hint":"",
-	"panel.menu.button.create_account.title":"创建帐户",
-	"panel.menu.button.create_account.hint":"",
-	"panel.menu.label.sign_in_as":"登录为",
-	"panel.menu.label.verified_as":"核实为",
-	"panel.menu.label.connected_netid":"连接NetID",
-	"panel.menu.label.confirm_sign_out":"您确定要退出吗?",
-
 	"panel.onboarding.button.continue.title":"继续",
 	"panel.onboarding.button.continue.hint":"",
 
@@ -186,11 +161,6 @@
 	"panel.onboarding.base.not_now.hint":"",
 	"panel.onboarding.base.not_now.title":"暂时不",
 
-	"panel.settings.sports.heading":"设置",
-	"panel.settings.categories.header.title":"你的分类",
-	"panel.settings.categories.heading":"您的类别",
-	"panel.settings.categories.description":"点击以遵循您最感兴趣的类别",
-
 	"panel.settings.feedback.label.title":"提供反馈",
 
 	"panel.settings.privacy_statement.label.title":"隐私声明",
@@ -231,9 +201,6 @@
 	"panel.settings.home.logout.no":"不",
 	"panel.settings.home.security.reset_password":"重置密码",
 	"panel.settings.home.security.face_id":"使用人脸ID",
-	"panel.settings.home.notifications.reminders":"活动提醒",
-	"panel.settings.home.notifications.athletics_updates":"体育更新",
-	"panel.settings.home.notifications.dining":"特价餐厅",
 	"panel.settings.home.notifications.covid19":"COVID-19通知",
 	"panel.settings.home.privacy.title":"隐私",
 	"panel.settings.home.privacy.edit_my_privacy.title":"编辑我的隐私",
@@ -392,12 +359,6 @@
 	"panel.covid19_wellness_center.label.description": "如果你对应用程序有问题或得到测试结果，请联系COVID健康回答中心寻求帮助.",
 	"panel.covid19_wellness_center.label.email": "发送电子邮件至Covid健康回答中心 ",
 	"panel.covid19_wellness_center.label.phone": "拨打接听中心的电话 ",
-
-	"panel.covid19_news.header.title": "COVID-19",
-	"panel.covid19_news.news.posted.label": "發表在％s",
-
-	"panel.covid19_campus_updates.header.title": "校園更新",
-	"panel.covid19_campus_updates.sub_title.title": "伊利諾伊大學COVID-19更新",
 
 	"panel.covid19.qr_code.title": "COVID-19 QR碼",
 	"panel.covid19.qr_code.description.heading.1": "如果您在“伊利諾伊州更安全”應用程序中使用多個設備，請使用此QR碼傳輸必要的機密，以解碼您的COVID-19健康信息。",
@@ -673,13 +634,6 @@
 
 	"widget.health.onboarding.indicator9.label.hint": "Covid-19入职流程", 
 
-	"widget.card.button.favorite.on.title":"添加到收藏夹",
-	"widget.card.button.favorite.on.hint":"",
-	"widget.card.button.favorite.off.title":"从收藏夹中删除",
-	"widget.card.button.favorite.off.hint":"",
-	"widget.card.label.interests":"由于您对以下内容感兴趣：",
-	"widget.card.label.converge":"比赛",
-
 	"panel.health.status_update.heading.title":"状态更新",
 	"panel.health.status_update.label.status_change":"根据您的结果，您的状态已从 ",
 	"panel.health.status_update.label.status_change.to":" 到 ",
@@ -710,27 +664,6 @@
 	"panel.health.symptoms.button.submit.title":"提交",
 	"panel.health.symptoms.label.success.submit.message":"你的症状已经得到处理.",
 	"panel.health.symptoms.label.error.submit":"未能提交症状.",
-
-	"widget.home_campus_tools.header.my_illini.title":"我的ILLINI",
-	"widget.home_campus_tools.label.campus_tools":"校园资源",
-	"widget.home_campus_tools.button.events.title":"活动",
-	"widget.home_campus_tools.button.events.hint":"",
-	"widget.home_campus_tools.button.dining.title":"用餐",
-	"widget.home_campus_tools.button.dining.hint":"",
-	"widget.home_campus_tools.button.athletics.title":"体育",
-	"widget.home_campus_tools.button.athletics.hint":"",
-	"widget.home_campus_tools.button.illini_cash.title":"Illini现金",
-	"widget.home_campus_tools.button.illini_cash.hint":"",
-	"widget.home_campus_tools.button.my_illini.title":"我的Illini",
-	"widget.home_campus_tools.button.my_illini.hint":"",
-	"widget.home_campus_tools.button.covid19.title":"COVID-19",
-	"widget.home_campus_tools.button.covid19.hint":"",
-
-	"widget.home_covid19_info.label.covid19": "COVID-19信息",
-	"widget.home_covid19_info.label.info.title": "幫助保持伊利諾伊州的安全",
-	"widget.home_covid19_info.label.info.description": "通過跟踪和管理您的健康來加入對抗COVID-19的鬥爭",
-
-	"widget.covid19_news_card.read_more.hint":"双击可阅读更多内容",
 
 	"model.explore.time.today":"今天",
 	"model.explore.time.tomorrow":"明天",
