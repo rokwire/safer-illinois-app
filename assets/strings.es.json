@@ -270,6 +270,13 @@
     "panel.covid19_passport.label.access.granted": "CONCEDIDO",
     "panel.covid19_passport.label.access.denied": "NEGADO",
     "panel.covid19_passport.message.missing_id_info": "No se encontró información de identificación de Illini. Es posible que tenga una i-card vencida. Comuníquese con el Centro de identificación.",
+    "panel.covid19_passport.button.show_page_1.title": "Show page 1 of 2",
+    "panel.covid19_passport.button.show_page_1.hint": "",
+    "panel.covid19_passport.button.show_page_2.title": "Show page 2 of 2",
+    "panel.covid19_passport.button.show_page_2.hint": "",
+    "panel.covid19_passport.label.page_1": "Page 1",
+    "panel.covid19_passport.label.page_2": "Page 2",
+
 
     "panel.covid19_guidelines.header.title": "Pautas del condado",
     "panel.covid19_guidelines.description.title": "Ayude a detener la propagación de COVID-19 siguiendo estas pautas actuales.",
@@ -319,6 +326,8 @@
     "panel.covid19_test_locations.work_time.closed_until": "Cerrado hasta",
     "panel.covid19_test_locations.all_providers.text": "Todos los proveedores",
     "panel.covid19_test_locations.call.hint": "Llamada",
+    "panel.covid19_test_locations.wait_time.label": "Tiempo de espera",
+    "panel.covid19_test_locations.wait_time.unavailable": "Indisponible",
 
     "panel.covid19.header.title": "COVID-19",
     "panel.covid19.latest_update.title": "Última actualización",

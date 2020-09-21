@@ -6,6 +6,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Changed
+
+## [2.6.8] - 2020-09-18
+### Changed
+ - Change wait time colors and labels [#167](https://github.com/rokwire/safer-illinois-app/issues/167).
+ - Upgrade flutter for Safer Illinois to v. 1.20.4 [#82](https://github.com/rokwire/safer-illinois-app/issues/82).
+
+## [2.6.7] - 2020-09-17
+### Changed
+ - Rework swiper and fix the VoiceOver accessibility [#158] (https://github.com/rokwire/safer-illinois-app/issues/158)
+ - Show wait time for each test location [#160](https://github.com/rokwire/safer-illinois-app/issues/160).
+
+ 
+## [2.6.6] - 2020-09-16
+### Changed
+ - Load symptoms and rules from the new Health API [#152](https://github.com/rokwire/safer-illinois-app/issues/152).
+
+## [2.6.3] - 2020-09-11
+### Changed
  - Remove "ASAP" label in Next Steps panel [#143](https://github.com/rokwire/safer-illinois-app/issues/143).
  - Remove restriction for taking screenshots in Android [#138](https://github.com/rokwire/safer-illinois-app/issues/138).
  - Removed SAR status entries from sample health rules. Use PCR entries instead that actually contain the same status rules.
