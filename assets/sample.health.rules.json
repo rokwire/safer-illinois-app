@@ -235,8 +235,7 @@
 				"success": {
 					"condition": "require-test",
 					"params": {
-						"interval": { "min": 0, "max": 4, "scope": "future" },
-						"current_interval": { "min": 0, "max": 4 }
+						"interval": { "min": 0, "max": 4, "scope": "future", "current": true }
 					},
 					"success": {
 						"health_status": null,
@@ -255,8 +254,7 @@
 				"fail": {
 					"condition": "require-test",
 					"params": {
-						"interval": { "min": 0, "max": 8, "scope": "future" },
-						"current_interval": { "min": 0, "max": 8 }
+						"interval": { "min": 0, "max": 8, "scope": "future", "current": true }
 					},
 					"success": {
 						"health_status": null,
@@ -282,8 +280,7 @@
 				"success": {
 					"condition": "require-test",
 					"params": {
-						"interval": { "min": 0, "max": 4, "scope": "future" },
-						"current_interval": { "min": 0, "max": 4 }
+						"interval": { "min": 0, "max": 4, "scope": "future", "current": true }
 					},
 					"success": {
 						"health_status": "green",
@@ -302,8 +299,7 @@
 				"fail": {
 					"condition": "require-test",
 					"params": {
-						"interval": { "min": 0, "max": 8, "scope": "future" },
-						"current_interval": { "min": 0, "max": 8 }
+						"interval": { "min": 0, "max": 8, "scope": "future", "current": true }
 					},
 					"success": {
 						"health_status": "green",
@@ -334,8 +330,7 @@
 				"success": {
 					"condition": "require-test",
 					"params": {
-						"interval": { "min": 0, "max": 4, "scope": "future" },
-						"current_interval": { "min": 0, "max": 4 }
+						"interval": { "min": 0, "max": 4, "scope": "future", "current": true }
 					},
 					"success": {
 						"health_status": "yellow",
@@ -354,8 +349,7 @@
 				"fail": {
 					"condition": "require-test",
 					"params": {
-						"interval": { "min": 0, "max": 8, "scope": "future" },
-						"current_interval": { "min": 0, "max": 8 }
+						"interval": { "min": 0, "max": 8, "scope": "future", "current": true }
 					},
 					"success": {
 						"health_status": "yellow",
@@ -375,8 +369,7 @@
 			"PCR.invalid": {
 				"condition": "require-test",
 				"params": {
-					"interval": { "min": 0, "max": 1, "scope": "future" },
-					"current_interval": { "min": 0, "max": 1 }
+					"interval": { "min": 0, "max": 1, "scope": "future", "current": true }
 				},
 				"success": {
 					"health_status": null,
@@ -578,8 +571,7 @@
 					"success": {
 						"condition": "require-test",
 						"params": {
-							"interval": { "min": 0, "max": 4, "scope": "future" },
-							"current_interval": { "min": 0, "max": 4 }
+							"interval": { "min": 0, "max": 4, "scope": "future", "current": true }
 						},
 						"success": {
 							"health_status": "yellow",
@@ -598,8 +590,7 @@
 					"fail": {
 						"condition": "require-test",
 						"params": {
-							"interval": { "min": 0, "max": 8, "scope": "future" },
-							"current_interval": { "min": 0, "max": 8 }
+							"interval": { "min": 0, "max": 8, "scope": "future", "current": true }
 						},
 						"success": {
 							"health_status": "yellow",
@@ -622,8 +613,7 @@
 				"status": {
 					"condition": "require-test",
 					"params": {
-						"interval": { "min": -1, "max": 1 },
-						"current_interval": { "min": -1, "max": 1 }
+						"interval": { "min": -1, "max": 1, "current": true }
 					},
 					"success": {
 						"health_status": null,
@@ -651,8 +641,7 @@
 					"success": {
 						"condition": "require-test",
 						"params": {
-							"interval": { "min": 0, "max": 4, "scope": "future" },
-							"current_interval": { "min": 0, "max": 4 }
+							"interval": { "min": 0, "max": 4, "scope": "future", "current": true }
 						},
 						"success": {
 							"health_status": "yellow",
@@ -671,8 +660,7 @@
 					"fail": {
 						"condition": "require-test",
 						"params": {
-							"interval": { "min": 0, "max": 8, "scope": "future" },
-							"current_interval": { "min": 0, "max": 8 }
+							"interval": { "min": 0, "max": 8, "scope": "future", "current": true }
 						},
 						"success": {
 							"health_status": "yellow",

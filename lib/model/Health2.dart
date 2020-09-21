@@ -186,7 +186,7 @@ class HealthSymptomsRulesSet2 {
 // HealthSymptomsRule2
 
 class HealthSymptomsRule2 {
-  final Map<String, _HealthRuleIntValue2> counts;
+  final Map<String, _HealthRuleIntInterval2> counts;
   final _HealthRuleStatus2 status;
   
   HealthSymptomsRule2({this.counts, this.status});
@@ -210,12 +210,12 @@ class HealthSymptomsRule2 {
     return values;
   }
 
-  static Map<String, _HealthRuleIntValue2> _countsFromJson(Map<String, dynamic> json) {
-    Map<String, _HealthRuleIntValue2> values;
+  static Map<String, _HealthRuleIntInterval2> _countsFromJson(Map<String, dynamic> json) {
+    Map<String, _HealthRuleIntInterval2> values;
     if (json != null) {
-      values = Map<String, _HealthRuleIntValue2>();
+      values = Map<String, _HealthRuleIntInterval2>();
       json.forEach((key, value) {
-        values[key] = _HealthRuleIntValue2.fromJson(value);
+        values[key] = _HealthRuleIntInterval2.fromJson(value);
       });
     }
     return values;
@@ -224,7 +224,7 @@ class HealthSymptomsRule2 {
   bool _matchCounts(Map<String, int> testCounts) {
     if (this.counts != null) {
       for (String groupName in this.counts.keys) {
-        _HealthRuleIntValue2 value = this.counts[groupName];
+        _HealthRuleIntInterval2 value = this.counts[groupName];
         int count = (testCounts != null) ? testCounts[groupName] : null;
         if (!value.match(count)) {
           return false;
@@ -266,14 +266,14 @@ class HealthContactTraceRulesSet2 {
 // HealthContactTraceRule2
 
 class HealthContactTraceRule2 {
-  final _HealthRuleIntValue2 duration;
+  final _HealthRuleIntInterval2 duration;
   final _HealthRuleStatus2 status;
 
   HealthContactTraceRule2({this.duration, this.status});
 
   factory HealthContactTraceRule2.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthContactTraceRule2(
-      duration: _HealthRuleIntValue2.fromJson(json['duration']),
+      duration: _HealthRuleIntInterval2.fromJson(json['duration']),
       status: _HealthRuleStatus2.fromJson(json['status']),
     ) : null;
   }
@@ -355,12 +355,12 @@ class HealthActionRule2 {
 }
 
 ///////////////////////////////
-// _HealthRuleIntValue2
+// _HealthRuleIntInterval2
 
-abstract class _HealthRuleIntValue2 {
-  _HealthRuleIntValue2();
+abstract class _HealthRuleIntInterval2 {
+  _HealthRuleIntInterval2();
   
-  factory _HealthRuleIntValue2.fromJson(dynamic json) {
+  factory _HealthRuleIntInterval2.fromJson(dynamic json) {
     if (json != null) {
       if (json is int) {
         return HealthRuleIntValue2.fromJson(json);
@@ -373,15 +373,14 @@ abstract class _HealthRuleIntValue2 {
   }
 
   bool match(int value);
-  int get min;
-  int get max;
   int get scope;
+  bool get current;
 }
 
 ///////////////////////////////
 // HealthRuleIntValue2
 
-class HealthRuleIntValue2 extends _HealthRuleIntValue2 {
+class HealthRuleIntValue2 extends _HealthRuleIntInterval2 {
   final int value;
   
   HealthRuleIntValue2({this.value});
@@ -394,26 +393,27 @@ class HealthRuleIntValue2 extends _HealthRuleIntValue2 {
     return (this.value == value);
   }
 
-  int get min { return value; }
-  int get max { return value; }
   int get scope { return null; }
+  bool get current { return null; }
 }
 
 ///////////////////////////////
 // HealthRuleIntInterval2
 
-class HealthRuleIntInterval2 extends _HealthRuleIntValue2 {
+class HealthRuleIntInterval2 extends _HealthRuleIntInterval2 {
   final int min;
   final int max;
   final int scope;
+  final bool current;
   
-  HealthRuleIntInterval2({this.min, this.max, this.scope});
+  HealthRuleIntInterval2({this.min, this.max, this.scope, this.current});
 
   factory HealthRuleIntInterval2.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthRuleIntInterval2(
       min: json['min'],
       max: json['max'],
       scope: _scopeFromJson(json['scope']),
+      current: json['current']
     ) : null;
   }
 
@@ -601,7 +601,7 @@ class HealthTestRuleConditionalStatus2 extends _HealthRuleStatus2 {
       return null;
     }
     
-    _HealthRuleIntValue2 interval = _HealthRuleIntValue2.fromJson(params['interval']);
+    _HealthRuleIntInterval2 interval = _HealthRuleIntInterval2.fromJson(params['interval']);
     if (interval == null) {
       return null;
     }
@@ -635,15 +635,14 @@ class HealthTestRuleConditionalStatus2 extends _HealthRuleStatus2 {
     }
 
     // If positive time interval is not already expired - do not return failed status yet.
-    _HealthRuleIntValue2 currentInterval = _HealthRuleIntValue2.fromJson(params['current_interval']);
-    if ((currentInterval != null) && _evalCurrentIntervalFulfills(currentInterval, historyDateMidnightLocal: historyDateMidnightLocal)) {
+    if ((interval.current == true) && _evalCurrentIntervalFulfills(interval, historyDateMidnightLocal: historyDateMidnightLocal)) {
       return successStatus;
     }
 
     return failStatus;
   }
 
-  static bool _evalRequireTestEntryFulfills(Covid19History entry, { DateTime historyDateMidnightLocal,  _HealthRuleIntValue2 interval, HealthRulesSet2 rules, dynamic category }) {
+  static bool _evalRequireTestEntryFulfills(Covid19History entry, { DateTime historyDateMidnightLocal,  _HealthRuleIntInterval2 interval, HealthRulesSet2 rules, dynamic category }) {
     if (entry.isTest && entry.canTestUpdateStatus) {
       DateTime entryDateMidnightLocal = entry.dateMidnightLocal;
       final difference = entryDateMidnightLocal.difference(historyDateMidnightLocal).inDays;
@@ -672,7 +671,7 @@ class HealthTestRuleConditionalStatus2 extends _HealthRuleStatus2 {
       return null;
     }
 
-    _HealthRuleIntValue2 interval = _HealthRuleIntValue2.fromJson(params['interval']);
+    _HealthRuleIntInterval2 interval = _HealthRuleIntInterval2.fromJson(params['interval']);
     if (interval == null) {
       return null;
     }
@@ -701,15 +700,14 @@ class HealthTestRuleConditionalStatus2 extends _HealthRuleStatus2 {
     }
 
     // If positive time interval is not already expired - do not return failed status yet.
-    _HealthRuleIntValue2 currentInterval = _HealthRuleIntValue2.fromJson(params['current_interval']);
-    if ((currentInterval != null) && _evalCurrentIntervalFulfills(currentInterval, historyDateMidnightLocal: historyDateMidnightLocal)) {
+    if ((interval.current == true) && _evalCurrentIntervalFulfills(interval, historyDateMidnightLocal: historyDateMidnightLocal)) {
       return successStatus;
     }
 
     return failStatus;
   }
 
-  static bool _evalRequireSymptomsEntryFulfills(Covid19History entry, { DateTime historyDateMidnightLocal,  _HealthRuleIntValue2 interval }) {
+  static bool _evalRequireSymptomsEntryFulfills(Covid19History entry, { DateTime historyDateMidnightLocal,  _HealthRuleIntInterval2 interval }) {
     if (entry.isSymptoms) {
       DateTime entryDateMidnightLocal = entry.dateMidnightLocal;
       final difference = entryDateMidnightLocal.difference(historyDateMidnightLocal).inDays;
@@ -755,7 +753,7 @@ class HealthTestRuleConditionalStatus2 extends _HealthRuleStatus2 {
       return null;
     }
 
-    _HealthRuleIntValue2 interval = _HealthRuleIntValue2.fromJson(params['interval']);
+    _HealthRuleIntInterval2 interval = _HealthRuleIntInterval2.fromJson(params['interval']);
     if (interval == null) {
       return null;
     }
@@ -764,7 +762,7 @@ class HealthTestRuleConditionalStatus2 extends _HealthRuleStatus2 {
       failStatus : successStatus; // while current time is within interval 'timeout' condition fails
   }
 
-  static bool _evalCurrentIntervalFulfills(_HealthRuleIntValue2 currentInterval, { DateTime historyDateMidnightLocal } ) {
+  static bool _evalCurrentIntervalFulfills(_HealthRuleIntInterval2 currentInterval, { DateTime historyDateMidnightLocal } ) {
     if (currentInterval != null) {
       final difference = AppDateTime.todayMidnightLocal.difference(historyDateMidnightLocal).inDays;
       if (currentInterval.match(difference)) {
