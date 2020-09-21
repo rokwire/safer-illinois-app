@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Changed
 
+## [2.6.9] - 2020-09-21
+### Changes
+ - Update "student_level" processing from AuthCard. [#172] (https://github.com/rokwire/safer-illinois-app/issues/172)
+
 ## [2.6.8] - 2020-09-18
 ### Changed
  - Change wait time colors and labels [#167](https://github.com/rokwire/safer-illinois-app/issues/167).
