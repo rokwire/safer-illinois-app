@@ -229,7 +229,8 @@
 			"antibody.negavitve": {
 				"condition": "test-user",
 				"params": {
-					"roles": "undergraduate"
+					"role": "Undergraduate",
+					"student_level": "1U"
 				},
 				"success": {
 					"condition": "require-test",
@@ -275,7 +276,8 @@
 			"antibody.positive": {
 				"condition": "test-user",
 				"params": {
-					"roles": "undergraduate"
+					"role": "Undergraduate",
+					"student_level": "1U"
 				},
 				"success": {
 					"condition": "require-test",
@@ -326,7 +328,8 @@
 			"PCR.negative": {
 				"condition": "test-user",
 				"params": {
-					"roles": "undergraduate"
+					"role": "Undergraduate",
+					"student_level": "1U"
 				},
 				"success": {
 					"condition": "require-test",
@@ -569,7 +572,8 @@
 				"status": {
 					"condition": "test-user",
 					"params": {
-						"roles": "undergraduate"
+						"role": "Undergraduate",
+						"student_level": "1U"
 					},
 					"success": {
 						"condition": "require-test",
@@ -641,7 +645,8 @@
 				"status": {
 					"condition": "test-user",
 					"params": {
-						"roles": "undergraduate"
+						"role": "Undergraduate",
+						"student_level": "1U"
 					},
 					"success": {
 						"condition": "require-test",
