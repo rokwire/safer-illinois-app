@@ -276,6 +276,7 @@
     "panel.covid19_passport.button.show_page_2.hint": "",
     "panel.covid19_passport.label.page_1": "Page 1",
     "panel.covid19_passport.label.page_2": "Page 2",
+    "panel.covid19_passport.label.update_i_card": "Update your i-card",
 
     "panel.covid19_guidelines.header.title": "County Guidelines",
     "panel.covid19_guidelines.description.title": "Help stop the spread of COVID-19 by following these current guidelines.",

@@ -276,6 +276,7 @@
 	"panel.covid19_passport.button.show_page_2.hint": "",
 	"panel.covid19_passport.label.page_1": "Page 1",
 	"panel.covid19_passport.label.page_2": "Page 2",
+	"panel.covid19_passport.label.update_i_card": "Update your i-card",
 
 	"panel.covid19_guidelines.header.title": "縣準則",
 	"panel.covid19_guidelines.description.title": "遵循這些當前準則，有助於阻止COVID-19的傳播。",

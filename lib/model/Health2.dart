@@ -721,22 +721,25 @@ class HealthTestRuleConditionalStatus2 extends _HealthRuleStatus2 {
   }
 
   _HealthRuleStatus2 _evalTestUser({ List<Covid19History> history, int historyIndex, HealthRulesSet2 rules }) {
-    dynamic roles = params['roles'];
-    if ((roles != null) && !_matchUserRoles(roles: roles)) {
+    dynamic role = params['role'];
+    if ((role != null) && !_matchStringTarget(target: Auth().authCard?.role, source: role)) {
+      return failStatus;
+    }
+    dynamic studentLevel = params['student_level'];
+    if ((studentLevel != null) && !_matchStringTarget(target: Auth().authCard?.studentLevel, source: studentLevel)) {
       return failStatus;
     }
     return successStatus;
   }
 
-  static bool _matchUserRoles({dynamic roles}) {
-    String userRole = Auth().authCard?.role?.toLowerCase();
-    if (userRole != null) {
-      if (roles is String) {
-        return roles.toLowerCase() == userRole;
+  static bool _matchStringTarget({dynamic source, String target}) {
+    if (target != null) {
+      if (source is String) {
+        return source.toLowerCase() == target.toLowerCase();
       }
-      else if (roles is List) {
-        for (dynamic role in roles) {
-          if ((role is String) && (role.toLowerCase() == userRole)) {
+      else if (source is List) {
+        for (dynamic sourceEntry in source) {
+          if ((sourceEntry is String) && (sourceEntry.toLowerCase() == target.toLowerCase())) {
             return true;
           }
         }

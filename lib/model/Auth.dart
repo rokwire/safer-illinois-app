@@ -16,6 +16,7 @@
 
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
+import 'package:illinois/service/Localization.dart';
 import 'package:illinois/utils/Utils.dart';
 
 abstract class AuthToken {
@@ -186,10 +187,6 @@ class AuthCard {
   final String magTrack2;
   final String photoBase64;
 
-  Future<Uint8List> get photoBytes async{
-    return (photoBase64 != null) ? await compute(AppBytes.decodeBase64Bytes, photoBase64) : null;
-  }
-
   AuthCard({this.uin, this.cardNumber, this.libraryNumber, this.expirationDate, this.fullName, this.role, this.studentLevel, this.magTrack2, this.photoBase64});
 
   factory AuthCard.fromJson(Map<String, dynamic> json) {
@@ -256,5 +253,16 @@ class AuthCard {
       libraryNumber.hashCode ^
       magTrack2.hashCode ^
       photoBase64.hashCode;
+
+  Future<Uint8List> get photoBytes async{
+    return (photoBase64 != null) ? await compute(AppBytes.decodeBase64Bytes, photoBase64) : null;
+  }
+
+  String get roleDisplayString{
+    if(role == "Undergraduate" && studentLevel != "1U"){
+      return Localization().getStringEx("panel.covid19_passport.label.update_i_card", "Update your i-card");
+    }
+    return role;
+  }
 }
 
