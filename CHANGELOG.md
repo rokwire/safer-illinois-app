@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Changed
 
+## [2.6.10] - 2020-09-22
+### Changed
+ - i-Card may not being updated if the last update time is greater than 24 hours [#175] (https://github.com/rokwire/safer-illinois-app/issues/175)
+
 ## [2.6.9] - 2020-09-21
 ### Changes
  - Update "student_level" processing from AuthCard. [#172] (https://github.com/rokwire/safer-illinois-app/issues/172)
