@@ -66,8 +66,9 @@ class Health with Service implements NotificationsListener {
   String   _currentCountyId;
   DateTime _pausedDateTime;
 
-  File                 _historyCacheFile;
+  File     _historyCacheFile;
   List<Covid19History> _historyCache;
+  Map<String, HealthRulesSet2> _rulesCache;
 
   bool _processingCountyStatus;
   bool _loadingUpdatedHistory;
@@ -82,7 +83,9 @@ class Health with Service implements NotificationsListener {
     return _instance;
   }
 
-  Health._internal();
+  Health._internal() {
+    _rulesCache = Map<String, HealthRulesSet2>();
+  }
 
 
 
@@ -467,8 +470,8 @@ class Health with Service implements NotificationsListener {
 
   Future<List<HealthSymptomsGroup>> _loadSymptomsGroups2() async {
 
-    if (_currentCountyId != null) {
-      HealthRulesSet2 rules = await _loadRules2(countyId: _currentCountyId);
+    HealthRulesSet2 rules = await _loadRules2();
+    if (rules?.symptoms?.groups != null) {
       return rules?.symptoms?.groups;
     }
     else {
@@ -781,7 +784,7 @@ class Health with Service implements NotificationsListener {
       }
     }
 
-    HealthRulesSet2 rules = await _loadRules2(countyId: countyId);
+    HealthRulesSet2 rules = await _loadRules2(countyId: countyId, force: true);
     if (rules == null) {
       return null;
     }
@@ -1257,14 +1260,27 @@ class Health with Service implements NotificationsListener {
 
   // Consolidated Rules
 
-  Future<HealthRulesSet2> _loadRules2({String countyId}) async {
-    String appVersion = AppVersion.majorVersion(Config().appVersion, 2);
-    String url = "${Config().healthUrl}/covid19/crules/county/$countyId";
-    Response response = await Network().get(url, auth: NetworkAuth.App, headers: { Network.RokwireVersion : appVersion });
-    String responseBody = (response?.statusCode == 200) ? response.body : null;
-//TMP:String responseBody = await rootBundle.loadString('assets/sample.health.rules.json');
-    Map<String, dynamic> responseJson = (responseBody != null) ? AppJson.decodeMap(responseBody) : null;
-    return (responseJson != null) ? HealthRulesSet2.fromJson(responseJson) : null;
+  Future<HealthRulesSet2> _loadRules2({String countyId, bool force}) async {
+    HealthRulesSet2 countyRules;
+    if (countyId == null) {
+      countyId = _currentCountyId;
+    }
+    if (countyId != null) {
+      countyRules = (force != true) ? _rulesCache[countyId] : null;
+      if (countyRules == null) {
+        String appVersion = AppVersion.majorVersion(Config().appVersion, 2);
+        String url = "${Config().healthUrl}/covid19/crules/county/$countyId";
+        Response response = await Network().get(url, auth: NetworkAuth.App, headers: { Network.RokwireVersion : appVersion });
+        String responseBody = (response?.statusCode == 200) ? response.body : null;
+    //TMP:String responseBody = await rootBundle.loadString('assets/sample.health.rules.json');
+        Map<String, dynamic> responseJson = (responseBody != null) ? AppJson.decodeMap(responseBody) : null;
+        countyRules = (responseJson != null) ? HealthRulesSet2.fromJson(responseJson) : null;
+        if (countyRules != null) {
+          _rulesCache[countyId] = countyRules;
+        }
+      }
+    }
+    return countyRules;
   }
 
   // Access Rules
