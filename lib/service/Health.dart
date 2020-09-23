@@ -97,7 +97,7 @@ class Health with Service implements NotificationsListener {
 
   @override
   Future<void> initService() async {
-    _currentCountyId = Storage().currentHealthCountyId;
+    _currentCountyId = await _loadCurrentCountyId();
     _user = _loadUserFromStorage();
     _servicePublicKey = RsaKeyHelper.parsePublicKeyFromPem(Config().healthPublicKey);
     _userPrivateKey = await _rsaUserPrivateKey;
@@ -434,6 +434,28 @@ class Health with Service implements NotificationsListener {
 
   // Network API: HealthCounty
 
+  Future<String> _loadCurrentCountyId() async {
+    String currentCountyId = Storage().currentHealthCountyId;
+    if (currentCountyId == null) {
+      List<HealthCounty> counties = await loadCounties();
+      currentCountyId = HealthCounty.defaultCounty(counties)?.id;
+      if (currentCountyId != null) {
+        Storage().currentHealthCountyId = currentCountyId;
+      }
+    }
+    return currentCountyId;
+  }
+
+  Future<bool> _ensureCurrentCountyId() async {
+    if (_currentCountyId == null) {
+      _currentCountyId = await _loadCurrentCountyId();
+      if (_currentCountyId != null) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   Future<List<HealthCounty>> loadCounties({String name, String state, String country}) async{
     String url = "${Config().healthUrl}/covid19/counties";
     String params = '';
@@ -480,12 +502,8 @@ class Health with Service implements NotificationsListener {
     bool needStatusRebuild = false, countyChanged = false, statusChanged = false, historyUpdated = false;
     
     // 1. Ensure county
-    if (_currentCountyId == null) {
-      List<HealthCounty> counties = await loadCounties();
-      _currentCountyId = HealthCounty.defaultCounty(counties)?.id;
-      if (_currentCountyId != null) {
-        needStatusRebuild = countyChanged = true;
-      }
+    if (await _ensureCurrentCountyId()) {
+      needStatusRebuild = countyChanged = true;
     }
 
     // 2. Check for pending CTests
@@ -569,14 +587,9 @@ class Health with Service implements NotificationsListener {
     bool countyChanged = false, statusChanged = false;
 
     // 1. Ensure county
-    if (_currentCountyId == null) {
-      List<HealthCounty> counties = await loadCounties();
-      _currentCountyId = HealthCounty.defaultCounty(counties)?.id;
-      if (_currentCountyId != null) {
-        countyChanged = true;
-      }
+    if (await _ensureCurrentCountyId()) {
+      countyChanged = true;
     }
-
 
     // 2. Build the status
     Covid19Status currentStatus;
@@ -634,12 +647,8 @@ class Health with Service implements NotificationsListener {
     bool countyChanged = false, statusChanged = false;
     
     // 1. Ensure county
-    if (_currentCountyId == null) {
-      List<HealthCounty> counties = await loadCounties();
-      _currentCountyId = HealthCounty.defaultCounty(counties)?.id;
-      if (_currentCountyId != null) {
-        countyChanged = true;
-      }
+    if (await _ensureCurrentCountyId()) {
+      countyChanged = true;
     }
 
     // 2. Check for pending CTests
