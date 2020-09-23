@@ -6,19 +6,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Changed
-- [#189] Add role & student_level in analytics 
-- [#183] Wrong phone auth after Student/Amployee selection during the onboarding flow 
-- [#157] Improved semantics for StatusInfoDialog button
-- [#159] OnboardingGetStartedPanel: remove background image from the semantics tree
-- [#155] StatusInfoDialog: improve semantics 
+- Add role & student_level in analytics [#189](https://github.com/rokwire/safer-illinois-app/issues/189)
+- Wrong phone auth after Student/Amployee selection during the onboarding flow [#183](https://github.com/rokwire/safer-illinois-app/issues/183)
+- Improved semantics for StatusInfoDialog button [#157](https://github.com/rokwire/safer-illinois-app/issues/157)
+- OnboardingGetStartedPanel: remove background image from the semantics tree [#159](https://github.com/rokwire/safer-illinois-app/issues/159)
+- StatusInfoDialog: improve semantics [#155](https://github.com/rokwire/safer-illinois-app/issues/155)
 
 ## [2.6.10] - 2020-09-22
 ### Changed
- - i-Card may not being updated if the last update time is greater than 24 hours [#175] (https://github.com/rokwire/safer-illinois-app/issues/175)
+ - i-Card may not being updated if the last update time is greater than 24 hours [#175](https://github.com/rokwire/safer-illinois-app/issues/175)
 
 ## [2.6.9] - 2020-09-21
 ### Changes
- - Update "student_level" processing from AuthCard. [#172] (https://github.com/rokwire/safer-illinois-app/issues/172)
+ - Update "student_level" processing from AuthCard. [#172](https://github.com/rokwire/safer-illinois-app/issues/172)
 
 ## [2.6.8] - 2020-09-18
 ### Changed
