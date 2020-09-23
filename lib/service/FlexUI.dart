@@ -269,6 +269,7 @@ class FlexUI with Service implements NotificationsListener {
   }
 
   Future<void> update() async {
+    _userRoles = User().roles;
     return _updateFromNet();
   }
 
