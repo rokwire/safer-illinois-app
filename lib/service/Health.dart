@@ -241,7 +241,7 @@ class Health with Service implements NotificationsListener {
   }
 
   Future<void> _clearHistoryCache() async {
-    _historyCacheFile = null;
+    _historyCache = null;
     if (await _historyCacheFile.exists()) {
       try { await _historyCacheFile.delete(); } catch (e) { print(e?.toString()); }
     }
@@ -470,7 +470,7 @@ class Health with Service implements NotificationsListener {
 
   Future<List<HealthSymptomsGroup>> _loadSymptomsGroups2() async {
 
-    HealthRulesSet2 rules = await _loadRules2();
+    HealthRulesSet2 rules = await loadRules2();
     if (rules?.symptoms?.groups != null) {
       return rules?.symptoms?.groups;
     }
@@ -784,7 +784,7 @@ class Health with Service implements NotificationsListener {
       }
     }
 
-    HealthRulesSet2 rules = await _loadRules2(countyId: countyId, force: true);
+    HealthRulesSet2 rules = await loadRules2(countyId: countyId, force: true);
     if (rules == null) {
       return null;
     }
@@ -1260,7 +1260,7 @@ class Health with Service implements NotificationsListener {
 
   // Consolidated Rules
 
-  Future<HealthRulesSet2> _loadRules2({String countyId, bool force}) async {
+  Future<HealthRulesSet2> loadRules2({String countyId, bool force}) async {
     HealthRulesSet2 countyRules;
     if (countyId == null) {
       countyId = _currentCountyId;
