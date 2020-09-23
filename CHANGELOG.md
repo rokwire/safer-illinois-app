@@ -27,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.6.7] - 2020-09-17
 ### Changed
- - Rework swiper and fix the VoiceOver accessibility [#158] (https://github.com/rokwire/safer-illinois-app/issues/158)
+ - Rework swiper and fix the VoiceOver accessibility [#158](https://github.com/rokwire/safer-illinois-app/issues/158)
  - Show wait time for each test location [#160](https://github.com/rokwire/safer-illinois-app/issues/160).
 
  
