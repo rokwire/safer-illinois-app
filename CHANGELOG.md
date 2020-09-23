@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Changed
+ - Wrong phone auth after Student/Amployee selection during the onboarding flow [#183] (https://github.com/rokwire/safer-illinois-app/issues/183)
+- [#157] Improved semantics for StatusInfoDialog button
+- [#159] OnboardingGetStartedPanel: remove background image from the semantics tree
 
 ## [2.6.10] - 2020-09-22
 ### Changed

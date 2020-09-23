@@ -46,7 +46,6 @@ class FlexUI with Service implements NotificationsListener {
   String               _dataVersion;
   File                 _cacheFile;
   DateTime             _pausedDateTime;
-  Set<UserRole>        _userRoles;
 
   // Singleton Factory
 
@@ -84,7 +83,6 @@ class FlexUI with Service implements NotificationsListener {
   Future<void> initService() async {
     _dataVersion = AppVersion.majorVersion(Config().appVersion, 2);
     _cacheFile = await _getCacheFile();
-    _userRoles = User().roles;
     _content = await _loadContentFromCache();
     if (_content == null) {
       await _initFromNet();
@@ -108,7 +106,6 @@ class FlexUI with Service implements NotificationsListener {
         (name == User.notifyUserUpdated) ||
         (name == User.notifyUserDeleted))
     {
-      _userRoles = User().roles;
       _updateFromNet();
     }
     else if ((name == Auth.notifyAuthTokenChanged) ||
@@ -269,7 +266,6 @@ class FlexUI with Service implements NotificationsListener {
   }
 
   Future<void> update() async {
-    _userRoles = User().roles;
     return _updateFromNet();
   }
 
@@ -345,7 +341,7 @@ class FlexUI with Service implements NotificationsListener {
       
       UserRole userRole = UserRole.fromString(roleRule);
       if (userRole != null) {
-        Set<UserRole> userRoles = FlexUI()._userRoles;
+        Set<UserRole> userRoles = User().roles;
         return (userRoles != null) && (userRoles.contains(userRole));
       }
     }

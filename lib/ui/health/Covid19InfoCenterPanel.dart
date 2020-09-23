@@ -443,7 +443,14 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
                   Expanded(child:
                     Text(Localization().getStringEx("panel.covid19home.label.status.title","Current Status:"), style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.fillColorPrimary),),
                   ),
-                  IconButton(icon: Image.asset('images/icon-info-orange.png'), onPressed: () =>  StatusInfoDialog.show(context, _currentCountyName), padding: EdgeInsets.all(10),)
+                  Semantics(
+                    explicitChildNodes: true,
+                    child: Semantics(
+                      label: Localization().getStringEx("panel.covid19home.button.info.title","Info "),
+                      button: true,
+                      excludeSemantics: true,
+                      child:  IconButton(icon: Image.asset('images/icon-info-orange.png'), onPressed: () =>  StatusInfoDialog.show(context, _currentCountyName), padding: EdgeInsets.all(10),)
+                  ))
                 ],),
                 Container(height: 6,),
                 Row(
