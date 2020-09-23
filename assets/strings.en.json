@@ -277,6 +277,7 @@
     "panel.covid19_passport.label.page_1": "Page 1",
     "panel.covid19_passport.label.page_2": "Page 2",
     "panel.covid19_passport.label.update_i_card": "Update your i-card",
+    "panel.covid19_passport.button.info.title": "Info ",
 
     "panel.covid19_guidelines.header.title": "County Guidelines",
     "panel.covid19_guidelines.description.title": "Help stop the spread of COVID-19 by following these current guidelines.",
@@ -316,6 +317,7 @@
     "panel.covid19home.label.action_required.title": "Action Required",
     "panel.covid19home.label.contact_trace.title": "Contact Trace",
     "panel.covid19home.label.reported_symptoms.title": "Self Reported Symptoms",
+    "panel.covid19home.button.info.title": "Info ",
     
     "panel.covid19_test_locations.header.title": "Test Locations",
     "panel.covid19_test_locations.label.contact.title": "Contact",
@@ -655,6 +657,7 @@
     "panel.health.status_update.label.reason.exposure.detail": "Duration of exposure: ",
     "panel.health.status_update.label.reason.action.title": "You were required an action by health authorities",
     "panel.health.status_update.label.reason.action.detail": "Action Required: ",
+    "panel.health.status_update.button.info.title": "Info ",
 
     "panel.health.next_steps.button.continue.title.find_locatio": "Find location",
     "panel.health.next_steps.button.continue.title.care_team": "Get in Touch with Care Team",
