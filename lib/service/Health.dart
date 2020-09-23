@@ -28,7 +28,6 @@ import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/BluetoothServices.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Exposure.dart';
-import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/LocationServices.dart';
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
@@ -715,110 +714,6 @@ class Health with Service implements NotificationsListener {
   }
 
   Future<Covid19Status> _statusForCounty(String countyId, { List<Covid19History> histories }) async {
-    switch(_rulesVersion) {
-      case 1:  return _statusForCounty1(countyId, histories: histories);
-      case 2:  return _statusForCounty2(countyId, histories: histories);
-      default: return null;
-    }
-  }
-
-  Future<Covid19Status> _statusForCounty1(String countyId, { List<Covid19History> histories }) async {
-    
-    if (histories == null) {
-      histories = await loadCovid19History();
-      if (histories == null) {
-        return null;
-      }
-    }
-
-    Covid19Status status = Covid19Status(
-      dateUtc: DateTime.now().toUtc(),
-      blob: Covid19StatusBlob(
-        healthStatus: kCovid19HealthStatusOrange,
-        nextStep: Localization().getStringEx('model.covid19.step.initial', 'Take a SHIELD Saliva Test when you return to campus.'),
-        historyBlob: null,
-      ),
-    );
-
-    List<HealthTestRule> testRules;
-    HealthSymptomsRule symptomsRule;
-    List<HealthSymptomsGroup> symptomsGroups;
-    List<HealthContactTraceRule> traceRules;
-
-    // Start from older
-    DateTime nowUtc = DateTime.now().toUtc();
-    for (int index = histories.length - 1; 0 <= index; index--) {
-      Covid19History history = histories[index];
-      if ((history.dateUtc != null) && history.dateUtc.isBefore(nowUtc)) {
-        if (history.isTest && history.canTestUpdateStatus) {
-          if (testRules == null) {
-            testRules = await _loadTestRules(countyId: countyId);
-          }
-          if (testRules != null) {
-            HealthTestRuleResult testRuleResult = HealthTestRule.matchResult(testRules, testType: history?.blob?.testType, testResult: history?.blob?.testResult);
-            if (testRuleResult != null) {
-              bool resultHasStatus = covid19HealthStatusIsValid(testRuleResult.healthStatus);
-              status = Covid19Status(
-                dateUtc: history.dateUtc,
-                blob: Covid19StatusBlob(
-                  healthStatus: resultHasStatus ? testRuleResult.healthStatus : status.blob.healthStatus,
-                  nextStep: ((testRuleResult.nextStep != null) || resultHasStatus) ? testRuleResult.nextStep: status.blob.nextStep,
-                  nextStepDateUtc: testRuleResult?.nextStepDate(history.dateUtc),
-                  historyBlob: history.blob,
-                ),
-              );
-            }
-          }
-        }
-        else if (history.isSymptoms) {
-          if (symptomsGroups == null) {
-            symptomsGroups = await loadSymptomsGroups();
-          }
-          if (symptomsRule == null) {
-            symptomsRule = await _loadSymptomsRule(countyId: countyId);
-          }
-          Map<String, int> symptomsCounts = HealthSymptomsGroup.getCounts(symptomsGroups, history?.blob?.symptomsIds);
-          if ((symptomsRule != null) && (symptomsCounts != null)) {
-            HealthSymptomsRuleResult symptomsRuleResult = symptomsRule.matchResult(symptomsCounts);
-            if (symptomsRuleResult != null) {
-              bool resultHasStatus = covid19HealthStatusIsValid(symptomsRuleResult.healthStatus);
-              status = Covid19Status(
-                dateUtc: history.dateUtc,
-                blob: Covid19StatusBlob(
-                  healthStatus: resultHasStatus ? symptomsRuleResult.healthStatus : status.blob.healthStatus,
-                  nextStep: ((symptomsRuleResult.nextStep != null) || resultHasStatus) ? symptomsRuleResult.nextStep : status.blob.nextStep,
-                  historyBlob: history.blob,
-                ),
-              );
-            }
-          }
-        }
-        else if (history.isContactTrace) {
-          if (traceRules == null) {
-            traceRules = await _loadContactTraceRules();
-          }
-          if (traceRules != null) {
-            HealthContactTraceRuleResult traceRuleResult = HealthContactTraceRule.matchResult(traceRules, traceDate: history.dateUtc, traceDuration: history.blob?.traceDurationInMinutes);
-            if (traceRuleResult != null) {
-              bool resultHasStatus = covid19HealthStatusIsValid(traceRuleResult.healthStatus);
-              status = Covid19Status(
-                dateUtc: history.dateUtc,
-                blob: Covid19StatusBlob(
-                  healthStatus: resultHasStatus ? traceRuleResult.healthStatus : status.blob.healthStatus,
-                  nextStep: ((traceRuleResult.nextStep != null) || resultHasStatus) ? traceRuleResult.nextStep : status.blob.nextStep,
-                  historyBlob: history.blob,
-                ),
-              );
-            }
-          }
-        }
-      }
-    }
-    
-    return status;
-  }
-
-  Future<Covid19Status> _statusForCounty2(String countyId, { List<Covid19History> histories }) async {
 
     if (histories == null) {
       histories = await loadCovid19History();
@@ -1147,14 +1042,6 @@ class Health with Service implements NotificationsListener {
     ));
   }
 
-  Future<List<HealthTestRule>> _loadTestRules({String countyId}) async {
-    String url = "${Config().healthUrl}/covid19/rules/county/$countyId";
-    Response response = await Network().get(url, auth: NetworkAuth.App);
-    String responseBody = (response?.statusCode == 200) ? response.body : null;
-    List<dynamic> responseJson = (responseBody != null) ? AppJson.decodeList(responseBody) : null; 
-    return (responseJson != null) ? HealthTestRule.listFromJson(responseJson) : null;
-  }
-
   Future<bool> _markEventAsProcessed(Covid19Event event) async {
     String url = "${Config().healthUrl}/covid19/ctests/${event.id}";
     String post = AppJson.encode({'processed':true});
@@ -1216,14 +1103,6 @@ class Health with Service implements NotificationsListener {
     ));
   }
   
-  Future<HealthSymptomsRule> _loadSymptomsRule({String countyId}) async {
-    String url = "${Config().healthUrl}/covid19/symptom-rules/county/$countyId";
-    Response response = await Network().get(url, auth: NetworkAuth.App);
-    String responseBody = (response?.statusCode == 200) ? response.body : null;
-    Map<String, dynamic> responseJson = (responseBody != null) ? AppJson.decodeMap(responseBody) : null; 
-    return (responseJson != null) ? HealthSymptomsRule.fromJson(responseJson) : null;
-  }
-
   // Contact Trace processing
 
   // Used only from debug panel, see Exposure.checkExposures
@@ -1260,14 +1139,6 @@ class Health with Service implements NotificationsListener {
       return true;
     }
     return false;
-  }
-
-  Future<List<HealthContactTraceRule>> _loadContactTraceRules({String countyId}) async {
-    String url = "https://rokwire-ios-beta.s3.us-east-2.amazonaws.com/Assets/covid19_contact_trace_rules.json";
-    Response response = await Network().get(url, auth: NetworkAuth.App);
-    String responseBody = (response?.statusCode == 200) ? response.body : null;
-    List<dynamic> responseJson = (responseBody != null) ? AppJson.decodeList(responseBody) : null; 
-    return (responseJson != null) ? HealthContactTraceRule.listFromJson(responseJson) : null;
   }
 
   // Actions processing
