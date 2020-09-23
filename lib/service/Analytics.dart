@@ -25,6 +25,7 @@ import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as Http;
 import 'package:illinois/model/UserData.dart';
 import 'package:illinois/service/AppNavigation.dart';
+import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Connectivity.dart';
 import 'package:illinois/service/Network.dart';
@@ -73,6 +74,9 @@ class Analytics with Service implements NotificationsListener {
   static const String   LogStdUserUuidName                 = "user_uuid";
   static const String   LogStdUserRolesName                = "user_roles";
   static const String   LogStdAccessibilityName            = "accessibility";
+
+  static const String   LogStdAuthCardRoleName             = "icard_role";
+  static const String   LogStdAuthCardStudentLevel         = "icard_student_level";
   
   static const String   LogEvent                           = "event";
   static const String   LogEventName                       = "name";
@@ -94,6 +98,8 @@ class Analytics with Service implements NotificationsListener {
     LogStdUserUuidName,
     LogStdUserRolesName,
     LogStdAccessibilityName,
+    LogStdAuthCardRoleName,
+    LogStdAuthCardStudentLevel,
   ];
 
   static const List<String> HealthAttributes = [
@@ -671,6 +677,12 @@ class Analytics with Service implements NotificationsListener {
         }
         else if (attributeName == LogStdAccessibilityName) {
           analyticsEvent[LogStdAccessibilityName]= _accessibilityState;
+        }
+        else if(attributeName == LogStdAuthCardRoleName){
+          analyticsEvent[LogStdAuthCardRoleName] = Auth()?.authCard?.role;
+        }
+        else if(attributeName == LogStdAuthCardStudentLevel){
+          analyticsEvent[LogStdAuthCardStudentLevel] = Auth()?.authCard?.studentLevel;
         }
       }
 
