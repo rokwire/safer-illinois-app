@@ -133,7 +133,14 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
             Expanded(child:
               Text(county,textAlign: TextAlign.center,style: TextStyle(color: Colors.white, fontSize: 14, fontFamily: Styles().fontFamilies.regular),),
             ),
-            IconButton(icon: Image.asset('images/icon-info-orange.png'), onPressed: () =>  StatusInfoDialog.show(context, _currentCountyName), padding: EdgeInsets.all(10),)
+            Semantics(
+              explicitChildNodes: true,
+              child: Semantics(
+                  label: Localization().getStringEx("panel.health.status_update.button.info.title","Info "),
+                  button: true,
+                  excludeSemantics: true,
+                  child:  IconButton(icon: Image.asset('images/icon-info-orange.png', excludeFromSemantics: true,), onPressed: () =>  StatusInfoDialog.show(context, _currentCountyName), padding: EdgeInsets.all(10),)
+            ))
           ],
         ),
         Container(height: 25,),
