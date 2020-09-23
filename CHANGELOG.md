@@ -6,11 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Changed
+- Check for negative PCR tests when reporting TEKs [#179](https://github.com/rokwire/safer-illinois-app/issues/179)
+- Cache county rules [#179](https://github.com/rokwire/safer-illinois-app/issues/179)
+- Cache user history [#179](https://github.com/rokwire/safer-illinois-app/issues/179)
+- Removed unused rules v1 [#179](https://github.com/rokwire/safer-illinois-app/issues/179)
 - Add role & student_level in analytics [#189](https://github.com/rokwire/safer-illinois-app/issues/189)
 - Wrong phone auth after Student/Amployee selection during the onboarding flow [#183](https://github.com/rokwire/safer-illinois-app/issues/183)
 - Improved semantics for StatusInfoDialog button [#157](https://github.com/rokwire/safer-illinois-app/issues/157)
 - OnboardingGetStartedPanel: remove background image from the semantics tree [#159](https://github.com/rokwire/safer-illinois-app/issues/159)
 - StatusInfoDialog: improve semantics [#155](https://github.com/rokwire/safer-illinois-app/issues/155)
+
+### Fixed
+- Fixed onboarding flow [#180](https://github.com/rokwire/safer-illinois-app/issues/180)
 
 ## [2.6.10] - 2020-09-22
 ### Changed
