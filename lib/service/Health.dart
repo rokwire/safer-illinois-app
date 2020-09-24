@@ -1272,7 +1272,7 @@ class Health with Service implements NotificationsListener {
         String url = "${Config().healthUrl}/covid19/crules/county/$countyId";
         Response response = await Network().get(url, auth: NetworkAuth.App, headers: { Network.RokwireVersion : appVersion });
         String responseBody = (response?.statusCode == 200) ? response.body : null;
-    //TMP:String responseBody = await rootBundle.loadString('assets/sample.health.rules.json');
+//TMP:  String responseBody = await rootBundle.loadString('assets/sample.health.rules.json');
         Map<String, dynamic> responseJson = (responseBody != null) ? AppJson.decodeMap(responseBody) : null;
         countyRules = (responseJson != null) ? HealthRulesSet2.fromJson(responseJson) : null;
         if (countyRules != null) {
