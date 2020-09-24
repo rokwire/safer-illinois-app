@@ -47,10 +47,10 @@ class HealthDefaultsSet2 {
 // HealthTestRulesSet2
 
 class HealthTestRulesSet2 {
-  final List<HealthTestRule2> rules;
+  final List<HealthTestRule2> _rules;
   final Map<String, _HealthRuleStatus2> statuses;
 
-  HealthTestRulesSet2({this.rules, this.statuses});
+  HealthTestRulesSet2({List<HealthTestRule2> rules, this.statuses}) : _rules = rules;
 
   factory HealthTestRulesSet2.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthTestRulesSet2(
@@ -59,9 +59,9 @@ class HealthTestRulesSet2 {
     ) : null;
   }
 
-  HealthTestRuleResult2 matchRuleResult({ Covid19HistoryBlob blob }) {
-    if ((rules != null) && (blob != null)) {
-      for (HealthTestRule2 rule in rules) {
+  HealthTestRuleResult2 matchRuleResult({ Covid19HistoryBlob blob, HealthRulesSet2 rules }) {
+    if ((_rules != null) && (blob != null)) {
+      for (HealthTestRule2 rule in _rules) {
         if ((rule?.testType != null) && (rule?.testType?.toLowerCase() == blob?.testType?.toLowerCase()) && (rule.results != null)) {
           for (HealthTestRuleResult2 ruleResult in rule.results) {
             if ((ruleResult?.testResult != null) && (ruleResult.testResult.toLowerCase() == blob?.testResult?.toLowerCase())) {
@@ -157,10 +157,10 @@ class HealthTestRuleResult2 {
 // HealthSymptomsRulesSet2
 
 class HealthSymptomsRulesSet2 {
-  final List<HealthSymptomsRule2> rules;
+  final List<HealthSymptomsRule2> _rules;
   final List<HealthSymptomsGroup> groups;
 
-  HealthSymptomsRulesSet2({this.rules, this.groups});
+  HealthSymptomsRulesSet2({List<HealthSymptomsRule2> rules, this.groups}) : _rules = rules;
 
   factory HealthSymptomsRulesSet2.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthSymptomsRulesSet2(
@@ -169,11 +169,11 @@ class HealthSymptomsRulesSet2 {
     ) : null;
   }
 
-  HealthSymptomsRule2 matchRule({ Covid19HistoryBlob blob }) {
-    if ((rules != null) && (groups != null) && (blob?.symptomsIds != null)) {
+  HealthSymptomsRule2 matchRule({ Covid19HistoryBlob blob, HealthRulesSet2 rules }) {
+    if ((_rules != null) && (groups != null) && (blob?.symptomsIds != null)) {
      Map<String, int> counts = HealthSymptomsGroup.getCounts(groups, blob.symptomsIds);
-      for (HealthSymptomsRule2 rule in rules) {
-        if (rule._matchCounts(counts)) {
+      for (HealthSymptomsRule2 rule in _rules) {
+        if (rule._matchCounts(counts, rules: rules)) {
           return rule;
         }
       }
@@ -221,12 +221,12 @@ class HealthSymptomsRule2 {
     return values;
   }
 
-  bool _matchCounts(Map<String, int> testCounts) {
+  bool _matchCounts(Map<String, int> testCounts, { HealthRulesSet2 rules }) {
     if (this.counts != null) {
       for (String groupName in this.counts.keys) {
         _HealthRuleIntInterval2 value = this.counts[groupName];
         int count = (testCounts != null) ? testCounts[groupName] : null;
-        if (!value.match(count)) {
+        if (!value.match(count, rules: rules)) {
           return false;
         }
 
@@ -240,9 +240,9 @@ class HealthSymptomsRule2 {
 // HealthContactTraceRulesSet2
 
 class HealthContactTraceRulesSet2 {
-  final List<HealthContactTraceRule2> rules;
+  final List<HealthContactTraceRule2> _rules;
 
-  HealthContactTraceRulesSet2({this.rules});
+  HealthContactTraceRulesSet2({List<HealthContactTraceRule2> rules}) : _rules = rules;
 
   factory HealthContactTraceRulesSet2.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthContactTraceRulesSet2(
@@ -250,10 +250,10 @@ class HealthContactTraceRulesSet2 {
     ) : null;
   }
 
-  HealthContactTraceRule2 matchRule({ Covid19HistoryBlob blob }) {
-    if ((rules != null) && (blob != null)) {
-      for (HealthContactTraceRule2 rule in rules) {
-        if (rule._matchBlob(blob)) {
+  HealthContactTraceRule2 matchRule({ Covid19HistoryBlob blob, HealthRulesSet2 rules }) {
+    if ((_rules != null) && (blob != null)) {
+      for (HealthContactTraceRule2 rule in _rules) {
+        if (rule._matchBlob(blob, rules: rules)) {
           return rule;
         }
       }
@@ -290,8 +290,8 @@ class HealthContactTraceRule2 {
     return values;
   }
 
-  bool _matchBlob(Covid19HistoryBlob blob) {
-    return (duration != null) && duration.match(blob?.traceDurationInMinutes);
+  bool _matchBlob(Covid19HistoryBlob blob, { HealthRulesSet2 rules }) {
+    return (duration != null) && duration.match(blob?.traceDurationInMinutes, rules: rules);
   }
 }
 
@@ -299,9 +299,9 @@ class HealthContactTraceRule2 {
 // HealthActionRulesSet2
 
 class HealthActionRulesSet2 {
-  final List<HealthActionRule2> rules;
+  final List<HealthActionRule2> _rules;
 
-  HealthActionRulesSet2({this.rules});
+  HealthActionRulesSet2({List<HealthActionRule2> rules}) : _rules = rules;
 
   factory HealthActionRulesSet2.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthActionRulesSet2(
@@ -309,10 +309,10 @@ class HealthActionRulesSet2 {
     ) : null;
   }
 
-  HealthActionRule2 matchRule({ Covid19HistoryBlob blob }) {
-    if (rules != null) {
-      for (HealthActionRule2 rule in rules) {
-        if (rule._matchBlob(blob)) {
+  HealthActionRule2 matchRule({ Covid19HistoryBlob blob, HealthRulesSet2 rules }) {
+    if (_rules != null) {
+      for (HealthActionRule2 rule in _rules) {
+        if (rule._matchBlob(blob, rules: rules)) {
           return rule;
         }
       }
@@ -349,7 +349,7 @@ class HealthActionRule2 {
     return values;
   }
 
-  bool _matchBlob(Covid19HistoryBlob blob) {
+  bool _matchBlob(Covid19HistoryBlob blob, {HealthRulesSet2 rules}) {
     return (type != null) && (type.toLowerCase() == blob?.actionType?.toLowerCase());
   }
 }
@@ -372,56 +372,73 @@ abstract class _HealthRuleIntInterval2 {
     return null;
   }
 
-  bool match(int value);
-  int get scope;
-  bool get current;
+  bool match(int value, { HealthRulesSet2 rules });
+  int  min({ HealthRulesSet2 rules });
+  int  max({ HealthRulesSet2 rules });
+  int  scope({ HealthRulesSet2 rules });
+  bool current({ HealthRulesSet2 rules });
 }
 
 ///////////////////////////////
 // HealthRuleIntValue2
 
 class HealthRuleIntValue2 extends _HealthRuleIntInterval2 {
-  final int value;
+  final int _value;
   
-  HealthRuleIntValue2({this.value});
+  HealthRuleIntValue2({int value}) :
+    _value = value;
 
   factory HealthRuleIntValue2.fromJson(dynamic json) {
     return (json is int) ? HealthRuleIntValue2(value: json) : null;
   }
 
-  bool match(int value) {
-    return (this.value == value);
+  @override
+  bool match(int value, { HealthRulesSet2 rules }) {
+    return (_value == value);
   }
 
-  int get scope { return null; }
-  bool get current { return null; }
+  @override int  min({ HealthRulesSet2 rules })     { return _value; }
+  @override int  max({ HealthRulesSet2 rules })     { return _value; }
+  @override int  scope({ HealthRulesSet2 rules })   { return null; }
+  @override bool current({ HealthRulesSet2 rules }) { return null; }
 }
 
 ///////////////////////////////
 // HealthRuleIntInterval2
 
 class HealthRuleIntInterval2 extends _HealthRuleIntInterval2 {
-  final int min;
-  final int max;
-  final int scope;
-  final bool current;
+  final _HealthRuleIntInterval2 _min;
+  final _HealthRuleIntInterval2 _max;
+  final int _scope;
+  final bool _current;
   
-  HealthRuleIntInterval2({this.min, this.max, this.scope, this.current});
+  HealthRuleIntInterval2({_HealthRuleIntInterval2 min, _HealthRuleIntInterval2 max, int scope, bool current}) :
+    _min = min,
+    _max = max,
+    _scope = scope,
+    _current = current;
+    
 
   factory HealthRuleIntInterval2.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthRuleIntInterval2(
-      min: json['min'],
-      max: json['max'],
+      min: _HealthRuleIntInterval2.fromJson(json['min']) ,
+      max: _HealthRuleIntInterval2.fromJson(json['max']),
       scope: _scopeFromJson(json['scope']),
       current: json['current']
     ) : null;
   }
 
-  bool match(int value) {
+  @override
+  bool match(int value, { HealthRulesSet2 rules }) {
     return (value != null) &&
-      ((min == null) || (min <= value)) &&
-      ((max == null) || (max >= value));
+      ((_min == null) || (_min.min(rules: rules) <= value)) &&
+      ((_max == null) || (_max.max(rules: rules) >= value));
   }
+
+  @override int  min({ HealthRulesSet2 rules }) { return _min?.min(rules: rules); }
+  @override int  max({ HealthRulesSet2 rules }) { return _max?.max(rules: rules); }
+  @override int  scope({ HealthRulesSet2 rules }) { return _scope; }
+  @override bool current({ HealthRulesSet2 rules }) { return _current; }
 
   static int _scopeFromJson(dynamic value) {
     if (value is String) {
@@ -611,7 +628,7 @@ class HealthTestRuleConditionalStatus2 extends _HealthRuleStatus2 {
       category = Set.from(category);
     }
 
-    int scope = interval.scope ?? 0;
+    int scope = interval.scope(rules: rules) ?? 0;
     if (0 < scope) { // check only newer items than the current
       for (int index = historyIndex - 1; 0 <= index; index--) {
         if (_evalRequireTestEntryFulfills(history[index], historyDateMidnightLocal: historyDateMidnightLocal, interval: interval, rules: rules, category: category)) {
@@ -635,7 +652,7 @@ class HealthTestRuleConditionalStatus2 extends _HealthRuleStatus2 {
     }
 
     // If positive time interval is not already expired - do not return failed status yet.
-    if ((interval.current == true) && _evalCurrentIntervalFulfills(interval, historyDateMidnightLocal: historyDateMidnightLocal)) {
+    if ((interval.current(rules: rules) == true) && _evalCurrentIntervalFulfills(interval, historyDateMidnightLocal: historyDateMidnightLocal, rules: rules)) {
       return successStatus;
     }
 
@@ -646,7 +663,7 @@ class HealthTestRuleConditionalStatus2 extends _HealthRuleStatus2 {
     if (entry.isTest && entry.canTestUpdateStatus) {
       DateTime entryDateMidnightLocal = entry.dateMidnightLocal;
       final difference = entryDateMidnightLocal.difference(historyDateMidnightLocal).inDays;
-      if (interval.match(difference)) {
+      if (interval.match(difference, rules: rules)) {
         if (category == null) {
           return true; // any test matches
         }
@@ -676,42 +693,42 @@ class HealthTestRuleConditionalStatus2 extends _HealthRuleStatus2 {
       return null;
     }
 
-    int scope = interval.scope ?? 0;
+    int scope = interval.scope(rules: rules) ?? 0;
     if (0 < scope) { // check only newer items than the current
       for (int index = historyIndex - 1; 0 <= index; index--) {
-        if (_evalRequireSymptomsEntryFulfills(history[index], historyDateMidnightLocal: historyDateMidnightLocal, interval: interval)) {
+        if (_evalRequireSymptomsEntryFulfills(history[index], historyDateMidnightLocal: historyDateMidnightLocal, interval: interval, rules: rules)) {
           return successStatus;
         }
       }
     }
     else if (0 < scope) { // check only older items than the current
       for (int index = historyIndex + 1; index < history.length; index++) {
-        if (_evalRequireSymptomsEntryFulfills(history[index], historyDateMidnightLocal: historyDateMidnightLocal, interval: interval)) {
+        if (_evalRequireSymptomsEntryFulfills(history[index], historyDateMidnightLocal: historyDateMidnightLocal, interval: interval, rules: rules)) {
           return successStatus;
         }
       }
     }
     else { // check all history items
       for (int index = 0; index < history.length; index++) {
-        if ((index != historyIndex) && _evalRequireSymptomsEntryFulfills(history[index], historyDateMidnightLocal: historyDateMidnightLocal, interval: interval)) {
+        if ((index != historyIndex) && _evalRequireSymptomsEntryFulfills(history[index], historyDateMidnightLocal: historyDateMidnightLocal, interval: interval, rules: rules)) {
           return successStatus;
         }
       }
     }
 
     // If positive time interval is not already expired - do not return failed status yet.
-    if ((interval.current == true) && _evalCurrentIntervalFulfills(interval, historyDateMidnightLocal: historyDateMidnightLocal)) {
+    if ((interval.current(rules: rules) == true) && _evalCurrentIntervalFulfills(interval, historyDateMidnightLocal: historyDateMidnightLocal, rules: rules)) {
       return successStatus;
     }
 
     return failStatus;
   }
 
-  static bool _evalRequireSymptomsEntryFulfills(Covid19History entry, { DateTime historyDateMidnightLocal,  _HealthRuleIntInterval2 interval }) {
+  static bool _evalRequireSymptomsEntryFulfills(Covid19History entry, { DateTime historyDateMidnightLocal,  _HealthRuleIntInterval2 interval, HealthRulesSet2 rules }) {
     if (entry.isSymptoms) {
       DateTime entryDateMidnightLocal = entry.dateMidnightLocal;
       final difference = entryDateMidnightLocal.difference(historyDateMidnightLocal).inDays;
-      if (interval.match(difference)) {
+      if (interval.match(difference, rules: rules)) {
         return true;
       }
     }
@@ -758,14 +775,14 @@ class HealthTestRuleConditionalStatus2 extends _HealthRuleStatus2 {
       return null;
     }
 
-    return _evalCurrentIntervalFulfills(interval, historyDateMidnightLocal: historyDateMidnightLocal) ?
+    return _evalCurrentIntervalFulfills(interval, historyDateMidnightLocal: historyDateMidnightLocal, rules: rules) ?
       failStatus : successStatus; // while current time is within interval 'timeout' condition fails
   }
 
-  static bool _evalCurrentIntervalFulfills(_HealthRuleIntInterval2 currentInterval, { DateTime historyDateMidnightLocal } ) {
+  static bool _evalCurrentIntervalFulfills(_HealthRuleIntInterval2 currentInterval, { DateTime historyDateMidnightLocal, HealthRulesSet2 rules } ) {
     if (currentInterval != null) {
       final difference = AppDateTime.todayMidnightLocal.difference(historyDateMidnightLocal).inDays;
-      if (currentInterval.match(difference)) {
+      if (currentInterval.match(difference, rules: rules)) {
         return true;
       }
     }

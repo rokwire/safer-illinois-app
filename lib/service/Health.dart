@@ -820,7 +820,7 @@ class Health with Service implements NotificationsListener {
         HealthRuleStatus2 historyStatus;
         if (history.isTest && history.canTestUpdateStatus) {
           if (rules.tests != null) {
-            HealthTestRuleResult2 testRuleResult = rules.tests.matchRuleResult(blob: history?.blob);
+            HealthTestRuleResult2 testRuleResult = rules.tests.matchRuleResult(blob: history?.blob, rules: rules);
             historyStatus = testRuleResult?.status?.eval(history: histories, historyIndex: index, rules: rules);
           }
           else {
@@ -830,7 +830,7 @@ class Health with Service implements NotificationsListener {
         }
         else if (history.isSymptoms) {
           if (rules.symptoms != null) {
-            HealthSymptomsRule2 symptomsRule = rules.symptoms.matchRule(blob: history?.blob);
+            HealthSymptomsRule2 symptomsRule = rules.symptoms.matchRule(blob: history?.blob, rules: rules);
             historyStatus = symptomsRule?.status?.eval(history: histories, historyIndex: index, rules: rules);
           }
           else {
@@ -839,7 +839,7 @@ class Health with Service implements NotificationsListener {
         }
         else if (history.isContactTrace) {
           if (rules.contactTrace != null) {
-            HealthContactTraceRule2 contactTraceRule = rules.contactTrace.matchRule(blob: history?.blob);
+            HealthContactTraceRule2 contactTraceRule = rules.contactTrace.matchRule(blob: history?.blob, rules: rules);
             historyStatus = contactTraceRule?.status?.eval(history: histories, historyIndex: index, rules: rules);
           }
           else {
@@ -848,7 +848,7 @@ class Health with Service implements NotificationsListener {
         }
         else if (history.isAction) {
           if (rules.actions != null) {
-            HealthActionRule2 actionRule = rules.actions.matchRule(blob: history?.blob);
+            HealthActionRule2 actionRule = rules.actions.matchRule(blob: history?.blob, rules: rules);
             historyStatus = actionRule?.status?.eval(history: histories, historyIndex: index, rules: rules);
           }
           else {
