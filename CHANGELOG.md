@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Changed
+- Added analytics notifcation for processing test after exposure [#198](https://github.com/rokwire/safer-illinois-app/issues/198)
 - Rollback temporary flutter_html to 0.11.1 due to accessibility issue [#195](https://github.com/rokwire/safer-illinois-app/issues/195)
 - Update strings files [#193](https://github.com/rokwire/safer-illinois-app/issues/193)
 - Apply user's test monitor interval when evaluating status, rules format updates [#192](https://github.com/rokwire/safer-illinois-app/issues/192).
