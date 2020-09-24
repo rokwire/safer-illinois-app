@@ -5,6 +5,238 @@
 			"next_step": "Take a SHIELD Saliva Test when you return to campus."
 		}
 	},
+
+	"statuses": {
+		"antibody.negative": "test-monitor",
+		
+		"antibody.positive": {
+			"condition": "test-user",
+			"params": {
+				"role": "Undergraduate",
+				"student_level": "1U"
+			},
+			"success": {
+				"condition": "require-test",
+				"params": {
+					"interval": { "min": 0, "max": 4, "scope": "future", "current": true }
+				},
+				"success": {
+					"health_status": "green",
+					"priority": 1,
+					"next_step": "Monitor your test results",
+					"next_step_interval": 4,
+					"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+				},
+				"fail": {
+					"health_status": "orange",
+					"priority": 1,
+					"next_step": "Get a test now",
+					"reason": "Your status changed to Orange because you are past due for a test."
+				}
+			},
+			"fail": {
+				"condition": "require-test",
+				"params": {
+					"interval": { "min": 0, "max": 8, "scope": "future", "current": true }
+				},
+				"success": {
+					"health_status": "green",
+					"priority": 1,
+					"next_step": "Monitor your test results",
+					"next_step_interval": 8,
+					"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+				},
+				"fail": {
+					"health_status": "orange",
+					"priority": 1,
+					"next_step": "Get a test now",
+					"reason": "Your status changed to Orange because you are past due for a test."
+				}
+			}
+		},
+		
+		"PCR.positive": {
+			"health_status": "red",
+			"priority": 11,
+			"next_step_html": "<h3>You have been placed in mandatory isolation.</h3><ul><h6><li>Stay home. Do not go to work, school, or public areas.</li></h6><h6><li>Separate yourself from others in your home.</li></h6><h6><li>Contact Champaign-Urbana Public Health District immediately at <a href='mailto:coronavirus@c-uphd.org'>coronavirus@c-uphd.org</a></li></h6><h6><li>More Info: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Quarantine and Isolation</a></li></h6></ul>"
+		},
+		
+		"PCR.negative": "test-monitor",
+		
+		"PCR.invalid": {
+			"condition": "require-test",
+			"params": {
+				"interval": { "min": 0, "max": 1, "scope": "future", "current": true }
+			},
+			"success": {
+				"health_status": null,
+				"priority": null,
+				"next_step": "Get another test asap",
+				"next_step_interval": 1,
+				"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+			},
+			"fail": {
+				"health_status": "orange",
+				"priority": 1,
+				"next_step": "Get a test now",
+				"reason": "Your status changed to Orange because you are past due for a test."
+			}
+		},
+
+		"test-monitor": {
+			"condition": "test-user",
+			"params": {
+				"role": "Undergraduate",
+				"student_level": "1U"
+			},
+			"success": {
+				"condition": "require-test",
+				"params": {
+					"interval": { "min": 0, "max": 4, "scope": "future", "current": true }
+				},
+				"success": {
+					"health_status": "yellow",
+					"priority": 1,
+					"next_step": "Monitor your test results",
+					"next_step_interval": 4,
+					"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+				},
+				"fail": {
+					"health_status": "orange",
+					"priority": 1,
+					"next_step": "Get a test now",
+					"reason": "Your status changed to Orange because you are past due for a test."
+				}
+			},
+			"fail": {
+				"condition": "require-test",
+				"params": {
+					"interval": { "min": 0, "max": 8, "scope": "future", "current": true }
+				},
+				"success": {
+					"health_status": "yellow",
+					"priority": 1,
+					"next_step": "Monitor your test results",
+					"next_step_interval": 8,
+					"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+				},
+				"fail": {
+					"health_status": "orange",
+					"priority": 1,
+					"next_step": "Get a test now",
+					"reason": "Your status changed to Orange because you are past due for a test."
+				}
+			}
+		},
+
+		"symptoms-match": {
+			"health_status": "orange",
+			"priority": 1,
+			"next_step": "Take a COVID-19 test now",
+			"reason": "Your status changed to Orange because you self-reported symptoms consistent with the virus."
+		},
+
+		"contact_trace-match": {
+			"condition": "timeout",
+			"params": {
+				"interval": { "min": 0, "max": 3, "scope": "future" }
+			},
+			"success": {
+				"condition": "require-test",
+				"params": {
+					"interval": { "min": 4, "max": null, "scope": "future" }
+				},
+				"success": null,
+				"fail": {
+					"health_status": "orange",
+					"priority": 1,
+					"next_step": "Get a test now",
+					"reason": "Your status changed to Orange because you are past due for a test."
+				}
+			},
+			"fail": {
+				"health_status": "orange",
+				"priority": 2,
+				"next_step_html": "<h3>You have likely been exposed to a person who is infected with COVID-19.</h3><ul><h6><li>You must quarantine yourself immediately.</li></h6><h6><li>Stay home. Do not go to work, school, or public areas.</li></h6><h6><li>Separate yourself from others in your home.</li></h6><h6><li>Contact <a href='mailto:shieldteam30@illinois.edu'>shieldteam30@illinois.edu</a> for guidance.</li></h6><h6><li>Get tested after {next_step_date} to see if you have developed the disease.</li></h6><h6><li>More Info: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Quarantine and Isolation</a></li></h6></ul>",
+				"next_step_interval": 4,
+				"reason": "Your status changed to Orange because you received an exposure notification."
+			}
+		},
+		
+		"quarantine-on": {
+			"health_status": "orange",
+			"priority": 10,
+			"next_step": "Stay at home and avoid contacts",
+			"reason": "Your status changed to Orange because the Public Health department placed you in Quarantine."
+		},
+
+		"quarantine-off": {
+			"condition": "test-user",
+			"params": {
+				"role": "Undergraduate",
+				"student_level": "1U"
+			},
+			"success": {
+				"condition": "require-test",
+				"params": {
+					"interval": { "min": 0, "max": 4, "scope": "future", "current": true }
+				},
+				"success": {
+					"health_status": "yellow",
+					"priority": -1,
+					"next_step": "Resume testing on your assigned days",
+					"next_step_interval": 4,
+					"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+					},
+				"fail": {
+					"health_status": "orange",
+					"priority": -1,
+					"next_step": "Get a test now",
+					"reason": "Your status changed to Orange because you are past due for a test."
+				}
+			},
+			"fail": {
+				"condition": "require-test",
+				"params": {
+					"interval": { "min": 0, "max": 8, "scope": "future", "current": true }
+				},
+				"success": {
+					"health_status": "yellow",
+					"priority": -1,
+					"next_step": "Resume testing on your assigned days",
+					"next_step_interval": 8,
+					"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+				},
+				"fail": {
+					"health_status": "orange",
+					"priority": -1,
+					"next_step": "Get a test now",
+					"reason": "Your status changed to Orange because you are past due for a test."
+				}
+			}
+		},
+		
+		"out-of-test-compliance": {
+			"condition": "require-test",
+			"params": {
+				"interval": { "min": -1, "max": 1, "current": true }
+			},
+			"success": {
+				"health_status": null,
+				"priority": null,
+				"next_step": "Monitor your test results",
+				"next_step_interval": 1,
+				"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+			},
+			"fail": {
+				"health_status": "orange",
+				"priority": 1,
+				"next_step": "Get a test now",
+				"reason": "Your status changed to Orange because you are past due for a test."
+			}
+		}
+	},
+
 	"tests" : {
 		"rules": [
 			{
@@ -13,8 +245,8 @@
 				"results": [
 					{
 						"result": "not present",
-						"category": "antibody.negavitve",
-						"status": "antibody.negavitve"
+						"category": "antibody.negative",
+						"status": "antibody.negative"
 					},
 					{
 						"result": "present",
@@ -223,169 +455,7 @@
 					}
 				]
 			}
-		],
-		
-		"statuses": {
-			"antibody.negavitve": {
-				"condition": "test-user",
-				"params": {
-					"role": "Undergraduate",
-					"student_level": "1U"
-				},
-				"success": {
-					"condition": "require-test",
-					"params": {
-						"interval": { "min": 0, "max": 4, "scope": "future", "current": true }
-					},
-					"success": {
-						"health_status": null,
-						"priority": null,
-						"next_step": "Monitor your test results",
-						"next_step_interval": 4,
-						"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
-					},
-					"fail": {
-						"health_status": "orange",
-						"priority": 1,
-						"next_step": "Get a test now",
-						"reason": "Your status changed to Orange because you are past due for a test."
-					}
-				},
-				"fail": {
-					"condition": "require-test",
-					"params": {
-						"interval": { "min": 0, "max": 8, "scope": "future", "current": true }
-					},
-					"success": {
-						"health_status": null,
-						"priority": null,
-						"next_step": "Monitor your test results",
-						"next_step_interval": 8,
-						"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
-					},
-					"fail": {
-						"health_status": "orange",
-						"priority": 1,
-						"next_step": "Get a test now",
-						"reason": "Your status changed to Orange because you are past due for a test."
-					}
-				}
-			},
-			"antibody.positive": {
-				"condition": "test-user",
-				"params": {
-					"role": "Undergraduate",
-					"student_level": "1U"
-				},
-				"success": {
-					"condition": "require-test",
-					"params": {
-						"interval": { "min": 0, "max": 4, "scope": "future", "current": true }
-					},
-					"success": {
-						"health_status": "green",
-						"priority": 1,
-						"next_step": "Monitor your test results",
-						"next_step_interval": 4,
-						"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
-					},
-					"fail": {
-						"health_status": "orange",
-						"priority": 1,
-						"next_step": "Get a test now",
-						"reason": "Your status changed to Orange because you are past due for a test."
-					}
-				},
-				"fail": {
-					"condition": "require-test",
-					"params": {
-						"interval": { "min": 0, "max": 8, "scope": "future", "current": true }
-					},
-					"success": {
-						"health_status": "green",
-						"priority": 1,
-						"next_step": "Monitor your test results",
-						"next_step_interval": 8,
-						"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
-					},
-					"fail": {
-						"health_status": "orange",
-						"priority": 1,
-						"next_step": "Get a test now",
-						"reason": "Your status changed to Orange because you are past due for a test."
-					}
-				}
-			},
-			"PCR.positive": {
-				"health_status": "red",
-				"priority": 11,
-				"next_step_html": "<h3>You have been placed in mandatory isolation.</h3><ul><h6><li>Stay home. Do not go to work, school, or public areas.</li></h6><h6><li>Separate yourself from others in your home.</li></h6><h6><li>Contact Champaign-Urbana Public Health District immediately at <a href='mailto:coronavirus@c-uphd.org'>coronavirus@c-uphd.org</a></li></h6><h6><li>More Info: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Quarantine and Isolation</a></li></h6></ul>"
-			},
-			"PCR.negative": {
-				"condition": "test-user",
-				"params": {
-					"role": "Undergraduate",
-					"student_level": "1U"
-				},
-				"success": {
-					"condition": "require-test",
-					"params": {
-						"interval": { "min": 0, "max": 4, "scope": "future", "current": true }
-					},
-					"success": {
-						"health_status": "yellow",
-						"priority": 1,
-						"next_step": "Monitor your test results",
-						"next_step_interval": 4,
-						"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
-					},
-					"fail": {
-						"health_status": "orange",
-						"priority": 1,
-						"next_step": "Get a test now",
-						"reason": "Your status changed to Orange because you are past due for a test."
-					}
-				},
-				"fail": {
-					"condition": "require-test",
-					"params": {
-						"interval": { "min": 0, "max": 8, "scope": "future", "current": true }
-					},
-					"success": {
-						"health_status": "yellow",
-						"priority": 1,
-						"next_step": "Monitor your test results",
-						"next_step_interval": 8,
-						"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
-					},
-					"fail": {
-						"health_status": "orange",
-						"priority": 1,
-						"next_step": "Get a test now",
-						"reason": "Your status changed to Orange because you are past due for a test."
-					}
-				}
-			},
-			"PCR.invalid": {
-				"condition": "require-test",
-				"params": {
-					"interval": { "min": 0, "max": 1, "scope": "future", "current": true }
-				},
-				"success": {
-					"health_status": null,
-					"priority": null,
-					"next_step": "Get another test asap",
-					"next_step_interval": 1,
-					"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
-				},
-				"fail": {
-					"health_status": "orange",
-					"priority": 1,
-					"next_step": "Get a test now",
-					"reason": "Your status changed to Orange because you are past due for a test."
-				}
-			}
-		}
+		]
 	},
 	
 	"symptoms": {
@@ -394,23 +464,13 @@
 				"counts": {
 					"gr-2.4-1": { "min": 1 }
 				},
-				"status": {
-					"health_status": "orange",
-					"priority": 1,
-					"next_step": "Take a COVID-19 test now",
-					"reason": "Your status changed to Orange because you self-reported symptoms consistent with the virus."
-				}
+				"status": "symptoms-match"
 			},
 			{
 				"counts": {
 					"gr-2.5-1": { "min": 1 }
 				},
-				"status": {
-					"health_status": "orange",
-					"priority": 1,
-					"next_step": "Take a COVID-19 test now",
-					"reason": "Your status changed to Orange because you self-reported symptoms consistent with the virus."
-				}
+				"status": "symptoms-match"
 			}
 		],
 		
@@ -519,32 +579,7 @@
 		"rules": [
 			{
 				"duration": { "min": 120 },
-				"status": {
-					"condition": "timeout",
-					"params": {
-						"interval": { "min": 0, "max": 3, "scope": "future" }
-					},
-					"success": {
-						"condition": "require-test",
-						"params": {
-							"interval": { "min": 4, "max": null, "scope": "future" }
-						},
-						"success": null,
-						"fail": {
-							"health_status": "orange",
-							"priority": 1,
-							"next_step": "Get a test now",
-							"reason": "Your status changed to Orange because you are past due for a test."
-						}
-					},
-					"fail": {
-						"health_status": "orange",
-						"priority": 2,
-						"next_step_html": "<h3>You have likely been exposed to a person who is infected with COVID-19.</h3><ul><h6><li>You must quarantine yourself immediately.</li></h6><h6><li>Stay home. Do not go to work, school, or public areas.</li></h6><h6><li>Separate yourself from others in your home.</li></h6><h6><li>Contact <a href='mailto:shieldteam30@illinois.edu'>shieldteam30@illinois.edu</a> for guidance.</li></h6><h6><li>Get tested after {next_step_date} to see if you have developed the disease.</li></h6><h6><li>More Info: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Quarantine and Isolation</a></li></h6></ul>",
-						"next_step_interval": 4,
-						"reason": "Your status changed to Orange because you received an exposure notification."
-					}
-				}
+				"status": "contact_trace-match"
 			}
 		]
 	},
@@ -553,130 +588,19 @@
 		"rules": [
 			{
 				"type": "quarantine-on",
-				"status": {
-					"health_status": "orange",
-					"priority": 10,
-					"next_step": "Stay at home and avoid contacts",
-					"reason": "Your status changed to Orange because the Public Health department placed you in Quarantine."
-				}
+				"status": "quarantine-on"
 			},
 			{
 				"type": "quarantine-off",
-				"status": {
-					"condition": "test-user",
-					"params": {
-						"role": "Undergraduate",
-						"student_level": "1U"
-					},
-					"success": {
-						"condition": "require-test",
-						"params": {
-							"interval": { "min": 0, "max": 4, "scope": "future", "current": true }
-						},
-						"success": {
-							"health_status": "yellow",
-							"priority": -1,
-							"next_step": "Resume testing on your assigned days",
-							"next_step_interval": 4,
-							"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
-							},
-						"fail": {
-							"health_status": "orange",
-							"priority": -1,
-							"next_step": "Get a test now",
-							"reason": "Your status changed to Orange because you are past due for a test."
-						}
-					},
-					"fail": {
-						"condition": "require-test",
-						"params": {
-							"interval": { "min": 0, "max": 8, "scope": "future", "current": true }
-						},
-						"success": {
-							"health_status": "yellow",
-							"priority": -1,
-							"next_step": "Resume testing on your assigned days",
-							"next_step_interval": 8,
-							"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
-						},
-						"fail": {
-							"health_status": "orange",
-							"priority": -1,
-							"next_step": "Get a test now",
-							"reason": "Your status changed to Orange because you are past due for a test."
-						}
-					}
-				}
+				"status": "quarantine-off"
 			},
 			{
 				"type": "out-of-test-compliance",
-				"status": {
-					"condition": "require-test",
-					"params": {
-						"interval": { "min": -1, "max": 1, "current": true }
-					},
-					"success": {
-						"health_status": null,
-						"priority": null,
-						"next_step": "Monitor your test results",
-						"next_step_interval": 1,
-						"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
-					},
-					"fail": {
-						"health_status": "orange",
-						"priority": 1,
-						"next_step": "Get a test now",
-						"reason": "Your status changed to Orange because you are past due for a test."
-					}
-				}
+				"status": "out-of-test-compliance"
 			},
 			{
 				"type": "test_pending",
-				"status": {
-					"condition": "test-user",
-					"params": {
-						"role": "Undergraduate",
-						"student_level": "1U"
-					},
-					"success": {
-						"condition": "require-test",
-						"params": {
-							"interval": { "min": 0, "max": 4, "scope": "future", "current": true }
-						},
-						"success": {
-							"health_status": "yellow",
-							"priority": 1,
-							"next_step": "Monitor your test results",
-							"next_step_interval": 4,
-							"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
-							},
-						"fail": {
-							"health_status": "orange",
-							"priority": 1,
-							"next_step": "Get a test now",
-							"reason": "Your status changed to Orange because you are past due for a test."
-						}
-					},
-					"fail": {
-						"condition": "require-test",
-						"params": {
-							"interval": { "min": 0, "max": 8, "scope": "future", "current": true }
-						},
-						"success": {
-							"health_status": "yellow",
-							"priority": 1,
-							"next_step": "Monitor your test results",
-							"next_step_interval": 8,
-							"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
-						},
-						"fail": {
-							"health_status": "orange",
-							"priority": 1,
-							"next_step": "Get a test now",
-							"reason": "Your status changed to Orange because you are past due for a test."
-						}
-					}
-				}
+				"status": "test-monitor"
 			}
 		]
 	}

@@ -12,9 +12,10 @@ class HealthRulesSet2 {
   final HealthContactTraceRulesSet2 contactTrace;
   final HealthActionRulesSet2 actions;
   final HealthDefaultsSet2 defaults;
+  final Map<String, _HealthRuleStatus2> statuses;
   Map<String, dynamic> constants;
 
-  HealthRulesSet2({this.tests, this.symptoms, this.contactTrace, this.actions, this.defaults});
+  HealthRulesSet2({this.tests, this.symptoms, this.contactTrace, this.actions, this.defaults, this.statuses});
 
   factory HealthRulesSet2.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthRulesSet2(
@@ -23,6 +24,7 @@ class HealthRulesSet2 {
       contactTrace: HealthContactTraceRulesSet2.fromJson(json['contact_trace']),
       actions: HealthActionRulesSet2.fromJson(json['actions']),
       defaults: HealthDefaultsSet2.fromJson(json['defaults']),
+      statuses: _HealthRuleStatus2.mapFromJson(json['statuses']),
     ) : null;
   }
 }
@@ -49,14 +51,12 @@ class HealthDefaultsSet2 {
 
 class HealthTestRulesSet2 {
   final List<HealthTestRule2> _rules;
-  final Map<String, _HealthRuleStatus2> statuses;
 
-  HealthTestRulesSet2({List<HealthTestRule2> rules, this.statuses}) : _rules = rules;
+  HealthTestRulesSet2({List<HealthTestRule2> rules}) : _rules = rules;
 
   factory HealthTestRulesSet2.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthTestRulesSet2(
-      rules: HealthTestRule2.listFromJson(json['rules']),
-      statuses: _HealthRuleStatus2.mapFromJson(json['statuses']),
+      rules: HealthTestRule2.listFromJson(json['rules'])
     ) : null;
   }
 
@@ -527,7 +527,7 @@ abstract class _HealthRuleStatus2 {
     if (json != null) {
       result = Map<String, _HealthRuleStatus2>();
       json.forEach((String key, dynamic value) {
-        try { result[key] =  _HealthRuleStatus2.fromJson((value as Map).cast<String, dynamic>()); }
+        try { result[key] =  _HealthRuleStatus2.fromJson(value); }
         catch (e) { print(e?.toString()); }
       });
     }
@@ -605,7 +605,7 @@ class HealthRuleReferenceStatus2 extends _HealthRuleStatus2 {
 
   HealthRuleStatus2 eval({ List<Covid19History> history, int historyIndex, HealthRulesSet2 rules }) {
     // Only test rules currently use reference status.
-    _HealthRuleStatus2 status = rules?.tests?.statuses[reference];
+    _HealthRuleStatus2 status = (rules?.statuses != null) ? rules?.statuses[reference] : null;
     return status?.eval(history: history, historyIndex: historyIndex, rules: rules);
   }
 }
