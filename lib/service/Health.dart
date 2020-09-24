@@ -789,6 +789,14 @@ class Health with Service implements NotificationsListener {
       return null;
     }
 
+    dynamic userTestMonitorInterval = await _loadUserTestMonitorInterval();
+    if (userTestMonitorInterval == false) {
+      return null;
+    }
+    else if (userTestMonitorInterval is int) {
+      rules.userTestMonitorInterval = userTestMonitorInterval;
+    }
+
     Covid19Status status;
     HealthRuleStatus2 defaultStatus = rules?.defaults?.status?.eval(history: histories, historyIndex: -1, rules: rules);
     if (defaultStatus != null) {
@@ -1253,6 +1261,20 @@ class Health with Service implements NotificationsListener {
 
           return true;
         }
+      }
+    }
+    return false;
+  }
+
+  // User Test Monitor Interval
+
+  Future<dynamic> _loadUserTestMonitorInterval() async {
+    if (this._isLoggedIn) {
+      String url = "${Config().healthUrl}/covid19/uin-override";
+      Response response = await Network().get(url, auth: NetworkAuth.User);
+      if (response?.statusCode == 200) {
+        Map<String, dynamic> responseJson = AppJson.decodeMap(response.body);
+        return (responseJson != null) ? responseJson['interval'] : null;
       }
     }
     return false;
