@@ -6,25 +6,30 @@
 		}
 	},
 
+	"constants": {
+		"UserTestMonitorInterval": null,
+		"UndergraduateTestMonitorInterval": 4,
+		"DefaultTestMonitorInterval": 8
+	},
+
 	"statuses": {
 		"antibody.negative": "test-monitor",
 		
 		"antibody.positive": {
-			"condition": "test-user",
+			"condition": "test-interval",
 			"params": {
-				"role": "Undergraduate",
-				"student_level": "1U"
+				"interval": "UserTestMonitorInterval"
 			},
 			"success": {
 				"condition": "require-test",
 				"params": {
-					"interval": { "min": 0, "max": 4, "scope": "future", "current": true }
+					"interval": { "min": 0, "max": "UserTestMonitorInterval", "scope": "future", "current": true }
 				},
 				"success": {
 					"health_status": "green",
 					"priority": 1,
 					"next_step": "Monitor your test results",
-					"next_step_interval": 4,
+					"next_step_interval": "UserTestMonitorInterval",
 					"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
 				},
 				"fail": {
@@ -35,22 +40,48 @@
 				}
 			},
 			"fail": {
-				"condition": "require-test",
+				"condition": "test-user",
 				"params": {
-					"interval": { "min": 0, "max": 8, "scope": "future", "current": true }
+					"role": "Undergraduate",
+					"student_level": "1U"
 				},
 				"success": {
-					"health_status": "green",
-					"priority": 1,
-					"next_step": "Monitor your test results",
-					"next_step_interval": 8,
-					"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+					"condition": "require-test",
+					"params": {
+						"interval": { "min": 0, "max": "UndergraduateTestMonitorInterval", "scope": "future", "current": true }
+					},
+					"success": {
+						"health_status": "green",
+						"priority": 1,
+						"next_step": "Monitor your test results",
+						"next_step_interval": "UndergraduateTestMonitorInterval",
+						"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+					},
+					"fail": {
+						"health_status": "orange",
+						"priority": 1,
+						"next_step": "Get a test now",
+						"reason": "Your status changed to Orange because you are past due for a test."
+					}
 				},
 				"fail": {
-					"health_status": "orange",
-					"priority": 1,
-					"next_step": "Get a test now",
-					"reason": "Your status changed to Orange because you are past due for a test."
+					"condition": "require-test",
+					"params": {
+						"interval": { "min": 0, "max": "DefaultTestMonitorInterval", "scope": "future", "current": true }
+					},
+					"success": {
+						"health_status": "green",
+						"priority": 1,
+						"next_step": "Monitor your test results",
+						"next_step_interval": "DefaultTestMonitorInterval",
+						"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+					},
+					"fail": {
+						"health_status": "orange",
+						"priority": 1,
+						"next_step": "Get a test now",
+						"reason": "Your status changed to Orange because you are past due for a test."
+					}
 				}
 			}
 		},
@@ -84,21 +115,20 @@
 		},
 
 		"test-monitor": {
-			"condition": "test-user",
+			"condition": "test-interval",
 			"params": {
-				"role": "Undergraduate",
-				"student_level": "1U"
+				"interval": "UserTestMonitorInterval"
 			},
 			"success": {
 				"condition": "require-test",
 				"params": {
-					"interval": { "min": 0, "max": 4, "scope": "future", "current": true }
+					"interval": { "min": 0, "max": "UserTestMonitorInterval", "scope": "future", "current": true }
 				},
 				"success": {
 					"health_status": "yellow",
 					"priority": 1,
 					"next_step": "Monitor your test results",
-					"next_step_interval": 4,
+					"next_step_interval": "UserTestMonitorInterval",
 					"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
 				},
 				"fail": {
@@ -109,22 +139,48 @@
 				}
 			},
 			"fail": {
-				"condition": "require-test",
+				"condition": "test-user",
 				"params": {
-					"interval": { "min": 0, "max": 8, "scope": "future", "current": true }
+					"role": "Undergraduate",
+					"student_level": "1U"
 				},
 				"success": {
-					"health_status": "yellow",
-					"priority": 1,
-					"next_step": "Monitor your test results",
-					"next_step_interval": 8,
-					"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+					"condition": "require-test",
+					"params": {
+						"interval": { "min": 0, "max": "UndergraduateTestMonitorInterval", "scope": "future", "current": true }
+					},
+					"success": {
+						"health_status": "yellow",
+						"priority": 1,
+						"next_step": "Monitor your test results",
+						"next_step_interval": "UndergraduateTestMonitorInterval",
+						"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+					},
+					"fail": {
+						"health_status": "orange",
+						"priority": 1,
+						"next_step": "Get a test now",
+						"reason": "Your status changed to Orange because you are past due for a test."
+					}
 				},
 				"fail": {
-					"health_status": "orange",
-					"priority": 1,
-					"next_step": "Get a test now",
-					"reason": "Your status changed to Orange because you are past due for a test."
+					"condition": "require-test",
+					"params": {
+						"interval": { "min": 0, "max": "DefaultTestMonitorInterval", "scope": "future", "current": true }
+					},
+					"success": {
+						"health_status": "yellow",
+						"priority": 1,
+						"next_step": "Monitor your test results",
+						"next_step_interval": "DefaultTestMonitorInterval",
+						"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+					},
+					"fail": {
+						"health_status": "orange",
+						"priority": 1,
+						"next_step": "Get a test now",
+						"reason": "Your status changed to Orange because you are past due for a test."
+					}
 				}
 			}
 		},
@@ -171,21 +227,20 @@
 		},
 
 		"quarantine-off": {
-			"condition": "test-user",
+			"condition": "test-interval",
 			"params": {
-				"role": "Undergraduate",
-				"student_level": "1U"
+				"interval": "UserTestMonitorInterval"
 			},
 			"success": {
 				"condition": "require-test",
 				"params": {
-					"interval": { "min": 0, "max": 4, "scope": "future", "current": true }
+					"interval": { "min": 0, "max": "UserTestMonitorInterval", "scope": "future", "current": true }
 				},
 				"success": {
 					"health_status": "yellow",
 					"priority": -1,
 					"next_step": "Resume testing on your assigned days",
-					"next_step_interval": 4,
+					"next_step_interval": "UserTestMonitorInterval",
 					"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
 					},
 				"fail": {
@@ -196,26 +251,52 @@
 				}
 			},
 			"fail": {
-				"condition": "require-test",
+				"condition": "test-user",
 				"params": {
-					"interval": { "min": 0, "max": 8, "scope": "future", "current": true }
+					"role": "Undergraduate",
+					"student_level": "1U"
 				},
 				"success": {
-					"health_status": "yellow",
-					"priority": -1,
-					"next_step": "Resume testing on your assigned days",
-					"next_step_interval": 8,
-					"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+					"condition": "require-test",
+					"params": {
+						"interval": { "min": 0, "max": "UndergraduateTestMonitorInterval", "scope": "future", "current": true }
+					},
+					"success": {
+						"health_status": "yellow",
+						"priority": -1,
+						"next_step": "Resume testing on your assigned days",
+						"next_step_interval": "UndergraduateTestMonitorInterval",
+						"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+						},
+					"fail": {
+						"health_status": "orange",
+						"priority": -1,
+						"next_step": "Get a test now",
+						"reason": "Your status changed to Orange because you are past due for a test."
+					}
 				},
 				"fail": {
-					"health_status": "orange",
-					"priority": -1,
-					"next_step": "Get a test now",
-					"reason": "Your status changed to Orange because you are past due for a test."
+					"condition": "require-test",
+					"params": {
+						"interval": { "min": 0, "max": "DefaultTestMonitorInterval", "scope": "future", "current": true }
+					},
+					"success": {
+						"health_status": "yellow",
+						"priority": -1,
+						"next_step": "Resume testing on your assigned days",
+						"next_step_interval": "DefaultTestMonitorInterval",
+						"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+					},
+					"fail": {
+						"health_status": "orange",
+						"priority": -1,
+						"next_step": "Get a test now",
+						"reason": "Your status changed to Orange because you are past due for a test."
+					}
 				}
 			}
 		},
-		
+
 		"out-of-test-compliance": {
 			"condition": "require-test",
 			"params": {
