@@ -77,10 +77,22 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
   @override
   void onNotification(String name, param) {
     if(name == Health.notifyUserUpdated){
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
     }
     else if (name == Health.notifyHistoryUpdated) {
-      _loadHistory();
+      if (mounted) {
+        if (param != null) {
+          setState(() {
+            _statusHistory = param;
+            _isLoading = false;
+          });
+        }
+        else {
+          _loadHistory();
+        }
+      }
     }
     else if (name == Health.notifyUpdatedHistoryAvailable) {
       if ((param != null) && mounted) {
@@ -94,18 +106,20 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
 
   void _loadHistory() {
 
-    setState(() { _isLoading = true; });
-    
-    Health().loadUpdatedHistory().then((List<Covid19History> history) {
-      if (mounted) {
-        setState(() {
-          if (history != null) {
-            _statusHistory = Covid19History.pastList(history);
-          }
-          _isLoading = Health().loadingUpdatedHistory;
-        });
-      }
-    });
+    if (_isLoading != true) {
+      setState(() { _isLoading = true; });
+      
+      Health().loadUpdatedHistory().then((List<Covid19History> history) {
+        if (mounted) {
+          setState(() {
+            if (history != null) {
+              _statusHistory = Covid19History.pastList(history);
+            }
+            _isLoading = Health().loadingUpdatedHistory;
+          });
+        }
+      });
+    }
   }
 
   void _repostHistory(){

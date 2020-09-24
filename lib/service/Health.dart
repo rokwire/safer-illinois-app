@@ -552,41 +552,28 @@ class Health with Service implements NotificationsListener {
     }
     _processingCountyStatus = true;
 
-    bool needStatusRebuild = false, countyChanged = false, statusChanged = false, historyUpdated = false;
+    bool countyChanged = false, statusChanged = false, historyUpdated = false;
     
     // 1. Ensure county
     if (await _ensureCurrentCountyId()) {
-      needStatusRebuild = countyChanged = true;
+      countyChanged = true;
     }
 
     // 2. Check for pending CTests
     List<Covid19Event> events = await _processPendingEvents();
     if ((events != null) && (0 < events.length)) {
-      needStatusRebuild = historyUpdated = true;
+      historyUpdated = true;
     }
 
-    // 3. Check for cleared status
+    // 3. Load history
+    List<Covid19History> histories = await loadCovid19History(force: true);
+
+    // 4. Rebuild status
     Covid19Status currentStatus;
-    if (!needStatusRebuild) {
-      currentStatus = await _loadCovid19Status();
-      if (currentStatus == null) {
-        needStatusRebuild = true;
-      }
-    }
-
-    // 4. Make sure we rebuild status at lease once daily
-    int lastHealthStatusEvalDateMs = Storage().lastHealthStatusEval;
-    DateTime lastHealthStatusDateEval = (lastHealthStatusEvalDateMs != null) ? DateTime.fromMillisecondsSinceEpoch(lastHealthStatusEvalDateMs, isUtc: false) : null;
-    int difference = (lastHealthStatusDateEval != null) ? AppDateTime.todayMidnightLocal.difference(lastHealthStatusDateEval).inDays : null;
-    if ((difference == null) || (0 < difference)) {
-      needStatusRebuild = true;
-    }
-    
-    // 5. Rebuild status if needed
     String lastHealthStatus = this._lastCovid19Status;
     String newHealthStatus = lastHealthStatus;
-    if (needStatusRebuild && (_currentCountyId != null)) {
-      currentStatus = await _statusForCounty(_currentCountyId);
+    if ((histories != null) && (_currentCountyId != null)) {
+      currentStatus = await _statusForCounty(_currentCountyId, histories: histories);
       if (currentStatus != null) {
         if (await _updateCovid19Status(currentStatus)) {
           statusChanged = true;
@@ -595,10 +582,11 @@ class Health with Service implements NotificationsListener {
           newHealthStatus = currentStatus?.blob?.healthStatus;
         }
       }
-    } else if (currentStatus == null) {
+    }
+    if (currentStatus == null) {
       currentStatus = await _loadCovid19Status();
     }
-
+    
     // 5. Log processed events
     _logProcessedEvents(events: events, status: newHealthStatus, prevStatus: lastHealthStatus);
 
@@ -615,7 +603,7 @@ class Health with Service implements NotificationsListener {
     }
 
     if (historyUpdated) {
-      NotificationService().notify(notifyHistoryUpdated, null);
+      NotificationService().notify(notifyHistoryUpdated, histories);
     }
 
     // 7. Check for status update
@@ -697,7 +685,7 @@ class Health with Service implements NotificationsListener {
     }
     _loadingUpdatedHistory = true;
     
-    bool countyChanged = false, statusChanged = false;
+    bool countyChanged = false, statusChanged = false, historyUpdated = false;
     
     // 1. Ensure county
     if (await _ensureCurrentCountyId()) {
@@ -706,6 +694,9 @@ class Health with Service implements NotificationsListener {
 
     // 2. Check for pending CTests
     List<Covid19Event> events = await _processPendingEvents();
+    if ((events != null) && (0 < events.length)) {
+      historyUpdated = true;
+    }
 
     // 3. Load history
     List<Covid19History> histories = await loadCovid19History(force: true);
@@ -739,6 +730,10 @@ class Health with Service implements NotificationsListener {
 
     if (statusChanged) {
       NotificationService().notify(notifyStatusChanged, currentStatus);
+    }
+
+    if (historyUpdated) {
+      NotificationService().notify(notifyHistoryUpdated, histories);
     }
 
     // 7. Check for status update
