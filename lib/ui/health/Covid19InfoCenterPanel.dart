@@ -99,11 +99,20 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
       _updateStatus(param);
     }
     else if (name == Health.notifyUserUpdated) {
-      if (_status?.blob == null) {
+      if (mounted && (_status?.blob == null)) {
         _loadStatus();
       }
     } else if (name == Health.notifyHistoryUpdated) {
-      _loadHistory();
+      if (mounted) {
+        if (param != null) {
+          setState(() {
+            _lastHistory = Covid19History.mostRecent(param);
+          });
+        }
+        else {
+          _loadHistory();
+        }
+      }
     }
   }
 

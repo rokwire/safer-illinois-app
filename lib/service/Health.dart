@@ -552,41 +552,28 @@ class Health with Service implements NotificationsListener {
     }
     _processingCountyStatus = true;
 
-    bool needStatusRebuild = false, countyChanged = false, statusChanged = false, historyUpdated = false;
+    bool countyChanged = false, statusChanged = false, historyUpdated = false;
     
     // 1. Ensure county
     if (await _ensureCurrentCountyId()) {
-      needStatusRebuild = countyChanged = true;
+      countyChanged = true;
     }
 
     // 2. Check for pending CTests
     List<Covid19Event> events = await _processPendingEvents();
     if ((events != null) && (0 < events.length)) {
-      needStatusRebuild = historyUpdated = true;
+      historyUpdated = true;
     }
 
-    // 3. Check for cleared status
+    // 3. Load history
+    List<Covid19History> histories = await loadCovid19History(force: true);
+
+    // 4. Rebuild status
     Covid19Status currentStatus;
-    if (!needStatusRebuild) {
-      currentStatus = await _loadCovid19Status();
-      if (currentStatus == null) {
-        needStatusRebuild = true;
-      }
-    }
-
-    // 4. Make sure we rebuild status at lease once daily
-    int lastHealthStatusEvalDateMs = Storage().lastHealthStatusEval;
-    DateTime lastHealthStatusDateEval = (lastHealthStatusEvalDateMs != null) ? DateTime.fromMillisecondsSinceEpoch(lastHealthStatusEvalDateMs, isUtc: false) : null;
-    int difference = (lastHealthStatusDateEval != null) ? AppDateTime.todayMidnightLocal.difference(lastHealthStatusDateEval).inDays : null;
-    if ((difference == null) || (0 < difference)) {
-      needStatusRebuild = true;
-    }
-    
-    // 5. Rebuild status if needed
     String lastHealthStatus = this._lastCovid19Status;
     String newHealthStatus = lastHealthStatus;
-    if (needStatusRebuild && (_currentCountyId != null)) {
-      currentStatus = await _statusForCounty(_currentCountyId);
+    if ((histories != null) && (_currentCountyId != null)) {
+      currentStatus = await _statusForCounty(_currentCountyId, histories: histories);
       if (currentStatus != null) {
         if (await _updateCovid19Status(currentStatus)) {
           statusChanged = true;
@@ -595,10 +582,11 @@ class Health with Service implements NotificationsListener {
           newHealthStatus = currentStatus?.blob?.healthStatus;
         }
       }
-    } else if (currentStatus == null) {
+    }
+    if (currentStatus == null) {
       currentStatus = await _loadCovid19Status();
     }
-
+    
     // 5. Log processed events
     _logProcessedEvents(events: events, status: newHealthStatus, prevStatus: lastHealthStatus);
 
@@ -615,7 +603,7 @@ class Health with Service implements NotificationsListener {
     }
 
     if (historyUpdated) {
-      NotificationService().notify(notifyHistoryUpdated, null);
+      NotificationService().notify(notifyHistoryUpdated, histories);
     }
 
     // 7. Check for status update
@@ -697,7 +685,7 @@ class Health with Service implements NotificationsListener {
     }
     _loadingUpdatedHistory = true;
     
-    bool countyChanged = false, statusChanged = false;
+    bool countyChanged = false, statusChanged = false, historyUpdated = false;
     
     // 1. Ensure county
     if (await _ensureCurrentCountyId()) {
@@ -706,6 +694,9 @@ class Health with Service implements NotificationsListener {
 
     // 2. Check for pending CTests
     List<Covid19Event> events = await _processPendingEvents();
+    if ((events != null) && (0 < events.length)) {
+      historyUpdated = true;
+    }
 
     // 3. Load history
     List<Covid19History> histories = await loadCovid19History(force: true);
@@ -739,6 +730,10 @@ class Health with Service implements NotificationsListener {
 
     if (statusChanged) {
       NotificationService().notify(notifyStatusChanged, currentStatus);
+    }
+
+    if (historyUpdated) {
+      NotificationService().notify(notifyHistoryUpdated, histories);
     }
 
     // 7. Check for status update
@@ -777,16 +772,33 @@ class Health with Service implements NotificationsListener {
 
   Future<Covid19Status> _statusForCounty(String countyId, { List<Covid19History> histories }) async {
 
+    List<Future<dynamic>> futures = <Future>[
+      loadRules2(countyId: countyId, force: true),
+      _loadUserTestMonitorInterval()
+    ];
     if (histories == null) {
-      histories = await loadCovid19History(force: true);
+      futures.add(loadCovid19History(force: true));
+    }
+    List<dynamic> results = await Future.wait(futures);
+
+    HealthRulesSet2 rules = ((results != null) && (0 < results.length)) ? results[0] : null;
+    if (rules == null) {
+      return null;
+    }
+
+    dynamic userTestMonitorInterval = ((results != null) && (1 < results.length)) ? results[1] : false;
+    if (userTestMonitorInterval == false) {
+      return null;
+    }
+    else if (userTestMonitorInterval is int) {
+      rules.userTestMonitorInterval = userTestMonitorInterval;
+    }
+
+    if (histories == null) {
+      histories = ((results != null) && (2 < results.length)) ? results[2] : null;
       if (histories == null) {
         return null;
       }
-    }
-
-    HealthRulesSet2 rules = await loadRules2(countyId: countyId, force: true);
-    if (rules == null) {
-      return null;
     }
 
     Covid19Status status;
@@ -820,7 +832,7 @@ class Health with Service implements NotificationsListener {
         HealthRuleStatus2 historyStatus;
         if (history.isTest && history.canTestUpdateStatus) {
           if (rules.tests != null) {
-            HealthTestRuleResult2 testRuleResult = rules.tests.matchRuleResult(blob: history?.blob);
+            HealthTestRuleResult2 testRuleResult = rules.tests.matchRuleResult(blob: history?.blob, rules: rules);
             historyStatus = testRuleResult?.status?.eval(history: histories, historyIndex: index, rules: rules);
           }
           else {
@@ -830,7 +842,7 @@ class Health with Service implements NotificationsListener {
         }
         else if (history.isSymptoms) {
           if (rules.symptoms != null) {
-            HealthSymptomsRule2 symptomsRule = rules.symptoms.matchRule(blob: history?.blob);
+            HealthSymptomsRule2 symptomsRule = rules.symptoms.matchRule(blob: history?.blob, rules: rules);
             historyStatus = symptomsRule?.status?.eval(history: histories, historyIndex: index, rules: rules);
           }
           else {
@@ -839,7 +851,7 @@ class Health with Service implements NotificationsListener {
         }
         else if (history.isContactTrace) {
           if (rules.contactTrace != null) {
-            HealthContactTraceRule2 contactTraceRule = rules.contactTrace.matchRule(blob: history?.blob);
+            HealthContactTraceRule2 contactTraceRule = rules.contactTrace.matchRule(blob: history?.blob, rules: rules);
             historyStatus = contactTraceRule?.status?.eval(history: histories, historyIndex: index, rules: rules);
           }
           else {
@@ -848,7 +860,7 @@ class Health with Service implements NotificationsListener {
         }
         else if (history.isAction) {
           if (rules.actions != null) {
-            HealthActionRule2 actionRule = rules.actions.matchRule(blob: history?.blob);
+            HealthActionRule2 actionRule = rules.actions.matchRule(blob: history?.blob, rules: rules);
             historyStatus = actionRule?.status?.eval(history: histories, historyIndex: index, rules: rules);
           }
           else {
@@ -1258,6 +1270,21 @@ class Health with Service implements NotificationsListener {
     return false;
   }
 
+  // User Test Monitor Interval
+
+  Future<dynamic> _loadUserTestMonitorInterval() async {
+    if (this._isLoggedIn) {
+      String url = "${Config().healthUrl}/covid19/uin-override";
+      Response response = await Network().get(url, auth: NetworkAuth.User);
+      if (response?.statusCode == 200) {
+        Map<String, dynamic> responseJson = AppJson.decodeMap(response.body);
+        return (responseJson != null) ? responseJson['interval'] : null;
+      }
+      return false;
+    }
+    return null;
+  }
+
   // Consolidated Rules
 
   Future<HealthRulesSet2> loadRules2({String countyId, bool force}) async {
@@ -1272,7 +1299,7 @@ class Health with Service implements NotificationsListener {
         String url = "${Config().healthUrl}/covid19/crules/county/$countyId";
         Response response = await Network().get(url, auth: NetworkAuth.App, headers: { Network.RokwireVersion : appVersion });
         String responseBody = (response?.statusCode == 200) ? response.body : null;
-    //TMP:String responseBody = await rootBundle.loadString('assets/sample.health.rules.json');
+//TMP:  String responseBody = await rootBundle.loadString('assets/sample.health.rules.json');
         Map<String, dynamic> responseJson = (responseBody != null) ? AppJson.decodeMap(responseBody) : null;
         countyRules = (responseJson != null) ? HealthRulesSet2.fromJson(responseJson) : null;
         if (countyRules != null) {
