@@ -777,24 +777,33 @@ class Health with Service implements NotificationsListener {
 
   Future<Covid19Status> _statusForCounty(String countyId, { List<Covid19History> histories }) async {
 
+    List<Future<dynamic>> futures = <Future>[
+      loadRules2(countyId: countyId, force: true),
+      _loadUserTestMonitorInterval()
+    ];
     if (histories == null) {
-      histories = await loadCovid19History(force: true);
-      if (histories == null) {
-        return null;
-      }
+      futures.add(loadCovid19History(force: true));
     }
+    List<dynamic> results = await Future.wait(futures);
 
-    HealthRulesSet2 rules = await loadRules2(countyId: countyId, force: true);
+    HealthRulesSet2 rules = ((results != null) && (0 < results.length)) ? results[0] : null;
     if (rules == null) {
       return null;
     }
 
-    dynamic userTestMonitorInterval = await _loadUserTestMonitorInterval();
+    dynamic userTestMonitorInterval = ((results != null) && (1 < results.length)) ? results[1] : false;
     if (userTestMonitorInterval == false) {
       return null;
     }
     else if (userTestMonitorInterval is int) {
       rules.userTestMonitorInterval = userTestMonitorInterval;
+    }
+
+    if (histories == null) {
+      histories = ((results != null) && (2 < results.length)) ? results[2] : null;
+      if (histories == null) {
+        return null;
+      }
     }
 
     Covid19Status status;
@@ -1276,8 +1285,9 @@ class Health with Service implements NotificationsListener {
         Map<String, dynamic> responseJson = AppJson.decodeMap(response.body);
         return (responseJson != null) ? responseJson['interval'] : null;
       }
+      return false;
     }
-    return false;
+    return null;
   }
 
   // Consolidated Rules
