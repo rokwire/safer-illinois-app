@@ -12,6 +12,7 @@ class HealthRulesSet2 {
   final HealthContactTraceRulesSet2 contactTrace;
   final HealthActionRulesSet2 actions;
   final HealthDefaultsSet2 defaults;
+  Map<String, dynamic> constants;
 
   HealthRulesSet2({this.tests, this.symptoms, this.contactTrace, this.actions, this.defaults});
 
@@ -361,15 +362,18 @@ abstract class _HealthRuleIntInterval2 {
   _HealthRuleIntInterval2();
   
   factory _HealthRuleIntInterval2.fromJson(dynamic json) {
-    if (json != null) {
-      if (json is int) {
-        return HealthRuleIntValue2.fromJson(json);
-      }
-      else if (json is Map) {
-        return HealthRuleIntInterval2.fromJson(json.cast<String, dynamic>());
-      }
+    if (json is int) {
+      return HealthRuleIntValue2.fromJson(json);
     }
-    return null;
+    else if (json is String) {
+      return HealthRuleReferenceValue2.fromJson(json);
+    }
+    else if (json is Map) {
+      return HealthRuleIntInterval2.fromJson(json.cast<String, dynamic>());
+    }
+    else {
+      return null;
+    }
   }
 
   bool match(int value, { HealthRulesSet2 rules });
@@ -377,6 +381,39 @@ abstract class _HealthRuleIntInterval2 {
   int  max({ HealthRulesSet2 rules });
   int  scope({ HealthRulesSet2 rules });
   bool current({ HealthRulesSet2 rules });
+}
+
+///////////////////////////////
+// HealthRuleReferenceValue2
+
+class HealthRuleReferenceValue2 extends _HealthRuleIntInterval2 {
+  final String _reference;
+  _HealthRuleIntInterval2 _referenceValue;
+
+  HealthRuleReferenceValue2({String reference}) :
+    _reference = reference;
+
+  factory HealthRuleReferenceValue2.fromJson(dynamic json) {
+    return (json is String) ? HealthRuleReferenceValue2(reference: json) : null;
+  }
+
+  _HealthRuleIntInterval2 referenceValue({ HealthRulesSet2 rules }) {
+    if (_referenceValue == null) {
+      dynamic value = (rules?.constants != null) ? rules.constants[_reference] : null;
+      _referenceValue = _HealthRuleIntInterval2.fromJson(value);
+    }
+    return _referenceValue;
+  }
+
+  @override
+  bool match(int value, { HealthRulesSet2 rules }) {
+    return referenceValue(rules: rules)?.match(value, rules: rules) ?? false;
+  }
+  
+  @override int  min({ HealthRulesSet2 rules })   { return referenceValue(rules: rules)?.min(rules: rules); }
+  @override int  max({ HealthRulesSet2 rules })   { return referenceValue(rules: rules)?.max(rules: rules); }
+  @override int  scope({ HealthRulesSet2 rules }) { return referenceValue(rules: rules)?.scope(rules: rules); }
+  @override bool current({ HealthRulesSet2 rules }) { return referenceValue(rules: rules)?.current(rules: rules); }
 }
 
 ///////////////////////////////
