@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Changed
+- [#195] Rollback temporary flutter_html to 0.11.1 due to accessibility issue
 - Update strings files [#193](https://github.com/rokwire/safer-illinois-app/issues/193)
 
 ## [2.6.11] - 2020-09-23

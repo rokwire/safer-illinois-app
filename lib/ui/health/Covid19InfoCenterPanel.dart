@@ -19,7 +19,6 @@ import 'dart:collection';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
-import 'package:flutter_html/style.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/AppDateTime.dart';
@@ -330,7 +329,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
     if (AppString.isStringNotEmpty(nextStepHtml)) {
       content.addAll(<Widget>[
           Container(height: 12,),
-          Html(data: nextStepHtml, onLinkTap: (url) => _onTapLink(url), style:{ 'body' : Style(fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground)},),
+          Html(data: nextStepHtml, onLinkTap: (url) => _onTapLink(url), defaultTextStyle: TextStyle(fontSize:16, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground),),
       ]);
     }
 
