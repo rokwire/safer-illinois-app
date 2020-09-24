@@ -954,6 +954,7 @@ class Health with Service implements NotificationsListener {
 
   void _logProcessedEvents({List<Covid19Event> events, String status, String prevStatus}) {
     if (events != null) {
+      int exposureTestReportDays = Config().settings['covid19ExposureTestReportDays'];
       for (Covid19Event event in events) {
         if (event.isTest) {
           Analytics().logHealth(
@@ -965,6 +966,27 @@ class Health with Service implements NotificationsListener {
               Analytics.LogHealthTestTypeName: event.blob?.testType,
               Analytics.LogHealthTestResultName: event.blob?.testResult,
           });
+          
+          if (exposureTestReportDays != null) {
+            DateTime maxDateUtc = event?.blob?.dateUtc;
+            DateTime minDateUtc = maxDateUtc?.subtract(Duration(days: exposureTestReportDays));
+            if ((maxDateUtc != null) && (minDateUtc != null)) {
+              Covid19History contactTrace = Covid19History.mostRecentContactTrace(_historyCache, minDateUtc: minDateUtc, maxDateUtc: maxDateUtc);
+              if (contactTrace != null) {
+                Analytics().logHealth(
+                  action: Analytics.LogHealthContactTraceTestAction,
+                  status: status,
+                  prevStatus: prevStatus,
+                  attributes: {
+                    Analytics.LogHealthExposureTimestampName: contactTrace.dateUtc?.toIso8601String(),
+                    Analytics.LogHealthDurationName: contactTrace.blob?.traceDuration,
+                    Analytics.LogHealthProviderName: event.provider,
+                    Analytics.LogHealthTestTypeName: event.blob?.testType,
+                    Analytics.LogHealthTestResultName: event.blob?.testResult,
+                });
+              }
+            }
+          }
         }
         else if (event.isAction) {
           Analytics().logHealth(

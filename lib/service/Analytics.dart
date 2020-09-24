@@ -193,6 +193,7 @@ class Analytics with Service implements NotificationsListener {
   static const String   LogHealthManualTestSubmittedAction   = "manual_test_submitted";
   static const String   LogHealthSymptomsSubmittedAction     = "symptoms_submitted";
   static const String   LogHealthContactTraceProcessedAction = "contact_trace_processed";
+  static const String   LogHealthContactTraceTestAction      = "contact_trace_test";
   static const String   LogHealthActionProcessedAction       = "action_processed";
   static const String   LogHealthReportExposuresAction       = "report_exposures";
   static const String   LogHealthCheckExposuresAction        = "check_exposures";

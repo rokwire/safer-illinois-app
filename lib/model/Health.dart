@@ -477,6 +477,20 @@ class Covid19History {
     }
     return result;
   }
+
+  static Covid19History mostRecentContactTrace(List<Covid19History> histories, { DateTime minDateUtc, DateTime maxDateUtc }) {
+    if (histories != null) {
+      for (int index = 0; index < histories.length; index++) {
+        Covid19History history = histories[index];
+        if (history.isContactTrace &&
+            ((minDateUtc == null) || ((history.dateUtc != null) && history.dateUtc.isAfter(minDateUtc))) &&
+            ((maxDateUtc == null) || ((history.dateUtc != null) && history.dateUtc.isBefore(maxDateUtc)))) {
+          return history;
+        }
+      }
+    }
+    return null;
+  }
 }
 
 ////////////////////////////////
