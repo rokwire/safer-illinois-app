@@ -42,7 +42,7 @@ class OnboardingGetStartedPanel extends StatelessWidget with OnboardingPanel {
         child: Stack(
             alignment: Alignment.bottomCenter,
             children: <Widget>[
-              Image.asset('images/background-image.png', fit: BoxFit.cover, semanticLabel: strWelcome,
+              Image.asset('images/background-image.png', fit: BoxFit.cover, excludeFromSemantics: true, semanticLabel: strWelcome,
                 height: double.infinity,
                 width: double.infinity,),
               Container(color: Styles().colors.fillColorPrimaryTransparent80, child: Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center, children: <Widget>[

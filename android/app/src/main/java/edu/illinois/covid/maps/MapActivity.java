@@ -68,7 +68,6 @@ public class MapActivity extends AppCompatActivity {
     protected long locationTimestamp;
 
     private boolean isRunning;
-
     private boolean firstLocationUpdatePassed;
     private HashMap target;
     private HashMap options;
@@ -196,8 +195,6 @@ public class MapActivity extends AppCompatActivity {
 
     //endregion
 
-    //region Core Location
-
     private void initCoreLocation() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         createCoreLocationCallback();
@@ -237,20 +234,20 @@ public class MapActivity extends AppCompatActivity {
     //region Common Location
 
     protected void notifyLocationUpdate(long timestamp) {
-        locationTimestamp = timestamp;
-        if (!firstLocationUpdatePassed) {
-            firstLocationUpdatePassed = true;
-            handleFirstLocationUpdate();
-        }
-        if ((debugStatusView != null) && showDebugLocation) {
-            String sourceAbbr = "CL";
-            int sourceColor = Color.rgb(0, 126, 0);
-            double lat = 0.0d;
-            double lng = 0.0d;
-            int floor = 0;
-            debugStatusView.setText(String.format(Locale.getDefault(), "%s [%.6f, %.6f] @ %d", sourceAbbr, lat, lng, floor));
-            debugStatusView.setTextColor(sourceColor);
-        }
+            locationTimestamp = timestamp;
+            if (!firstLocationUpdatePassed) {
+                firstLocationUpdatePassed = true;
+                handleFirstLocationUpdate();
+            }
+            if ((debugStatusView != null) && showDebugLocation) {
+                String sourceAbbr = "CL";
+                int sourceColor = Color.rgb(0, 126, 0);
+                double lat = 0.0d;
+                double lng = 0.0d;
+                int floor = 0;
+                debugStatusView.setText(String.format(Locale.getDefault(), "%s [%.6f, %.6f] @ %d", sourceAbbr, lat, lng, floor));
+                debugStatusView.setTextColor(sourceColor);
+            }
     }
 
     protected void notifyLocationFail() {

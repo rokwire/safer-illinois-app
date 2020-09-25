@@ -35,6 +35,7 @@ import 'package:illinois/ui/health/debug/Covid19DebugSymptomsPanel.dart';
 import 'package:illinois/ui/health/debug/Covid19DebugPendingEventsPanel.dart';
 import 'package:illinois/ui/health/debug/Covid19DebugTraceContactPanel.dart';
 import 'package:illinois/ui/settings/debug/SettingsDebugMessagingPanel.dart';
+import 'package:illinois/ui/health/debug/SettingsDebugRulesPanel.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/ui/widgets/RibbonButton.dart';
@@ -221,6 +222,15 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> {
                               textColor: Styles().colors.fillColorPrimary,
                               borderColor: Styles().colors.fillColorPrimary,
                               onTap: _onTapCovid19Keys)),
+                      Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+                          child: RoundedButton(
+                              label: "COVID-19 Rules",
+                              backgroundColor: Styles().colors.background,
+                              fontSize: 16.0,
+                              textColor: Styles().colors.fillColorPrimary,
+                              borderColor: Styles().colors.fillColorPrimary,
+                              onTap: _onTapCovid19Rules)),
                       Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                           child: RoundedButton(
@@ -461,6 +471,10 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> {
 
   void _onTapCovid19ExposureLogs() {
       Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19DebugExposureLogsPanel()));
+  }
+
+  void _onTapCovid19Rules(){
+    Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19DebugRulesPanel()));
   }
 
   String prettyPrintJson(var input){

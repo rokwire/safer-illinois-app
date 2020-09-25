@@ -25,6 +25,7 @@ import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as Http;
 import 'package:illinois/model/UserData.dart';
 import 'package:illinois/service/AppNavigation.dart';
+import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Connectivity.dart';
 import 'package:illinois/service/Network.dart';
@@ -71,9 +72,11 @@ class Analytics with Service implements NotificationsListener {
   static const String   LogStdLocationName                 = "location";
   static const String   LogStdSessionUuidName              = "session_uuid";
   static const String   LogStdUserUuidName                 = "user_uuid";
-  static const String   LogStdUserPrivacyLevelName         = "user_privacy_level";
   static const String   LogStdUserRolesName                = "user_roles";
   static const String   LogStdAccessibilityName            = "accessibility";
+
+  static const String   LogStdAuthCardRoleName             = "icard_role";
+  static const String   LogStdAuthCardStudentLevel         = "icard_student_level";
   
   static const String   LogEvent                           = "event";
   static const String   LogEventName                       = "name";
@@ -93,9 +96,10 @@ class Analytics with Service implements NotificationsListener {
 //  LogStdLocationName,
     LogStdSessionUuidName,
     LogStdUserUuidName,
-    LogStdUserPrivacyLevelName,
     LogStdUserRolesName,
     LogStdAccessibilityName,
+    LogStdAuthCardRoleName,
+    LogStdAuthCardStudentLevel,
   ];
 
   static const List<String> HealthAttributes = [
@@ -189,6 +193,7 @@ class Analytics with Service implements NotificationsListener {
   static const String   LogHealthManualTestSubmittedAction   = "manual_test_submitted";
   static const String   LogHealthSymptomsSubmittedAction     = "symptoms_submitted";
   static const String   LogHealthContactTraceProcessedAction = "contact_trace_processed";
+  static const String   LogHealthContactTraceTestAction      = "contact_trace_test";
   static const String   LogHealthActionProcessedAction       = "action_processed";
   static const String   LogHealthReportExposuresAction       = "report_exposures";
   static const String   LogHealthCheckExposuresAction        = "check_exposures";
@@ -500,7 +505,7 @@ class Analytics with Service implements NotificationsListener {
   }
 
   Map<String, dynamic> get _location {
-    LocationData location = User().privacyMatch(3) ? LocationServices().lastLocation : null;
+    LocationData location = LocationServices().lastLocation;
     return (location != null) ? {
       'latitude': location.latitude,
       'longitude': location.longitude,
@@ -620,7 +625,7 @@ class Analytics with Service implements NotificationsListener {
   // Public Accessories
 
   void logEvent(Map<String, dynamic> event, { List<String> defaultAttributes = DefaultAttributes, bool anonymous = true}) {
-    if ((event != null) && User().privacyMatch(2)) {
+    if (event != null) {
       
       event[LogEventPageName] = _currentPageName;
 
@@ -668,14 +673,17 @@ class Analytics with Service implements NotificationsListener {
         else if (attributeName == LogStdUserUuidName) {
           analyticsEvent[LogStdUserUuidName]= ((User().uuid != null) && (anonymous != false)) ? User.analyticsUuid : User().uuid;
         }
-        else if (attributeName == LogStdUserPrivacyLevelName) {
-          analyticsEvent[LogStdUserPrivacyLevelName]= User().privacyLevel;
-        }
         else if (attributeName == LogStdUserRolesName) {
           analyticsEvent[LogStdUserRolesName]= _userRoles;
         }
         else if (attributeName == LogStdAccessibilityName) {
           analyticsEvent[LogStdAccessibilityName]= _accessibilityState;
+        }
+        else if(attributeName == LogStdAuthCardRoleName){
+          analyticsEvent[LogStdAuthCardRoleName] = Auth()?.authCard?.role;
+        }
+        else if(attributeName == LogStdAuthCardStudentLevel){
+          analyticsEvent[LogStdAuthCardStudentLevel] = Auth()?.authCard?.studentLevel;
         }
       }
 

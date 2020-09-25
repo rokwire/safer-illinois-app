@@ -26,8 +26,6 @@
 #import "MapDirectionsController.h"
 #import "ExposurePlugin.h"
 #import "GalleryPlugin.h"
-#import "FlutterCompletion.h"
-
 
 #import "NSArray+InaTypedValue.h"
 #import "NSDictionary+InaTypedValue.h"
@@ -37,12 +35,9 @@
 #import "Bluetooth+InaUtils.h"
 
 #import <GoogleMaps/GoogleMaps.h>
-
-// Disable Microblink in Safer 2.4
-//#import <MicroBlink/Microblink.h>
-
 #import <Firebase/Firebase.h>
 #import <ZXingObjC/ZXingObjC.h>
+#import <MicroBlink/Microblink.h>
 
 #import <UserNotifications/UserNotifications.h>
 #import <SafariServices/SafariServices.h>
@@ -63,8 +58,7 @@ NSString* _interfaceOrientationToString(UIInterfaceOrientation value);
 UIInterfaceOrientation _interfaceOrientationFromMask(UIInterfaceOrientationMask value);
 UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation value);
 
-@interface AppDelegate()<UINavigationControllerDelegate, UNUserNotificationCenterDelegate, CLLocationManagerDelegate, CBPeripheralManagerDelegate, FIRMessagingDelegate, PKAddPassesViewControllerDelegate
-	/* Disable Microblink in Safer 2.4, MBBlinkIdOverlayViewControllerDelegate*/> {
+@interface AppDelegate()<UINavigationControllerDelegate, UNUserNotificationCenterDelegate, CLLocationManagerDelegate, CBPeripheralManagerDelegate, FIRMessagingDelegate, PKAddPassesViewControllerDelegate, MBBlinkIdOverlayViewControllerDelegate> {
 }
 
 // Flutter
@@ -80,12 +74,11 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 @property (nonatomic) FlutterResult passFlutterResult;
 
 // BlinkId
-// Disable Microblink in Safer 2.4,
-//@property (nonatomic) bool blinkSDKInitialized;
-//@property (nonatomic) MBBlinkIdCombinedRecognizer *blinkCombinedRecognizer;
-//@property (nonatomic) MBPassportRecognizer *blinkPassportRecognizer;
-//@property (nonatomic) UIViewController *blinkRecognizerRunnerViewController;
-//@property (nonatomic) FlutterResult blinkFlutterResult;
+@property (nonatomic) bool blinkSDKInitialized;
+@property (nonatomic) MBBlinkIdCombinedRecognizer *blinkCombinedRecognizer;
+@property (nonatomic) MBPassportRecognizer *blinkPassportRecognizer;
+@property (nonatomic) UIViewController *blinkRecognizerRunnerViewController;
+@property (nonatomic) FlutterResult blinkFlutterResult;
 
 // Init Keys
 @property (nonatomic) NSDictionary* keys;
@@ -135,7 +128,7 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 	// Setup ExposurePlugin
 	[ExposurePlugin registerWithRegistrar:[self registrarForPlugin:@"ExposurePlugin"]];
 
-	// Setup GalleryPlugin
+	// Setup ExposurePlugin
 	[GalleryPlugin registerWithRegistrar:[self registrarForPlugin:@"GalleryPlugin"]];
 	
 	// Setup supported & preffered orientation
@@ -301,7 +294,7 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 		[GMSServices provideAPIKey:googleMapsAPIKey];
 	}
 
-	// Initialize MicroBlink SDK - done on first SDK launch
+	// Initialize MicroBlink SDK
 	/*NSString *microBlinkLicenseKey = [_keys uiucConfigStringForPathKey:@"microblink.blink_id.license_key.ios"];
 	if (0 < microBlinkLicenseKey.length) {
 		@try {
@@ -820,8 +813,7 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 #pragma mark MicroBlink
 
 - (void)microBlinkScanWithParameters:(NSDictionary*)parameters result:(FlutterResult)result {
-	// Disable Microblink in Safer 2.4
-	/*if (_blinkFlutterResult != nil) {
+	if (_blinkFlutterResult != nil) {
 		NSLog(@"BlinkID: currently scanning");
 		result(nil);
 	}
@@ -845,13 +837,10 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 			NSLog(@"BlinkID: not initialized");
 			result(nil);
 		}
-	}*/
-	
-	result(nil);
+	}
 }
 
-// Disable Microblink in Safer 2.4
-/*- (void)invokeBlinkScanWithParameters:(NSDictionary*)parameters {
+- (void)invokeBlinkScanWithParameters:(NSDictionary*)parameters {
 	NSMutableArray *recognizers = [[NSMutableArray alloc] init];
 	NSArray *recognizersParam = [parameters inaArrayForKey:@"recognizers" defaults:@[@"combined", @"passport"]];
 	for (NSString *recognizer in recognizersParam) {
@@ -1012,7 +1001,7 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 
 - (NSString*)scanStringBlinkDate:(MBDateResult*)blinkDate {
 	return (blinkDate != nil) ? [NSString stringWithFormat:@"%02lu/%02lu/%04lu", blinkDate.month, blinkDate.day, blinkDate.year] : nil;
-}*/
+}
 
 #pragma mark Device UUID
 
@@ -1196,8 +1185,7 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 	}
 }
 
-// Disable Microblink in Safer 2.4
-/*#pragma mark MBBlinkIdOverlayViewControllerDelegate
+#pragma mark MBBlinkIdOverlayViewControllerDelegate
 
 - (void)blinkIdOverlayViewControllerDidFinishScanning:(MBBlinkIdOverlayViewController *)blinkIdOverlayViewController state:(MBRecognizerResultState)state {
 
@@ -1227,7 +1215,7 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 		dispatch_async(dispatch_get_main_queue(), ^{
 			[weakSelf didMicroBlinkScanWithResult:nil];
 		});
-}*/
+}
 
 
 #pragma mark UINavigationControllerDelegate

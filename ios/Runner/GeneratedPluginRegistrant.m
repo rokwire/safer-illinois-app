@@ -10,8 +10,8 @@
 @import barcode_scan;
 #endif
 
-#if __has_include(<connectivity/ConnectivityPlugin.h>)
-#import <connectivity/ConnectivityPlugin.h>
+#if __has_include(<connectivity/FLTConnectivityPlugin.h>)
+#import <connectivity/FLTConnectivityPlugin.h>
 #else
 @import connectivity;
 #endif
@@ -94,8 +94,8 @@
 @import path_provider;
 #endif
 
-#if __has_include(<shared_preferences/SharedPreferencesPlugin.h>)
-#import <shared_preferences/SharedPreferencesPlugin.h>
+#if __has_include(<shared_preferences/FLTSharedPreferencesPlugin.h>)
+#import <shared_preferences/FLTSharedPreferencesPlugin.h>
 #else
 @import shared_preferences;
 #endif

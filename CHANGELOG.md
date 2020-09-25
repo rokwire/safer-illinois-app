@@ -6,20 +6,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
-## [2.5.8] - 2020-09-10
+## [2.6.13] - 2020-09-25
 ### Changed
- - Remove restriction for taking app screenshots in Android [#138](https://github.com/rokwire/safer-illinois-app/issues/138).
+- Create debug panel for editing Covid-19 rules [#205](https://github.com/rokwire/safer-illinois-app/issues/205)
+- Log building access updates [#202](https://github.com/rokwire/safer-illinois-app/issues/202)
 
-## [2.5.7] - 2020-09-09
+## [2.6.12] - 2020-09-24
 ### Changed
+- Added analytics notifcation for processing test after exposure [#198](https://github.com/rokwire/safer-illinois-app/issues/198)
+- Rollback temporary flutter_html to 0.11.1 due to accessibility issue [#195](https://github.com/rokwire/safer-illinois-app/issues/195)
+- Update strings files [#193](https://github.com/rokwire/safer-illinois-app/issues/193)
+- Apply user's test monitor interval when evaluating status, rules format updates [#192](https://github.com/rokwire/safer-illinois-app/issues/192).
+
+## [2.6.11] - 2020-09-23
+### Changed
+- Check for negative PCR tests when reporting TEKs [#179](https://github.com/rokwire/safer-illinois-app/issues/179)
+- Cache county rules [#179](https://github.com/rokwire/safer-illinois-app/issues/179)
+- Cache user history [#179](https://github.com/rokwire/safer-illinois-app/issues/179)
+- Removed unused rules v1 [#179](https://github.com/rokwire/safer-illinois-app/issues/179)
+- Add role & student_level in analytics [#189](https://github.com/rokwire/safer-illinois-app/issues/189)
+- Wrong phone auth after Student/Amployee selection during the onboarding flow [#183](https://github.com/rokwire/safer-illinois-app/issues/183)
+- Improved semantics for StatusInfoDialog button [#157](https://github.com/rokwire/safer-illinois-app/issues/157)
+- OnboardingGetStartedPanel: remove background image from the semantics tree [#159](https://github.com/rokwire/safer-illinois-app/issues/159)
+- StatusInfoDialog: improve semantics [#155](https://github.com/rokwire/safer-illinois-app/issues/155)
+
+### Fixed
+- Fixed onboarding flow [#180](https://github.com/rokwire/safer-illinois-app/issues/180)
+
+## [2.6.10] - 2020-09-22
+### Changed
+ - i-Card may not being updated if the last update time is greater than 24 hours [#175](https://github.com/rokwire/safer-illinois-app/issues/175)
+
+## [2.6.9] - 2020-09-21
+### Changes
+ - Update "student_level" processing from AuthCard. [#172](https://github.com/rokwire/safer-illinois-app/issues/172)
+
+## [2.6.8] - 2020-09-18
+### Changed
+ - Change wait time colors and labels [#167](https://github.com/rokwire/safer-illinois-app/issues/167).
+ - Upgrade flutter for Safer Illinois to v. 1.20.4 [#82](https://github.com/rokwire/safer-illinois-app/issues/82).
+
+## [2.6.7] - 2020-09-17
+### Changed
+ - Rework swiper and fix the VoiceOver accessibility [#158](https://github.com/rokwire/safer-illinois-app/issues/158)
+ - Show wait time for each test location [#160](https://github.com/rokwire/safer-illinois-app/issues/160).
+
+ 
+## [2.6.6] - 2020-09-16
+### Changed
+ - Load symptoms and rules from the new Health API [#152](https://github.com/rokwire/safer-illinois-app/issues/152).
+
+## [2.6.3] - 2020-09-11
+### Changed
+ - Remove "ASAP" label in Next Steps panel [#143](https://github.com/rokwire/safer-illinois-app/issues/143).
+ - Remove restriction for taking screenshots in Android [#138](https://github.com/rokwire/safer-illinois-app/issues/138).
+ - Removed SAR status entries from sample health rules. Use PCR entries instead that actually contain the same status rules.
  - Integrate maps for test locations [#132](https://github.com/rokwire/safer-illinois-app/issues/132).
  - Use next step HTML in exposure rules [#133](https://github.com/rokwire/safer-illinois-app/issues/133).
- - Various minor fixes.
-
-## [2.5.6] - 2020-09-08
-### Changed
- - Removed SAR status entries from sample health rules. Use PCR entries instead that actually contain the same status rules.
  - Fixed warnings.
+ - Various minor fixes.
 
 ### Added
  - Added 'test-user' condition [#125](https://github.com/rokwire/safer-illinois-app/issues/125).
@@ -68,7 +113,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - SettingsPrivacyCenterPanel (unused)
  - Covid19OnBoardingLoginNetIdPanel (unused)
  - Covid19OnBoardingLoginPhonePanel (unused)
-
 
 ## [2.4.2] - 2020-08-26
 ### Changed

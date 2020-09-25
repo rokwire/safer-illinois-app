@@ -56,8 +56,6 @@ class LocalNotifications with Service {
 
   void initPlugin() {
     if (_flutterLocalNotificationsPlugin == null) {
-      //int privacyLevel = Storage().getPrivacyLevel()?.toInt();
-      //if ((privacyLevel != null) && (privacyLevel >= 4))
       if (Platform.isIOS) {
         NativeCommunicator().queryNotificationsAuthorization("query").then((bool notificationsAuthorized) {
           if (notificationsAuthorized) {

@@ -129,26 +129,6 @@ class Storage with Service {
     _setStringWithName(userKey, userToString);
   }
 
-  /////////////
-  // UserRoles
-
-  static const String userRolesKey  = 'user_roles';
-
-  List<dynamic> get userRolesJson {
-    final String userRolesToString = _getStringWithName("user_roles");
-    return AppJson.decode(userRolesToString);
-  }
-
-  Set<UserRole> get userRoles {
-    final List<dynamic> userRolesToJson = userRolesJson;
-    return (userRolesToJson != null) ? Set.from(userRolesToJson.map((value)=>UserRole.fromString(value))) : null;
-  }
-
-  set userRoles(Set<UserRole> userRoles) {
-    String userRolesToString = (userRoles != null) ? json.encode(userRoles.toList()) : null;
-    _setStringWithName(userRolesKey, userRolesToString);
-  }
-
   static const String phoneNumberKey  = 'user_phone_number';
 
   String get phoneNumber {
@@ -459,6 +439,16 @@ class Storage with Service {
 
   set lastHealthCovid19Status(String value) {
     _setStringWithName(lastHealthCovid19StatusKey, value);
+  }
+
+  static const String lastHealthCovid19AccessKey = 'health_last_covid19_access';
+
+  String get lastHealthCovid19Access {
+    return _getStringWithName(lastHealthCovid19AccessKey);
+  }
+
+  set lastHealthCovid19Access(String value) {
+    _setStringWithName(lastHealthCovid19AccessKey, value);
   }
 
   static const String healthUserKey = 'health_user';

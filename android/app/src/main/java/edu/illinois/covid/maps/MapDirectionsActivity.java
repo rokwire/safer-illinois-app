@@ -118,9 +118,9 @@ public class MapDirectionsActivity extends MapActivity {
     @Override
     protected void notifyLocationUpdate(long timestamp) {
         super.notifyLocationUpdate(timestamp);
-        if ((navStatus == NavStatus.PROGRESS) && navAutoUpdate) {
-            updateNavByCurrentLocation();
-        }
+            if ((navStatus == NavStatus.PROGRESS) && navAutoUpdate) {
+                updateNavByCurrentLocation();
+            }
     }
 
     @Override
@@ -312,6 +312,7 @@ public class MapDirectionsActivity extends MapActivity {
     }
 
     private void changeSelectedTravelMode(String newTravelMode) {
+
     }
 
     @Override
@@ -387,6 +388,7 @@ public class MapDirectionsActivity extends MapActivity {
         String originString = null;
         String destinationString = null;
         String locationString = null;
+
         String analyticsParam = String.format(Locale.getDefault(), "{\"origin\":%s,\"destination\":%s,\"location\":%s}", originString, destinationString, locationString);
         MainActivity.invokeFlutterMethod(event, analyticsParam);
     }
