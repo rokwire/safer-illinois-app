@@ -1380,7 +1380,7 @@ class Health with Service implements NotificationsListener {
   }
 
   Future<bool> _logAccessUpdate(DateTime dateUtc, String access) async {
-    String url = "${Config().healthUrl}/covid19/covid19/building-access";
+    String url = "${Config().healthUrl}/covid19/building-access";
     String post = AppJson.encode({
       'date': healthDateTimeToString(dateUtc),
       'access': access
