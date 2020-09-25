@@ -225,6 +225,15 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> {
                       Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                           child: RoundedButton(
+                              label: "COVID-19 Rules",
+                              backgroundColor: Styles().colors.background,
+                              fontSize: 16.0,
+                              textColor: Styles().colors.fillColorPrimary,
+                              borderColor: Styles().colors.fillColorPrimary,
+                              onTap: _onTapCovid19Rules)),
+                      Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+                          child: RoundedButton(
                               label: "COVID-19 Create Event",
                               backgroundColor: Styles().colors.background,
                               fontSize: 16.0,
@@ -285,15 +294,6 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> {
                               textColor: Styles().colors.fillColorPrimary,
                               borderColor: Styles().colors.fillColorPrimary,
                               onTap: _onTapCovid19ExposureLogs)),
-                      Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                          child: RoundedButton(
-                              label: "COVID-19 Rules",
-                              backgroundColor: Styles().colors.background,
-                              fontSize: 16.0,
-                              textColor: Styles().colors.fillColorPrimary,
-                              borderColor: Styles().colors.fillColorPrimary,
-                              onTap: _onTapCovid19Rules)),
                       Padding(padding: EdgeInsets.only(top: 5), child: Container()),
                     ],
                   ),
