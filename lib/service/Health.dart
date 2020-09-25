@@ -1317,12 +1317,8 @@ class Health with Service implements NotificationsListener {
     if (countyId != null) {
       countyRules = (force != true) ? _rulesCache[countyId] : null;
       if (countyRules == null) {
-        String appVersion = AppVersion.majorVersion(Config().appVersion, 2);
-        String url = "${Config().healthUrl}/covid19/crules/county/$countyId";
-        Response response = await Network().get(url, auth: NetworkAuth.App, headers: { Network.RokwireVersion : appVersion });
-        String responseBody = (response?.statusCode == 200) ? response.body : null;
-//TMP:  String responseBody = await rootBundle.loadString('assets/sample.health.rules.json');
-        Map<String, dynamic> responseJson = (responseBody != null) ? AppJson.decodeMap(responseBody) : null;
+        String rulesString = await loadRules2String(countyId: countyId, force: force);
+        Map<String, dynamic> responseJson = (rulesString != null) ? AppJson.decodeMap(rulesString) : null;
         countyRules = (responseJson != null) ? HealthRulesSet2.fromJson(responseJson) : null;
         if (countyRules != null) {
           _rulesCache[countyId] = countyRules;
@@ -1330,6 +1326,37 @@ class Health with Service implements NotificationsListener {
       }
     }
     return countyRules;
+  }
+
+  Future<String> loadRules2String({String countyId, bool force}) async {
+    if (countyId == null) {
+      countyId = _currentCountyId;
+    }
+    if (countyId != null) {
+        String appVersion = AppVersion.majorVersion(Config().appVersion, 2);
+        String url = "${Config().healthUrl}/covid19/crules/county/$countyId";
+        Response response = await Network().get(url, auth: NetworkAuth.App, headers: { Network.RokwireVersion : appVersion });
+        String responseBody = (response?.statusCode == 200) ? response.body : null;
+//TMP:  String responseBody = await rootBundle.loadString('assets/sample.health.rules.json');
+        return responseBody;
+    }
+    return null;
+  }
+
+  // Save Rules
+
+  Future<void> saveRules({String countyId, String rulesContent, String userGroup}) async {
+    if (Auth().isShibbolethLoggedIn && AppString.isStringNotEmpty(countyId) && rulesContent != null) {
+      String url = "${Config().healthUrl}/admin/crules";
+      String post = AppJson.encode({
+        {"county_id": countyId, "data": rulesContent}
+      });
+
+      Response response = await Network().put(url, body: post, headers: {"GROUP":userGroup}, auth: NetworkAuth.User);
+      if ((response == null) || (response.statusCode != 200)) {
+        throw response.reasonPhrase;
+      }
+    }
   }
 
   // Access Rules
