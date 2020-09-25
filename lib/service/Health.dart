@@ -1324,12 +1324,9 @@ class Health with Service implements NotificationsListener {
     if (countyId != null) {
       rules = (force != true) ? _rulesCache[countyId] : null;
       if (rules == null) {
-        String appVersion = AppVersion.majorVersion(Config().appVersion, 2);
-        String url = "${Config().healthUrl}/covid19/crules/county/$countyId";
-        Response response = await Network().get(url, auth: NetworkAuth.App, headers: { Network.RokwireVersion : appVersion });
-        String responseBody = (response?.statusCode == 200) ? response.body : null;
+        String rulesString = await loadRules2String(countyId: countyId);
 //TMP:  String responseBody = await rootBundle.loadString('assets/sample.health.rules.json');
-        Map<String, dynamic> responseJson = (responseBody != null) ? AppJson.decodeMap(responseBody) : null;
+        Map<String, dynamic> responseJson = (rulesString != null) ? AppJson.decodeMap(rulesString) : null;
         rules = (responseJson != null) ? HealthRulesSet2.fromJson(responseJson) : null;
         if (rules != null) {
           _rulesCache[countyId] = rules;
@@ -1337,6 +1334,34 @@ class Health with Service implements NotificationsListener {
       }
     }
     return rules;
+  }
+
+  // Consolidated Rules as String
+
+  Future<String> loadRules2String({String countyId}) async {
+    if (countyId == null) {
+      countyId = _currentCountyId;
+    }
+    if (countyId != null) {
+        String appVersion = AppVersion.majorVersion(Config().appVersion, 2);
+        String url = "${Config().healthUrl}/covid19/crules/county/$countyId";
+        Response response = await Network().get(url, auth: NetworkAuth.App, headers: { Network.RokwireVersion : appVersion });
+        String responseBody = (response?.statusCode == 200) ? response.body : null;
+//TMP:  String responseBody = await rootBundle.loadString('assets/sample.health.rules.json');
+        return responseBody;
+    }
+    return null;
+  }
+
+  Future<void> saveRules({String countyId, String userGroup, String rulesContent}) async {
+    if(Auth().isShibbolethLoggedIn && AppString.isStringNotEmpty(userGroup)) {
+      String url = "${Config().healthUrl}/admin/crules";
+      String post = AppJson.encode({"county_id": countyId, "data": rulesContent});
+      Response response = await Network().put(url, body: post, headers: {"GROUP": userGroup}, auth: NetworkAuth.User);
+      if ((response == null) || (response.statusCode != 200)) {
+        throw response?.reasonPhrase ?? "Unable to save the rules";
+      }
+    }
   }
 
   // Access Rules

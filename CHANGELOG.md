@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Changed
+- Create debug panel for editing Covid-19 rules [#205] (https://github.com/rokwire/safer-illinois-app/issues/205)
 - Log building access updates [#202](https://github.com/rokwire/safer-illinois-app/issues/202)
 
 ## [2.6.12] - 2020-09-24
