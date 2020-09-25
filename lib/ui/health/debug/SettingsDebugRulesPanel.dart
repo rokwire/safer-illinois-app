@@ -20,9 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Health.dart';
-import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Log.dart';
-import 'package:illinois/service/Storage.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
@@ -36,12 +34,10 @@ class Covid19DebugRulesPanel extends StatefulWidget{
 
 class _Covid19DebugRulesPanelState extends State<Covid19DebugRulesPanel>{
 
-  static const List<String> validGroups = [
+  static const List<String> _validGroups = [
     "urn:mace:uiuc.edu:urbana:authman:app-rokwire-service-policy-rokwire public health",
     "urn:mace:uiuc.edu:urbana:authman:app-rokwire-service-policy-rokwire admin app"
   ];
-
-
 
   bool _submitting = false;
   bool _countiesLoading = false;
@@ -87,7 +83,7 @@ class _Covid19DebugRulesPanelState extends State<Covid19DebugRulesPanel>{
       setState(() {
         _rulesLoading = true;
       });
-      Health().loadRules2String(countyId: _selectedCountyId, force: true).then((value) {
+      Health().loadRules2String(countyId: _selectedCountyId,).then((value) {
         _rulesValueController.text = value ?? "";
       }).whenComplete((){
         setState(() {
@@ -255,7 +251,7 @@ class _Covid19DebugRulesPanelState extends State<Covid19DebugRulesPanel>{
   }
 
   String get validGroup{
-    for(String group in validGroups){
+    for(String group in _validGroups){
       if(Auth()?.authInfo?.userGroupMembership?.contains(group) ?? false){
         return group;
       }
