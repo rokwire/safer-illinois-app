@@ -72,18 +72,6 @@ class StatusInfoDialog extends StatelessWidget{
                               Container(height: 10,),
                               Row(
                                 children: <Widget>[
-                                  Image.asset('images/icon-member.png', excludeFromSemantics: true, color: covid19HealthStatusColor(kCovid19HealthStatusGreen),),
-                                  Container(width: 8,),
-                                  Expanded(
-                                    child: Text(Localization().getStringEx("com.illinois.covid19.status.info.description.green", "Green: Recent antibodies"),
-                                      style: TextStyle(color: Styles().colors.textSurface, fontFamily: Styles().fontFamilies.regular, fontSize: 16),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Container(height: 10,),
-                              Row(
-                                children: <Widget>[
                                   Image.asset('images/icon-member.png', excludeFromSemantics: true, color: covid19HealthStatusColor(kCovid19HealthStatusYellow),),
                                   Container(width: 8,),
                                   Expanded(
@@ -145,13 +133,23 @@ class StatusInfoDialog extends StatelessWidget{
                             child: Center(
                               child:
                               ExcludeSemantics(child:
-                              Text(
-                                '\u00D7',
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  color: Styles().colors.fillColorSecondary,
-                                ),
-                              ),
+                                  Column(children: [
+                                    Expanded(child:
+                                      Row(children: [
+                                        Expanded(child:
+                                          RichText(textAlign: TextAlign.center, text: TextSpan(
+                                            text: '\u00D7',
+                                            style: TextStyle(
+                                              fontSize: 24,
+                                              color: Styles().colors.fillColorSecondary,
+                                            ),
+                                          ),
+                                        ),
+                                        )
+                                      ],)
+                                      )
+                                  ],)
+
                               )
                             ),
                           ),
