@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
+import 'dart:async';
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:illinois/model/Health.dart';
-import 'package:illinois/service/Auth.dart';
+import 'package:illinois/model/Health2.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
-import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/utils/Utils.dart';
 
 class Covid19DebugRulesPanel extends StatefulWidget{
@@ -34,62 +35,88 @@ class Covid19DebugRulesPanel extends StatefulWidget{
 
 class _Covid19DebugRulesPanelState extends State<Covid19DebugRulesPanel>{
 
-  static const List<String> _validGroups = [
-    "urn:mace:uiuc.edu:urbana:authman:app-rokwire-service-policy-rokwire public health",
-    "urn:mace:uiuc.edu:urbana:authman:app-rokwire-service-policy-rokwire admin app"
-  ];
-
-  bool _submitting = false;
   bool _countiesLoading = false;
   bool _rulesLoading = false;
 
   TextEditingController _rulesValueController = TextEditingController();
 
-  String _selectedCountyId;
   LinkedHashMap<String, HealthCounty> _counties;
+  String _selectedCountyId;
+  dynamic _userTestMonitorInterval = false; 
 
   @override
   void initState() {
     super.initState();
 
     _selectedCountyId = Health().currentCountyId;
+    _loadCounties();
+  }
 
+  void _loadCounties() {
     setState(() {
       _countiesLoading = true;
     });
-    Health().loadCounties().then((counties){
-      if(AppCollection.isCollectionNotEmpty(counties)){
-        if (mounted) {
-          setState(() {
-            try {
-              _counties = (counties != null) ? Map<String,HealthCounty>.fromIterable(counties, key: ((county) => county.id)): null;
-            }
-            catch(e) {
-              Log.e(e.toString());
-            }
-          });
-        }
+    Health().loadCounties().then((List<HealthCounty> counties) {
+      if (mounted) {
+        setState(() {
+          // apply counties
+          try { _counties = (counties != null) ? Map<String, HealthCounty>.fromIterable(counties, key: ((county) => county.id)): null; }
+          catch(e) { Log.e(e.toString()); }
+  
+          // fix couty selection, if needed
+          if ((_counties != null) && (0 < _counties.length) && (_counties[_selectedCountyId] == null)) {
+            _selectedCountyId = counties[0].id;
+          }
+
+          _countiesLoading = false;
+        });
+
+        _loadRules();
       }
-    }).whenComplete((){
-      setState(() {
-        _countiesLoading = false;
-      });
-      _loadRules();
     });
   }
 
-  void _loadRules(){
-    if(_selectedCountyId != null) {
+  Future<void> _loadRules() async {
+    
+    if (_selectedCountyId != null) {
+    
       setState(() {
         _rulesLoading = true;
+         _rulesValueController.text = "";
       });
-      Health().loadRules2String(countyId: _selectedCountyId,).then((value) {
-        _rulesValueController.text = value ?? "";
-      }).whenComplete((){
+
+      List<Future<dynamic>> futures = <Future>[
+        Health().loadRules2Json(countyId: _selectedCountyId),
+      ];
+
+      if (_userTestMonitorInterval is bool) {
+        futures.add(Health().loadUserTestMonitorInterval());
+      }
+
+      List<dynamic> results = await Future.wait(futures);
+
+      Map<String, dynamic> rules = ((results != null) && (0 < results.length)) ? results[0] : null;
+
+      if ((results != null) && (1 < results.length)) {
+        _userTestMonitorInterval = results[1];
+      }
+
+      if ((rules != null) && (_userTestMonitorInterval is int)) {
+        dynamic constants = rules['constants'];
+        if (constants == null) {
+          rules['constants'] = constants = {};
+        }
+        if (constants is Map) {
+          constants[HealthRulesSet2.UserTestMonitorInterval] = _userTestMonitorInterval;
+        }
+      }
+
+      if (mounted) {
         setState(() {
+          _rulesValueController.text = AppJson.encode(rules) ?? "";
           _rulesLoading = false;
         });
-      });
+      }
     }
   }
 
@@ -101,21 +128,18 @@ class _Covid19DebugRulesPanelState extends State<Covid19DebugRulesPanel>{
         titleWidget: Text("COVID-19 Rules", style: TextStyle(color: Colors.white, fontSize: 16, fontFamily: Styles().fontFamilies.extraBold),),
       ),
       body: SafeArea(child:
-      Column(children: <Widget>[
-        Expanded(
-          child: SingleChildScrollView(
+        Column(children: <Widget>[
+          Expanded(
             child: _buildContent(),
           ),
-        ),
-        _buildSubmit(),
-      ],),
+        ],),
       ),
       backgroundColor: Styles().colors.background,
     );
   }
 
   Widget _buildContent(){
-    if(_countiesLoading){
+    if (_countiesLoading) {
       return Padding(
         padding: const EdgeInsets.only(top: 100),
         child: Center(
@@ -150,90 +174,39 @@ class _Covid19DebugRulesPanelState extends State<Covid19DebugRulesPanel>{
               ),
             )
           ],),
-          Padding(padding: EdgeInsets.symmetric(vertical: 8),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+          Padding(padding: EdgeInsets.symmetric(vertical: 8), child: Container()),
+          Expanded(child:
+            Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
               Padding(padding: EdgeInsets.only(bottom: 4),
                 child: Text("Rules", style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 12, color: Styles().colors.fillColorPrimary),),
               ),
-              Stack(
-                  alignment: Alignment.center,
-                  children: <Widget>[
-                    Semantics(textField: true, child:Container(color: Styles().colors.white,
-                        child: TextField(
-                          maxLines: 15,
-                          controller: _rulesValueController,
-                          decoration: InputDecoration(border: OutlineInputBorder(borderSide: BorderSide(color: Colors.black, width: 1.0))),
-                          style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground,),
-                        ),
-                      )
-                    ),
-                    _rulesLoading ? Align(alignment: Alignment.center,
-                      child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary),),
-                    ) : Container(),
-                    Positioned.fill(
+              Expanded(child:
+                Stack(alignment: Alignment.center, children: <Widget>[
+                  TextField(controller: _rulesValueController, expands: true, maxLines: null, readOnly: true,
+                    decoration: InputDecoration(border: OutlineInputBorder(borderSide: BorderSide(color: Colors.black, width: 1.0))),
+                    style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground,),
+                  ),
+                  Visibility(visible: _rulesLoading, child: Align(alignment: Alignment.center,
+                    child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary),),
+                  ),),
+                  Visibility(visible: (0 < _rulesValueController.text.length),
+                    child: Positioned.fill(
                       child: Align(alignment: Alignment.topRight,
-                        child: Semantics (button: true, label: "Clear",
-                          child: GestureDetector(onTap: () { _onTapClearRules(); },
+                        child: Semantics (button: true, label: "Copy",
+                          child: GestureDetector(onTap: () { _onTapCopyRules(); },
                             child: Container(width: 36, height: 36,
                               child: Align(alignment: Alignment.center,
-                                child: Semantics( excludeSemantics: true,child:Text('X', style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.fillColorPrimary,),)),
+                                child: Semantics( excludeSemantics: true, child: Image.asset('images/icon-copy.png')),
                               ),
                             ),
                           ),
-                        )),
+                        )
+                      ),
                     ),
-              ]),
-            ]),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSubmit() {
-    return Padding(
-      padding: EdgeInsets.all(16),
-      child: Stack(
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              Expanded(
-                child: Container(),
-              ),
-              RoundedButton(
-                  label: "Save",
-                  textColor: Health().isUserLoggedIn && hasValidGroup ? Styles().colors.fillColorPrimary : Styles().colors.disabledTextColor,
-                  borderColor: Health().isUserLoggedIn  && hasValidGroup ? Styles().colors.fillColorSecondary : Styles().colors.disabledTextColor,
-                  backgroundColor: Styles().colors.white,
-                  fontFamily: Styles().fontFamilies.bold,
-                  fontSize: 16,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 32,
                   ),
-                  borderWidth: 2,
-                  height: 42,
-                  onTap: () {
-                    _onSubmit();
-                  }),
-              Expanded(
-                child: Container(),
+                ]),
               ),
-            ],
-          ),
-          Visibility(
-            visible: (_submitting == true),
-            child: Center(
-              child: Padding(
-                padding: EdgeInsets.only(top: 10.5),
-                child: Container(
-                    width: 21,
-                    height: 21,
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary),
-                      strokeWidth: 2,
-                    )),
-              ),
-            ),
+            ]),
           ),
         ],
       ),
@@ -246,42 +219,12 @@ class _Covid19DebugRulesPanelState extends State<Covid19DebugRulesPanel>{
     }).toList() : null;
   }
 
-  HealthCounty get _selectedCounty{
+  HealthCounty get _selectedCounty {
     return _selectedCountyId != null && _counties != null ? _counties[_selectedCountyId] : null;
   }
 
-  String get validGroup{
-    for(String group in _validGroups){
-      if(Auth()?.authInfo?.userGroupMembership?.contains(group) ?? false){
-        return group;
-      }
-    }
-    return null;
-  }
-
-  bool get hasValidGroup{
-    return AppString.isStringNotEmpty(validGroup);
-  }
-
-  void _onSubmit(){
-    if(!_submitting && hasValidGroup) {
-      setState(() {
-        _submitting = true;
-      });
-      Health().saveRules(countyId: _selectedCountyId, rulesContent: _rulesValueController.text, userGroup: validGroup).then((value){
-        setState(() {
-          _submitting = false;
-        });
-      }).catchError((error){
-        setState(() {
-          _submitting = false;
-        });
-        AppAlert.showDialogResult(context, error.toString());
-      });
-    }
-  }
-
-  void _onTapClearRules(){
-    _rulesValueController.text = "";
+  void _onTapCopyRules() {
+    Clipboard.setData(ClipboardData(text: _rulesValueController.text));
+    AppAlert.showDialogResult(context, "Rules copied to Clipboard");
   }
 }
