@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Changed
+- Added back "No symptoms" group, implemented inclusive selection [#213](https://github.com/rokwire/safer-illinois-app/issues/213).
+- Fill UserTestMonitorInterval in Covid19DebugRulesPanel [#210](https://github.com/rokwire/safer-illinois-app/issues/210).
+- Log building access updates [#208](https://github.com/rokwire/safer-illinois-app/issues/208).
+
+### Fixed
+- Do not report user UUID in analytics [#216](https://github.com/rokwire/safer-illinois-app/issues/216).
 
 ## [2.6.13] - 2020-09-25
 ### Changed
