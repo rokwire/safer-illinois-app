@@ -113,7 +113,7 @@ class _Covid19DebugRulesPanelState extends State<Covid19DebugRulesPanel>{
 
       if (mounted) {
         setState(() {
-          _rulesValueController.text = AppJson.encode(rules) ?? "";
+          _rulesValueController.text = AppJson.encode(rules, prettify: true) ?? "";
           _rulesLoading = false;
         });
       }
