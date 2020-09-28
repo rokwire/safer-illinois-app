@@ -559,7 +559,8 @@
 			{
 				"id": null,
 				"name": "gr-2.4-0",
-				"visible": false,
+				"group" : "no-symptoms",
+				"visible": true,
 				"symptoms": [
 					{
 						"id": "b669503f-938b-11ea-8f2a-0a58a9feac2a",
@@ -606,6 +607,7 @@
 				"id": null,
 				"name": "gr-2.5-1",
 				"visible": true,
+				"group" : "have-symptoms",
 				"symptoms": [
 					{
 						"id": "7c76102e-7c99-4743-80a6-5f09503fe92a",
