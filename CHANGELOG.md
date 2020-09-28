@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fill UserTestMonitorInterval in Covid19DebugRulesPanel [#210](https://github.com/rokwire/safer-illinois-app/issues/210).
 - Log building access updates [#208](https://github.com/rokwire/safer-illinois-app/issues/208).
 - Format the date for {next_step_date} as friendly eg: Tomorrow. [#219] (https://github.com/rokwire/safer-illinois-app/issues/219)
+- Covid19GuidelinesPanel: Disable dropdown when single county available + color fix
 
 
 ### Fixed
