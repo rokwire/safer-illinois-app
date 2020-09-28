@@ -9,9 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added back "No symptoms" group, implemented inclusive selection [#213](https://github.com/rokwire/safer-illinois-app/issues/213).
 - Fill UserTestMonitorInterval in Covid19DebugRulesPanel [#210](https://github.com/rokwire/safer-illinois-app/issues/210).
 - Log building access updates [#208](https://github.com/rokwire/safer-illinois-app/issues/208).
+- Format the date for {next_step_date} as friendly eg: Tomorrow. [#219] (https://github.com/rokwire/safer-illinois-app/issues/219)
+
 
 ### Fixed
 - Do not report user UUID in analytics [#216](https://github.com/rokwire/safer-illinois-app/issues/216).
+- Display an error message to the user who submits the symptoms without checking any list on the Symptom Check-in [#174] (https://github.com/rokwire/safer-illinois-app/issues/174)
 
 ## [2.6.13] - 2020-09-25
 ### Changed
