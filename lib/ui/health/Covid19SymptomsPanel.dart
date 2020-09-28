@@ -155,7 +155,7 @@ class _Covid19SymptomsPanelState extends State<Covid19SymptomsPanel> {
   Widget _bulldSubmit() {
     bool enabled = (0 < _selectedSymptoms.length);
     return Padding(padding: EdgeInsets.only(top: 20, bottom: 20), child:
-      Stack(children: <Widget>[
+      Stack(alignment: Alignment.center, children: <Widget>[
         ScalableRoundedButton(label: Localization().getStringEx("panel.health.symptoms.button.submit.title","Submit"),
           backgroundColor: enabled ? Styles().colors.white : Styles().colors.whiteTransparent01,
           textColor: enabled ? Styles().colors.fillColorPrimary : Styles().colors.disabledTextColorTwo,
@@ -167,11 +167,9 @@ class _Covid19SymptomsPanelState extends State<Covid19SymptomsPanel> {
         ),
           Visibility(visible: (_submittingSymptoms == true), child:
             Center(child:
-              Padding(padding: EdgeInsets.only(top: 12), child:
-               Container(width: 24, height:24, child:
-                  CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary), strokeWidth: 2,)
-                ),
-              ),
+              Container(width: 24, height:24, child:
+                 CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary), strokeWidth: 2,)
+               ),
             ),
           ),
       ],)
@@ -225,6 +223,11 @@ class _Covid19SymptomsPanelState extends State<Covid19SymptomsPanel> {
   }
 
   void _onSubmit() {
+    if(AppCollection.isCollectionEmpty(_selectedSymptoms)){
+      AppAlert.showDialogResult(context, Localization().getStringEx("panel.health.symptoms.label.error.no_selection", "Please select at least one symptom"));
+      return;
+    }
+
     Analytics.instance.logSelect(target: "Submit");
     if (_submittingSymptoms == true) {
       return;
