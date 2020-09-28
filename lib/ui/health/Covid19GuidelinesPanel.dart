@@ -227,6 +227,7 @@ class _Covid19GuidelinesPanelState extends State<Covid19GuidelinesPanel> impleme
                 ),
               ) :
               Container(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Row(children: [
                   Expanded(child:
                     Text(countyName != null ? "$countyName ${Localization().getStringEx("app.common.label.county", "County")}":"",
