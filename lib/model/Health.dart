@@ -154,7 +154,7 @@ class Covid19StatusBlob {
 
   String _processMacros(String value) {
     if ((value != null) && (nextStepDateUtc != null) && value.contains(_nextStepDateMacro)) {
-      String nextStepDateString = AppDateTime().formatDateTime(nextStepDateUtc.toLocal(), format: _nextStepDateFormat);
+      String nextStepDateString = AppDateTime().getDisplayDateTime(nextStepDateUtc.toUtc(),);
       return value.replaceAll(_nextStepDateMacro, nextStepDateString);
     }
     return value;
