@@ -441,16 +441,6 @@ class Storage with Service {
     _setStringWithName(lastHealthCovid19StatusKey, value);
   }
 
-  static const String lastHealthCovid19AccessKey = 'health_last_covid19_access';
-
-  String get lastHealthCovid19Access {
-    return _getStringWithName(lastHealthCovid19AccessKey);
-  }
-
-  set lastHealthCovid19Access(String value) {
-    _setStringWithName(lastHealthCovid19AccessKey, value);
-  }
-
   static const String healthUserKey = 'health_user';
 
   String get healthUser {

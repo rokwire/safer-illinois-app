@@ -127,7 +127,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
   }
 
   void _updateCovid19Access() {
-    Health().isAccessGranted(_covid19Status?.blob?.healthStatus).then((bool granted) {
+    Health().isBuildingAccessGranted(_covid19Status?.blob?.healthStatus).then((bool granted) {
       if (mounted) {
         setState(() {
           _covid19Access = granted;
