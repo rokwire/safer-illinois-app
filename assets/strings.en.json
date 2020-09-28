@@ -668,6 +668,7 @@
     "panel.health.symptoms.button.submit.title":"Submit",
     "panel.health.symptoms.label.success.submit.message":"Your symptoms have been processed.",
     "panel.health.symptoms.label.error.submit":"Failed to submit symptoms.",
+    "panel.health.symptoms.label.error.no_selection": "Please select at least one symptom",
 
     "model.explore.time.today": "Today",
     "model.explore.time.tomorrow": "Tomorrow",

@@ -668,6 +668,7 @@
 	"panel.health.symptoms.button.submit.title":"提交",
 	"panel.health.symptoms.label.success.submit.message":"你的症状已经得到处理.",
 	"panel.health.symptoms.label.error.submit":"未能提交症状.",
+	"panel.health.symptoms.label.error.no_selection": "Please select at least one symptom",
 
 	"model.explore.time.today":"今天",
 	"model.explore.time.tomorrow":"明天",
