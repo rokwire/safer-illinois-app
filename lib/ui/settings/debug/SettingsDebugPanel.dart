@@ -35,7 +35,7 @@ import 'package:illinois/ui/health/debug/Covid19DebugSymptomsPanel.dart';
 import 'package:illinois/ui/health/debug/Covid19DebugPendingEventsPanel.dart';
 import 'package:illinois/ui/health/debug/Covid19DebugTraceContactPanel.dart';
 import 'package:illinois/ui/settings/debug/SettingsDebugMessagingPanel.dart';
-import 'package:illinois/ui/health/debug/SettingsDebugRulesPanel.dart';
+import 'package:illinois/ui/health/debug/Covid19DebugRulesPanel.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/ui/widgets/RibbonButton.dart';

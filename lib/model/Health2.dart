@@ -15,7 +15,7 @@ class HealthRulesSet2 {
   final Map<String, _HealthRuleStatus2> statuses;
   final Map<String, dynamic> constants;
 
-  static const String _UserTestMonitorInterval = 'UserTestMonitorInterval';
+  static const String UserTestMonitorInterval = 'UserTestMonitorInterval';
 
   HealthRulesSet2({this.tests, this.symptoms, this.contactTrace, this.actions, this.defaults, this.statuses, Map<String, dynamic> constants}) :
     this.constants = constants ?? Map<String, dynamic>();
@@ -33,11 +33,11 @@ class HealthRulesSet2 {
   }
 
   int get userTestMonitorInterval {
-    return constants[_UserTestMonitorInterval];
+    return constants[UserTestMonitorInterval];
   }
 
   set userTestMonitorInterval(int value) {
-    constants[_UserTestMonitorInterval] = value;
+    constants[UserTestMonitorInterval] = value;
   }
 }
 
