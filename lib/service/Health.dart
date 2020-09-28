@@ -914,7 +914,7 @@ class Health with Service implements NotificationsListener {
       );
 
     }
-    _applyAccessFromStatus(status: status);
+    _applyBuildingAccessFromStatus(status: status);
     _updateExposureReportTarget(status: status);
   }
 
@@ -1364,9 +1364,9 @@ class Health with Service implements NotificationsListener {
     }
   }
 
-  // Access Rules
+  // Building Access
 
-  Future<Map<String, dynamic>> _loadAccessRules({String countyId, bool force}) async {
+  Future<Map<String, dynamic>> _loadBuildingAccessRules({String countyId, bool force}) async {
 
     Map<String, dynamic> accessRules;
     if (countyId != null) {
@@ -1385,31 +1385,30 @@ class Health with Service implements NotificationsListener {
     return accessRules;
   }
 
-  Future<bool> isAccessGranted(String healthStatus) async {
-    Map<String, dynamic> accessRules = await _loadAccessRules(countyId: _currentCountyId, force: true);
+  Future<bool> isBuildingAccessGranted(String healthStatus) async {
+    Map<String, dynamic> accessRules = await _loadBuildingAccessRules(countyId: _currentCountyId, force: true);
     return (accessRules != null) && (accessRules[healthStatus] == kCovid19AccessGranted);
   }
 
-  Future<void> _applyAccessFromStatus({Covid19Status status}) async {
+  Future<void> _applyBuildingAccessFromStatus({Covid19Status status}) async {
     if (Config().settings['covid19ReportBuildingAccess'] == true) {
-      Map<String, dynamic> accessRules = await _loadAccessRules(countyId: _currentCountyId);
+      Map<String, dynamic> accessRules = await _loadBuildingAccessRules(countyId: _currentCountyId);
       if (accessRules != null) {
         String access = accessRules[status?.blob?.healthStatus];
-        if ((access != null) && (access != Storage().lastHealthCovid19Access)) {
-          if (await _logAccessUpdate(status.dateUtc, access)) {
-            Storage().lastHealthCovid19Access = access;
-          }
+        if (access != null) {
+          await _logBuildingAccess(dateUtc: DateTime.now().toUtc(), access: access);
         }
       }
     }
   }
 
-  Future<bool> _logAccessUpdate(DateTime dateUtc, String access) async {
+  Future<bool> _logBuildingAccess({DateTime dateUtc, String access}) async {
     String url = "${Config().healthUrl}/covid19/building-access";
     String post = AppJson.encode({
       'date': healthDateTimeToString(dateUtc),
       'access': access
     });
+    //Log.d("$post");
     Response response = await Network().put(url, body: post, auth: NetworkAuth.User);
     return (response?.statusCode == 200);
   }
