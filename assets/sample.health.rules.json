@@ -14,77 +14,8 @@
 
 	"statuses": {
 		"antibody.negative": "test-monitor",
-		
-		"antibody.positive": {
-			"condition": "test-interval",
-			"params": {
-				"interval": "UserTestMonitorInterval"
-			},
-			"success": {
-				"condition": "require-test",
-				"params": {
-					"interval": { "min": 0, "max": "UserTestMonitorInterval", "scope": "future", "current": true }
-				},
-				"success": {
-					"health_status": "green",
-					"priority": 1,
-					"next_step": "Monitor your test results",
-					"next_step_interval": "UserTestMonitorInterval",
-					"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
-				},
-				"fail": {
-					"health_status": "orange",
-					"priority": 1,
-					"next_step": "Get a test now",
-					"reason": "Your status changed to Orange because you are past due for a test."
-				}
-			},
-			"fail": {
-				"condition": "test-user",
-				"params": {
-					"role": "Undergraduate",
-					"student_level": "1U"
-				},
-				"success": {
-					"condition": "require-test",
-					"params": {
-						"interval": { "min": 0, "max": "UndergraduateTestMonitorInterval", "scope": "future", "current": true }
-					},
-					"success": {
-						"health_status": "green",
-						"priority": 1,
-						"next_step": "Monitor your test results",
-						"next_step_interval": "UndergraduateTestMonitorInterval",
-						"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
-					},
-					"fail": {
-						"health_status": "orange",
-						"priority": 1,
-						"next_step": "Get a test now",
-						"reason": "Your status changed to Orange because you are past due for a test."
-					}
-				},
-				"fail": {
-					"condition": "require-test",
-					"params": {
-						"interval": { "min": 0, "max": "DefaultTestMonitorInterval", "scope": "future", "current": true }
-					},
-					"success": {
-						"health_status": "green",
-						"priority": 1,
-						"next_step": "Monitor your test results",
-						"next_step_interval": "DefaultTestMonitorInterval",
-						"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
-					},
-					"fail": {
-						"health_status": "orange",
-						"priority": 1,
-						"next_step": "Get a test now",
-						"reason": "Your status changed to Orange because you are past due for a test."
-					}
-				}
-			}
-		},
+
+		"antibody.positive": "test-monitor",
 		
 		"PCR.positive": {
 			"health_status": "red",
