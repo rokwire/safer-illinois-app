@@ -104,6 +104,9 @@ class Analytics with Service implements NotificationsListener {
 
   static const List<String> HealthAttributes = [
     LogStdTimestampName,
+    LogStdAppIdName,
+    LogStdAppVersionName,
+    LogStdSessionUuidName,
   ];
 
   // Livecycle Event
