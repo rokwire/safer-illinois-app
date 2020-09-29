@@ -107,6 +107,7 @@ class Analytics with Service implements NotificationsListener {
     LogStdAppIdName,
     LogStdAppVersionName,
     LogStdSessionUuidName,
+    LogStdUserUuidName,
   ];
 
   // Livecycle Event
