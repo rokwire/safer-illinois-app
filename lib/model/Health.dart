@@ -105,7 +105,7 @@ class Covid19StatusBlob {
   final Covid19HistoryBlob historyBlob;
 
   static const String _nextStepDateMacro = '{next_step_date}';
-  //static const String _nextStepDateFormat = 'EEEE, MMM d';
+  static const String _nextStepDateFormat = 'EEEE, MMM d';
 
   Covid19StatusBlob({this.healthStatus, this.priority, this.nextStep, this.nextStepHtml, this.nextStepDateUtc, this.reason, this.warning, this.historyBlob});
 
@@ -144,6 +144,23 @@ class Covid19StatusBlob {
     return _processMacros(nextStepHtml);
   }
 
+  String displayNextStepDate({String format = _nextStepDateFormat}) {
+    if (nextStepDateUtc != null) {
+      DateTime nextStepMidnightLocal = AppDateTime.midnight(nextStepDateUtc);
+      if (nextStepMidnightLocal == AppDateTime.todayMidnightLocal) {
+        return Localization().getStringEx('model.explore.time.today', 'Today').toLowerCase();
+      }
+      else if (nextStepMidnightLocal == AppDateTime.tomorrowMidnightLocal) {
+        return Localization().getStringEx('model.explore.time.tomorrow', 'Tomorrow').toLowerCase();
+      }
+      else {
+        return AppDateTime().formatDateTime(nextStepDateUtc.toLocal(), format: format);
+      }
+    }
+    return null;
+  }
+
+
   String get displayReason {
     return _processMacros(reason);
   }
@@ -154,8 +171,7 @@ class Covid19StatusBlob {
 
   String _processMacros(String value) {
     if ((value != null) && (nextStepDateUtc != null) && value.contains(_nextStepDateMacro)) {
-      String nextStepDateString = AppDateTime().getDisplayDateTime(nextStepDateUtc.toUtc(),);
-      return value.replaceAll(_nextStepDateMacro, nextStepDateString);
+      return value.replaceAll(_nextStepDateMacro, displayNextStepDate() ?? '');
     }
     return value;
   }

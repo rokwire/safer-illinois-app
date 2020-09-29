@@ -252,9 +252,19 @@ class AppDateTime with Service {
     }
   }
 
-  static DateTime get todayMidnightLocal {
-    DateTime now = DateTime.now();
-    return DateTime(now.year, now.month, now.day);
+  static DateTime midnight(DateTime date) {
+    return (date != null) ? DateTime(date.year, date.month, date.day) : null;
   }
 
+  static DateTime get todayMidnightLocal {
+    return midnight(DateTime.now());
+  }
+
+  static DateTime get tomorrowMidnightLocal {
+    return midnight(DateTime.now()).add(Duration(days: 1));
+  }
+
+  static DateTime get yesterdayMidnightLocal {
+    return midnight(DateTime.now()).add(Duration(days: -1));
+  }
 }
