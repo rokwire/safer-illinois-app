@@ -105,7 +105,7 @@ class Covid19StatusBlob {
   final Covid19HistoryBlob historyBlob;
 
   static const String _nextStepDateMacro = '{next_step_date}';
-  static const String _nextStepDateFormat = 'EEEE, MMM d';
+  //static const String _nextStepDateFormat = 'EEEE, MMM d';
 
   Covid19StatusBlob({this.healthStatus, this.priority, this.nextStep, this.nextStepHtml, this.nextStepDateUtc, this.reason, this.warning, this.historyBlob});
 
