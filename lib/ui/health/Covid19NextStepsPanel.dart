@@ -99,7 +99,7 @@ class _Covid19NextStepsPanelState extends State<Covid19NextStepsPanel> {
       content.addAll(<Widget>[
           Container(height: 12,),
           Padding(padding: EdgeInsets.symmetric(horizontal: 32), child:
-            Html(data: nextStepHtml, onLinkTap: (url) => _onTapLink(url), defaultTextStyle: TextStyle(fontSize:16, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground),),
+            Html(data: nextStepHtml, onLinkTap: (url) => _onTapLink(url),linkStyle:TextStyle(fontFamily: Styles().fontFamilies.bold,decoration: TextDecoration.underline, color: Colors.blueAccent, decorationColor: Colors.blueAccent) ,defaultTextStyle: TextStyle(fontSize:16, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.white),),
           ),
       ]);
     }
