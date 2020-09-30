@@ -85,7 +85,7 @@ class UserData {
   }
 }
 
-class UserRole{
+class UserRole {
   static const student = const UserRole._internal('student');
   static const employee = const UserRole._internal('employee');
   static const resident = const UserRole._internal('resident');
@@ -114,9 +114,23 @@ class UserRole{
   }
 
   toString() => _value;
+  toJson() => _value;
+
+  String toDisplayString() {
+    if (this == student) {
+      return Localization().getStringEx('model.user.role.student.title', 'Student');
+    } else if (this == employee) {
+      return Localization().getStringEx('model.user.role.employee.title', 'Employee');
+    } else if (this == resident) {
+      return Localization().getStringEx('model.user.role.resident.title', 'Resident');
+    }
+    else {
+      return null;
+    }
+  }
 
   @override
-  bool operator==(dynamic obj) {
+  bool operator== (dynamic obj) {
     if (obj is UserRole) {
       return obj._value == _value;
     }
@@ -125,10 +139,6 @@ class UserRole{
 
   @override
   int get hashCode => _value.hashCode;
-
-  toJson() {
-    return _value;
-  }
 
   // Static Helpers
 
@@ -155,39 +165,4 @@ class UserRole{
     }
     return userRolesList;
   }
-
-  static Set<String> targetAudienceFromUserRoles(Set<UserRole> roles) {
-    if (roles == null || roles.isEmpty) {
-      return null;
-    }
-    Set<String> targetAudiences = Set();
-    for (UserRole role in roles) {
-      if(role == UserRole.student)
-        targetAudiences.add('students');
-      else if(role == UserRole.employee)
-        targetAudiences.addAll(['faculty', 'staff']);
-      else if(role == UserRole.resident)
-        targetAudiences.add('public');
-    }
-    return targetAudiences;
-  }
-
-  static String toRoleString(UserRole role) {
-    if (role != null) {
-      if (role == student) {
-        return Localization().getStringEx('model.user.role.student.title', 'Student');
-      } else if (role == employee) {
-        return Localization().getStringEx('model.user.role.employee.title', 'Employee');
-      } else if (role == resident) {
-        return Localization().getStringEx('model.user.role.resident.title', 'Resident');
-      }
-    }
-    return null;
-  }
-}
-
-
-abstract class Favorite{
-  String get favoriteId;
-  String get favoriteKey;
 }

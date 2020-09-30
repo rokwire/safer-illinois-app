@@ -523,7 +523,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
     if(Auth().isShibbolethLoggedIn && AppString.isStringNotEmpty(roleDisplayString)){
       return roleDisplayString;
     }
-    return UserRole.toRoleString(UserRole.resident);
+    return UserRole.resident.toDisplayString();
   }
 
   Widget _userAvatar() {
