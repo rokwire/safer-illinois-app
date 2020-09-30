@@ -12,24 +12,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Added more parameters to analytics health events [#178](https://github.com/rokwire/safer-illinois-app/issues/178).
 - Green status from antibody test rules replaced with yellow [#227](https://github.com/rokwire/safer-illinois-app/issues/227).
-- Wrong friendly date (Today, Tomorrow, day of week etc) [#229] (https://github.com/rokwire/safer-illinois-app/issues/229).
+- Wrong friendly date (Today, Tomorrow, day of week etc) [#229](https://github.com/rokwire/safer-illinois-app/issues/229).
 
 ## [2.6.14] - 2020-09-28
 ### Changed
 - Added back "No symptoms" group, implemented inclusive selection [#213](https://github.com/rokwire/safer-illinois-app/issues/213).
 - Fill UserTestMonitorInterval in Covid19DebugRulesPanel [#210](https://github.com/rokwire/safer-illinois-app/issues/210).
 - Log building access updates [#208](https://github.com/rokwire/safer-illinois-app/issues/208).
-- Format the date for {next_step_date} as friendly eg: Tomorrow. [#219] (https://github.com/rokwire/safer-illinois-app/issues/219)
-- Covid19GuidelinesPanel: Disable dropdown when single county available + color fix[221] (https://github.com/rokwire/safer-illinois-app/issues/221)
-- StatusInfoDialog: fix close button + remove green status[223] (https://github.com/rokwire/safer-illinois-app/issues/223)
+- Format the date for {next_step_date} as friendly eg: Tomorrow. [#219](https://github.com/rokwire/safer-illinois-app/issues/219)
+- Covid19GuidelinesPanel: Disable dropdown when single county available + color fix[221](https://github.com/rokwire/safer-illinois-app/issues/221)
+- StatusInfoDialog: fix close button + remove green status[223](https://github.com/rokwire/safer-illinois-app/issues/223)
 
 ### Fixed
 - Do not report user UUID in analytics [#216](https://github.com/rokwire/safer-illinois-app/issues/216).
-- Display an error message to the user who submits the symptoms without checking any list on the Symptom Check-in [#174] (https://github.com/rokwire/safer-illinois-app/issues/174)
+- Display an error message to the user who submits the symptoms without checking any list on the Symptom Check-in [#174](https://github.com/rokwire/safer-illinois-app/issues/174)
 
 ## [2.6.13] - 2020-09-25
 ### Changed
-- Create debug panel for editing Covid-19 rules [#205] (https://github.com/rokwire/safer-illinois-app/issues/205)
+- Create debug panel for editing Covid-19 rules [#205](https://github.com/rokwire/safer-illinois-app/issues/205)
 - Log building access updates [#202](https://github.com/rokwire/safer-illinois-app/issues/202)
 
 ## [2.6.12] - 2020-09-24
