@@ -29,6 +29,7 @@ import 'package:illinois/service/Exposure.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/FlexUI.dart';
 import 'package:illinois/service/Health.dart';
+import 'package:illinois/service/HttpProxy.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/LocationServices.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
@@ -76,6 +77,7 @@ class Services {
     
     Crashlytics(),
     Storage(),
+    HttpProxy(),
     Config(),
 
     AppLivecycle(),

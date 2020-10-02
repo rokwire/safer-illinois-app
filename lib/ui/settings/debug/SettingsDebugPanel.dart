@@ -23,6 +23,7 @@ import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/Localization.dart';
+import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/User.dart';
 import 'package:illinois/service/Storage.dart';
 import 'package:illinois/ui/health/debug/Covid19DebugActionPanel.dart';
@@ -33,6 +34,7 @@ import 'package:illinois/ui/health/debug/Covid19DebugKeysPanel.dart';
 import 'package:illinois/ui/health/debug/Covid19DebugSymptomsPanel.dart';
 import 'package:illinois/ui/health/debug/Covid19DebugPendingEventsPanel.dart';
 import 'package:illinois/ui/health/debug/Covid19DebugTraceContactPanel.dart';
+import 'package:illinois/ui/settings/debug/HttpProxySettingsPanel.dart';
 import 'package:illinois/ui/settings/debug/SettingsDebugMessagingPanel.dart';
 import 'package:illinois/ui/health/debug/Covid19DebugRulesPanel.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
@@ -46,12 +48,16 @@ class SettingsDebugPanel extends StatefulWidget {
   _SettingsDebugPanelState createState() => _SettingsDebugPanelState();
 }
 
-class _SettingsDebugPanelState extends State<SettingsDebugPanel> {
+class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements NotificationsListener{
 
   ConfigEnvironment _selectedEnv;
 
   @override
   void initState() {
+
+    NotificationService().subscribe(this, [
+      Config.notifyEnvironmentChanged,
+    ]);
     
     _selectedEnv = Config().configEnvironment;
 
@@ -60,6 +66,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> {
 
   @override
   void dispose() {
+    NotificationService().unsubscribe(this);
     super.dispose();
   }
 
@@ -227,6 +234,19 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> {
                               borderColor: Styles().colors.fillColorPrimary,
                               onTap: _onTapCovid19ExposureLogs)),
                       Padding(padding: EdgeInsets.only(top: 5), child: Container()),
+                      Visibility(
+                        visible: Config().configEnvironment == ConfigEnvironment.dev,
+                        child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+                            child: RoundedButton(
+                                label: "Http Proxy",
+                                backgroundColor: Styles().colors.background,
+                                fontSize: 16.0,
+                                textColor: Styles().colors.fillColorPrimary,
+                                borderColor: Styles().colors.fillColorPrimary,
+                                onTap: _onTapHttpProxy)),
+                      ),
+                      Padding(padding: EdgeInsets.only(top: 5), child: Container()),
                     ],
                   ),
                 ),
@@ -237,6 +257,15 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> {
       ),
       backgroundColor: Styles().colors.background,
     );
+  }
+
+  // NotificationsListener
+
+  @override
+  void onNotification(String name, dynamic param) {
+    if(name == Config.notifyEnvironmentChanged){
+      setState(() {});
+    }
   }
 
   // Helpers
@@ -364,6 +393,12 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> {
         Config().configEnvironment = env;
         _selectedEnv = Config().configEnvironment;
       });
+    }
+  }
+
+  void _onTapHttpProxy() {
+    if(Config().configEnvironment == ConfigEnvironment.dev) {
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => HttpProxySettingsPanel()));
     }
   }
 }
