@@ -19,7 +19,6 @@ import 'package:flutter/services.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/Service.dart';
-import 'package:illinois/service/Storage.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:intl/intl.dart';
 import 'package:timezone/timezone.dart' as timezone;
@@ -94,28 +93,8 @@ class AppDateTime with Service {
     return dateTime;
   }
 
-  DateTime getUtcTimeFromDeviceTime(DateTime dateTime) {
-    if (dateTime == null) {
-      return null;
-    }
-    DateTime dtUtc = dateTime.toUtc();
-    return dtUtc;
-  }
-
-  DateTime getDeviceTimeFromUtcTime(DateTime dateTimeUtc) {
-    if (dateTimeUtc == null) {
-      return null;
-    }
-    timezone.TZDateTime deviceDateTime = timezone.TZDateTime.from(dateTimeUtc, timezone.local);
-    return deviceDateTime;
-  }
-
   DateTime getUniLocalTimeFromUtcTime(DateTime dateTimeUtc) {
-    if (dateTimeUtc == null) {
-      return null;
-    }
-    timezone.TZDateTime tzDateTimeUni = timezone.TZDateTime.from(dateTimeUtc, _universityLocation);
-    return tzDateTimeUni;
+    return (dateTimeUtc != null) ? timezone.TZDateTime.from(dateTimeUtc, _universityLocation) : null;
   }
 
   String formatUniLocalTimeFromUtcTime(DateTime dateTimeUtc, String format) {
@@ -134,10 +113,9 @@ class AppDateTime with Service {
     if (AppString.isStringEmpty(format)) {
       format = iso8601DateTimeFormat;
     }
-    bool useDeviceLocalTimeZone = Storage().debugUseDeviceLocalTimeZone;
     String formattedDateTime;
     DateFormat dateFormat = DateFormat(format);
-    if (ignoreTimeZone || useDeviceLocalTimeZone) {
+    if (ignoreTimeZone) {
       try { formattedDateTime = dateFormat.format(dateTime); }
       catch (e) { print(e?.toString()); }
     } else {
@@ -152,59 +130,6 @@ class AppDateTime with Service {
     return formattedDateTime;
   }
 
-  String getDisplayDateTime(DateTime dateTimeUtc, {bool allDay = false, bool considerSettingsDisplayTime = true}) {
-    String timePrefix = getDisplayDay(dateTimeUtc: dateTimeUtc, allDay: allDay, considerSettingsDisplayTime: considerSettingsDisplayTime, includeAtSuffix: true);
-    String timeSuffix = getDisplayTime(dateTimeUtc: dateTimeUtc, allDay: allDay, considerSettingsDisplayTime: considerSettingsDisplayTime);
-    return '$timePrefix $timeSuffix';
-  }
-
-  String getDisplayDay({DateTime dateTimeUtc, bool allDay = false, bool considerSettingsDisplayTime = true, bool includeAtSuffix = false}) {
-    String displayDay = '';
-    if(dateTimeUtc != null) {
-      bool useDeviceLocalTime = Storage().debugUseDeviceLocalTimeZone;
-      DateTime dateTimeToCompare = _getDateTimeToCompare(dateTimeUtc: dateTimeUtc, considerSettingsDisplayTime: considerSettingsDisplayTime);
-      DateTime nowDevice = DateTime.now();
-      DateTime nowUtc = nowDevice.toUtc();
-      DateTime nowUniLocal = getUniLocalTimeFromUtcTime(nowUtc);
-      DateTime nowToCompare = useDeviceLocalTime ? nowDevice : nowUniLocal;
-      int calendarDaysDiff = dateTimeToCompare.day - nowToCompare.day;
-      int timeDaysDiff = dateTimeToCompare.difference(nowToCompare).inDays;
-      if ((calendarDaysDiff != 0) && (nowToCompare.hour > dateTimeToCompare.hour)) {
-        timeDaysDiff += 1;
-      }
-      if (timeDaysDiff == 0) {
-        displayDay = Localization().getStringEx('model.explore.time.today', 'Today');
-        if (!allDay && includeAtSuffix) {
-          displayDay += " ${Localization().getStringEx('model.explore.time.at', 'at')}";
-        }
-      }
-      else if (timeDaysDiff == 1) {
-        displayDay = Localization().getStringEx('model.explore.time.tomorrow', 'Tomorrow');
-        if (!allDay && includeAtSuffix) {
-          displayDay += " ${Localization().getStringEx('model.explore.time.at', 'at')}";
-        }
-      }
-      else if ((1 < timeDaysDiff) && (timeDaysDiff < 7)) {
-        displayDay = formatDateTime(dateTimeToCompare, format: "EEEE", ignoreTimeZone: true, showTzSuffix: false);
-      }
-      else {
-        displayDay = formatDateTime(dateTimeToCompare, format: "MMM dd", ignoreTimeZone: true, showTzSuffix: false);
-      }
-    }
-    return displayDay;
-  }
-
-  String getDisplayTime({DateTime dateTimeUtc, bool allDay = false, bool considerSettingsDisplayTime = true}) {
-    String timeToString = '';
-    if (dateTimeUtc != null && !allDay) {
-      bool useDeviceLocalTime = Storage().debugUseDeviceLocalTimeZone;
-      DateTime dateTimeToCompare = _getDateTimeToCompare(dateTimeUtc: dateTimeUtc, considerSettingsDisplayTime: considerSettingsDisplayTime);
-      String format = (dateTimeToCompare.minute == 0) ? 'ha' : 'h:mma';
-      timeToString = formatDateTime(dateTimeToCompare, format: format, ignoreTimeZone: true, showTzSuffix: !useDeviceLocalTime);
-    }
-    return timeToString;
-  }
-
   String getDayGreeting() {
     int currentHour = DateTime.now().hour;
     if (currentHour > 7 && currentHour < 12) {
@@ -216,21 +141,6 @@ class AppDateTime with Service {
     else {
       return Localization().getStringEx("logic.date_time.greeting.evening", "Good evening");
     }
-  }
-
-  DateTime _getDateTimeToCompare({DateTime dateTimeUtc, bool considerSettingsDisplayTime = true}) {
-    if (dateTimeUtc == null) {
-      return null;
-    }
-    DateTime dateTimeToCompare;
-    bool useDeviceLocalTime = Storage().debugUseDeviceLocalTimeZone;
-    //workaround for receiving incorrect date times from server for games: http://fightingillini.com/services/schedule_xml_2.aspx
-    if (useDeviceLocalTime && considerSettingsDisplayTime) {
-      dateTimeToCompare = getDeviceTimeFromUtcTime(dateTimeUtc);
-    } else {
-      dateTimeToCompare = getUniLocalTimeFromUtcTime(dateTimeUtc);
-    }
-    return dateTimeToCompare;
   }
 
   static int getWeekDayFromString(String weekDayName){

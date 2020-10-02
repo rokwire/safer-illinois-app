@@ -302,16 +302,6 @@ class Storage with Service {
 
   //TBD
 
-  static const String debugUseDeviceLocalTimeZoneKey  = 'debug_use_device_local_time_zone';
-
-  bool get debugUseDeviceLocalTimeZone {
-    return _getBoolWithName(debugUseDeviceLocalTimeZoneKey, defaultValue: true);
-  }
-
-  set debugUseDeviceLocalTimeZone(bool value) {
-    _setBoolWithName(debugUseDeviceLocalTimeZoneKey, value);
-  }
-
   static const String debugMapThresholdDistanceKey  = 'debug_map_threshold_distance';
 
   int get debugMapThresholdDistance {
