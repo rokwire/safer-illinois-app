@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - "ios/Runner/GoogleService-Info-Debug/Release.plist" secret file refs updated to "ios/Runner/GoogleService-Info-Dev/Prod.plist".
+- Locale strings from net just override the built-in asset strings [236](https://github.com/rokwire/safer-illinois-app/issues/236).
 
 
 ## [2.7.0] - 2020-09-30
