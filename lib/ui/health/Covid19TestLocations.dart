@@ -557,40 +557,6 @@ class _TestLocation extends StatelessWidget{
     return null;
   }
 
-  /*bool _determineIsOpen(HealthLocationDayOfOperation period){
-    String start = period?.openTime?.toUpperCase();
-    String end = period?.closeTime?.toUpperCase();
-    TimeOfDay startPeriod = start!=null? TimeOfDay.fromDateTime(AppDateTime().dateTimeFromString(start,format: "hh:mma")) : null;
-    TimeOfDay endPeriod = end!=null? TimeOfDay.fromDateTime(AppDateTime().dateTimeFromString(end,format: "hh:mma")) : null;
-    TimeOfDay now = TimeOfDay.fromDateTime(DateTime.now());
-    if(startPeriod!=null && endPeriod!=null){
-      int startMinutes = startPeriod.hour * 60 + startPeriod.minute;
-      int endtMinutes = endPeriod.hour * 60 + endPeriod.minute;
-      int nowMinutes = now.hour * 60 + now.minute;
-
-      return startMinutes<nowMinutes && nowMinutes<endtMinutes;
-    }
-
-    return false;
-  }*/
-
-  /*bool _determineWillOpen(HealthLocationDayOfOperation period) {
-    String start = period?.openTime?.toUpperCase();
-    TimeOfDay startPeriod = start != null
-        ? TimeOfDay.fromDateTime(
-            AppDateTime().dateTimeFromString(start, format: "hh:mma"))
-        : null;
-    TimeOfDay now = TimeOfDay.fromDateTime(DateTime.now());
-    if (startPeriod != null) {
-      int startMinutes = startPeriod.hour * 60 + startPeriod.minute;
-      int nowMinutes = now.hour * 60 + now.minute;
-
-      return nowMinutes < startMinutes;
-    }
-
-    return false;
-  }*/
-
   /*void _onTapContact() async{
     await url_launcher.launch("tel:"+testLocation?.contact ?? "");
   }*/

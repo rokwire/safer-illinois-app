@@ -27,23 +27,6 @@ import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 class AppDateTime with Service {
   static final AppDateTime _instance = new AppDateTime._internal();
 
-  static final iso8601DateTimeFormat = 'yyyy-MM-ddTHH:mm:ss';
-  static final eventsServerCreateDateTimeFormat =  'yyyy/MM/ddTHH:mm:ss';
-  static final scheduleServerQueryDateTimeFormat = 'MM/dd/yyyy';
-  static final serverResponseDateTimeFormat = 'E, dd MMM yyyy HH:mm:ss v';
-  static final gameResponseDateTimeFormat = 'yyyy-MM-ddTHH:mm:ssZ';
-  static final gameResponseDateTimeFormat2 = 'MM/dd/yyyy HH:mm:ss a';
-  static final illiniCashTransactionHistoryDateFormat = 'MM-dd-yyyy';
-  static final eventFilterDisplayDateFormat = 'MM/dd';
-  static final voterDateFormat = "yyyy/MM/dd";
-  static final parkingEventDateFormat = "yyyy-MM-ddTHH:mm:ssZ";
-  static final covid19UpdateDateFormat = "MMMM dd, yyyy";
-  static final covid19QrDateFormat = "MMMM dd, yyyy, HH:mm:ss a";
-  static final covid19NewsCardDateFormat = "MMMM dd";
-  static final covid19ServerDateFormat = "yyyy-MM-ddTHH:mm:ss.SSSZ";
-  static final covid19OSFServerDateFormat = "yyyy-MM-ddTHH:mm:ssZ";
-  static final covid19ReportTestDateFormat = 'MM/dd/yyyy h:mm a';
-
   factory AppDateTime() {
     return _instance;
   }
@@ -74,23 +57,20 @@ class AppDateTime with Service {
   }
 
   DateTime dateTimeFromString(String dateTimeString, {String format, bool isUtc = false}) {
-    if (AppString.isStringEmpty(dateTimeString)) {
-      return null;
+    if (AppString.isStringNotEmpty(dateTimeString)) {
+      try {
+        if (AppString.isStringNotEmpty(format)) {
+          return DateFormat(format).parse(dateTimeString, isUtc);
+        }
+        else {
+          return DateTime.tryParse(dateTimeString);
+        }
+      }
+      on Exception catch (e) {
+        Log.e(e.toString());
+      }
     }
-    DateFormat dateFormat;
-    DateTime dateTime;
-    if (AppString.isStringNotEmpty(format)) {
-      dateFormat = DateFormat(format);
-    }
-    try {
-      dateTime =
-      (dateFormat != null) ? dateFormat.parse(dateTimeString, isUtc) : DateTime.parse(
-          dateTimeString);
-    }
-    on Exception catch (e) {
-      Log.e(e.toString());
-    }
-    return dateTime;
+    return null;
   }
 
   DateTime getUniLocalTimeFromUtcTime(DateTime dateTimeUtc) {
@@ -105,13 +85,9 @@ class AppDateTime with Service {
     return null;
   }
 
-  String formatDateTime(DateTime dateTime,
-      {String format, bool ignoreTimeZone = false, bool showTzSuffix = false}) {
+  String formatDateTime(DateTime dateTime, { String format = 'yyyy-MM-ddTHH:mm:ss', bool ignoreTimeZone = false }) {
     if (dateTime == null) {
       return null;
-    }
-    if (AppString.isStringEmpty(format)) {
-      format = iso8601DateTimeFormat;
     }
     String formattedDateTime;
     DateFormat dateFormat = DateFormat(format);
@@ -123,9 +99,6 @@ class AppDateTime with Service {
           dateTime, _universityLocation);
       try { formattedDateTime = dateFormat.format(tzDateTime); }
       catch(e) { print(e?.toString()); } 
-    }
-    if (showTzSuffix) {
-      formattedDateTime += ' CT';
     }
     return formattedDateTime;
   }

@@ -101,7 +101,7 @@ class _Covid19DebugTraceContactPanelState extends State<Covid19DebugTraceContact
 
 
   Widget _buildContent() {
-    String dateText = _selectedDate != null ? AppDateTime().formatDateTime(_selectedDate, format: AppDateTime.scheduleServerQueryDateTimeFormat) : "-";
+    String dateText = _selectedDate != null ? AppDateTime().formatDateTime(_selectedDate, format: 'MM/dd/yyyy') : "-";
     return Padding(padding: EdgeInsets.all(32),
       child: Column(crossAxisAlignment:CrossAxisAlignment.start, children: <Widget>[
           Semantics(container: true, child:

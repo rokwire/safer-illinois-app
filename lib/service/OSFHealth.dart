@@ -19,7 +19,6 @@
 
 import 'package:http/http.dart';
 import 'package:illinois/model/Health.dart';
-import 'package:illinois/service/AppDateTime.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/DeepLink.dart';
@@ -128,7 +127,7 @@ class OSFHealth with Service implements NotificationsListener {
                     if(code != null && dateStr != null && valueStr != null){
                       DateTime dateUtc;
                       try {
-                        dateUtc = DateFormat(AppDateTime.covid19OSFServerDateFormat).parse(dateStr, true);
+                        dateUtc = DateFormat("yyyy-MM-ddTHH:mm:ssZ").parse(dateStr, true);
                       } catch(e){ print(e); }
                       osfTests.add(Covid19OSFTest(
                           dateUtc: dateUtc,

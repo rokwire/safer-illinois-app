@@ -199,7 +199,7 @@ class _Covid19DebugSymptomsPanelState extends State<Covid19DebugSymptomsPanel> {
   }
 
   Widget _buildDatePicker() {
-    String dateText = _selectedDate != null ? AppDateTime().formatDateTime(_selectedDate, format: AppDateTime.scheduleServerQueryDateTimeFormat) : "-";
+    String dateText = _selectedDate != null ? AppDateTime().formatDateTime(_selectedDate, format: 'MM/dd/yyyy') : "-";
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
       Padding(padding: EdgeInsets.only(bottom: 4),
         child: Text(Localization().getStringEx("panel.health.covid19.debug.trace.label.date","Date"), style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.fillColorPrimary),),

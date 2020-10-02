@@ -46,7 +46,7 @@ class Covid19Utils {
           newQrBytes[i] = pngBytes.getUint8(i);
         }
 
-        String dateTimeStr = AppDateTime().formatDateTime(DateTime.now(), format: AppDateTime.covid19QrDateFormat);
+        String dateTimeStr = AppDateTime().formatDateTime(DateTime.now(), format: "MMMM dd, yyyy, HH:mm:ss a");
         String fileName = "Illinois COVID-19 Code $dateTimeStr";
 
         return await Gallery().storeImage(imageBytes: newQrBytes, name: fileName);
