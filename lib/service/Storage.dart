@@ -300,38 +300,6 @@ class Storage with Service {
   //////////////
   // Debug
 
-  //TBD
-
-  static const String debugMapThresholdDistanceKey  = 'debug_map_threshold_distance';
-
-  int get debugMapThresholdDistance {
-    return _getIntWithName(debugMapThresholdDistanceKey, defaultValue: 200);
-  }
-
-  set debugMapThresholdDistance(int value) {
-    _setIntWithName(debugMapThresholdDistanceKey, value);
-  }
-
-  static const String debugMapLocationProviderKey  = 'debug_map_location_provider';
-
-  bool get debugMapLocationProvider {
-    return _getBoolWithName(debugMapLocationProviderKey, defaultValue: false);
-  }
-
-  set debugMapLocationProvider(bool value) {
-    _setBoolWithName(debugMapLocationProviderKey, value);
-  }
-
-  static const String debugMapHideLevelsKey  = 'debug_map_hide_levels';
-
-  bool get debugMapHideLevels {
-    return _getBoolWithName(debugMapHideLevelsKey, defaultValue: false);
-  }
-
-  set debugMapHideLevels(bool value) {
-    _setBoolWithName(debugMapHideLevelsKey, value);
-  }
-
   //////////////
   // Permanent subscription
 

@@ -37,7 +37,6 @@ import 'package:illinois/ui/settings/debug/SettingsDebugMessagingPanel.dart';
 import 'package:illinois/ui/health/debug/Covid19DebugRulesPanel.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
-import 'package:illinois/ui/widgets/RibbonButton.dart';
 
 import 'package:illinois/utils/Utils.dart';
 import 'package:illinois/service/Styles.dart';
@@ -51,13 +50,9 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> {
 
   ConfigEnvironment _selectedEnv;
 
-  final TextEditingController _mapThresholdDistanceController = TextEditingController();
-
   @override
   void initState() {
     
-    _mapThresholdDistanceController.text = '${Storage().debugMapThresholdDistance}';
-
     _selectedEnv = Config().configEnvironment;
 
     super.initState();
@@ -65,15 +60,6 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> {
 
   @override
   void dispose() {
-    
-    // Map Threshold Distance
-    int mapThresholdDistance = (_mapThresholdDistanceController.text != null) ? int.tryParse(_mapThresholdDistanceController.text) : null;
-    if (mapThresholdDistance != null) {
-      Storage().debugMapThresholdDistance = mapThresholdDistance;
-    }
-    _mapThresholdDistanceController.dispose();
-
-
     super.dispose();
   }
 
@@ -108,6 +94,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
+                      Padding(padding: EdgeInsets.only(top: 4), child: Container()),
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                         child: Text(AppString.isStringNotEmpty(userUuid) ? 'Uuid: $userUuid' : "unknown uuid"),
@@ -121,23 +108,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> {
                         child: Text('Firebase: $firebaseProjectId'),
                       ),
                       
-                      Container(height: 1, color: Styles().colors.surfaceAccent),
-                      ToggleRibbonButton(label: 'Show map location source', toggled: Storage().debugMapLocationProvider, onTap: _onMapLocationProvider),
-                      ToggleRibbonButton(label: 'Show map levels', toggled: !Storage().debugMapHideLevels, onTap: _onMapShowLevels),
-                      Container(height: 1, color: Styles().colors.surfaceAccent),
-                      Container(color: Colors.white, child: Padding(padding: EdgeInsets.only(top: 5), child: Container(height: 1, color: Styles().colors.surfaceAccent))),
-                      Container(
-                          color: Colors.white,
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                            child: TextFormField(
-                                controller: _mapThresholdDistanceController,
-                                keyboardType: TextInputType.number,
-                                validator: _validateThresoldDistance,
-                                decoration: InputDecoration(
-                                    border: OutlineInputBorder(), hintText: "Enter map threshold distance in meters", labelText: 'Threshold Distance (meters)')),
-                          )),
-                      Container(color: Colors.white, child: Padding(padding: EdgeInsets.only(top: 5), child: Container(height: 1, color: Styles().colors.surfaceAccent))),
+                      Padding(padding: EdgeInsets.only(top: 5), child: Container(height: 1, color: Styles().colors.surfaceAccent)),
                       Padding(padding: EdgeInsets.symmetric(vertical: 10), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[Padding(
                         padding: EdgeInsets.only(left: 16), child: Text('Config Environment: '),), ListView.separated(
                         physics: NeverScrollableScrollPhysics(),
@@ -152,6 +123,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> {
                         },
                       )
                       ],),),
+                      Padding(padding: EdgeInsets.only(bottom: 10), child: Container(height: 1, color: Styles().colors.surfaceAccent)),
                       Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                           child: RoundedButton(
@@ -268,23 +240,6 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> {
   }
 
   // Helpers
-
-  String _validateThresoldDistance(String value) {
-    return (int.tryParse(value) == null) ? 'Please enter a number.' : null;
-  }
-
-
-  void _onMapLocationProvider() {
-    setState(() {
-      Storage().debugMapLocationProvider = !Storage().debugMapLocationProvider;
-    });
-  }
-
-  void _onMapShowLevels() {
-    setState(() {
-      Storage().debugMapHideLevels = !Storage().debugMapHideLevels;
-    });
-  }
 
   Function _onMessagingClicked() {
     return () {

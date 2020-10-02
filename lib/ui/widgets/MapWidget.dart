@@ -17,7 +17,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:illinois/service/Storage.dart';
 import 'package:illinois/utils/Utils.dart';
 
 typedef void MapWidgetCreatedCallback(MapController controller);
@@ -74,16 +73,13 @@ class MapController {
   int get mapId { return _mapId; }
 
   Future<void> placePOIs(List<dynamic> explores) async {
-    var options = {
-      "LocationThresoldDistance": Storage().debugMapThresholdDistance
-    };
     List<dynamic> jsonData = List<dynamic>();
     if (AppCollection.isCollectionNotEmpty(explores)) {
       for (dynamic explore in explores) {
         jsonData.add(explore.toJson());
       }
     }
-    return _channel.invokeMethod('placePOIs', { "explores": jsonData, "options": options});
+    return _channel.invokeMethod('placePOIs', { "explores": jsonData});
   }
 
   Future<void>enable(bool enable) async {
