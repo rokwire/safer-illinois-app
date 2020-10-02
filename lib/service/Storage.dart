@@ -272,34 +272,6 @@ class Storage with Service {
     _setBoolWithName(locationServicesPermisionRequestedKey, value);
   }
 
-  //////////////////
-  // Favorites
-
-  static const String favoritesKey  = 'user_favorites_list';
-
-  List<Object> get favorites{
-    List<String> storedValue = _sharedPreferences.getStringList(favoritesKey);
-    return storedValue?? List<String>();
-  }
-
-  set favorites(List<Object> favorites){
-    List<String> storeValue = favorites.map((Object e){return e.toString();}).toList();
-    _sharedPreferences.setStringList(favoritesKey, storeValue);
-  }
-
-  static const String favoritesDialogWasVisibleKey  = 'favorites_dialog_was_visible';
-
-  bool get favoritesDialogWasVisible {
-    return _getBoolWithName(favoritesDialogWasVisibleKey);
-  }
-
-  set favoritesDialogWasVisible(bool value) {
-    _setBoolWithName(favoritesDialogWasVisibleKey, value);
-  }
-
-  //////////////
-  // Debug
-
   //////////////
   // Permanent subscription
 
