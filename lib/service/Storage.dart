@@ -129,16 +129,6 @@ class Storage with Service {
     _setStringWithName(userKey, userToString);
   }
 
-  static const String phoneNumberKey  = 'user_phone_number';
-
-  String get phoneNumber {
-    return _getStringWithName(phoneNumberKey);
-  }
-
-  set phoneNumber(String phoneNumber) {
-    _setStringWithName(phoneNumberKey, phoneNumber);
-  }
-
   static const String localUserUuidKey  = 'user_local_uuid';
 
   String get localUserUuid {
@@ -256,21 +246,6 @@ class Storage with Service {
     _setIntWithName(authCardTimeKey, value);
   }
 
-  /////////////////////
-  // Date offset
-
-  static const String offsetDateKey  = 'settings_offset_date';
-
-  set offsetDate(DateTime value) {
-    _setStringWithName(offsetDateKey, AppDateTime().formatDateTime(value, ignoreTimeZone: true));
-  }
-
-  DateTime get offsetDate {
-    String dateString = _getStringWithName(offsetDateKey);
-    return AppString.isStringNotEmpty(dateString) ? AppDateTime()
-        .dateTimeFromString(dateString) : null;
-  }
-
   /////////////////
   // Language
 
@@ -324,6 +299,8 @@ class Storage with Service {
 
   //////////////
   // Debug
+
+  //TBD
 
   static const String debugUseDeviceLocalTimeZoneKey  = 'debug_use_device_local_time_zone';
 

@@ -54,12 +54,6 @@ class AppDateTime with Service {
   timezone.Location _universityLocation;
   String _localTimeZone;
 
-  DateTime get now {
-    DateTime now = Storage().offsetDate;
-    return now != null ? now : DateTime.now();
-  }
-
-
   @override
   Future<void> initService() async {
     _init();

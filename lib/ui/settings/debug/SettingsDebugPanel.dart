@@ -19,7 +19,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:illinois/service/AppDateTime.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
@@ -50,15 +49,12 @@ class SettingsDebugPanel extends StatefulWidget {
 
 class _SettingsDebugPanelState extends State<SettingsDebugPanel> {
 
-  DateTime _offsetDate;
   ConfigEnvironment _selectedEnv;
 
   final TextEditingController _mapThresholdDistanceController = TextEditingController();
 
   @override
   void initState() {
-    
-    _offsetDate = Storage().offsetDate;
     
     _mapThresholdDistanceController.text = '${Storage().debugMapThresholdDistance}';
 
@@ -157,41 +153,6 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> {
                         },
                       )
                       ],),),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                              child: RoundedButton(
-                                label: "Clear Offset",
-                                backgroundColor: Styles().colors.background,
-                                fontSize: 16.0,
-                                textColor: Styles().colors.fillColorPrimary,
-                                borderColor: Styles().colors.fillColorPrimary,
-                                onTap: () {
-                                  _clearDateOffset();
-                                },
-                              )),
-                          Expanded(
-                              child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                            child: Text(_offsetDate != null ? AppDateTime().formatDateTime(_offsetDate, format: AppDateTime.gameResponseDateTimeFormat2) : "None",
-                                textAlign: TextAlign.end),
-                          ))
-                        ],
-                      ),
-                      Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                          child: RoundedButton(
-                            label: "Sports Offset",
-                            backgroundColor: Styles().colors.background,
-                            fontSize: 16.0,
-                            textColor: Styles().colors.fillColorPrimary,
-                            borderColor: Styles().colors.fillColorPrimary,
-                            onTap: () {
-                              _changeDate();
-                            },
-                          )),
                       Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                           child: RoundedButton(
@@ -313,44 +274,6 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> {
     return (int.tryParse(value) == null) ? 'Please enter a number.' : null;
   }
 
-  _clearDateOffset() {
-    setState(() {
-      Storage().offsetDate = _offsetDate = null;
-    });
-  }
-
-  _changeDate() async {
-    DateTime offset = _offsetDate ?? DateTime.now();
-
-    DateTime firstDate = DateTime.fromMillisecondsSinceEpoch(offset.millisecondsSinceEpoch).add(Duration(days: -365));
-    DateTime lastDate = DateTime.fromMillisecondsSinceEpoch(offset.millisecondsSinceEpoch).add(Duration(days: 365));
-
-    DateTime date = await showDatePicker(
-      context: context,
-      firstDate: firstDate,
-      lastDate: lastDate,
-      initialDate: offset,
-      builder: (BuildContext context, Widget child) {
-        return Theme(
-          data: ThemeData.light(),
-          child: child,
-        );
-      },
-    );
-
-    if (date == null) return;
-
-    TimeOfDay time = await showTimePicker(context: context, initialTime: new TimeOfDay(hour: date.hour, minute: date.minute));
-    if (time == null) return;
-
-    int endHour = time != null ? time.hour : date.hour;
-    int endMinute = time != null ? time.minute : date.minute;
-    offset = new DateTime(date.year, date.month, date.day, endHour, endMinute);
-
-    setState(() {
-      Storage().offsetDate = _offsetDate = offset;
-    });
-  }
 
   void _onMapLocationProvider() {
     setState(() {
@@ -494,13 +417,5 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> {
         _selectedEnv = Config().configEnvironment;
       });
     }
-  }
-
-  // SettingsListenerMixin
-
-  void onDateOffsetChanged() {
-    setState(() {
-      _offsetDate = Storage().offsetDate;
-    });
   }
 }
