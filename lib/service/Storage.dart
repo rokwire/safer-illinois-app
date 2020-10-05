@@ -259,19 +259,6 @@ class Storage with Service {
     _setStringWithName(currentLanguageKey, value);
   }
 
-  //////////////////
-  // Location Services
-
-  static const String locationServicesPermisionRequestedKey  = 'location_services_permision_requested';
-
-  bool get locationServicesPermisionRequested {
-    return _getBoolWithName(locationServicesPermisionRequestedKey);
-  }
-
-  set locationServicesPermisionRequested(bool value) {
-    _setBoolWithName(locationServicesPermisionRequestedKey, value);
-  }
-
   //////////////
   // Permanent subscription
 
