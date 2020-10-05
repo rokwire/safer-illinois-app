@@ -17,7 +17,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:illinois/model/Exposure.dart';
-import 'package:illinois/service/AppDateTime.dart';
+import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Exposure.dart';
 import 'package:illinois/service/NotificationService.dart';
@@ -242,8 +242,8 @@ class _Covid19DebugExposurePanelState extends State<Covid19DebugExposurePanel> i
     List<Widget> tekWidgets = <Widget>[];
     if (_teks != null) {
       for (ExposureTEK tek in _teks) {
-        String time = AppDateTime().formatDateTime(tek.dateUtc, format: 'MM/dd HH:mm:ss UTC');
-        String expiretime = AppDateTime().formatDateTime(tek.expireUtc, format: 'MM/dd HH:mm:ss UTC');
+        String time = AppDateTime.formatDateTime(tek.dateUtc, format: 'MM/dd HH:mm:ss UTC');
+        String expiretime = AppDateTime.formatDateTime(tek.expireUtc, format: 'MM/dd HH:mm:ss UTC');
         tekWidgets.add(Row(children: <Widget>[Text("${tek.tek} | start: $time | expire: $expiretime", style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 12, color: Color(0xff494949),),),],),);
       }
     }
@@ -356,7 +356,7 @@ class _Covid19DebugExposurePanelState extends State<Covid19DebugExposurePanel> i
     List<Widget> exposureWidgets = <Widget>[];
     if (_exposures != null) {
       for (ExposureRecord exposure in _exposures) {
-        String time = AppDateTime().formatDateTime(exposure.dateUtc, format: 'MM/dd HH:mm:ss UTC');
+        String time = AppDateTime.formatDateTime(exposure.dateUtc, format: 'MM/dd HH:mm:ss UTC');
         exposureWidgets.add(Row(children: <Widget>[Text("RPI: ${exposure.rpi} \nTime: $time | Duration: ${exposure.durationDisplayString}", style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 12, color: Color(0xff494949),),),],),);
       }
     }
@@ -449,7 +449,7 @@ class _Covid19DebugExposurePanelState extends State<Covid19DebugExposurePanel> i
     String rpi = (exposure != null) ? exposure['rpi'] : null;
     int timestamp = (exposure != null) ? exposure['timestamp'] : null;
     int rssi = (exposure != null) ? exposure['rssi'] : null;
-    String time = (timestamp != null) ? AppDateTime().formatDateTime(DateTime.fromMillisecondsSinceEpoch(timestamp, isUtc: true), format: 'MM/dd HH:mm:ss UTC') : null;
+    String time = (timestamp != null) ? AppDateTime.formatDateTime(DateTime.fromMillisecondsSinceEpoch(timestamp, isUtc: true), format: 'MM/dd HH:mm:ss UTC') : null;
     setState(() {
       _connection = Exposure().isStarted ? "RPI: $rpi\nTime: $time | RSSI: $rssi" : '';
     });
@@ -499,7 +499,7 @@ class _Covid19DebugExposurePanelState extends State<Covid19DebugExposurePanel> i
       if (result != null) {
         copied = 0;
         for (ExposureTEK tek in result) {
-          String time = AppDateTime().formatDateTime(tek.dateUtc, format: 'MM/dd HH:mm:ss UTC');
+          String time = AppDateTime.formatDateTime(tek.dateUtc, format: 'MM/dd HH:mm:ss UTC');
           copy += "${tek.tek} | $time\n";
           copied++;
         }
@@ -554,7 +554,7 @@ class _Covid19DebugExposurePanelState extends State<Covid19DebugExposurePanel> i
     int copied = 0;
     if (_teks != null) {
       for (ExposureTEK tek in _teks) {
-        String time = AppDateTime().formatDateTime(tek.dateUtc, format: 'MM/dd HH:mm:ss UTC');
+        String time = AppDateTime.formatDateTime(tek.dateUtc, format: 'MM/dd HH:mm:ss UTC');
         copy += "${tek.tek} | $time\n";
         copied++;
       }
@@ -595,7 +595,7 @@ class _Covid19DebugExposurePanelState extends State<Covid19DebugExposurePanel> i
     int copied = 0;
     if (_exposures != null) {
       for (ExposureRecord exposure in _exposures) {
-        String time = AppDateTime().formatDateTime(exposure.dateUtc, format: 'MM/dd HH:mm:ss UTC');
+        String time = AppDateTime.formatDateTime(exposure.dateUtc, format: 'MM/dd HH:mm:ss UTC');
         copy += "${exposure.rpi} | Time: $time | Duration: ${exposure.durationDisplayString}\n";
         copied++;
       }

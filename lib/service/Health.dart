@@ -23,7 +23,7 @@ import 'package:http/http.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/model/Health2.dart';
 import 'package:illinois/service/Analytics.dart';
-import 'package:illinois/service/AppDateTime.dart';
+import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/BluetoothServices.dart';
@@ -1015,22 +1015,22 @@ class Health with Service implements NotificationsListener {
     Set<String> testTypeSet = testTypes != null ? testTypes.map((entry) => entry.name).toSet() : null;
     if (osfTests != null) {
       List<Covid19OSFTest> processed = List<Covid19OSFTest>();
-      DateTime lastOsfTestDate = Storage().lastHealthCovid19OsfTestDate;
-      DateTime latestOsfTestDate;
+      DateTime lastOsfTestDateUtc = Storage().lastHealthCovid19OsfTestDateUtc;
+      DateTime latestOsfTestDateUtc;
 
       for (Covid19OSFTest osfTest in osfTests) {
-        if ((testTypeSet != null && testTypeSet.contains(osfTest.testType)) && osfTest.dateUtc != null && (lastOsfTestDate == null || lastOsfTestDate.isBefore(osfTest.dateUtc))) {
+        if ((testTypeSet != null && testTypeSet.contains(osfTest.testType)) && osfTest.dateUtc != null && (lastOsfTestDateUtc == null || lastOsfTestDateUtc.isBefore(osfTest.dateUtc))) {
           Covid19History testHistory = await _applyOsfTestHistory(osfTest);
           if (testHistory != null) {
             processed.add(osfTest);
-            if ((latestOsfTestDate == null) || latestOsfTestDate.isBefore(osfTest.dateUtc)) {
-              latestOsfTestDate = osfTest.dateUtc;
+            if ((latestOsfTestDateUtc == null) || latestOsfTestDateUtc.isBefore(osfTest.dateUtc)) {
+              latestOsfTestDateUtc = osfTest.dateUtc;
             }
           }
         }
       }
-      if (latestOsfTestDate != null) {
-        Storage().lastHealthCovid19OsfTestDate = latestOsfTestDate;
+      if (latestOsfTestDateUtc != null) {
+        Storage().lastHealthCovid19OsfTestDateUtc = latestOsfTestDateUtc;
       }
 
       if (0 < processed.length) {
@@ -1668,7 +1668,7 @@ class Health with Service implements NotificationsListener {
       Storage().currentHealthCountyId = _currentCountyId = null;
       Storage().lastHealthProvider = null;
       Storage().lastHealthCovid19Status = null;
-      Storage().lastHealthCovid19OsfTestDate = null;
+      Storage().lastHealthCovid19OsfTestDateUtc = null;
       _healthUserPrivateKey = null;
       _healthUser = null;
 

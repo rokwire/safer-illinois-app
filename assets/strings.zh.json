@@ -689,6 +689,7 @@
 	"logic.date_time.greeting.morning": "早上好",
 	"logic.date_time.greeting.afternoon": "下午好",
 	"logic.date_time.greeting.evening": "晚上好",
+	"logic.date_time.greeting.day": "美好的一天",
 
 	"logic.polls.unable_to_load_poll": "无法加载投票",
 	"logic.polls.no_polls_with_pin": "此4位数的投票代码 # 没有投票",

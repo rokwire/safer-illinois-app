@@ -689,6 +689,7 @@
     "logic.date_time.greeting.morning": "Good morning",
     "logic.date_time.greeting.afternoon": "Good afternoon",
     "logic.date_time.greeting.evening": "Good evening",
+    "logic.date_time.greeting.day": "Good day",
 
     "logic.polls.unable_to_load_poll": "Unable to load poll",
     "logic.polls.no_polls_with_pin": "There are no polls with this 4 Digit Poll #",

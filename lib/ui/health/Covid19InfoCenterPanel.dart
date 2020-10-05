@@ -21,7 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
-import 'package:illinois/service/AppDateTime.dart';
+import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Connectivity.dart';
 import 'package:illinois/service/Health.dart';
@@ -233,8 +233,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
       return null;
     }
     String headingText = Localization().getStringEx("panel.covid19home.label.most_recent_event.title", "MOST RECENT EVENT");
-    DateTime entryDate = _lastHistory.dateUtc;
-    String dateText = (entryDate != null) ? AppDateTime().formatDateTime(entryDate, format:"MMMM dd, yyyy") : '';
+    String dateText = AppDateTime.formatDateTime(_lastHistory?.dateUtc?.toLocal(), format:"MMMM dd, yyyy") ?? '';
     String historyTitle = "", info = "";
     Covid19HistoryBlob blob = _lastHistory.blob;
     if(blob.isTest){
@@ -318,7 +317,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
     String warningTitle = _status?.blob?.displayWarning;
     bool hasNextStep = AppString.isStringNotEmpty(nextStepTitle) || AppString.isStringNotEmpty(nextStepHtml) || AppString.isStringNotEmpty(warningTitle);
     String headingText = hasNextStep ? Localization().getStringEx("panel.covid19home.label.next_step.title", "NEXT STEP") : '';
-    String headingDate = (hasNextStep && (_status?.blob?.nextStepDateUtc != null)) ? AppDateTime().formatDateTime(_status.blob.nextStepDateUtc.toLocal(), format: "MMMM dd, yyyy") : '';
+    String headingDate = (hasNextStep && (_status?.blob?.nextStepDateUtc != null)) ? AppDateTime.formatDateTime(_status.blob.nextStepDateUtc.toLocal(), format: "MMMM dd, yyyy") : '';
 
     List<Widget> content = <Widget>[
       Row(children: <Widget>[

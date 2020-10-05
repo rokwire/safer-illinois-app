@@ -16,7 +16,6 @@
 
 
 import 'package:illinois/service/Analytics.dart';
-import 'package:illinois/service/AppDateTime.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/Assets.dart';
 import 'package:illinois/service/Auth.dart';
@@ -81,7 +80,6 @@ class Services {
     Config(),
 
     AppLivecycle(),
-    AppDateTime(),
     Connectivity(),
     LocationServices(),
     BluetoothServices(),

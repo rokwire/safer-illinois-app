@@ -19,7 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
-import 'package:illinois/service/AppDateTime.dart';
+import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
@@ -549,7 +549,7 @@ class _Covid19HistoryEntryState extends State<_Covid19HistoryEntry> with SingleT
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
            children: <Widget>[
-             Text(AppDateTime().formatDateTime(widget.history?.dateUtc?.toLocal(),format:dateFormat) ?? '',style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface,)),
+             Text(AppDateTime.formatDateTime(widget.history?.dateUtc?.toLocal(), format:dateFormat) ?? '',style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface,)),
              Container(height: 4,),
              Row(children: <Widget>[
               Expanded(child:

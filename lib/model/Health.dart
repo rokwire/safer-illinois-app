@@ -18,7 +18,7 @@ import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:illinois/service/AppDateTime.dart';
+import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/utils/Crypt.dart';
 import 'package:illinois/utils/Utils.dart';
@@ -154,7 +154,7 @@ class Covid19StatusBlob {
         return Localization().getStringEx('model.explore.time.tomorrow', 'Tomorrow').toLowerCase();
       }
       else {
-        return AppDateTime().formatDateTime(nextStepDateUtc.toLocal(), format: format);
+        return AppDateTime.formatDateTime(nextStepDateUtc.toLocal(), format: format);
       }
     }
     return null;
@@ -1307,7 +1307,7 @@ class HealthLocationDayOfOperation {
   // Helper function for conversion work time string to number of minutes
 
   static int _timeMinutes(String time, {String format = 'hh:mma'}) {
-    DateTime dateTime = (time != null) ? AppDateTime().dateTimeFromString(time.toUpperCase(), format: format) : null;
+    DateTime dateTime = (time != null) ? AppDateTime.parseDateTime(time.toUpperCase(), format: format) : null;
     TimeOfDay timeOfDay = (dateTime != null) ? TimeOfDay.fromDateTime(dateTime) : null;
     return _timeOfDayMinutes(timeOfDay);
   }
