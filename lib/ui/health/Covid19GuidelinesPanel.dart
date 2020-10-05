@@ -201,16 +201,19 @@ class _Covid19GuidelinesPanelState extends State<Covid19GuidelinesPanel> impleme
 
   //County
   Widget _buildCountyDropdown(){
-    String countyName = _selectedCounty?.nameDisplayText;
+    bool editable = _counties!=null && _counties.length>1;
+    String countyName = _selectedCounty?.nameDisplayText??"";
     return Padding(padding: EdgeInsets.symmetric(horizontal: 32, vertical: 0),
         child: Column(crossAxisAlignment:CrossAxisAlignment.center, children: <Widget>[
           Semantics(container: true, child:
           Padding(padding: EdgeInsets.only(bottom: 0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center, children: <Widget>[
-              Container(
+              editable?
+                Container(
                 child: Padding(padding: EdgeInsets.only(left: 12, right: 16),
-                    child: DropdownButtonHideUnderline(
+                    child:
+                    DropdownButtonHideUnderline(
                         child:DropdownButton(
                           icon: Icon(Icons.arrow_drop_down, color:Styles().colors.fillColorPrimary, semanticLabel: null,),
                           isExpanded: true,
@@ -222,7 +225,16 @@ class _Covid19GuidelinesPanelState extends State<Covid19GuidelinesPanel> impleme
                         )
                     )
                 ),
-              )
+              ) :
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(children: [
+                  Expanded(child:
+                    Text(countyName != null ? "$countyName ${Localization().getStringEx("app.common.label.county", "County")}":"",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.fillColorPrimary,),),
+                  )
+              ],))
             ],),
           ),
           ),
@@ -251,6 +263,9 @@ class _Covid19GuidelinesPanelState extends State<Covid19GuidelinesPanel> impleme
   }
 
   HealthCounty get _selectedCounty {
+    if(Health().currentCountyId==null && (_counties?.length==1??false)){ // if only one county
+      return _counties[0];
+    }
     return (_counties != null) ? _counties[Health().currentCountyId] : null;
   }
 
@@ -262,7 +277,9 @@ class _Covid19GuidelinesPanelState extends State<Covid19GuidelinesPanel> impleme
       if (mounted) {
         setState(() {
           _loadingProgress--;
-          _covid19Status = status;
+          if(status!=null) {
+            _covid19Status = status;
+          }
           _statusGuidelines = _loadGuidelines();
         });
       }

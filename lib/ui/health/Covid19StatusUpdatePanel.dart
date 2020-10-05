@@ -19,7 +19,7 @@ import 'dart:collection';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:illinois/model/Health.dart';
-import 'package:illinois/service/AppDateTime.dart';
+import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Styles.dart';
@@ -56,7 +56,7 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
   @override
   void initState() {
     //_updateStatus();
-    _updateDate = (widget.status?.dateUtc != null) ? AppDateTime().formatDateTime(widget.status.dateUtc, format:"MMMM dd, yyyy") : '';
+    _updateDate = (widget.status?.dateUtc != null) ? AppDateTime.formatDateTime(widget.status.dateUtc?.toLocal(), format:"MMMM dd, yyyy") : '';
 
     _oldStatusType = Covid19StatusBlob.localizedHealthStatusTypeFromKey(widget.previousHealthStatus) ?? '';
     _oldStatusDescription = Covid19StatusBlob.localizedHealthStatusDescriptionFromKey(widget.previousHealthStatus) ?? '';
@@ -133,7 +133,14 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
             Expanded(child:
               Text(county,textAlign: TextAlign.center,style: TextStyle(color: Colors.white, fontSize: 14, fontFamily: Styles().fontFamilies.regular),),
             ),
-            IconButton(icon: Image.asset('images/icon-info-orange.png'), onPressed: () =>  StatusInfoDialog.show(context, _currentCountyName), padding: EdgeInsets.all(10),)
+            Semantics(
+              explicitChildNodes: true,
+              child: Semantics(
+                  label: Localization().getStringEx("panel.health.status_update.button.info.title","Info "),
+                  button: true,
+                  excludeSemantics: true,
+                  child:  IconButton(icon: Image.asset('images/icon-info-orange.png', excludeFromSemantics: true,), onPressed: () =>  StatusInfoDialog.show(context, _currentCountyName), padding: EdgeInsets.all(10),)
+            ))
           ],
         ),
         Container(height: 25,),
@@ -175,7 +182,7 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
   }
 
   Widget _buildReasonContent(){
-    String date = AppDateTime().formatUniLocalTimeFromUtcTime(widget.status?.dateUtc, AppDateTime.covid19UpdateDateFormat);
+    String date = AppDateTime.formatDateTime(widget.status?.dateUtc?.toLocal(), format: "MMMM dd, yyyy");
     String reasonStatusText = widget.status?.blob?.displayReason;
 
     Covid19HistoryBlob reasonHistory = widget.status?.blob?.historyBlob;

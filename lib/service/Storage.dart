@@ -17,12 +17,12 @@
 import 'dart:convert';
 import 'package:illinois/model/Auth.dart';
 import 'package:illinois/model/Health.dart';
-import 'package:illinois/service/AppDateTime.dart';
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/model/UserData.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
 import 'package:illinois/utils/Utils.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Storage with Service {
@@ -127,36 +127,6 @@ class Storage with Service {
   set userData(UserData user) {
     String userToString = (user != null) ? json.encode(user) : null;
     _setStringWithName(userKey, userToString);
-  }
-
-  /////////////
-  // UserRoles
-
-  static const String userRolesKey  = 'user_roles';
-
-  List<dynamic> get userRolesJson {
-    final String userRolesToString = _getStringWithName("user_roles");
-    return AppJson.decode(userRolesToString);
-  }
-
-  Set<UserRole> get userRoles {
-    final List<dynamic> userRolesToJson = userRolesJson;
-    return (userRolesToJson != null) ? Set.from(userRolesToJson.map((value)=>UserRole.fromString(value))) : null;
-  }
-
-  set userRoles(Set<UserRole> userRoles) {
-    String userRolesToString = (userRoles != null) ? json.encode(userRoles.toList()) : null;
-    _setStringWithName(userRolesKey, userRolesToString);
-  }
-
-  static const String phoneNumberKey  = 'user_phone_number';
-
-  String get phoneNumber {
-    return _getStringWithName(phoneNumberKey);
-  }
-
-  set phoneNumber(String phoneNumber) {
-    _setStringWithName(phoneNumberKey, phoneNumber);
   }
 
   static const String localUserUuidKey  = 'user_local_uuid';
@@ -276,21 +246,6 @@ class Storage with Service {
     _setIntWithName(authCardTimeKey, value);
   }
 
-  /////////////////////
-  // Date offset
-
-  static const String offsetDateKey  = 'settings_offset_date';
-
-  set offsetDate(DateTime value) {
-    _setStringWithName(offsetDateKey, AppDateTime().formatDateTime(value, ignoreTimeZone: true));
-  }
-
-  DateTime get offsetDate {
-    String dateString = _getStringWithName(offsetDateKey);
-    return AppString.isStringNotEmpty(dateString) ? AppDateTime()
-        .dateTimeFromString(dateString) : null;
-  }
-
   /////////////////
   // Language
 
@@ -302,87 +257,6 @@ class Storage with Service {
 
   set currentLanguage(String value) {
     _setStringWithName(currentLanguageKey, value);
-  }
-
-  //////////////////
-  // Location Services
-
-  static const String locationServicesPermisionRequestedKey  = 'location_services_permision_requested';
-
-  bool get locationServicesPermisionRequested {
-    return _getBoolWithName(locationServicesPermisionRequestedKey);
-  }
-
-  set locationServicesPermisionRequested(bool value) {
-    _setBoolWithName(locationServicesPermisionRequestedKey, value);
-  }
-
-  //////////////////
-  // Favorites
-
-  static const String favoritesKey  = 'user_favorites_list';
-
-  List<Object> get favorites{
-    List<String> storedValue = _sharedPreferences.getStringList(favoritesKey);
-    return storedValue?? List<String>();
-  }
-
-  set favorites(List<Object> favorites){
-    List<String> storeValue = favorites.map((Object e){return e.toString();}).toList();
-    _sharedPreferences.setStringList(favoritesKey, storeValue);
-  }
-
-  static const String favoritesDialogWasVisibleKey  = 'favorites_dialog_was_visible';
-
-  bool get favoritesDialogWasVisible {
-    return _getBoolWithName(favoritesDialogWasVisibleKey);
-  }
-
-  set favoritesDialogWasVisible(bool value) {
-    _setBoolWithName(favoritesDialogWasVisibleKey, value);
-  }
-
-  //////////////
-  // Debug
-
-  static const String debugUseDeviceLocalTimeZoneKey  = 'debug_use_device_local_time_zone';
-
-  bool get debugUseDeviceLocalTimeZone {
-    return _getBoolWithName(debugUseDeviceLocalTimeZoneKey, defaultValue: true);
-  }
-
-  set debugUseDeviceLocalTimeZone(bool value) {
-    _setBoolWithName(debugUseDeviceLocalTimeZoneKey, value);
-  }
-
-  static const String debugMapThresholdDistanceKey  = 'debug_map_threshold_distance';
-
-  int get debugMapThresholdDistance {
-    return _getIntWithName(debugMapThresholdDistanceKey, defaultValue: 200);
-  }
-
-  set debugMapThresholdDistance(int value) {
-    _setIntWithName(debugMapThresholdDistanceKey, value);
-  }
-
-  static const String debugMapLocationProviderKey  = 'debug_map_location_provider';
-
-  bool get debugMapLocationProvider {
-    return _getBoolWithName(debugMapLocationProviderKey, defaultValue: false);
-  }
-
-  set debugMapLocationProvider(bool value) {
-    _setBoolWithName(debugMapLocationProviderKey, value);
-  }
-
-  static const String debugMapHideLevelsKey  = 'debug_map_hide_levels';
-
-  bool get debugMapHideLevels {
-    return _getBoolWithName(debugMapHideLevelsKey, defaultValue: false);
-  }
-
-  set debugMapHideLevels(bool value) {
-    _setBoolWithName(debugMapHideLevelsKey, value);
   }
 
   //////////////
@@ -473,14 +347,16 @@ class Storage with Service {
 
   static const String lastHealthCovid19OsfTestDateKey = 'health_last_covid19_osf_test_date';
 
-  DateTime get lastHealthCovid19OsfTestDate {
+  DateTime get lastHealthCovid19OsfTestDateUtc {
     String dateString = _getStringWithName(lastHealthCovid19OsfTestDateKey);
-    return AppString.isStringNotEmpty(dateString) ? AppDateTime()
-        .dateTimeFromString(dateString) : null;
+    try { return (dateString != null) ? DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dateString) : null; }
+    catch (e) { print(e?.toString()); }
+    return null;
   }
 
-  set lastHealthCovid19OsfTestDate(DateTime value) {
-    _setStringWithName(lastHealthCovid19OsfTestDateKey, AppDateTime().formatDateTime(value, ignoreTimeZone: true));
+  set lastHealthCovid19OsfTestDateUtc(DateTime value) {
+    String dateString = (value != null) ? DateFormat('yyyy-MM-ddTHH:mm:ss').format(value) : null;
+    _setStringWithName(lastHealthCovid19OsfTestDateKey, dateString);
   }
 
   static const String lastHealthStatusEvalKey  = '_health_last_status_eval';
@@ -525,6 +401,39 @@ class Storage with Service {
 
   set exposureLastReportedTimestamp(int value) {
     _setIntWithName(_exposureLastReportedTimestampKey, value);
+  }
+
+  /////////////
+  // Http Proxy
+
+  static const String _httpProxyEnabledKey = 'http_proxy_enabled';
+
+  bool get httpProxyEnabled {
+    return _getBoolWithName(_httpProxyEnabledKey, defaultValue: false);
+  }
+
+  set httpProxyEnabled(bool value) {
+    _setBoolWithName(_httpProxyEnabledKey, value);
+  }
+
+  static const String _httpProxyHostKey = 'http_proxy_host';
+
+  String get httpProxyHost {
+    return _getStringWithName(_httpProxyHostKey);
+  }
+
+  set httpProxyHost(String value) {
+    _setStringWithName(_httpProxyHostKey, value);
+  }
+
+  static const String _httpProxyPortKey = 'http_proxy_port';
+
+  String get httpProxyPort {
+    return _getStringWithName(_httpProxyPortKey);
+  }
+
+  set httpProxyPort(String value) {
+    _setStringWithName(_httpProxyPortKey, value);
   }
 
   /////////////

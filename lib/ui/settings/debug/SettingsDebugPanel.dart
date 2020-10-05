@@ -19,11 +19,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:illinois/service/AppDateTime.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/Localization.dart';
+import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/User.dart';
 import 'package:illinois/service/Storage.dart';
 import 'package:illinois/ui/health/debug/Covid19DebugActionPanel.dart';
@@ -34,10 +34,11 @@ import 'package:illinois/ui/health/debug/Covid19DebugKeysPanel.dart';
 import 'package:illinois/ui/health/debug/Covid19DebugSymptomsPanel.dart';
 import 'package:illinois/ui/health/debug/Covid19DebugPendingEventsPanel.dart';
 import 'package:illinois/ui/health/debug/Covid19DebugTraceContactPanel.dart';
+import 'package:illinois/ui/settings/debug/HttpProxySettingsPanel.dart';
 import 'package:illinois/ui/settings/debug/SettingsDebugMessagingPanel.dart';
+import 'package:illinois/ui/health/debug/Covid19DebugRulesPanel.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
-import 'package:illinois/ui/widgets/RibbonButton.dart';
 
 import 'package:illinois/utils/Utils.dart';
 import 'package:illinois/service/Styles.dart';
@@ -47,20 +48,17 @@ class SettingsDebugPanel extends StatefulWidget {
   _SettingsDebugPanelState createState() => _SettingsDebugPanelState();
 }
 
-class _SettingsDebugPanelState extends State<SettingsDebugPanel> {
+class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements NotificationsListener{
 
-  DateTime _offsetDate;
   ConfigEnvironment _selectedEnv;
-
-  final TextEditingController _mapThresholdDistanceController = TextEditingController();
 
   @override
   void initState() {
-    
-    _offsetDate = Storage().offsetDate;
-    
-    _mapThresholdDistanceController.text = '${Storage().debugMapThresholdDistance}';
 
+    NotificationService().subscribe(this, [
+      Config.notifyEnvironmentChanged,
+    ]);
+    
     _selectedEnv = Config().configEnvironment;
 
     super.initState();
@@ -68,15 +66,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> {
 
   @override
   void dispose() {
-    
-    // Map Threshold Distance
-    int mapThresholdDistance = (_mapThresholdDistanceController.text != null) ? int.tryParse(_mapThresholdDistanceController.text) : null;
-    if (mapThresholdDistance != null) {
-      Storage().debugMapThresholdDistance = mapThresholdDistance;
-    }
-    _mapThresholdDistanceController.dispose();
-
-
+    NotificationService().unsubscribe(this);
     super.dispose();
   }
 
@@ -111,6 +101,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
+                      Padding(padding: EdgeInsets.only(top: 4), child: Container()),
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                         child: Text(AppString.isStringNotEmpty(userUuid) ? 'Uuid: $userUuid' : "unknown uuid"),
@@ -124,24 +115,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> {
                         child: Text('Firebase: $firebaseProjectId'),
                       ),
                       
-                      Container(height: 1, color: Styles().colors.surfaceAccent),
-                      ToggleRibbonButton(label: 'Display all times in Central Time', toggled: !Storage().debugUseDeviceLocalTimeZone, onTap: _onUseDeviceLocalTimeZoneToggled),
-                      ToggleRibbonButton(label: 'Show map location source', toggled: Storage().debugMapLocationProvider, onTap: _onMapLocationProvider),
-                      ToggleRibbonButton(label: 'Show map levels', toggled: !Storage().debugMapHideLevels, onTap: _onMapShowLevels),
-                      Container(height: 1, color: Styles().colors.surfaceAccent),
-                      Container(color: Colors.white, child: Padding(padding: EdgeInsets.only(top: 5), child: Container(height: 1, color: Styles().colors.surfaceAccent))),
-                      Container(
-                          color: Colors.white,
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                            child: TextFormField(
-                                controller: _mapThresholdDistanceController,
-                                keyboardType: TextInputType.number,
-                                validator: _validateThresoldDistance,
-                                decoration: InputDecoration(
-                                    border: OutlineInputBorder(), hintText: "Enter map threshold distance in meters", labelText: 'Threshold Distance (meters)')),
-                          )),
-                      Container(color: Colors.white, child: Padding(padding: EdgeInsets.only(top: 5), child: Container(height: 1, color: Styles().colors.surfaceAccent))),
+                      Padding(padding: EdgeInsets.only(top: 5), child: Container(height: 1, color: Styles().colors.surfaceAccent)),
                       Padding(padding: EdgeInsets.symmetric(vertical: 10), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[Padding(
                         padding: EdgeInsets.only(left: 16), child: Text('Config Environment: '),), ListView.separated(
                         physics: NeverScrollableScrollPhysics(),
@@ -156,41 +130,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> {
                         },
                       )
                       ],),),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                              child: RoundedButton(
-                                label: "Clear Offset",
-                                backgroundColor: Styles().colors.background,
-                                fontSize: 16.0,
-                                textColor: Styles().colors.fillColorPrimary,
-                                borderColor: Styles().colors.fillColorPrimary,
-                                onTap: () {
-                                  _clearDateOffset();
-                                },
-                              )),
-                          Expanded(
-                              child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                            child: Text(_offsetDate != null ? AppDateTime().formatDateTime(_offsetDate, format: AppDateTime.gameResponseDateTimeFormat2) : "None",
-                                textAlign: TextAlign.end),
-                          ))
-                        ],
-                      ),
-                      Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                          child: RoundedButton(
-                            label: "Sports Offset",
-                            backgroundColor: Styles().colors.background,
-                            fontSize: 16.0,
-                            textColor: Styles().colors.fillColorPrimary,
-                            borderColor: Styles().colors.fillColorPrimary,
-                            onTap: () {
-                              _changeDate();
-                            },
-                          )),
+                      Padding(padding: EdgeInsets.only(bottom: 10), child: Container(height: 1, color: Styles().colors.surfaceAccent)),
                       Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                           child: RoundedButton(
@@ -221,6 +161,15 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> {
                               textColor: Styles().colors.fillColorPrimary,
                               borderColor: Styles().colors.fillColorPrimary,
                               onTap: _onTapCovid19Keys)),
+                      Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+                          child: RoundedButton(
+                              label: "COVID-19 Rules",
+                              backgroundColor: Styles().colors.background,
+                              fontSize: 16.0,
+                              textColor: Styles().colors.fillColorPrimary,
+                              borderColor: Styles().colors.fillColorPrimary,
+                              onTap: _onTapCovid19Rules)),
                       Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                           child: RoundedButton(
@@ -285,6 +234,19 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> {
                               borderColor: Styles().colors.fillColorPrimary,
                               onTap: _onTapCovid19ExposureLogs)),
                       Padding(padding: EdgeInsets.only(top: 5), child: Container()),
+                      Visibility(
+                        visible: Config().configEnvironment == ConfigEnvironment.dev,
+                        child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+                            child: RoundedButton(
+                                label: "Http Proxy",
+                                backgroundColor: Styles().colors.background,
+                                fontSize: 16.0,
+                                textColor: Styles().colors.fillColorPrimary,
+                                borderColor: Styles().colors.fillColorPrimary,
+                                onTap: _onTapHttpProxy)),
+                      ),
+                      Padding(padding: EdgeInsets.only(top: 5), child: Container()),
                     ],
                   ),
                 ),
@@ -297,68 +259,16 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> {
     );
   }
 
+  // NotificationsListener
+
+  @override
+  void onNotification(String name, dynamic param) {
+    if(name == Config.notifyEnvironmentChanged){
+      setState(() {});
+    }
+  }
+
   // Helpers
-
-  String _validateThresoldDistance(String value) {
-    return (int.tryParse(value) == null) ? 'Please enter a number.' : null;
-  }
-
-  _clearDateOffset() {
-    setState(() {
-      Storage().offsetDate = _offsetDate = null;
-    });
-  }
-
-  _changeDate() async {
-    DateTime offset = _offsetDate ?? DateTime.now();
-
-    DateTime firstDate = DateTime.fromMillisecondsSinceEpoch(offset.millisecondsSinceEpoch).add(Duration(days: -365));
-    DateTime lastDate = DateTime.fromMillisecondsSinceEpoch(offset.millisecondsSinceEpoch).add(Duration(days: 365));
-
-    DateTime date = await showDatePicker(
-      context: context,
-      firstDate: firstDate,
-      lastDate: lastDate,
-      initialDate: offset,
-      builder: (BuildContext context, Widget child) {
-        return Theme(
-          data: ThemeData.light(),
-          child: child,
-        );
-      },
-    );
-
-    if (date == null) return;
-
-    TimeOfDay time = await showTimePicker(context: context, initialTime: new TimeOfDay(hour: date.hour, minute: date.minute));
-    if (time == null) return;
-
-    int endHour = time != null ? time.hour : date.hour;
-    int endMinute = time != null ? time.minute : date.minute;
-    offset = new DateTime(date.year, date.month, date.day, endHour, endMinute);
-
-    setState(() {
-      Storage().offsetDate = _offsetDate = offset;
-    });
-  }
-
-  void _onMapLocationProvider() {
-    setState(() {
-      Storage().debugMapLocationProvider = !Storage().debugMapLocationProvider;
-    });
-  }
-
-  void _onMapShowLevels() {
-    setState(() {
-      Storage().debugMapHideLevels = !Storage().debugMapHideLevels;
-    });
-  }
-
-  void _onUseDeviceLocalTimeZoneToggled() {
-    setState(() {
-      Storage().debugUseDeviceLocalTimeZone = !Storage().debugUseDeviceLocalTimeZone;
-    });
-  }
 
   Function _onMessagingClicked() {
     return () {
@@ -463,6 +373,10 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> {
       Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19DebugExposureLogsPanel()));
   }
 
+  void _onTapCovid19Rules(){
+    Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19DebugRulesPanel()));
+  }
+
   String prettyPrintJson(var input){
     if(input == null)
       return input;
@@ -482,11 +396,9 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> {
     }
   }
 
-  // SettingsListenerMixin
-
-  void onDateOffsetChanged() {
-    setState(() {
-      _offsetDate = Storage().offsetDate;
-    });
+  void _onTapHttpProxy() {
+    if(Config().configEnvironment == ConfigEnvironment.dev) {
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => HttpProxySettingsPanel()));
+    }
   }
 }

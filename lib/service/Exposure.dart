@@ -445,6 +445,12 @@ class Exposure with Service implements NotificationsListener {
     return (Config().settings['covid19ExposureExpireDays'] ?? 14) * _millisecondsInDay;
   }
 
+  static Set<String> get _negativeTestCategories {
+    //TMP: return Set.from(["antibody.positive", "PCR.negative", "SAR.negative"]);
+    dynamic list = Config().settings['covid19ExposureNegativeTestCategories'];
+    return (list is List) ? Set.from(list) : null;
+  }
+
   // Local Exposures
 
   Future<List<ExposureRecord>> loadLocalExposures({int timestamp, bool processed }) async {
@@ -682,7 +688,7 @@ class Exposure with Service implements NotificationsListener {
       if (_reportTargetTimestamp == null) {
         return 0;
       }
-      else if (_shouldStopReport(activeInterval: activeInterval)) {
+      else if ((Health().lastCovid19Status != kCovid19HealthStatusRed) && (_lastReportTimestamp != null) && (_reportTargetTimestamp < _lastReportTimestamp)) {
         Storage().exposureReportTargetTimestamp = _reportTargetTimestamp = null;
         await _expireTEK(); 
         return 0;
@@ -701,24 +707,43 @@ class Exposure with Service implements NotificationsListener {
     Log.d('Exposure: Checking local TEKs to report...');
     _checkingReport = true;
 
+    List<Covid19History> histories = await Health().loadCovid19History();
+    HealthRulesSet rules = await Health().loadRules2();
+    Set<String> negativeTestCategories = _negativeTestCategories;
+
     int minTimestamp, maxTimestamp, currentTimestamp = _currentTimestamp;
     if (activeInterval != null) {
+
       minTimestamp = getThresholdTimestamp(origin: _reportTargetTimestamp); // two weeks before the target;
+      int recentTestTimestamp = _findMostRecentNegativeTestTimestamp(histories: histories, rules: rules, negativeTestCategories: negativeTestCategories, minTimestamp: minTimestamp, maxTimestamp: _reportTargetTimestamp);
+      if ((recentTestTimestamp != null) && (minTimestamp < recentTestTimestamp)) {
+        minTimestamp = recentTestTimestamp; // not earlier than the last negative test result
+      }
       if ((_lastReportTimestamp != null) && (minTimestamp < _lastReportTimestamp)) {
         minTimestamp = _lastReportTimestamp; // not earlier since the last report
       }
+      
       maxTimestamp = _reportTargetTimestamp + activeInterval;
+      int earlyTestTimestamp = _findEarlierNegativeTestTimestamp(histories: histories, rules: rules, negativeTestCategories: negativeTestCategories, minTimestamp: _reportTargetTimestamp, maxTimestamp: maxTimestamp);
+      if ((earlyTestTimestamp != null) && (earlyTestTimestamp < maxTimestamp)) {
+        maxTimestamp = earlyTestTimestamp;
+      }
       if (currentTimestamp < maxTimestamp) {
         maxTimestamp = currentTimestamp;    // not later than now
       }
     }
     else {
-      int thresholdTimestamp = getThresholdTimestamp(origin: currentTimestamp);
-      minTimestamp = ((_lastReportTimestamp != null) && (thresholdTimestamp < _lastReportTimestamp)) ?
-        _lastReportTimestamp : thresholdTimestamp; // not earlier since thresholdTimestamp (two weeks before now)
+      minTimestamp = getThresholdTimestamp(origin: currentTimestamp);
+      int recentTestTimestamp = _findMostRecentNegativeTestTimestamp(histories: histories, rules: rules, negativeTestCategories: negativeTestCategories, minTimestamp: minTimestamp, maxTimestamp: currentTimestamp);
+      if ((recentTestTimestamp != null) && (minTimestamp < recentTestTimestamp)) {
+        minTimestamp = recentTestTimestamp; // not earlier than the last negative test result
+      }
+      if ((_lastReportTimestamp != null) && (minTimestamp < _lastReportTimestamp)) {
+        minTimestamp = _lastReportTimestamp;
+      }
+
       maxTimestamp = currentTimestamp;
     }
-
 
     int result;
     List<ExposureTEK> teks = await loadTeks(minStamp: minTimestamp, maxStamp: maxTimestamp);
@@ -742,30 +767,60 @@ class Exposure with Service implements NotificationsListener {
       result = teks.length;
     }
 
-    // Check again after processing
-    if (_shouldStopReport(activeInterval: activeInterval)) {
+    // Check whether to stop processing
+    if ((activeInterval != null) && (_reportTargetTimestamp != null) && (_lastReportTimestamp != null) && ((_reportTargetTimestamp + activeInterval) <= _lastReportTimestamp)) {
       Storage().exposureReportTargetTimestamp = _reportTargetTimestamp = null;
       await _expireTEK(); 
     }
-      
+
     _checkingReport = null;
     return result;
   }
 
-  bool _shouldStopReport({int activeInterval} ) {
-    if ((_reportTargetTimestamp != null) && (activeInterval != null) && (_lastReportTimestamp != null)) {
-
-      // If last report is after the active threshold
-      if ((_reportTargetTimestamp + activeInterval) <= _lastReportTimestamp) {
-        return true;
-      }
-
-      // If user status is not red any more and the last report is after the report target, i.e. we have reported some TEKs
-      if ((Health().lastCovid19Status != kCovid19HealthStatusRed) && (_reportTargetTimestamp < _lastReportTimestamp)) {
-        return true;
+  int _findMostRecentNegativeTestTimestamp({List<Covid19History> histories, HealthRulesSet rules, Set<String> negativeTestCategories, int minTimestamp, int maxTimestamp}) {
+    if ((histories != null) && (rules != null) && (negativeTestCategories != null)) {
+      // start from newest
+      for (int index = 0; index < histories.length; index++) {
+        Covid19History history = histories[index];
+        int historyTimestamp = (history.dateUtc != null) ? history.dateUtc.millisecondsSinceEpoch : null;
+        if (historyTimestamp != null) {
+          if ((maxTimestamp != null) && (maxTimestamp < historyTimestamp)) {
+            continue;
+          }
+          if ((minTimestamp != null) && (historyTimestamp < minTimestamp)) {
+            break;
+          }
+          HealthTestRuleResult testRuleResult = history.isTestVerified ? rules.tests.matchRuleResult(blob: history?.blob) : null;
+          if ((testRuleResult?.category != null) && negativeTestCategories.contains(testRuleResult.category)) {
+            return historyTimestamp;
+          }
+        }
       }
     }
-    return false;
+    return null;
+  }
+
+  int _findEarlierNegativeTestTimestamp({List<Covid19History> histories, HealthRulesSet rules, Set<String> negativeTestCategories, int minTimestamp, int maxTimestamp}) {
+    if ((histories != null) && (rules != null) && (negativeTestCategories != null)) {
+      // start from oldest
+      for (int index = histories.length - 1; 0 <= index; index--) {
+        Covid19History history = histories[index];
+        int historyTimestamp = (history.dateUtc != null) ? history.dateUtc.millisecondsSinceEpoch : null;
+        if (historyTimestamp != null) {
+          if ((minTimestamp != null) && (historyTimestamp < minTimestamp)) {
+            continue;
+          }
+          if ((maxTimestamp != null) && (maxTimestamp < historyTimestamp)) {
+            break;
+          }
+          HealthTestRuleResult testRuleResult = history.isTestVerified ? rules.tests.matchRuleResult(blob: history?.blob) : null;
+          if ((testRuleResult?.category != null) && negativeTestCategories.contains(testRuleResult.category)) {
+            return historyTimestamp;
+          }
+        }
+      }
+    }
+    return null;
   }
 
   // Monitor

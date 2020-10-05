@@ -18,8 +18,8 @@ import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:illinois/model/UserData.dart';
-import 'package:illinois/service/AppDateTime.dart';
+import 'package:illinois/utils/AppDateTime.dart';
+import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/utils/Crypt.dart';
 import 'package:illinois/utils/Utils.dart';
@@ -27,201 +27,6 @@ import 'package:illinois/service/Styles.dart';
 import 'package:intl/intl.dart';
 import "package:pointycastle/export.dart";
 
-///////////////////////////////
-// Covid19News
-
-class Covid19News implements Favorite {
-  final String          id;
-  final DateTime        date;
-  final String          title;
-  final String          description;
-  final String          htmlContent;
-  final String          link;
-
-  Covid19News({this.id, this.date, this.title, this.description, this.htmlContent, this.link});
-
-  factory Covid19News.fromJson(Map<String, dynamic> json) {
-    return Covid19News(
-      id: json['id'],
-      date: healthDateTimeFromString(json['date']),
-      title: json['title'],
-      description: json['description'],
-      htmlContent: json['htmlContent'],
-      link: json['link'],
-    );
-  }
-
-  String get displayDate {
-    return AppDateTime().formatDateTime(date, format: AppDateTime.covid19NewsCardDateFormat);
-  }
-
-  dynamic toJson() {
-    return {
-      'id': id,
-      'date': healthDateTimeToString(date),
-      'title': title,
-      'description': description,
-      'htmlContent': htmlContent,
-      'link': link,
-    };
-  }
-
-  // Favorite implementation
-
-  static String favoriteKeyName = "covid19NewsIds";
-
-  @override
-  String get favoriteId => id;
-
-  @override
-  String get favoriteKey => favoriteKeyName;
-}
-
-///////////////////////////////
-// Covid19FAQEntry
-
-class Covid19FAQEntry {
-  final String          title;
-  final String          description;
-  final String          link;
-
-  Covid19FAQEntry({this.title, this.description, this.link});
-
-  factory Covid19FAQEntry.fromJson(Map<String, dynamic> json) {
-    return Covid19FAQEntry(
-      title: json['title'],
-      description: json['description'],
-      link: json['link'],
-    );
-  }
-
-  dynamic toJson() {
-    return {
-      'title': title,
-      'description': description,
-      'link': link,
-    };
-  }
-
-  static List<Covid19FAQEntry> fromJsonList(List<dynamic> jsonList) {
-    List<Covid19FAQEntry> faqs;
-    if (jsonList != null) {
-      faqs = List();
-      for (dynamic jsonEntry in jsonList) {
-        faqs.add(Covid19FAQEntry.fromJson(jsonEntry));
-      }
-    }
-    return faqs;
-  }
-
-  static List<dynamic> toJsonList(List<Covid19FAQEntry> faqs) {
-    List<dynamic> jsonList;
-    if (faqs != null) {
-      jsonList = List();
-      for (Covid19FAQEntry faq in faqs) {
-        jsonList.add(faq.toJson());
-      }
-    }
-    return jsonList;
-  }
-}
-
-///////////////////////////////
-// Covid19FAQSection
-
-class Covid19FAQSection {
-  final String                title;
-  final List<Covid19FAQEntry> questions;
-
-  Covid19FAQSection({this.title, this.questions});
-
-  factory Covid19FAQSection.fromJson(Map<String, dynamic> json) {
-    return Covid19FAQSection(
-      title: json['title'],
-      questions: Covid19FAQEntry.fromJsonList(json['questions']),
-    );
-  }
-
-  dynamic toJson() {
-    return {
-      'title': title,
-      'questions': Covid19FAQEntry.toJsonList(questions),
-    };
-  }
-
-  static List<Covid19FAQSection> fromJsonList(List<dynamic> jsonList) {
-    List<Covid19FAQSection> sections;
-    if (jsonList != null) {
-      sections = List();
-      for (dynamic jsonEntry in jsonList) {
-        sections.add(Covid19FAQSection.fromJson(jsonEntry));
-      }
-    }
-    return sections;
-  }
-
-  static List<dynamic> toJsonList(List<Covid19FAQSection> sections) {
-    List<dynamic> jsonList;
-    if (sections != null) {
-      jsonList = List();
-      for (Covid19FAQSection section in sections) {
-        jsonList.add(section.toJson());
-      }
-    }
-    return jsonList;
-  }
-}
-
-class Covid19FAQ {
-  DateTime                dateUpdated;
-  List<Covid19FAQSection> sections;
-  List<Covid19FAQEntry>   general;
-
-  Covid19FAQ({this.dateUpdated, this.sections, this.general});
-
-  factory Covid19FAQ.fromJson(Map<String, dynamic> json) {
-    return Covid19FAQ(
-      dateUpdated: healthDateTimeFromString(json['dateUpdated']),
-      sections: Covid19FAQSection.fromJsonList(json['sections']),
-      general: Covid19FAQEntry.fromJsonList(json['general']),
-    );
-  }
-
-  dynamic toJson() {
-    return {
-      'dateUpdated': healthDateTimeToString(dateUpdated),
-      'sections': Covid19FAQSection.fromJsonList(sections),
-      'general': Covid19FAQEntry.toJsonList(general),
-    };
-  }
-}
-
-///////////////////////////////
-// Covid19Resource
-
-class Covid19Resource {
-  final String          title;
-  final String          icon;
-  final String          link;
-
-  Covid19Resource({this.title, this.icon, this.link});
-
-  factory Covid19Resource.fromJson(Map<String, dynamic> json) {
-    return Covid19Resource(
-      title: json['title'],
-      icon: json['icon'],
-      link: json['link'],
-    );
-  }
-
-  dynamic toJson() {
-    return {
-      'title': title,
-      'icon': icon,
-      'link': link,
-    };
-  }
-}
 
 ////////////////////////////////
 // Covid19Status
@@ -341,6 +146,23 @@ class Covid19StatusBlob {
     return _processMacros(nextStepHtml);
   }
 
+  String displayNextStepDate({String format = _nextStepDateFormat}) {
+    if (nextStepDateUtc != null) {
+      DateTime nextStepMidnightLocal = AppDateTime.midnight(nextStepDateUtc);
+      if (nextStepMidnightLocal == AppDateTime.todayMidnightLocal) {
+        return Localization().getStringEx('model.explore.time.today', 'Today').toLowerCase();
+      }
+      else if (nextStepMidnightLocal == AppDateTime.tomorrowMidnightLocal) {
+        return Localization().getStringEx('model.explore.time.tomorrow', 'Tomorrow').toLowerCase();
+      }
+      else {
+        return AppDateTime.formatDateTime(nextStepDateUtc.toLocal(), format: format);
+      }
+    }
+    return null;
+  }
+
+
   String get displayReason {
     return _processMacros(reason);
   }
@@ -351,8 +173,7 @@ class Covid19StatusBlob {
 
   String _processMacros(String value) {
     if ((value != null) && (nextStepDateUtc != null) && value.contains(_nextStepDateMacro)) {
-      String nextStepDateString = AppDateTime().formatDateTime(nextStepDateUtc.toLocal(), format: _nextStepDateFormat);
-      return value.replaceAll(_nextStepDateMacro, nextStepDateString);
+      return value.replaceAll(_nextStepDateMacro, displayNextStepDate() ?? '');
     }
     return value;
   }
@@ -673,6 +494,20 @@ class Covid19History {
       }
     }
     return result;
+  }
+
+  static Covid19History mostRecentContactTrace(List<Covid19History> histories, { DateTime minDateUtc, DateTime maxDateUtc }) {
+    if (histories != null) {
+      for (int index = 0; index < histories.length; index++) {
+        Covid19History history = histories[index];
+        if (history.isContactTrace &&
+            ((minDateUtc == null) || ((history.dateUtc != null) && history.dateUtc.isAfter(minDateUtc))) &&
+            ((maxDateUtc == null) || ((history.dateUtc != null) && history.dateUtc.isBefore(maxDateUtc)))) {
+          return history;
+        }
+      }
+    }
+    return null;
   }
 }
 
@@ -1142,6 +977,39 @@ class HealthUserBlob {
 }
 
 ///////////////////////////////
+// HealthOSFAuth
+
+class HealthOSFAuth{
+  final String accessToken;
+  final String tokenType;
+  final int expiresIn;
+  final String scope;
+  final String patient;
+
+  HealthOSFAuth({this.accessToken, this.tokenType, this.expiresIn, this.scope, this.patient});
+
+  factory HealthOSFAuth.fromJson(Map<String,dynamic>json){
+    return HealthOSFAuth(
+      accessToken: json["access_token"],
+      tokenType: json["token_type"],
+      expiresIn: json["expires_in"],
+      scope: json["scope"],
+      patient: json["patient"],
+    );
+  }
+
+  toJson(){
+    return {
+      "access_token": accessToken,
+      "token_type": tokenType,
+      "expires_in": expiresIn,
+      "scope": scope,
+      "patient": patient,
+    };
+  }
+}
+
+///////////////////////////////
 // HealthServiceProvider
 
 class HealthServiceProvider {
@@ -1474,7 +1342,7 @@ class HealthLocationDayOfOperation {
   // Helper function for conversion work time string to number of minutes
 
   static int _timeMinutes(String time, {String format = 'hh:mma'}) {
-    DateTime dateTime = (time != null) ? AppDateTime().dateTimeFromString(time.toUpperCase(), format: format) : null;
+    DateTime dateTime = (time != null) ? AppDateTime.parseDateTime(time.toUpperCase(), format: format) : null;
     TimeOfDay timeOfDay = (dateTime != null) ? TimeOfDay.fromDateTime(dateTime) : null;
     return _timeOfDayMinutes(timeOfDay);
   }
@@ -1796,133 +1664,6 @@ class HealthGuidelineItem {
 }
 
 ///////////////////////////////
-// HealthTestRule
-
-class HealthTestRule {
-  String testTypeId;
-  String testType;
-  List<HealthTestRuleResult> results;
-
-  HealthTestRule({this.testTypeId, this.testType, this.results});
-
-  factory HealthTestRule.fromJson(Map<String, dynamic> json) {
-    return (json != null) ? HealthTestRule(
-      testTypeId: json['test_type_id'],
-      testType: json['test_type'],
-      results: HealthTestRuleResult.listFromJson(json['results']),
-    ) : null;
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'test_type_id': testTypeId,
-      'test_type': testType,
-      'results': HealthTestRuleResult.listToJson(results),
-    };
-  }
-
-  static HealthTestRuleResult matchResult(List<HealthTestRule> rules, {String testType, String testResult}) {
-    if (rules != null) {
-      for (HealthTestRule rule in rules) {
-        if ((rule?.testType != null) && (rule.testType.toLowerCase() == testType?.toLowerCase()) && (rule?.results != null)) {
-          for (HealthTestRuleResult ruleResult in rule.results) {
-            if ((ruleResult?.testResult != null) && (ruleResult.testResult.toLowerCase() == testResult?.toLowerCase())) {
-              return ruleResult;
-            }
-          }
-        }
-      }
-    }
-    return null;
-  }
-
-  static List<HealthTestRule> listFromJson(List<dynamic> json) {
-    List<HealthTestRule> values;
-    if (json != null) {
-      values = [];
-      for (dynamic entry in json) {
-          HealthTestRule value;
-          try { value = HealthTestRule.fromJson((entry as Map)?.cast<String, dynamic>()); }
-          catch(e) { print(e?.toString()); }
-          values.add(value);
-      }
-    }
-    return values;
-  }
-
-  static List<dynamic> listToJson(List<HealthTestRule> values) {
-    List<dynamic> json;
-    if (values != null) {
-      json = [];
-      for (HealthTestRule value in values) {
-        json.add(value?.toJson());
-      }
-    }
-    return json;
-  }
-}
-
-///////////////////////////////
-// HealthTestRuleResult
-
-class HealthTestRuleResult {
-  String testResult;
-  String healthStatus;
-  String nextStep;
-  int nextStepTimeInterval;
-
-  HealthTestRuleResult({this.testResult, this.healthStatus, this.nextStep, this.nextStepTimeInterval});
-
-  factory HealthTestRuleResult.fromJson(Map<String, dynamic> json) {
-    return (json != null) ? HealthTestRuleResult(
-      testResult: json['result'],
-      healthStatus: json['health_status'],
-      nextStep: json['result_next_step'],
-      nextStepTimeInterval: json['result_next_step_time_interval']
-    ) : null;
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'result': testResult,
-      'health_status': healthStatus,
-      'result_next_step': nextStep,
-      'result_next_step_time_interval': nextStepTimeInterval,
-    };
-  }
-
-  DateTime nextStepDate(DateTime testDate) {
-    return ((testDate != null) && (nextStepTimeInterval != null)) ?
-      testDate.add(Duration(hours: nextStepTimeInterval)) : null;
-  }
-
-  static List<HealthTestRuleResult> listFromJson(List<dynamic> json) {
-    List<HealthTestRuleResult> values;
-    if (json != null) {
-      values = [];
-      for (dynamic entry in json) {
-          HealthTestRuleResult value;
-          try { value = HealthTestRuleResult.fromJson((entry as Map)?.cast<String, dynamic>()); }
-          catch(e) { print(e?.toString()); }
-          values.add(value);
-      }
-    }
-    return values;
-  }
-
-  static List<dynamic> listToJson(List<HealthTestRuleResult> values) {
-    List<dynamic> json;
-    if (values != null) {
-      json = [];
-      for (HealthTestRuleResult value in values) {
-        json.add(value?.toJson());
-      }
-    }
-    return json;
-  }
-}
-
-///////////////////////////////
 // HealthSymptom
 
 class HealthSymptom {
@@ -1977,16 +1718,18 @@ class HealthSymptom {
 class HealthSymptomsGroup {
   final String id;
   final String name;
+  final String group;
   final bool visible;
   final List<HealthSymptom> symptoms;
 
-  HealthSymptomsGroup({this.id, this.name, this.visible, this.symptoms});
+  HealthSymptomsGroup({this.id, this.name, this.group, this.visible, this.symptoms});
 
   factory HealthSymptomsGroup.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthSymptomsGroup(
       id: json['id'],
       name: json['name'],
       visible: json['visible'],
+      group: json['group'],
       symptoms: HealthSymptom.listFromJson(json['symptoms']),
     ) : null;
   }
@@ -1995,6 +1738,7 @@ class HealthSymptomsGroup {
     return {
       'id': id,
       'name': name,
+      'group': group,
       'visible': visible,
       'symptoms': HealthSymptom.listToJson(symptoms),
     };
@@ -2061,51 +1805,210 @@ class HealthSymptomsGroup {
 }
 
 ///////////////////////////////
-// HealthSymptomsRule
+// HealthRulesSet
 
-class HealthSymptomsRule {
-  String id;
-  int group1Count;
-  int group2Count;
-  List<HealthSymptomsRuleResult> results;
+class HealthRulesSet {
+  final HealthTestRulesSet tests;
+  final HealthSymptomsRulesSet symptoms;
+  final HealthContactTraceRulesSet contactTrace;
+  final HealthActionRulesSet actions;
+  final HealthDefaultsSet defaults;
+  final Map<String, _HealthRuleStatus> statuses;
+  final Map<String, dynamic> constants;
 
-  HealthSymptomsRule({this.id, this.group1Count, this.group2Count, this.results});
+  static const String UserTestMonitorInterval = 'UserTestMonitorInterval';
 
-  factory HealthSymptomsRule.fromJson(Map<String, dynamic> json) {
-    return (json != null) ? HealthSymptomsRule(
-      id: json['id'],
-      group1Count: json['gr1_count'],
-      group2Count: json['gr2_count'],
-      results: HealthSymptomsRuleResult.listFromJson(json['items']),
+  HealthRulesSet({this.tests, this.symptoms, this.contactTrace, this.actions, this.defaults, this.statuses, Map<String, dynamic> constants}) :
+    this.constants = constants ?? Map<String, dynamic>();
+
+  factory HealthRulesSet.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthRulesSet(
+      tests: HealthTestRulesSet.fromJson(json['tests']),
+      symptoms: HealthSymptomsRulesSet.fromJson(json['symptoms']),
+      contactTrace: HealthContactTraceRulesSet.fromJson(json['contact_trace']),
+      actions: HealthActionRulesSet.fromJson(json['actions']),
+      defaults: HealthDefaultsSet.fromJson(json['defaults']),
+      statuses: _HealthRuleStatus.mapFromJson(json['statuses']),
+      constants: json['constants'],
     ) : null;
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'gr1_count': group1Count,
-      'gr2_count': group2Count,
-      'items': HealthSymptomsRuleResult.listToJson(results),
-    };
+  int get userTestMonitorInterval {
+    return constants[UserTestMonitorInterval];
   }
 
-  HealthSymptomsRuleResult matchResult(Map<String, int> counts) {
-    if (counts != null) {
-      int gr1Count = counts['gr1'] ?? 0;
-      bool gr1Fulfilled = (gr1Count >= group1Count);
-      
-      int gr2Count = counts['gr2'] ?? 0;
-      bool gr2Fulfilled = (gr2Count >= group2Count);
+  set userTestMonitorInterval(int value) {
+    constants[UserTestMonitorInterval] = value;
+  }
+}
 
-      if (results != null) {
-        for (HealthSymptomsRuleResult result in results) {
-          if ((result.group1 == gr1Fulfilled) && (result.group2 == gr2Fulfilled)) {
-            return result;
+///////////////////////////////
+// HealthDefaultsSet
+
+class HealthDefaultsSet {
+  final _HealthRuleStatus status;
+
+  HealthDefaultsSet({this.status});
+
+  factory HealthDefaultsSet.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthDefaultsSet(
+      status: _HealthRuleStatus.fromJson(json['status']),
+    ) : null;
+  }
+}
+
+
+///////////////////////////////
+// HealthTestRulesSet
+
+class HealthTestRulesSet {
+  final List<HealthTestRule> _rules;
+
+  HealthTestRulesSet({List<HealthTestRule> rules}) : _rules = rules;
+
+  factory HealthTestRulesSet.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthTestRulesSet(
+      rules: HealthTestRule.listFromJson(json['rules'])
+    ) : null;
+  }
+
+  HealthTestRuleResult matchRuleResult({ Covid19HistoryBlob blob, HealthRulesSet rules }) {
+    if ((_rules != null) && (blob != null)) {
+      for (HealthTestRule rule in _rules) {
+        if ((rule?.testType != null) && (rule?.testType?.toLowerCase() == blob?.testType?.toLowerCase()) && (rule.results != null)) {
+          for (HealthTestRuleResult ruleResult in rule.results) {
+            if ((ruleResult?.testResult != null) && (ruleResult.testResult.toLowerCase() == blob?.testResult?.toLowerCase())) {
+              return ruleResult;
+            }
           }
         }
       }
     }
     return null;
+  }
+}
+
+
+///////////////////////////////
+// HealthTestRule
+
+class HealthTestRule {
+  final String testType;
+  final String category;
+  final List<HealthTestRuleResult> results;
+
+  HealthTestRule({this.testType, this.category, this.results});
+
+  factory HealthTestRule.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthTestRule(
+      testType: json['test_type'],
+      category: json['category'],
+      results: HealthTestRuleResult.listFromJson(json['results']),
+    ) : null;
+  }
+
+  static List<HealthTestRule> listFromJson(List<dynamic> json) {
+    List<HealthTestRule> values;
+    if (json != null) {
+      values = [];
+      for (dynamic entry in json) {
+          try { values.add(HealthTestRule.fromJson((entry as Map)?.cast<String, dynamic>())); }
+          catch(e) { print(e?.toString()); }
+      }
+    }
+    return values;
+  }
+}
+
+///////////////////////////////
+// HealthTestRuleResult
+
+class HealthTestRuleResult {
+  final String testResult;
+  final String category;
+  final _HealthRuleStatus status;
+
+  HealthTestRuleResult({this.testResult, this.category, this.status});
+
+  factory HealthTestRuleResult.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthTestRuleResult(
+      testResult: json['result'],
+      category: json['category'],
+      status: _HealthRuleStatus.fromJson(json['status']),
+    ) : null;
+  }
+
+  static List<HealthTestRuleResult> listFromJson(List<dynamic> json) {
+    List<HealthTestRuleResult> values;
+    if (json != null) {
+      values = [];
+      for (dynamic entry in json) {
+          try { values.add(HealthTestRuleResult.fromJson((entry as Map)?.cast<String, dynamic>())); }
+          catch(e) { print(e?.toString()); }
+      }
+    }
+    return values;
+  }
+
+  static HealthTestRuleResult matchRuleResult(List<HealthTestRuleResult> results, { Covid19HistoryBlob blob }) {
+    if (results != null) {
+      for (HealthTestRuleResult result in results) {
+        if (result._matchBlob(blob)) {
+          return result;
+        }
+      }
+    }
+    return null;
+  }
+
+  bool _matchBlob(Covid19HistoryBlob blob) {
+    return ((testResult != null) && (testResult.toLowerCase() == blob?.testResult?.toLowerCase()));
+  }
+}
+
+///////////////////////////////
+// HealthSymptomsRulesSet
+
+class HealthSymptomsRulesSet {
+  final List<HealthSymptomsRule> _rules;
+  final List<HealthSymptomsGroup> groups;
+
+  HealthSymptomsRulesSet({List<HealthSymptomsRule> rules, this.groups}) : _rules = rules;
+
+  factory HealthSymptomsRulesSet.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthSymptomsRulesSet(
+      rules: HealthSymptomsRule.listFromJson(json['rules']),
+      groups: HealthSymptomsGroup.listFromJson(json['groups']),
+    ) : null;
+  }
+
+  HealthSymptomsRule matchRule({ Covid19HistoryBlob blob, HealthRulesSet rules }) {
+    if ((_rules != null) && (groups != null) && (blob?.symptomsIds != null)) {
+     Map<String, int> counts = HealthSymptomsGroup.getCounts(groups, blob.symptomsIds);
+      for (HealthSymptomsRule rule in _rules) {
+        if (rule._matchCounts(counts, rules: rules)) {
+          return rule;
+        }
+      }
+    }
+    return null;
+  }
+}
+
+///////////////////////////////
+// HealthSymptomsRule
+
+class HealthSymptomsRule {
+  final Map<String, _HealthRuleIntInterval> counts;
+  final _HealthRuleStatus status;
+  
+  HealthSymptomsRule({this.counts, this.status});
+
+  factory HealthSymptomsRule.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthSymptomsRule(
+      counts: _countsFromJson(json['counts']),
+      status: _HealthRuleStatus.fromJson(json['status']),
+    ) : null;
   }
 
   static List<HealthSymptomsRule> listFromJson(List<dynamic> json) {
@@ -2113,78 +2016,62 @@ class HealthSymptomsRule {
     if (json != null) {
       values = [];
       for (dynamic entry in json) {
-          HealthSymptomsRule value;
-          try { value = HealthSymptomsRule.fromJson((entry as Map)?.cast<String, dynamic>()); }
+          try { values.add(HealthSymptomsRule.fromJson((entry as Map)?.cast<String, dynamic>())); }
           catch(e) { print(e?.toString()); }
-          values.add(value);
       }
     }
     return values;
   }
 
-  static List<dynamic> listToJson(List<HealthSymptomsRule> values) {
-    List<dynamic> json;
-    if (values != null) {
-      json = [];
-      for (HealthSymptomsRule value in values) {
-        json.add(value?.toJson());
+  static Map<String, _HealthRuleIntInterval> _countsFromJson(Map<String, dynamic> json) {
+    Map<String, _HealthRuleIntInterval> values;
+    if (json != null) {
+      values = Map<String, _HealthRuleIntInterval>();
+      json.forEach((key, value) {
+        values[key] = _HealthRuleIntInterval.fromJson(value);
+      });
+    }
+    return values;
+  }
+
+  bool _matchCounts(Map<String, int> testCounts, { HealthRulesSet rules }) {
+    if (this.counts != null) {
+      for (String groupName in this.counts.keys) {
+        _HealthRuleIntInterval value = this.counts[groupName];
+        int count = (testCounts != null) ? testCounts[groupName] : null;
+        if (!value.match(count, rules: rules)) {
+          return false;
+        }
+
       }
     }
-    return json;
+    return true;
   }
 }
 
 ///////////////////////////////
-// HealthSymptomsRuleResult
+// HealthContactTraceRulesSet
 
-class HealthSymptomsRuleResult {
-  bool group1, group2;
-  String healthStatus;
-  String nextStep;
+class HealthContactTraceRulesSet {
+  final List<HealthContactTraceRule> _rules;
 
-  HealthSymptomsRuleResult({this.group1, this.group2, this.healthStatus, this.nextStep});
+  HealthContactTraceRulesSet({List<HealthContactTraceRule> rules}) : _rules = rules;
 
-  factory HealthSymptomsRuleResult.fromJson(Map<String, dynamic> json) {
-    return (json != null) ? HealthSymptomsRuleResult(
-      group1: json['gr1'],
-      group2: json['gr2'],
-      healthStatus: json['health_status'],
-      nextStep: json['next_step'],
+  factory HealthContactTraceRulesSet.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthContactTraceRulesSet(
+      rules: HealthContactTraceRule.listFromJson(json['rules']),
     ) : null;
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'group1': group1,
-      'group2': group2,
-      'health_status': healthStatus,
-      'next_step': nextStep,
-    };
-  }
-
-  static List<HealthSymptomsRuleResult> listFromJson(List<dynamic> json) {
-    List<HealthSymptomsRuleResult> values;
-    if (json != null) {
-      values = [];
-      for (dynamic entry in json) {
-          HealthSymptomsRuleResult value;
-          try { value = HealthSymptomsRuleResult.fromJson((entry as Map)?.cast<String, dynamic>()); }
-          catch(e) { print(e?.toString()); }
-          values.add(value);
+  HealthContactTraceRule matchRule({ Covid19HistoryBlob blob, HealthRulesSet rules }) {
+    if ((_rules != null) && (blob != null)) {
+      for (HealthContactTraceRule rule in _rules) {
+        if (rule._matchBlob(blob, rules: rules)) {
+          return rule;
+        }
       }
     }
-    return values;
-  }
-
-  static List<dynamic> listToJson(List<HealthSymptomsRuleResult> values) {
-    List<dynamic> json;
-    if (values != null) {
-      json = [];
-      for (HealthSymptomsRuleResult value in values) {
-        json.add(value?.toJson());
-      }
-    }
-    return json;
+    return null;
   }
 }
 
@@ -2192,49 +2079,16 @@ class HealthSymptomsRuleResult {
 // HealthContactTraceRule
 
 class HealthContactTraceRule {
-  int timeout;
-  List<HealthContactTraceRuleResult> results;
+  final _HealthRuleIntInterval duration;
+  final _HealthRuleStatus status;
 
-  HealthContactTraceRule({this.timeout, this.results});
+  HealthContactTraceRule({this.duration, this.status});
 
   factory HealthContactTraceRule.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthContactTraceRule(
-      timeout: json['timeout'],
-      results: HealthContactTraceRuleResult.listFromJson(json['items']),
+      duration: _HealthRuleIntInterval.fromJson(json['duration']),
+      status: _HealthRuleStatus.fromJson(json['status']),
     ) : null;
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'timeout': timeout,
-      'items': HealthContactTraceRuleResult.listToJson(results),
-    };
-  }
-
-  HealthContactTraceRuleResult _matchResult({int traceTimeout, int traceDuration}) {
-
-    if (((timeout == null) || (traceTimeout <= timeout)) && (results != null)) {
-      for (HealthContactTraceRuleResult result in results) {
-        if (result.matches(traceDuration: traceDuration)) {
-          return result;
-        }
-      }
-    }
-
-    return null;
-  }
-
-  static HealthContactTraceRuleResult matchResult(List<HealthContactTraceRule> rules, {DateTime traceDate, int traceDuration}) {
-    if ((rules != null) && (traceDate != null) && (traceDuration != null)) {
-      int traceTimeout = DateTime.now().toUtc().difference(traceDate).inHours;
-      for (HealthContactTraceRule rule  in rules) {
-        HealthContactTraceRuleResult result = rule._matchResult(traceTimeout: traceTimeout, traceDuration: traceDuration);
-        if (result != null) {
-          return result;
-        }
-      }
-    }
-    return null;
   }
 
   static List<HealthContactTraceRule> listFromJson(List<dynamic> json) {
@@ -2242,87 +2096,577 @@ class HealthContactTraceRule {
     if (json != null) {
       values = [];
       for (dynamic entry in json) {
-          HealthContactTraceRule value;
-          try { value = HealthContactTraceRule.fromJson((entry as Map)?.cast<String, dynamic>()); }
+          try { values.add(HealthContactTraceRule.fromJson((entry as Map)?.cast<String, dynamic>())); }
           catch(e) { print(e?.toString()); }
-          values.add(value);
       }
     }
     return values;
   }
 
-  static List<dynamic> listToJson(List<HealthContactTraceRule> values) {
-    List<dynamic> json;
-    if (values != null) {
-      json = [];
-      for (HealthContactTraceRule value in values) {
-        json.add(value?.toJson());
-      }
-    }
-    return json;
+  bool _matchBlob(Covid19HistoryBlob blob, { HealthRulesSet rules }) {
+    return (duration != null) && duration.match(blob?.traceDurationInMinutes, rules: rules);
   }
 }
 
 ///////////////////////////////
-// HealthContactTraceRuleResult
+// HealthActionRulesSet
 
-class HealthContactTraceRuleResult {
-  int duration;
-  String healthStatus;
-  String nextStep;
+class HealthActionRulesSet {
+  final List<HealthActionRule> _rules;
 
-  HealthContactTraceRuleResult({this.duration, this.healthStatus, this.nextStep});
+  HealthActionRulesSet({List<HealthActionRule> rules}) : _rules = rules;
 
-  factory HealthContactTraceRuleResult.fromJson(Map<String, dynamic> json) {
-    return (json != null) ? HealthContactTraceRuleResult(
-      duration: json['duration'],
-      healthStatus: json['health_status'],
-      nextStep: json['next_step'],
+  factory HealthActionRulesSet.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthActionRulesSet(
+      rules: HealthActionRule.listFromJson(json['rules']),
     ) : null;
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'duration': duration,
-      'health_status': healthStatus,
-      'next_step': nextStep,
-    };
+  HealthActionRule matchRule({ Covid19HistoryBlob blob, HealthRulesSet rules }) {
+    if (_rules != null) {
+      for (HealthActionRule rule in _rules) {
+        if (rule._matchBlob(blob, rules: rules)) {
+          return rule;
+        }
+      }
+    }
+    return null;
+  }
+}
+
+///////////////////////////////
+// HealthActionRule
+
+class HealthActionRule {
+  final String type;
+  final _HealthRuleStatus status;
+
+  HealthActionRule({this.type, this.status});
+
+  factory HealthActionRule.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthActionRule(
+      type: json['type'],
+      status: _HealthRuleStatus.fromJson(json['status']),
+    ) : null;
   }
 
-  bool matches({int traceDuration}) {
-    return ((duration == null) || (traceDuration >= duration));
-  }
-
-  static List<HealthContactTraceRuleResult> listFromJson(List<dynamic> json) {
-    List<HealthContactTraceRuleResult> values;
+  static List<HealthActionRule> listFromJson(List<dynamic> json) {
+    List<HealthActionRule> values;
     if (json != null) {
       values = [];
       for (dynamic entry in json) {
-          HealthContactTraceRuleResult value;
-          try { value = HealthContactTraceRuleResult.fromJson((entry as Map)?.cast<String, dynamic>()); }
+          try { values.add(HealthActionRule.fromJson((entry as Map)?.cast<String, dynamic>())); }
           catch(e) { print(e?.toString()); }
-          values.add(value);
       }
     }
     return values;
   }
 
-  static List<dynamic> listToJson(List<HealthContactTraceRuleResult> values) {
-    List<dynamic> json;
-    if (values != null) {
-      json = [];
-      for (HealthContactTraceRuleResult value in values) {
-        json.add(value?.toJson());
+  bool _matchBlob(Covid19HistoryBlob blob, {HealthRulesSet rules}) {
+    return (type != null) && (type.toLowerCase() == blob?.actionType?.toLowerCase());
+  }
+}
+
+///////////////////////////////
+// _HealthRuleStatus
+
+abstract class _HealthRuleStatus {
+  
+  _HealthRuleStatus();
+  
+  factory _HealthRuleStatus.fromJson(dynamic json) {
+    if (json is Map) {
+      if (json['condition'] != null) {
+        try { return HealthRuleConditionalStatus.fromJson(json.cast<String, dynamic>()); }
+        catch (e) { print(e?.toString()); }
+      }
+      else {
+        try { return HealthRuleStatus.fromJson(json.cast<String, dynamic>()); }
+        catch (e) { print(e?.toString()); }
       }
     }
-    return json;
+    else if (json is String) {
+      return HealthRuleReferenceStatus.fromJson(json);
+    }
+    return null;
   }
+
+  static Map<String, _HealthRuleStatus> mapFromJson(Map<String, dynamic> json) {
+    Map<String, _HealthRuleStatus> result;
+    if (json != null) {
+      result = Map<String, _HealthRuleStatus>();
+      json.forEach((String key, dynamic value) {
+        try { result[key] =  _HealthRuleStatus.fromJson(value); }
+        catch (e) { print(e?.toString()); }
+      });
+    }
+    return result;
+  }
+
+  HealthRuleStatus eval({ List<Covid19History> history, int historyIndex, HealthRulesSet rules });
+}
+
+///////////////////////////////
+// HealthRuleStatus
+
+class HealthRuleStatus extends _HealthRuleStatus {
+  final String healthStatus;
+  final int priority;
+
+  final String nextStep;
+  final String nextStepHtml;
+  final _HealthRuleIntInterval nextStepInterval;
+
+  final String reason;
+  final String warning;
+
+  HealthRuleStatus({this.healthStatus, this.priority, this.nextStep, this.nextStepHtml, this.nextStepInterval, this.reason, this.warning });
+
+  factory HealthRuleStatus.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthRuleStatus(
+      healthStatus: json['health_status'],
+      priority: json['priority'],
+      nextStep: json['next_step'],
+      nextStepHtml: json['next_step_html'],
+      nextStepInterval: _HealthRuleIntInterval.fromJson(json['next_step_interval']),
+      reason: json['reason'],
+      warning: json['warning'],
+    ) : null;
+  }
+
+  HealthRuleStatus eval({ List<Covid19History> history, int historyIndex, HealthRulesSet rules }) {
+    return this;
+  }
+
+  bool canUpdateStatus({Covid19StatusBlob blob}) {
+    int blobStatusWeight = covid19HealthStatusWeight(blob?.healthStatus);
+    int newStatusWeight =  (this.healthStatus != null) ? covid19HealthStatusWeight(this.healthStatus) : blobStatusWeight;
+    if (blobStatusWeight < newStatusWeight) {
+      // status downgrade
+      return true;
+    }
+    else {
+      // status upgrade or preserve
+      int blobStatusPriority = blob?.priority ?? 0;
+      int newStatusPriority = this.priority ?? 0;
+      return (newStatusPriority < 0) || (blobStatusPriority <= newStatusPriority);
+    }
+  }
+
+  DateTime nextStepDateUtc(DateTime startDateUtc, { HealthRulesSet rules }) {
+    int numberOfDays = nextStepInterval?.value(rules: rules);
+    return ((startDateUtc != null) && (numberOfDays != null)) ?
+       startDateUtc.add(Duration(days: numberOfDays)) : null;
+  }
+}
+
+///////////////////////////////
+// HealthRuleReferenceStatus
+
+class HealthRuleReferenceStatus extends _HealthRuleStatus {
+  final String reference;
+  HealthRuleReferenceStatus({this.reference});
+
+  factory HealthRuleReferenceStatus.fromJson(String json) {
+    return (json != null) ? HealthRuleReferenceStatus(
+      reference: json,
+    ) : null;
+  }
+
+  HealthRuleStatus eval({ List<Covid19History> history, int historyIndex, HealthRulesSet rules }) {
+    // Only test rules currently use reference status.
+    _HealthRuleStatus status = (rules?.statuses != null) ? rules?.statuses[reference] : null;
+    return status?.eval(history: history, historyIndex: historyIndex, rules: rules);
+  }
+}
+
+///////////////////////////////
+// HealthRuleConditionalStatus
+
+class HealthRuleConditionalStatus extends _HealthRuleStatus {
+  final String condition;
+  final Map<String, dynamic> params;
+  final _HealthRuleStatus successStatus;
+  final _HealthRuleStatus failStatus;
+
+  HealthRuleConditionalStatus({this.condition, this.params, this.successStatus, this.failStatus});
+
+  factory HealthRuleConditionalStatus.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthRuleConditionalStatus(
+      condition: json['condition'],
+      params: json['params'],
+      successStatus: _HealthRuleStatus.fromJson(json['success']) ,
+      failStatus: _HealthRuleStatus.fromJson(json['fail']),
+    ) : null;
+  }
+
+  HealthRuleStatus eval({ List<Covid19History> history, int historyIndex, HealthRulesSet rules }) {
+    _HealthRuleStatus result;
+    if (condition == 'require-test') {
+      result = _evalRequireTest(history: history, historyIndex: historyIndex, rules: rules);
+    }
+    else if (condition == 'require-symptoms') {
+      result = _evalRequireSymptoms(history: history, historyIndex: historyIndex, rules: rules);
+    }
+    else if (condition == 'timeout') {
+      result = _evalTimeout(history: history, historyIndex: historyIndex, rules: rules);
+    }
+    else if (condition == 'test-user') {
+      result = _evalTestUser(rules: rules);
+    }
+    else if (condition == 'test-interval') {
+      result = _evalTestInterval(rules: rules);
+    }
+    return result?.eval(history: history, historyIndex: historyIndex, rules: rules);
+  }
+
+  _HealthRuleStatus _evalRequireTest({ List<Covid19History> history, int historyIndex, HealthRulesSet rules }) {
+    
+    Covid19History historyEntry = ((history != null) && (historyIndex != null) && (0 <= historyIndex) && (historyIndex < history.length)) ? history[historyIndex] : null;
+    DateTime historyDateMidnightLocal = historyEntry?.dateMidnightLocal;
+    if (historyDateMidnightLocal == null) {
+      return null;
+    }
+    
+    _HealthRuleIntInterval interval = _HealthRuleIntInterval.fromJson(params['interval']);
+    if (interval == null) {
+      return null;
+    }
+
+    dynamic category = params['category'];
+    if (category is List) {
+      category = Set.from(category);
+    }
+
+    int scope = interval.scope(rules: rules) ?? 0;
+    if (0 < scope) { // check only newer items than the current
+      for (int index = historyIndex - 1; 0 <= index; index--) {
+        if (_evalRequireTestEntryFulfills(history[index], historyDateMidnightLocal: historyDateMidnightLocal, interval: interval, rules: rules, category: category)) {
+          return successStatus;
+        }
+      }
+    }
+    else if (0 < scope) { // check only older items than the current
+      for (int index = historyIndex + 1; index < history.length; index++) {
+        if (_evalRequireTestEntryFulfills(history[index], historyDateMidnightLocal: historyDateMidnightLocal, interval: interval, rules: rules, category: category)) {
+          return successStatus;
+        }
+      }
+    }
+    else { // check all history items
+      for (int index = 0; index < history.length; index++) {
+        if ((index != historyIndex) && _evalRequireTestEntryFulfills(history[index], historyDateMidnightLocal: historyDateMidnightLocal, interval: interval, rules: rules, category: category)) {
+          return successStatus;
+        }
+      }
+    }
+
+    // If positive time interval is not already expired - do not return failed status yet.
+    if ((interval.current(rules: rules) == true) && _evalCurrentIntervalFulfills(interval, historyDateMidnightLocal: historyDateMidnightLocal, rules: rules)) {
+      return successStatus;
+    }
+
+    return failStatus;
+  }
+
+  static bool _evalRequireTestEntryFulfills(Covid19History entry, { DateTime historyDateMidnightLocal,  _HealthRuleIntInterval interval, HealthRulesSet rules, dynamic category }) {
+    if (entry.isTest && entry.canTestUpdateStatus) {
+      DateTime entryDateMidnightLocal = entry.dateMidnightLocal;
+      final difference = entryDateMidnightLocal.difference(historyDateMidnightLocal).inDays;
+      if (interval.match(difference, rules: rules)) {
+        if (category == null) {
+          return true; // any test matches
+        }
+        else {
+          HealthTestRuleResult entryRuleResult = rules?.tests?.matchRuleResult(blob: entry?.blob);
+          if ((entryRuleResult != null) && (entryRuleResult.category != null) &&
+              (((category is String) && (category == entryRuleResult.category)) ||
+                ((category is Set) && category.contains(entryRuleResult.category))))
+          {
+            return true; // only tests from given category matches
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  _HealthRuleStatus _evalRequireSymptoms({ List<Covid19History> history, int historyIndex, HealthRulesSet rules }) {
+    Covid19History historyEntry = ((history != null) && (historyIndex != null) && (0 <= historyIndex) && (historyIndex < history.length)) ? history[historyIndex] : null;
+    DateTime historyDateMidnightLocal = historyEntry?.dateMidnightLocal;
+    if (historyDateMidnightLocal == null) {
+      return null;
+    }
+
+    _HealthRuleIntInterval interval = _HealthRuleIntInterval.fromJson(params['interval']);
+    if (interval == null) {
+      return null;
+    }
+
+    int scope = interval.scope(rules: rules) ?? 0;
+    if (0 < scope) { // check only newer items than the current
+      for (int index = historyIndex - 1; 0 <= index; index--) {
+        if (_evalRequireSymptomsEntryFulfills(history[index], historyDateMidnightLocal: historyDateMidnightLocal, interval: interval, rules: rules)) {
+          return successStatus;
+        }
+      }
+    }
+    else if (0 < scope) { // check only older items than the current
+      for (int index = historyIndex + 1; index < history.length; index++) {
+        if (_evalRequireSymptomsEntryFulfills(history[index], historyDateMidnightLocal: historyDateMidnightLocal, interval: interval, rules: rules)) {
+          return successStatus;
+        }
+      }
+    }
+    else { // check all history items
+      for (int index = 0; index < history.length; index++) {
+        if ((index != historyIndex) && _evalRequireSymptomsEntryFulfills(history[index], historyDateMidnightLocal: historyDateMidnightLocal, interval: interval, rules: rules)) {
+          return successStatus;
+        }
+      }
+    }
+
+    // If positive time interval is not already expired - do not return failed status yet.
+    if ((interval.current(rules: rules) == true) && _evalCurrentIntervalFulfills(interval, historyDateMidnightLocal: historyDateMidnightLocal, rules: rules)) {
+      return successStatus;
+    }
+
+    return failStatus;
+  }
+
+  static bool _evalRequireSymptomsEntryFulfills(Covid19History entry, { DateTime historyDateMidnightLocal,  _HealthRuleIntInterval interval, HealthRulesSet rules }) {
+    if (entry.isSymptoms) {
+      DateTime entryDateMidnightLocal = entry.dateMidnightLocal;
+      final difference = entryDateMidnightLocal.difference(historyDateMidnightLocal).inDays;
+      if (interval.match(difference, rules: rules)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  _HealthRuleStatus _evalTestUser({ HealthRulesSet rules }) {
+    dynamic role = params['role'];
+    if ((role != null) && !_matchStringTarget(target: Auth().authCard?.role, source: role)) {
+      return failStatus;
+    }
+    dynamic studentLevel = params['student_level'];
+    if ((studentLevel != null) && !_matchStringTarget(target: Auth().authCard?.studentLevel, source: studentLevel)) {
+      return failStatus;
+    }
+    return successStatus;
+  }
+
+  _HealthRuleStatus _evalTestInterval({ HealthRulesSet rules }) {
+    dynamic interval = _HealthRuleIntInterval.fromJson(params['interval']);
+    return (interval?.valid(rules: rules) ?? false) ? successStatus : failStatus;
+  }
+
+  static bool _matchStringTarget({dynamic source, String target}) {
+    if (target != null) {
+      if (source is String) {
+        return source.toLowerCase() == target.toLowerCase();
+      }
+      else if (source is List) {
+        for (dynamic sourceEntry in source) {
+          if ((sourceEntry is String) && (sourceEntry.toLowerCase() == target.toLowerCase())) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  _HealthRuleStatus _evalTimeout({ List<Covid19History> history, int historyIndex, HealthRulesSet rules }) {
+    Covid19History historyEntry = ((history != null) && (historyIndex != null) && (0 <= historyIndex) && (historyIndex < history.length)) ? history[historyIndex] : null;
+    DateTime historyDateMidnightLocal = historyEntry?.dateMidnightLocal;
+    if (historyDateMidnightLocal == null) {
+      return null;
+    }
+
+    _HealthRuleIntInterval interval = _HealthRuleIntInterval.fromJson(params['interval']);
+    if (interval == null) {
+      return null;
+    }
+
+    return _evalCurrentIntervalFulfills(interval, historyDateMidnightLocal: historyDateMidnightLocal, rules: rules) ?
+      failStatus : successStatus; // while current time is within interval 'timeout' condition fails
+  }
+
+  static bool _evalCurrentIntervalFulfills(_HealthRuleIntInterval currentInterval, { DateTime historyDateMidnightLocal, HealthRulesSet rules } ) {
+    if (currentInterval != null) {
+      final difference = AppDateTime.todayMidnightLocal.difference(historyDateMidnightLocal).inDays;
+      if (currentInterval.match(difference, rules: rules)) {
+        return true;
+      }
+    }
+    return false;
+  }
+}
+
+///////////////////////////////
+// _HealthRuleIntInterval
+
+abstract class _HealthRuleIntInterval {
+  _HealthRuleIntInterval();
+  
+  factory _HealthRuleIntInterval.fromJson(dynamic json) {
+    if (json is int) {
+      return HealthRuleIntValue.fromJson(json);
+    }
+    else if (json is String) {
+      return HealthRuleIntReference.fromJson(json);
+    }
+    else if (json is Map) {
+      return HealthRuleIntInterval.fromJson(json.cast<String, dynamic>());
+    }
+    else {
+      return null;
+    }
+  }
+
+  bool match(int value, { HealthRulesSet rules });
+  int  value({ HealthRulesSet rules });
+  bool valid({ HealthRulesSet rules });
+  int  scope({ HealthRulesSet rules });
+  bool current({ HealthRulesSet rules });
+}
+
+///////////////////////////////
+// HealthRuleIntValue
+
+class HealthRuleIntValue extends _HealthRuleIntInterval {
+  final int _value;
+  
+  HealthRuleIntValue({int value}) :
+    _value = value;
+
+  factory HealthRuleIntValue.fromJson(dynamic json) {
+    return (json is int) ? HealthRuleIntValue(value: json) : null;
+  }
+
+  @override
+  bool match(int value, { HealthRulesSet rules }) {
+    return (_value == value);
+  }
+
+  @override int  value({ HealthRulesSet rules })   { return _value; }
+  @override bool valid({ HealthRulesSet rules })   { return (_value != null); }
+  @override int  scope({ HealthRulesSet rules })   { return null; }
+  @override bool current({ HealthRulesSet rules }) { return null; }
+}
+
+///////////////////////////////
+// HealthRuleIntInterval
+
+class HealthRuleIntInterval extends _HealthRuleIntInterval {
+  final _HealthRuleIntInterval _min;
+  final _HealthRuleIntInterval _max;
+  final int _scope;
+  final bool _current;
+  
+  HealthRuleIntInterval({_HealthRuleIntInterval min, _HealthRuleIntInterval max, int scope, bool current}) :
+    _min = min,
+    _max = max,
+    _scope = scope,
+    _current = current;
+    
+
+  factory HealthRuleIntInterval.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthRuleIntInterval(
+      min: _HealthRuleIntInterval.fromJson(json['min']) ,
+      max: _HealthRuleIntInterval.fromJson(json['max']),
+      scope: _scopeFromJson(json['scope']),
+      current: json['current']
+    ) : null;
+  }
+
+  @override
+  bool match(int value, { HealthRulesSet rules }) {
+    if (value != null) {
+      if (_min != null) {
+        int minValue = _min.value(rules: rules);
+        if ((minValue == null) || (minValue > value)) {
+          return false;
+        }
+      }
+      if (_max != null) {
+        int maxValue = _max.value(rules: rules);
+        if ((maxValue == null) || (maxValue < value)) {
+          return false;
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+
+  @override bool valid({ HealthRulesSet rules })   {
+    return ((_min == null) || _min.valid(rules: rules)) &&
+           ((_max == null) || _max.valid(rules: rules));
+  }
+
+  @override int  value({ HealthRulesSet rules }) { return null; }
+  @override int  scope({ HealthRulesSet rules }) { return _scope; }
+  @override bool current({ HealthRulesSet rules }) { return _current; }
+
+  static int _scopeFromJson(dynamic value) {
+    if (value is String) {
+      if (value == 'future') {
+        return 1;
+      }
+      else if (value == 'past') {
+        return -1;
+      }
+    }
+    else if (value is int) {
+      if (0 < value) {
+        return 1;
+      }
+      else if (value < 0) {
+        return -1;
+      }
+    }
+    return null;
+  }
+}
+
+///////////////////////////////
+// HealthRuleIntReference
+
+class HealthRuleIntReference extends _HealthRuleIntInterval {
+  final String _reference;
+  _HealthRuleIntInterval _referenceValue;
+
+  HealthRuleIntReference({String reference}) :
+    _reference = reference;
+
+  factory HealthRuleIntReference.fromJson(dynamic json) {
+    return (json is String) ? HealthRuleIntReference(reference: json) : null;
+  }
+
+  _HealthRuleIntInterval referenceValue({ HealthRulesSet rules }) {
+    if (_referenceValue == null) {
+      dynamic value = (rules?.constants != null) ? rules.constants[_reference] : null;
+      _referenceValue = _HealthRuleIntInterval.fromJson(value);
+    }
+    return _referenceValue;
+  }
+
+  @override
+  bool match(int value, { HealthRulesSet rules }) {
+    return referenceValue(rules: rules)?.match(value, rules: rules) ?? false;
+  }
+  
+  @override bool valid({ HealthRulesSet rules })   { return referenceValue(rules: rules)?.valid(rules: rules) ?? false; }
+  @override int  value({ HealthRulesSet rules })   { return referenceValue(rules: rules)?.value(rules: rules); }
+  @override int  scope({ HealthRulesSet rules })   { return referenceValue(rules: rules)?.scope(rules: rules); }
+  @override bool current({ HealthRulesSet rules }) { return referenceValue(rules: rules)?.current(rules: rules); }
 }
 
 ///////////////////////////////
 // Health DateTime
-
-// AppDateTime.covid19ServerDateFormat
 
 final List<String> _covid19ServerDateFormatsIn  = [
   "yyyy-MM-ddTHH:mm:ss.SSSZ",
@@ -2350,39 +2694,6 @@ String healthDateTimeToString(DateTime dateTime) {
     catch (e) { print(e?.toString()); }
   }
   return null;
-}
-
-///////////////////////////////
-// HealthOSFAuth
-
-class HealthOSFAuth{
-  final String accessToken;
-  final String tokenType;
-  final int expiresIn;
-  final String scope;
-  final String patient;
-
-  HealthOSFAuth({this.accessToken, this.tokenType, this.expiresIn, this.scope, this.patient});
-
-  factory HealthOSFAuth.fromJson(Map<String,dynamic>json){
-    return HealthOSFAuth(
-      accessToken: json["access_token"],
-      tokenType: json["token_type"],
-      expiresIn: json["expires_in"],
-      scope: json["scope"],
-      patient: json["patient"],
-    );
-  }
-
-  toJson(){
-    return {
-      "access_token": accessToken,
-      "token_type": tokenType,
-      "expires_in": expiresIn,
-      "scope": scope,
-      "patient": patient,
-    };
-  }
 }
 
 ///////////////////////////////

@@ -24,7 +24,7 @@ import 'package:flutter/foundation.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Connectivity.dart';
-import 'package:illinois/service/AppDateTime.dart';
+import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/FlexUI.dart';
 import 'package:illinois/service/Health.dart';
@@ -201,11 +201,20 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
 
   // User Info
 
+  String get _greeting {
+    switch (AppDateTime.timeOfDay()) {
+      case AppTimeOfDay.Morning:   return Localization().getStringEx("logic.date_time.greeting.morning", "Good morning");
+      case AppTimeOfDay.Afternoon: return Localization().getStringEx("logic.date_time.greeting.afternoon", "Good afternoon");
+      case AppTimeOfDay.Evening:   return Localization().getStringEx("logic.date_time.greeting.evening", "Good evening");
+    }
+    return Localization().getStringEx("logic.date_time.greeting.day", "Good day");
+  }
+
   Widget _buildUserInfo() {
     String fullName = Auth()?.userPiiData?.fullName ?? "";
     bool hasFullName =  AppString.isStringNotEmpty(fullName);
     String welcomeMessage = AppString.isStringNotEmpty(fullName)
-        ? AppDateTime().getDayGreeting() + ","
+        ? _greeting + ","
         : Localization().getStringEx("panel.settings.home.user_info.title.sufix", "Welcome to Illinois");
     return
       Semantics( container: true,
@@ -1123,16 +1132,14 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
         fontSize: 16.0,
         textColor: Styles().colors.fillColorPrimary,
         borderColor: Styles().colors.fillColorSecondary,
-        onTap: _onDebugClicked,
+        onTap: () { _onDebugClicked(); },
       ),
     ); 
   }
 
-  Function _onDebugClicked() {
-    return () {
-      Analytics.instance.logSelect(target: "Debug");
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsDebugPanel()));
-    };
+  void _onDebugClicked() {
+    Analytics.instance.logSelect(target: "Debug");
+    Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsDebugPanel()));
   }
 
   //Version Info

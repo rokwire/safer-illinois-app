@@ -16,7 +16,6 @@
 
 
 import 'package:illinois/service/Analytics.dart';
-import 'package:illinois/service/AppDateTime.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/Assets.dart';
 import 'package:illinois/service/Auth.dart';
@@ -29,6 +28,7 @@ import 'package:illinois/service/Exposure.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/FlexUI.dart';
 import 'package:illinois/service/Health.dart';
+import 'package:illinois/service/HttpProxy.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/LocationServices.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
@@ -76,10 +76,10 @@ class Services {
     
     Crashlytics(),
     Storage(),
+    HttpProxy(),
     Config(),
 
     AppLivecycle(),
-    AppDateTime(),
     Connectivity(),
     LocationServices(),
     BluetoothServices(),

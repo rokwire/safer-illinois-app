@@ -27,7 +27,6 @@ import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Storage.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/service/Styles.dart';
-import 'package:illinois/service/User.dart';
 import 'package:illinois/service/LocationServices.dart';
 
 class Covid19TestLocationsPanel extends StatefulWidget {
@@ -126,22 +125,18 @@ class _Covid19TestLocationsPanelState extends State<Covid19TestLocationsPanel>{
 
   void _loadLocationsServicesData(){
 
-    if (User().privacyMatch(2)) {
-      LocationServices.instance.status.then((LocationServicesStatus locationServicesStatus) {
-        _locationServicesStatus = locationServicesStatus;
+    LocationServices.instance.status.then((LocationServicesStatus locationServicesStatus) {
+      _locationServicesStatus = locationServicesStatus;
 
-        if (_locationServicesStatus == LocationServicesStatus.PermissionNotDetermined) {
-          LocationServices.instance.requestPermission().then((LocationServicesStatus locationServicesStatus) {
-            _locationServicesStatus = locationServicesStatus;
-            _sortLocations();
-          });
-        } else {
+      if (_locationServicesStatus == LocationServicesStatus.PermissionNotDetermined) {
+        LocationServices.instance.requestPermission().then((LocationServicesStatus locationServicesStatus) {
+          _locationServicesStatus = locationServicesStatus;
           _sortLocations();
-        }
-      });
-    } else {
-      _sortLocations();
-    }
+        });
+      } else {
+        _sortLocations();
+      }
+    });
   }
 
   Widget _buildCountyField(){
@@ -323,7 +318,7 @@ class _Covid19TestLocationsPanelState extends State<Covid19TestLocationsPanel>{
   }
 
   bool get _userLocationEnabled {
-    return User().privacyMatch(2) && (_locationServicesStatus == LocationServicesStatus.PermissionAllowed);
+    return (_locationServicesStatus == LocationServicesStatus.PermissionAllowed);
   }
 }
 
@@ -561,40 +556,6 @@ class _TestLocation extends StatelessWidget{
     }
     return null;
   }
-
-  /*bool _determineIsOpen(HealthLocationDayOfOperation period){
-    String start = period?.openTime?.toUpperCase();
-    String end = period?.closeTime?.toUpperCase();
-    TimeOfDay startPeriod = start!=null? TimeOfDay.fromDateTime(AppDateTime().dateTimeFromString(start,format: "hh:mma")) : null;
-    TimeOfDay endPeriod = end!=null? TimeOfDay.fromDateTime(AppDateTime().dateTimeFromString(end,format: "hh:mma")) : null;
-    TimeOfDay now = TimeOfDay.fromDateTime(DateTime.now());
-    if(startPeriod!=null && endPeriod!=null){
-      int startMinutes = startPeriod.hour * 60 + startPeriod.minute;
-      int endtMinutes = endPeriod.hour * 60 + endPeriod.minute;
-      int nowMinutes = now.hour * 60 + now.minute;
-
-      return startMinutes<nowMinutes && nowMinutes<endtMinutes;
-    }
-
-    return false;
-  }*/
-
-  /*bool _determineWillOpen(HealthLocationDayOfOperation period) {
-    String start = period?.openTime?.toUpperCase();
-    TimeOfDay startPeriod = start != null
-        ? TimeOfDay.fromDateTime(
-            AppDateTime().dateTimeFromString(start, format: "hh:mma"))
-        : null;
-    TimeOfDay now = TimeOfDay.fromDateTime(DateTime.now());
-    if (startPeriod != null) {
-      int startMinutes = startPeriod.hour * 60 + startPeriod.minute;
-      int nowMinutes = now.hour * 60 + now.minute;
-
-      return nowMinutes < startMinutes;
-    }
-
-    return false;
-  }*/
 
   /*void _onTapContact() async{
     await url_launcher.launch("tel:"+testLocation?.contact ?? "");

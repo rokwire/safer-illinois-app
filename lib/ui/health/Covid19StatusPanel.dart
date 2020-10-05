@@ -127,7 +127,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
   }
 
   void _updateCovid19Access() {
-    Health().isAccessGranted(_covid19Status?.blob?.healthStatus).then((bool granted) {
+    Health().isBuildingAccessGranted(_covid19Status?.blob?.healthStatus).then((bool granted) {
       if (mounted) {
         setState(() {
           _covid19Access = granted;
@@ -451,7 +451,14 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
                   Text(statusName, style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Styles().colors.textSurface),),
                 ),
                 Container(width: 6,),
-                IconButton(icon: Image.asset('images/icon-info-orange.png'), onPressed: () =>  StatusInfoDialog.show(context, _selectedCounty?.nameDisplayText ?? ""), padding: EdgeInsets.all(10),)
+                Semantics(
+                  explicitChildNodes: true,
+                  child: Semantics(
+                      label: Localization().getStringEx("panel.covid19_passport.button.info.title","Info "),
+                      button: true,
+                      excludeSemantics: true,
+                      child:  IconButton(icon: Image.asset('images/icon-info-orange.png', excludeFromSemantics: true,), onPressed: () =>  StatusInfoDialog.show(context, _selectedCounty?.nameDisplayText ?? ""), padding: EdgeInsets.all(10),)
+                ))
             ],)):
           Container(
             padding: EdgeInsets.only(bottom: 8),
@@ -512,10 +519,11 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
   }
 
   String get _userRoleString { // Simplified - show resident for the rest of the situations
-    if(Auth().isShibbolethLoggedIn && AppString.isStringNotEmpty(Auth()?.authCard?.studentLevel)){
-      return Auth()?.authCard?.studentLevel;  // Use studentLevel instead of role Ref: issue #168
+    String roleDisplayString = Auth()?.authCard?.roleDisplayString;
+    if(Auth().isShibbolethLoggedIn && AppString.isStringNotEmpty(roleDisplayString)){
+      return roleDisplayString;
     }
-    return UserRole.toRoleString(UserRole.resident);
+    return UserRole.resident.toDisplayString();
   }
 
   Widget _userAvatar() {

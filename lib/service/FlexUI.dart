@@ -102,9 +102,13 @@ class FlexUI with Service implements NotificationsListener {
 
   @override
   void onNotification(String name, dynamic param) {
-    if ((name == User.notifyUserUpdated) ||
-        (name == User.notifyRolesUpdated) ||
-        (name == Auth.notifyAuthTokenChanged) ||
+    if ((name == User.notifyRolesUpdated) ||
+        (name == User.notifyUserUpdated) ||
+        (name == User.notifyUserDeleted))
+    {
+      _updateFromNet();
+    }
+    else if ((name == Auth.notifyAuthTokenChanged) ||
         (name == Auth.notifyCardChanged) || 
         (name == Auth.notifyUserPiiDataChanged))
     {
@@ -265,7 +269,7 @@ class FlexUI with Service implements NotificationsListener {
     return _updateFromNet();
   }
 
-// Local Build
+  // Local Build
 
   static Future<Map<String, dynamic>> _localBuild() async {
     String flexUIString = await rootBundle.loadString('assets/$_flexUIName');
@@ -380,7 +384,7 @@ class FlexUI with Service implements NotificationsListener {
   }
 
   static bool _localeEvalPrivacyRule(dynamic privacyRule) {
-    return (privacyRule is int) ? User().privacyMatch(privacyRule) : true; // allow everything that is not defined or we do not understand
+    return true; // we do not support privacy levels in Safer
   }
 
   static bool _localeEvalAuthRule(dynamic authRule) {
