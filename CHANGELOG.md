@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Changed
+- Do not keep in Storage location permision promot flag.
+- All Health2 classes renamed to regular Health classes and merged in Health model.
+
+### Deleted
+- Removed fixed timezone output support
 
 ## [2.7.1] - 2020-10-02
 ### Added
@@ -14,6 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - "ios/Runner/GoogleService-Info-Debug/Release.plist" secret file refs updated to "ios/Runner/GoogleService-Info-Dev/Prod.plist".
 - Locale strings from net just override the built-in asset strings [236](https://github.com/rokwire/safer-illinois-app/issues/236).
+
+### Deleted
+- Removed unused debug stuff from SettingsDebugPanel.
+- Removed unused stuff from Storage.
 
 
 ## [2.7.0] - 2020-09-30
