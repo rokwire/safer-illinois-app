@@ -20,7 +20,6 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:illinois/model/Health.dart';
-import 'package:illinois/model/Health2.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/Styles.dart';
@@ -107,7 +106,7 @@ class _Covid19DebugRulesPanelState extends State<Covid19DebugRulesPanel>{
           rules['constants'] = constants = {};
         }
         if (constants is Map) {
-          constants[HealthRulesSet2.UserTestMonitorInterval] = _userTestMonitorInterval;
+          constants[HealthRulesSet.UserTestMonitorInterval] = _userTestMonitorInterval;
         }
       }
 

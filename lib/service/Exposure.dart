@@ -20,7 +20,6 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'package:illinois/model/Exposure.dart';
 import 'package:illinois/model/Health.dart';
-import 'package:illinois/model/Health2.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/Auth.dart';
@@ -709,7 +708,7 @@ class Exposure with Service implements NotificationsListener {
     _checkingReport = true;
 
     List<Covid19History> histories = await Health().loadCovid19History();
-    HealthRulesSet2 rules = await Health().loadRules2();
+    HealthRulesSet rules = await Health().loadRules2();
     Set<String> negativeTestCategories = _negativeTestCategories;
 
     int minTimestamp, maxTimestamp, currentTimestamp = _currentTimestamp;
@@ -778,7 +777,7 @@ class Exposure with Service implements NotificationsListener {
     return result;
   }
 
-  int _findMostRecentNegativeTestTimestamp({List<Covid19History> histories, HealthRulesSet2 rules, Set<String> negativeTestCategories, int minTimestamp, int maxTimestamp}) {
+  int _findMostRecentNegativeTestTimestamp({List<Covid19History> histories, HealthRulesSet rules, Set<String> negativeTestCategories, int minTimestamp, int maxTimestamp}) {
     if ((histories != null) && (rules != null) && (negativeTestCategories != null)) {
       // start from newest
       for (int index = 0; index < histories.length; index++) {
@@ -791,7 +790,7 @@ class Exposure with Service implements NotificationsListener {
           if ((minTimestamp != null) && (historyTimestamp < minTimestamp)) {
             break;
           }
-          HealthTestRuleResult2 testRuleResult = history.isTestVerified ? rules.tests.matchRuleResult(blob: history?.blob) : null;
+          HealthTestRuleResult testRuleResult = history.isTestVerified ? rules.tests.matchRuleResult(blob: history?.blob) : null;
           if ((testRuleResult?.category != null) && negativeTestCategories.contains(testRuleResult.category)) {
             return historyTimestamp;
           }
@@ -801,7 +800,7 @@ class Exposure with Service implements NotificationsListener {
     return null;
   }
 
-  int _findEarlierNegativeTestTimestamp({List<Covid19History> histories, HealthRulesSet2 rules, Set<String> negativeTestCategories, int minTimestamp, int maxTimestamp}) {
+  int _findEarlierNegativeTestTimestamp({List<Covid19History> histories, HealthRulesSet rules, Set<String> negativeTestCategories, int minTimestamp, int maxTimestamp}) {
     if ((histories != null) && (rules != null) && (negativeTestCategories != null)) {
       // start from oldest
       for (int index = histories.length - 1; 0 <= index; index--) {
@@ -814,7 +813,7 @@ class Exposure with Service implements NotificationsListener {
           if ((maxTimestamp != null) && (maxTimestamp < historyTimestamp)) {
             break;
           }
-          HealthTestRuleResult2 testRuleResult = history.isTestVerified ? rules.tests.matchRuleResult(blob: history?.blob) : null;
+          HealthTestRuleResult testRuleResult = history.isTestVerified ? rules.tests.matchRuleResult(blob: history?.blob) : null;
           if ((testRuleResult?.category != null) && negativeTestCategories.contains(testRuleResult.category)) {
             return historyTimestamp;
           }

@@ -158,7 +158,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.4.1] - 2020-08-25
 ### Fixed
- - Introduced scopes in HealthRuleIntInterval2 (#47)
+ - Introduced scopes in HealthRuleIntInterval (#47)
 
 ## [2.4.0] - 2020-08-24
 ### Added
