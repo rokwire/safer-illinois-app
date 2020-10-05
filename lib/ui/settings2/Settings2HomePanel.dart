@@ -19,7 +19,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:illinois/service/Analytics.dart';
-import 'package:illinois/service/AppDateTime.dart';
 import 'package:illinois/service/AppNavigation.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Config.dart';
@@ -43,6 +42,7 @@ import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/RibbonButton.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/utils/Utils.dart';
+import 'package:intl/intl.dart';
 
 
 class Settings2HomePanel extends StatefulWidget {
@@ -814,7 +814,7 @@ class _DebugContainerState extends State<_DebugContainer> {
   }
 
   String get pinOfTheDay {
-    return AppDateTime().formatUniLocalTimeFromUtcTime(DateTime.now(), "MMdd");
+    return DateFormat('MMdd').format(DateTime.now());
   }
 
   void _onEnterPin(String pin){

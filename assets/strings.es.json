@@ -689,6 +689,7 @@
     "logic.date_time.greeting.morning": "Buenos días",
     "logic.date_time.greeting.afternoon": "Buenas tardes",
     "logic.date_time.greeting.evening": "Buena noches",
+    "logic.date_time.greeting.day": "Buen día",
 
     "logic.polls.unable_to_load_poll": "No se puede cargar la encuesta",
     "logic.polls.no_polls_with_pin": "No hay encuestas con esta encuesta de 4 dígitos #",

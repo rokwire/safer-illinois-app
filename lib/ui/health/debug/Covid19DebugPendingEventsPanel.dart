@@ -18,7 +18,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
-import 'package:illinois/service/AppDateTime.dart';
+import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
@@ -126,7 +126,7 @@ class _Covid19DebugPendingEventsPanelState extends State<Covid19DebugPendingEven
 
   Widget _buildEvent(Covid19Event event) {
     DateTime date = event.dateUpdated ?? event.dateCreated;
-    String displayDate = AppDateTime().formatDateTime(date, format: "MMM dd, HH:mma") ?? '';
+    String displayDate = AppDateTime.formatDateTime(date, format: "MMM dd, HH:mma") ?? '';
     String providerName = (_providers != null) ? _providers[event.providerId]?.name : null;
     String providerLabel = (providerName != null) ? Localization().getStringEx("panel.health.covid19.debug.test.label.provider","Provider: ") :
                                                     Localization().getStringEx("panel.health.covid19.debug.test.label.provider_id","Provider Id: ");

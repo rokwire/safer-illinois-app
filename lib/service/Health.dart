@@ -21,9 +21,8 @@ import 'package:flutter/material.dart';
 //TMP:  import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart';
 import 'package:illinois/model/Health.dart';
-import 'package:illinois/model/Health2.dart';
 import 'package:illinois/service/Analytics.dart';
-import 'package:illinois/service/AppDateTime.dart';
+import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/BluetoothServices.dart';
@@ -66,7 +65,7 @@ class Health with Service implements NotificationsListener {
 
   File     _historyCacheFile;
   List<Covid19History> _historyCache;
-  Map<String, HealthRulesSet2> _rulesCache;
+  Map<String, HealthRulesSet> _rulesCache;
   Map<String, Map<String, dynamic>> _accessRulesCache;
 
   bool _processingCountyStatus;
@@ -83,7 +82,7 @@ class Health with Service implements NotificationsListener {
   }
 
   Health._internal() {
-    _rulesCache = Map<String, HealthRulesSet2>();
+    _rulesCache = Map<String, HealthRulesSet>();
     _accessRulesCache =  Map<String, Map<String, dynamic>>();
   }
 
@@ -468,7 +467,7 @@ class Health with Service implements NotificationsListener {
 
   Future<List<HealthSymptomsGroup>> _loadSymptomsGroups2() async {
 
-    HealthRulesSet2 rules = await _loadRules2();
+    HealthRulesSet rules = await _loadRules2();
     if (rules?.symptoms?.groups != null) {
       return rules?.symptoms?.groups;
     }
@@ -779,7 +778,7 @@ class Health with Service implements NotificationsListener {
     }
     List<dynamic> results = await Future.wait(futures);
 
-    HealthRulesSet2 rules = ((results != null) && (0 < results.length)) ? results[0] : null;
+    HealthRulesSet rules = ((results != null) && (0 < results.length)) ? results[0] : null;
     if (rules == null) {
       return null;
     }
@@ -800,7 +799,7 @@ class Health with Service implements NotificationsListener {
     }
 
     Covid19Status status;
-    HealthRuleStatus2 defaultStatus = rules?.defaults?.status?.eval(history: histories, historyIndex: -1, rules: rules);
+    HealthRuleStatus defaultStatus = rules?.defaults?.status?.eval(history: histories, historyIndex: -1, rules: rules);
     if (defaultStatus != null) {
       status = Covid19Status(
         dateUtc: null,
@@ -827,10 +826,10 @@ class Health with Service implements NotificationsListener {
       Covid19History history = histories[index];
       if ((history.dateUtc != null) && history.dateUtc.isBefore(nowUtc)) {
 
-        HealthRuleStatus2 historyStatus;
+        HealthRuleStatus historyStatus;
         if (history.isTest && history.canTestUpdateStatus) {
           if (rules.tests != null) {
-            HealthTestRuleResult2 testRuleResult = rules.tests.matchRuleResult(blob: history?.blob, rules: rules);
+            HealthTestRuleResult testRuleResult = rules.tests.matchRuleResult(blob: history?.blob, rules: rules);
             historyStatus = testRuleResult?.status?.eval(history: histories, historyIndex: index, rules: rules);
           }
           else {
@@ -840,7 +839,7 @@ class Health with Service implements NotificationsListener {
         }
         else if (history.isSymptoms) {
           if (rules.symptoms != null) {
-            HealthSymptomsRule2 symptomsRule = rules.symptoms.matchRule(blob: history?.blob, rules: rules);
+            HealthSymptomsRule symptomsRule = rules.symptoms.matchRule(blob: history?.blob, rules: rules);
             historyStatus = symptomsRule?.status?.eval(history: histories, historyIndex: index, rules: rules);
           }
           else {
@@ -849,7 +848,7 @@ class Health with Service implements NotificationsListener {
         }
         else if (history.isContactTrace) {
           if (rules.contactTrace != null) {
-            HealthContactTraceRule2 contactTraceRule = rules.contactTrace.matchRule(blob: history?.blob, rules: rules);
+            HealthContactTraceRule contactTraceRule = rules.contactTrace.matchRule(blob: history?.blob, rules: rules);
             historyStatus = contactTraceRule?.status?.eval(history: histories, historyIndex: index, rules: rules);
           }
           else {
@@ -858,7 +857,7 @@ class Health with Service implements NotificationsListener {
         }
         else if (history.isAction) {
           if (rules.actions != null) {
-            HealthActionRule2 actionRule = rules.actions.matchRule(blob: history?.blob, rules: rules);
+            HealthActionRule actionRule = rules.actions.matchRule(blob: history?.blob, rules: rules);
             historyStatus = actionRule?.status?.eval(history: histories, historyIndex: index, rules: rules);
           }
           else {
@@ -1015,22 +1014,22 @@ class Health with Service implements NotificationsListener {
     Set<String> testTypeSet = testTypes != null ? testTypes.map((entry) => entry.name).toSet() : null;
     if (osfTests != null) {
       List<Covid19OSFTest> processed = List<Covid19OSFTest>();
-      DateTime lastOsfTestDate = Storage().lastHealthCovid19OsfTestDate;
-      DateTime latestOsfTestDate;
+      DateTime lastOsfTestDateUtc = Storage().lastHealthCovid19OsfTestDateUtc;
+      DateTime latestOsfTestDateUtc;
 
       for (Covid19OSFTest osfTest in osfTests) {
-        if ((testTypeSet != null && testTypeSet.contains(osfTest.testType)) && osfTest.dateUtc != null && (lastOsfTestDate == null || lastOsfTestDate.isBefore(osfTest.dateUtc))) {
+        if ((testTypeSet != null && testTypeSet.contains(osfTest.testType)) && osfTest.dateUtc != null && (lastOsfTestDateUtc == null || lastOsfTestDateUtc.isBefore(osfTest.dateUtc))) {
           Covid19History testHistory = await _applyOsfTestHistory(osfTest);
           if (testHistory != null) {
             processed.add(osfTest);
-            if ((latestOsfTestDate == null) || latestOsfTestDate.isBefore(osfTest.dateUtc)) {
-              latestOsfTestDate = osfTest.dateUtc;
+            if ((latestOsfTestDateUtc == null) || latestOsfTestDateUtc.isBefore(osfTest.dateUtc)) {
+              latestOsfTestDateUtc = osfTest.dateUtc;
             }
           }
         }
       }
-      if (latestOsfTestDate != null) {
-        Storage().lastHealthCovid19OsfTestDate = latestOsfTestDate;
+      if (latestOsfTestDateUtc != null) {
+        Storage().lastHealthCovid19OsfTestDateUtc = latestOsfTestDateUtc;
       }
 
       if (0 < processed.length) {
@@ -1319,12 +1318,12 @@ class Health with Service implements NotificationsListener {
   }
 
   // Consolidated Rules
-  Future<HealthRulesSet2> loadRules2({String countyId, bool force}) async {
+  Future<HealthRulesSet> loadRules2({String countyId, bool force}) async {
     return await _loadRules2(countyId: countyId, force: force);
   }
 
-  Future<HealthRulesSet2> _loadRules2({String countyId, bool force}) async {
-    HealthRulesSet2 rules;
+  Future<HealthRulesSet> _loadRules2({String countyId, bool force}) async {
+    HealthRulesSet rules;
     if (countyId == null) {
       countyId = _currentCountyId;
     }
@@ -1332,7 +1331,7 @@ class Health with Service implements NotificationsListener {
       rules = (force != true) ? _rulesCache[countyId] : null;
       if (rules == null) {
         Map<String, dynamic> rulesJson = await _loadRules2Json(countyId: countyId);
-        rules = (rulesJson != null) ? HealthRulesSet2.fromJson(rulesJson) : null;
+        rules = (rulesJson != null) ? HealthRulesSet.fromJson(rulesJson) : null;
         if (rules != null) {
           _rulesCache[countyId] = rules;
         }
@@ -1668,7 +1667,7 @@ class Health with Service implements NotificationsListener {
       Storage().currentHealthCountyId = _currentCountyId = null;
       Storage().lastHealthProvider = null;
       Storage().lastHealthCovid19Status = null;
-      Storage().lastHealthCovid19OsfTestDate = null;
+      Storage().lastHealthCovid19OsfTestDateUtc = null;
       _healthUserPrivateKey = null;
       _healthUser = null;
 

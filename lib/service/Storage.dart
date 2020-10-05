@@ -17,12 +17,12 @@
 import 'dart:convert';
 import 'package:illinois/model/Auth.dart';
 import 'package:illinois/model/Health.dart';
-import 'package:illinois/service/AppDateTime.dart';
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/model/UserData.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
 import 'package:illinois/utils/Utils.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Storage with Service {
@@ -259,19 +259,6 @@ class Storage with Service {
     _setStringWithName(currentLanguageKey, value);
   }
 
-  //////////////////
-  // Location Services
-
-  static const String locationServicesPermisionRequestedKey  = 'location_services_permision_requested';
-
-  bool get locationServicesPermisionRequested {
-    return _getBoolWithName(locationServicesPermisionRequestedKey);
-  }
-
-  set locationServicesPermisionRequested(bool value) {
-    _setBoolWithName(locationServicesPermisionRequestedKey, value);
-  }
-
   //////////////
   // Permanent subscription
 
@@ -360,14 +347,16 @@ class Storage with Service {
 
   static const String lastHealthCovid19OsfTestDateKey = 'health_last_covid19_osf_test_date';
 
-  DateTime get lastHealthCovid19OsfTestDate {
+  DateTime get lastHealthCovid19OsfTestDateUtc {
     String dateString = _getStringWithName(lastHealthCovid19OsfTestDateKey);
-    return AppString.isStringNotEmpty(dateString) ? AppDateTime()
-        .dateTimeFromString(dateString) : null;
+    try { return (dateString != null) ? DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dateString) : null; }
+    catch (e) { print(e?.toString()); }
+    return null;
   }
 
-  set lastHealthCovid19OsfTestDate(DateTime value) {
-    _setStringWithName(lastHealthCovid19OsfTestDateKey, AppDateTime().formatDateTime(value, ignoreTimeZone: true));
+  set lastHealthCovid19OsfTestDateUtc(DateTime value) {
+    String dateString = (value != null) ? DateFormat('yyyy-MM-ddTHH:mm:ss').format(value) : null;
+    _setStringWithName(lastHealthCovid19OsfTestDateKey, dateString);
   }
 
   static const String lastHealthStatusEvalKey  = '_health_last_status_eval';
