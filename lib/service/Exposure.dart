@@ -865,6 +865,7 @@ class Exposure with Service implements NotificationsListener {
     Map<int, Set<String>> scoringExposures = new Map<int, Set<String>>(); 
     int scoringDayThreshold = _evalScoringDayThreshold(histories: histories);
 
+
     for (ExposureTEK tek in reportedTEKs) {
       Map<String, int> rpisMap = await _loadTekRPIs(tek);
       if (rpisMap != null) {
@@ -873,7 +874,9 @@ class Exposure with Service implements NotificationsListener {
 
         DateTime exposureDateUtc;
         int exposureDuration = 0;
+        // iterating thru local exposures
         for (ExposureRecord exposure in exposures) {
+          // timing check for rpi
           if (rpisSet.contains(exposure.rpi) &&
               ((exposure.timestamp + _rpiCheckExposureBuffer) >= rpisMap[exposure.rpi]) &&
               ((exposure.timestamp - _rpiCheckExposureBuffer - _rpiRefreshInterval) < rpisMap[exposure.rpi])
