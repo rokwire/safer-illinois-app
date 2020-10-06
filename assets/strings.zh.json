@@ -262,7 +262,6 @@
 
 	"panel.covid19_passport.header.title": "COVID-19",
 	"panel.covid19_passport.button.close.title": "關",
-	"panel.covid19_passport.button.info_center.title": "您的COVID-19信息中心",
 	"panel.covid19_passport.label.status.empty":"此县没有可用状态",
     "panel.covid19_passport.label.counties.empty":"沒有可用縣",
 	"panel.covid19_passport.label.county.empty.hint":"选择一个县...",

@@ -262,7 +262,6 @@
 
     "panel.covid19_passport.header.title": "COVID-19",
     "panel.covid19_passport.button.close.title": "Cerrar",
-    "panel.covid19_passport.button.info_center.title": "Su centro de información COVID-19",
     "panel.covid19_passport.label.status.empty":"No hay estado disponible para este condado",
     "panel.covid19_passport.label.counties.empty":"No hay condados disponibles",
     "panel.covid19_passport.label.county.empty.hint":"Seleccione un condado ...",

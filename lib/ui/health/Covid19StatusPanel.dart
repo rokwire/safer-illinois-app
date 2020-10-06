@@ -239,13 +239,6 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
                           ]
                       ),),
                     )),
-                Align(
-                    alignment: Alignment.topRight,
-                    child:Semantics(button: true,label: Localization().getStringEx("panel.covid19_passport.button.close.title", "Close"), child:
-                    InkWell(
-                        onTap: _onTapClose, child: Container(width: 48, height: 48, alignment: Alignment.center, child: Image.asset('images/close-white-shadow.png', excludeFromSemantics: true,))),
-                    )
-                ),
               ],
             ),
           ),
@@ -273,18 +266,6 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
             style: TextStyle(color: Styles().colors.mediumGray1, fontSize: 16, fontFamily: Styles().fontFamilies.regular, letterSpacing: 1),),),
         _buildCountyDropdown(),
         _buildStatusDetails(),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 36),
-          child:
-            ScalableRoundedButton(
-              label: Localization().getStringEx('panel.covid19_passport.button.info_center.title', 'Your COVID-19 info center'),
-              borderColor: Styles().colors.fillColorSecondary,
-              fontSize: 16,
-              textColor: Styles().colors.fillColorPrimary,
-              backgroundColor: Styles().colors.background,
-              showChevron: true,
-              onTap: _onTapInfoCenter,)
-        )
       ],
     )
     );
