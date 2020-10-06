@@ -71,8 +71,6 @@ class Health with Service implements NotificationsListener {
   bool _processingCountyStatus;
   bool _loadingUpdatedHistory;
 
-  final int _rulesVersion = 2;
-
   // Singletone Instance
 
   static final Health _instance = Health._internal();
@@ -450,36 +448,16 @@ class Health with Service implements NotificationsListener {
   // Network API: HealthSymptomsGroup
 
   Future<List<HealthSymptomsGroup>> loadSymptomsGroups() async {
-    switch(_rulesVersion) {
-      case 1:  return _loadSymptomsGroups1();
-      case 2:  return _loadSymptomsGroups2();
-      default: return null;
-    }
-  }
-
-  Future<List<HealthSymptomsGroup>> _loadSymptomsGroups1() async {
-    String url = "${Config().healthUrl}/covid19/symptom-groups";
-    Response response = await Network().get(url, auth: NetworkAuth.App);
-    String responseString = (response?.statusCode == 200) ? response.body : null;
-    List<dynamic> responseJson = (responseString != null) ? AppJson.decodeList(responseString) : null;
-    return (responseJson != null) ? HealthSymptomsGroup.listFromJson(responseJson) : null;
-  }
-
-  Future<List<HealthSymptomsGroup>> _loadSymptomsGroups2() async {
-
     HealthRulesSet rules = await _loadRules2();
-    if (rules?.symptoms?.groups != null) {
-      return rules?.symptoms?.groups;
-    }
-    else {
-      String url = "${Config().healthUrl}/covid19/symptoms";
-      String appVersion = AppVersion.majorVersion(Config().appVersion, 2);
-      Response response = await Network().get(url, auth: NetworkAuth.App, headers: { Network.RokwireVersion : appVersion });
-      String responseBody = (response?.statusCode == 200) ? response.body : null;
-//TMP:String responseBody = await rootBundle.loadString('assets/sample.health.symptoms.json');
-      List<dynamic> responseJson = (responseBody != null) ? AppJson.decodeList(responseBody) : null;
-      return (responseJson != null) ? HealthSymptomsGroup.listFromJson(responseJson) : null;
-    }
+    return rules?.symptoms?.groups;
+    /*
+    String url = "${Config().healthUrl}/covid19/symptoms";
+    String appVersion = AppVersion.majorVersion(Config().appVersion, 2);
+    Response response = await Network().get(url, auth: NetworkAuth.App, headers: { Network.RokwireVersion : appVersion });
+    String responseBody = (response?.statusCode == 200) ? response.body : null;
+    List<dynamic> responseJson = (responseBody != null) ? AppJson.decodeList(responseBody) : null;
+    return (responseJson != null) ? HealthSymptomsGroup.listFromJson(responseJson) : null;
+    */
   }
 
   // Network API: HealthCounty
