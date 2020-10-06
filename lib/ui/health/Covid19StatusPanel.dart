@@ -239,13 +239,6 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
                           ]
                       ),),
                     )),
-                Align(
-                    alignment: Alignment.topRight,
-                    child:Semantics(button: true,label: Localization().getStringEx("panel.covid19_passport.button.close.title", "Close"), child:
-                    InkWell(
-                        onTap: _onTapClose, child: Container(width: 48, height: 48, alignment: Alignment.center, child: Image.asset('images/close-white-shadow.png', excludeFromSemantics: true,))),
-                    )
-                ),
               ],
             ),
           ),
