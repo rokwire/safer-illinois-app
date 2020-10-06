@@ -97,20 +97,26 @@ class Covid19Status {
 // Covid19StatusBlob
 
 class Covid19StatusBlob {
+
   final String healthStatus;
   final int priority;
+
   final String nextStep;
   final String nextStepHtml;
   final DateTime nextStepDateUtc;
+
+  final String eventExplanation;
+  final String eventExplanationHtml;
+
   final String reason;
   final String warning;
+
   final Covid19HistoryBlob historyBlob;
 
   static const String _nextStepDateMacro = '{next_step_date}';
   static const String _nextStepDateFormat = 'EEEE, MMM d';
 
-  Covid19StatusBlob({this.healthStatus, this.priority, this.nextStep, this.nextStepHtml, this.nextStepDateUtc, this.reason, this.warning, this.historyBlob});
-
+  Covid19StatusBlob({this.healthStatus, this.priority, this.nextStep, this.nextStepHtml, this.nextStepDateUtc, this.eventExplanation, this.eventExplanationHtml, this.reason, this.warning, this.historyBlob});
 
   factory Covid19StatusBlob.fromJson(Map<String, dynamic> json) {
     return (json != null) ? Covid19StatusBlob(
@@ -119,6 +125,8 @@ class Covid19StatusBlob {
       nextStep: json['next_step'],
       nextStepHtml: json['next_step_html'],
       nextStepDateUtc: healthDateTimeFromString(json['next_step_date']),
+      eventExplanation: json['event_explanation'],
+      eventExplanationHtml: json['event_explanation_html'],
       reason: json['reason'],
       warning: json['warning'],
       historyBlob: Covid19HistoryBlob.fromJson(json['history_blob']),
@@ -132,6 +140,8 @@ class Covid19StatusBlob {
       'next_step': nextStep,
       'next_step_html': nextStepHtml,
       'next_step_date': healthDateTimeToString(nextStepDateUtc),
+      'event_explanation': eventExplanation,
+      'event_explanation_html': eventExplanationHtml,
       'reason': reason,
       'warning': warning,
       'history_blob': historyBlob?.toJson(),
@@ -162,6 +172,13 @@ class Covid19StatusBlob {
     return null;
   }
 
+  String get displayEventExplanation {
+    return _processMacros(eventExplanation);
+  }
+
+  String get displayEventExplanationHtml {
+    return _processMacros(eventExplanationHtml);
+  }
 
   String get displayReason {
     return _processMacros(reason);
@@ -2210,6 +2227,7 @@ abstract class _HealthRuleStatus {
 // HealthRuleStatus
 
 class HealthRuleStatus extends _HealthRuleStatus {
+
   final String healthStatus;
   final int priority;
 
@@ -2217,10 +2235,13 @@ class HealthRuleStatus extends _HealthRuleStatus {
   final String nextStepHtml;
   final _HealthRuleIntInterval nextStepInterval;
 
+  final String eventExplanation;
+  final String eventExplanationHtml;
+
   final String reason;
   final String warning;
 
-  HealthRuleStatus({this.healthStatus, this.priority, this.nextStep, this.nextStepHtml, this.nextStepInterval, this.reason, this.warning });
+  HealthRuleStatus({this.healthStatus, this.priority, this.nextStep, this.nextStepHtml, this.nextStepInterval, this.eventExplanation, this.eventExplanationHtml, this.reason, this.warning });
 
   factory HealthRuleStatus.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthRuleStatus(
@@ -2229,6 +2250,8 @@ class HealthRuleStatus extends _HealthRuleStatus {
       nextStep: json['next_step'],
       nextStepHtml: json['next_step_html'],
       nextStepInterval: _HealthRuleIntInterval.fromJson(json['next_step_interval']),
+      eventExplanation: json['event_explanation'],
+      eventExplanationHtml: json['event_explanation_html'],
       reason: json['reason'],
       warning: json['warning'],
     ) : null;

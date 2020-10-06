@@ -234,6 +234,8 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
     }
     String headingText = Localization().getStringEx("panel.covid19home.label.most_recent_event.title", "MOST RECENT EVENT");
     String dateText = AppDateTime.formatDateTime(_lastHistory?.dateUtc?.toLocal(), format:"MMMM dd, yyyy") ?? '';
+    String eventExplanationText = _status?.blob?.displayEventExplanation;
+    String eventExplanationHtml = _status?.blob?.displayEventExplanationHtml;
     String historyTitle = "", info = "";
     Covid19HistoryBlob blob = _lastHistory.blob;
     if(blob.isTest){
@@ -252,6 +254,45 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
       info = blob.symptomsDisplayString;
     }
 
+    List <Widget> content = <Widget>[
+      Row(children: <Widget>[
+        Flexible(
+          flex: 3,
+          fit: FlexFit.tight,
+          child: Text(headingText, style: TextStyle(letterSpacing: 0.5, fontFamily: Styles().fontFamilies.bold, fontSize: 12, color: Styles().colors.fillColorPrimary),),
+        ),
+        Flexible(
+          flex: 2,
+          fit: FlexFit.loose,
+          child:
+          Text(dateText, style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 12, color: Styles().colors.textSurface),)
+        )
+      ],),
+      Container(height: 12,),
+      Text(historyTitle, style: TextStyle(fontFamily: Styles().fontFamilies.extraBold, fontSize: 20, color: Styles().colors.fillColorPrimary),),
+    ];
+
+    if (AppString.isStringNotEmpty(info)) {
+      content.addAll(<Widget>[
+        Container(height: 12,),
+        Text(info,style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textSurface),),
+      ]);
+    }
+
+    if (AppString.isStringNotEmpty(eventExplanationText)) {
+      content.addAll(<Widget>[
+          Container(height: 12,),
+          Text(eventExplanationText, style: TextStyle(fontSize:16, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground),),
+      ]);
+    }
+
+    if (AppString.isStringNotEmpty(eventExplanationHtml)) {
+      content.addAll(<Widget>[
+          Container(height: 12,),
+          Html(data: eventExplanationHtml, onLinkTap: (url) => _onTapLink(url), defaultTextStyle: TextStyle(fontSize:16, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground),),
+      ]);
+    }
+
     return Semantics(container: true, child: Container(
       padding: EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(color: Styles().colors.surface, borderRadius: BorderRadius.all(Radius.circular(4)), boxShadow: [BoxShadow(color: Styles().colors.blackTransparent018, spreadRadius: 2.0, blurRadius: 6.0, offset: Offset(2, 2))] ),
@@ -259,27 +300,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
         Stack(children: <Widget>[
           Visibility(visible: (_loadingStatus != true),
             child: Padding(padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-                Row(children: <Widget>[
-                  Flexible(
-                    flex: 3,
-                    fit: FlexFit.tight,
-                    child: Text(headingText, style: TextStyle(letterSpacing: 0.5, fontFamily: Styles().fontFamilies.bold, fontSize: 12, color: Styles().colors.fillColorPrimary),),
-                  ),
-                  Flexible(
-                    flex: 2,
-                    fit: FlexFit.loose,
-                    child:
-                    Text(dateText, style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 12, color: Styles().colors.textSurface),)
-                  )
-                ],),
-                Container(height: 12,),
-                Text(historyTitle, style: TextStyle(fontFamily: Styles().fontFamilies.extraBold, fontSize: 20, color: Styles().colors.fillColorPrimary),),
-                info.isNotEmpty ? Container(height: 12,) : Container(),
-                info.isNotEmpty ?
-                  Text(info,style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textSurface),)
-                  : Container(),
-              ],),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: content,),
             ),
           ),
           Visibility(visible: (_loadingStatus == true),
@@ -312,10 +333,10 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
   }
 
   Widget _buildNextStepSection() {
-    String nextStepTitle = _status?.blob?.displayNextStep;
+    String nextStepText = _status?.blob?.displayNextStep;
     String nextStepHtml = _status?.blob?.displayNextStepHtml;
     String warningTitle = _status?.blob?.displayWarning;
-    bool hasNextStep = AppString.isStringNotEmpty(nextStepTitle) || AppString.isStringNotEmpty(nextStepHtml) || AppString.isStringNotEmpty(warningTitle);
+    bool hasNextStep = AppString.isStringNotEmpty(nextStepText) || AppString.isStringNotEmpty(nextStepHtml) || AppString.isStringNotEmpty(warningTitle);
     String headingText = hasNextStep ? Localization().getStringEx("panel.covid19home.label.next_step.title", "NEXT STEP") : '';
     String headingDate = (hasNextStep && (_status?.blob?.nextStepDateUtc != null)) ? AppDateTime.formatDateTime(_status.blob.nextStepDateUtc.toLocal(), format: "MMMM dd, yyyy") : '';
 
@@ -327,10 +348,10 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
       ],),
     ];
 
-    if (AppString.isStringNotEmpty(nextStepTitle)) {
+    if (AppString.isStringNotEmpty(nextStepText)) {
       content.addAll(<Widget>[
           Container(height: 12,),
-          Text(nextStepTitle, style: TextStyle(fontFamily: Styles().fontFamilies.extraBold, fontSize: 20, color: Styles().colors.fillColorPrimary),),
+          Text(nextStepText, style: TextStyle(fontFamily: Styles().fontFamilies.extraBold, fontSize: 20, color: Styles().colors.fillColorPrimary),),
       ]);
     }
 

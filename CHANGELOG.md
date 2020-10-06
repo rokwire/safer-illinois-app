@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Show status card screen panel slides on both sides [#239](https://github.com/rokwire/safer-illinois-app/issues/239).
 - Remove duplicate instance of links to home screen on status card [#247](https://github.com/rokwire/safer-illinois-app/issues/247).
 
+### Added
+- Added "PCR.positive-IP" and "PCR.positive-NIP" statuses to rules. [#248](https://github.com/rokwire/safer-illinois-app/issues/248).
+- Added eventExplanation to rules & user statuses. [#248](https://github.com/rokwire/safer-illinois-app/issues/248).
+
 ### Deleted
 - Removed fixed timezone output support
 
