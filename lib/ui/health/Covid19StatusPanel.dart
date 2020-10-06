@@ -302,6 +302,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
               containerHeight: 240, // Distance from SwiperIndicator
               itemHeight: 200,
               itemCount: 2,
+              loop: false,
               controller: _swiperController,
               pagination:SwiperCustomPagination(
                   builder:(BuildContext context, SwiperPluginConfig config){
