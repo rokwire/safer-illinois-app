@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Do not keep in Storage location permision promot flag.
 - All Health2 classes renamed to regular Health classes and merged in Health model.
+- Update next steps styling [#244](https://github.com/rokwire/safer-illinois-app/issues/244).
 
 ### Deleted
 - Removed fixed timezone output support
