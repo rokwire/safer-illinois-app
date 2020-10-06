@@ -234,8 +234,8 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
     }
     String headingText = Localization().getStringEx("panel.covid19home.label.most_recent_event.title", "MOST RECENT EVENT");
     String dateText = AppDateTime.formatDateTime(_lastHistory?.dateUtc?.toLocal(), format:"MMMM dd, yyyy") ?? '';
-    String explanationText = _status?.blob?.displayExplanation;
-    String explanationHtml = _status?.blob?.displayExplanationHtml;
+    String eventExplanationText = _status?.blob?.displayEventExplanation;
+    String eventExplanationHtml = _status?.blob?.displayEventExplanationHtml;
     String historyTitle = "", info = "";
     Covid19HistoryBlob blob = _lastHistory.blob;
     if(blob.isTest){
@@ -279,17 +279,17 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
       ]);
     }
 
-    if (AppString.isStringNotEmpty(explanationText)) {
+    if (AppString.isStringNotEmpty(eventExplanationText)) {
       content.addAll(<Widget>[
           Container(height: 12,),
-          Text(explanationText, style: TextStyle(fontSize:16, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground),),
+          Text(eventExplanationText, style: TextStyle(fontSize:16, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground),),
       ]);
     }
 
-    if (AppString.isStringNotEmpty(explanationHtml)) {
+    if (AppString.isStringNotEmpty(eventExplanationHtml)) {
       content.addAll(<Widget>[
           Container(height: 12,),
-          Html(data: explanationHtml, onLinkTap: (url) => _onTapLink(url), defaultTextStyle: TextStyle(fontSize:16, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground),),
+          Html(data: eventExplanationHtml, onLinkTap: (url) => _onTapLink(url), defaultTextStyle: TextStyle(fontSize:16, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground),),
       ]);
     }
 

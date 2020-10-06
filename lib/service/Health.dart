@@ -18,7 +18,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-//TMP:  import 'package:flutter/services.dart' show rootBundle;
+//TMP: import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
@@ -787,8 +787,8 @@ class Health with Service implements NotificationsListener {
           nextStep: defaultStatus.nextStep,
           nextStepHtml: defaultStatus.nextStepHtml,
           nextStepDateUtc: null,
-          explanation: defaultStatus.explanation,
-          explanationHtml: defaultStatus.explanationHtml,
+          eventExplanation: defaultStatus.eventExplanation,
+          eventExplanationHtml: defaultStatus.eventExplanationHtml,
           reason: defaultStatus.reason,
           warning: defaultStatus.warning,
           historyBlob: null,
@@ -854,8 +854,8 @@ class Health with Service implements NotificationsListener {
               nextStep: ((historyStatus.nextStep != null) || (historyStatus.nextStepHtml != null) || (historyStatus.healthStatus != null)) ? historyStatus.nextStep : status.blob.nextStep,
               nextStepHtml: ((historyStatus.nextStep != null) || (historyStatus.nextStepHtml != null) || (historyStatus.healthStatus != null)) ? historyStatus.nextStepHtml : status.blob.nextStepHtml,
               nextStepDateUtc: ((historyStatus.nextStepInterval != null) || (historyStatus.nextStep != null) || (historyStatus.nextStepHtml != null) || (historyStatus.healthStatus != null)) ? historyStatus.nextStepDateUtc(history.dateUtc, rules: rules) : status.blob.nextStepDateUtc,
-              explanation: ((historyStatus.explanation != null) || (historyStatus.explanationHtml != null) || (historyStatus.healthStatus != null)) ? historyStatus.explanation : status.blob.explanation,
-              explanationHtml: ((historyStatus.explanation != null) || (historyStatus.explanationHtml != null) || (historyStatus.healthStatus != null)) ? historyStatus.explanationHtml : status.blob.explanationHtml,
+              eventExplanation: ((historyStatus.eventExplanation != null) || (historyStatus.eventExplanationHtml != null) || (historyStatus.healthStatus != null)) ? historyStatus.eventExplanation : status.blob.eventExplanation,
+              eventExplanationHtml: ((historyStatus.eventExplanation != null) || (historyStatus.eventExplanationHtml != null) || (historyStatus.healthStatus != null)) ? historyStatus.eventExplanationHtml : status.blob.eventExplanationHtml,
               reason: ((historyStatus.reason != null) || (historyStatus.healthStatus != null)) ? historyStatus.reason: status.blob.reason,
               warning: ((historyStatus.warning != null) || (historyStatus.healthStatus != null)) ? historyStatus.warning: status.blob.warning,
               historyBlob: history.blob,
