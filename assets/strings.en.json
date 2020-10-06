@@ -262,7 +262,6 @@
 
     "panel.covid19_passport.header.title": "COVID-19",
     "panel.covid19_passport.button.close.title": "Close",
-    "panel.covid19_passport.button.info_center.title": "Your COVID-19 info center",
     "panel.covid19_passport.label.status.empty":"No available status for this County",
     "panel.covid19_passport.label.counties.empty":"No counties available",
     "panel.covid19_passport.label.county.empty.hint":"Select a county...",
