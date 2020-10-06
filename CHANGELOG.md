@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - All Health2 classes renamed to regular Health classes and merged in Health model.
 - Update next steps styling [#244](https://github.com/rokwire/safer-illinois-app/issues/244).
 - Show status card screen panel slides on both sides [#239](https://github.com/rokwire/safer-illinois-app/issues/239).
+- Remove duplicate instance of links to home screen on status card [#247](https://github.com/rokwire/safer-illinois-app/issues/247).
 
 ### Deleted
 - Removed fixed timezone output support
