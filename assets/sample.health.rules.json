@@ -35,7 +35,7 @@
 				"priority": null,
 				"next_step": "Get another test asap",
 				"next_step_interval": 1,
-				"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+				"warning": "You will turn orange/access denied if no negative test by {next_step_date}."
 			},
 			"fail": {
 				"health_status": "orange",
@@ -60,7 +60,7 @@
 					"priority": 1,
 					"next_step": "Monitor your test results",
 					"next_step_interval": "UserTestMonitorInterval",
-					"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+					"warning": "You will turn orange/access denied if no negative test by {next_step_date}."
 				},
 				"fail": {
 					"health_status": "orange",
@@ -85,7 +85,7 @@
 						"priority": 1,
 						"next_step": "Monitor your test results",
 						"next_step_interval": "UndergraduateTestMonitorInterval",
-						"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+						"warning": "You will turn orange/access denied if no negative test by {next_step_date}."
 					},
 					"fail": {
 						"health_status": "orange",
@@ -104,7 +104,7 @@
 						"priority": 1,
 						"next_step": "Monitor your test results",
 						"next_step_interval": "DefaultTestMonitorInterval",
-						"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+						"warning": "You will turn orange/access denied if no negative test by {next_step_date}."
 					},
 					"fail": {
 						"health_status": "orange",
@@ -172,7 +172,7 @@
 					"priority": -1,
 					"next_step": "Resume testing on your assigned days",
 					"next_step_interval": "UserTestMonitorInterval",
-					"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+					"warning": "You will turn orange/access denied if no negative test by {next_step_date}."
 					},
 				"fail": {
 					"health_status": "orange",
@@ -197,7 +197,7 @@
 						"priority": -1,
 						"next_step": "Resume testing on your assigned days",
 						"next_step_interval": "UndergraduateTestMonitorInterval",
-						"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+						"warning": "You will turn orange/access denied if no negative test by {next_step_date}."
 						},
 					"fail": {
 						"health_status": "orange",
@@ -216,7 +216,7 @@
 						"priority": -1,
 						"next_step": "Resume testing on your assigned days",
 						"next_step_interval": "DefaultTestMonitorInterval",
-						"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+						"warning": "You will turn orange/access denied if no negative test by {next_step_date}."
 					},
 					"fail": {
 						"health_status": "orange",
@@ -238,7 +238,7 @@
 				"priority": null,
 				"next_step": "Monitor your test results",
 				"next_step_interval": 1,
-				"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+				"warning": "You will turn orange/access denied if no negative test by {next_step_date}."
 			},
 			"fail": {
 				"health_status": "orange",
