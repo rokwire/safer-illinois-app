@@ -75,7 +75,7 @@ class _Covid19NextStepsPanelState extends State<Covid19NextStepsPanel> {
   Widget _buildContent(){
     List<Widget> content = <Widget>[
       Container(height: 125,),
-      Text(Localization().getStringEx("panel.health.next_steps.label.next_steps","NEXT STEPS"), style: TextStyle(color: Colors.white, fontSize: 28, fontFamily: Styles().fontFamilies.bold)),
+      Padding(padding: EdgeInsets.symmetric(horizontal: 32), child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [Text(Localization().getStringEx("panel.health.next_steps.label.next_steps","Your Next Steps"), style: TextStyle(color: Colors.white, fontSize: 28, fontFamily: Styles().fontFamilies.bold))],),),
       Container(height: 29,),
       Container(
         padding: EdgeInsets.symmetric(horizontal: 8),
@@ -99,7 +99,7 @@ class _Covid19NextStepsPanelState extends State<Covid19NextStepsPanel> {
       content.addAll(<Widget>[
           Container(height: 12,),
           Padding(padding: EdgeInsets.symmetric(horizontal: 32), child:
-            Html(data: nextStepHtml, onLinkTap: (url) => _onTapLink(url),linkStyle:TextStyle(fontFamily: Styles().fontFamilies.bold,decoration: TextDecoration.underline, color: Colors.blueAccent, decorationColor: Colors.blueAccent) ,defaultTextStyle: TextStyle(fontSize:16, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.white),),
+            Html(data: nextStepHtml, onLinkTap: (url) => _onTapLink(url),linkStyle: TextStyle(fontFamily: Styles().fontFamilies.bold, decoration: TextDecoration.underline, color: Styles().colors.white, decorationColor: Styles().colors.fillColorSecondary), defaultTextStyle: TextStyle(fontSize:16, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.white),),
           ),
       ]);
     }
