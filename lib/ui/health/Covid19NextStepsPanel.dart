@@ -63,6 +63,7 @@ class _Covid19NextStepsPanelState extends State<Covid19NextStepsPanel> {
                   backgroundColor: Styles().colors.fillColorPrimary,
                   borderColor: Styles().colors.fillColorSecondary,
                   textColor: Styles().colors.white,
+                  fontSize: 16,
                   onTap:_onTapContinue,
                 ),
               )
@@ -74,22 +75,18 @@ class _Covid19NextStepsPanelState extends State<Covid19NextStepsPanel> {
 
   Widget _buildContent(){
     List<Widget> content = <Widget>[
-      Container(height: 125,),
-      Padding(padding: EdgeInsets.symmetric(horizontal: 32), child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [Text(Localization().getStringEx("panel.health.next_steps.label.next_steps","Your Next Steps"), style: TextStyle(color: Colors.white, fontSize: 28, fontFamily: Styles().fontFamilies.bold))],),),
-      Container(height: 29,),
+      Padding(padding: EdgeInsets.only(left: 28, right: 20, top: 35, bottom: 4), child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [Text(Localization().getStringEx("panel.health.next_steps.label.next_steps","Your Next Steps"), style: TextStyle(color: Colors.white, fontSize: 28, fontFamily: Styles().fontFamilies.bold))],),),
       Container(
-        padding: EdgeInsets.symmetric(horizontal: 8),
-        child: Container(height: 1, color: Styles().colors.surfaceAccent ,),
+        padding: EdgeInsets.only(left: 17, right: 15, bottom: 26),
+        child: Container(height: 1, color: Styles().colors.surfaceAccent,),
       ),
-      Container(height: 24,),
     ];
     
     String nextStepTitle = widget.status?.blob?.displayNextStep;
     if (AppString.isStringNotEmpty(nextStepTitle)) {
       content.addAll(<Widget>[
-        Container(height: 12,),
-        Padding(padding: EdgeInsets.symmetric(horizontal: 32), child:
-          Text(widget.status?.blob?.displayNextStep ?? " ", textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 20, fontFamily: Styles().fontFamilies.extraBold),),
+        Padding(padding: EdgeInsets.only(left: 34, right: 58, bottom: 12), child:
+          Text(widget.status?.blob?.displayNextStep ?? " ", textAlign: TextAlign.center, style: TextStyle(color: Styles().colors.white, fontSize: 20, fontFamily: Styles().fontFamilies.extraBold),),
         ),
       ]);
     }
@@ -98,8 +95,8 @@ class _Covid19NextStepsPanelState extends State<Covid19NextStepsPanel> {
     if (AppString.isStringNotEmpty(nextStepHtml)) {
       content.addAll(<Widget>[
           Container(height: 12,),
-          Padding(padding: EdgeInsets.symmetric(horizontal: 32), child:
-            Html(data: nextStepHtml, onLinkTap: (url) => _onTapLink(url),linkStyle: TextStyle(fontFamily: Styles().fontFamilies.bold, decoration: TextDecoration.underline, color: Styles().colors.white, decorationColor: Styles().colors.fillColorSecondary), defaultTextStyle: TextStyle(fontSize:16, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.white),),
+          Padding(padding: EdgeInsets.only(left: 34, right: 39), child:
+            Html(data: nextStepHtml, onLinkTap: (url) => _onTapLink(url), linkStyle: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, decoration: TextDecoration.underline, color: Styles().colors.white, decorationColor: Styles().colors.fillColorSecondary), defaultTextStyle: TextStyle(fontSize:16, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.white),),
           ),
       ]);
     }
