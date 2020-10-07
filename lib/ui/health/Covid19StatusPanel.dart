@@ -63,7 +63,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
     super.initState();
     NotificationService().subscribe(this, [
       Health.notifyStatusChanged,
-      Health.notifyCountyStatusAvailable,
+      Health.notifyProcessingFinished,
     ]);
     _loadCounties();
     _loadCovidStatus();
@@ -82,8 +82,8 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
     if (name == Health.notifyStatusChanged) {
       _updateCovidStatus(param);
     }
-    else if (name == Health.notifyCountyStatusAvailable) {
-      _updateCovidStatus(param);
+    else if (name == Health.notifyProcessingFinished) {
+      _updateCovidStatus(param?.status);
     }
   }
 
@@ -565,7 +565,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
   }
 
   bool get _isLoading {
-    return (_loadingProgress > 0);
+    return ((_loadingProgress > 0) || (Health().processing == true));
   }
 }
 

@@ -62,7 +62,7 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
     NotificationService().subscribe(this, [
       Health.notifyUserUpdated,
       Health.notifyHistoryUpdated,
-      Health.notifyUpdatedHistoryAvailable,
+      Health.notifyProcessingFinished,
     ]);
 
     _loadHistory();
@@ -94,10 +94,10 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
         }
       }
     }
-    else if (name == Health.notifyUpdatedHistoryAvailable) {
+    else if (name == Health.notifyProcessingFinished) {
       if ((param != null) && mounted) {
         setState(() {
-          _statusHistory = param;
+          _statusHistory = param?.history;
           _isLoading = false;
         });
       }
@@ -115,7 +115,7 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
             if (history != null) {
               _statusHistory = Covid19History.pastList(history);
             }
-            _isLoading = Health().loadingUpdatedHistory;
+            _isLoading = (Health().processing == true);
           });
         }
       });

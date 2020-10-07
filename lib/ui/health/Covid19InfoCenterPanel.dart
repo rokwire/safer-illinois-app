@@ -48,9 +48,8 @@ import 'package:illinois/utils/Utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Covid19InfoCenterPanel extends StatefulWidget {
-  final Covid19Status status;
 
-  Covid19InfoCenterPanel({Key key, this.status}) : super(key: key);
+  Covid19InfoCenterPanel({Key key}) : super(key: key);
 
   @override
   _Covid19InfoCenterPanelState createState() => _Covid19InfoCenterPanelState();
@@ -68,19 +67,12 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
     super.initState();
     NotificationService().subscribe(this, [
       Health.notifyStatusChanged,
-      Health.notifyCountyStatusAvailable,
+      Health.notifyProcessingFinished,
       Health.notifyUserUpdated,
       Health.notifyHistoryUpdated,
     ]);
 
-    if (widget.status != null) {
-      _status = widget.status;
-    }
-    else {
-      _loadStatus();
-    }
-
-    _loadHistory();
+    _loadStatus();
     _loadCountyName();
   }
 
@@ -95,8 +87,8 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
     if (name == Health.notifyStatusChanged) {
       _updateStatus(param);
     }
-    else if (name == Health.notifyCountyStatusAvailable) {
-      _updateStatus(param);
+    else if (name == Health.notifyProcessingFinished) {
+      _updateStatus(param?.status);
     }
     else if (name == Health.notifyUserUpdated) {
       if (mounted && (_status?.blob == null)) {
@@ -121,10 +113,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
       _loadingStatus = true;
     });
     Health().currentCountyStatus.then((Covid19Status status) {
-      setState(() {
-        _status = status;
-        _loadingStatus = Health().processingCountyStatus;
-      });
+      _updateStatus(status);
     });
   }
 
@@ -132,7 +121,10 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
     if (mounted) {
       setState(() {
         _status = status;
-        _loadingStatus = false;
+        _loadingStatus = (Health().processing == true);
+        if (Health().processing != true) {
+          _loadHistory();
+        }
       });
     }
   }
