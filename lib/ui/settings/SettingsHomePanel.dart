@@ -1110,7 +1110,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
 
         String panelTitle = Localization().getStringEx('panel.settings.feedback.label.title', 'PROVIDE FEEDBACK');
         Navigator.push(
-            context, CupertinoPageRoute(builder: (context) => WebPanel(url: feedbackUrl, title: panelTitle,)));
+            context, CupertinoPageRoute(builder: (context) => WebPanel(url: feedbackUrl, analyticsUrl: Config().feedbackUrl , title: panelTitle,)));
       }
       else {
         AppAlert.showOfflineMessage(context, Localization().getStringEx('panel.settings.label.offline.feedback', 'Providing a Feedback is not available while offline.'));
