@@ -13,10 +13,6 @@
 	},
 
 	"statuses": {
-		"antibody.negative": "test-monitor",
-
-		"antibody.positive": "test-monitor",
-		
 		"PCR.positive": {
 			"condition": "timeout",
 			"params": {
@@ -329,22 +325,6 @@
 	"tests" : {
 		"rules": [
 			{
-				"test_type": "Antibody Test A1",
-				"category": "antibody",
-				"results": [
-					{
-						"result": "not present",
-						"category": "antibody.negative",
-						"status": "antibody.negative"
-					},
-					{
-						"result": "present",
-						"category": "antibody.positive",
-						"status": "antibody.positive"
-					}
-				]
-			},
-			{
 				"test_type": "Covid-19 test B1",
 				"category": "PCR",
 				"results": [
@@ -357,22 +337,6 @@
 						"result": "negative",
 						"category": "PCR.negative",
 						"status": "PCR.negative"
-					}
-				]
-			},
-			{
-				"test_type": "COVID-19 Antibody",
-				"category": "antibody",
-				"results": [
-					{
-						"result": "Positive",
-						"category": "antibody.positive",
-						"status": "antibody.positive"
-					},
-					{
-						"result": "Negative",
-						"category": "antibody.negative",
-						"status": "antibody.negative"
 					}
 				]
 			},
