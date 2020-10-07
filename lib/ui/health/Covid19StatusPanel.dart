@@ -23,7 +23,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/model/UserData.dart';
-import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
@@ -31,10 +30,8 @@ import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/TransportationService.dart';
 import 'package:illinois/service/User.dart';
-import 'package:illinois/ui/health/Covid19InfoCenterPanel.dart';
 import 'package:illinois/ui/widgets/StatusInfoDialog.dart';
 import 'package:illinois/ui/widgets/TrianglePainter.dart';
-import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -561,11 +558,6 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
 
   void _onTapClose() {
     Navigator.of(context).pop();
-  }
-
-  void _onTapInfoCenter() {
-    Analytics.instance.logSelect(target: "COVID19 Info Center");
-    Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19InfoCenterPanel(status: _covid19Status)));
   }
 
   Color get _backgroundColor {
