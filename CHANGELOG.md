@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated rules negative PCR test to turn off the red status [#256](https://github.com/rokwire/safer-illinois-app/issues/256).
 
+### Fixed
+- Android: Request for location services is shown too early [#261](https://github.com/rokwire/safer-illinois-app/issues/261).
+
 ### Deleted
 - Removed antibody test types from rules [#258](https://github.com/rokwire/safer-illinois-app/issues/258).
 
