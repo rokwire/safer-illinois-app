@@ -553,7 +553,7 @@ class Health with Service implements NotificationsListener {
         }
       }
     }
-    if ((currentStatus == null) && ensureStatus) {
+    if ((currentStatus == null) && (ensureStatus == true)) {
       currentStatus = await _loadCovid19Status();
     }
     
