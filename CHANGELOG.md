@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Android: Request for location services is shown too early [#261](https://github.com/rokwire/safer-illinois-app/issues/261).
+- Update styling - padding, sizes etc for Next steps panel - Part 2 [#244](https://github.com/rokwire/safer-illinois-app/issues/244).
 
 ### Deleted
 - Removed antibody test types from rules [#258](https://github.com/rokwire/safer-illinois-app/issues/258).
