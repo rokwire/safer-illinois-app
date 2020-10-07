@@ -702,6 +702,27 @@ public class Utils {
         }
     }
 
+    public static class AppSharedPrefs {
+
+        public static boolean getBool(Context context, String key, boolean defaults) {
+            if ((context == null) || Str.isEmpty(key)) {
+                return defaults;
+            }
+            SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.DEFAULT_SHARED_PREFS_FILE_NAME, Context.MODE_PRIVATE);
+            return sharedPreferences.getBoolean(key, defaults);
+        }
+
+        public static void saveBool(Context context, String key, boolean value) {
+            if ((context == null) || Str.isEmpty(key)) {
+                return;
+            }
+            SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.DEFAULT_SHARED_PREFS_FILE_NAME, Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean(key, value);
+            editor.apply();
+        }
+    }
+
     public static class BackupStorage {
 
         public static String getString(Context context, String fileName, String key) {
