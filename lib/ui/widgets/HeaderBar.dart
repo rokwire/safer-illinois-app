@@ -26,13 +26,12 @@ import 'package:illinois/service/Styles.dart';
 class HeaderBar extends AppBar {
   final BuildContext context;
   final Widget titleWidget;
-  final bool searchVisible;
   final bool rightButtonVisible;
   final String rightButtonText;
   final GestureTapCallback onRightButtonTap;
 
   HeaderBar(
-      {@required this.context, this.titleWidget, this.searchVisible = false,
+      {@required this.context, this.titleWidget,
         this.rightButtonVisible = false, this.rightButtonText, this.onRightButtonTap})
       : super(
             backgroundColor: Styles().colors.fillColorPrimaryVariant,
@@ -78,11 +77,11 @@ class SimpleHeaderBarWithBack extends StatelessWidget implements PreferredSizeWi
   final bool backVisible;
   final String backIconRes;
   final Function onBackPressed;
-  final bool searchVisible;
+  final List<Widget> actions;
 
   final semanticsSortKey;
 
-  SimpleHeaderBarWithBack({@required this.context, this.titleWidget, this.backVisible = true, this.onBackPressed, this.searchVisible = false, this.backIconRes = 'images/chevron-left-white.png', this.semanticsSortKey = const OrdinalSortKey(1) });
+  SimpleHeaderBarWithBack({@required this.context, this.titleWidget, this.backVisible = true, this.onBackPressed, this.backIconRes = 'images/chevron-left-white.png', this.actions, this.semanticsSortKey = const OrdinalSortKey(1) });
 
   @override
   Widget build(BuildContext context) {
@@ -98,8 +97,7 @@ class SimpleHeaderBarWithBack extends StatelessWidget implements PreferredSizeWi
       title: titleWidget,
       centerTitle: true,
       backgroundColor: Styles().colors.fillColorPrimaryVariant,
-      actions: <Widget>[
-      ],
+      actions: actions,
     ));
   }
 

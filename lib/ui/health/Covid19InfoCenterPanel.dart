@@ -718,10 +718,17 @@ class _Covid19HomeHeaderBar extends AppBar {
   final String rightButtonText;
   final GestureTapCallback onRightButtonTap;
 
-  static Color get _titleColor =>
-      Config().configEnvironment == ConfigEnvironment.dev
-          ? Colors.yellow : Config().configEnvironment == ConfigEnvironment.test ? Colors.green
-          : Colors.white;
+  static Color get _titleColor  {
+    if (Config().isDev) {
+      return Colors.yellow;
+    }
+    else if (Config().isTest) {
+      return Colors.green;
+    }
+    else {
+      return Colors.white;
+    }
+  }
 
   _Covid19HomeHeaderBar({@required this.context, this.titleWidget, this.searchVisible = false,
     this.rightButtonVisible = false, this.rightButtonText, this.onRightButtonTap})

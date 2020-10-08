@@ -763,7 +763,7 @@ class _DebugContainerState extends State<_DebugContainer> {
   }
 
   void _showPinDialog(){
-    TextEditingController pinController = TextEditingController(text: (!kReleaseMode || (Config().configEnvironment == ConfigEnvironment.dev)) ? this.pinOfTheDay : '');
+    TextEditingController pinController = TextEditingController(text: (!kReleaseMode || Config().isDev) ? this.pinOfTheDay : '');
     showDialog(context: context, barrierDismissible: false, builder: (context) =>  Dialog(
       child:  Padding(
         padding: EdgeInsets.all(18),

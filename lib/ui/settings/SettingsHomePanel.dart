@@ -24,6 +24,7 @@ import 'package:flutter/foundation.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Connectivity.dart';
+import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/FlexUI.dart';
@@ -37,7 +38,8 @@ import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/ui/WebPanel.dart';
 import 'package:illinois/ui/health/Covid19QrCodePanel.dart';
 import 'package:illinois/ui/settings/SettingsRolesPanel.dart';
-import 'package:illinois/ui/widgets/HeaderBar.dart';
+import 'package:illinois/ui/settings/SettingsPersonalInfoPanel.dart';
+import 'package:illinois/ui/settings/debug/SettingsDebugPanel.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/ui/widgets/RibbonButton.dart';
 import 'package:illinois/utils/Covid19.dart';
@@ -48,8 +50,6 @@ import 'package:barcode_scan/barcode_scan.dart';
 import 'package:package_info/package_info.dart';
 import 'package:pointycastle/export.dart' as PointyCastle;
 
-import 'debug/SettingsDebugPanel.dart';
-import 'SettingsPersonalInfoPanel.dart';
 
 class SettingsHomePanel extends StatefulWidget {
   @override
@@ -115,6 +115,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   Widget build(BuildContext context) {
     
     List<Widget> contentList = [];
+    List<Widget> actionsList = [];
 
     List<dynamic> codes = FlexUI()['settings'] ?? [];
 
@@ -148,8 +149,9 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
       }
     }
 
-    if (!kReleaseMode || (Config().configEnvironment == ConfigEnvironment.dev)) {
+    if (!kReleaseMode || Config().isDev) {
       contentList.add(_buildDebug());
+      actionsList.add(_buildHeaderBarDebug());
     }
 
     contentList.add(_buildVersionInfo());
@@ -177,6 +179,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
             ),
           ),
         )),
+        actions: actionsList,
       ),
       body: Column(
         children: <Widget>[
@@ -1137,12 +1140,25 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
     ); 
   }
 
+  Widget _buildHeaderBarDebug() {
+    return Semantics(
+      label: Localization().getStringEx('panel.settings.home.button.debug.title', 'Debug'),
+      hint: Localization().getStringEx('panel.settings.home.button.debug.hint', ''),
+      button: true,
+      excludeSemantics: true,
+      child: IconButton(
+        icon: Image.asset('images/debug-white.png'),
+        onPressed: _onDebugClicked)
+    );
+  }
+
   void _onDebugClicked() {
     Analytics.instance.logSelect(target: "Debug");
     Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsDebugPanel()));
   }
 
-  //Version Info
+  // Version Info
+
   Widget _buildVersionInfo(){
     return Container(
       alignment: Alignment.center,

@@ -142,8 +142,7 @@ class Config with Service implements NotificationsListener {
   @override
   Future<void> initService() async {
 
-    _configEnvironment = configEnvFromString(Storage().configEnvironment) ??
-      (kReleaseMode ? ConfigEnvironment.production : ConfigEnvironment.dev);
+    _configEnvironment = configEnvFromString(Storage().configEnvironment) ?? _defaultConfigEnvironment;
 
     _packageInfo = await PackageInfo.fromPlatform();
     _appDocumentsDir = await getApplicationDocumentsDirectory();
@@ -359,6 +358,10 @@ class Config with Service implements NotificationsListener {
 
   // Environment
 
+  ConfigEnvironment get configEnvironment {
+    return _configEnvironment;
+  }
+
   set configEnvironment(ConfigEnvironment configEnvironment) {
     if (_configEnvironment != configEnvironment) {
       _configEnvironment = configEnvironment;
@@ -370,8 +373,20 @@ class Config with Service implements NotificationsListener {
     }
   }
 
-  ConfigEnvironment get configEnvironment {
-    return _configEnvironment;
+  static ConfigEnvironment get _defaultConfigEnvironment {
+    return kReleaseMode ? ConfigEnvironment.production : ConfigEnvironment.dev;
+  }
+
+  bool get isDev {
+    return _configEnvironment == ConfigEnvironment.dev;
+  }
+
+  bool get isTest {
+    return _configEnvironment == ConfigEnvironment.test;
+  }
+
+  bool get isProduction {
+    return _configEnvironment == ConfigEnvironment.test;
   }
 
   // Assets cache path
