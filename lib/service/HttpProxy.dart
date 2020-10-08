@@ -103,7 +103,7 @@ class HttpProxy extends Service implements NotificationsListener{
     if(httpProxyEnabled &&
         AppString.isStringNotEmpty(httpProxyHost) &&
         AppString.isStringNotEmpty(httpProxyPort) &&
-        Config().configEnvironment == ConfigEnvironment.dev
+        Config().isDev
     ){
       HttpOverrides.global = _MyHttpOverrides(host: httpProxyHost, port: httpProxyPort);
     }

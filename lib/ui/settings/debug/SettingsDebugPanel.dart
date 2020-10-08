@@ -235,7 +235,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
                               onTap: _onTapCovid19ExposureLogs)),
                       Padding(padding: EdgeInsets.only(top: 5), child: Container()),
                       Visibility(
-                        visible: Config().configEnvironment == ConfigEnvironment.dev,
+                        visible: Config().isDev,
                         child: Padding(
                             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                             child: RoundedButton(
@@ -397,7 +397,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
   }
 
   void _onTapHttpProxy() {
-    if(Config().configEnvironment == ConfigEnvironment.dev) {
+    if(Config().isDev) {
       Navigator.push(context, CupertinoPageRoute(builder: (context) => HttpProxySettingsPanel()));
     }
   }
