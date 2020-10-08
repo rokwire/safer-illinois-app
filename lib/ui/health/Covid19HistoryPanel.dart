@@ -227,65 +227,68 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
   }
 
   Widget _buildRepostButton(){
-    return Stack(
-      alignment: Alignment.center,
-      children: <Widget>[
-        ScalableRoundedButton(
-          label: Localization().getStringEx("panel.health.covid19.history.button.repost_history.title", "Request my latest test again"),
-          hint: Localization().getStringEx("panel.health.covid19.history.button.repost_history.hint", ""),
-          backgroundColor: Styles().colors.surface,
-          fontSize: 16.0,
-          textColor:  Styles().colors.fillColorSecondary,
-          borderColor: Styles().colors.surfaceAccent,
-          onTap: _onRepostClicked,
-        ),
-        Visibility(
-            visible: _isReposting,
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 12),
-                    child: Center(
-                      child: Container(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary)),
+
+    return Padding(padding: EdgeInsets.symmetric(vertical: 5), child:
+      Stack(
+        alignment: Alignment.center,
+        children: <Widget>[
+          ScalableRoundedButton(
+            label: Localization().getStringEx("panel.health.covid19.history.button.repost_history.title", "Request my latest test again"),
+            hint: Localization().getStringEx("panel.health.covid19.history.button.repost_history.hint", ""),
+            backgroundColor: Styles().colors.surface,
+            fontSize: 16.0,
+            textColor:  Styles().colors.fillColorSecondary,
+            borderColor: Styles().colors.surfaceAccent,
+            onTap: _onRepostClicked,
+          ),
+          Visibility(
+              visible: _isReposting,
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 12),
+                      child: Center(
+                        child: Container(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary)),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            )),
-      ],
-    );
+                ],
+              )),
+        ],
+      ),);
   }
 
   Widget _buildRemoveMyInfoButton() {
-    return Stack(children: <Widget>[
-      ScalableRoundedButton(
-        label: 'Delete my COVID-19 Events History',
-        hint: '',
-        backgroundColor: Styles().colors.surface,
-        fontSize: 16.0,
-        textColor: Styles().colors.fillColorSecondary,
-        borderColor: Styles().colors.surfaceAccent,
-        onTap: _onRemoveMyInfoClicked,
-      ),
-      Visibility(visible:  _isDeleting, child:
-        Row(children: <Widget>[
-          Expanded(child:
-            Padding(padding: EdgeInsets.only(top: 12), child:
-              Center(child: 
-                Container(width: 24, height:24, child:
-                  CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary)),
+    return Padding(padding: EdgeInsets.symmetric(vertical: 5), child:
+      Stack(children: <Widget>[
+        ScalableRoundedButton(
+          label: 'Delete my COVID-19 Events History',
+          hint: '',
+          backgroundColor: Styles().colors.surface,
+          fontSize: 16.0,
+          textColor: Styles().colors.fillColorSecondary,
+          borderColor: Styles().colors.surfaceAccent,
+          onTap: _onRemoveMyInfoClicked,
+        ),
+        Visibility(visible:  _isDeleting, child:
+          Row(children: <Widget>[
+            Expanded(child:
+              Padding(padding: EdgeInsets.only(top: 12), child:
+                Center(child: 
+                  Container(width: 24, height:24, child:
+                    CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary)),
+                  ),
                 ),
               ),
             ),
-          ),
-        ],)
-      ),
-    ],);
+          ],)
+        ),
+      ],),);
   }
 
   Widget _buildRemoveMyInfoDialog(BuildContext context) {
