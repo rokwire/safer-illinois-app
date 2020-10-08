@@ -124,11 +124,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
                                       isExpanded: true,
                                       style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.textBackground,),
                                       hint: Text(configEnvToString(Config().configEnvironment) ?? "Select environment...", style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground,),),
-                                      items: <_EnvironmentMenuItem>[
-                                        _EnvironmentMenuItem(ConfigEnvironment.production),
-                                        _EnvironmentMenuItem(ConfigEnvironment.test),
-                                        _EnvironmentMenuItem(ConfigEnvironment.dev),
-                                      ],
+                                      items: _dropdownEnvironments,
                                       onChanged: _onEnvironmentSelected
                                   ),
                                 ),
@@ -393,6 +389,19 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
     return prettyString;
   }
 
+  List<DropdownMenuItem<ConfigEnvironment>> get _dropdownEnvironments {
+    List<DropdownMenuItem<ConfigEnvironment>> environments = <DropdownMenuItem<ConfigEnvironment>>[];
+    for (ConfigEnvironment environment in ConfigEnvironment.values) {
+      environments.add(DropdownMenuItem<ConfigEnvironment>(
+        value: environment,
+        child: Text(configEnvToString(environment),
+          style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground,),
+        ),
+      ));
+    }
+    return environments;
+  }
+
   void _onEnvironmentSelected(ConfigEnvironment env) {
     if ((env is ConfigEnvironment) && (env != Config().configEnvironment)) {
       String currentEnv = configEnvToString(Config().configEnvironment).toUpperCase();
@@ -420,13 +429,4 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
       Navigator.push(context, CupertinoPageRoute(builder: (context) => HttpProxySettingsPanel()));
     }
   }
-}
-
-class _EnvironmentMenuItem extends DropdownMenuItem<ConfigEnvironment> {
-  _EnvironmentMenuItem(ConfigEnvironment environment) : super(
-    value: environment,
-    child: Text(configEnvToString(environment),
-      style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground,),
-    ),
-  );
 }
