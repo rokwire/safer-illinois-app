@@ -50,8 +50,6 @@ class SettingsDebugPanel extends StatefulWidget {
 
 class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements NotificationsListener{
 
-  ConfigEnvironment _selectedEnv;
-
   @override
   void initState() {
 
@@ -59,8 +57,6 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
       Config.notifyEnvironmentChanged,
     ]);
     
-    _selectedEnv = Config().configEnvironment;
-
     super.initState();
   }
 
@@ -116,20 +112,30 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
                       ),
                       
                       Padding(padding: EdgeInsets.only(top: 5), child: Container(height: 1, color: Styles().colors.surfaceAccent)),
-                      Padding(padding: EdgeInsets.symmetric(vertical: 10), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[Padding(
-                        padding: EdgeInsets.only(left: 16), child: Text('Config Environment: '),), ListView.separated(
-                        physics: NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        separatorBuilder: (context, index) => Divider(color: Colors.transparent),
-                        itemCount: ConfigEnvironment.values.length,
-                        itemBuilder: (context, index) {
-                          ConfigEnvironment environment = ConfigEnvironment.values[index];
-                          RadioListTile widget = RadioListTile(
-                              title: Text(configEnvToString(environment)), value: environment, groupValue: _selectedEnv, onChanged: _onConfigChanged);
-                          return widget;
-                        },
-                      )
-                      ],),),
+                      
+                      Padding(padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16), child:
+                        Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+                            Padding(padding: EdgeInsets.only(bottom: 5), child:Text('Config Environment: ')),
+                            Container(decoration: BoxDecoration(color: Styles().colors.white, border: Border.all(color: Colors.black, width: 1), borderRadius: BorderRadius.all(Radius.circular(4))), child: 
+                              Padding(padding: EdgeInsets.only(left: 12, right: 16), child: 
+                                DropdownButtonHideUnderline(child: 
+                                  DropdownButton(
+                                      icon: Image.asset('images/icon-down-orange.png', excludeFromSemantics: true,),
+                                      isExpanded: true,
+                                      style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.textBackground,),
+                                      hint: Text(configEnvToString(Config().configEnvironment) ?? "Select environment...", style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground,),),
+                                      items: <_EnvironmentMenuItem>[
+                                        _EnvironmentMenuItem(ConfigEnvironment.production),
+                                        _EnvironmentMenuItem(ConfigEnvironment.test),
+                                        _EnvironmentMenuItem(ConfigEnvironment.dev),
+                                      ],
+                                      onChanged: _onEnvironmentSelected
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],),
+                      ),
                       Padding(padding: EdgeInsets.only(bottom: 10), child: Container(height: 1, color: Styles().colors.surfaceAccent)),
                       Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
@@ -263,8 +269,8 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
 
   @override
   void onNotification(String name, dynamic param) {
-    if(name == Config.notifyEnvironmentChanged){
-      setState(() {});
+    if (name == Config.notifyEnvironmentChanged){
+      setState(() { });
     }
   }
 
@@ -387,11 +393,24 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
     return prettyString;
   }
 
-  void _onConfigChanged(dynamic env) {
-    if (env is ConfigEnvironment) {
-      setState(() {
-        Config().configEnvironment = env;
-        _selectedEnv = Config().configEnvironment;
+  void _onEnvironmentSelected(ConfigEnvironment env) {
+    if ((env is ConfigEnvironment) && (env != Config().configEnvironment)) {
+      String currentEnv = configEnvToString(Config().configEnvironment).toUpperCase();
+      String newEnv = configEnvToString(env).toUpperCase();
+      String message = "Are you sure you want to switch the application environment from $currentEnv to $newEnv?";
+      showDialog(context: context, builder: (context) {
+        return AlertDialog(
+          content: Text(message),
+            actions: <Widget>[
+              FlatButton(child: Text("Yes"), onPressed: () { Navigator.pop(context, true); }),
+              FlatButton(child: Text("No"), onPressed: () { Navigator.pop(context, false); }),
+            ]);
+      }).then((result) {
+        if (result == true) {
+          setState(() {
+            Config().configEnvironment = env;
+          });
+        }
       });
     }
   }
@@ -401,4 +420,13 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
       Navigator.push(context, CupertinoPageRoute(builder: (context) => HttpProxySettingsPanel()));
     }
   }
+}
+
+class _EnvironmentMenuItem extends DropdownMenuItem<ConfigEnvironment> {
+  _EnvironmentMenuItem(ConfigEnvironment environment) : super(
+    value: environment,
+    child: Text(configEnvToString(environment),
+      style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground,),
+    ),
+  );
 }
