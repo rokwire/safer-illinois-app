@@ -23,7 +23,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
-import 'package:illinois/service/AppDateTime.dart';
+import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Storage.dart';
@@ -165,7 +165,7 @@ class _Covid19ReportTestPanelSate extends State<Covid19ReportTestPanel>{
   }
 
   Widget _buildDateField(){
-    String dateText = _selectedDate != null ? AppDateTime().formatDateTime(_selectedDate, format: AppDateTime.covid19ReportTestDateFormat) : "";
+    String dateText = _selectedDate != null ? AppDateTime.formatDateTime(_selectedDate, format: 'MM/dd/yyyy h:mm a') : "";
 
     return Semantics(container: true, child:
     Container(

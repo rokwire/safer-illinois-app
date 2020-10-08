@@ -95,7 +95,6 @@ class Config with Service implements NotificationsListener {
   String get rokwireAuthUrl         { return platformBuildingBlocks['rokwire_auth_url']; }            // "https://api-dev.rokwire.illinois.edu/authentication"
   String get sportsServiceUrl       { return platformBuildingBlocks['sports_service_url']; }          // "https://api-dev.rokwire.illinois.edu/sports-service";
   String get healthUrl              { return platformBuildingBlocks['health_url']; }                  // "https://api-dev.rokwire.illinois.edu/health"
-  String get health2Url             { return platformBuildingBlocks['health2_url']; }                 // "https://rokwire-ios-beta.s3.us-east-2.amazonaws.com/covid/v2.2/dev"
   String get talentChooserUrl       { return platformBuildingBlocks['talent_chooser_url']; }          // "https://api-dev.rokwire.illinois.edu/talent-chooser/api/ui-content"
   String get transportationUrl      { return platformBuildingBlocks["transportation_url"]; }          // "https://api-dev.rokwire.illinois.edu/transportation"
   String get locationsUrl           { return platformBuildingBlocks["locations_url"]; }               // "https://api-dev.rokwire.illinois.edu/location/api";
@@ -143,8 +142,7 @@ class Config with Service implements NotificationsListener {
   @override
   Future<void> initService() async {
 
-    _configEnvironment = configEnvFromString(Storage().configEnvironment) ??
-      (kReleaseMode ? ConfigEnvironment.production : ConfigEnvironment.dev);
+    _configEnvironment = configEnvFromString(Storage().configEnvironment) ?? _defaultConfigEnvironment;
 
     _packageInfo = await PackageInfo.fromPlatform();
     _appDocumentsDir = await getApplicationDocumentsDirectory();
@@ -360,6 +358,10 @@ class Config with Service implements NotificationsListener {
 
   // Environment
 
+  ConfigEnvironment get configEnvironment {
+    return _configEnvironment;
+  }
+
   set configEnvironment(ConfigEnvironment configEnvironment) {
     if (_configEnvironment != configEnvironment) {
       _configEnvironment = configEnvironment;
@@ -371,8 +373,20 @@ class Config with Service implements NotificationsListener {
     }
   }
 
-  ConfigEnvironment get configEnvironment {
-    return _configEnvironment;
+  static ConfigEnvironment get _defaultConfigEnvironment {
+    return kReleaseMode ? ConfigEnvironment.production : ConfigEnvironment.dev;
+  }
+
+  bool get isDev {
+    return _configEnvironment == ConfigEnvironment.dev;
+  }
+
+  bool get isTest {
+    return _configEnvironment == ConfigEnvironment.test;
+  }
+
+  bool get isProduction {
+    return _configEnvironment == ConfigEnvironment.test;
   }
 
   // Assets cache path

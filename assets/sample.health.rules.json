@@ -13,24 +13,71 @@
 	},
 
 	"statuses": {
-		"antibody.negative": "test-monitor",
-		
-		"antibody.positive": {
-			"condition": "test-interval",
+		"PCR.positive": {
+			"condition": "timeout",
 			"params": {
-				"interval": "UserTestMonitorInterval"
+				"interval": { "min": 0, "max": 8, "scope": "future" }
 			},
 			"success": {
 				"condition": "require-test",
 				"params": {
-					"interval": { "min": 0, "max": "UserTestMonitorInterval", "scope": "future", "current": true }
+					"interval": { "min": 9, "max": null, "scope": "future" }
+				},
+				"success": null,
+				"fail": {
+					"health_status": "red",
+					"priority": 11,
+					"next_step": "Get a test now"
+				}
+			},
+			"fail": {
+				"health_status": "red",
+				"priority": 11,
+				"next_step_html": "<h3>You have been placed in mandatory isolation.</h3><ul><h6><li>Stay home. Do not go to work, school, or public areas.</li></h6><h6><li>Separate yourself from others in your home.</li></h6><h6><li>Contact Champaign-Urbana Public Health District immediately at <a href='mailto:coronavirus@c-uphd.org'>coronavirus@c-uphd.org</a></li></h6><h6><li>More Info: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Quarantine and Isolation</a></li></h6></ul>"
+			}
+		},
+		
+		"PCR.positive-IP": {
+			"condition": "timeout",
+			"params": {
+				"interval": { "min": 0, "max": 8, "scope": "future" }
+			},
+			"success": {
+				"condition": "require-test",
+				"params": {
+					"interval": { "min": 9, "max": null, "scope": "future" }
+				},
+				"success": null,
+				"fail": {
+					"health_status": "red",
+					"priority": 11,
+					"next_step": "Get a test now"
+				}
+			},
+			"fail": {
+				"health_status": "red",
+				"priority": 11,
+				"next_step_html": "<h6>Please continue to self-isolate, and you will be contacted by McKinley or Public Health in the next 24 hours. Please call the McKinley Dial-A-Nurse line if you have questions at <a href='tel:+1-217-333-2700'>217-333-2700</a>.</h6><br><br><h6>A small percentage of people may remain infectious following a 10-day isolation period.  Usually, a brief 3-day period is all that is required before your test shows a safe level for you to gain access to all campus activities for the next 60 days. Your Safer Illinois App will remain in the DENIED STATUS until you are released through CUPHD and McKinley following your case review.</h6>",
+				"event_explanation": "Your Saliva PCR test shows the VIRUS IS DETECTED in your REPEAT POSITIVE at a possibly INFECTIOUS LEVEL. You may require a longer isolation period."
+			}
+		},
+
+		"PCR.positive-NIP": {
+			"condition": "timeout",
+			"params": {
+				"interval": { "min": 0, "max": 60, "scope": "future" }
+			},
+			"success": {
+				"condition": "require-test",
+				"params": {
+					"interval": { "min": 60, "max": 64, "scope": "future", "current": true }
 				},
 				"success": {
-					"health_status": "green",
+					"health_status": "yellow",
 					"priority": 1,
 					"next_step": "Monitor your test results",
-					"next_step_interval": "UserTestMonitorInterval",
-					"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+					"next_step_interval": 64,
+					"warning": "You will turn orange/access denied if no negative test by {next_step_date}."
 				},
 				"fail": {
 					"health_status": "orange",
@@ -40,58 +87,15 @@
 				}
 			},
 			"fail": {
-				"condition": "test-user",
-				"params": {
-					"role": "Undergraduate",
-					"student_level": "1U"
-				},
-				"success": {
-					"condition": "require-test",
-					"params": {
-						"interval": { "min": 0, "max": "UndergraduateTestMonitorInterval", "scope": "future", "current": true }
-					},
-					"success": {
-						"health_status": "green",
-						"priority": 1,
-						"next_step": "Monitor your test results",
-						"next_step_interval": "UndergraduateTestMonitorInterval",
-						"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
-					},
-					"fail": {
-						"health_status": "orange",
-						"priority": 1,
-						"next_step": "Get a test now",
-						"reason": "Your status changed to Orange because you are past due for a test."
-					}
-				},
-				"fail": {
-					"condition": "require-test",
-					"params": {
-						"interval": { "min": 0, "max": "DefaultTestMonitorInterval", "scope": "future", "current": true }
-					},
-					"success": {
-						"health_status": "green",
-						"priority": 1,
-						"next_step": "Monitor your test results",
-						"next_step_interval": "DefaultTestMonitorInterval",
-						"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
-					},
-					"fail": {
-						"health_status": "orange",
-						"priority": 1,
-						"next_step": "Get a test now",
-						"reason": "Your status changed to Orange because you are past due for a test."
-					}
-				}
+				"health_status": "yellow",
+				"priority": 1,
+				"next_step_html": "<h6>You are not required to self-isolate, and you are not required to submit to campus testing for a period of 60 days unless directed to do so by your licensed health professional. Your Safer Illinois App is set to allow you access for this period. Contact <a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a> if you have questions or need help.</h6>",
+				"next_step_interval": 64,
+				"event_explanation": "Your Saliva PCR test shows the VIRUS IS DETECTED in your REPEAT POSITIVE at a NON-INFECTIOUS LEVEL.",
+				"warning": "You will turn orange/access denied if no negative test by {next_step_date}."
 			}
 		},
-		
-		"PCR.positive": {
-			"health_status": "red",
-			"priority": 11,
-			"next_step_html": "<h3>You have been placed in mandatory isolation.</h3><ul><h6><li>Stay home. Do not go to work, school, or public areas.</li></h6><h6><li>Separate yourself from others in your home.</li></h6><h6><li>Contact Champaign-Urbana Public Health District immediately at <a href='mailto:coronavirus@c-uphd.org'>coronavirus@c-uphd.org</a></li></h6><h6><li>More Info: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Quarantine and Isolation</a></li></h6></ul>"
-		},
-		
+
 		"PCR.negative": "test-monitor",
 		
 		"PCR.invalid": {
@@ -104,7 +108,7 @@
 				"priority": null,
 				"next_step": "Get another test asap",
 				"next_step_interval": 1,
-				"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+				"warning": "You will turn orange/access denied if no negative test by {next_step_date}."
 			},
 			"fail": {
 				"health_status": "orange",
@@ -129,7 +133,7 @@
 					"priority": 1,
 					"next_step": "Monitor your test results",
 					"next_step_interval": "UserTestMonitorInterval",
-					"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+					"warning": "You will turn orange/access denied if no negative test by {next_step_date}."
 				},
 				"fail": {
 					"health_status": "orange",
@@ -154,7 +158,7 @@
 						"priority": 1,
 						"next_step": "Monitor your test results",
 						"next_step_interval": "UndergraduateTestMonitorInterval",
-						"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+						"warning": "You will turn orange/access denied if no negative test by {next_step_date}."
 					},
 					"fail": {
 						"health_status": "orange",
@@ -173,7 +177,7 @@
 						"priority": 1,
 						"next_step": "Monitor your test results",
 						"next_step_interval": "DefaultTestMonitorInterval",
-						"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+						"warning": "You will turn orange/access denied if no negative test by {next_step_date}."
 					},
 					"fail": {
 						"health_status": "orange",
@@ -241,7 +245,7 @@
 					"priority": -1,
 					"next_step": "Resume testing on your assigned days",
 					"next_step_interval": "UserTestMonitorInterval",
-					"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+					"warning": "You will turn orange/access denied if no negative test by {next_step_date}."
 					},
 				"fail": {
 					"health_status": "orange",
@@ -266,7 +270,7 @@
 						"priority": -1,
 						"next_step": "Resume testing on your assigned days",
 						"next_step_interval": "UndergraduateTestMonitorInterval",
-						"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+						"warning": "You will turn orange/access denied if no negative test by {next_step_date}."
 						},
 					"fail": {
 						"health_status": "orange",
@@ -285,7 +289,7 @@
 						"priority": -1,
 						"next_step": "Resume testing on your assigned days",
 						"next_step_interval": "DefaultTestMonitorInterval",
-						"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+						"warning": "You will turn orange/access denied if no negative test by {next_step_date}."
 					},
 					"fail": {
 						"health_status": "orange",
@@ -307,7 +311,7 @@
 				"priority": null,
 				"next_step": "Monitor your test results",
 				"next_step_interval": 1,
-				"warning": "You will turn orange/access denied if no negative test before {next_step_date}."
+				"warning": "You will turn orange/access denied if no negative test by {next_step_date}."
 			},
 			"fail": {
 				"health_status": "orange",
@@ -321,22 +325,6 @@
 	"tests" : {
 		"rules": [
 			{
-				"test_type": "Antibody Test A1",
-				"category": "antibody",
-				"results": [
-					{
-						"result": "not present",
-						"category": "antibody.negative",
-						"status": "antibody.negative"
-					},
-					{
-						"result": "present",
-						"category": "antibody.positive",
-						"status": "antibody.positive"
-					}
-				]
-			},
-			{
 				"test_type": "Covid-19 test B1",
 				"category": "PCR",
 				"results": [
@@ -349,22 +337,6 @@
 						"result": "negative",
 						"category": "PCR.negative",
 						"status": "PCR.negative"
-					}
-				]
-			},
-			{
-				"test_type": "COVID-19 Antibody",
-				"category": "antibody",
-				"results": [
-					{
-						"result": "Positive",
-						"category": "antibody.positive",
-						"status": "antibody.positive"
-					},
-					{
-						"result": "Negative",
-						"category": "antibody.negative",
-						"status": "antibody.negative"
 					}
 				]
 			},
@@ -408,6 +380,16 @@
 						"result": "POSITIVE",
 						"category": "PCR.positive",
 						"status": "PCR.positive"
+					},
+					{
+						"result": "POSITIVE-IP",
+						"category": "PCR.positive",
+						"status": "PCR.positive-IP"
+					},
+					{
+						"result": "POSITIVE-NIP",
+						"category": "PCR.negative",
+						"status": "PCR.positive-NIP"
 					},
 					{
 						"result": "NEGATIVE",
@@ -559,7 +541,8 @@
 			{
 				"id": null,
 				"name": "gr-2.4-0",
-				"visible": false,
+				"group" : "no-symptoms",
+				"visible": true,
 				"symptoms": [
 					{
 						"id": "b669503f-938b-11ea-8f2a-0a58a9feac2a",
@@ -606,6 +589,7 @@
 				"id": null,
 				"name": "gr-2.5-1",
 				"visible": true,
+				"group" : "have-symptoms",
 				"symptoms": [
 					{
 						"id": "7c76102e-7c99-4743-80a6-5f09503fe92a",

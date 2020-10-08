@@ -34,7 +34,8 @@ class Covid19SymptomsPanel extends StatefulWidget {
 
 class _Covid19SymptomsPanelState extends State<Covid19SymptomsPanel> {
 
-  List<HealthSymptomsGroup> _symptomsGroups;
+  List<HealthSymptomsGroup> _symptoms;
+  Map<String, String> _symptomsGroups;
   Set<String> _selectedSymptoms = Set<String>();
   bool _loadingSymptoms;
   bool _submittingSymptoms;
@@ -46,7 +47,8 @@ class _Covid19SymptomsPanelState extends State<Covid19SymptomsPanel> {
     Health().loadSymptomsGroups().then((List<HealthSymptomsGroup> groups) {
       setState(() {
         _loadingSymptoms = false;
-        _symptomsGroups = groups;
+        _symptoms = groups;
+        _symptomsGroups = _buildSymptomsGroups(groups);
       });
     });
   }
@@ -101,10 +103,12 @@ class _Covid19SymptomsPanelState extends State<Covid19SymptomsPanel> {
 
   List<Widget> _buildSymptomsContent() {
     List<Widget> result = <Widget>[];
-    if (_symptomsGroups != null) {
-      for (HealthSymptomsGroup group in _symptomsGroups) {
-        if (group.visible != false) {
-          result.addAll(_buildGroup(group));
+    if (_symptoms != null) {
+      for (HealthSymptomsGroup group in _symptoms) {
+        if ((group.symptoms != null) && (group.visible != false)) {
+          for (HealthSymptom symptom in group.symptoms) {
+            result.add(_buildSymptom(symptom));
+          }
         }
       }
     }
@@ -114,21 +118,27 @@ class _Covid19SymptomsPanelState extends State<Covid19SymptomsPanel> {
     return result;
   }
 
-  List<Widget> _buildGroup(HealthSymptomsGroup group) {
-    List<Widget> result = <Widget>[];
-    if (group.symptoms != null) {
-      for (HealthSymptom symptom in group.symptoms) {
-        result.addAll(_buildSymptom(symptom));
+  static Map<String, String> _buildSymptomsGroups(List<HealthSymptomsGroup> symptoms) {
+    Map<String, String> symptomsGroups;
+    if (symptoms != null) {
+      symptomsGroups = Map<String, String>();
+      for (HealthSymptomsGroup group in symptoms) {
+        if ((group.group != null) && (group.symptoms != null)) {
+          for (HealthSymptom symptom in group.symptoms) {
+            if (symptom.id != null) {
+              symptomsGroups[symptom.id] = group.group;
+            }
+          }
+        }
       }
     }
-    return result;
+    return symptomsGroups;
   }
-  
-  List<Widget> _buildSymptom(HealthSymptom symptom) {
+
+  Widget _buildSymptom(HealthSymptom symptom) {
     bool _selected = _selectedSymptoms.contains(symptom.id);
     String imageName = _selected ? 'images/icon-selected-checkbox.png' : 'images/icon-deselected-checkbox.png';
-    return <Widget>[
-    Semantics(
+    return Semantics(
       label: symptom.name,
       value: (_selected?Localization().getStringEx("toggle_button.status.checked", "checked",) :
       Localization().getStringEx("toggle_button.status.unchecked", "unchecked")) +
@@ -148,14 +158,13 @@ class _Covid19SymptomsPanelState extends State<Covid19SymptomsPanel> {
               ],)
             ),
           ),
-      )),
-    ];
+    ));
   }
 
   Widget _bulldSubmit() {
     bool enabled = (0 < _selectedSymptoms.length);
     return Padding(padding: EdgeInsets.only(top: 20, bottom: 20), child:
-      Stack(children: <Widget>[
+      Stack(alignment: Alignment.center, children: <Widget>[
         ScalableRoundedButton(label: Localization().getStringEx("panel.health.symptoms.button.submit.title","Submit"),
           backgroundColor: enabled ? Styles().colors.white : Styles().colors.whiteTransparent01,
           textColor: enabled ? Styles().colors.fillColorPrimary : Styles().colors.disabledTextColorTwo,
@@ -167,11 +176,9 @@ class _Covid19SymptomsPanelState extends State<Covid19SymptomsPanel> {
         ),
           Visibility(visible: (_submittingSymptoms == true), child:
             Center(child:
-              Padding(padding: EdgeInsets.only(top: 12), child:
-               Container(width: 24, height:24, child:
-                  CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary), strokeWidth: 2,)
-                ),
-              ),
+              Container(width: 24, height:24, child:
+                 CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary), strokeWidth: 2,)
+               ),
             ),
           ),
       ],)
@@ -199,8 +206,8 @@ class _Covid19SymptomsPanelState extends State<Covid19SymptomsPanel> {
 
   int get _symptomsCount {
     int count = 0;
-    if (_symptomsGroups != null) {
-      for (HealthSymptomsGroup group in _symptomsGroups) {
+    if (_symptoms != null) {
+      for (HealthSymptomsGroup group in _symptoms) {
         count += (group.symptoms?.length ?? 0);
       }
     }
@@ -218,6 +225,16 @@ class _Covid19SymptomsPanelState extends State<Covid19SymptomsPanel> {
         _selectedSymptoms.remove(symptom.id);
       }
       else {
+        String symptomGroup = (_symptomsGroups != null) ? _symptomsGroups[symptom.id] : null;
+        if (symptomGroup != null) {
+          for (String selectedSymptomId in List.from(_selectedSymptoms)) {
+            String selectedSymptomGroup = (_symptomsGroups != null) ? _symptomsGroups[selectedSymptomId] : null;
+            if ((selectedSymptomGroup != null) && (selectedSymptomGroup != symptomGroup)) {
+              _selectedSymptoms.remove(selectedSymptomId);
+            }
+          }
+        }
+
         _selectedSymptoms.add(symptom.id);
       }
       AppSemantics.announceCheckBoxStateChange(context, _selectedSymptoms?.contains(symptom.id), symptom.name);
@@ -226,6 +243,12 @@ class _Covid19SymptomsPanelState extends State<Covid19SymptomsPanel> {
 
   void _onSubmit() {
     Analytics.instance.logSelect(target: "Submit");
+
+    if (AppCollection.isCollectionEmpty(_selectedSymptoms)) {
+      AppAlert.showDialogResult(context, Localization().getStringEx("panel.health.symptoms.label.error.no_selection", "Please select at least one symptom"));
+      return;
+    }
+
     if (_submittingSymptoms == true) {
       return;
     }
@@ -233,7 +256,7 @@ class _Covid19SymptomsPanelState extends State<Covid19SymptomsPanel> {
       _submittingSymptoms = true;
     });
 
-    Health().processSymptoms(groups: _symptomsGroups, selected: _selectedSymptoms).then((dynamic result) {
+    Health().processSymptoms(groups: _symptoms, selected: _selectedSymptoms).then((dynamic result) {
       if (mounted) {
         setState(() {
           _submittingSymptoms = false;

@@ -4,7 +4,7 @@ import 'dart:ui' as ui;
 
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:flutter/material.dart';
-import 'package:illinois/service/AppDateTime.dart';
+import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/Gallery.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:image_picker/image_picker.dart';
@@ -46,7 +46,7 @@ class Covid19Utils {
           newQrBytes[i] = pngBytes.getUint8(i);
         }
 
-        String dateTimeStr = AppDateTime().formatDateTime(DateTime.now(), format: AppDateTime.covid19QrDateFormat);
+        String dateTimeStr = AppDateTime.formatDateTime(DateTime.now(), format: "MMMM dd, yyyy, HH:mm:ss a");
         String fileName = "Illinois COVID-19 Code $dateTimeStr";
 
         return await Gallery().storeImage(imageBytes: newQrBytes, name: fileName);

@@ -16,7 +16,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:illinois/model/Health.dart';
-import 'package:illinois/service/AppDateTime.dart';
+import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Styles.dart';
@@ -119,7 +119,7 @@ class _Covid19DebugActionPanelState extends State<Covid19DebugActionPanel> {
 
 
   Widget _buildContent() {
-    String dateText = _selectedDate != null ? AppDateTime().formatDateTime(_selectedDate, format: AppDateTime.scheduleServerQueryDateTimeFormat) : "-";
+    String dateText = _selectedDate != null ? AppDateTime.formatDateTime(_selectedDate, format: 'MM/dd/yyyy') : "-";
     return Padding(padding: EdgeInsets.all(32),
       child: Column(crossAxisAlignment:CrossAxisAlignment.start, children: <Widget>[
           Semantics(container: true, child:

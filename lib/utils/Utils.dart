@@ -207,36 +207,16 @@ class AppLocation {
 
 class AppJson {
 
-  static List<dynamic> encodeList(List items) {
-    List<dynamic> result = new List();
-    if (items != null && items.isNotEmpty) {
-      items.forEach((item) {
-        result.add(item.toJson());
-      });
-    }
-
-    return result;
-  }
-
-  static List<String> castToStringList(List<dynamic> items) {
-    if (items == null)
-      return null;
-
-    List<String> result = new List();
-    if (items != null && items.isNotEmpty) {
-      items.forEach((item) {
-        result.add(item is String ? item : item.toString());
-      });
-    }
-
-    return result;
-  }
-
-  static String encode(dynamic value) {
+  static String encode(dynamic value, { bool prettify }) {
     String result;
     if (value != null) {
       try {
-        result = json.encode(value);
+        if (prettify == true) {
+          result = JsonEncoder.withIndent("  ").convert(value);
+        }
+        else {
+          result = json.encode(value);
+        }
       } catch (e) {
         Log.e(e?.toString());
       }

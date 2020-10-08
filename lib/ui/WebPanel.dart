@@ -27,10 +27,11 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 class WebPanel extends StatefulWidget implements AnalyticsPageName, AnalyticsPageAttributes {
   final String url;
+  final String analyticsUrl;
   final String analyticsName;
   final String title;
 
-  WebPanel({@required this.url, this.analyticsName, this.title = ""});
+  WebPanel({@required this.url, this.analyticsUrl, this.analyticsName, this.title = ""});
 
   @override
   _WebPanelState createState() => _WebPanelState();
@@ -42,7 +43,7 @@ class WebPanel extends StatefulWidget implements AnalyticsPageName, AnalyticsPag
 
   @override
   Map<String, dynamic> get analyticsPageAttributes {
-    return { Analytics.LogAttributeUrl : url };
+    return { Analytics.LogAttributeUrl : AppString.isStringNotEmpty(analyticsUrl) ? analyticsUrl : url };
   }
 }
 

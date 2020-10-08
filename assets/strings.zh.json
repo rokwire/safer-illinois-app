@@ -262,7 +262,6 @@
 
 	"panel.covid19_passport.header.title": "COVID-19",
 	"panel.covid19_passport.button.close.title": "關",
-	"panel.covid19_passport.button.info_center.title": "您的COVID-19信息中心",
 	"panel.covid19_passport.label.status.empty":"此县没有可用状态",
     "panel.covid19_passport.label.counties.empty":"沒有可用縣",
 	"panel.covid19_passport.label.county.empty.hint":"选择一个县...",
@@ -661,13 +660,14 @@
 
 	"panel.health.next_steps.button.continue.title.find_locatio": "查找位置",
 	"panel.health.next_steps.button.continue.title.care_team": "联系护理团队",
-	"panel.health.next_steps.label.next_steps": "下一步行动",
+	"panel.health.next_steps.label.next_steps": "下一步",
 
 	"panel.health.symptoms.heading.title":"你有这些症状吗?",
 	"panel.health.symptoms.label.error.loading":"未能加载症状.",
 	"panel.health.symptoms.button.submit.title":"提交",
 	"panel.health.symptoms.label.success.submit.message":"你的症状已经得到处理.",
 	"panel.health.symptoms.label.error.submit":"未能提交症状.",
+	"panel.health.symptoms.label.error.no_selection": "Please select at least one symptom",
 
 	"model.explore.time.today":"今天",
 	"model.explore.time.tomorrow":"明天",
@@ -688,6 +688,7 @@
 	"logic.date_time.greeting.morning": "早上好",
 	"logic.date_time.greeting.afternoon": "下午好",
 	"logic.date_time.greeting.evening": "晚上好",
+	"logic.date_time.greeting.day": "美好的一天",
 
 	"logic.polls.unable_to_load_poll": "无法加载投票",
 	"logic.polls.no_polls_with_pin": "此4位数的投票代码 # 没有投票",

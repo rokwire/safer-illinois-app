@@ -262,7 +262,6 @@
 
     "panel.covid19_passport.header.title": "COVID-19",
     "panel.covid19_passport.button.close.title": "Close",
-    "panel.covid19_passport.button.info_center.title": "Your COVID-19 info center",
     "panel.covid19_passport.label.status.empty":"No available status for this County",
     "panel.covid19_passport.label.counties.empty":"No counties available",
     "panel.covid19_passport.label.county.empty.hint":"Select a county...",
@@ -661,13 +660,14 @@
 
     "panel.health.next_steps.button.continue.title.find_locatio": "Find location",
     "panel.health.next_steps.button.continue.title.care_team": "Get in Touch with Care Team",
-    "panel.health.next_steps.label.next_steps": "NEXT STEPS",
+    "panel.health.next_steps.label.next_steps": "Your Next Steps",
 
     "panel.health.symptoms.heading.title":"Are you experiencing any of these symptoms?",
     "panel.health.symptoms.label.error.loading":"Failed to load symptoms.",
     "panel.health.symptoms.button.submit.title":"Submit",
     "panel.health.symptoms.label.success.submit.message":"Your symptoms have been processed.",
     "panel.health.symptoms.label.error.submit":"Failed to submit symptoms.",
+    "panel.health.symptoms.label.error.no_selection": "Please select at least one symptom",
 
     "model.explore.time.today": "Today",
     "model.explore.time.tomorrow": "Tomorrow",
@@ -688,6 +688,7 @@
     "logic.date_time.greeting.morning": "Good morning",
     "logic.date_time.greeting.afternoon": "Good afternoon",
     "logic.date_time.greeting.evening": "Good evening",
+    "logic.date_time.greeting.day": "Good day",
 
     "logic.polls.unable_to_load_poll": "Unable to load poll",
     "logic.polls.no_polls_with_pin": "There are no polls with this 4 Digit Poll #",

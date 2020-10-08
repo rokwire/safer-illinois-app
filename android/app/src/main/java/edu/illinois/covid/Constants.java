@@ -94,4 +94,8 @@ public class Constants {
     public static final String GALLERY_PLUGIN_METHOD_NAME_STORE = "store";
     public static final String GALLERY_PLUGIN_PARAM_BYTES = "bytes";
     public static final String GALLERY_PLUGIN_PARAM_NAME = "name";
+
+    // Shared Prefs
+    static final String DEFAULT_SHARED_PREFS_FILE_NAME = "default_shared_prefs";
+    static final String LOCATION_PERMISSIONS_REQUESTED_KEY = "location_permissions_requested";
 }

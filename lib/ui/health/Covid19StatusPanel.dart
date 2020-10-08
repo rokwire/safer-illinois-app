@@ -23,7 +23,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/model/UserData.dart';
-import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
@@ -31,10 +30,8 @@ import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/TransportationService.dart';
 import 'package:illinois/service/User.dart';
-import 'package:illinois/ui/health/Covid19InfoCenterPanel.dart';
 import 'package:illinois/ui/widgets/StatusInfoDialog.dart';
 import 'package:illinois/ui/widgets/TrianglePainter.dart';
-import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -66,7 +63,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
     super.initState();
     NotificationService().subscribe(this, [
       Health.notifyStatusChanged,
-      Health.notifyCountyStatusAvailable,
+      Health.notifyProcessingFinished,
     ]);
     _loadCounties();
     _loadCovidStatus();
@@ -85,8 +82,8 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
     if (name == Health.notifyStatusChanged) {
       _updateCovidStatus(param);
     }
-    else if (name == Health.notifyCountyStatusAvailable) {
-      _updateCovidStatus(param);
+    else if (name == Health.notifyProcessingFinished) {
+      _updateCovidStatus(param?.status);
     }
   }
 
@@ -127,7 +124,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
   }
 
   void _updateCovid19Access() {
-    Health().isAccessGranted(_covid19Status?.blob?.healthStatus).then((bool granted) {
+    Health().isBuildingAccessGranted(_covid19Status?.blob?.healthStatus).then((bool granted) {
       if (mounted) {
         setState(() {
           _covid19Access = granted;
@@ -239,13 +236,6 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
                           ]
                       ),),
                     )),
-                Align(
-                    alignment: Alignment.topRight,
-                    child:Semantics(button: true,label: Localization().getStringEx("panel.covid19_passport.button.close.title", "Close"), child:
-                    InkWell(
-                        onTap: _onTapClose, child: Container(width: 48, height: 48, alignment: Alignment.center, child: Image.asset('images/close-white-shadow.png', excludeFromSemantics: true,))),
-                    )
-                ),
               ],
             ),
           ),
@@ -273,18 +263,6 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
             style: TextStyle(color: Styles().colors.mediumGray1, fontSize: 16, fontFamily: Styles().fontFamilies.regular, letterSpacing: 1),),),
         _buildCountyDropdown(),
         _buildStatusDetails(),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 36),
-          child:
-            ScalableRoundedButton(
-              label: Localization().getStringEx('panel.covid19_passport.button.info_center.title', 'Your COVID-19 info center'),
-              borderColor: Styles().colors.fillColorSecondary,
-              fontSize: 16,
-              textColor: Styles().colors.fillColorPrimary,
-              backgroundColor: Styles().colors.background,
-              showChevron: true,
-              onTap: _onTapInfoCenter,)
-        )
       ],
     )
     );
@@ -302,6 +280,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
               containerHeight: 240, // Distance from SwiperIndicator
               itemHeight: 200,
               itemCount: 2,
+              loop: false,
               controller: _swiperController,
               pagination:SwiperCustomPagination(
                   builder:(BuildContext context, SwiperPluginConfig config){
@@ -523,7 +502,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
     if(Auth().isShibbolethLoggedIn && AppString.isStringNotEmpty(roleDisplayString)){
       return roleDisplayString;
     }
-    return UserRole.toRoleString(UserRole.resident);
+    return UserRole.resident.toDisplayString();
   }
 
   Widget _userAvatar() {
@@ -581,17 +560,12 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
     Navigator.of(context).pop();
   }
 
-  void _onTapInfoCenter() {
-    Analytics.instance.logSelect(target: "COVID19 Info Center");
-    Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19InfoCenterPanel(status: _covid19Status)));
-  }
-
   Color get _backgroundColor {
     return Styles().colors.background;
   }
 
   bool get _isLoading {
-    return (_loadingProgress > 0);
+    return ((_loadingProgress > 0) || (Health().processing == true));
   }
 }
 

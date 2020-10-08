@@ -224,20 +224,6 @@ class User with Service implements NotificationsListener {
 
   }
 
-  void initLocalUser() {
-    String localUserUuid = Storage().localUserUuid;
-    String currentUserUuid = _userData?.uuid;
-    if ((localUserUuid != null) && (currentUserUuid == null) || (currentUserUuid != localUserUuid)) {
-      requestUser(localUserUuid).then((UserData userData){
-        if (userData != null) {
-          applyUserData(userData);
-        }
-        //clearStoredPiiAccount();
-      }).catchError((_){
-      });
-    }
-  }
-
   void applyUserData(UserData userData) {
     
     // 1. We might need to remove FCM token from current user
