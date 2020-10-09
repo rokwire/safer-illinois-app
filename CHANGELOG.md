@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Added
 - Added "INCONCLUSIVE" and "REJECTED" results to "COVID-19 PCR" test [#271](https://github.com/rokwire/safer-illinois-app/issues/271).
+- StatusPanel content improvement for Accessibility Large Text [275](https://github.com/rokwire/safer-illinois-app/issues/275).
 
 ### Changed
 - Updated "PCR.positive-NIP" status rule [#273](https://github.com/rokwire/safer-illinois-app/issues/273).
