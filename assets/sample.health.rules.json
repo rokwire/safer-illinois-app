@@ -400,6 +400,16 @@
 						"result": "INVALID",
 						"category": "PCR.invalid",
 						"status": "PCR.invalid"
+					},
+					{
+						"result": "INCONCLUSIVE",
+						"category": "PCR.invalid",
+						"status": "PCR.invalid"
+					},
+					{
+						"result": "REJECTED",
+						"category": "PCR.invalid",
+						"status": "PCR.invalid"
 					}
 				]
 			},
