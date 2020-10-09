@@ -427,7 +427,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 Expanded(child:
-                  Text(statusName, style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Styles().colors.textSurface),),
+                  Text(statusName, style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Styles().colors.textSurface),maxLines: 1, overflow: TextOverflow.ellipsis,),
                 ),
                 Container(width: 6,),
                 Semantics(
