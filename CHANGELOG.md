@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## [2.7.5] - 2020-10-09
 ### Added
 - Added "INCONCLUSIVE" and "REJECTED" results to "COVID-19 PCR" test [#271](https://github.com/rokwire/safer-illinois-app/issues/271).
 - StatusPanel content improvement for Accessibility Large Text [275](https://github.com/rokwire/safer-illinois-app/issues/275).
