@@ -68,29 +68,16 @@
 				"interval": { "min": 0, "max": 60, "scope": "future" }
 			},
 			"success": {
-				"condition": "require-test",
-				"params": {
-					"interval": { "min": 60, "max": 64, "scope": "future", "current": true }
-				},
-				"success": {
-					"health_status": "yellow",
-					"priority": 1,
-					"next_step": "Monitor your test results",
-					"next_step_interval": 64,
-					"warning": "You will turn orange/access denied if no negative test by {next_step_date}."
-				},
-				"fail": {
-					"health_status": "orange",
-					"priority": 1,
-					"next_step": "Get a test now",
-					"reason": "Your status changed to Orange because you are past due for a test."
-				}
+				"health_status": "orange",
+				"priority": 1,
+				"next_step": "Get a test now",
+				"reason": "Your status changed to Orange because you are past due for a test."
 			},
 			"fail": {
 				"health_status": "yellow",
 				"priority": 1,
 				"next_step_html": "<h6>You are not required to self-isolate, and you are not required to submit to campus testing for a period of 60 days unless directed to do so by your licensed health professional. Your Safer Illinois App is set to allow you access for this period. Contact <a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a> if you have questions or need help.</h6>",
-				"next_step_interval": 64,
+				"next_step_interval": 60,
 				"event_explanation": "Your Saliva PCR test shows the VIRUS IS DETECTED in your REPEAT POSITIVE at a NON-INFECTIOUS LEVEL.",
 				"warning": "You will turn orange/access denied if no negative test by {next_step_date}."
 			}
