@@ -50,7 +50,7 @@ abstract class Service {
   Future<void> initService() async {
   }
 
-  void initServiceUI() async {
+  void initServiceUI() {
   }
 
   Set<Service> get serviceDependsOn {
