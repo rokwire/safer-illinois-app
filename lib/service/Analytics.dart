@@ -283,7 +283,6 @@ class Analytics with Service implements NotificationsListener {
       NativeCommunicator.notifyMapRouteStart,
       NativeCommunicator.notifyMapRouteFinish,
     ]);
-
   }
 
   @override
@@ -321,6 +320,15 @@ class Analytics with Service implements NotificationsListener {
   }
 
   @override
+  Future<void> clearService() async {
+    await _clearDatabase();
+    _closeTimer();
+    
+    _clearUserRoles();
+    _updateSessionUuid();
+  }
+
+  @override
   void destroyService() {
     NotificationService().unsubscribe(this);
 
@@ -342,6 +350,12 @@ class Analytics with Service implements NotificationsListener {
       _database = await openDatabase(databaseFile, version: _databaseVersion, onCreate: (db, version) {
         return db.execute("CREATE TABLE IF NOT EXISTS $_databaseTable($_databaseColumn TEXT NOT NULL)",);
       });
+    }
+  }
+
+  Future<void> _clearDatabase() async {
+    if (_database != null) {
+      await _database.execute("DELETE FROM $_databaseTable",);
     }
   }
 
@@ -543,6 +557,10 @@ class Analytics with Service implements NotificationsListener {
   void _updateUserRoles() {
     Set<UserRole> roles = User().roles;
     _userRoles = UserRole.userRolesToList(roles);
+  }
+
+  void _clearUserRoles() {
+    _userRoles = null;
   }
 
   // Packets Processing

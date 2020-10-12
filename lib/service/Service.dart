@@ -53,6 +53,9 @@ abstract class Service {
   void initServiceUI() {
   }
 
+  Future<void> clearService() async {
+  }
+
   Set<Service> get serviceDependsOn {
     return null;
   }
@@ -126,6 +129,12 @@ class Services {
   void initUI() {
     for (Service service in _services) {
       service.initServiceUI();
+    }
+  }
+
+  Future<void> clear() async {
+    for (Service service in _services) {
+      await service.clearService();
     }
   }
 

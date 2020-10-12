@@ -98,6 +98,19 @@ class FlexUI with Service implements NotificationsListener {
     return Set.from([Config(), User(), Auth()]);
   }
 
+  @override
+  Future<void> clearService() async {
+    AppFile.delete(_cacheFile);
+    _dataVersion = null;
+    _cacheFile = null;
+    _content = null;
+    _features = null;
+    if (_httpClient != null) {
+      _httpClient.close();
+      _httpClient = null;
+    }
+  }
+
   // NotificationsListener
 
   @override

@@ -144,11 +144,43 @@ class Config with Service implements NotificationsListener {
 
     _configEnvironment = configEnvFromString(Storage().configEnvironment) ?? _defaultConfigEnvironment;
 
-    _packageInfo = await PackageInfo.fromPlatform();
-    _appDocumentsDir = await getApplicationDocumentsDirectory();
-    Log.d('Application Documents Directory: ${_appDocumentsDir.path}');
+    if (_packageInfo == null) {
+      _packageInfo = await PackageInfo.fromPlatform();
+    }
 
-    await _init();
+    if (_appDocumentsDir == null) {
+      _appDocumentsDir = await getApplicationDocumentsDirectory();
+      Log.d('Application Documents Directory: ${_appDocumentsDir.path}');
+    }
+
+    _config = await _loadFromFile(_configFile);
+
+    if (_config == null) {
+      _configAsset = await _loadFromAssets();
+      String configString = await _loadAsStringFromNet();
+      _configAsset = null;
+
+      _config = (configString != null) ? _configFromJsonString(configString) : null;
+      if (_config != null) {
+        _configFile.writeAsStringSync(configString, flush: true);
+        NotificationService().notify(notifyConfigChanged, null);
+        
+        _checkUpgrade();
+      }
+    }
+    else {
+      _checkUpgrade();
+      _updateFromNet();
+    }
+
+  }
+
+  @override
+  Future<void> clearService() async {
+    AppFile.delete(_configFile);
+    _configEnvironment = _defaultConfigEnvironment;
+    _config = _configAsset = null;
+    _reportedUpgradeVersions.clear();
   }
 
   @override
