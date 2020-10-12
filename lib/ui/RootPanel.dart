@@ -20,7 +20,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/DeepLink.dart';
-import 'package:illinois/service/FlexUI.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Service.dart';
@@ -54,7 +53,6 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
       FirebaseMessaging.notifyCovid19Notification,
       Localization.notifyStringsUpdated,
       Config.notifyEnvironmentChanged,
-      FlexUI.notifyChanged,
       Health.notifyStatusUpdated,
       DeepLink.notifyUri,
     ]);
@@ -76,9 +74,6 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
       _onFirebasePopupMessage(param);
     }
     else if (name == Localization.notifyStringsUpdated) {
-      setState(() { });
-    }
-    else if (name == FlexUI.notifyChanged) {
       setState(() { });
     }
     else if (name == Config.notifyEnvironmentChanged) {
