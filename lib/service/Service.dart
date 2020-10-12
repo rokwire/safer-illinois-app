@@ -33,7 +33,6 @@ import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/LocationServices.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/OSFHealth.dart';
-import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Storage.dart';
 import 'package:illinois/service/LocalNotifications.dart';
 import 'package:illinois/service/Styles.dart';
@@ -98,7 +97,6 @@ class Services {
     Analytics(),
     FirebaseMessaging(),
     FlexUI(),
-    Onboarding(),
     Health(),
     Exposure(),
     OSFHealth(),

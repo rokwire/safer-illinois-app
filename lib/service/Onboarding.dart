@@ -16,9 +16,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:illinois/service/FlexUI.dart';
 import 'package:illinois/service/NotificationService.dart';
-import 'package:illinois/service/Service.dart';
 import 'package:illinois/ui/health/onboarding/Covid19OnBoardingConsentPanel.dart';
 import 'package:illinois/ui/health/onboarding/Covid19OnBoardingFinalPanel.dart';
 import 'package:illinois/ui/health/onboarding/Covid19OnBoardingHowItWorks.dart';
@@ -36,11 +34,34 @@ import 'package:illinois/ui/onboarding/OnboardingAuthNotificationsPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingRolesPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginPhoneVerifyPanel.dart';
 
-class Onboarding with Service implements NotificationsListener {
+class Onboarding {
 
   static const String notifyFinished  = "edu.illinois.rokwire.onboarding.finished";
 
-  List<dynamic> _contentCodes;
+  static const List<String> _contentPanels = [
+    "OnboardingGetStartedPanel",
+    
+    "OnboardingAuthNotificationsPanel",
+    "OnboardingAuthLocationPanel",
+    "OnboardingAuthBluetoothPanel",
+    
+    "OnboardingRolesPanel",
+    
+    "OnboardingLoginNetIdPanel",
+
+    "OnboardingLoginPhonePanel",
+    "OnboardingLoginPhoneVerifyPanel",
+    "OnboardingLoginPhoneConfirmPanel",
+
+    "Covid19OnBoardingResidentInfoPanel",
+    "Covid19OnBoardingReviewScanPanel",
+
+    "Covid19OnBoardingIntroPanel",
+    "Covid19OnBoardingHowItWorks",
+    "Covid19OnBoardingConsentPanel",
+    "Covid19OnBoardingQrCodePanel",
+    "Covid19OnBoardingFinalPanel"
+  ];
 
   // Singleton Factory
 
@@ -53,39 +74,6 @@ class Onboarding with Service implements NotificationsListener {
 
   Onboarding get instance {
     return _instance;
-  }
-
-  // Service
-
-  @override
-  void createService() {
-    NotificationService().subscribe(this,[
-      FlexUI.notifyChanged,
-    ]);
-  }
-
-  @override
-  void destroyService() {
-    NotificationService().unsubscribe(this);
-  }
-
-  @override
-  Future<void> initService() async {
-    _contentCodes = FlexUI()['onboarding'];
-  }
-
-  @override
-  Set<Service> get serviceDependsOn {
-    return Set.from([FlexUI()]);
-  }
-
-  // NotificationsListener
-
-  @override
-  void onNotification(String name, dynamic param) {
-    if (name == FlexUI.notifyChanged) {
-      _contentCodes = FlexUI()['onboarding'];
-    }
   }
 
   // Implementation
@@ -115,142 +103,61 @@ class Onboarding with Service implements NotificationsListener {
   }
 
   dynamic _nextPanel(OnboardingPanel panel) {
-    if (_contentCodes != null) {
-      int nextPanelIndex;
-      if (panel == null) {
-        nextPanelIndex = 0;
+    int nextPanelIndex;
+    if (panel == null) {
+      nextPanelIndex = 0;
+    }
+    else {
+      String panelName = panel.runtimeType.toString();
+      int panelIndex = _contentPanels.indexOf(panelName);
+      if (0 <= panelIndex) {
+        nextPanelIndex = panelIndex + 1;
       }
-      else {
-        String panelCode = _getPanelCode(panel: panel);
-        int panelIndex = _contentCodes.indexOf(panelCode);
-        if (0 <= panelIndex) {
-          nextPanelIndex = panelIndex + 1;
+    }
+
+    if (nextPanelIndex != null) {
+      while (nextPanelIndex < _contentPanels.length) {
+        String nextPanelName = _contentPanels[nextPanelIndex];
+        OnboardingPanel nextPanel = _createPanel(name: nextPanelName, context: panel?.onboardingContext ?? {});
+        if ((nextPanel != null) && nextPanel.onboardingCanDisplay) {
+          return nextPanel as Widget;
+        }
+        else {
+          nextPanelIndex++;
         }
       }
-
-      if (nextPanelIndex != null) {
-        while (nextPanelIndex < _contentCodes.length) {
-          String nextPanelCode = _contentCodes[nextPanelIndex];
-          OnboardingPanel nextPanel = _createPanel(code: nextPanelCode, context: panel?.onboardingContext ?? {});
-          if ((nextPanel != null) && nextPanel.onboardingCanDisplay) {
-            return nextPanel as Widget;
-          }
-          else {
-            nextPanelIndex++;
-          }
-        }
-        return false;
-      }
+      return false;
     }
     return null;
   }
 
-  OnboardingPanel _createPanel({String code, Map<String, dynamic> context}) {
-    if (code != null) {
-      if (code == 'get_started') {
-        return OnboardingGetStartedPanel(onboardingContext: context);
-      }
-      else if (code == 'notifications_auth') {
-        return OnboardingAuthNotificationsPanel(onboardingContext: context);
-      }
-      else if (code == 'location_auth') {
-        return OnboardingAuthLocationPanel(onboardingContext: context);
-      }
-      else if (code == 'bluetooth_auth') {
-        return OnboardingAuthBluetoothPanel(onboardingContext: context);
-      }
-      else if (code == 'roles') {
-        return OnboardingRolesPanel(onboardingContext: context);
-      }
-      else if (code == 'login_netid') {
-        return OnboardingLoginNetIdPanel(onboardingContext: context);
-      }
-      else if (code == 'login_phone') {
-        return OnboardingLoginPhonePanel(onboardingContext: context);
-      }
-      else if (code == 'verify_phone') {
-        return OnboardingLoginPhoneVerifyPanel(onboardingContext: context);
-      }
-      else if (code == 'confirm_phone') {
-        return OnboardingLoginPhoneConfirmPanel(onboardingContext: context);
-      }
-      else if (code == 'resident_info') {
-        return Covid19OnBoardingResidentInfoPanel(onboardingContext: context);
-      }
-      else if (code == 'review_scan') {
-        return Covid19OnBoardingReviewScanPanel(onboardingContext: context);
-      }
-      else if (code == 'covid19_intro') {
-        return Covid19OnBoardingIntroPanel(onboardingContext: context);
-      }
-      else if (code == 'covid19_how_works') {
-        return Covid19OnBoardingHowItWorks(onboardingContext: context);
-      }
-      else if (code == 'covid19_consent') {
-        return Covid19OnBoardingConsentPanel(onboardingContext: context);
-      }
-      else if (code == 'covid19_qrcode') {
-        return Covid19OnBoardingQrCodePanel(onboardingContext: context);
-      }
-      else if (code == 'covid19_final') {
-        return Covid19OnBoardingFinalPanel(onboardingContext: context);
-      }
+  OnboardingPanel _createPanel({String name, Map<String, dynamic> context}) {
+    switch (name) {
+      case "OnboardingGetStartedPanel": return OnboardingGetStartedPanel(onboardingContext: context);
+
+      case "OnboardingAuthNotificationsPanel": return OnboardingAuthNotificationsPanel(onboardingContext: context);
+      case "OnboardingAuthLocationPanel": return OnboardingAuthLocationPanel(onboardingContext: context);
+      case "OnboardingAuthBluetoothPanel": return OnboardingAuthBluetoothPanel(onboardingContext: context);
+
+      case "OnboardingRolesPanel": return OnboardingRolesPanel(onboardingContext: context);
+
+      case "OnboardingLoginNetIdPanel": return OnboardingLoginNetIdPanel(onboardingContext: context);
+
+      case "OnboardingLoginPhonePanel": return OnboardingLoginPhonePanel(onboardingContext: context);
+      case "OnboardingLoginPhoneVerifyPanel": return OnboardingLoginPhoneVerifyPanel(onboardingContext: context);
+      case "OnboardingLoginPhoneConfirmPanel": return OnboardingLoginPhoneConfirmPanel(onboardingContext: context);
+
+      case "Covid19OnBoardingResidentInfoPanel": return Covid19OnBoardingResidentInfoPanel(onboardingContext: context);
+      case "Covid19OnBoardingReviewScanPanel": return Covid19OnBoardingReviewScanPanel(onboardingContext: context);
+
+      case "Covid19OnBoardingIntroPanel": return Covid19OnBoardingIntroPanel(onboardingContext: context);
+      case "Covid19OnBoardingHowItWorks": return Covid19OnBoardingHowItWorks(onboardingContext: context);
+      case "Covid19OnBoardingConsentPanel": return Covid19OnBoardingConsentPanel(onboardingContext: context);
+      case "Covid19OnBoardingQrCodePanel": return Covid19OnBoardingQrCodePanel(onboardingContext: context);
+      case "Covid19OnBoardingFinalPanel": return Covid19OnBoardingFinalPanel(onboardingContext: context);
     }
     return null;
   }
-
-  static String _getPanelCode({OnboardingPanel panel}) {
-    if (panel is OnboardingGetStartedPanel) {
-      return 'get_started';
-    }
-    else if (panel is OnboardingAuthNotificationsPanel) {
-      return 'notifications_auth';
-    }
-    else if (panel is OnboardingAuthLocationPanel) {
-      return 'location_auth';
-    }
-    else if (panel is OnboardingAuthBluetoothPanel) {
-      return 'bluetooth_auth';
-    }
-    else if (panel is OnboardingRolesPanel) {
-      return 'roles';
-    }
-    else if (panel is OnboardingLoginNetIdPanel) {
-      return 'login_netid';
-    }
-    else if (panel is OnboardingLoginPhonePanel) {
-      return 'login_phone';
-    }
-    else if (panel is OnboardingLoginPhoneVerifyPanel) {
-      return 'verify_phone';
-    }
-    else if (panel is OnboardingLoginPhoneConfirmPanel) {
-      return 'confirm_phone';
-    }
-    else if (panel is Covid19OnBoardingResidentInfoPanel) {
-      return 'resident_info';
-    }
-    else if (panel is Covid19OnBoardingReviewScanPanel) {
-      return 'review_scan';
-    }
-    else if (panel is Covid19OnBoardingIntroPanel) {
-      return 'covid19_intro';
-    }
-    else if (panel is Covid19OnBoardingHowItWorks) {
-      return 'covid19_how_works';
-    }
-    else if (panel is Covid19OnBoardingConsentPanel) {
-      return 'covid19_consent';
-    }
-    else if (panel is Covid19OnBoardingQrCodePanel) {
-      return 'covid19_qrcode';
-    }
-    else if (panel is Covid19OnBoardingFinalPanel) {
-      return 'covid19_final';
-    }
-    return null;
-  }
-
 }
 
 abstract class OnboardingPanel {
