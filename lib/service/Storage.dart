@@ -41,13 +41,12 @@ class Storage with Service {
 
   @override
   Future<void> initService() async {
-    Log.d("Init Storage");
     _sharedPreferences = await SharedPreferences.getInstance();
   }
 
   void deleteEverything(){
-    for(String key in _sharedPreferences.getKeys()){
-      if(key != _configEnvKey){  // skip selected environment
+    for (String key in _sharedPreferences.getKeys()) {
+      if (key != _configEnvKey){  // skip selected environment
         _sharedPreferences.remove(key);
       }
     }
