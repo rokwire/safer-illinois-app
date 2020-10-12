@@ -69,7 +69,6 @@ class Analytics with Service implements NotificationsListener {
   static const String   LogStdConnectionName               = "connection";
   static const String   LogStdLocationSvcName              = "location_services";
   static const String   LogStdNotifySvcName                = "notification_services";
-  static const String   LogStdLocationName                 = "location";
   static const String   LogStdSessionUuidName              = "session_uuid";
   static const String   LogStdUserUuidName                 = "user_uuid";
   static const String   LogStdUserRolesName                = "user_roles";
@@ -93,7 +92,6 @@ class Analytics with Service implements NotificationsListener {
     LogStdConnectionName,
     LogStdLocationSvcName,
     LogStdNotifySvcName,
-//  LogStdLocationName,
     LogStdSessionUuidName,
     LogStdUserUuidName,
     LogStdUserRolesName,
@@ -508,16 +506,6 @@ class Analytics with Service implements NotificationsListener {
     }
   }
 
-  Map<String, dynamic> get _location {
-    LocationData location = LocationServices().lastLocation;
-    return (location != null) ? {
-      'latitude': location.latitude,
-      'longitude': location.longitude,
-      'timestamp': (location.time * 1000).toInt(),
-    } : null;
-  }
-  
-
   // Notification Services
 
   void updateNotificationServices() {
@@ -667,9 +655,6 @@ class Analytics with Service implements NotificationsListener {
         }
         else if (attributeName == LogStdNotifySvcName) {
           analyticsEvent[LogStdNotifySvcName] = _notificationServices;
-        }
-        else if (attributeName == LogStdLocationName) {
-          analyticsEvent[LogStdLocationName] = _location;
         }
         else if (attributeName == LogStdSessionUuidName) {
           analyticsEvent[LogStdSessionUuidName] = _sessionUuid;
