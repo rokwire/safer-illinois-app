@@ -30,8 +30,6 @@ class FirebaseCrashlytics with Service {
 
   @override
   void createService() {
-    // Pass all uncaught errors to Firebase.Crashlytics.
-    FlutterError.onError = handleFlutterError;
   }
 
   @override
@@ -40,6 +38,9 @@ class FirebaseCrashlytics with Service {
 
     // Use Auto collection enabled
     GoogleFirebase.FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+
+    // Pass all uncaught errors to Firebase.Crashlytics.
+    FlutterError.onError = handleFlutterError;
   }
 
   void handleFlutterError(FlutterErrorDetails details) {
