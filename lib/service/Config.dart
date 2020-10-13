@@ -265,29 +265,6 @@ class Config with Service implements NotificationsListener {
     return false;
   }
 
-  Future<void> _init() async {
-    
-    _config = await _loadFromFile(_configFile);
-
-    if (_config == null) {
-      _configAsset = await _loadFromAssets();
-      String configString = await _loadAsStringFromNet();
-      _configAsset = null;
-
-      _config = (configString != null) ? _configFromJsonString(configString) : null;
-      if (_config != null) {
-        _configFile.writeAsStringSync(configString, flush: true);
-        NotificationService().notify(notifyConfigChanged, null);
-        
-        _checkUpgrade();
-      }
-    }
-    else {
-      _checkUpgrade();
-      _updateFromNet();
-    }
-  }
-
   void _updateFromNet() {
     _loadAsStringFromNet().then((String configString) {
       Map<String, dynamic> config = _configFromJsonString(configString);
@@ -394,14 +371,12 @@ class Config with Service implements NotificationsListener {
     return _configEnvironment;
   }
 
-  set configEnvironment(ConfigEnvironment configEnvironment) {
+  Future<void> setConfigEnvironment(ConfigEnvironment configEnvironment) async {
     if (_configEnvironment != configEnvironment) {
-      _configEnvironment = configEnvironment;
-      Storage().configEnvironment = configEnvToString(_configEnvironment);
-
-      _init().then((_){
-        NotificationService().notify(notifyEnvironmentChanged, null);
-      });
+      await Services().clear();
+      Storage().configEnvironment = configEnvToString(configEnvironment);
+      await Services().init();
+      NotificationService().notify(notifyEnvironmentChanged);
     }
   }
 

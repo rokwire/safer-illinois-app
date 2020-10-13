@@ -87,7 +87,7 @@ class AppExitListener implements NotificationsListener {
 }
 
 class _AppData {
-  _AppState _panelState;
+  _AppState _appState;
 }
 
 class App extends StatefulWidget {
@@ -103,12 +103,12 @@ class App extends StatefulWidget {
     return _instance;
   }
 
-  get panelState {
-    return _data._panelState;
+  get appState {
+    return _data._appState;
   }
 
   _AppState createState() {
-    return _data._panelState = _AppState();
+    return _data._appState = _AppState();
   }
 }
 
@@ -127,6 +127,7 @@ class _AppState extends State<App> implements NotificationsListener {
       Onboarding.notifyFinished,
       Config.notifyUpgradeAvailable,
       Config.notifyUpgradeRequired,
+      Config.notifyEnvironmentChanged,
       User.notifyUserDeleted,
     ]);
 
@@ -220,6 +221,9 @@ class _AppState extends State<App> implements NotificationsListener {
       setState(() {
         _upgradeAvailableVersion = param;
       });
+    }
+    else if (name == Config.notifyEnvironmentChanged) {
+      _resetUI();
     }
     else if (name == User.notifyUserDeleted) {
       _resetUI();
