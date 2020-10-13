@@ -180,8 +180,10 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
                 .getRegistry()
                 .registerViewFactory("mapview", new MapViewFactory(this, flutterEngine.getDartExecutor().getBinaryMessenger()));
 
-        flutterEngine.getPlugins().add(new ExposurePlugin(this, flutterEngine.getDartExecutor().getBinaryMessenger()));
-        flutterEngine.getPlugins().add(new GalleryPlugin(this, flutterEngine.getDartExecutor().getBinaryMessenger()));
+        exposurePlugin = new ExposurePlugin(this);
+        flutterEngine.getPlugins().add(exposurePlugin);
+        galleryPlugin = new GalleryPlugin(this);
+        flutterEngine.getPlugins().add(galleryPlugin);
     }
 
     private void initScreenOrientation() {

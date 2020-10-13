@@ -82,12 +82,8 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
 
     private static final String TAG = "ExposurePlugin";
 
-    private static ExposurePlugin instance;
-
     private MainActivity activityContext;
-    private BinaryMessenger messenger;
     private MethodChannel methodChannel;
-    private EventChannel eventChannel;
 
     private MethodChannel.Result startedResult;
     private Object settings;
@@ -142,7 +138,7 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
     private int exposurePingIntervalInMillis;
     private int exposureProcessIntervalInMillis;
     private int exposureMinDurationInMillis;
-    private int exposureMinRssi;
+    private int exposureMinRssi = Constants.EXPOSURE_MIN_RSSI_VALUE;
     private int exposureExpireDays;
 
     // Helper constants
@@ -152,9 +148,8 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
     private static final String I_MAP_KEY = "i";
     private static final String DATABASE_VERSION_KEY = "databaseversion";
 
-    public ExposurePlugin(MainActivity activity,  BinaryMessenger messenger) {
+    public ExposurePlugin(MainActivity activity) {
         this.activityContext = activity;
-        this.messenger = messenger;
 
         this.peripherals = new HashMap<>();
         this.peripheralsRPIs = new HashMap<>();
@@ -404,10 +399,6 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
 
     //region Single Instance
 
-    public static ExposurePlugin getInstance() {
-        return instance;
-    }
-
     int getExposureMinRssi() {
         return exposureMinRssi;
     }
@@ -425,7 +416,7 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
             androidExposures.put(rpi, record);
             updateExposuresTimer();
         } else {
-            record.updateTimeStamp(currentTimeStamp, rssi);
+            record.updateTimeStamp(currentTimeStamp, rssi, exposureMinRssi);
         }
         notifyExposureTick(rpi, rssi);
         notifyExposureRssiLog(rpi, currentTimeStamp, rssi, false, deviceAddress);
@@ -445,7 +436,7 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
             updateExposuresTimer();
         } else {
             // Update existing
-            record.updateTimeStamp(currentTimestamp, rssi);
+            record.updateTimeStamp(currentTimestamp, rssi, exposureMinRssi);
         }
         byte[] rpi = peripheralsRPIs.get(peripheralAddress);
         String encodedRpi = "";
@@ -1358,13 +1349,10 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
     private void setupChannels(BinaryMessenger messenger, Context context) {
         methodChannel = new MethodChannel(messenger, "edu.illinois.covid/exposure");
         methodChannel.setMethodCallHandler(this);
-        eventChannel = new EventChannel(messenger, "edu.illinois.covid/exposure_events");
     }
 
     private void disposeChannels() {
         methodChannel.setMethodCallHandler(null);
-        eventChannel.setStreamHandler(null);
         methodChannel = null;
-        eventChannel = null;
     }
 }

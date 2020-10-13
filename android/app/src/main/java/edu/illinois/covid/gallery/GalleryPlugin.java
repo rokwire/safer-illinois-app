@@ -45,20 +45,16 @@ public class GalleryPlugin implements MethodChannel.MethodCallHandler, FlutterPl
     private static final String TAG = "GalleryPlugin";
     public static int STORAGE_PERMISSION_REQUEST_CODE = 100;
 
-    private static GalleryPlugin instance;
     private final MainActivity activityContext;
-    private BinaryMessenger messenger;
     private MethodChannel methodChannel;
-    private EventChannel eventChannel;
 
     // Temp storage between permission request
     private byte[] bytes;
     private String name;
     private MethodChannel.Result channelResult;
 
-    public GalleryPlugin(MainActivity activity,  BinaryMessenger messenger) {
+    public GalleryPlugin(MainActivity activity) {
         this.activityContext = activity;
-        this.messenger = messenger;
     }
 
     private void handleStore() {
@@ -210,13 +206,10 @@ public class GalleryPlugin implements MethodChannel.MethodCallHandler, FlutterPl
     private void setupChannels(BinaryMessenger messenger, Context context) {
         methodChannel = new MethodChannel(messenger, "edu.illinois.covid/gallery");
         methodChannel.setMethodCallHandler(this);
-        eventChannel = new EventChannel(messenger, "edu.illinois.covid/gallery_events");
     }
 
     private void disposeChannels() {
         methodChannel.setMethodCallHandler(null);
-        eventChannel.setStreamHandler(null);
         methodChannel = null;
-        eventChannel = null;
     }
 }
