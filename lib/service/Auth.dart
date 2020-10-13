@@ -122,6 +122,19 @@ class Auth with Service implements NotificationsListener {
   }
 
   @override
+  Future<void> clearService() async {
+    _authToken = null;
+    _authInfo = null;
+
+    AppFile.delete(_authCardCacheFile);
+    _authCard = null;
+
+    AppFile.delete(_userPiiCacheFile);
+    _userPiiData = null;
+  }
+
+
+  @override
   void destroyService() {
     NotificationService().unsubscribe(this);
   }

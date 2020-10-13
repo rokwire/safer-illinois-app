@@ -17,7 +17,6 @@
 import 'dart:convert';
 import 'package:illinois/model/Auth.dart';
 import 'package:illinois/model/Health.dart';
-import 'package:illinois/service/Log.dart';
 import 'package:illinois/model/UserData.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
@@ -41,15 +40,15 @@ class Storage with Service {
 
   @override
   Future<void> initService() async {
-    Log.d("Init Storage");
-    _sharedPreferences = await SharedPreferences.getInstance();
+    if (_sharedPreferences == null) {
+      _sharedPreferences = await SharedPreferences.getInstance();
+    }
   }
 
-  void deleteEverything(){
-    for(String key in _sharedPreferences.getKeys()){
-      if(key != _configEnvKey){  // skip selected environment
-        _sharedPreferences.remove(key);
-      }
+  @override
+  Future<void> clearService() async {
+    if (_sharedPreferences != null) {
+      await _sharedPreferences.clear();
     }
   }
 

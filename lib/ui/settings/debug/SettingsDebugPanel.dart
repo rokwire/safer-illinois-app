@@ -48,7 +48,10 @@ class SettingsDebugPanel extends StatefulWidget {
   _SettingsDebugPanelState createState() => _SettingsDebugPanelState();
 }
 
-class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements NotificationsListener{
+class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements NotificationsListener {
+
+  bool _switchingEnvironment;
+  ConfigEnvironment _configEnvironment;
 
   @override
   void initState() {
@@ -56,6 +59,8 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
     NotificationService().subscribe(this, [
       Config.notifyEnvironmentChanged,
     ]);
+
+    _configEnvironment = Config().configEnvironment;
     
     super.initState();
   }
@@ -116,20 +121,31 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
                       Padding(padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16), child:
                         Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
                             Padding(padding: EdgeInsets.only(bottom: 5), child:Text('Config Environment: ')),
-                            Container(decoration: BoxDecoration(color: Styles().colors.white, border: Border.all(color: Colors.black, width: 1), borderRadius: BorderRadius.all(Radius.circular(4))), child: 
-                              Padding(padding: EdgeInsets.only(left: 12, right: 16), child: 
-                                DropdownButtonHideUnderline(child: 
-                                  DropdownButton(
-                                      icon: Image.asset('images/icon-down-orange.png', excludeFromSemantics: true,),
-                                      isExpanded: true,
-                                      style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.textBackground,),
-                                      hint: Text(configEnvToString(Config().configEnvironment) ?? "Select environment...", style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground,),),
-                                      items: _dropdownEnvironments,
-                                      onChanged: _onEnvironmentSelected
+                            Stack(children: [
+                              Container(decoration: BoxDecoration(color: Styles().colors.white, border: Border.all(color: Colors.black, width: 1), borderRadius: BorderRadius.all(Radius.circular(4))), child: 
+                                Padding(padding: EdgeInsets.only(left: 12, right: 16), child: 
+                                  DropdownButtonHideUnderline(child: 
+                                    DropdownButton(
+                                        icon: Image.asset('images/icon-down-orange.png', excludeFromSemantics: true,),
+                                        isExpanded: true,
+                                        style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.textBackground,),
+                                        hint: Text(configEnvToString(_configEnvironment) ?? "Select environment...", style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground,),),
+                                        items: _dropdownEnvironments,
+                                        onChanged: _onEnvironmentSelected
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
+                              Visibility(visible: (_switchingEnvironment == true), child: 
+                                Container(height: 48, child:
+                                  Align(alignment: Alignment.center, child:
+                                    SizedBox(height: 24, width: 24, child: 
+                                      CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary), )
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],),
                         ],),
                       ),
                       Padding(padding: EdgeInsets.only(bottom: 10), child: Container(height: 1, color: Styles().colors.surfaceAccent)),
@@ -266,7 +282,9 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
   @override
   void onNotification(String name, dynamic param) {
     if (name == Config.notifyEnvironmentChanged){
-      setState(() { });
+      setState(() {
+        _configEnvironment = Config().configEnvironment;
+      });
     }
   }
 
@@ -402,10 +420,10 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
     return environments;
   }
 
-  void _onEnvironmentSelected(ConfigEnvironment env) {
-    if ((env is ConfigEnvironment) && (env != Config().configEnvironment)) {
-      String currentEnv = configEnvToString(Config().configEnvironment).toUpperCase();
-      String newEnv = configEnvToString(env).toUpperCase();
+  void _onEnvironmentSelected(ConfigEnvironment configEnvironment) {
+    if ((configEnvironment is ConfigEnvironment) && (configEnvironment != _configEnvironment) && (_switchingEnvironment != true)) {
+      String currentEnv = configEnvToString(_configEnvironment).toUpperCase();
+      String newEnv = configEnvToString(configEnvironment).toUpperCase();
       String message = "Are you sure you want to switch the application environment from $currentEnv to $newEnv?";
       showDialog(context: context, builder: (context) {
         return AlertDialog(
@@ -416,12 +434,22 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
             ]);
       }).then((result) {
         if (result == true) {
-          setState(() {
-            Config().configEnvironment = env;
-          });
+          _switchEnvirnment(configEnvironment);
         }
       });
     }
+  }
+
+  void _switchEnvirnment(ConfigEnvironment configEnvironment) {
+    setState(() {
+      _switchingEnvironment = true;
+    });
+
+    Config().setConfigEnvironment(configEnvironment).then((_) {
+      setState(() {
+        _switchingEnvironment = false;
+      });
+    });
   }
 
   void _onTapHttpProxy() {

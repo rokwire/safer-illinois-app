@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:illinois/service/Analytics.dart';
@@ -28,10 +30,17 @@ import 'package:illinois/ui/widgets/SwipeDetector.dart';
 import 'package:illinois/ui/widgets/TrianglePainter.dart';
 
 class OnboardingAuthBluetoothPanel extends StatefulWidget with OnboardingPanel {
+
   final Map<String, dynamic> onboardingContext;
+
   OnboardingAuthBluetoothPanel({this.onboardingContext});
 
   _OnboardingAuthBluetoothPanelState createState() => _OnboardingAuthBluetoothPanelState();
+
+  @override
+  bool get onboardingCanDisplay {
+    return Platform.operatingSystem == 'ios' ;
+  }
 }
 
 class _OnboardingAuthBluetoothPanelState extends State<OnboardingAuthBluetoothPanel> {

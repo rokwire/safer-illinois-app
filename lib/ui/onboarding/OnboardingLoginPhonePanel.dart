@@ -16,9 +16,11 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:illinois/model/UserData.dart';
 import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Analytics.dart';
+import 'package:illinois/service/User.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginPhoneVerifyPanel.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/ui/onboarding/OnboardingBackButton.dart';
@@ -33,6 +35,11 @@ class OnboardingLoginPhonePanel extends StatefulWidget with OnboardingPanel {
   OnboardingLoginPhonePanel({this.onboardingContext, this.onFinish});
 
   _OnboardingLoginPhonePanelState createState() => _OnboardingLoginPhonePanelState();
+
+  @override
+  bool get onboardingCanDisplay {
+    return !User().roles.contains(UserRole.student) && !User().roles.contains(UserRole.employee);
+  }
 }
 
 class _OnboardingLoginPhonePanelState extends State<OnboardingLoginPhonePanel> {
