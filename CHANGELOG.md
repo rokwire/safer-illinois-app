@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Changed
 - Upgrade Flutter to v1.22.1 [#283](https://github.com/rokwire/safer-illinois-app/issues/283).
+- Fixed environmnets switching from Debug panel.
+- Internal cleanup.
 - Updated rules [#281](https://github.com/rokwire/safer-illinois-app/issues/281).
 
 ## [2.7.5] - 2020-10-09
