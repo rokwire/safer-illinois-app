@@ -127,8 +127,8 @@ class Health with Service implements NotificationsListener {
     _historyCacheFile = null;
     _historyCache = null;
 
-    _rulesCache = null;
-    _accessRulesCache = null;
+    _rulesCache.clear();
+    _accessRulesCache.clear();
 
     _processing = null;    
   }
