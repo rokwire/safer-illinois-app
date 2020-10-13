@@ -16,21 +16,30 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:illinois/model/UserData.dart';
 import 'package:illinois/service/Auth.dart';
-import 'package:illinois/service/FlexUI.dart';
 import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/NotificationService.dart';
+import 'package:illinois/service/User.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/ui/onboarding/OnboardingBackButton.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/widgets/ScalableScrollView.dart';
 
 class OnboardingLoginNetIdPanel extends StatefulWidget with OnboardingPanel {
+  
   final Map<String, dynamic> onboardingContext;
+  
   OnboardingLoginNetIdPanel({this.onboardingContext});
+  
   _OnboardingLoginNetIdPanelState createState() => _OnboardingLoginNetIdPanelState();
+
+  @override
+  bool get onboardingCanDisplay {
+    return User().roles.contains(UserRole.student) || User().roles.contains(UserRole.employee);
+  }
 }
 
 class _OnboardingLoginNetIdPanelState extends State<OnboardingLoginNetIdPanel> implements NotificationsListener {
@@ -228,13 +237,10 @@ class _OnboardingLoginNetIdPanelState extends State<OnboardingLoginNetIdPanel> i
   }
   void onLoginResult(bool success) {
     if (mounted) {
+      setState(() { _progress = false; });
       if (success) {
-        FlexUI().update().then((_){
-          setState(() { _progress = false; });
-          Onboarding().next(context, widget);
-        });
+        Onboarding().next(context, widget);
       } else {
-        setState(() { _progress = false; });
         showDialog(context: context, builder: (context) => _buildDialogWidget(context));
       }
     }

@@ -16,7 +16,6 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:illinois/service/FlexUI.dart';
 import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/User.dart';
 import 'package:illinois/service/Localization.dart';
@@ -177,13 +176,7 @@ class _OnboardingRoleSelectionPanelState extends State<OnboardingRolesPanel> {
     Analytics.instance.logSelect(target:"Confirm");
     if (_selectedRoles != null && _selectedRoles.isNotEmpty && !_updating) {
       User().roles = _selectedRoles;
-      setState(() { _updating = true; });
-      FlexUI().update().then((_){
-        if (mounted) {
-          setState(() { _updating = false; });
-          Onboarding().next(context, widget);
-        }
-      });
+      Onboarding().next(context, widget);
     }
   }
 }

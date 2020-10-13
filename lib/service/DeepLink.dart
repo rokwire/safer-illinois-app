@@ -53,7 +53,6 @@ class DeepLink with Service {
 
   @override
   void initServiceUI() {
-    super.initServiceUI();
     // Make delay as the root panel is not build yet
     Timer(Duration(seconds: 2), _notifyCachedUris);
   }

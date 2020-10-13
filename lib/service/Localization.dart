@@ -91,6 +91,12 @@ class Localization with Service implements NotificationsListener {
   }
 
   @override
+  Future<void> clearService() async {
+    await _clearDefaultStirngs(_defaultLocale?.languageCode);
+    await _clearLocaleStirngs(_currentLocale?.languageCode);
+  }
+
+  @override
   Set<Service> get serviceDependsOn {
     return Set.from([Storage(), Config() ]);
   }
@@ -146,7 +152,7 @@ class Localization with Service implements NotificationsListener {
   Future<Map<String,dynamic>> _loadAssetsStrings(String language) async {
     dynamic jsonData;
     try {
-      String jsonString = await rootBundle.loadString('assets/strings.$language.json');
+      String jsonString = (language != null) ? await rootBundle.loadString('assets/strings.$language.json') : null;
       jsonData = AppJson.decode(jsonString);
     }
     catch (e) { print(e?.toString()); }
@@ -156,13 +162,30 @@ class Localization with Service implements NotificationsListener {
   Future<Map<String,dynamic>> _loadCachedStrings(String language) async {
     dynamic jsonData;
     try { 
-      String cacheFilePath = (_assetsDir != null) ? join(_assetsDir.path, 'strings.$language.json') : null;
-      File cacheFile = (cacheFilePath != null) ? File(cacheFilePath) : null;
-      
+      File cacheFile = _cachedFile(language);
       String jsonString = ((cacheFile != null) && await cacheFile.exists()) ? await cacheFile.readAsString() : null;
       jsonData = AppJson.decode(jsonString);
     } catch (e) { print(e?.toString()); }
     return ((jsonData != null) && (jsonData is Map<String,dynamic>)) ? jsonData : null;
+  }
+
+  File _cachedFile(String language) {
+      String cacheFilePath = ((_assetsDir != null) && (language != null)) ? join(_assetsDir.path, 'strings.$language.json') : null;
+      return (cacheFilePath != null) ? File(cacheFilePath) : null;
+  }
+
+  Future<void> _clearDefaultStirngs(String language) async {
+    await AppFile.delete(_cachedFile(language));
+    _defaultStrings = _buildStrings(
+      asset: _defaultAssetsStrings,
+      cache: _defaultCachedStrings = null);
+  }
+
+  Future<void> _clearLocaleStirngs(String language) async {
+    await AppFile.delete(_cachedFile(language));
+    _localeStrings = _buildStrings(
+      asset: _localeAssetsStrings,
+      cache: _localeCachedStrings = null);
   }
 
   void _updateDefaultStrings() {
@@ -186,6 +209,7 @@ class Localization with Service implements NotificationsListener {
       });
     }
   }
+
   Future<Map<String,dynamic>> _updateStringsFromNet(String language, { Map<String, dynamic> cache }) async {
     Map<String, dynamic> jsonData;
     try {

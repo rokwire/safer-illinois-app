@@ -75,6 +75,11 @@ class User with Service implements NotificationsListener {
     }
   }
 
+  @override
+  Future<void> clearService() async {
+    _userData = null;
+  }
+
   Set<Service> get serviceDependsOn {
     return Set.from([Storage(), Config()]);
   }
@@ -112,7 +117,7 @@ class User with Service implements NotificationsListener {
 
   Future<void> _loadUser() async {
     // silently refresh user profile
-    requestUser(_userData.uuid).then((UserData userData) {
+    requestUser(_userData?.uuid).then((UserData userData) {
       if (userData != null) {
         applyUserData(userData);
       }

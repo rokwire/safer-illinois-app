@@ -117,6 +117,23 @@ class Health with Service implements NotificationsListener {
   }
 
   @override
+  Future<void> clearService() async {
+    _user = null;
+    _userPrivateKey = null;
+    _servicePublicKey = null;
+    _currentCountyId = null;
+
+    AppFile.delete(_historyCacheFile);
+    _historyCacheFile = null;
+    _historyCache = null;
+
+    _rulesCache.clear();
+    _accessRulesCache.clear();
+
+    _processing = null;    
+  }
+
+  @override
   Set<Service> get serviceDependsOn {
     return Set.from([Storage(), Config(), User(), Auth(), NativeCommunicator()]);
   }
