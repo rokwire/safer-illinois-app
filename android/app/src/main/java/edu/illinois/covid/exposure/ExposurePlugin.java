@@ -71,18 +71,23 @@ import edu.illinois.covid.exposure.ble.ExposureClient;
 import edu.illinois.covid.exposure.ble.ExposureServer;
 import edu.illinois.covid.exposure.crypto.AES;
 import edu.illinois.covid.exposure.crypto.AES_CTR;
+import io.flutter.embedding.engine.plugins.FlutterPlugin;
+import io.flutter.plugin.common.BinaryMessenger;
+import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;
 
-public class ExposurePlugin implements MethodChannel.MethodCallHandler {
+public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterPlugin {
 
     private static final String TAG = "ExposurePlugin";
 
     private static ExposurePlugin instance;
 
     private MainActivity activityContext;
+    private BinaryMessenger messenger;
     private MethodChannel methodChannel;
+    private EventChannel eventChannel;
 
     private MethodChannel.Result startedResult;
     private Object settings;
@@ -147,20 +152,9 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler {
     private static final String I_MAP_KEY = "i";
     private static final String DATABASE_VERSION_KEY = "databaseversion";
 
-    public static ExposurePlugin registerWith(PluginRegistry.Registrar registrar) {
-        final MethodChannel channel = new MethodChannel(registrar.messenger(), "edu.illinois.covid/exposure");
-        ExposurePlugin exposurePlugin = new ExposurePlugin((MainActivity) registrar.activity(), channel);
-        channel.setMethodCallHandler(exposurePlugin);
-        if (instance == null) {
-            instance = exposurePlugin;
-        }
-        return exposurePlugin;
-    }
-
-    private ExposurePlugin(MainActivity activity, MethodChannel methodChannel) {
+    public ExposurePlugin(MainActivity activity,  BinaryMessenger messenger) {
         this.activityContext = activity;
-        this.methodChannel = methodChannel;
-        this.methodChannel.setMethodCallHandler(this);
+        this.messenger = messenger;
 
         this.peripherals = new HashMap<>();
         this.peripheralsRPIs = new HashMap<>();
@@ -1348,4 +1342,29 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler {
     }
 
     //endregion
+
+    // Flutter Plugin
+
+    @Override
+    public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {
+        setupChannels(binding.getBinaryMessenger(), binding.getApplicationContext());
+    }
+
+    @Override
+    public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
+        disposeChannels();
+    }
+
+    private void setupChannels(BinaryMessenger messenger, Context context) {
+        methodChannel = new MethodChannel(messenger, "edu.illinois.covid/exposure");
+        methodChannel.setMethodCallHandler(this);
+        eventChannel = new EventChannel(messenger, "edu.illinois.covid/exposure_events");
+    }
+
+    private void disposeChannels() {
+        methodChannel.setMethodCallHandler(null);
+        eventChannel.setStreamHandler(null);
+        methodChannel = null;
+        eventChannel = null;
+    }
 }
