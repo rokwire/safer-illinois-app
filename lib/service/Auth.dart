@@ -127,11 +127,9 @@ class Auth with Service implements NotificationsListener {
     _authInfo = null;
 
     AppFile.delete(_authCardCacheFile);
-    _authCardCacheFile = null;
     _authCard = null;
 
     AppFile.delete(_userPiiCacheFile);
-    _userPiiCacheFile = null;
     _userPiiData = null;
   }
 
