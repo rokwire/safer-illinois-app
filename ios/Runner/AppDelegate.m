@@ -33,6 +33,7 @@
 #import "CGGeometry+InaUtils.h"
 #import "UIColor+InaParse.h"
 #import "Bluetooth+InaUtils.h"
+#import "Security+UIUCUtils.h"
 
 #import <GoogleMaps/GoogleMaps.h>
 #import <Firebase/Firebase.h>
@@ -44,7 +45,7 @@
 #import <PassKit/PassKit.h>
 #import <CoreBluetooth/CoreBluetooth.h>
 
-static NSString *const kFIRMessagingFCMTokenNotification = @"com.firebase.iid.notif.fcm-token";
+static NSString* const kFIRMessagingFCMTokenNotification = @"com.firebase.iid.notif.fcm-token";
 
 @interface RootNavigationController : UINavigationController
 @end
@@ -1006,168 +1007,55 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 #pragma mark Device UUID
 
 - (NSUUID*)deviceUUID {
-	static const NSString *deviceUUID = @"deviceUUID";
-
-	NSDictionary *spec = @{
-		(id)kSecClass:       (id)kSecClassGenericPassword,
-		(id)kSecAttrAccount: deviceUUID,
-		(id)kSecAttrGeneric: deviceUUID,
-		(id)kSecAttrService: NSBundle.mainBundle.bundleIdentifier,
-	};
-	
-	NSMutableDictionary *searchRequest = [NSMutableDictionary dictionaryWithDictionary:spec];
-	[searchRequest setObject:(id)kSecMatchLimitOne forKey:(id)kSecMatchLimit];
-	[searchRequest setObject:(id)kCFBooleanTrue forKey:(id)kSecReturnData];
-  [searchRequest setObject:(id)kCFBooleanTrue forKey:(id)kSecReturnAttributes];
-
-	CFDictionaryRef response = NULL;
-	OSStatus status = SecItemCopyMatching((CFDictionaryRef)searchRequest, (CFTypeRef*)&response);
-	if (status == errSecInteractionNotAllowed) {
-		// Could not access data. Error: errSecInteractionNotAllowed
-		return nil;
-	}
-	else if (status == 0) {
-		NSDictionary *attribs = CFBridgingRelease(response);
-		NSData *data = [attribs objectForKey:(id)kSecValueData];
-		NSString *security = [attribs objectForKey:(id)kSecAttrAccessible];
-
-		// If not always accessible then update it to be so
-		if (![security isEqualToString:(id)kSecAttrAccessibleAlways]) {
-			NSDictionary *update = @{
-				(id)kSecAttrAccessible:(id)kSecAttrAccessibleAlways,
-				(id)kSecValueData:data ?: [[NSData alloc] init],
-			};
-
-			SecItemUpdate((CFDictionaryRef)spec, (CFDictionaryRef)update);
-		}
-
-		if (data.length == sizeof(uuid_t)) {
-			return [[NSUUID alloc] initWithUUIDBytes:data.bytes];
-		}
-		else {
-			// update entry bellow
-		}
-	}
-
-	uuid_t uuidData;
-	int rndStatus = SecRandomCopyBytes(kSecRandomDefault, sizeof(uuidData), uuidData);
-	if (rndStatus == errSecSuccess) {
-		if (status == 0) {
-			// update existing entry
-			NSDictionary *update = @{
-				(id)kSecAttrAccessible:(id)kSecAttrAccessibleAlways,
-				(id)kSecValueData:[NSData dataWithBytes:uuidData length:sizeof(uuidData)]
-			};
-			status = SecItemUpdate((CFDictionaryRef)spec, (CFDictionaryRef)update);
-		}
-		else {
-			// create new entry
-			NSMutableDictionary *createRequest = [NSMutableDictionary dictionaryWithDictionary:spec];
-			[createRequest setObject:[NSData dataWithBytes:uuidData length:sizeof(uuidData)] forKey:(id)kSecValueData];
-			[createRequest setObject:(id)kSecAttrAccessibleAlways forKey:(id)kSecAttrAccessible];
-			status = SecItemAdd((CFDictionaryRef)createRequest, NULL);
-		}
-		return (status == 0) ? [[NSUUID alloc] initWithUUIDBytes:uuidData] : nil;
+	static NSString* const deviceUUID = @"deviceUUID";
+	NSData *data = uiucSecStorageData(deviceUUID, deviceUUID, nil);
+	if (data.length == sizeof(uuid_t)) {
+		return [[NSUUID alloc] initWithUUIDBytes:data.bytes];
 	}
 	else {
-		return nil;
+		uuid_t uuidData;
+		int rndStatus = SecRandomCopyBytes(kSecRandomDefault, sizeof(uuidData), uuidData);
+		if (rndStatus == errSecSuccess) {
+			data = uiucSecStorageData(deviceUUID, deviceUUID, [NSData dataWithBytes:uuidData length:sizeof(uuidData)]);
+			if (data.length == sizeof(uuid_t)) {
+				return [[NSUUID alloc] initWithUUIDBytes:data.bytes];
+			}
+		}
 	}
+	return nil;
 }
 
 #pragma mark Permanent Value
 
 - (id)healthRSAPrivateKeyWithParameters:(NSDictionary*)parameters {
-	static const NSString *healthRSAPrivateKey = @"healthRSAPrivateKey";
+	static NSString* const healthRSAPrivateKey = @"healthRSAPrivateKey";
 
 	NSString *userId = [parameters inaStringForKey:@"userId"];
 	if (userId == nil) {
 		return nil;
 	}
-
-	NSDictionary *spec = @{
-		(id)kSecClass:       (id)kSecClassGenericPassword,
-		(id)kSecAttrAccount: userId,
-		(id)kSecAttrGeneric: healthRSAPrivateKey,
-		(id)kSecAttrService: NSBundle.mainBundle.bundleIdentifier,
-	};
 	
-	NSMutableDictionary *searchRequest = [NSMutableDictionary dictionaryWithDictionary:spec];
-	[searchRequest setObject:(id)kSecMatchLimitOne forKey:(id)kSecMatchLimit];
-	[searchRequest setObject:(id)kCFBooleanTrue forKey:(id)kSecReturnData];
-	[searchRequest setObject:(id)kCFBooleanTrue forKey:(id)kSecReturnAttributes];
-
-	CFDictionaryRef response = NULL;
-	OSStatus status = SecItemCopyMatching((CFDictionaryRef)searchRequest, (CFTypeRef*)&response);
-	NSString *existingValue = nil;
-
-	if (status == errSecInteractionNotAllowed) {
-		// Could not access data. Error: errSecInteractionNotAllowed
-		return nil;
+	if ([parameters inaBoolForKey:@"remove"]) {  // remove
+		id result = uiucSecStorageData(userId, healthRSAPrivateKey, [NSNull null]);
+		return [NSNumber numberWithBool:(result == [NSNull null])];
 	}
-	else if (status == 0) {
-		NSDictionary *attribs = CFBridgingRelease(response);
-		NSData *data = [attribs objectForKey:(id)kSecValueData];
-		NSString *security = [attribs objectForKey:(id)kSecAttrAccessible];
-
-		// If not always accessible then update it to be so
-		if (![security isEqualToString:(id)kSecAttrAccessibleAlways]) {
-			NSDictionary *update = @{
-				(id)kSecAttrAccessible:(id)kSecAttrAccessibleAlways,
-				(id)kSecValueData:data ?: [[NSData alloc] init],
-			};
-
-			SecItemUpdate((CFDictionaryRef)spec, (CFDictionaryRef)update);
-		}
-
-		existingValue = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-	}
-
-    if([parameters inaBoolForKey:@"remove"]){  // remove
-        status = SecItemDelete((CFDictionaryRef)spec);
-        return [NSNumber numberWithBool:(status == 0)];
-    }
 	else if ([parameters objectForKey:@"value"] == nil) { // getter
-		return existingValue;
+		NSData *data = uiucSecStorageData(userId, healthRSAPrivateKey, nil);
+		return (data != nil) ? [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] : nil;
 	}
-	else { // setter
-
-		NSString *value = [parameters inaStringForKey:@"value"];
-		if (value != nil) {
-			NSData *valueData = [value dataUsingEncoding:NSUTF8StringEncoding];
-			
-			if (status == 0) {
-				// update existing entry
-				NSDictionary *update = @{
-					(id)kSecAttrAccessible:(id)kSecAttrAccessibleAlways,
-					(id)kSecValueData:valueData
-				};
-				status = SecItemUpdate((CFDictionaryRef)spec, (CFDictionaryRef)update);
-			}
-			else {
-				// create new entry
-				NSMutableDictionary *createRequest = [NSMutableDictionary dictionaryWithDictionary:spec];
-				[createRequest setObject:valueData forKey:(id)kSecValueData];
-				[createRequest setObject:(id)kSecAttrAccessibleAlways forKey:(id)kSecAttrAccessible];
-				status = SecItemAdd((CFDictionaryRef)createRequest, NULL);
-			}
-			
-			return [NSNumber numberWithBool:(status == 0)];
+	else { // setter or remove
+		NSString *stringValue = [parameters inaStringForKey:@"value"];
+		if (stringValue != nil) { // setter
+			NSData *data = [stringValue dataUsingEncoding:NSUTF8StringEncoding];
+			NSData *resultData = uiucSecStorageData(userId, healthRSAPrivateKey, data);
+			return [NSNumber numberWithBool:(resultData == data)];
 		}
-		else {
-			if (status == 0) {
-				// delete existing entry
-				status = SecItemDelete((CFDictionaryRef)spec);
-				return [NSNumber numberWithBool:(status == 0)];
-			}
-			else {
-				// nothing to do
-				return [NSNumber numberWithBool:YES];
-			}
+		else { // remove
+			id result = uiucSecStorageData(userId, healthRSAPrivateKey, [NSNull null]);
+			return [NSNumber numberWithBool:(result == [NSNull null])];
 		}
 	}
 }
-
-
 
 #pragma mark PKAddPassesViewControllerDelegate
 
