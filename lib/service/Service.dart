@@ -22,7 +22,7 @@ import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/BluetoothServices.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Connectivity.dart';
-import 'package:illinois/service/Firebase.dart';
+import 'package:illinois/service/FirebaseService.dart';
 import 'package:illinois/service/FirebaseCrashlytics.dart';
 import 'package:illinois/service/DeepLink.dart';
 import 'package:illinois/service/Exposure.dart';
@@ -75,7 +75,7 @@ class Services {
 
   List<Service> _services = [
     // Add highest priority services at top
-    Firebase(),
+    FirebaseService(),
     FirebaseCrashlytics(),
     Storage(),
     HttpProxy(),
