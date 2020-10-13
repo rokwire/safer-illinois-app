@@ -23,6 +23,7 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;
@@ -31,16 +32,16 @@ import io.flutter.plugin.platform.PlatformView;
 public class MapViewController implements PlatformView, MethodChannel.MethodCallHandler {
 
     private Context context;
-    private PluginRegistry.Registrar registrar;
     private MapView mapView;
     private MethodChannel channel;
+    private BinaryMessenger messenger;
 
-    MapViewController(Context activityContext, PluginRegistry.Registrar registrar, int id, Object args) {
+    MapViewController(Context activityContext, BinaryMessenger messenger, int id, Object args) {
         this.context = activityContext;
-        this.registrar = registrar;
-        mapView = new MapView(context, id, args);
-        channel = new MethodChannel(registrar.messenger(), "edu.illinois.covid/mapview_" + id);
+        this.messenger = messenger;
 
+        mapView = new MapView(context, id, args);
+        channel = new MethodChannel(messenger, "edu.illinois.covid/mapview_" + id);
         channel.setMethodCallHandler(this);
     }
 

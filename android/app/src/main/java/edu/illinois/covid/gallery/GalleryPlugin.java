@@ -18,6 +18,7 @@ package edu.illinois.covid.gallery;
 
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Environment;
@@ -32,39 +33,28 @@ import java.io.OutputStream;
 
 import edu.illinois.covid.Constants;
 import edu.illinois.covid.MainActivity;
+import io.flutter.embedding.engine.plugins.FlutterPlugin;
+import io.flutter.plugin.common.BinaryMessenger;
+import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;
 
-public class GalleryPlugin implements MethodChannel.MethodCallHandler {
+public class GalleryPlugin implements MethodChannel.MethodCallHandler, FlutterPlugin {
 
     private static final String TAG = "GalleryPlugin";
     public static int STORAGE_PERMISSION_REQUEST_CODE = 100;
 
-    private static GalleryPlugin instance;
     private final MainActivity activityContext;
-    private final MethodChannel methodChannel;
+    private MethodChannel methodChannel;
 
     // Temp storage between permission request
     private byte[] bytes;
     private String name;
     private MethodChannel.Result channelResult;
 
-    public static GalleryPlugin registerWith(PluginRegistry.Registrar registrar) {
-        final MethodChannel channel = new MethodChannel(registrar.messenger(), "edu.illinois.covid/gallery");
-        GalleryPlugin galleryPlugin = new GalleryPlugin((MainActivity) registrar.activity(), channel);
-        channel.setMethodCallHandler(galleryPlugin);
-        if (instance == null) {
-            instance = galleryPlugin;
-        }
-        return galleryPlugin;
-    }
-
-    private GalleryPlugin(MainActivity activity, MethodChannel methodChannel) {
+    public GalleryPlugin(MainActivity activity) {
         this.activityContext = activity;
-        this.methodChannel = methodChannel;
-        this.methodChannel.setMethodCallHandler(this);
-
     }
 
     private void handleStore() {
@@ -199,5 +189,27 @@ public class GalleryPlugin implements MethodChannel.MethodCallHandler {
         } catch (Exception e){
             Log.e(TAG, "Error on reading command", e);
         }
+    }
+
+    // Flutter Plugin
+
+    @Override
+    public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {
+        setupChannels(binding.getBinaryMessenger(), binding.getApplicationContext());
+    }
+
+    @Override
+    public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
+        disposeChannels();
+    }
+
+    private void setupChannels(BinaryMessenger messenger, Context context) {
+        methodChannel = new MethodChannel(messenger, "edu.illinois.covid/gallery");
+        methodChannel.setMethodCallHandler(this);
+    }
+
+    private void disposeChannels() {
+        methodChannel.setMethodCallHandler(null);
+        methodChannel = null;
     }
 }

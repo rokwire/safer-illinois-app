@@ -31,12 +31,8 @@ class ExposureRecord {
         this.durationInterval = 0;
     }
 
-    void updateTimeStamp(long timestamp, int rssi) {
-        int rssiMinValue = Constants.EXPOSURE_MIN_RSSI_VALUE;
-        if (ExposurePlugin.getInstance() != null) {
-            rssiMinValue = ExposurePlugin.getInstance().getExposureMinRssi();
-        }
-        if ((rssiMinValue <= lastRssi) && (lastRssi != Constants.EXPOSURE_NO_RSSI_VALUE)) {
+    void updateTimeStamp(long timestamp, int rssi, int minRssi) {
+        if ((minRssi <= lastRssi) && (lastRssi != Constants.EXPOSURE_NO_RSSI_VALUE)) {
             durationInterval += (timestamp - timestampUpdated);
         }
         lastRssi = rssi;

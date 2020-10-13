@@ -29,7 +29,7 @@ import 'package:illinois/ui/onboarding/OnboardingUpgradePanel.dart';
 
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/Analytics.dart';
-import 'package:illinois/service/Crashlytics.dart';
+import 'package:illinois/service/FirebaseCrashlytics.dart';
 import 'package:illinois/service/Storage.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/Onboarding.dart';
@@ -56,7 +56,7 @@ void main() async {
 
   runZonedGuarded(() async {
     runApp(App());
-  }, Crashlytics().handleZoneError);
+  }, FirebaseCrashlytics().handleZoneError);
 }
 
 Future<void> _init() async {

@@ -16,6 +16,7 @@
 
 package edu.illinois.covid;
 
+import android.app.Application;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -23,29 +24,19 @@ import android.content.Intent;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
-import io.flutter.app.FlutterApplication;
+
 import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugins.GeneratedPluginRegistrant;
-import io.flutter.plugins.firebasemessaging.FlutterFirebaseMessagingService;
 
-public class App extends FlutterApplication implements PluginRegistry.PluginRegistrantCallback {
+public class App extends Application {
 
     private static final String NOTIFICATIONS_CHANNEL_ID = "Notifications_Channel_ID";
 
     @Override
     public void onCreate() {
         super.onCreate();
-        init();
     }
 
-    private void init() {
-        FlutterFirebaseMessagingService.setPluginRegistrant(this);
-    }
-
-    @Override
-    public void registerWith(PluginRegistry pluginRegistry) {
-        GeneratedPluginRegistrant.registerWith(pluginRegistry);
-    }
 
     public void showNotification(String title, String contentText) {
         Intent intent = new Intent(this, MainActivity.class);

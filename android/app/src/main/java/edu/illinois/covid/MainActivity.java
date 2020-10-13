@@ -67,15 +67,19 @@ import java.util.UUID;
 
 import edu.illinois.covid.exposure.ExposurePlugin;
 import edu.illinois.covid.gallery.GalleryPlugin;
+
 import edu.illinois.covid.maps.MapActivity;
 import edu.illinois.covid.maps.MapDirectionsActivity;
 import edu.illinois.covid.maps.MapViewFactory;
-import io.flutter.app.FlutterActivity;
+import io.flutter.embedding.android.FlutterActivity;
+import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
+import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugins.GeneratedPluginRegistrant;
+import io.flutter.view.FlutterMain;
 
-public class MainActivity extends FlutterActivity implements MethodChannel.MethodCallHandler {
+public class MainActivity extends FlutterActivity implements MethodChannel.MethodCallHandler, PluginRegistry.PluginRegistrantCallback {
 
     private static final String TAG = "MainActivity";
 
@@ -110,10 +114,11 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        registerPlugins();
         instance = this;
         initScreenOrientation();
-        initMethodChannel();
+
+        // TODO: Check do we need the next two lines at all?
+        FlutterMain.startInitialization(this);
     }
 
     @Override
@@ -158,35 +163,32 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
                 rlCallback.onResult(granted);
                 rlCallback = null;
             }
-        } else if(requestCode == GalleryPlugin.STORAGE_PERMISSION_REQUEST_CODE){
-            galleryPlugin.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
+        //} else if(requestCode == GalleryPlugin.STORAGE_PERMISSION_REQUEST_CODE){
+        //    galleryPlugin.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        //}
     }
 
-    private void registerPlugins() {
-        GeneratedPluginRegistrant.registerWith(this);
+    @Override
+    public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
+        super.configureFlutterEngine(flutterEngine);
+        METHOD_CHANNEL = new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), NATIVE_CHANNEL);
+        METHOD_CHANNEL.setMethodCallHandler(this);
 
-        // MapView
-        Registrar registrar = registrarFor("MapPlugin");
-        registrar.platformViewRegistry().registerViewFactory("mapview", new MapViewFactory(this, registrar));
+        flutterEngine
+                .getPlatformViewsController()
+                .getRegistry()
+                .registerViewFactory("mapview", new MapViewFactory(this, flutterEngine.getDartExecutor().getBinaryMessenger()));
 
-        // ExposureNotifications
-        Registrar exposureRegistrar = registrarFor("ExposurePlugin");
-        exposurePlugin = ExposurePlugin.registerWith(exposureRegistrar);
-
-        // GalleryPlugin
-        Registrar galleryRegistrar = registrarFor("GalleryPlugin");
-        galleryPlugin = GalleryPlugin.registerWith(exposureRegistrar);
+        exposurePlugin = new ExposurePlugin(this);
+        flutterEngine.getPlugins().add(exposurePlugin);
+        galleryPlugin = new GalleryPlugin(this);
+        flutterEngine.getPlugins().add(galleryPlugin);
     }
 
     private void initScreenOrientation() {
         preferredScreenOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
         supportedScreenOrientations = new HashSet<>(Collections.singletonList(preferredScreenOrientation));
-    }
-
-    private void initMethodChannel() {
-        METHOD_CHANNEL = new MethodChannel(getFlutterView(), NATIVE_CHANNEL);
-        METHOD_CHANNEL.setMethodCallHandler(this);
     }
 
     private void initWithParams(Object keys) {
@@ -835,6 +837,11 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
             Log.e(TAG, errorMsg);
             exception.printStackTrace();
         }
+    }
+
+    @Override
+    public void registerWith(PluginRegistry registry) {
+
     }
 
     // RequestLocationCallback
