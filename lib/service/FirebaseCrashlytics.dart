@@ -16,7 +16,7 @@
 
 import 'package:firebase_crashlytics/firebase_crashlytics.dart' as GoogleFirebase;
 import 'package:flutter/material.dart';
-import 'package:illinois/service/Firebase.dart' as FirebaseService;
+import 'package:illinois/service/FirebaseService.dart';
 import 'package:illinois/service/Service.dart';
 
 class FirebaseCrashlytics with Service {
@@ -63,5 +63,5 @@ class FirebaseCrashlytics with Service {
   }
 
   @override
-  Set<Service> get serviceDependsOn =>  Set.from([FirebaseService.Firebase()]);
+  Set<Service> get serviceDependsOn =>  Set.from([FirebaseService()]);
 }
