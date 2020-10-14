@@ -17,7 +17,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:illinois/model/Health.dart';
-import 'package:illinois/model/UserData.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Styles.dart';
@@ -351,7 +350,7 @@ class _Covid19CareTeamPanelState extends State<Covid19CareTeamPanel> with Ticker
   }
 
   bool get _canMcKinley{
-    return User().roles?.contains(UserRole.student) ?? false;
+    return User().isStudent;
   }
 
   bool get _isNotStudent{

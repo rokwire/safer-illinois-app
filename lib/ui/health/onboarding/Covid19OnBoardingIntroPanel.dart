@@ -83,6 +83,6 @@ class Covid19OnBoardingIntroPanel extends StatelessWidget with OnboardingPanel {
 
   void _goNext(BuildContext context) {
     Analytics.instance.logSelect(target: "Continue") ;
-    return Onboarding().next(context, this);
+    Onboarding().next(context, this);
   }
 }

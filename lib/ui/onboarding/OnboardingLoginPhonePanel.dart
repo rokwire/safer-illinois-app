@@ -16,7 +16,6 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:illinois/model/UserData.dart';
 import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Analytics.dart';
@@ -38,7 +37,7 @@ class OnboardingLoginPhonePanel extends StatefulWidget with OnboardingPanel {
 
   @override
   bool get onboardingCanDisplay {
-    return !User().roles.contains(UserRole.student) && !User().roles.contains(UserRole.employee);
+    return !User().isStudentOrEmployee;
   }
 }
 

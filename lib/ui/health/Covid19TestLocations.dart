@@ -16,7 +16,6 @@
 
 import 'dart:collection';
 
-import 'package:flutter_html/style.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/utils/Utils.dart';

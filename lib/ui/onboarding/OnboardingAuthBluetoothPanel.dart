@@ -39,7 +39,7 @@ class OnboardingAuthBluetoothPanel extends StatefulWidget with OnboardingPanel {
 
   @override
   bool get onboardingCanDisplay {
-    return Platform.operatingSystem == 'ios' ;
+    return Platform.isIOS && (BluetoothServices().status != BluetoothStatus.PermissionAllowed);
   }
 }
 

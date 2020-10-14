@@ -20,7 +20,6 @@ import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:illinois/model/UserData.dart';
 import 'package:illinois/model/UserPiiData.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Auth.dart';
@@ -44,7 +43,7 @@ class Covid19OnBoardingReviewScanPanel extends StatefulWidget with OnboardingPan
 
   @override
   bool get onboardingCanDisplay {
-    return !User().roles.contains(UserRole.student) && !User().roles.contains(UserRole.employee) && (onboardingContext != null) && onboardingContext['shouldDisplayReviewScan'] == true;
+    return !User().isStudentOrEmployee && (onboardingContext != null) && onboardingContext['shouldDisplayReviewScan'] == true;
   }
 }
 
