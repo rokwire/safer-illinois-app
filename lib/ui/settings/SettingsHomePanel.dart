@@ -917,6 +917,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
         RibbonButton(
           height: null,
           borderRadius: _borderRadiusFromIndex(0, 1),
+          leftIcon: 'images/external-link.png',
           border: Border.all(color: Styles().colors.surfaceAccent, width: 0),
           label: Localization().getStringEx("panel.settings.home.privacy.privacy_statement.title", "Privacy Statement"),
           onTap: _onPrivacyStatementClicked,
@@ -966,6 +967,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   // Feedback
 
   Widget _buildFeedback(){
+
     return Column(
       children: <Widget>[
         Padding(
@@ -991,6 +993,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
             fontSize: 16.0,
             textColor: Styles().colors.fillColorPrimary,
             borderColor: Styles().colors.fillColorSecondary,
+            showExternalLink: true,
             onTap: _onFeedbackClicked,
           ),
         ),
