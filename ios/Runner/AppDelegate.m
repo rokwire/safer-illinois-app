@@ -1009,15 +1009,15 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 - (NSUUID*)deviceUUID {
 	static NSString* const deviceUUID = @"deviceUUID";
 	NSData *data = uiucSecStorageData(deviceUUID, deviceUUID, nil);
-	if (data.length == sizeof(uuid_t)) {
+	if ([data isKindOfClass:[NSData class]] && (data.length == sizeof(uuid_t))) {
 		return [[NSUUID alloc] initWithUUIDBytes:data.bytes];
 	}
 	else {
 		uuid_t uuidData;
 		int rndStatus = SecRandomCopyBytes(kSecRandomDefault, sizeof(uuidData), uuidData);
 		if (rndStatus == errSecSuccess) {
-			data = uiucSecStorageData(deviceUUID, deviceUUID, [NSData dataWithBytes:uuidData length:sizeof(uuidData)]);
-			if (data.length == sizeof(uuid_t)) {
+			NSNumber *result = uiucSecStorageData(deviceUUID, deviceUUID, [NSData dataWithBytes:uuidData length:sizeof(uuidData)]);
+			if ([result isKindOfClass:[NSNumber class]] && [result boolValue]) {
 				return [[NSUUID alloc] initWithUUIDBytes:data.bytes];
 			}
 		}
@@ -1035,26 +1035,82 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 		return nil;
 	}
 	
+	NSString *organization = [parameters inaStringForKey:@"organization"];
+	NSString *environment = [parameters inaStringForKey:@"environment"];
+	NSMutableArray *source = [[NSMutableArray alloc] initWithObjects:
+		organization ?: @"",
+		environment  ?: @"",
+		userId       ?: @"",
+		nil];
+	NSMutableArray *keys = [[NSMutableArray alloc] init];
+	[self healthRSAStorageKeysFromSource:source index:0 keys:keys];
+	
 	if ([parameters inaBoolForKey:@"remove"]) {  // remove
-		id result = uiucSecStorageData(userId, healthRSAPrivateKey, [NSNull null]);
-		return [NSNumber numberWithBool:(result == [NSNull null])];
+		for (NSString *key in keys) {
+			NSNumber *result = uiucSecStorageData(key, healthRSAPrivateKey, [NSNull null]);
+			if ([result isKindOfClass:[NSNumber class]] && [result boolValue]) {
+				return @(YES);
+			}
+		}
+		return @(NO);
 	}
 	else if ([parameters objectForKey:@"value"] == nil) { // getter
-		NSData *data = uiucSecStorageData(userId, healthRSAPrivateKey, nil);
-		return (data != nil) ? [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] : nil;
+		for (NSString *key in keys) {
+			NSData *data = uiucSecStorageData(key, healthRSAPrivateKey, nil);
+			if ([data isKindOfClass:[NSData class]] && (data != nil)) {
+				NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+				if (string != nil) {
+					return string;
+				}
+			}
+		}
+		return nil;
 	}
 	else { // setter or remove
 		NSString *stringValue = [parameters inaStringForKey:@"value"];
 		if (stringValue != nil) { // setter
 			NSData *data = [stringValue dataUsingEncoding:NSUTF8StringEncoding];
-			NSData *resultData = uiucSecStorageData(userId, healthRSAPrivateKey, data);
-			return [NSNumber numberWithBool:(resultData == data)];
+			NSNumber *result = uiucSecStorageData(keys.firstObject, healthRSAPrivateKey, data);
+			return ([result isKindOfClass:[NSNumber class]] && [result boolValue]) ? @(YES) : @(NO);
 		}
 		else { // remove
-			id result = uiucSecStorageData(userId, healthRSAPrivateKey, [NSNull null]);
-			return [NSNumber numberWithBool:(result == [NSNull null])];
+			for (NSString *key in keys) {
+				NSNumber *result = uiucSecStorageData(key, healthRSAPrivateKey, [NSNull null]);
+				if ([result isKindOfClass:[NSNumber class]] && [result boolValue]) {
+					return @(YES);
+				}
+			}
+			return @(NO);
 		}
 	}
+}
+
+- (void)healthRSAStorageKeysFromSource:(NSMutableArray<NSString*>*)source index:(NSInteger)index keys:(NSMutableArray<NSString*>*)keys {
+	if ((index + 1) < source.count) {
+		[self healthRSAStorageKeysFromSource:source index:(index + 1) keys:keys];
+		NSString *entry = [source objectAtIndex:index];
+		if (0 < entry.length) {
+			[source replaceObjectAtIndex:index withObject:@""];
+			[self healthRSAStorageKeysFromSource:source index:(index + 1) keys:keys];
+			[source replaceObjectAtIndex:index withObject:entry];
+		}
+	}
+	else {
+		[keys addObject:[self healthRSAStorageKeyFromSource:source]];
+	}
+}
+
+- (NSString*)healthRSAStorageKeyFromSource:(NSArray<NSString*>*)source {
+	NSMutableString *result = [[NSMutableString alloc] init];
+	for (NSString *sourceEntry in source) {
+		if (0 < sourceEntry.length) {
+			if (0 < result.length) {
+				[result appendString:@"-"];
+			}
+			[result appendString:sourceEntry];
+		}
+	}
+	return result;
 }
 
 #pragma mark PKAddPassesViewControllerDelegate

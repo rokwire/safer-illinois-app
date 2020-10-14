@@ -239,6 +239,8 @@ class NativeCommunicator with Service {
     try {
       result = await _platformChannel.invokeMethod('healthRSAPrivateKey', {
         'userId': userId,
+        'environment': configEnvToString(Config().configEnvironment),
+        'organization': null,
       });
     } catch (e) {
       print(e?.toString());
@@ -251,6 +253,8 @@ class NativeCommunicator with Service {
     try {
       result = await _platformChannel.invokeMethod('healthRSAPrivateKey', {
         'userId': userId,
+        'environment': configEnvToString(Config().configEnvironment),
+        'organization': null,
         'value': value,
       });
     } catch (e) {
@@ -264,6 +268,8 @@ class NativeCommunicator with Service {
     try {
       result = await _platformChannel.invokeMethod('healthRSAPrivateKey', {
         'userId': userId,
+        'environment': configEnvToString(Config().configEnvironment),
+        //'organization': null,
         'remove': true,
       });
     } catch (e) {
