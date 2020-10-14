@@ -6,7 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Changed
--Add external link icon for SettingsHomePanel buttons [241](https://github.com/rokwire/safer-illinois-app/issues/241)
+- Remove private params from the url. Additional fix [#110](https://github.com/rokwire/safer-illinois-app/issues/110).
+- Add external link icon for SettingsHomePanel buttons [241](https://github.com/rokwire/safer-illinois-app/issues/241).
 
 ## [2.7.6] - 2020-10-13
 ### Changed
