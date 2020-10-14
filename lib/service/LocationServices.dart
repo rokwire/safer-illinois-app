@@ -69,7 +69,7 @@ class LocationServices with Service implements NotificationsListener {
 
   @override
   Future<void> initService() async {
-    this.status.then((_){});
+    _lastStatus = await this.status;
   }
 
   Future<LocationServicesStatus> get status async {
@@ -77,6 +77,10 @@ class LocationServices with Service implements NotificationsListener {
     _updateLocationMonitor();
     return _lastStatus;
   }
+
+  LocationServicesStatus get lastStatus {
+    return _lastStatus;
+  }  
 
   Future<LocationServicesStatus> requestService() async {
     
