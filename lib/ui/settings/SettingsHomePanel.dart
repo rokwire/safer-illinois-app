@@ -917,6 +917,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
         RibbonButton(
           height: null,
           borderRadius: _borderRadiusFromIndex(0, 1),
+          leftIcon: 'images/external-link.png',
           border: Border.all(color: Styles().colors.surfaceAccent, width: 0),
           label: Localization().getStringEx("panel.settings.home.privacy.privacy_statement.title", "Privacy Statement"),
           onTap: _onPrivacyStatementClicked,
@@ -966,6 +967,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   // Feedback
 
   Widget _buildFeedback(){
+
     return Column(
       children: <Widget>[
         Padding(
@@ -991,6 +993,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
             fontSize: 16.0,
             textColor: Styles().colors.fillColorPrimary,
             borderColor: Styles().colors.fillColorSecondary,
+            showExternalLink: true,
             onTap: _onFeedbackClicked,
           ),
         ),
@@ -998,37 +1001,16 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
     );
   }
 
-  String _constructFeedbackParams(String email, String phone, String name) {
-    Map params = Map();
-    params['email'] = Uri.encodeComponent(email != null ? email : "");
-    params['phone'] = Uri.encodeComponent(phone != null ? phone : "");
-    params['name'] = Uri.encodeComponent(name != null ? name : "");
-
-    String result = "";
-    if (params.length > 0) {
-      result += "?";
-      params.forEach((key, value) =>
-      result+= key + "=" + value + "&"
-      );
-      result = result.substring(0, result.length - 1); //remove the last symbol &
-    }
-    return result;
-  }
-
   void _onFeedbackClicked() {
     if (Connectivity().isNotOffline) {
       Analytics.instance.logSelect(target: "Provide Feedback");
 
       if (Connectivity().isNotOffline && (Config().feedbackUrl != null)) {
-        String email = Auth().userPiiData?.email;
-        String name = Auth().userPiiData?.fullName;
-        String phone = Auth().phoneToken?.phone;
-        String params = _constructFeedbackParams(email, phone, name);
-        String feedbackUrl = Config().feedbackUrl + params;
+        String feedbackUrl = Config().feedbackUrl;
 
         String panelTitle = Localization().getStringEx('panel.settings.feedback.label.title', 'PROVIDE FEEDBACK');
         Navigator.push(
-            context, CupertinoPageRoute(builder: (context) => WebPanel(url: feedbackUrl, analyticsUrl: Config().feedbackUrl , title: panelTitle,)));
+            context, CupertinoPageRoute(builder: (context) => WebPanel(url: feedbackUrl, title: panelTitle,)));
       }
       else {
         AppAlert.showOfflineMessage(context, Localization().getStringEx('panel.settings.label.offline.feedback', 'Providing a Feedback is not available while offline.'));
