@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove private params from the url. Additional fix [#110](https://github.com/rokwire/safer-illinois-app/issues/110).
 - Add external link icon for SettingsHomePanel buttons [241](https://github.com/rokwire/safer-illinois-app/issues/241).
 - Add building access status to the Home Status widget [#243](https://github.com/rokwire/safer-illinois-app/issues/243)
-- Store RSA private key separately for organization and environment.
+- Store RSA private key separately for organization and environment (iOS only for now).
 - Show authorization panels in onboarding only when needed.
 
 ## [2.7.6] - 2020-10-13
