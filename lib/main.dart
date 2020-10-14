@@ -114,7 +114,6 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> implements NotificationsListener {
 
-  RootPanel rootPanel;
   String _upgradeRequiredVersion;
   String _upgradeAvailableVersion;
   Key key = UniqueKey();
@@ -133,7 +132,6 @@ class _AppState extends State<App> implements NotificationsListener {
 
     AppLivecycle.instance.ensureBinding();
 
-    rootPanel = RootPanel();
     _upgradeRequiredVersion = Config().upgradeRequiredVersion;
     _upgradeAvailableVersion = Config().upgradeAvailableVersion;
     
@@ -188,20 +186,19 @@ class _AppState extends State<App> implements NotificationsListener {
       return Onboarding().startPanel;
     }
     else {
-      return rootPanel;
+      return RootPanel();
     }
   }
 
   void _resetUI() async {
     this.setState(() {
-      rootPanel = RootPanel();
       key = new UniqueKey();
     });
   }
 
   void _finishOnboarding(BuildContext context) {
     Storage().onBoardingPassed = true;
-    Route routeToHome = CupertinoPageRoute(builder: (context) => rootPanel);
+    Route routeToHome = CupertinoPageRoute(builder: (context) => RootPanel());
     Navigator.pushAndRemoveUntil(context, routeToHome, (_) => false);
   }
 
