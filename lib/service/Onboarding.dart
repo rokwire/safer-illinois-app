@@ -79,12 +79,17 @@ class Onboarding {
   // Implementation
 
   Widget get startPanel {
-    dynamic widget = _nextPanel(null);
-    return (widget is Widget) ? widget : null;
+    for (int index = 0; index < _contentPanels.length; index++) {
+      OnboardingPanel nextPanel = _createPanel(name: _contentPanels[index], context: {});
+      if ((nextPanel != null) && nextPanel.onboardingCanDisplay) {
+        return nextPanel as Widget;
+      }
+    }
+    return null;
   }
 
-  void next(BuildContext context, OnboardingPanel panel, {bool replace = false}) {
-    dynamic nextPanel = _nextPanel(panel);
+  Future<void> next(BuildContext context, OnboardingPanel panel, {bool replace = false}) async {
+    dynamic nextPanel = await _nextPanel(panel);
     if (nextPanel is Widget) {
       if (replace) {
         Navigator.pushReplacement(context, CupertinoPageRoute(builder: (context) => nextPanel));
@@ -102,7 +107,7 @@ class Onboarding {
     NotificationService().notify(notifyFinished, context);
   }
 
-  dynamic _nextPanel(OnboardingPanel panel) {
+  Future<dynamic> _nextPanel(OnboardingPanel panel) async {
     int nextPanelIndex;
     if (panel == null) {
       nextPanelIndex = 0;
@@ -119,7 +124,7 @@ class Onboarding {
       while (nextPanelIndex < _contentPanels.length) {
         String nextPanelName = _contentPanels[nextPanelIndex];
         OnboardingPanel nextPanel = _createPanel(name: nextPanelName, context: panel?.onboardingContext ?? {});
-        if ((nextPanel != null) && nextPanel.onboardingCanDisplay) {
+        if ((nextPanel != null) && nextPanel.onboardingCanDisplay && await nextPanel.onboardingCanDisplayAsync) {
           return nextPanel as Widget;
         }
         else {
@@ -167,6 +172,10 @@ abstract class OnboardingPanel {
   }
   
   bool get onboardingCanDisplay {
+    return true;
+  }
+
+  Future<bool> get onboardingCanDisplayAsync async {
     return true;
   }
 }
