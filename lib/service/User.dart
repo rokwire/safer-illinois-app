@@ -293,6 +293,19 @@ class User with Service implements NotificationsListener {
     }
   }
 
+  bool get isStudent {
+    return _userData?.roles?.contains(UserRole.student) ?? false;
+  }
+
+  bool get isEmployee {
+    return _userData?.roles?.contains(UserRole.employee) ?? false;
+  }
+
+  bool get isStudentOrEmployee {
+    Set<UserRole> roles = _userData?.roles;
+    return (roles != null) && (roles.contains(UserRole.student) || roles.contains(UserRole.employee));
+  }
+
   // Notifications
 
   void _notifyUserUpdated() {

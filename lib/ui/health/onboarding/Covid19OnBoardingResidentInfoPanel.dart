@@ -40,7 +40,7 @@ class Covid19OnBoardingResidentInfoPanel extends StatelessWidget with Onboarding
 
   @override
   bool get onboardingCanDisplay {
-    return !User().roles.contains(UserRole.student) && !User().roles.contains(UserRole.employee) && (onboardingContext != null) && onboardingContext['shouldDisplayResidentInfo'] == true;
+    return !User().isStudentOrEmployee && (onboardingContext != null) && onboardingContext['shouldDisplayResidentInfo'] == true;
   }
 
   @override

@@ -42,7 +42,7 @@ class OnboardingLoginPhoneVerifyPanel extends StatefulWidget with OnboardingPane
 
   @override
   bool get onboardingCanDisplay {
-    return !User().roles.contains(UserRole.student) && !User().roles.contains(UserRole.employee) && (onboardingContext != null) && onboardingContext['shouldVerifyPhone'] == true;
+    return !User().isStudentOrEmployee && (onboardingContext != null) && onboardingContext['shouldVerifyPhone'] == true;
   }
 }
 

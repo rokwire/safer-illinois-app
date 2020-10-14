@@ -239,7 +239,7 @@ class _Covid19CareTeamPanelState extends State<Covid19CareTeamPanel> with Ticker
   }
 
   bool get _canMcKinley{
-    return User().roles?.contains(UserRole.student) ?? false;
+    return User().isStudent;
   }
 
   void _onLearnMoreTapped(){

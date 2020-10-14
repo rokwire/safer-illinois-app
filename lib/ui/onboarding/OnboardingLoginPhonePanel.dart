@@ -38,7 +38,7 @@ class OnboardingLoginPhonePanel extends StatefulWidget with OnboardingPanel {
 
   @override
   bool get onboardingCanDisplay {
-    return !User().roles.contains(UserRole.student) && !User().roles.contains(UserRole.employee);
+    return !User().isStudentOrEmployee;
   }
 }
 
