@@ -6,8 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Changed
--Add external link icon for SettingsHomePanel buttons [241](https://github.com/rokwire/safer-illinois-app/issues/241)
-
+- Add external link icon for SettingsHomePanel buttons [#241](https://github.com/rokwire/safer-illinois-app/issues/241)
+- Add Empty Text for Covid19TestLocations panel & show wait time status (long/medium/short) [#278](https://github.com/rokwire/safer-illinois-app/issues/278)
 ## [2.7.6] - 2020-10-13
 ### Changed
 - Upgrade Flutter to v1.22.1 [#283](https://github.com/rokwire/safer-illinois-app/issues/283).
