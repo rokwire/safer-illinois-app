@@ -317,6 +317,9 @@
 	"panel.covid19home.label.contact_trace.title": "接触痕迹",
 	"panel.covid19home.label.reported_symptoms.title": "自述症状",
 	"panel.covid19home.button.info.title": "Info ",
+	"panel.covid19home.label.access.title": "Building access",
+	"panel.covid19home.label.access.granted": "granted",
+	"panel.covid19home.label.access.denied": "denied",
 
 	"panel.covid19_test_locations.header.title": "测试位置",
 	"panel.covid19_test_locations.label.contact.title": "联系人",

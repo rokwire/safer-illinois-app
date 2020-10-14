@@ -59,7 +59,8 @@ class Covid19InfoCenterPanel extends StatefulWidget {
 class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> implements NotificationsListener {
 
   Covid19Status _status;
-  bool          _loadingStatus;
+  bool _covid19Access = false;
+  bool _loadingStatus;
   Covid19History _lastHistory;
   String _currentCountyName;
 
@@ -125,6 +126,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
         _loadingStatus = (Health().processing == true);
         if (Health().processing != true) {
           _loadHistory();
+          _updateCovid19Access();
         }
       });
     }
@@ -149,6 +151,16 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
             _currentCountyName = _counties[Health().currentCountyId].nameDisplayText;
           });
         }
+      }
+    });
+  }
+
+  void _updateCovid19Access() {
+    Health().isBuildingAccessGranted(_status?.blob?.healthStatus).then((bool granted) {
+      if (mounted) {
+        setState(() {
+          _covid19Access = granted;
+        });
       }
     });
   }
@@ -490,7 +502,15 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
                       Text(AppString.isStringNotEmpty(statusName) ? statusName : Localization().getStringEx('panel.covid19home.label.status.na', 'Not Available'), style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Styles().colors.textSurface),),
                     )
                   ],
-                )
+                ),
+                Container(height: 6,),
+                Row(
+                  children: <Widget>[
+                    Expanded(child:
+                    Text(AppString.isStringNotEmpty(_accessStatusText) ? _accessStatusText : Localization().getStringEx('panel.covid19home.label.status.na', 'Not Available'), style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Styles().colors.textSurface),),
+                    )
+                  ],
+                ),
               ],),
             ),
           ),
@@ -716,6 +736,12 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
     } else {
       AppAlert.showOfflineMessage(context);
     }
+  }
+
+  String get _accessStatusText{
+    return Localization().getStringEx("panel.covid19home.label.access.title", "Building access")+ " "+
+            (_covid19Access? Localization().getStringEx("panel.covid19home.label.access.granted","granted"):
+                            Localization().getStringEx("panel.covid19home.label.access.denied","denied"));
   }
 }
 
