@@ -117,7 +117,7 @@ class _Covid19TestLocationsPanelState extends State<Covid19TestLocationsPanel>{
   }
 
   Widget _buildEmpty(){
-    return _locations.isEmpty?
+    return (_locations?.isEmpty?? false) ?
     Row(children: [
       Expanded(child: Container(
           child: Center(child:

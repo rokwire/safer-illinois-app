@@ -317,6 +317,9 @@
     "panel.covid19home.label.contact_trace.title": "Contact Trace",
     "panel.covid19home.label.reported_symptoms.title": "Self Reported Symptoms",
     "panel.covid19home.button.info.title": "Info ",
+    "panel.covid19home.label.access.title": "Building access",
+    "panel.covid19home.label.access.granted": "granted",
+    "panel.covid19home.label.access.denied": "denied",
     
     "panel.covid19_test_locations.header.title": "Test Locations",
     "panel.covid19_test_locations.label.contact.title": "Contact",
