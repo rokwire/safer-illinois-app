@@ -1023,15 +1023,11 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
       Analytics.instance.logSelect(target: "Provide Feedback");
 
       if (Connectivity().isNotOffline && (Config().feedbackUrl != null)) {
-        String email = Auth().userPiiData?.email;
-        String name = Auth().userPiiData?.fullName;
-        String phone = Auth().phoneToken?.phone;
-        String params = _constructFeedbackParams(email, phone, name);
-        String feedbackUrl = Config().feedbackUrl + params;
+        String feedbackUrl = Config().feedbackUrl;
 
         String panelTitle = Localization().getStringEx('panel.settings.feedback.label.title', 'PROVIDE FEEDBACK');
         Navigator.push(
-            context, CupertinoPageRoute(builder: (context) => WebPanel(url: feedbackUrl, analyticsUrl: Config().feedbackUrl , title: panelTitle,)));
+            context, CupertinoPageRoute(builder: (context) => WebPanel(url: feedbackUrl, title: panelTitle,)));
       }
       else {
         AppAlert.showOfflineMessage(context, Localization().getStringEx('panel.settings.label.offline.feedback', 'Providing a Feedback is not available while offline.'));
