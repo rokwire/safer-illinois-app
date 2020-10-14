@@ -79,9 +79,9 @@ class _Covid19CareTeamPanelState extends State<Covid19CareTeamPanel> with Ticker
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Container(height: 30,),
-                  Text(Localization().getStringEx("panel.health.covid19.care_team.label.question", "We’re here to help."),textAlign: TextAlign.left, style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 20, fontFamily: Styles().fontFamilies.bold),),
+                  Text(Localization().getStringEx("panel.health.covid19.care_team.label.question", "Help When You Need It"),textAlign: TextAlign.left, style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 20, fontFamily: Styles().fontFamilies.bold),),
                   Container(height: 8,),
-                  Text(Localization().getStringEx("panel.health.covid19.care_team.label.description", "Reach out to someone on your COVID-19 care team - we're here to help."), style: TextStyle(color: Styles().colors.textSurface, fontSize: 16, fontFamily: Styles().fontFamilies.regular),),
+                  Text(Localization().getStringEx("panel.health.covid19.care_team.label.description", "Reach out to someone on your COVID-19 care team. They’re here to help."), style: TextStyle(color: Styles().colors.textSurface, fontSize: 16, fontFamily: Styles().fontFamilies.regular),),
                   Container(height: 23,),
                 ],),)),
               Container(
@@ -96,12 +96,20 @@ class _Covid19CareTeamPanelState extends State<Covid19CareTeamPanel> with Ticker
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(Localization().getStringEx("panel.health.covid19.care_team.label.emergency.text1", "In case of an emergency, "),textAlign: TextAlign.left, style: TextStyle(color: Styles().colors.textSurface, fontSize: 16, fontFamily:  Styles().fontFamilies.regular),),
-                    Text(Localization().getStringEx("panel.health.covid19.care_team.label.emergency.text2", "always call 911."),textAlign: TextAlign.left, style: TextStyle(color: Styles().colors.textSurface, fontSize: 16, fontFamily: Styles().fontFamilies.bold),),
+                    Text(Localization().getStringEx("panel.health.covid19.care_team.label.emergency.text2", "call 911."),textAlign: TextAlign.left, style: TextStyle(color: Styles().colors.textSurface, fontSize: 16, fontFamily: Styles().fontFamilies.bold),),
                   ],),),),
+                _isNotStudent?
+                Column(children: [
+                  Container(height: 16,),
+                  Text(Localization().getStringEx("panel.health.covid19.care_team.label.emergency.text1", "In case of an emergency, "),textAlign: TextAlign.left, style: TextStyle(color: Styles().colors.textSurface, fontSize: 16, fontFamily:  Styles().fontFamilies.regular),),
+                ],) :
+                Container(),
                 Container(height: 16,),
                 _buildActionsLayout(),
                 Container(height: 26,),
                 _buildMoreInfoLayout(),
+                Container(height: 26,),
+                _buildMentalHealthLayout(),
                 Container(height: 26,)
               ],),),
 
@@ -238,13 +246,125 @@ class _Covid19CareTeamPanelState extends State<Covid19CareTeamPanel> with Ticker
             )));
   }
 
+  Widget _buildMentalHealthLayout() {
+    final Animatable<double> _halfTween = Tween<double>(begin: 0.0, end: 0.5);
+    final Animatable<double> _easeInTween = CurveTween(curve: Curves.easeIn);
+    AnimationController _controller = AnimationController(
+        duration: Duration(milliseconds: 200), vsync: this);
+    _animationControllers.add(_controller);
+    Animation<double> _iconTurns = _controller.drive(
+        _halfTween.chain(_easeInTween));
+
+    return Container(
+        decoration: BoxDecoration(color: Styles().colors.fillColorPrimary,
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(color: Styles().colors.surfaceAccent, width: 1)),
+        child: Theme(data: ThemeData(accentColor: Styles().colors.white,
+            dividerColor: Colors.white,
+            backgroundColor: Styles().colors.white,
+            textTheme: TextTheme(subtitle1: TextStyle(
+                color: Styles().colors.white,
+                fontFamily: Styles().fontFamilies.bold,
+                fontSize: 16))),
+            child: ExpansionTile(
+              title:
+              Semantics(label: Localization().getStringEx(
+                  "panel.health.covid19.care_team.label.more_info.title",
+                  "More about the OSF OnCall Connect program"),
+                  hint: Localization().getStringEx(
+                      "panel.health.covid19.care_team.label.more_info.hint",
+                      "Double tap to show more info"), /*+(expanded?"Hide" : "Show ")+" questions",*/
+                  excludeSemantics: true, child:
+                  Container(child: Text(Localization().getStringEx(
+                      "panel.health.covid19.care_team.label.mental_helth.title",
+                      "Mental Health"),
+                    style: TextStyle(color: Styles().colors.white,
+                        fontFamily: Styles().fontFamilies.bold,
+                        fontSize: 16),))),
+              backgroundColor: Styles().colors.fillColorPrimary,
+              trailing: RotationTransition(
+                  turns: _iconTurns,
+                  child: Icon(
+                    Icons.arrow_drop_down, color: Styles().colors.white,)),
+              children: [
+                Container(
+                  color: Styles().colors.white,
+                  padding: EdgeInsets.only(
+                      left: 13, right: 13, top: 20, bottom: 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      _linkWidget(
+                        title:Localization().getStringEx(
+                          "panel.health.covid19.care_team.label.counseling_center.link", "Counseling Center"),
+                        url: ' https://www.counselingcenter.illinois.edu/'
+                      ),
+                      Container(height: 12,),
+                      _linkWidget(
+                        title:Localization().getStringEx(
+                          "panel.health.covid19.care_team.label.mc_kiney.link", "McKinley Mental Health Program"),
+                        url: 'https://www.mckinley.illinois.edu/medical- services/mental-health'
+                      ),
+                      Container(height: 12,),
+                      _linkWidget(
+                        title:Localization().getStringEx(
+                            "panel.health.covid19.care_team.label.virtual_counseling.link", "Virtual Counseling"),
+                        url: 'https://www.telehelp4students.com/'
+                      ),
+
+                      Text(
+                        Localization().getStringEx(
+                          "panel.health.covid19.care_team.label.virtual_counseling.description",
+                          "(Requires UnitedHealthcare Student Resources coverage.)"),
+                        style: TextStyle(color: Styles().colors.textSurface, fontSize: 14, fontFamily: Styles().fontFamilies.regular),),
+                      Container(height: 12,),
+                    ],
+                  ),
+                ),
+              ],
+              onExpansionChanged: (bool expand) {
+                Analytics.instance.logSelect(target: "Mental Health");
+                if (expand) {
+                  _controller.forward();
+                } else {
+                  _controller.reverse();
+                }
+              },
+            )));
+  }
+
+  Widget _linkWidget({String title, String url}){
+    return
+      GestureDetector(
+        onTap: (){_onLinkTapped(url);},
+        child: Padding(
+          padding: const EdgeInsets.only(
+              left: 0, right: 0, top: 0, bottom: 0),
+          child: Text(title,
+            style: TextStyle(
+                color: Styles().colors.fillColorPrimary,
+                fontSize: 14,
+                fontFamily: Styles().fontFamilies.bold,
+                decoration: TextDecoration.underline),),
+        ),
+      );
+  }
+
   bool get _canMcKinley{
     return User().roles?.contains(UserRole.student) ?? false;
   }
 
-  void _onLearnMoreTapped(){
+  bool get _isNotStudent{
+    return !(User().roles?.contains(UserRole.student) ?? false);
+  }
+
+  void _onLinkTapped(String url){
     Navigator.push(context, CupertinoPageRoute(builder: (context)=>WebPanel(
-      url: 'https://www.osfhealthcare.org/c/oncall-connect-uofi/?utm_source=student-app&utm_medium=app&utm_campaign=m-access-osf-oncall-connect-uofi',
+      url: url,
     )));
+  }
+
+  void _onLearnMoreTapped(){
+      _onLinkTapped('https://www.osfhealthcare.org/c/oncall-connect-uofi/?utm_source=student-app&utm_medium=app&utm_campaign=m-access-osf-oncall-connect-uofi');
   }
 }
