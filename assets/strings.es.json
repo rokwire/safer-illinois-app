@@ -516,11 +516,11 @@
     "panel.health.covid19.add_test.message.no_result_found": "No results found",
 
     "panel.health.covid19.care_team.heading.title":"Su equipo de atención",
-    "panel.health.covid19.care_team.label.question":"¿Necesitas algo?",
-    "panel.health.covid19.care_team.label.description":"Comuníquese con alguien de su equipo de atención de COVID-19; estamos aquí para ayudarlo.",
+    "panel.health.covid19.care_team.label.question":"Help When You Need It",
+    "panel.health.covid19.care_team.label.description":"Reach out to someone on your COVID-19 care team. They’re here to help.",
     "panel.health.covid19.care_team.label.status":"Estado actual:",
     "panel.health.covid19.care_team.label.emergency.text1": "En caso de emergencia, ",
-    "panel.health.covid19.care_team.label.emergency.text2": "siempre llame al 911.",
+    "panel.health.covid19.care_team.label.emergency.text2": "call 911.",
     "panel.health.covid19.care_team.team.title.mc_kinley": "Llame a McKinley Health",
     "panel.health.covid19.care_team.team.contact.mc_kinley": "1-217-333-2700",
     "panel.health.covid19.care_team.team.semantic_contact.mc_kinley": "12173332700",
@@ -534,6 +534,10 @@
     "panel.health.covid19.care_team.label.more_info.hint": "Tocar dos veces para mostrar más información",
     "panel.health.covid19.care_team.label.call.hint": "Llamada ",
     "panel.health.covid19.care_team.label.more_info.link": "Learn more",
+    "panel.health.covid19.care_team.label.counseling_center.link": "Counseling Center",
+    "panel.health.covid19.care_team.label.mc_kiney.link": "McKinley Mental Health Program",
+    "panel.health.covid19.care_team.label.virtual_counseling.link":"Virtual Counseling ",
+    "panel.health.covid19.care_team.label.virtual_counseling.description": "(Requires UnitedHealthcare Student Resources coverage.)",
 
     "panel.health.covid19.debug.keys.heading.title.":"Claves COVID-19",
     "panel.health.covid19.debug.keys.label.public_key":"Clave Publica RSA:",

@@ -516,11 +516,11 @@
 	"panel.health.covid19.add_test.message.no_result_found": "找不到结果",
 
 	"panel.health.covid19.care_team.heading.title": "您的护理团队",
-	"panel.health.covid19.care_team.label.question": "我们是来帮忙的.",
-	"panel.health.covid19.care_team.label.description": "联系你的COVID-19护理小组的人-我们会帮助你的.",
+	"panel.health.covid19.care_team.label.question": "Help When You Need It",
+	"panel.health.covid19.care_team.label.description": "Reach out to someone on your COVID-19 care team. They’re here to help.",
 	"panel.health.covid19.care_team.label.status": "当前状态:",
 	"panel.health.covid19.care_team.label.emergency.text1": "在紧急情况下,",
-	"panel.health.covid19.care_team.label.emergency.text2": "随时拨打911.",
+	"panel.health.covid19.care_team.label.emergency.text2": "call 911.",
 	"panel.health.covid19.care_team.team.title.mc_kinley": "呼 叫麦金利健康中心",
 	"panel.health.covid19.care_team.team.contact.mc_kinley": "1-217-333-2700",
 	"panel.health.covid19.care_team.team.semantic_contact.mc_kinley": "12173332700",
@@ -534,6 +534,10 @@
 	"panel.health.covid19.care_team.label.more_info.hint": "双击可显示更多信息",
 	"panel.health.covid19.care_team.label.call.hint": "致电 ",
 	"panel.health.covid19.care_team.label.more_info.link": "了解更多",
+	"panel.health.covid19.care_team.label.counseling_center.link": "Counseling Center",
+	"panel.health.covid19.care_team.label.mc_kiney.link": "McKinley Mental Health Program",
+	"panel.health.covid19.care_team.label.virtual_counseling.link":"Virtual Counseling ",
+	"panel.health.covid19.care_team.label.virtual_counseling.description": "(Requires UnitedHealthcare Student Resources coverage.)",
 
 	"panel.health.covid19.debug.keys.heading.title.":"COVID-19密钥",
 	"panel.health.covid19.debug.keys.label.public_key":"RSA公钥:",
