@@ -26,6 +26,7 @@ class RoleGridButton extends StatelessWidget {
   final String hint;
   final String iconPath;
   final String selectedIconPath;
+  final String iconUrl;
   final Color backgroundColor;
   final Color selectedBackgroundColor;
   final Color borderColor;
@@ -42,6 +43,7 @@ class RoleGridButton extends StatelessWidget {
       this.hint,
       this.iconPath,
       this.selectedIconPath,
+      this.iconUrl,
       this.backgroundColor = Colors.white,
       this.selectedBackgroundColor = Colors.white,
       this.borderColor = Colors.white ,
@@ -76,7 +78,7 @@ class RoleGridButton extends StatelessWidget {
                 boxShadow: [BoxShadow(color: Styles().colors.blackTransparent018, offset: Offset(2, 2), blurRadius: 6),],
                 ),
             child: Padding(padding: EdgeInsets.symmetric(horizontal: 28, vertical: 18), child: Column(children: <Widget>[
-              Image.asset((this.selected ? this.selectedIconPath : this.iconPath)),
+              _iconWidget,
               Container(height: 18,),
               Text(title,
                     textAlign: TextAlign.center,
@@ -98,5 +100,14 @@ class RoleGridButton extends StatelessWidget {
         ),
       ],
     )));
+  }
+
+  Widget get _iconWidget {
+    if (iconUrl != null) {
+      return Image.network(iconUrl, height: 100,);
+    }
+    else {
+      return Image.asset((this.selected ? this.selectedIconPath : this.iconPath));
+    }
   }
 }

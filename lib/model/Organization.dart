@@ -41,6 +41,18 @@ class Organization {
       'environments': OrganizationEntryPoint.mapToJson(environments)
     };
   }
+
+  static List<Organization> listFromJson(List<dynamic> json) {
+    List<Organization> values;
+    if (json != null) {
+      values = <Organization>[];
+      for (dynamic entry in json) {
+        try { values.add(Organization.fromJson((entry as Map)?.cast<String, dynamic>())); }
+        catch(e) { print(e?.toString()); }
+      }
+    }
+    return values;
+  }
 }
 
 class OrganizationEntryPoint {
