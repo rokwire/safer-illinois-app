@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Log user UUID un-anonymously when launching RootPanel [#296](https://github.com/rokwire/safer-illinois-app/issues/296)
 - Covid19TestLocations Update Wait time text [#279](https://github.com/rokwire/safer-illinois-app/issues/279)
+- Store RSA private key separately for organization and environment (Android).
 
 ## [2.7.7] - 2020-10-14
 ### Changed
