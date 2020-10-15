@@ -57,6 +57,9 @@ public class Constants {
     //Health
     static final String HEALTH_SHARED_PREFS_FILE_NAME = "health_shared_prefs";
 
+    //Encryption Key
+    static final String ENCRYPTION_SHARED_PREFS_FILE_NAME = "encryption_shared_prefs";
+
     //Exposure
     public static final String EXPOSURE_PLUGIN_METHOD_NAME_START = "start";
     public static final String EXPOSURE_PLUGIN_METHOD_NAME_STOP = "stop";
