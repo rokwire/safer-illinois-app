@@ -81,7 +81,7 @@ class _Covid19TestLocationsPanelState extends State<Covid19TestLocationsPanel>{
   @override
   Widget build(BuildContext context) {
     int itemsLength = _locations?.length ?? 0;
-    itemsLength+= 3; // for dropdowns + 1 for empty
+    itemsLength+= 2; // for dropdowns
     return Scaffold(
       backgroundColor: Styles().colors.background,
       appBar: SimpleHeaderBarWithBack(
@@ -102,10 +102,8 @@ class _Covid19TestLocationsPanelState extends State<Covid19TestLocationsPanel>{
                     return _buildCountyField();
                   if(index == 1)
                     return _buildProviderField();
-                  if(index == 2)
-                    return _buildEmpty();
 
-                  index -= 3; //for dropdowns
+                  index -= 2; //for dropdowns
                   HealthServiceLocation location = (_locations?.isNotEmpty ?? false)? _locations[index] : null;
                   //double distance = _locationData!=null && location!=null? AppLocation.distance(location.latitude, location.longitude, _locationData.latitude, _locationData.longitude) : 0;
                   return location!=null? _TestLocation(testLocation: location, /*distance: distance,*/): Container();
@@ -113,19 +111,6 @@ class _Covid19TestLocationsPanelState extends State<Covid19TestLocationsPanel>{
               ) :Container(),
         ),
     );
-  }
-
-  Widget _buildEmpty(){
-    return (_locations?.isEmpty?? false) ?
-    Row(children: [
-      Expanded(child: Container(
-          child: Center(child:
-          Text(sprintf(Localization().getStringEx("panel.covid19_test_locations.empty.title", "No test location available for %s provider"),['${_selectedProviderItem?.provider?.name ?? "All"}']),
-            style: TextStyle(color: Styles().colors.textSurface, fontSize: 16, fontFamily: Styles().fontFamilies.regular), textAlign: TextAlign.center,
-          ),)
-      ))
-    ],)
-     : Container();
   }
 
   void _sortLocations() async{
@@ -350,22 +335,7 @@ class _TestLocation extends StatelessWidget{
 
     String distanceSufix = Localization().getStringEx("panel.covid19_test_locations.distance.text","mi away get directions");
     String distanceText = distance?.toStringAsFixed(2);
-    HealthLocationWaitTimeColor waitTimeColor = testLocation.waitTimeColor;
-    bool isWaitTimeAvailable = (waitTimeColor == HealthLocationWaitTimeColor.red) ||
-        (waitTimeColor == HealthLocationWaitTimeColor.yellow) ||
-        (waitTimeColor == HealthLocationWaitTimeColor.green);
-    String waitTimeText = Localization().getStringEx('panel.covid19_test_locations.wait_time.label', 'Wait Time') +
-        (isWaitTimeAvailable ? '' : (' ' + Localization().getStringEx('panel.covid19_test_locations.wait_time.unavailable', 'Unavailable')));
-    String waitTimeStatusText ="";
-    if(isWaitTimeAvailable){
-      if(waitTimeColor == HealthLocationWaitTimeColor.red){
-        waitTimeStatusText = Localization().getStringEx('panel.covid19_test_locations.wait_time.status.label.red', 'Long');
-      } else if(waitTimeColor == HealthLocationWaitTimeColor.yellow){
-        waitTimeStatusText = Localization().getStringEx('panel.covid19_test_locations.wait_time.status.label.yellow', 'Medium');
-      } else if(waitTimeColor == HealthLocationWaitTimeColor.green){
-        waitTimeStatusText = Localization().getStringEx('panel.covid19_test_locations.wait_time.status.label.green', 'Short');
-      }
-    }
+
     return
       Semantics(button: false, container: true, child:
         Container(
@@ -431,45 +401,7 @@ class _TestLocation extends StatelessWidget{
                 ],
               ))
             )),*/
-            Container(
-                padding: EdgeInsets.only(top: 4),
-                child: Row(
-                  children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        Padding(
-                          padding: EdgeInsets.only(right: 8),
-                          child: Container(
-                            width: 16,
-                            height: 16,
-                            decoration: BoxDecoration(color: HealthServiceLocation.waitTimeColorHex(waitTimeColor), shape: BoxShape.circle),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(right: 8),
-                          child: Text(
-                            waitTimeStatusText,
-                            style: TextStyle(
-                              fontFamily: Styles().fontFamilies.regular,
-                              fontSize: 16,
-                              color: Styles().colors.textSurface,
-                            ),
-                          )
-                        ),
-                        Text(
-                          waitTimeText,
-                          style: TextStyle(
-                            fontFamily: Styles().fontFamilies.regular,
-                            fontSize: 16,
-                            color: Styles().colors.textSurface,
-                          ),
-                        )
-                      ],
-                    )
-                  ],
-                )),
+              _buildWaitTime(),
               Semantics(explicitChildNodes:true,button: false, child:
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -486,6 +418,57 @@ class _TestLocation extends StatelessWidget{
           ),
         )
       );
+  }
+
+  Widget _buildWaitTime(){
+    HealthLocationWaitTimeColor waitTimeColor = testLocation.waitTimeColor;
+    bool isWaitTimeAvailable = (waitTimeColor == HealthLocationWaitTimeColor.red) ||
+        (waitTimeColor == HealthLocationWaitTimeColor.yellow) ||
+        (waitTimeColor == HealthLocationWaitTimeColor.green);
+    String waitTimeText = "";
+    if(isWaitTimeAvailable)  {
+      if(waitTimeColor == HealthLocationWaitTimeColor.red){
+        waitTimeText = Localization().getStringEx('panel.covid19_test_locations.wait_time.status.label.red', 'Long wait time');
+      } else if(waitTimeColor == HealthLocationWaitTimeColor.yellow){
+        waitTimeText = Localization().getStringEx('panel.covid19_test_locations.wait_time.status.label.yellow', 'Medium wait time');
+      } else if(waitTimeColor == HealthLocationWaitTimeColor.green){
+        waitTimeText = Localization().getStringEx('panel.covid19_test_locations.wait_time.status.label.green', 'Short wait time');
+      }
+    } else {
+      {
+        waitTimeText = Localization().getStringEx(
+            'panel.covid19_test_locations.wait_time.unavailable',
+            'Wait Time Unavailable');
+      }
+    }
+    return Container(
+        padding: EdgeInsets.only(top: 4),
+        child: Row(
+          children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(right: 8),
+                  child: Container(
+                    width: 16,
+                    height: 16,
+                    decoration: BoxDecoration(color: HealthServiceLocation.waitTimeColorHex(waitTimeColor), shape: BoxShape.circle),
+                  ),
+                ),
+                Text(
+                  waitTimeText,
+                  style: TextStyle(
+                    fontFamily: Styles().fontFamilies.regular,
+                    fontSize: 16,
+                    color: Styles().colors.textSurface,
+                  ),
+                )
+              ],
+            )
+          ],
+        ));
   }
 
   Widget _buildWorkTime(){
