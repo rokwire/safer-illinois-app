@@ -51,7 +51,7 @@ class SettingsDebugPanel extends StatefulWidget {
 class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements NotificationsListener {
 
   bool _switchingEnvironment;
-  ConfigEnvironment _configEnvironment;
+  String _configEnvironment;
 
   @override
   void initState() {
@@ -129,7 +129,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
                                         icon: Image.asset('images/icon-down-orange.png', excludeFromSemantics: true,),
                                         isExpanded: true,
                                         style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.textBackground,),
-                                        hint: Text(configEnvToString(_configEnvironment) ?? "Select environment...", style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground,),),
+                                        hint: Text(_configEnvironment ?? "Select environment...", style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground,),),
                                         items: _dropdownEnvironments,
                                         onChanged: _onEnvironmentSelected
                                     ),
@@ -407,12 +407,12 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
     return prettyString;
   }
 
-  List<DropdownMenuItem<ConfigEnvironment>> get _dropdownEnvironments {
-    List<DropdownMenuItem<ConfigEnvironment>> environments = <DropdownMenuItem<ConfigEnvironment>>[];
-    for (ConfigEnvironment environment in ConfigEnvironment.values) {
-      environments.add(DropdownMenuItem<ConfigEnvironment>(
+  List<DropdownMenuItem<String>> get _dropdownEnvironments {
+    List<DropdownMenuItem<String>> environments = <DropdownMenuItem<String>>[];
+    for (String environment in Config().configEnvironments) {
+      environments.add(DropdownMenuItem<String>(
         value: environment,
-        child: Text(configEnvToString(environment),
+        child: Text(environment,
           style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground,),
         ),
       ));
@@ -420,10 +420,10 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
     return environments;
   }
 
-  void _onEnvironmentSelected(ConfigEnvironment configEnvironment) {
-    if ((configEnvironment is ConfigEnvironment) && (configEnvironment != _configEnvironment) && (_switchingEnvironment != true)) {
-      String currentEnv = configEnvToString(_configEnvironment).toUpperCase();
-      String newEnv = configEnvToString(configEnvironment).toUpperCase();
+  void _onEnvironmentSelected(String configEnvironment) {
+    if ((configEnvironment is String) && (configEnvironment != _configEnvironment) && (_switchingEnvironment != true)) {
+      String currentEnv = _configEnvironment?.toUpperCase();
+      String newEnv = configEnvironment?.toUpperCase();
       String message = "Are you sure you want to switch the application environment from $currentEnv to $newEnv?";
       showDialog(context: context, builder: (context) {
         return AlertDialog(
@@ -440,7 +440,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
     }
   }
 
-  void _switchEnvirnment(ConfigEnvironment configEnvironment) {
+  void _switchEnvirnment(String configEnvironment) {
     setState(() {
       _switchingEnvironment = true;
     });
