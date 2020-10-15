@@ -332,7 +332,6 @@
     "panel.covid19_test_locations.call.hint": "Llamada",
     "panel.covid19_test_locations.wait_time.label": "Tiempo de espera",
     "panel.covid19_test_locations.wait_time.unavailable": "Indisponible",
-    "panel.covid19_test_locations.empty.title": "No test location available for %s provider",
     "panel.covid19_test_locations.wait_time.status.label.red": "Long",
     "panel.covid19_test_locations.wait_time.status.label.yellow": "Medium",
     "panel.covid19_test_locations.wait_time.status.label.green": "Short",

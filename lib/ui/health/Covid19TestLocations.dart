@@ -81,7 +81,7 @@ class _Covid19TestLocationsPanelState extends State<Covid19TestLocationsPanel>{
   @override
   Widget build(BuildContext context) {
     int itemsLength = _locations?.length ?? 0;
-    itemsLength+= 3; // for dropdowns + 1 for empty
+    itemsLength+= 2; // for dropdowns
     return Scaffold(
       backgroundColor: Styles().colors.background,
       appBar: SimpleHeaderBarWithBack(
@@ -102,10 +102,8 @@ class _Covid19TestLocationsPanelState extends State<Covid19TestLocationsPanel>{
                     return _buildCountyField();
                   if(index == 1)
                     return _buildProviderField();
-                  if(index == 2)
-                    return _buildEmpty();
 
-                  index -= 3; //for dropdowns
+                  index -= 2; //for dropdowns
                   HealthServiceLocation location = (_locations?.isNotEmpty ?? false)? _locations[index] : null;
                   //double distance = _locationData!=null && location!=null? AppLocation.distance(location.latitude, location.longitude, _locationData.latitude, _locationData.longitude) : 0;
                   return location!=null? _TestLocation(testLocation: location, /*distance: distance,*/): Container();
@@ -113,19 +111,6 @@ class _Covid19TestLocationsPanelState extends State<Covid19TestLocationsPanel>{
               ) :Container(),
         ),
     );
-  }
-
-  Widget _buildEmpty(){
-    return (_locations?.isEmpty?? false) ?
-    Row(children: [
-      Expanded(child: Container(
-          child: Center(child:
-          Text(sprintf(Localization().getStringEx("panel.covid19_test_locations.empty.title", "No test location available for %s provider"),['${_selectedProviderItem?.provider?.name ?? "All"}']),
-            style: TextStyle(color: Styles().colors.textSurface, fontSize: 16, fontFamily: Styles().fontFamilies.regular), textAlign: TextAlign.center,
-          ),)
-      ))
-    ],)
-     : Container();
   }
 
   void _sortLocations() async{
