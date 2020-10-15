@@ -702,40 +702,77 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
 
     //endregion
 
+    //region Health RSA keys
+
     private Object handleHealthRsaPrivateKey(Object params) {
-        String userId = null;
-        String value = null;
-        boolean remove = false;
-        if (params instanceof HashMap) {
-            HashMap paramsMap = (HashMap) params;
-            Object userIdObj = paramsMap.get("userId");
-            if (userIdObj instanceof String) {
-                userId = (String) userIdObj;
-            }
-            Object valueObj = paramsMap.get("value");
-            if (valueObj instanceof String) {
-                value = (String) valueObj;
-            }
-            Object removeObj = paramsMap.get("remove");
-            if (removeObj instanceof Boolean) {
-                remove = (Boolean) removeObj;
-            }
-        }
+        String userId = Utils.Map.getValueFromPath(params, "userId", null);
         if (Utils.Str.isEmpty(userId)) {
             return null;
         }
+        String organization = Utils.Map.getValueFromPath(params, "organization", null);
+        String environment = Utils.Map.getValueFromPath(params, "environment", null);
+        String value = Utils.Map.getValueFromPath(params, "value", null);
+        boolean remove = Utils.Map.getValueFromPath(params, "remove", false);
+        List<String> source = Arrays.asList(Utils.Str.defaultEmpty(organization), Utils.Str.defaultEmpty(environment), Utils.Str.defaultEmpty(userId));
+        List<String> keys = new ArrayList<>();
+        processHealthRsaStorageKeysFromSource(source, 0, keys);
+
         if (Utils.Str.isEmpty(value)) {
             if (remove) {
-                Utils.BackupStorage.remove(this, Constants.HEALTH_SHARED_PREFS_FILE_NAME, userId);
-                return true;
+                for (String key : keys) {
+                    String existingValue = Utils.BackupStorage.getHealthString(this, key);
+                    if (existingValue != null) {
+                        Utils.BackupStorage.removeHealth(this, key);
+                        return true;
+                    }
+                }
+                return false;
             } else {
-                return Utils.BackupStorage.getString(this, Constants.HEALTH_SHARED_PREFS_FILE_NAME, userId);
+                for (String key : keys) {
+                    String existingValue = Utils.BackupStorage.getHealthString(this, key);
+                    if (existingValue != null) {
+                        return existingValue;
+                    }
+                }
+                return null;
             }
         } else {
-            Utils.BackupStorage.saveString(this, Constants.HEALTH_SHARED_PREFS_FILE_NAME, userId, value);
+            Utils.BackupStorage.saveHealthString(this, keys.get(0), value);
             return true;
         }
     }
+
+    private void processHealthRsaStorageKeysFromSource(List<String> source, int index, List<String> keys) {
+        if ((index + 1) < source.size()) {
+            processHealthRsaStorageKeysFromSource(source, (index + 1), keys);
+            String entry = source.get(index);
+            if (!Utils.Str.isEmpty(entry)) {
+                source.set(index, "");
+                processHealthRsaStorageKeysFromSource(source, (index + 1), keys);
+                source.set(index, entry);
+            }
+        } else {
+            String key = getHealthRsaStorageKeyFromSource(source);
+            keys.add(key);
+        }
+    }
+
+    private String getHealthRsaStorageKeyFromSource(List<String> source) {
+        StringBuilder result = new StringBuilder();
+        if (source != null && !source.isEmpty()) {
+            for (String sourceEntry : source) {
+                if (!Utils.Str.isEmpty(sourceEntry)) {
+                    if (result.length() > 0) {
+                        result.append("-");
+                    }
+                    result.append(sourceEntry);
+                }
+            }
+        }
+        return (result.length() > 0) ? result.toString() : "";
+    }
+
+    //endregion
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -759,6 +796,7 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
         try {
             switch (method) {
                 case Constants.APP_INIT_KEY:
+                    StringBuilder builder = new StringBuilder();
                     Object keysObject = methodCall.argument("keys");
                     initWithParams(keysObject);
                     result.success(true);

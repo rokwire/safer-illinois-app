@@ -657,6 +657,13 @@ public class Utils {
             return value;
         }
 
+        public static String defaultEmpty(String value) {
+            if (isEmpty(value)) {
+                return "";
+            }
+            return value;
+        }
+
         public static byte[] hexStringToByteArray(String s) {
             if(s != null) {
                 int len = s.length();
@@ -724,6 +731,18 @@ public class Utils {
     }
 
     public static class BackupStorage {
+
+        public static String getHealthString(Context context, String key) {
+            return getString(context, Constants.HEALTH_SHARED_PREFS_FILE_NAME, key);
+        }
+
+        public static void saveHealthString(Context context, String key, String value) {
+            saveString(context, Constants.HEALTH_SHARED_PREFS_FILE_NAME, key, value);
+        }
+
+        public static void removeHealth(Context context, String key) {
+            remove(context, Constants.HEALTH_SHARED_PREFS_FILE_NAME, key);
+        }
 
         public static String getString(Context context, String fileName, String key) {
             if ((context == null) || Str.isEmpty(fileName) || Str.isEmpty(key)) {
