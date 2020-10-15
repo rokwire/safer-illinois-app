@@ -44,7 +44,7 @@ class HealthServiceTest {
     String aesKey = AESCrypt.randomKey();
     //Log.d("Random AES Key: $aesKey");
 
-    String encryptedBlob = AESCrypt.encrypt(plainBlob, aesKey);
+    String encryptedBlob = AESCrypt.encrypt(plainBlob, keyString: aesKey);
     //Log.d("Ecrypted Blob: $encryptedBlob");
 
     PublicKey rsaPublicKey = RsaKeyHelper.parsePublicKeyFromPem(rsaPublicKeyString);
@@ -62,7 +62,7 @@ class HealthServiceTest {
     String decryptedKey = RSACrypt.decrypt(encryptedKey, rsaPrivateKey);
     //Log.d("Decrypted Key: $decryptedKey");
 
-    String decryptedBlob = AESCrypt.decrypt(encryptedBlob, decryptedKey);
+    String decryptedBlob = AESCrypt.decrypt(encryptedBlob, keyString: decryptedKey);
     //Log.d("Decrypted Blob: $decryptedBlob");
 
     String status = (plainBlob == decryptedBlob) ? "Test Succeeded" : "Test Failed";
@@ -102,22 +102,40 @@ class AESCrypt {
 
   static const int kCCBlockSizeAES128 = 16;
 
-  static String encrypt(String plainText, String keyString, { Encrypt.AESMode mode = Encrypt.AESMode.cbc, String padding = 'PKCS7' }) {
+  static String encrypt(String plainText, { String keyString, String keyBase64, Uint8List keyBytes, Encrypt.AESMode mode = Encrypt.AESMode.cbc, String padding = 'PKCS7' }) {
     try {
-      final key = Encrypt.Key.fromUtf8(keyString);
-      final iv = Encrypt.IV.fromLength(keyString.length);
-      final encrypter = Encrypt.Encrypter(Encrypt.AES(key, mode: mode, padding: padding));
+      Encrypt.Key key;
+      if (keyString != null) {
+        key = Encrypt.Key.fromUtf8(keyString);
+      }
+      else if (keyBase64 != null) {
+        key = Encrypt.Key.fromBase64(keyBase64);
+      }
+      else if (keyBytes != null) {
+        key = Encrypt.Key(keyBytes);
+      }
+      Encrypt.IV iv = Encrypt.IV.fromLength(key.length);
+      Encrypt.Encrypter encrypter = Encrypt.Encrypter(Encrypt.AES(key, mode: mode, padding: padding));
       return encrypter.encrypt(plainText, iv: iv).base64;
     }
     catch(e) { print(e.toString()); }
     return null;
   }
 
-  static String decrypt(String cipherBase64, String keyString, { Encrypt.AESMode mode = Encrypt.AESMode.cbc, String padding = 'PKCS7' }) {
+  static String decrypt(String cipherBase64, { String keyString, String keyBase64, Uint8List keyBytes, Encrypt.AESMode mode = Encrypt.AESMode.cbc, String padding = 'PKCS7' }) {
     try {
-      final key = Encrypt.Key.fromUtf8(keyString);
-      final iv = Encrypt.IV.fromLength(keyString.length);
-      final encrypter = Encrypt.Encrypter(Encrypt.AES(key, mode: mode, padding: padding));
+      Encrypt.Key key;
+      if (keyString != null) {
+        key = Encrypt.Key.fromUtf8(keyString);
+      }
+      else if (keyBase64 != null) {
+        key = Encrypt.Key.fromBase64(keyBase64);
+      }
+      else if (keyBytes != null) {
+        key = Encrypt.Key(keyBytes);
+      }
+      Encrypt.IV iv = Encrypt.IV.fromLength(key.length);
+      dynamic encrypter = Encrypt.Encrypter(Encrypt.AES(key, mode: mode, padding: padding));
       return encrypter.decrypt(Encrypt.Encrypted.fromBase64(cipherBase64), iv: iv);
     }
     catch(e) { print(e.toString()); }

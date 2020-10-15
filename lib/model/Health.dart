@@ -2728,7 +2728,7 @@ String _decryptBlob(Map<String, dynamic> param) {
   PrivateKey privateKey = (param != null) ? param['privateKey'] : null;
 
   String aesKey = ((privateKey != null) && (encKey != null)) ? RSACrypt.decrypt(encKey, privateKey) : null;
-  String blob = ((aesKey != null) && (encBlob != null)) ? AESCrypt.decrypt(encBlob, aesKey) : null;
+  String blob = ((aesKey != null) && (encBlob != null)) ? AESCrypt.decrypt(encBlob, keyString: aesKey) : null;
   return blob;
 }
 
@@ -2737,7 +2737,7 @@ Map<String, dynamic> _encryptBlob(Map<String, dynamic> param) {
   PublicKey publicKey =  (param != null) ? param['publicKey'] : null;
   String aesKey = AESCrypt.randomKey();
 
-  String encryptedBlob = ((blob != null) && (aesKey != null)) ? AESCrypt.encrypt(blob, aesKey) : null;
+  String encryptedBlob = ((blob != null) && (aesKey != null)) ? AESCrypt.encrypt(blob, keyString: aesKey) : null;
   String encryptedKey = ((blob != null) && (aesKey != null) && (publicKey != null)) ? RSACrypt.encrypt(aesKey, publicKey) : null;
 
   return {
