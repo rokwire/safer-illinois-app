@@ -35,10 +35,15 @@ import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/utils/Utils.dart';
 
-class RootPanel extends StatefulWidget {
+class RootPanel extends StatefulWidget with AnalyticsPageAnonymous {
 
   @override
   _RootPanelState createState() => _RootPanelState();
+
+  @override
+  bool get analyticsPageAnonymous {
+    return false;
+  }
 }
 
 class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMixin implements NotificationsListener {
