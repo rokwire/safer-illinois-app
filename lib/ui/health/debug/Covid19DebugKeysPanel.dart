@@ -518,7 +518,7 @@ class _Covid19DebugKeysPanelState extends State<Covid19DebugKeysPanel> {
       return;
     }
 
-    String encryptedBlob = AESCrypt.encrypt(blob, aesKey);
+    String encryptedBlob = AESCrypt.encrypt(blob, keyString: aesKey);
     String encryptedAESKey = (encryptedBlob != null) ? RSACrypt.encrypt(aesKey, _rsaPublicKey) : null;
 
     _encryptedAesKeyController.text = encryptedAESKey ?? 'NA';
@@ -542,7 +542,7 @@ class _Covid19DebugKeysPanelState extends State<Covid19DebugKeysPanel> {
 
 
     String decryptedAESKey = (encryptedAESKey != null) ? RSACrypt.decrypt(encryptedAESKey, _rsaPrivateKey) : null;
-    String decryptedBlob = ((decryptedAESKey != null) && (encryptedBlob != null)) ? AESCrypt.decrypt(encryptedBlob, decryptedAESKey) : null;
+    String decryptedBlob = ((decryptedAESKey != null) && (encryptedBlob != null)) ? AESCrypt.decrypt(encryptedBlob, keyString: decryptedAESKey) : null;
     
     _decryptedAesKeyController.text = decryptedAESKey ?? 'NA';
     _decryptedBlobController.text = decryptedBlob ?? 'NA';

@@ -275,6 +275,9 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 	else if ([call.method isEqualToString:@"healthRSAPrivateKey"]) {
 		[self handleHealthRSAPrivateKeyWithParameters:parameters result:result];
 	}
+	else if ([call.method isEqualToString:@"encryptionKey"]) {
+		[self handleEncryptionKeyWithParameters:parameters result:result];
+	}
 	else if ([call.method isEqualToString:@"enabledOrientations"]) {
 		[self handleEnabledOrientationsWithParameters:parameters result:result];
 	}
@@ -425,6 +428,11 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 - (void)handleHealthRSAPrivateKeyWithParameters:(NSDictionary*)parameters result:(FlutterResult)result {
 	result([self healthRSAPrivateKeyWithParameters:parameters]);
 }
+
+- (void)handleEncryptionKeyWithParameters:(NSDictionary*)parameters result:(FlutterResult)result {
+	result([self encryptionKeyWithParameters:parameters]);
+}
+
 
 - (void)handleTestWithParameters:(NSDictionary*)parameters result:(FlutterResult)result {
 	result(nil);
@@ -1025,7 +1033,7 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 	return nil;
 }
 
-#pragma mark Permanent Value
+#pragma mark Health RSA Private Key
 
 - (id)healthRSAPrivateKeyWithParameters:(NSDictionary*)parameters {
 	static NSString* const healthRSAPrivateKey = @"healthRSAPrivateKey";
@@ -1113,6 +1121,38 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 	return result;
 }
 
+#pragma mark Encryption Key
+
+- (id)encryptionKeyWithParameters:(NSDictionary*)parameters {
+	static NSString* const encryptionKey = @"encryptionKey";
+	
+	NSString *name = [parameters inaStringForKey:@"name"];
+	if (name == nil) {
+		return nil;
+	}
+	
+	NSInteger keySize = [parameters inaIntegerForKey:@"size"];
+	if (keySize <= 0) {
+		return nil;
+	}
+
+	NSData *data = uiucSecStorageData(name, encryptionKey, nil);
+	if ([data isKindOfClass:[NSData class]] && (data.length == keySize)) {
+		return [data base64EncodedStringWithOptions:0];
+	}
+	else {
+		UInt8 key[keySize];
+		int rndStatus = SecRandomCopyBytes(kSecRandomDefault, sizeof(key), key);
+		if (rndStatus == errSecSuccess) {
+			NSNumber *result = uiucSecStorageData(name, encryptionKey, [NSData dataWithBytes:key length:sizeof(key)]);
+			if ([result isKindOfClass:[NSNumber class]] && [result boolValue]) {
+				return [data base64EncodedStringWithOptions:0];
+			}
+		}
+	}
+	return nil;
+}
+
 #pragma mark PKAddPassesViewControllerDelegate
 
 - (void)addPassesViewControllerDidFinish:(PKAddPassesViewController *)controller {
@@ -1128,6 +1168,8 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 		}];
 	}
 }
+
+#pragma mark Encryption Key
 
 #pragma mark MBBlinkIdOverlayViewControllerDelegate
 

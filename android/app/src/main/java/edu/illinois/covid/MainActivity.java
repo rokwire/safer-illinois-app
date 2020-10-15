@@ -823,6 +823,10 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
                     Object healthRsiPrivateKeyResult = handleHealthRsiPrivateKey(methodCall.arguments);
                     result.success(healthRsiPrivateKeyResult);
                     break;
+                case Constants.ENCRYPTION_KEY_KEY:
+                    //TBD
+                    result.success(null);
+                    break;
                 case Constants.BARCODE_KEY:
                     String barcodeImageData = handleBarcode(methodCall.arguments);
                     result.success(barcodeImageData);
