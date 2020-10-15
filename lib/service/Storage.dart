@@ -18,6 +18,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:illinois/model/Auth.dart';
 import 'package:illinois/model/Health.dart';
+import 'package:illinois/model/Organization.dart';
 import 'package:illinois/model/UserData.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/NotificationService.dart';
@@ -308,6 +309,21 @@ class Storage with Service {
       topis.remove(value);
       firebaseSubscriptionTopis = topis;
     }
+  }
+
+  /////////////
+  // Organizaton
+
+  static const String _organiationKey = 'organization';
+
+  Organization get organization {
+    return Organization.fromJson(
+      AppJson.decode(
+        _getEncryptedStringWithName(_organiationKey)));
+  }
+
+  set organization(Organization organizartion) {
+    _setEncryptedStringWithName(_organiationKey, AppJson.encode(organizartion.toJson()));
   }
 
   /////////////
