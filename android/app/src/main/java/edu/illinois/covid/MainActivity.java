@@ -55,6 +55,7 @@ import com.microblink.uisettings.ActivityRunner;
 import com.microblink.uisettings.BlinkIdUISettings;
 
 import java.io.ByteArrayOutputStream;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -62,6 +63,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
@@ -774,6 +776,33 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
 
     //endregion
 
+    //region Encryption key
+
+    private Object handleEncryptionKey(Object params) {
+        String name = Utils.Map.getValueFromPath(params, "name", null);
+        if (Utils.Str.isEmpty(name)) {
+            return null;
+        }
+        int keySize = Utils.Map.getValueFromPath(params, "size", 0);
+        if (keySize <= 0) {
+            return null;
+        }
+        String base64KeyValue = Utils.BackupStorage.getString(this, Constants.ENCRYPTION_SHARED_PREFS_FILE_NAME, name);
+        byte[] encryptionKey = Utils.Base64.decode(base64KeyValue);
+        if ((encryptionKey != null) && (encryptionKey.length == keySize)) {
+            return base64KeyValue;
+        } else {
+            byte[] keyBytes = new byte[keySize];
+            SecureRandom secRandom = new SecureRandom();
+            secRandom.nextBytes(keyBytes);
+            base64KeyValue = Utils.Base64.encode(keyBytes);
+            Utils.BackupStorage.saveString(this, Constants.ENCRYPTION_SHARED_PREFS_FILE_NAME, name, base64KeyValue);
+            return base64KeyValue;
+        }
+    }
+
+    //endregion
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == BLINK_ID_REQUEST_CODE) {
@@ -861,8 +890,8 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
                     result.success(healthRsaPrivateKeyResult);
                     break;
                 case Constants.ENCRYPTION_KEY_KEY:
-                    //TBD
-                    result.success(null);
+                    Object encryptionKey = handleEncryptionKey(methodCall.arguments);
+                    result.success(encryptionKey);
                     break;
                 case Constants.BARCODE_KEY:
                     String barcodeImageData = handleBarcode(methodCall.arguments);
