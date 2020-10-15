@@ -723,7 +723,9 @@ class Analytics with Service implements NotificationsListener {
 
   void logPage({String name,  Map<String, dynamic> attributes, bool anonymous : true}) {
 
-    bool previousPageAnonymous = (_currentPageAnonymous != false);
+    if (_currentPageAnonymous != null) {
+      anonymous = (anonymous != null) ? (anonymous || _currentPageAnonymous) : _currentPageAnonymous;
+    }
 
     // Update Current page name
     String previousPageName = _currentPageName;
@@ -743,7 +745,7 @@ class Analytics with Service implements NotificationsListener {
     }
 
     // Log the event
-    logEvent(event, anonymous: (anonymous != false) || previousPageAnonymous);
+    logEvent(event, anonymous: (anonymous != false));
   }
 
   void logSelect({String target, bool anonymous = true}) {
