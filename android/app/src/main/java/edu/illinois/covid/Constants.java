@@ -39,7 +39,7 @@ public class Constants {
     static final String APP_BLUETOOTH_AUTHORIZATION = "bluetooth_authorization";
     static final String FIREBASE_INFO = "firebaseInfo";
     static final String DEVICE_ID_KEY = "deviceId";
-    static final String HEALTH_RSI_PRIVATE_KEY = "healthRSAPrivateKey";
+    static final String HEALTH_RSA_PRIVATE_KEY = "healthRSAPrivateKey";
     static final String ENCRYPTION_KEY_KEY = "encryptionKey";
     static final String BARCODE_KEY = "barcode";
 

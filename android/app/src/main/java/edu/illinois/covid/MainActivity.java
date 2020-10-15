@@ -76,7 +76,6 @@ import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;
-import io.flutter.plugins.GeneratedPluginRegistrant;
 import io.flutter.view.FlutterMain;
 
 public class MainActivity extends FlutterActivity implements MethodChannel.MethodCallHandler, PluginRegistry.PluginRegistrantCallback {
@@ -703,7 +702,7 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
 
     //endregion
 
-    private Object handleHealthRsiPrivateKey(Object params) {
+    private Object handleHealthRsaPrivateKey(Object params) {
         String userId = null;
         String value = null;
         boolean remove = false;
@@ -819,9 +818,9 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
                     String deviceId = getDeviceId();
                     result.success(deviceId);
                     break;
-                case Constants.HEALTH_RSI_PRIVATE_KEY:
-                    Object healthRsiPrivateKeyResult = handleHealthRsiPrivateKey(methodCall.arguments);
-                    result.success(healthRsiPrivateKeyResult);
+                case Constants.HEALTH_RSA_PRIVATE_KEY:
+                    Object healthRsaPrivateKeyResult = handleHealthRsaPrivateKey(methodCall.arguments);
+                    result.success(healthRsaPrivateKeyResult);
                     break;
                 case Constants.ENCRYPTION_KEY_KEY:
                     //TBD
