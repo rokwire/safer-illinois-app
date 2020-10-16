@@ -437,7 +437,7 @@ class _TestLocation extends StatelessWidget{
       {
         waitTimeText = Localization().getStringEx(
             'panel.covid19_test_locations.wait_time.unavailable',
-            'Wait Time Unavailable');
+            'Unknown wait time');
       }
     }
     return Container(
