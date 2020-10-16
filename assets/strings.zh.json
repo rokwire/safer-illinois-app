@@ -331,7 +331,7 @@
 	"panel.covid19_test_locations.all_providers.text": "所有提供者",
 	"panel.covid19_test_locations.call.hint": "呼叫",
 	"panel.covid19_test_locations.wait_time.label": "等待時間",
-	"panel.covid19_test_locations.wait_time.unavailable": "Wait Time Unavailable",
+	"panel.covid19_test_locations.wait_time.unavailable": "Unknown wait time",
 	"panel.covid19_test_locations.wait_time.status.label.red": "Long wait time",
 	"panel.covid19_test_locations.wait_time.status.label.yellow": "Medium wait time",
 	"panel.covid19_test_locations.wait_time.status.label.green": "Short wait time",
