@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.7.9] - 2020-10-16
+- Covid19TestLocations panel: update unavailable waith time text [#279](https://github.com/rokwire/safer-illinois-app/issues/279)
+
 ## [2.7.8] - 2020-10-15
 ### Added
 - Added encryption support to storage.
