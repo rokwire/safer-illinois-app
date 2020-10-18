@@ -45,7 +45,7 @@ class Config with Service implements NotificationsListener {
 
   Map<String, dynamic> _config;
   Map<String, dynamic> _configAsset;
-  ConfigEnvironment    _configEnvironment;
+  String               _configEnvironment;
   PackageInfo          _packageInfo;
   Directory            _appDocumentsDir; 
   DateTime             _pausedDateTime;
@@ -142,14 +142,45 @@ class Config with Service implements NotificationsListener {
   @override
   Future<void> initService() async {
 
-    _configEnvironment = configEnvFromString(Storage().configEnvironment) ??
-      (kReleaseMode ? ConfigEnvironment.production : ConfigEnvironment.dev);
+    _configEnvironment = Storage().configEnvironment ?? _defaultConfigEnvironment;
 
-    _packageInfo = await PackageInfo.fromPlatform();
-    _appDocumentsDir = await getApplicationDocumentsDirectory();
-    Log.d('Application Documents Directory: ${_appDocumentsDir.path}');
+    if (_packageInfo == null) {
+      _packageInfo = await PackageInfo.fromPlatform();
+    }
 
-    await _init();
+    if (_appDocumentsDir == null) {
+      _appDocumentsDir = await getApplicationDocumentsDirectory();
+      Log.d('Application Documents Directory: ${_appDocumentsDir.path}');
+    }
+
+    _config = await _loadFromFile(_configFile);
+
+    if (_config == null) {
+      _configAsset = await _loadFromAssets();
+      String configString = await _loadAsStringFromNet();
+      _configAsset = null;
+
+      _config = (configString != null) ? _configFromJsonString(configString) : null;
+      if (_config != null) {
+        _configFile.writeAsStringSync(configString, flush: true);
+        NotificationService().notify(notifyConfigChanged, null);
+        
+        _checkUpgrade();
+      }
+    }
+    else {
+      _checkUpgrade();
+      _updateFromNet();
+    }
+
+  }
+
+  @override
+  Future<void> clearService() async {
+    AppFile.delete(_configFile);
+    _configEnvironment = _defaultConfigEnvironment;
+    _config = _configAsset = null;
+    _reportedUpgradeVersions.clear();
   }
 
   @override
@@ -158,8 +189,7 @@ class Config with Service implements NotificationsListener {
   }
 
   String get _configName {
-    String configTarget = configEnvToString(_configEnvironment);
-    return "config.$configTarget.json";
+    return "config.$_configEnvironment.json";
   }
 
   File get _configFile {
@@ -182,8 +212,7 @@ class Config with Service implements NotificationsListener {
       String configsStrEnc = await rootBundle.loadString('assets/$_configsAsset');
       String configsStr = (configsStrEnc != null) ? AESCrypt.decode(configsStrEnc) : null;
       Map<String, dynamic> configs = AppJson.decode(configsStr);
-      String configTarget = configEnvToString(_configEnvironment);
-      return (configs != null) ? configs[configTarget] : null;
+      return (configs != null) ? configs[_configEnvironment] : null;
     } catch (e) {
       print(e.toString());
     }
@@ -232,29 +261,6 @@ class Config with Service implements NotificationsListener {
       }
     }
     return false;
-  }
-
-  Future<void> _init() async {
-    
-    _config = await _loadFromFile(_configFile);
-
-    if (_config == null) {
-      _configAsset = await _loadFromAssets();
-      String configString = await _loadAsStringFromNet();
-      _configAsset = null;
-
-      _config = (configString != null) ? _configFromJsonString(configString) : null;
-      if (_config != null) {
-        _configFile.writeAsStringSync(configString, flush: true);
-        NotificationService().notify(notifyConfigChanged, null);
-        
-        _checkUpgrade();
-      }
-    }
-    else {
-      _checkUpgrade();
-      _updateFromNet();
-    }
   }
 
   void _updateFromNet() {
@@ -359,19 +365,37 @@ class Config with Service implements NotificationsListener {
 
   // Environment
 
-  set configEnvironment(ConfigEnvironment configEnvironment) {
-    if (_configEnvironment != configEnvironment) {
-      _configEnvironment = configEnvironment;
-      Storage().configEnvironment = configEnvToString(_configEnvironment);
+  String get configEnvironment {
+    return _configEnvironment;
+  }
 
-      _init().then((_){
-        NotificationService().notify(notifyEnvironmentChanged, null);
-      });
+  Future<void> setConfigEnvironment(String configEnvironment) async {
+    if (_configEnvironment != configEnvironment) {
+      await Services().clear();
+      Storage().configEnvironment = configEnvironment;
+      await Services().init();
+      NotificationService().notify(notifyEnvironmentChanged);
     }
   }
 
-  ConfigEnvironment get configEnvironment {
-    return _configEnvironment;
+  static String get _defaultConfigEnvironment {
+    return kReleaseMode ? 'production' : 'dev';
+  }
+
+  bool get isDev {
+    return _configEnvironment == 'dev';
+  }
+
+  bool get isTest {
+    return _configEnvironment == 'test';
+  }
+
+  bool get isProduction {
+    return _configEnvironment == 'production';
+  }
+
+  List<String> get configEnvironments {
+    return ['production', 'test', 'dev'];
   }
 
   // Assets cache path
@@ -402,34 +426,3 @@ class Config with Service implements NotificationsListener {
   }
 }
 
-enum ConfigEnvironment { production, test, dev }
-
-String configEnvToString(ConfigEnvironment env) {
-  if (env == ConfigEnvironment.production) {
-    return 'production';
-  }
-  else if (env == ConfigEnvironment.test) {
-    return 'test';
-  }
-  else if (env == ConfigEnvironment.dev) {
-    return 'dev';
-  }
-  else {
-    return null;
-  }
-}
-
-ConfigEnvironment configEnvFromString(String value) {
-  if ('production' == value) {
-    return ConfigEnvironment.production;
-  }
-  else if ('test' == value) {
-    return ConfigEnvironment.test;
-  }
-  else if ('dev' == value) {
-    return ConfigEnvironment.dev;
-  }
-  else {
-    return null;
-  }
-}

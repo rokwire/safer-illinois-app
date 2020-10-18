@@ -30,6 +30,11 @@ class OnboardingAuthLocationPanel extends StatelessWidget with OnboardingPanel {
   final Map<String, dynamic> onboardingContext;
   OnboardingAuthLocationPanel({this.onboardingContext});
 
+  Future<bool> get onboardingCanDisplayAsync async {
+    LocationServicesStatus status = await LocationServices.instance.status;
+    return (status != LocationServicesStatus.PermissionAllowed);
+  }
+
   @override
   Widget build(BuildContext context) {
     String titleText = Localization().getStringEx('panel.onboarding.location.label.title', "Turn on Location Services");
@@ -148,7 +153,7 @@ class OnboardingAuthLocationPanel extends StatelessWidget with OnboardingPanel {
 
   void _requestLocation(BuildContext context) async {
     Analytics.instance.logSelect(target: 'Share My locaiton') ;
-    await LocationServices.instance.status.then((LocationServicesStatus status){
+    LocationServices.instance.status.then((LocationServicesStatus status){
       if (status == LocationServicesStatus.ServiceDisabled) {
         LocationServices.instance.requestService();
       }

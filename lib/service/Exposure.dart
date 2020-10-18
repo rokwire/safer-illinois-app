@@ -111,6 +111,7 @@ class Exposure with Service implements NotificationsListener {
   
   // Data
   final MethodChannel _methodChannel = const MethodChannel(_methodChannelName);
+  
   Database _database;
   
   bool     _serviceInitialized = false;
@@ -186,6 +187,21 @@ class Exposure with Service implements NotificationsListener {
       _startExposuresMonitor();
     });
     checkReport();
+  }
+
+  @override
+  Future<void> clearService() async {
+    await _clearDatabase();
+    
+    _destroyPlugin();
+    _pluginInitialized = _serviceInitialized = false;
+
+    _stopExposuresMonitor();
+    
+    _logSessionId = null;
+    _exposureMinDuration = null;
+    _checkingReport = _checkingExposures = null;
+    _reportTargetTimestamp = _lastReportTimestamp = null;
   }
 
   @override
@@ -367,6 +383,15 @@ class Exposure with Service implements NotificationsListener {
         try { await db.execute("CREATE TABLE IF NOT EXISTS $_databaseContactTable($_databaseContactSessionIdField INTEGER, $_databaseContactStartTimeField INTEGER, $_databaseContactDurationField INTEGER, $_databaseContactRPIField TEXT, $_databaseContactSourceField TEXT, $_databaseContactAddressField TEXT)",); } catch(e) { print(e?.toString()); }
         try { await db.execute("CREATE TABLE IF NOT EXISTS $_databaseRssiTable($_databaseRssiSessionIdField INTEGER, $_databaseRssiTimestampField INTEGER, $_databaseRssiRSSIField INTEGER, $_databaseRssiRPIField TEXT, $_databaseRssiSourceField TEXT, $_databaseRssiAddressField TEXT)",); } catch(e) { print(e?.toString()); }
       });
+    }
+  }
+
+  Future<void> _clearDatabase() async {
+    if (_database != null) {
+      try { await _database.execute("UPDATE $_databaseExposureTable SET $_databaseExposureProcessedField = 0",); } catch(e) { print(e?.toString()); }
+      try { await _database.execute("DELETE FROM $_databaseRpiTable",); } catch(e) { print(e?.toString()); }
+      try { await _database.execute("DELETE FROM $_databaseContactTable",); } catch(e) { print(e?.toString()); }
+      try { await _database.execute("DELETE FROM $_databaseRssiTable",); } catch(e) { print(e?.toString()); }
     }
   }
 

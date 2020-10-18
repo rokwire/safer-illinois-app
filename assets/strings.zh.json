@@ -262,7 +262,6 @@
 
 	"panel.covid19_passport.header.title": "COVID-19",
 	"panel.covid19_passport.button.close.title": "關",
-	"panel.covid19_passport.button.info_center.title": "您的COVID-19信息中心",
 	"panel.covid19_passport.label.status.empty":"此县没有可用状态",
     "panel.covid19_passport.label.counties.empty":"沒有可用縣",
 	"panel.covid19_passport.label.county.empty.hint":"选择一个县...",
@@ -318,6 +317,9 @@
 	"panel.covid19home.label.contact_trace.title": "接触痕迹",
 	"panel.covid19home.label.reported_symptoms.title": "自述症状",
 	"panel.covid19home.button.info.title": "Info ",
+	"panel.covid19home.label.access.title": "Building access",
+	"panel.covid19home.label.access.granted": "granted",
+	"panel.covid19home.label.access.denied": "denied",
 
 	"panel.covid19_test_locations.header.title": "测试位置",
 	"panel.covid19_test_locations.label.contact.title": "联系人",
@@ -329,7 +331,10 @@
 	"panel.covid19_test_locations.all_providers.text": "所有提供者",
 	"panel.covid19_test_locations.call.hint": "呼叫",
 	"panel.covid19_test_locations.wait_time.label": "等待時間",
-	"panel.covid19_test_locations.wait_time.unavailable": "不可用",
+	"panel.covid19_test_locations.wait_time.unavailable": "Unknown wait time",
+	"panel.covid19_test_locations.wait_time.status.label.red": "Long wait time",
+	"panel.covid19_test_locations.wait_time.status.label.yellow": "Medium wait time",
+	"panel.covid19_test_locations.wait_time.status.label.green": "Short wait time",
 
 	"panel.covid19.header.title": "COVID-19",
 	"panel.covid19.latest_update.title": "最近更新",
@@ -510,11 +515,11 @@
 	"panel.health.covid19.add_test.message.no_result_found": "找不到结果",
 
 	"panel.health.covid19.care_team.heading.title": "您的护理团队",
-	"panel.health.covid19.care_team.label.question": "我们是来帮忙的.",
-	"panel.health.covid19.care_team.label.description": "联系你的COVID-19护理小组的人-我们会帮助你的.",
+	"panel.health.covid19.care_team.label.question": "Help When You Need It",
+	"panel.health.covid19.care_team.label.description": "Reach out to someone on your COVID-19 care team. They’re here to help.",
 	"panel.health.covid19.care_team.label.status": "当前状态:",
 	"panel.health.covid19.care_team.label.emergency.text1": "在紧急情况下,",
-	"panel.health.covid19.care_team.label.emergency.text2": "随时拨打911.",
+	"panel.health.covid19.care_team.label.emergency.text2": "call 911.",
 	"panel.health.covid19.care_team.team.title.mc_kinley": "呼 叫麦金利健康中心",
 	"panel.health.covid19.care_team.team.contact.mc_kinley": "1-217-333-2700",
 	"panel.health.covid19.care_team.team.semantic_contact.mc_kinley": "12173332700",
@@ -528,6 +533,10 @@
 	"panel.health.covid19.care_team.label.more_info.hint": "双击可显示更多信息",
 	"panel.health.covid19.care_team.label.call.hint": "致电 ",
 	"panel.health.covid19.care_team.label.more_info.link": "了解更多",
+	"panel.health.covid19.care_team.label.counseling_center.link": "Counseling Center",
+	"panel.health.covid19.care_team.label.mc_kiney.link": "McKinley Mental Health Program",
+	"panel.health.covid19.care_team.label.virtual_counseling.link":"Virtual Counseling ",
+	"panel.health.covid19.care_team.label.virtual_counseling.description": "(Requires UnitedHealthcare Student Resources coverage.)",
 
 	"panel.health.covid19.debug.keys.heading.title.":"COVID-19密钥",
 	"panel.health.covid19.debug.keys.label.public_key":"RSA公钥:",
@@ -661,7 +670,7 @@
 
 	"panel.health.next_steps.button.continue.title.find_locatio": "查找位置",
 	"panel.health.next_steps.button.continue.title.care_team": "联系护理团队",
-	"panel.health.next_steps.label.next_steps": "下一步行动",
+	"panel.health.next_steps.label.next_steps": "下一步",
 
 	"panel.health.symptoms.heading.title":"你有这些症状吗?",
 	"panel.health.symptoms.label.error.loading":"未能加载症状.",

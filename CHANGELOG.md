@@ -5,9 +5,79 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## [2.7.9] - 2020-10-16
+- Covid19TestLocations panel: update unavailable waith time text [#279](https://github.com/rokwire/safer-illinois-app/issues/279)
+
+## [2.7.8] - 2020-10-15
+### Added
+- Added encryption support to storage.
+
+### Changed
+- Log user UUID un-anonymously when launching RootPanel [#296](https://github.com/rokwire/safer-illinois-app/issues/296)
+- Covid19TestLocations Update Wait time text [#279](https://github.com/rokwire/safer-illinois-app/issues/279)
+- Store RSA private key separately for organization and environment (Android).
+
+## [2.7.7] - 2020-10-14
+### Changed
+- Add external link icon for SettingsHomePanel buttons [#241](https://github.com/rokwire/safer-illinois-app/issues/241)
+- Remove private params from the url. Additional fix [#110](https://github.com/rokwire/safer-illinois-app/issues/110).
+- Add external link icon for SettingsHomePanel buttons [241](https://github.com/rokwire/safer-illinois-app/issues/241).
+- Add building access status to the Home Status widget [#243](https://github.com/rokwire/safer-illinois-app/issues/243)
+- Add building access status to the Home Status widget [#269](https://github.com/rokwire/safer-illinois-app/issues/269)
+- Store RSA private key separately for organization and environment (iOS only for now).
+- Show authorization panels in onboarding only when needed.
+
+## [2.7.6] - 2020-10-13
+### Changed
+- Upgrade Flutter to v1.22.1 [#283](https://github.com/rokwire/safer-illinois-app/issues/283).
+- Fixed environmnets switching from Debug panel.
+- Internal cleanup.
+- Updated rules [#281](https://github.com/rokwire/safer-illinois-app/issues/281).
+
+## [2.7.5] - 2020-10-09
+### Added
+- Added "INCONCLUSIVE" and "REJECTED" results to "COVID-19 PCR" test [#271](https://github.com/rokwire/safer-illinois-app/issues/271).
+- StatusPanel content improvement for Accessibility Large Text [275](https://github.com/rokwire/safer-illinois-app/issues/275).
+
+### Changed
+- Updated "PCR.positive-NIP" status rule [#273](https://github.com/rokwire/safer-illinois-app/issues/273).
+
+## [2.7.4] - 2020-10-08
+### Added
+- Added boolean getters for config environment [#266](https://github.com/rokwire/safer-illinois-app/issues/266).
+- Added Debug button in Settings Home header bar for debug or dev builds only.
+
+### Changed
+- Environment radio buttons in SettingsDebugPanel replaced by dropdown, prompt user before switching [#266](https://github.com/rokwire/safer-illinois-app/issues/266).
+- Refresh UI on config environment change [#266](https://github.com/rokwire/safer-illinois-app/issues/266).
+
+## [2.7.3] - 2020-10-07
+### Added
+- Added "POSITIVE-IP" and "POSITIVE-NIP" results to "COVID-19 PCR" [#256](https://github.com/rokwire/safer-illinois-app/issues/256).
+
+### Changed
+- Updated rules negative PCR test to turn off the red status [#256](https://github.com/rokwire/safer-illinois-app/issues/256).
+
+### Fixed
+- Possible PII leak in logging for Submit Feedback [#110](https://github.com/rokwire/safer-illinois-app/issues/110).
+- Android: Request for location services is shown too early [#261](https://github.com/rokwire/safer-illinois-app/issues/261).
+- Update styling - padding, sizes etc for Next steps panel - Part 2 [#244](https://github.com/rokwire/safer-illinois-app/issues/244).
+
+### Deleted
+- Removed antibody test types from rules [#258](https://github.com/rokwire/safer-illinois-app/issues/258).
+
+## [2.7.2] - 2020-10-06
 ### Changed
 - Do not keep in Storage location permision promot flag.
 - All Health2 classes renamed to regular Health classes and merged in Health model.
+- Update next steps styling [#244](https://github.com/rokwire/safer-illinois-app/issues/244).
+- Show status card screen panel slides on both sides [#239](https://github.com/rokwire/safer-illinois-app/issues/239).
+- Remove duplicate instance of links to home screen on status card [#247](https://github.com/rokwire/safer-illinois-app/issues/247).
+
+### Added
+- Added "PCR.positive-IP" and "PCR.positive-NIP" statuses to rules. [#248](https://github.com/rokwire/safer-illinois-app/issues/248).
+- Added eventExplanation to rules & user statuses. [#248](https://github.com/rokwire/safer-illinois-app/issues/248).
 
 ### Deleted
 - Removed fixed timezone output support

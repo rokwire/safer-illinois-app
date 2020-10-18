@@ -33,6 +33,7 @@
 #import "CGGeometry+InaUtils.h"
 #import "UIColor+InaParse.h"
 #import "Bluetooth+InaUtils.h"
+#import "Security+UIUCUtils.h"
 
 #import <GoogleMaps/GoogleMaps.h>
 #import <Firebase/Firebase.h>
@@ -44,7 +45,7 @@
 #import <PassKit/PassKit.h>
 #import <CoreBluetooth/CoreBluetooth.h>
 
-static NSString *const kFIRMessagingFCMTokenNotification = @"com.firebase.iid.notif.fcm-token";
+static NSString* const kFIRMessagingFCMTokenNotification = @"com.firebase.iid.notif.fcm-token";
 
 @interface RootNavigationController : UINavigationController
 @end
@@ -274,6 +275,9 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 	else if ([call.method isEqualToString:@"healthRSAPrivateKey"]) {
 		[self handleHealthRSAPrivateKeyWithParameters:parameters result:result];
 	}
+	else if ([call.method isEqualToString:@"encryptionKey"]) {
+		[self handleEncryptionKeyWithParameters:parameters result:result];
+	}
 	else if ([call.method isEqualToString:@"enabledOrientations"]) {
 		[self handleEnabledOrientationsWithParameters:parameters result:result];
 	}
@@ -424,6 +428,11 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 - (void)handleHealthRSAPrivateKeyWithParameters:(NSDictionary*)parameters result:(FlutterResult)result {
 	result([self healthRSAPrivateKeyWithParameters:parameters]);
 }
+
+- (void)handleEncryptionKeyWithParameters:(NSDictionary*)parameters result:(FlutterResult)result {
+	result([self encryptionKeyWithParameters:parameters]);
+}
+
 
 - (void)handleTestWithParameters:(NSDictionary*)parameters result:(FlutterResult)result {
 	result(nil);
@@ -1006,168 +1015,143 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 #pragma mark Device UUID
 
 - (NSUUID*)deviceUUID {
-	static const NSString *deviceUUID = @"deviceUUID";
-
-	NSDictionary *spec = @{
-		(id)kSecClass:       (id)kSecClassGenericPassword,
-		(id)kSecAttrAccount: deviceUUID,
-		(id)kSecAttrGeneric: deviceUUID,
-		(id)kSecAttrService: NSBundle.mainBundle.bundleIdentifier,
-	};
-	
-	NSMutableDictionary *searchRequest = [NSMutableDictionary dictionaryWithDictionary:spec];
-	[searchRequest setObject:(id)kSecMatchLimitOne forKey:(id)kSecMatchLimit];
-	[searchRequest setObject:(id)kCFBooleanTrue forKey:(id)kSecReturnData];
-  [searchRequest setObject:(id)kCFBooleanTrue forKey:(id)kSecReturnAttributes];
-
-	CFDictionaryRef response = NULL;
-	OSStatus status = SecItemCopyMatching((CFDictionaryRef)searchRequest, (CFTypeRef*)&response);
-	if (status == errSecInteractionNotAllowed) {
-		// Could not access data. Error: errSecInteractionNotAllowed
-		return nil;
-	}
-	else if (status == 0) {
-		NSDictionary *attribs = CFBridgingRelease(response);
-		NSData *data = [attribs objectForKey:(id)kSecValueData];
-		NSString *security = [attribs objectForKey:(id)kSecAttrAccessible];
-
-		// If not always accessible then update it to be so
-		if (![security isEqualToString:(id)kSecAttrAccessibleAlways]) {
-			NSDictionary *update = @{
-				(id)kSecAttrAccessible:(id)kSecAttrAccessibleAlways,
-				(id)kSecValueData:data ?: [[NSData alloc] init],
-			};
-
-			SecItemUpdate((CFDictionaryRef)spec, (CFDictionaryRef)update);
-		}
-
-		if (data.length == sizeof(uuid_t)) {
-			return [[NSUUID alloc] initWithUUIDBytes:data.bytes];
-		}
-		else {
-			// update entry bellow
-		}
-	}
-
-	uuid_t uuidData;
-	int rndStatus = SecRandomCopyBytes(kSecRandomDefault, sizeof(uuidData), uuidData);
-	if (rndStatus == errSecSuccess) {
-		if (status == 0) {
-			// update existing entry
-			NSDictionary *update = @{
-				(id)kSecAttrAccessible:(id)kSecAttrAccessibleAlways,
-				(id)kSecValueData:[NSData dataWithBytes:uuidData length:sizeof(uuidData)]
-			};
-			status = SecItemUpdate((CFDictionaryRef)spec, (CFDictionaryRef)update);
-		}
-		else {
-			// create new entry
-			NSMutableDictionary *createRequest = [NSMutableDictionary dictionaryWithDictionary:spec];
-			[createRequest setObject:[NSData dataWithBytes:uuidData length:sizeof(uuidData)] forKey:(id)kSecValueData];
-			[createRequest setObject:(id)kSecAttrAccessibleAlways forKey:(id)kSecAttrAccessible];
-			status = SecItemAdd((CFDictionaryRef)createRequest, NULL);
-		}
-		return (status == 0) ? [[NSUUID alloc] initWithUUIDBytes:uuidData] : nil;
+	static NSString* const deviceUUID = @"deviceUUID";
+	NSData *data = uiucSecStorageData(deviceUUID, deviceUUID, nil);
+	if ([data isKindOfClass:[NSData class]] && (data.length == sizeof(uuid_t))) {
+		return [[NSUUID alloc] initWithUUIDBytes:data.bytes];
 	}
 	else {
-		return nil;
+		uuid_t uuidData;
+		int rndStatus = SecRandomCopyBytes(kSecRandomDefault, sizeof(uuidData), uuidData);
+		if (rndStatus == errSecSuccess) {
+			NSNumber *result = uiucSecStorageData(deviceUUID, deviceUUID, [NSData dataWithBytes:uuidData length:sizeof(uuidData)]);
+			if ([result isKindOfClass:[NSNumber class]] && [result boolValue]) {
+				return [[NSUUID alloc] initWithUUIDBytes:data.bytes];
+			}
+		}
 	}
+	return nil;
 }
 
-#pragma mark Permanent Value
+#pragma mark Health RSA Private Key
 
 - (id)healthRSAPrivateKeyWithParameters:(NSDictionary*)parameters {
-	static const NSString *healthRSAPrivateKey = @"healthRSAPrivateKey";
+	static NSString* const healthRSAPrivateKey = @"healthRSAPrivateKey";
 
 	NSString *userId = [parameters inaStringForKey:@"userId"];
 	if (userId == nil) {
 		return nil;
 	}
-
-	NSDictionary *spec = @{
-		(id)kSecClass:       (id)kSecClassGenericPassword,
-		(id)kSecAttrAccount: userId,
-		(id)kSecAttrGeneric: healthRSAPrivateKey,
-		(id)kSecAttrService: NSBundle.mainBundle.bundleIdentifier,
-	};
 	
-	NSMutableDictionary *searchRequest = [NSMutableDictionary dictionaryWithDictionary:spec];
-	[searchRequest setObject:(id)kSecMatchLimitOne forKey:(id)kSecMatchLimit];
-	[searchRequest setObject:(id)kCFBooleanTrue forKey:(id)kSecReturnData];
-	[searchRequest setObject:(id)kCFBooleanTrue forKey:(id)kSecReturnAttributes];
-
-	CFDictionaryRef response = NULL;
-	OSStatus status = SecItemCopyMatching((CFDictionaryRef)searchRequest, (CFTypeRef*)&response);
-	NSString *existingValue = nil;
-
-	if (status == errSecInteractionNotAllowed) {
-		// Could not access data. Error: errSecInteractionNotAllowed
+	NSString *organization = [parameters inaStringForKey:@"organization"];
+	NSString *environment = [parameters inaStringForKey:@"environment"];
+	NSMutableArray *source = [[NSMutableArray alloc] initWithObjects:
+		organization ?: @"",
+		environment  ?: @"",
+		userId       ?: @"",
+		nil];
+	NSMutableArray *keys = [[NSMutableArray alloc] init];
+	[self healthRSAStorageKeysFromSource:source index:0 keys:keys];
+	
+	if ([parameters inaBoolForKey:@"remove"]) {  // remove
+		for (NSString *key in keys) {
+			NSNumber *result = uiucSecStorageData(key, healthRSAPrivateKey, [NSNull null]);
+			if ([result isKindOfClass:[NSNumber class]] && [result boolValue]) {
+				return @(YES);
+			}
+		}
+		return @(NO);
+	}
+	else if ([parameters objectForKey:@"value"] == nil) { // getter
+		for (NSString *key in keys) {
+			NSData *data = uiucSecStorageData(key, healthRSAPrivateKey, nil);
+			if ([data isKindOfClass:[NSData class]] && (data != nil)) {
+				NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+				if (string != nil) {
+					return string;
+				}
+			}
+		}
 		return nil;
 	}
-	else if (status == 0) {
-		NSDictionary *attribs = CFBridgingRelease(response);
-		NSData *data = [attribs objectForKey:(id)kSecValueData];
-		NSString *security = [attribs objectForKey:(id)kSecAttrAccessible];
-
-		// If not always accessible then update it to be so
-		if (![security isEqualToString:(id)kSecAttrAccessibleAlways]) {
-			NSDictionary *update = @{
-				(id)kSecAttrAccessible:(id)kSecAttrAccessibleAlways,
-				(id)kSecValueData:data ?: [[NSData alloc] init],
-			};
-
-			SecItemUpdate((CFDictionaryRef)spec, (CFDictionaryRef)update);
+	else { // setter or remove
+		NSString *stringValue = [parameters inaStringForKey:@"value"];
+		if (stringValue != nil) { // setter
+			NSData *data = [stringValue dataUsingEncoding:NSUTF8StringEncoding];
+			NSNumber *result = uiucSecStorageData(keys.firstObject, healthRSAPrivateKey, data);
+			return ([result isKindOfClass:[NSNumber class]] && [result boolValue]) ? @(YES) : @(NO);
 		}
-
-		existingValue = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-	}
-
-    if([parameters inaBoolForKey:@"remove"]){  // remove
-        status = SecItemDelete((CFDictionaryRef)spec);
-        return [NSNumber numberWithBool:(status == 0)];
-    }
-	else if ([parameters objectForKey:@"value"] == nil) { // getter
-		return existingValue;
-	}
-	else { // setter
-
-		NSString *value = [parameters inaStringForKey:@"value"];
-		if (value != nil) {
-			NSData *valueData = [value dataUsingEncoding:NSUTF8StringEncoding];
-			
-			if (status == 0) {
-				// update existing entry
-				NSDictionary *update = @{
-					(id)kSecAttrAccessible:(id)kSecAttrAccessibleAlways,
-					(id)kSecValueData:valueData
-				};
-				status = SecItemUpdate((CFDictionaryRef)spec, (CFDictionaryRef)update);
+		else { // remove
+			for (NSString *key in keys) {
+				NSNumber *result = uiucSecStorageData(key, healthRSAPrivateKey, [NSNull null]);
+				if ([result isKindOfClass:[NSNumber class]] && [result boolValue]) {
+					return @(YES);
+				}
 			}
-			else {
-				// create new entry
-				NSMutableDictionary *createRequest = [NSMutableDictionary dictionaryWithDictionary:spec];
-				[createRequest setObject:valueData forKey:(id)kSecValueData];
-				[createRequest setObject:(id)kSecAttrAccessibleAlways forKey:(id)kSecAttrAccessible];
-				status = SecItemAdd((CFDictionaryRef)createRequest, NULL);
-			}
-			
-			return [NSNumber numberWithBool:(status == 0)];
-		}
-		else {
-			if (status == 0) {
-				// delete existing entry
-				status = SecItemDelete((CFDictionaryRef)spec);
-				return [NSNumber numberWithBool:(status == 0)];
-			}
-			else {
-				// nothing to do
-				return [NSNumber numberWithBool:YES];
-			}
+			return @(NO);
 		}
 	}
 }
 
+- (void)healthRSAStorageKeysFromSource:(NSMutableArray<NSString*>*)source index:(NSInteger)index keys:(NSMutableArray<NSString*>*)keys {
+	if ((index + 1) < source.count) {
+		[self healthRSAStorageKeysFromSource:source index:(index + 1) keys:keys];
+		NSString *entry = [source objectAtIndex:index];
+		if (0 < entry.length) {
+			[source replaceObjectAtIndex:index withObject:@""];
+			[self healthRSAStorageKeysFromSource:source index:(index + 1) keys:keys];
+			[source replaceObjectAtIndex:index withObject:entry];
+		}
+	}
+	else {
+		[keys addObject:[self healthRSAStorageKeyFromSource:source]];
+	}
+}
 
+- (NSString*)healthRSAStorageKeyFromSource:(NSArray<NSString*>*)source {
+	NSMutableString *result = [[NSMutableString alloc] init];
+	for (NSString *sourceEntry in source) {
+		if (0 < sourceEntry.length) {
+			if (0 < result.length) {
+				[result appendString:@"-"];
+			}
+			[result appendString:sourceEntry];
+		}
+	}
+	return result;
+}
+
+#pragma mark Encryption Key
+
+- (id)encryptionKeyWithParameters:(NSDictionary*)parameters {
+	static NSString* const encryptionKey = @"encryptionKey";
+	
+	NSString *name = [parameters inaStringForKey:@"name"];
+	if (name == nil) {
+		return nil;
+	}
+	
+	NSInteger keySize = [parameters inaIntegerForKey:@"size"];
+	if (keySize <= 0) {
+		return nil;
+	}
+
+	NSData *data = uiucSecStorageData(name, encryptionKey, nil);
+	if ([data isKindOfClass:[NSData class]] && (data.length == keySize)) {
+		return [data base64EncodedStringWithOptions:0];
+	}
+	else {
+		UInt8 key[keySize];
+		int rndStatus = SecRandomCopyBytes(kSecRandomDefault, sizeof(key), key);
+		if (rndStatus == errSecSuccess) {
+			NSNumber *result = uiucSecStorageData(name, encryptionKey, [NSData dataWithBytes:key length:sizeof(key)]);
+			if ([result isKindOfClass:[NSNumber class]] && [result boolValue]) {
+				return [data base64EncodedStringWithOptions:0];
+			}
+		}
+	}
+	return nil;
+}
 
 #pragma mark PKAddPassesViewControllerDelegate
 
@@ -1184,6 +1168,8 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 		}];
 	}
 }
+
+#pragma mark Encryption Key
 
 #pragma mark MBBlinkIdOverlayViewControllerDelegate
 

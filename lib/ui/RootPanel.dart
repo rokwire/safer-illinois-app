@@ -18,8 +18,8 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/DeepLink.dart';
-import 'package:illinois/service/FlexUI.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Service.dart';
@@ -35,10 +35,15 @@ import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/utils/Utils.dart';
 
-class RootPanel extends StatefulWidget {
+class RootPanel extends StatefulWidget with AnalyticsPageAnonymous {
 
   @override
   _RootPanelState createState() => _RootPanelState();
+
+  @override
+  bool get analyticsPageAnonymous {
+    return false;
+  }
 }
 
 class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMixin implements NotificationsListener {
@@ -52,9 +57,9 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
       FirebaseMessaging.notifyPopupMessage,
       FirebaseMessaging.notifyCovid19Notification,
       Localization.notifyStringsUpdated,
-      FlexUI.notifyChanged,
+      Config.notifyEnvironmentChanged,
       Health.notifyStatusUpdated,
-      DeepLink.notifyUri
+      DeepLink.notifyUri,
     ]);
 
     Services().initUI();
@@ -76,7 +81,7 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
     else if (name == Localization.notifyStringsUpdated) {
       setState(() { });
     }
-    else if (name == FlexUI.notifyChanged) {
+    else if (name == Config.notifyEnvironmentChanged) {
       setState(() { });
     }
     else if (name == Health.notifyStatusUpdated) {

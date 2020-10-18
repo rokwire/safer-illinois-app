@@ -458,12 +458,12 @@ class _Covid19DebugCreateEventPanelState extends State<Covid19DebugCreateEventPa
 
   Future<String> _postEvent({String blob, String providerId}) async {
     String aesKey = AESCrypt.randomKey();
-    String encryptedBlob = AESCrypt.encrypt(blob, aesKey);
+    String encryptedBlob = AESCrypt.encrypt(blob, keyString: aesKey);
     String encryptedKey = RSACrypt.encrypt(aesKey, _rsaPublicKey);
 
     //PointyCastle.PrivateKey privateKey = await Health().loadRSAPrivateKey();
     //String decryptedKey = ((privateKey != null) && (encryptedKey != null)) ? RSACrypt.decrypt(encryptedKey, privateKey) : null;
-    //String decryptedBlob = ((decryptedKey != null) && (encryptedBlob != null)) ? AESCrypt.decrypt(encryptedBlob, decryptedKey) : null;
+    //String decryptedBlob = ((decryptedKey != null) && (encryptedBlob != null)) ? AESCrypt.decrypt(encryptedBlob, keyString: decryptedKey) : null;
 
     String url = "${Config().healthUrl}/covid19/ctests";
     String post = AppJson.encode({

@@ -20,6 +20,7 @@ import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Analytics.dart';
+import 'package:illinois/service/User.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/ui/onboarding/OnboardingBackButton.dart';
 import 'package:illinois/ui/widgets/ScalableScrollView.dart';
@@ -41,7 +42,7 @@ class OnboardingLoginPhoneConfirmPanel extends StatefulWidget with OnboardingPan
 
   @override
   bool get onboardingCanDisplay {
-    return (onboardingContext != null) && onboardingContext['shouldVerifyPhone'] == true;
+    return !User().isStudentOrEmployee && (onboardingContext != null) && onboardingContext['shouldVerifyPhone'] == true;
   }
 }
 

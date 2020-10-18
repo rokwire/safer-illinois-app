@@ -17,12 +17,12 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:illinois/model/UserData.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Config.dart';
+import 'package:illinois/service/FirebaseCrashlytics.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/NotificationService.dart';
@@ -75,6 +75,11 @@ class User with Service implements NotificationsListener {
     }
   }
 
+  @override
+  Future<void> clearService() async {
+    _userData = null;
+  }
+
   Set<Service> get serviceDependsOn {
     return Set.from([Storage(), Config()]);
   }
@@ -112,7 +117,7 @@ class User with Service implements NotificationsListener {
 
   Future<void> _loadUser() async {
     // silently refresh user profile
-    requestUser(_userData.uuid).then((UserData userData) {
+    requestUser(_userData?.uuid).then((UserData userData) {
       if (userData != null) {
         applyUserData(userData);
       }
@@ -146,7 +151,7 @@ class User with Service implements NotificationsListener {
     if (!success) {
       //error
       String message = "Error on updating user - " + (response != null ? response.statusCode.toString() : "null");
-      Crashlytics().log(message);
+      FirebaseCrashlytics().log(message);
     }
     else if (_client == client) {
       _client = null;
@@ -286,6 +291,19 @@ class User with Service implements NotificationsListener {
         _notifyUserRolesUpdated();
       });
     }
+  }
+
+  bool get isStudent {
+    return _userData?.roles?.contains(UserRole.student) ?? false;
+  }
+
+  bool get isEmployee {
+    return _userData?.roles?.contains(UserRole.employee) ?? false;
+  }
+
+  bool get isStudentOrEmployee {
+    Set<UserRole> roles = _userData?.roles;
+    return (roles != null) && (roles.contains(UserRole.student) || roles.contains(UserRole.employee));
   }
 
   // Notifications

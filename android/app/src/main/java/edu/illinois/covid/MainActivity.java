@@ -19,10 +19,13 @@ package edu.illinois.covid;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Application;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Base64;
@@ -52,6 +55,7 @@ import com.microblink.uisettings.ActivityRunner;
 import com.microblink.uisettings.BlinkIdUISettings;
 
 import java.io.ByteArrayOutputStream;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -59,20 +63,24 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
 import edu.illinois.covid.exposure.ExposurePlugin;
 import edu.illinois.covid.gallery.GalleryPlugin;
+
 import edu.illinois.covid.maps.MapActivity;
 import edu.illinois.covid.maps.MapDirectionsActivity;
 import edu.illinois.covid.maps.MapViewFactory;
-import io.flutter.app.FlutterActivity;
+import io.flutter.embedding.android.FlutterActivity;
+import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
-import io.flutter.plugins.GeneratedPluginRegistrant;
+import io.flutter.plugin.common.PluginRegistry;
+import io.flutter.view.FlutterMain;
 
-public class MainActivity extends FlutterActivity implements MethodChannel.MethodCallHandler {
+public class MainActivity extends FlutterActivity implements MethodChannel.MethodCallHandler, PluginRegistry.PluginRegistrantCallback {
 
     private static final String TAG = "MainActivity";
 
@@ -107,10 +115,11 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        registerPlugins();
         instance = this;
         initScreenOrientation();
-        initMethodChannel();
+
+        // TODO: Check do we need the next two lines at all?
+        FlutterMain.startInitialization(this);
     }
 
     @Override
@@ -155,35 +164,32 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
                 rlCallback.onResult(granted);
                 rlCallback = null;
             }
-        } else if(requestCode == GalleryPlugin.STORAGE_PERMISSION_REQUEST_CODE){
-            galleryPlugin.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
+        //} else if(requestCode == GalleryPlugin.STORAGE_PERMISSION_REQUEST_CODE){
+        //    galleryPlugin.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        //}
     }
 
-    private void registerPlugins() {
-        GeneratedPluginRegistrant.registerWith(this);
+    @Override
+    public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
+        super.configureFlutterEngine(flutterEngine);
+        METHOD_CHANNEL = new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), NATIVE_CHANNEL);
+        METHOD_CHANNEL.setMethodCallHandler(this);
 
-        // MapView
-        Registrar registrar = registrarFor("MapPlugin");
-        registrar.platformViewRegistry().registerViewFactory("mapview", new MapViewFactory(this, registrar));
+        flutterEngine
+                .getPlatformViewsController()
+                .getRegistry()
+                .registerViewFactory("mapview", new MapViewFactory(this, flutterEngine.getDartExecutor().getBinaryMessenger()));
 
-        // ExposureNotifications
-        Registrar exposureRegistrar = registrarFor("ExposurePlugin");
-        exposurePlugin = ExposurePlugin.registerWith(exposureRegistrar);
-
-        // GalleryPlugin
-        Registrar galleryRegistrar = registrarFor("GalleryPlugin");
-        galleryPlugin = GalleryPlugin.registerWith(exposureRegistrar);
+        exposurePlugin = new ExposurePlugin(this);
+        flutterEngine.getPlugins().add(exposurePlugin);
+        galleryPlugin = new GalleryPlugin(this);
+        flutterEngine.getPlugins().add(galleryPlugin);
     }
 
     private void initScreenOrientation() {
         preferredScreenOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
         supportedScreenOrientations = new HashSet<>(Collections.singletonList(preferredScreenOrientation));
-    }
-
-    private void initMethodChannel() {
-        METHOD_CHANNEL = new MethodChannel(getFlutterView(), NATIVE_CHANNEL);
-        METHOD_CHANNEL.setMethodCallHandler(this);
     }
 
     private void initWithParams(Object keys) {
@@ -234,9 +240,9 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
             app.showNotification(title, body);
         }
     }
-    
 
     private void requestLocationPermission(MethodChannel.Result result) {
+        Utils.AppSharedPrefs.saveBool(this, Constants.LOCATION_PERMISSIONS_REQUESTED_KEY, true);
         //check if granted
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED  ||
                 ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -263,6 +269,31 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
         } else {
             Log.d(TAG, "already granted");
             result.success("allowed");
+        }
+    }
+
+    private String getLocationServicesStatus() {
+        boolean locationServicesEnabled;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            // This is new method provided in API 28
+            LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            locationServicesEnabled = ((lm != null) && lm.isLocationEnabled());
+        } else {
+            // This is Deprecated in API 28
+            int mode = Settings.Secure.getInt(getContentResolver(), Settings.Secure.LOCATION_MODE,
+                    Settings.Secure.LOCATION_MODE_OFF);
+            locationServicesEnabled = (mode != Settings.Secure.LOCATION_MODE_OFF);
+        }
+        if (locationServicesEnabled) {
+            if ((ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                    ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
+                return "allowed";
+            } else {
+                boolean locationPermissionRequested = Utils.AppSharedPrefs.getBool(this, Constants.LOCATION_PERMISSIONS_REQUESTED_KEY, false);
+                return locationPermissionRequested ? "denied" : "not_determined";
+            }
+        } else {
+            return "disabled";
         }
     }
 
@@ -673,40 +704,104 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
 
     //endregion
 
-    private Object handleHealthRsiPrivateKey(Object params) {
-        String userId = null;
-        String value = null;
-        boolean remove = false;
-        if (params instanceof HashMap) {
-            HashMap paramsMap = (HashMap) params;
-            Object userIdObj = paramsMap.get("userId");
-            if (userIdObj instanceof String) {
-                userId = (String) userIdObj;
-            }
-            Object valueObj = paramsMap.get("value");
-            if (valueObj instanceof String) {
-                value = (String) valueObj;
-            }
-            Object removeObj = paramsMap.get("remove");
-            if (removeObj instanceof Boolean) {
-                remove = (Boolean) removeObj;
-            }
-        }
+    //region Health RSA keys
+
+    private Object handleHealthRsaPrivateKey(Object params) {
+        String userId = Utils.Map.getValueFromPath(params, "userId", null);
         if (Utils.Str.isEmpty(userId)) {
             return null;
         }
+        String organization = Utils.Map.getValueFromPath(params, "organization", null);
+        String environment = Utils.Map.getValueFromPath(params, "environment", null);
+        String value = Utils.Map.getValueFromPath(params, "value", null);
+        boolean remove = Utils.Map.getValueFromPath(params, "remove", false);
+        List<String> source = Arrays.asList(Utils.Str.defaultEmpty(organization), Utils.Str.defaultEmpty(environment), Utils.Str.defaultEmpty(userId));
+        List<String> keys = new ArrayList<>();
+        processHealthRsaStorageKeysFromSource(source, 0, keys);
+
         if (Utils.Str.isEmpty(value)) {
             if (remove) {
-                Utils.BackupStorage.remove(this, Constants.HEALTH_SHARED_PREFS_FILE_NAME, userId);
-                return true;
+                for (String key : keys) {
+                    String existingValue = Utils.BackupStorage.getHealthString(this, key);
+                    if (existingValue != null) {
+                        Utils.BackupStorage.removeHealth(this, key);
+                        return true;
+                    }
+                }
+                return false;
             } else {
-                return Utils.BackupStorage.getString(this, Constants.HEALTH_SHARED_PREFS_FILE_NAME, userId);
+                for (String key : keys) {
+                    String existingValue = Utils.BackupStorage.getHealthString(this, key);
+                    if (existingValue != null) {
+                        return existingValue;
+                    }
+                }
+                return null;
             }
         } else {
-            Utils.BackupStorage.saveString(this, Constants.HEALTH_SHARED_PREFS_FILE_NAME, userId, value);
+            Utils.BackupStorage.saveHealthString(this, keys.get(0), value);
             return true;
         }
     }
+
+    private void processHealthRsaStorageKeysFromSource(List<String> source, int index, List<String> keys) {
+        if ((index + 1) < source.size()) {
+            processHealthRsaStorageKeysFromSource(source, (index + 1), keys);
+            String entry = source.get(index);
+            if (!Utils.Str.isEmpty(entry)) {
+                source.set(index, "");
+                processHealthRsaStorageKeysFromSource(source, (index + 1), keys);
+                source.set(index, entry);
+            }
+        } else {
+            String key = getHealthRsaStorageKeyFromSource(source);
+            keys.add(key);
+        }
+    }
+
+    private String getHealthRsaStorageKeyFromSource(List<String> source) {
+        StringBuilder result = new StringBuilder();
+        if (source != null && !source.isEmpty()) {
+            for (String sourceEntry : source) {
+                if (!Utils.Str.isEmpty(sourceEntry)) {
+                    if (result.length() > 0) {
+                        result.append("-");
+                    }
+                    result.append(sourceEntry);
+                }
+            }
+        }
+        return (result.length() > 0) ? result.toString() : "";
+    }
+
+    //endregion
+
+    //region Encryption key
+
+    private Object handleEncryptionKey(Object params) {
+        String name = Utils.Map.getValueFromPath(params, "name", null);
+        if (Utils.Str.isEmpty(name)) {
+            return null;
+        }
+        int keySize = Utils.Map.getValueFromPath(params, "size", 0);
+        if (keySize <= 0) {
+            return null;
+        }
+        String base64KeyValue = Utils.BackupStorage.getString(this, Constants.ENCRYPTION_SHARED_PREFS_FILE_NAME, name);
+        byte[] encryptionKey = Utils.Base64.decode(base64KeyValue);
+        if ((encryptionKey != null) && (encryptionKey.length == keySize)) {
+            return base64KeyValue;
+        } else {
+            byte[] keyBytes = new byte[keySize];
+            SecureRandom secRandom = new SecureRandom();
+            secRandom.nextBytes(keyBytes);
+            base64KeyValue = Utils.Base64.encode(keyBytes);
+            Utils.BackupStorage.saveString(this, Constants.ENCRYPTION_SHARED_PREFS_FILE_NAME, name, base64KeyValue);
+            return base64KeyValue;
+        }
+    }
+
+    //endregion
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -730,6 +825,7 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
         try {
             switch (method) {
                 case Constants.APP_INIT_KEY:
+                    StringBuilder builder = new StringBuilder();
                     Object keysObject = methodCall.argument("keys");
                     initWithParams(keysObject);
                     result.success(true);
@@ -770,7 +866,13 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
                     result.success(true); // notifications are allowed in Android by default
                     break;
                 case Constants.APP_LOCATION_SERVICES_PERMISSION:
-                    requestLocationPermission(result);
+                    String locationServicesMethod = Utils.Map.getValueFromPath(methodCall.arguments, "method", null);
+                    if ("query".equals(locationServicesMethod)) {
+                        String locationServicesStatus = getLocationServicesStatus();
+                        result.success(locationServicesStatus);
+                    } else if ("request".equals(locationServicesMethod)) {
+                        requestLocationPermission(result);
+                    }
                     break;
                 case Constants.APP_BLUETOOTH_AUTHORIZATION:
                     result.success("allowed"); // bluetooth is always enabled in Android by default
@@ -783,9 +885,13 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
                     String deviceId = getDeviceId();
                     result.success(deviceId);
                     break;
-                case Constants.HEALTH_RSI_PRIVATE_KEY:
-                    Object healthRsiPrivateKeyResult = handleHealthRsiPrivateKey(methodCall.arguments);
-                    result.success(healthRsiPrivateKeyResult);
+                case Constants.HEALTH_RSA_PRIVATE_KEY:
+                    Object healthRsaPrivateKeyResult = handleHealthRsaPrivateKey(methodCall.arguments);
+                    result.success(healthRsaPrivateKeyResult);
+                    break;
+                case Constants.ENCRYPTION_KEY_KEY:
+                    Object encryptionKey = handleEncryptionKey(methodCall.arguments);
+                    result.success(encryptionKey);
                     break;
                 case Constants.BARCODE_KEY:
                     String barcodeImageData = handleBarcode(methodCall.arguments);
@@ -801,6 +907,11 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
             Log.e(TAG, errorMsg);
             exception.printStackTrace();
         }
+    }
+
+    @Override
+    public void registerWith(PluginRegistry registry) {
+
     }
 
     // RequestLocationCallback

@@ -23,6 +23,7 @@ import 'package:http/http.dart';
 import 'package:firebase_messaging/firebase_messaging.dart' as FirebaseMessagingPlugin;
 import 'package:illinois/model/UserData.dart';
 import 'package:illinois/service/AppLivecycle.dart';
+import 'package:illinois/service/FirebaseService.dart';
 
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Config.dart';
@@ -131,8 +132,13 @@ class FirebaseMessaging with Service implements NotificationsListener {
   }
 
   @override
+  Future<void> clearService() async {
+    _clearSubscriptions();
+  }
+
+  @override
   Set<Service> get serviceDependsOn {
-    return Set.from([Storage(), Config(), User()]);
+    return Set.from([FirebaseService(), Storage(), Config(), User()]);
   }
 
   // NotificationsListener
@@ -396,8 +402,8 @@ class FirebaseMessaging with Service implements NotificationsListener {
       Storage().setNotifySetting(name, value);
       NotificationService().notify(notifySettingUpdated, name);
 
-      Set<String> subscribedTopis = Storage().firebaseSubscriptionTopis;
-      _processNotifySettingSubscription(topic: _notifySettingTopics[name], value: value, subscribedTopis: subscribedTopis);
+      Set<String> subscribedTopics = Storage().firebaseSubscriptionTopis;
+      _processNotifySettingSubscription(topic: _notifySettingTopics[name], value: value, subscribedTopics: subscribedTopics);
     }
   }
 
@@ -405,32 +411,43 @@ class FirebaseMessaging with Service implements NotificationsListener {
 
   void _updateSubscriptions() {
     if (hasToken) {
-      Set<String> subscribedTopis = Storage().firebaseSubscriptionTopis;
-      _processPermanentSubscriptions(subscribedTopis: subscribedTopis);
-      _processRolesSubscriptions(subscribedTopis: subscribedTopis);
-      _processNotifySettingsSubscriptions(subscribedTopis: subscribedTopis);
+      Set<String> subscribedTopics = Storage().firebaseSubscriptionTopis;
+      _processPermanentSubscriptions(subscribedTopics: subscribedTopics);
+      _processRolesSubscriptions(subscribedTopics: subscribedTopics);
+      _processNotifySettingsSubscriptions(subscribedTopics: subscribedTopics);
+    }
+  }
+
+  void _clearSubscriptions() {
+    if (hasToken) {
+      Set<String> subscribedTopics = Storage().firebaseSubscriptionTopis;
+      if (subscribedTopics != null) {
+        for (String topic in subscribedTopics) {
+          unsubscribeFromTopic(topic);
+        }
+      }
     }
   }
 
   void _updateRolesSubscriptions() {
     if (hasToken) {
-      _processRolesSubscriptions(subscribedTopis: Storage().firebaseSubscriptionTopis);
+      _processRolesSubscriptions(subscribedTopics: Storage().firebaseSubscriptionTopis);
     }
   }
 
-  void _processPermanentSubscriptions({Set<String> subscribedTopis}) {
+  void _processPermanentSubscriptions({Set<String> subscribedTopics}) {
     for (String permanentTopic in _permanentTopis) {
-      if ((subscribedTopis == null) || !subscribedTopis.contains(permanentTopic)) {
+      if ((subscribedTopics == null) || !subscribedTopics.contains(permanentTopic)) {
         subscribeToTopic(permanentTopic);
       }
     }
   }
 
-  void _processRolesSubscriptions({Set<String> subscribedTopis}) {
+  void _processRolesSubscriptions({Set<String> subscribedTopics}) {
     Set<UserRole> roles = User().roles;
     for (UserRole role in UserRole.values) {
       String roleTopic = role.toString();
-      bool roleSubscribed = (subscribedTopis != null) && subscribedTopis.contains(roleTopic);
+      bool roleSubscribed = (subscribedTopics != null) && subscribedTopics.contains(roleTopic);
       bool roleSelected = (roles != null) && roles.contains(role);
       if (roleSelected && !roleSubscribed) {
         subscribeToTopic(roleTopic);
@@ -441,16 +458,16 @@ class FirebaseMessaging with Service implements NotificationsListener {
     }
   }
   
-  void _processNotifySettingsSubscriptions({Set<String> subscribedTopis}) {
+  void _processNotifySettingsSubscriptions({Set<String> subscribedTopics}) {
     _notifySettingTopics.forEach((String setting, String topic) {
       bool value = _getNotifySetting(setting);
-      _processNotifySettingSubscription(topic: topic, value: value, subscribedTopis: subscribedTopis);
+      _processNotifySettingSubscription(topic: topic, value: value, subscribedTopics: subscribedTopics);
     });
   }
 
-  void _processNotifySettingSubscription({String topic, bool value, Set<String> subscribedTopis}) {
+  void _processNotifySettingSubscription({String topic, bool value, Set<String> subscribedTopics}) {
     if (topic != null) {
-      bool itemSubscribed = (subscribedTopis != null) && subscribedTopis.contains(topic);
+      bool itemSubscribed = (subscribedTopics != null) && subscribedTopics.contains(topic);
       if (value && !itemSubscribed) {
         subscribeToTopic(topic);
       }
@@ -459,4 +476,5 @@ class FirebaseMessaging with Service implements NotificationsListener {
       }
     }
   }
+
 }

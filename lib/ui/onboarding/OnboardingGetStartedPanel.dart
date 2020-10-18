@@ -80,6 +80,6 @@ class OnboardingGetStartedPanel extends StatelessWidget with OnboardingPanel {
 
   void _goNext(BuildContext context) {
     Analytics.instance.logSelect(target: "Get Started") ;
-    return Onboarding().next(context, this);
+    Onboarding().next(context, this);
   }
 }

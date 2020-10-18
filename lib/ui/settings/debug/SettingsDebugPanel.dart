@@ -48,9 +48,10 @@ class SettingsDebugPanel extends StatefulWidget {
   _SettingsDebugPanelState createState() => _SettingsDebugPanelState();
 }
 
-class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements NotificationsListener{
+class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements NotificationsListener {
 
-  ConfigEnvironment _selectedEnv;
+  bool _switchingEnvironment;
+  String _configEnvironment;
 
   @override
   void initState() {
@@ -58,9 +59,9 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
     NotificationService().subscribe(this, [
       Config.notifyEnvironmentChanged,
     ]);
-    
-    _selectedEnv = Config().configEnvironment;
 
+    _configEnvironment = Config().configEnvironment;
+    
     super.initState();
   }
 
@@ -116,20 +117,37 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
                       ),
                       
                       Padding(padding: EdgeInsets.only(top: 5), child: Container(height: 1, color: Styles().colors.surfaceAccent)),
-                      Padding(padding: EdgeInsets.symmetric(vertical: 10), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[Padding(
-                        padding: EdgeInsets.only(left: 16), child: Text('Config Environment: '),), ListView.separated(
-                        physics: NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        separatorBuilder: (context, index) => Divider(color: Colors.transparent),
-                        itemCount: ConfigEnvironment.values.length,
-                        itemBuilder: (context, index) {
-                          ConfigEnvironment environment = ConfigEnvironment.values[index];
-                          RadioListTile widget = RadioListTile(
-                              title: Text(configEnvToString(environment)), value: environment, groupValue: _selectedEnv, onChanged: _onConfigChanged);
-                          return widget;
-                        },
-                      )
-                      ],),),
+                      
+                      Padding(padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16), child:
+                        Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+                            Padding(padding: EdgeInsets.only(bottom: 5), child:Text('Config Environment: ')),
+                            Stack(children: [
+                              Container(decoration: BoxDecoration(color: Styles().colors.white, border: Border.all(color: Colors.black, width: 1), borderRadius: BorderRadius.all(Radius.circular(4))), child: 
+                                Padding(padding: EdgeInsets.only(left: 12, right: 16), child: 
+                                  DropdownButtonHideUnderline(child: 
+                                    DropdownButton(
+                                        icon: Image.asset('images/icon-down-orange.png', excludeFromSemantics: true,),
+                                        isExpanded: true,
+                                        style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.textBackground,),
+                                        hint: Text(_configEnvironment ?? "Select environment...", style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground,),),
+                                        items: _dropdownEnvironments,
+                                        onChanged: _onEnvironmentSelected
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Visibility(visible: (_switchingEnvironment == true), child: 
+                                Container(height: 48, child:
+                                  Align(alignment: Alignment.center, child:
+                                    SizedBox(height: 24, width: 24, child: 
+                                      CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary), )
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],),
+                        ],),
+                      ),
                       Padding(padding: EdgeInsets.only(bottom: 10), child: Container(height: 1, color: Styles().colors.surfaceAccent)),
                       Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
@@ -235,7 +253,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
                               onTap: _onTapCovid19ExposureLogs)),
                       Padding(padding: EdgeInsets.only(top: 5), child: Container()),
                       Visibility(
-                        visible: Config().configEnvironment == ConfigEnvironment.dev,
+                        visible: Config().isDev,
                         child: Padding(
                             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                             child: RoundedButton(
@@ -263,8 +281,10 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
 
   @override
   void onNotification(String name, dynamic param) {
-    if(name == Config.notifyEnvironmentChanged){
-      setState(() {});
+    if (name == Config.notifyEnvironmentChanged){
+      setState(() {
+        _configEnvironment = Config().configEnvironment;
+      });
     }
   }
 
@@ -387,17 +407,53 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
     return prettyString;
   }
 
-  void _onConfigChanged(dynamic env) {
-    if (env is ConfigEnvironment) {
-      setState(() {
-        Config().configEnvironment = env;
-        _selectedEnv = Config().configEnvironment;
+  List<DropdownMenuItem<String>> get _dropdownEnvironments {
+    List<DropdownMenuItem<String>> environments = <DropdownMenuItem<String>>[];
+    for (String environment in Config().configEnvironments) {
+      environments.add(DropdownMenuItem<String>(
+        value: environment,
+        child: Text(environment,
+          style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground,),
+        ),
+      ));
+    }
+    return environments;
+  }
+
+  void _onEnvironmentSelected(String configEnvironment) {
+    if ((configEnvironment is String) && (configEnvironment != _configEnvironment) && (_switchingEnvironment != true)) {
+      String currentEnv = _configEnvironment?.toUpperCase();
+      String newEnv = configEnvironment?.toUpperCase();
+      String message = "Are you sure you want to switch the application environment from $currentEnv to $newEnv?";
+      showDialog(context: context, builder: (context) {
+        return AlertDialog(
+          content: Text(message),
+            actions: <Widget>[
+              FlatButton(child: Text("Yes"), onPressed: () { Navigator.pop(context, true); }),
+              FlatButton(child: Text("No"), onPressed: () { Navigator.pop(context, false); }),
+            ]);
+      }).then((result) {
+        if (result == true) {
+          _switchEnvirnment(configEnvironment);
+        }
       });
     }
   }
 
+  void _switchEnvirnment(String configEnvironment) {
+    setState(() {
+      _switchingEnvironment = true;
+    });
+
+    Config().setConfigEnvironment(configEnvironment).then((_) {
+      setState(() {
+        _switchingEnvironment = false;
+      });
+    });
+  }
+
   void _onTapHttpProxy() {
-    if(Config().configEnvironment == ConfigEnvironment.dev) {
+    if(Config().isDev) {
       Navigator.push(context, CupertinoPageRoute(builder: (context) => HttpProxySettingsPanel()));
     }
   }

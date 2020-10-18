@@ -41,13 +41,14 @@ class NativeCommunicator with Service {
     return _communicator;
   }
 
-  NativeCommunicator._internal();
+  NativeCommunicator._internal() {
+    _platformChannel.setMethodCallHandler(_handleMethodCall);
+  }
 
   // Initialization
 
   @override
   void createService() {
-    _platformChannel.setMethodCallHandler(_handleMethodCall);
   }
 
   @override
@@ -239,6 +240,8 @@ class NativeCommunicator with Service {
     try {
       result = await _platformChannel.invokeMethod('healthRSAPrivateKey', {
         'userId': userId,
+        'environment': Config().configEnvironment,
+        'organization': null,
       });
     } catch (e) {
       print(e?.toString());
@@ -251,6 +254,8 @@ class NativeCommunicator with Service {
     try {
       result = await _platformChannel.invokeMethod('healthRSAPrivateKey', {
         'userId': userId,
+        'environment': Config().configEnvironment,
+        'organization': null,
         'value': value,
       });
     } catch (e) {
@@ -264,12 +269,27 @@ class NativeCommunicator with Service {
     try {
       result = await _platformChannel.invokeMethod('healthRSAPrivateKey', {
         'userId': userId,
+        'environment': Config().configEnvironment,
+        //'organization': null,
         'remove': true,
       });
     } catch (e) {
       print(e?.toString());
     }
     return result;
+  }
+
+  Future<Uint8List> encryptionKey({String name, int size}) async {
+    try {
+      String base64String = await _platformChannel.invokeMethod('encryptionKey', {
+        'name': name,
+        'size': size,
+      });
+      return (base64String != null) ? base64Decode(base64String) : null;
+    } catch (e) {
+      print(e?.toString());
+    }
+    return null;
   }
 
   Future<Uint8List> getBarcodeImageData(Map<String, dynamic> params) async {

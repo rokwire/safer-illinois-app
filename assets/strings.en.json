@@ -262,7 +262,6 @@
 
     "panel.covid19_passport.header.title": "COVID-19",
     "panel.covid19_passport.button.close.title": "Close",
-    "panel.covid19_passport.button.info_center.title": "Your COVID-19 info center",
     "panel.covid19_passport.label.status.empty":"No available status for this County",
     "panel.covid19_passport.label.counties.empty":"No counties available",
     "panel.covid19_passport.label.county.empty.hint":"Select a county...",
@@ -318,6 +317,9 @@
     "panel.covid19home.label.contact_trace.title": "Contact Trace",
     "panel.covid19home.label.reported_symptoms.title": "Self Reported Symptoms",
     "panel.covid19home.button.info.title": "Info ",
+    "panel.covid19home.label.access.title": "Building access",
+    "panel.covid19home.label.access.granted": "granted",
+    "panel.covid19home.label.access.denied": "denied",
     
     "panel.covid19_test_locations.header.title": "Test Locations",
     "panel.covid19_test_locations.label.contact.title": "Contact",
@@ -329,7 +331,10 @@
     "panel.covid19_test_locations.all_providers.text": "All Providers",
     "panel.covid19_test_locations.call.hint": "Call",
     "panel.covid19_test_locations.wait_time.label": "Wait Time",
-    "panel.covid19_test_locations.wait_time.unavailable": "Unavailable",
+    "panel.covid19_test_locations.wait_time.unavailable": "Unknown wait time",
+    "panel.covid19_test_locations.wait_time.status.label.red": "Long wait time",
+    "panel.covid19_test_locations.wait_time.status.label.yellow": "Medium wait time",
+    "panel.covid19_test_locations.wait_time.status.label.green": "Short wait time",
 
     "panel.covid19.header.title": "COVID-19",
     "panel.covid19.latest_update.title": "Latest Update",
@@ -510,11 +515,11 @@
     "panel.health.covid19.add_test.message.no_result_found": "No results found",
 
     "panel.health.covid19.care_team.heading.title": "Your Care Team",
-    "panel.health.covid19.care_team.label.question": "We’re here to help.",
-    "panel.health.covid19.care_team.label.description": "Reach out to someone on your COVID-19 care team - we're here to help.",
+    "panel.health.covid19.care_team.label.question": "Help When You Need It",
+    "panel.health.covid19.care_team.label.description": "Reach out to someone on your COVID-19 care team. They’re here to help.",
     "panel.health.covid19.care_team.label.status": "Current Status:",
     "panel.health.covid19.care_team.label.emergency.text1": "In case of an emergency, ",
-    "panel.health.covid19.care_team.label.emergency.text2": "always call 911.",
+    "panel.health.covid19.care_team.label.emergency.text2": "call 911.",
     "panel.health.covid19.care_team.team.title.mc_kinley": "Call McKinley Health",
     "panel.health.covid19.care_team.team.contact.mc_kinley": "1-217-333-2700",
     "panel.health.covid19.care_team.team.semantic_contact.mc_kinley": "12173332700",
@@ -528,6 +533,10 @@
     "panel.health.covid19.care_team.label.more_info.hint": "Double tap to show more info",
     "panel.health.covid19.care_team.label.call.hint": "Call ",
     "panel.health.covid19.care_team.label.more_info.link": "Learn more",
+    "panel.health.covid19.care_team.label.counseling_center.link": "Counseling Center",
+    "panel.health.covid19.care_team.label.mc_kiney.link": "McKinley Mental Health Program",
+    "panel.health.covid19.care_team.label.virtual_counseling.link":"Virtual Counseling ",
+    "panel.health.covid19.care_team.label.virtual_counseling.description": "(Requires UnitedHealthcare Student Resources coverage.)",
 
     "panel.health.covid19.debug.keys.heading.title.":"COVID-19 Keys",
     "panel.health.covid19.debug.keys.label.public_key":"RSA Public Key:",
@@ -661,7 +670,7 @@
 
     "panel.health.next_steps.button.continue.title.find_locatio": "Find location",
     "panel.health.next_steps.button.continue.title.care_team": "Get in Touch with Care Team",
-    "panel.health.next_steps.label.next_steps": "NEXT STEPS",
+    "panel.health.next_steps.label.next_steps": "Your Next Steps",
 
     "panel.health.symptoms.heading.title":"Are you experiencing any of these symptoms?",
     "panel.health.symptoms.label.error.loading":"Failed to load symptoms.",
