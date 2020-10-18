@@ -940,7 +940,7 @@ class Health with Service implements NotificationsListener {
         if (histories != null) {
           for (Covid19Event event in events) {
             if (Covid19History.listContainsEvent(histories, event)) {
-              // mark it as processed without duplicating the histyr entry
+              // mark it as processed without duplicating the history entry
               await _markEventAsProcessed(event);
             }
             else {
