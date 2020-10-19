@@ -200,7 +200,7 @@ class Health with Service implements NotificationsListener {
 
   Future<Covid19Status> _loadCovid19Status() async {
     if (this._isLoggedIn) {
-      String url = "${Config().healthUrl}/covid19/v2/app-version/2.2/statuses";
+      String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/v2/app-version/2.2/statuses" : null;
       Response response = await Network().get(url, auth: NetworkAuth.User);
       if (response?.statusCode == 200) {
         Covid19Status status = await Covid19Status.decryptedFromJson(AppJson.decodeMap(response.body), _userPrivateKey);
@@ -213,7 +213,7 @@ class Health with Service implements NotificationsListener {
 
   Future<bool> _updateCovid19Status(Covid19Status status) async {
     if (this._isLoggedIn) {
-      String url = "${Config().healthUrl}/covid19/v2/app-version/2.2/statuses";
+      String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/v2/app-version/2.2/statuses" : null;
       Covid19Status encryptedStatus = await status?.encrypted(_user?.publicKey);
       String post = AppJson.encode(encryptedStatus?.toJson());
       Response response = await Network().put(url, body: post, auth: NetworkAuth.User);
@@ -227,7 +227,7 @@ class Health with Service implements NotificationsListener {
 
   Future<bool> _clearCovid19Status() async {
     if (this._isAuthenticated) {
-      String url = "${Config().healthUrl}/covid19/v2/app-version/2.2/statuses";
+      String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/v2/app-version/2.2/statuses" : null;
       Response response = await Network().delete(url, auth: NetworkAuth.User);
       return response?.statusCode == 200;
     }
@@ -264,7 +264,7 @@ class Health with Service implements NotificationsListener {
         return _historyCache;
       }
       else {
-        String url = "${Config().healthUrl}/covid19/v2/histories";
+        String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/v2/histories" : null;
         Response response = await Network().get(url, auth: NetworkAuth.User);
         String responseString = (response?.statusCode == 200) ? response.body : null;
         List<dynamic> responseJson = (responseString != null) ? AppJson.decodeList(responseString) : null;
@@ -290,7 +290,7 @@ class Health with Service implements NotificationsListener {
 
   Future<Covid19History> _addCovid19History(Covid19History history) async {
     if (this._isLoggedIn) {
-      String url = "${Config().healthUrl}/covid19/v2/histories";
+      String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/v2/histories" : null;
       String post = AppJson.encode(history?.toJson());
       Response response = await Network().post(url, body: post, auth: NetworkAuth.User);
       if (response?.statusCode == 200) {
@@ -313,7 +313,7 @@ class Health with Service implements NotificationsListener {
 
   Future<Covid19History> _updateCovid19History(Covid19History history) async {
     if (this._isLoggedIn) {
-      String url = "${Config().healthUrl}/covid19/v2/histories/${history.id}";
+      String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/v2/histories/${history.id}" : null;
       String post = AppJson.encode(history?.toJson());
       Response response = await Network().put(url, body: post, auth: NetworkAuth.User);
       if (response?.statusCode == 200) {
@@ -326,7 +326,7 @@ class Health with Service implements NotificationsListener {
 
   Future<bool> _clearCovid19History() async {
     if (this._isAuthenticated) {
-      String url = "${Config().healthUrl}/covid19/v2/histories";
+      String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/v2/histories" : null;
       Response response = await Network().delete(url, auth: NetworkAuth.User);
       if (response?.statusCode == 200) {
         await _clearHistoryCache();
@@ -352,7 +352,7 @@ class Health with Service implements NotificationsListener {
 
   Future<List<Covid19Event>> loadCovid19Events({bool processed}) async {
     if (this._isLoggedIn) {
-      String url = "${Config().healthUrl}/covid19/ctests";
+      String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/ctests" : null;
       String params = "";
       if (processed != null) {
         if (0 < params.length) {
@@ -360,7 +360,7 @@ class Health with Service implements NotificationsListener {
         }
         params += "processed=$processed";
       }
-      if (0 < params.length) {
+      if ((url != null) && (0 < params.length)) {
         url += "?$params";
       }
       Response response = await Network().get(url, auth: NetworkAuth.User);
@@ -373,7 +373,7 @@ class Health with Service implements NotificationsListener {
 
   Future<bool> clearCovid19Tests() async {
     if (this._isAuthenticated) {
-      String url = "${Config().healthUrl}/covid19/ctests";
+      String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/ctests" : null;
       Response response = await Network().delete(url, auth: NetworkAuth.User);
       return (response?.statusCode == 200);
     }
@@ -383,10 +383,11 @@ class Health with Service implements NotificationsListener {
   // Network API: HealthServiceProvider
 
   Future<List<HealthServiceProvider>> loadHealthServiceProviders({String countyId}) async {
-    String url = "${Config().healthUrl}/covid19/providers";
+    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/providers" : null;
 
-    if(countyId != null)
+    if ((url != null) && (countyId != null)) {
       url += "/county/$countyId";
+    }
 
     Response response = await Network().get(url, auth: NetworkAuth.App);
     String responseString = (response?.statusCode == 200) ? response.body : null;
@@ -399,7 +400,7 @@ class Health with Service implements NotificationsListener {
       return null;
     }
     String idsToString = countyIds.join(',');
-    String url = "${Config().healthUrl}/covid19/providers?county-ids=$idsToString";
+    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/providers?county-ids=$idsToString" : null;
     Response response = await Network().get(url, auth: NetworkAuth.App);
     String responseString = (response?.statusCode == 200) ? response.body : null;
     Map<String, dynamic> responseJson = AppJson.decodeMap(responseString);
@@ -418,12 +419,14 @@ class Health with Service implements NotificationsListener {
   // Network API: HealthServiceLocation
 
   Future<List<HealthServiceLocation>> loadHealthServiceLocations({String countyId, String providerId})async{
-    String url = "${Config().healthUrl}/covid19/locations";
+    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/locations" : null;
 
-    if(countyId != null)
-      url += "?county-id=$countyId";
-    if(providerId!=null)
-      url += (countyId!=null ? "&":"?")+"provider-id=$providerId";
+    if (url != null) {
+      if ((countyId != null))
+        url += "?county-id=$countyId";
+      if (providerId!=null)
+        url += (countyId != null ? "&" : "?") + "provider-id=$providerId";
+    }
 
     Response response = await Network().get(url, auth: NetworkAuth.App);
     String responseString = (response?.statusCode == 200) ? response.body : null;
@@ -432,10 +435,10 @@ class Health with Service implements NotificationsListener {
   }
 
   Future<HealthServiceLocation> loadHealthServiceLocation({String locationId})async{
-    String url = "${Config().healthUrl}/covid19/locations";
+    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/locations" : null;
 
-    if(locationId!=null)
-      url+= "/$locationId";
+    if ((url != null) && (locationId != null))
+      url += "/$locationId";
 
     Response response = await Network().get(url, auth: NetworkAuth.App);
     String responseString = (response?.statusCode == 200) ? response.body : null;
@@ -446,14 +449,14 @@ class Health with Service implements NotificationsListener {
   // Network API: HealthTestType
 
   Future<List<HealthTestType>> loadHealthServiceTestTypes({List<String> typeIds})async{
-    String url = "${Config().healthUrl}/covid19/test-types";
+    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/test-types" : null;
 
-    if(typeIds?.isNotEmpty??false) {
+    if ((url != null) && (typeIds?.isNotEmpty ?? false)) {
       url += "?ids=";
       typeIds.forEach((id){
-        url+="$id,";
+        url += "$id,";
       });
-      url = url.substring(0,url.length-1);
+      url = url.substring(0, url.length - 1);
     }
     Response response = await Network().get(url, auth: NetworkAuth.App);
     String responseString = (response?.statusCode == 200) ? response.body : null;
@@ -467,7 +470,7 @@ class Health with Service implements NotificationsListener {
     HealthRulesSet rules = await _loadRules2();
     return rules?.symptoms?.groups;
     /*
-    String url = "${Config().healthUrl}/covid19/symptoms";
+    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/symptoms" : null;
     String appVersion = AppVersion.majorVersion(Config().appVersion, 2);
     Response response = await Network().get(url, auth: NetworkAuth.App, headers: { Network.RokwireVersion : appVersion });
     String responseBody = (response?.statusCode == 200) ? response.body : null;
@@ -501,7 +504,7 @@ class Health with Service implements NotificationsListener {
   }
 
   Future<List<HealthCounty>> loadCounties({String name, String state, String country}) async{
-    String url = "${Config().healthUrl}/covid19/counties";
+    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/counties" : null;
     String params = '';
     if (name != null) {
       params += "${(0 < params.length) ? '&' : ''}name=$name";
@@ -512,7 +515,7 @@ class Health with Service implements NotificationsListener {
     if (country != null) {
       params += "${(0 < params.length) ? '&' : ''}country=$country";
     }
-    if (0 < params.length) {
+    if ((url != null) && (0 < params.length)) {
       url += "?$params";
     }
 
@@ -1071,7 +1074,7 @@ class Health with Service implements NotificationsListener {
   }
 
   Future<bool> _markEventAsProcessed(Covid19Event event) async {
-    String url = "${Config().healthUrl}/covid19/ctests/${event.id}";
+    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/ctests/${event.id}" : null;
     String post = AppJson.encode({'processed':true});
     Response response = await Network().put(url, body:post, auth: NetworkAuth.User);
     if (response?.statusCode == 200) {
@@ -1233,7 +1236,7 @@ class Health with Service implements NotificationsListener {
 
   Future<dynamic> _loadUserTestMonitorInterval() async {
     if (this._isLoggedIn) {
-      String url = "${Config().healthUrl}/covid19/uin-override";
+      String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/uin-override" : null;
       Response response = await Network().get(url, auth: NetworkAuth.User);
       if (response?.statusCode == 200) {
         Map<String, dynamic> responseJson = AppJson.decodeMap(response.body);
@@ -1273,7 +1276,7 @@ class Health with Service implements NotificationsListener {
 
   Future<Map<String, dynamic>> _loadRules2Json({String countyId}) async {
     String appVersion = AppVersion.majorVersion(Config().appVersion, 2);
-    String url = "${Config().healthUrl}/covid19/crules/county/$countyId";
+    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/crules/county/$countyId" : null;
     Response response = await Network().get(url, auth: NetworkAuth.App, headers: { Network.RokwireVersion : appVersion });
     String responseString = (response?.statusCode == 200) ? response.body : null;
 //TMP: String responseString = await rootBundle.loadString('assets/sample.health.rules.json');
@@ -1288,7 +1291,7 @@ class Health with Service implements NotificationsListener {
     if (countyId != null) {
       accessRules = (force != true) ? _accessRulesCache[countyId] : null;
       if (accessRules == null) {
-        String url = "${Config().healthUrl}/covid19/access-rules/county/$countyId";
+        String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/access-rules/county/$countyId" : null;
         Response response = await Network().get(url, auth: NetworkAuth.App);
         String responseBody = (response?.statusCode == 200) ? response.body : null;
         accessRules = (responseBody != null) ? AppJson.decodeMap(responseBody) : null; 
@@ -1319,7 +1322,7 @@ class Health with Service implements NotificationsListener {
   }
 
   Future<bool> _logBuildingAccess({DateTime dateUtc, String access}) async {
-    String url = "${Config().healthUrl}/covid19/building-access";
+    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/building-access" : null;
     String post = AppJson.encode({
       'date': healthDateTimeToString(dateUtc),
       'access': access
@@ -1515,7 +1518,7 @@ class Health with Service implements NotificationsListener {
 
   Future<HealthUser> _loadUser() async {
     if (this._isAuthenticated) {
-      String url = "${Config().healthUrl}/covid19/user";
+      String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/user" : null;
       Response response = await Network().get(url, auth: NetworkAuth.User);
       if (response?.statusCode == 200) {
         HealthUser user = HealthUser.fromJson(AppJson.decodeMap(response.body)); // Return user or null if does not exist for sure.
@@ -1529,7 +1532,7 @@ class Health with Service implements NotificationsListener {
 
   Future<bool> _saveUser(HealthUser user) async {
     if (this._isAuthenticated) {
-      String url = "${Config().healthUrl}/covid19/login";
+      String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/login" : null;
       String post = AppJson.encode(user?.toJson());
       Response response = await Network().post(url, body: post, auth: NetworkAuth.User);
       if ((response != null) && (response.statusCode == 200)) {
@@ -1542,7 +1545,7 @@ class Health with Service implements NotificationsListener {
 
   Future<bool> _clearUser() async {
     if (this._isAuthenticated) {
-      String url = "${Config().healthUrl}/covid19/user/clear";
+      String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/user/clear" : null;
       Response response = await Network().get(url, auth: NetworkAuth.User);
       return response?.statusCode == 200;
     }
