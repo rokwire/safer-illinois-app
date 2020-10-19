@@ -20,7 +20,7 @@ class Organization {
   final String id;
   final String name;
   final String iconUrl;
-  final Map<String, OrganizationEntryPoint> environments;
+  final Map<String, UrlEntryPoint> environments;
 
   Organization({this.id, this.name, this.iconUrl, this.environments});
 
@@ -29,7 +29,7 @@ class Organization {
       id: json['id'],
       name: json['name'],
       iconUrl: json['icon_url'],
-      environments: OrganizationEntryPoint.mapFromJson(json['environments']),
+      environments: UrlEntryPoint.mapFromJson(json['environments']),
     ) : null;
   }
 
@@ -38,8 +38,36 @@ class Organization {
       'id': id,
       'name': name,
       'icon_url': iconUrl,
-      'environments': OrganizationEntryPoint.mapToJson(environments)
+      'environments': UrlEntryPoint.mapToJson(environments)
     };
+  }
+
+  UrlEntryPoint entryPoint({String environment}) {
+    return ((environments != null) && (environment != null)) ? environments[environment] : null;
+  }
+
+  bool hasEnvironment(String environment) {
+    return (entryPoint(environment: environment) != null);
+  }
+
+  String get defaultEnvironment {
+    if (environments != null) {
+
+      for (String environment in environments.keys) {
+        if (environments[environment].isDefault) {
+          return environment;
+        }
+      }
+      
+      if (kReleaseMode && environments['production'] != null) {
+        return 'production';
+      }
+      else if (!kReleaseMode && environments['dev'] != null) {
+        return 'dev';
+      }
+    }
+
+    return null;
   }
 
   static List<Organization> listFromJson(List<dynamic> json) {
@@ -55,16 +83,16 @@ class Organization {
   }
 }
 
-class OrganizationEntryPoint {
+class UrlEntryPoint {
   final String url;
   final String apiKey;
   final dynamic _isDefault;
 
-  OrganizationEntryPoint({this.url, this.apiKey, dynamic isDefault}) :
+  UrlEntryPoint({this.url, this.apiKey, dynamic isDefault}) :
     _isDefault = isDefault;
 
-  factory OrganizationEntryPoint.fromJson(Map<String, dynamic> json) {
-    return (json != null) ? OrganizationEntryPoint(
+  factory UrlEntryPoint.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? UrlEntryPoint(
       url: json['url'],
       apiKey: json['api_key'],
       isDefault: json['default'],
@@ -100,22 +128,22 @@ class OrganizationEntryPoint {
     return null;
   }
 
-  static Map<String, OrganizationEntryPoint> mapFromJson(Map<String, dynamic> json) {
-    Map<String, OrganizationEntryPoint> result;
+  static Map<String, UrlEntryPoint> mapFromJson(Map<String, dynamic> json) {
+    Map<String, UrlEntryPoint> result;
     if (json != null) {
-      result = Map<String, OrganizationEntryPoint>();
+      result = Map<String, UrlEntryPoint>();
       json.forEach((String key, dynamic value) {
-        result[key] = OrganizationEntryPoint.fromJson(value);
+        result[key] = UrlEntryPoint.fromJson(value);
       });
     }
     return result;
   }
 
-  static dynamic mapToJson(Map<String, OrganizationEntryPoint> map) {
+  static dynamic mapToJson(Map<String, UrlEntryPoint> map) {
     Map<String, dynamic> result;
     if (map != null) {
       result = Map<String, dynamic>();
-      map.forEach((String key, OrganizationEntryPoint value) {
+      map.forEach((String key, UrlEntryPoint value) {
         result[key] = value.toJson();
       });
     }

@@ -19,11 +19,12 @@ import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:illinois/model/Organization.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/NotificationService.dart';
+import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/Service.dart';
 import 'package:illinois/utils/Crypt.dart';
 import 'package:package_info/package_info.dart';
@@ -36,16 +37,14 @@ import 'package:path_provider/path_provider.dart';
 
 class Config with Service implements NotificationsListener {
 
-  static const String _configsAsset       = "configs.json.enc";
+  static const String _configFileName           = "config.json";
 
   static const String notifyUpgradeRequired     = "edu.illinois.rokwire.config.upgrade.required";
   static const String notifyUpgradeAvailable    = "edu.illinois.rokwire.config.upgrade.available";
   static const String notifyConfigChanged       = "edu.illinois.rokwire.config.changed";
-  static const String notifyEnvironmentChanged  = "edu.illinois.rokwire.config.environment.changed";
 
   Map<String, dynamic> _config;
-  Map<String, dynamic> _configAsset;
-  String               _configEnvironment;
+  
   PackageInfo          _packageInfo;
   Directory            _appDocumentsDir; 
   DateTime             _pausedDateTime;
@@ -64,70 +63,10 @@ class Config with Service implements NotificationsListener {
   static Config get instance {
     return _instance;
   }
-
-  // Getters
-
-  Map<String, dynamic> get otherUniversityServices { return (_config != null) ? (_config['otherUniversityServices'] ?? {}) : {}; }
-  Map<String, dynamic> get platformBuildingBlocks  { return (_config != null) ? (_config['platformBuildingBlocks'] ?? {}) : {}; }
-  Map<String, dynamic> get thirdPartyServices      { return (_config != null) ? (_config['thirdPartyServices'] ?? {}) : {}; }
-
-  Map<String, dynamic> get secretKeys              { return (_config != null) ? (_config['secretKeys'] ?? {}) : {}; }
-  Map<String, dynamic> get secretRokwire           { return secretKeys['rokwire'] ?? {}; }
-  Map<String, dynamic> get secretShibboleth        { return secretKeys['shibboleth'] ?? {}; }
-  Map<String, dynamic> get secretOsf               { return secretKeys['osf'] ?? {}; }
-  Map<String, dynamic> get secretHealth            { return secretKeys['health'] ?? {}; }
-  
-  Map<String, dynamic> get upgradeInfo             { return (_config != null) ? (_config['upgrade'] ?? {}) : {}; }
-
-  Map<String, dynamic> get settings                { return (_config != null) ? (_config['settings'] ?? {}) : {}; }
-
-  String get shibbolethAuthTokenUrl { return otherUniversityServices['shibboleth_auth_token_url']; }  // "https://{shibboleth_client_id}:{shibboleth_client_secret}@shibboleth.illinois.edu/idp/profile/oidc/token"
-  String get shibbolethOauthHostUrl { return otherUniversityServices['shibboleth_oauth_host_url']; }  // "shibboleth.illinois.edu"
-  String get shibbolethOauthPathUrl { return otherUniversityServices['shibboleth_oauth_path_url']; }  // "/idp/profile/oidc/authorize"
-  String get userAuthUrl            { return otherUniversityServices['user_auth_url']; }              // "https://shibboleth.illinois.edu/idp/profile/oidc/userinfo"
-  String get assetsUrl              { return otherUniversityServices['assets_url']; }                 // "https://rokwire-assets.s3.us-east-2.amazonaws.com"
-  String get feedbackUrl            { return otherUniversityServices['feedback_url']; }               // "https://forms.illinois.edu/sec/1971889"
-  String get iCardUrl               { return otherUniversityServices['icard_url']; }                  // "https://www.icard.uillinois.edu/rest/rw/rwIDData/rwCardInfo"
-  String get privacyPolicyUrl       { return otherUniversityServices['privacy_policy_url']; }         // "https://www.vpaa.uillinois.edu/resources/web_privacy"
-
-  String get loggingUrl             { return platformBuildingBlocks['logging_url']; }                 // "https://api-dev.rokwire.illinois.edu/logs"
-  String get userProfileUrl         { return platformBuildingBlocks['user_profile_url']; }            // "https://api-dev.rokwire.illinois.edu/profiles"
-  String get rokwireAuthUrl         { return platformBuildingBlocks['rokwire_auth_url']; }            // "https://api-dev.rokwire.illinois.edu/authentication"
-  String get sportsServiceUrl       { return platformBuildingBlocks['sports_service_url']; }          // "https://api-dev.rokwire.illinois.edu/sports-service";
-  String get healthUrl              { return platformBuildingBlocks['health_url']; }                  // "https://api-dev.rokwire.illinois.edu/health"
-  String get talentChooserUrl       { return platformBuildingBlocks['talent_chooser_url']; }          // "https://api-dev.rokwire.illinois.edu/talent-chooser/api/ui-content"
-  String get transportationUrl      { return platformBuildingBlocks["transportation_url"]; }          // "https://api-dev.rokwire.illinois.edu/transportation"
-  String get locationsUrl           { return platformBuildingBlocks["locations_url"]; }               // "https://api-dev.rokwire.illinois.edu/location/api";
-  
-  String get osfBaseUrl             { return thirdPartyServices['osf_base_url']; }                    // "https://ssproxy.osfhealthcare.org/fhir-proxy"
-
-  String get shibbolethClientId     { return secretShibboleth['client_id']; }
-  String get shibbolethClientSecret { return secretShibboleth['client_secret']; }
-
-  String get osfClientId            { return secretOsf['client_id']; }
-
-  String get healthPublicKey        {  return secretHealth['public_key']; }
-  String get healthApiKey           {  return secretHealth['api_key']; }
-
-  String get appConfigUrl           {                                                                 // "https://api-dev.rokwire.illinois.edu/app/configs"
-    String assetUrl = (_configAsset != null) ? _configAsset['config_url'] : null;
-    return assetUrl ?? platformBuildingBlocks['appconfig_url'];
-  } 
-  
-  String get rokwireApiKey          {
-    String assetKey = (_configAsset != null) ? _configAsset['api_key'] : null;
-    return assetKey ?? secretRokwire['api_key'];
-  }
-
-  int get refreshTimeout {
-    return kReleaseMode ? (settings['refreshTimeout'] ?? 0) : 0;
-  }
-
-  // Initialization
+  // Service
 
   @override
   void createService() {
-
     NotificationService().subscribe(this, [
       AppLivecycle.notifyStateChanged,
       FirebaseMessaging.notifyConfigUpdate
@@ -142,8 +81,6 @@ class Config with Service implements NotificationsListener {
   @override
   Future<void> initService() async {
 
-    _configEnvironment = Storage().configEnvironment ?? _defaultConfigEnvironment;
-
     if (_packageInfo == null) {
       _packageInfo = await PackageInfo.fromPlatform();
     }
@@ -155,10 +92,12 @@ class Config with Service implements NotificationsListener {
 
     _config = await _loadFromFile(_configFile);
 
-    if (_config == null) {
-      _configAsset = await _loadFromAssets();
-      String configString = await _loadAsStringFromNet();
-      _configAsset = null;
+    if (_config != null) {
+        _checkUpgrade();
+        _updateFromNet();
+    }
+    else if (Organizations().organization != null) {
+      String configString = await _loadAsStringFromNet(entryPoint: Organizations().configEntryPoint);
 
       _config = (configString != null) ? _configFromJsonString(configString) : null;
       if (_config != null) {
@@ -169,31 +108,24 @@ class Config with Service implements NotificationsListener {
       }
     }
     else {
-      _checkUpgrade();
-      _updateFromNet();
+        // Unable to load
     }
-
   }
 
   @override
   Future<void> clearService() async {
     AppFile.delete(_configFile);
-    _configEnvironment = _defaultConfigEnvironment;
-    _config = _configAsset = null;
+    _config = null;
     _reportedUpgradeVersions.clear();
   }
 
   @override
   Set<Service> get serviceDependsOn {
-    return Set.from([Storage()]);
-  }
-
-  String get _configName {
-    return "config.$_configEnvironment.json";
+    return Set.from([Organizations()]);
   }
 
   File get _configFile {
-    String configFilePath = join(_appDocumentsDir.path, _configName);
+    String configFilePath = join(_appDocumentsDir.path, _configFileName);
     return File(configFilePath);
   }
 
@@ -207,21 +139,13 @@ class Config with Service implements NotificationsListener {
     }
   }
 
-  Future<Map<String, dynamic>> _loadFromAssets() async {
+  Future<String> _loadAsStringFromNet({UrlEntryPoint entryPoint}) async {
     try {
-      String configsStrEnc = await rootBundle.loadString('assets/$_configsAsset');
-      String configsStr = (configsStrEnc != null) ? AESCrypt.decode(configsStrEnc) : null;
-      Map<String, dynamic> configs = AppJson.decode(configsStr);
-      return (configs != null) ? configs[_configEnvironment] : null;
-    } catch (e) {
-      print(e.toString());
-    }
-    return null;
-  }
-
-  Future<String> _loadAsStringFromNet() async {
-    try {
-      http.Response response = await Network().get(appConfigUrl, auth: NetworkAuth.App);
+      String requestUrl = entryPoint?.url ?? this.appConfigUrl;
+      String requestApiKey = entryPoint?.apiKey ?? this.rokwireApiKey;
+      http.Response response = await Network().get(requestUrl, headers: {
+        Network.RokwireApiKey : requestApiKey
+      });
       return ((response != null) && (response.statusCode == 200)) ? response.body : null;
     } catch (e) {
       print(e.toString());
@@ -363,41 +287,6 @@ class Config with Service implements NotificationsListener {
     }
   }
 
-  // Environment
-
-  String get configEnvironment {
-    return _configEnvironment;
-  }
-
-  Future<void> setConfigEnvironment(String configEnvironment) async {
-    if (_configEnvironment != configEnvironment) {
-      await Services().clear();
-      Storage().configEnvironment = configEnvironment;
-      await Services().init();
-      NotificationService().notify(notifyEnvironmentChanged);
-    }
-  }
-
-  static String get _defaultConfigEnvironment {
-    return kReleaseMode ? 'production' : 'dev';
-  }
-
-  bool get isDev {
-    return _configEnvironment == 'dev';
-  }
-
-  bool get isTest {
-    return _configEnvironment == 'test';
-  }
-
-  bool get isProduction {
-    return _configEnvironment == 'production';
-  }
-
-  List<String> get configEnvironments {
-    return ['production', 'test', 'dev'];
-  }
-
   // Assets cache path
 
   Directory get appDocumentsDir {
@@ -424,5 +313,56 @@ class Config with Service implements NotificationsListener {
 
     return (assetsCacheDir != null) ? Directory(assetsCacheDir) : null;
   }
+
+
+  // Config Getters
+
+  Map<String, dynamic> get otherUniversityServices { return (_config != null) ? (_config['otherUniversityServices'] ?? {}) : {}; }
+  Map<String, dynamic> get platformBuildingBlocks  { return (_config != null) ? (_config['platformBuildingBlocks'] ?? {}) : {}; }
+  Map<String, dynamic> get thirdPartyServices      { return (_config != null) ? (_config['thirdPartyServices'] ?? {}) : {}; }
+
+  Map<String, dynamic> get secretKeys              { return (_config != null) ? (_config['secretKeys'] ?? {}) : {}; }
+  Map<String, dynamic> get secretRokwire           { return secretKeys['rokwire'] ?? {}; }
+  Map<String, dynamic> get secretShibboleth        { return secretKeys['shibboleth'] ?? {}; }
+  Map<String, dynamic> get secretOsf               { return secretKeys['osf'] ?? {}; }
+  Map<String, dynamic> get secretHealth            { return secretKeys['health'] ?? {}; }
+  
+  Map<String, dynamic> get upgradeInfo             { return (_config != null) ? (_config['upgrade'] ?? {}) : {}; }
+
+  Map<String, dynamic> get settings                { return (_config != null) ? (_config['settings'] ?? {}) : {}; }
+
+  String get shibbolethAuthTokenUrl { return otherUniversityServices['shibboleth_auth_token_url']; }  // "https://{shibboleth_client_id}:{shibboleth_client_secret}@shibboleth.illinois.edu/idp/profile/oidc/token"
+  String get shibbolethOauthHostUrl { return otherUniversityServices['shibboleth_oauth_host_url']; }  // "shibboleth.illinois.edu"
+  String get shibbolethOauthPathUrl { return otherUniversityServices['shibboleth_oauth_path_url']; }  // "/idp/profile/oidc/authorize"
+  String get userAuthUrl            { return otherUniversityServices['user_auth_url']; }              // "https://shibboleth.illinois.edu/idp/profile/oidc/userinfo"
+  String get assetsUrl              { return otherUniversityServices['assets_url']; }                 // "https://rokwire-assets.s3.us-east-2.amazonaws.com"
+  String get feedbackUrl            { return otherUniversityServices['feedback_url']; }               // "https://forms.illinois.edu/sec/1971889"
+  String get iCardUrl               { return otherUniversityServices['icard_url']; }                  // "https://www.icard.uillinois.edu/rest/rw/rwIDData/rwCardInfo"
+  String get privacyPolicyUrl       { return otherUniversityServices['privacy_policy_url']; }         // "https://www.vpaa.uillinois.edu/resources/web_privacy"
+
+  String get appConfigUrl           { return platformBuildingBlocks['appconfig_url']; }               // "https://api-dev.rokwire.illinois.edu/app/configs"
+  String get loggingUrl             { return platformBuildingBlocks['logging_url']; }                 // "https://api-dev.rokwire.illinois.edu/logs"
+  String get userProfileUrl         { return platformBuildingBlocks['user_profile_url']; }            // "https://api-dev.rokwire.illinois.edu/profiles"
+  String get rokwireAuthUrl         { return platformBuildingBlocks['rokwire_auth_url']; }            // "https://api-dev.rokwire.illinois.edu/authentication"
+  String get sportsServiceUrl       { return platformBuildingBlocks['sports_service_url']; }          // "https://api-dev.rokwire.illinois.edu/sports-service";
+  String get healthUrl              { return platformBuildingBlocks['health_url']; }                  // "https://api-dev.rokwire.illinois.edu/health"
+  String get talentChooserUrl       { return platformBuildingBlocks['talent_chooser_url']; }          // "https://api-dev.rokwire.illinois.edu/talent-chooser/api/ui-content"
+  String get transportationUrl      { return platformBuildingBlocks["transportation_url"]; }          // "https://api-dev.rokwire.illinois.edu/transportation"
+  String get locationsUrl           { return platformBuildingBlocks["locations_url"]; }               // "https://api-dev.rokwire.illinois.edu/location/api";
+  
+  String get osfBaseUrl             { return thirdPartyServices['osf_base_url']; }                    // "https://ssproxy.osfhealthcare.org/fhir-proxy"
+
+  String get rokwireApiKey          { return secretRokwire['api_key']; }
+
+  String get shibbolethClientId     { return secretShibboleth['client_id']; }
+  String get shibbolethClientSecret { return secretShibboleth['client_secret']; }
+
+  String get osfClientId            { return secretOsf['client_id']; }
+
+  String get healthPublicKey        { return secretHealth['public_key']; }
+  String get healthApiKey           { return secretHealth['api_key']; }
+
+  int get refreshTimeout            { return kReleaseMode ? (settings['refreshTimeout'] ?? 0) : 0; }
+
 }
 

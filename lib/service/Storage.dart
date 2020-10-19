@@ -317,13 +317,11 @@ class Storage with Service {
   static const String _organiationKey = 'organization';
 
   Organization get organization {
-    return Organization.fromJson(
-      AppJson.decode(
-        _getEncryptedStringWithName(_organiationKey)));
+    return Organization.fromJson(AppJson.decode(_getEncryptedStringWithName(_organiationKey)));
   }
 
-  set organization(Organization organizartion) {
-    _setEncryptedStringWithName(_organiationKey, AppJson.encode(organizartion.toJson()));
+  set organization(Organization organization) {
+    _setEncryptedStringWithName(_organiationKey, AppJson.encode(organization.toJson()));
   }
 
   /////////////

@@ -19,7 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:illinois/model/Organization.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Onboarding.dart';
-import 'package:illinois/service/Storage.dart';
+import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/onboarding/OnboardingBackButton.dart';
 import 'package:illinois/ui/widgets/RoleGridButton.dart';
@@ -33,8 +33,9 @@ class OnboardingOrganizationsPanel extends StatefulWidget with OnboardingPanel {
   _OnboardingOrganizationsPanelState createState() => _OnboardingOrganizationsPanelState();
 
   @override
-  bool get onboardingCanDisplay {
-    return (Storage().organization == null);
+  Future<bool> get onboardingCanDisplayAsync async {
+    await Organizations().ensureOrganizations();
+    return (1 < (Organizations().organizations?.length ?? 0));
   }
 }
 
@@ -47,54 +48,14 @@ class _OnboardingOrganizationsPanelState extends State<OnboardingOrganizationsPa
   @override
   void initState() {
     super.initState();
-    _organizations = Organization.listFromJson([
-      {
-        "id": "uis",
-        "name": "UIS",
-        "icon_url": "https://upload.wikimedia.org/wikipedia/en/f/f8/UIS_Logo.png",
-        "environments": {
-          "production": {
-            "config_url": "https://api.rokwire.illinois.edu/app/configs",
-            "api_key": "00000000-0000-0000-0000-000000000000"
-          },
-          "dev": {
-            "config_url": "https://api-dev.rokwire.illinois.edu/app/configs",
-            "api_key": "00000000-0000-0000-0000-000000000000"
-          },
-          "test": {
-            "config_url": "https://api-test.rokwire.illinois.edu/app/configs",
-            "api_key": "00000000-0000-0000-0000-000000000000"
-          }
-        }
-      },
-      {
-        "id": "uiuc",
-        "name": "UIUC (ROKMETRO Test)",
-        "icon_url": "https://upload.wikimedia.org/wikipedia/commons/7/7c/Illinois_Block_I.png",
-        "environments": {
-          "production": {
-            "config_url": "https://api.rokwire.illinois.edu/app/configs",
-            "api_key": "00000000-0000-0000-0000-000000000000"
-          },
-          "dev": {
-            "config_url": "https://api-dev.rokwire.illinois.edu/app/configs",
-            "api_key": "00000000-0000-0000-0000-000000000000"
-          },
-          "test": {
-            "config_url": "https://api-test.rokwire.illinois.edu/app/configs",
-            "api_key": "00000000-0000-0000-0000-000000000000"
-          }
-        }
-      }
-    ]);
-    _selectedOrganization = Storage().organization;
+    _organizations = Organizations().organizations ?? <Organization>[];
+    _selectedOrganization = Organizations().organization;
   }
 
   @override
   Widget build(BuildContext context) {
-    final double gridSpacing = 5;
     return Scaffold(
-      backgroundColor: Styles().colors.background,
+      backgroundColor: Styles().colors?.background ?? UiColors.fromHex('F5F5F5'),
       body: SafeArea(child: Column( children: <Widget>[
         Padding(padding: EdgeInsets.only(top: 10, bottom: 10),
           child: Row(children: <Widget>[
@@ -109,7 +70,7 @@ class _OnboardingOrganizationsPanelState extends State<OnboardingOrganizationsPa
                 hint: 'Header 1',
                 excludeSemantics: true,
                 child: Text('Select Organization',
-                  style: TextStyle(fontFamily: Styles().fontFamilies.extraBold, fontSize: 24, color: Styles().colors.fillColorPrimary),
+                  style: TextStyle(fontFamily: Styles().fontFamilies?.extraBold ?? 'ProximaNovaExtraBold', fontSize: 24, color: Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
                 ),
               ),
             ],),),
@@ -127,13 +88,13 @@ class _OnboardingOrganizationsPanelState extends State<OnboardingOrganizationsPa
                 label: _allowNext ? 'Confirm' : 'Select one',
                 hint: '',
                 enabled: _allowNext,
-                backgroundColor: (_allowNext ? Styles().colors.white : Styles().colors.background),
+                backgroundColor: (_allowNext ? (Styles().colors?.white ?? UiColors.fromHex('FFFFFF')) : (Styles().colors?.background ?? UiColors.fromHex('F5F5F5'))),
                 borderColor: (_allowNext
-                    ? Styles().colors.fillColorSecondary
-                    : Styles().colors.fillColorPrimaryTransparent03),
+                    ? (Styles().colors?.fillColorSecondary ?? UiColors.fromHex('#E84A27'))
+                    : (Styles().colors?.fillColorPrimaryTransparent03 ?? UiColors.fromHex('#4D002855'))),
                 textColor: (_allowNext
-                    ? Styles().colors.fillColorPrimary
-                    : Styles().colors.fillColorPrimaryTransparent03),
+                    ? (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855'))
+                    : (Styles().colors?.fillColorPrimaryTransparent03 ?? UiColors.fromHex('#4D002855'))),
                 onTap: () => _onConfirm()),
             Visibility(
               visible: _updating,
@@ -146,7 +107,7 @@ class _OnboardingOrganizationsPanelState extends State<OnboardingOrganizationsPa
                     width: 24,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorPrimary),),),),),),
+                      valueColor: AlwaysStoppedAnimation<Color>(Styles().colors?.fillColorSecondary ?? UiColors.fromHex('#E84A27')),),),),),),
           ]),
         ),
 
@@ -171,7 +132,7 @@ class _OnboardingOrganizationsPanelState extends State<OnboardingOrganizationsPa
         title: organization.name,
         hint: '',
         iconUrl: organization.iconUrl,
-        selectedBackgroundColor: Styles().colors.accentColor3,
+        selectedBackgroundColor: Styles().colors?.accentColor3 ?? UiColors.fromHex('#5182CF'),
         selected: organization.id == _selectedOrganization?.id,
         data: organization,
         onTap: _onRoleGridButton,
@@ -201,11 +162,19 @@ class _OnboardingOrganizationsPanelState extends State<OnboardingOrganizationsPa
   void _onConfirm() {
     Analytics.instance.logSelect(target:"Confirm");
     if (_selectedOrganization != null && !_updating) {
-      Storage().organization = _selectedOrganization;
-      Onboarding().next(context, widget);
+      setState(() {
+        _updating = true;
+      });
+      Organizations().setOrganization(_selectedOrganization).then((_) {
+        if (mounted) {
+          setState((){
+            _updating = false;
+          });
+          Onboarding().next(context, widget);
+        }
+      });
     }
   }
-
 }
 
 

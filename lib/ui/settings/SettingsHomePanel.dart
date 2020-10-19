@@ -24,6 +24,7 @@ import 'package:flutter/foundation.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Connectivity.dart';
+import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
@@ -144,7 +145,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
 
     contentList.add(_buildFeedback());
 
-    if (!kReleaseMode || Config().isDev) {
+    if (!kReleaseMode || Organizations().isDevEnvironment) {
       contentList.add(_buildDebug());
       actionsList.add(_buildHeaderBarDebug());
     }

@@ -21,6 +21,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:illinois/service/AppNavigation.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
+import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/User.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/NotificationService.dart';
@@ -126,7 +127,7 @@ class _AppState extends State<App> implements NotificationsListener {
       Onboarding.notifyFinished,
       Config.notifyUpgradeAvailable,
       Config.notifyUpgradeRequired,
-      Config.notifyEnvironmentChanged,
+      Organizations.notifyEnvironmentChanged,
       User.notifyUserDeleted,
     ]);
 
@@ -219,7 +220,7 @@ class _AppState extends State<App> implements NotificationsListener {
         _upgradeAvailableVersion = param;
       });
     }
-    else if (name == Config.notifyEnvironmentChanged) {
+    else if (name == Organizations.notifyEnvironmentChanged) {
       _resetUI();
     }
     else if (name == User.notifyUserDeleted) {

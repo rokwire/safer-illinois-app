@@ -18,6 +18,7 @@ import 'dart:io';
 
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/NotificationService.dart';
+import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/Service.dart';
 import 'package:illinois/service/Storage.dart';
 import 'package:illinois/utils/Utils.dart';
@@ -39,7 +40,7 @@ class HttpProxy extends Service implements NotificationsListener{
   void createService() {
     super.createService();
 
-    NotificationService().subscribe(this, [Config.notifyEnvironmentChanged]);
+    NotificationService().subscribe(this, [Organizations.notifyEnvironmentChanged]);
   }
 
   @override
@@ -60,7 +61,7 @@ class HttpProxy extends Service implements NotificationsListener{
   }
 
   void onNotification(String name, dynamic param){
-    if(name == Config.notifyEnvironmentChanged){
+    if(name == Organizations.notifyEnvironmentChanged){
       _handleChanged();
     }
   }
@@ -103,7 +104,7 @@ class HttpProxy extends Service implements NotificationsListener{
     if(httpProxyEnabled &&
         AppString.isStringNotEmpty(httpProxyHost) &&
         AppString.isStringNotEmpty(httpProxyPort) &&
-        Config().isDev
+        Organizations().isDevEnvironment
     ){
       HttpOverrides.global = _MyHttpOverrides(host: httpProxyHost, port: httpProxyPort);
     }
