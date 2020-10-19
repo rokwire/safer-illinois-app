@@ -890,6 +890,8 @@ class Health with Service implements NotificationsListener {
       int exposureTestReportDays = Config().settings['covid19ExposureTestReportDays'];
       for (Covid19Event event in events) {
         if (event.isTest) {
+          String score = (Exposure().checkExposures() as int).toString();
+
           Analytics().logHealth(
             action: Analytics.LogHealthProviderTestProcessedAction,
             status: status,
@@ -898,6 +900,7 @@ class Health with Service implements NotificationsListener {
               Analytics.LogHealthProviderName: event.provider,
               Analytics.LogHealthTestTypeName: event.blob?.testType,
               Analytics.LogHealthTestResultName: event.blob?.testResult,
+              Analytics.LogHealthExposureScore: score,
           });
           
           if (exposureTestReportDays != null) {

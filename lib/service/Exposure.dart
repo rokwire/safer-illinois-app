@@ -899,6 +899,10 @@ class Exposure with Service implements NotificationsListener {
     
     Log.d('Exposure: Checking Infected Exposures...');
 
+    // new variables to consider when exposure scoring
+    bool isContactWithPositive = false;
+    bool hasPassedExposureScoring = false;
+
     _checkingExposures = true;
     int thresholdTimestamp = Exposure.thresholdTimestamp;
 
@@ -944,13 +948,6 @@ class Exposure with Service implements NotificationsListener {
     // key = time interval, value = number of rpis in that time interval
     Map<int, Set<String>> scoringExposures = new Map<int, Set<String>>(); 
     int scoringDayThreshold = _evalScoringDayThreshold(histories: histories);
-
-    // variables to consider when
-    bool isContactWithPositive = false;
-    bool hasPassedExposureScoring = false;
-    //TODO: find out how to get testing data
-    bool isTestedPositive = false;
-
 
     for (ExposureTEK tek in reportedTEKs) {
       Map<String, int> rpisMap = await _loadTekRPIs(tek);
@@ -1038,6 +1035,8 @@ class Exposure with Service implements NotificationsListener {
     }
 
     // converting flags --> int to upload
+    // bit 0 --> is contact with positive
+    // bit 1 --> has passed exposure scoring
     int exposureResult = 0;
     if (isContactWithPositive) {
       exposureResult += 1;
@@ -1045,29 +1044,6 @@ class Exposure with Service implements NotificationsListener {
     if (hasPassedExposureScoring) {
       exposureResult += 2;
     }
-    if (isTestedPositive) {
-      exposureResult += 4;
-    }
-    // TODO: send this json when a new test arrives via Health.dart (if newTest: then sendResult)
-//    {
-//      "event":{
-//        "name":"health",
-//        "action":"exposure_scoring_result",
-//        "value": exposureResult,
-//      },
-//      "timestamp":"2020-10-09T16:49:01.619286Z"
-//    }
-
-//    {
-//      "event":{
-//        "name":"health",
-//        "action":"exposure_scoring_result",
-//        "contactLogged": isContactWithPositive,
-//        "passedScoring": hasPassedExposureScoring,
-//        "isPositive": isTestedPositive,
-//      },
-//      "timestamp":"2020-10-09T16:49:01.619286Z"
-//    }
 
     if (results != null) {
       NotificationService().notify(Health.notifyHistoryUpdated, null);
@@ -1139,8 +1115,13 @@ class Exposure with Service implements NotificationsListener {
     // if isexposure = false, then scoringStartTime and scoringEndTime are meaningless
     Log.d("is exposure = $scoringIsExposured, start = $scoringStartTime, end = $scoringEndTime");
 
-    _checkingExposures = null; 
-    return detected;
+    _checkingExposures = null;
+    // NOTE: exposureResult is not the number of detected exposures, but a 2-bit
+    // integer on whether an exposure was recorded, and if an exposure passed
+    // the scoring threshold.
+    // Previous value was overriden since it wasn't being used anywhere (aside
+    // from the debug panel)
+    return exposureResult;
   }
 
   int _evalScoringDayThreshold({List<Covid19History> histories}) {
