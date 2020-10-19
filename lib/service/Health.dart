@@ -890,18 +890,19 @@ class Health with Service implements NotificationsListener {
       int exposureTestReportDays = Config().settings['covid19ExposureTestReportDays'];
       for (Covid19Event event in events) {
         if (event.isTest) {
-          String score = (Exposure().checkExposures() as int).toString();
-
-          Analytics().logHealth(
-            action: Analytics.LogHealthProviderTestProcessedAction,
-            status: status,
-            prevStatus: prevStatus,
-            attributes: {
-              Analytics.LogHealthProviderName: event.provider,
-              Analytics.LogHealthTestTypeName: event.blob?.testType,
-              Analytics.LogHealthTestResultName: event.blob?.testResult,
-              Analytics.LogHealthExposureScore: score,
+          Exposure().checkExposures().then((score) {
+            Analytics().logHealth(
+              action: Analytics.LogHealthProviderTestProcessedAction,
+              status: status,
+              prevStatus: prevStatus,
+              attributes: {
+                Analytics.LogHealthProviderName: event.provider,
+                Analytics.LogHealthTestTypeName: event.blob?.testType,
+                Analytics.LogHealthTestResultName: event.blob?.testResult,
+                Analytics.LogHealthExposureScore: score,
+              });
           });
+
           
           if (exposureTestReportDays != null) {
             DateTime maxDateUtc = event?.blob?.dateUtc;
