@@ -19,6 +19,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:illinois/model/Organization.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/Localization.dart';
@@ -50,17 +51,26 @@ class SettingsDebugPanel extends StatefulWidget {
 
 class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements NotificationsListener {
 
-  bool _switchingEnvironment;
+  Organization _organization;
+  bool _switchingOrganization;
+
   String _environment;
+  bool _switchingEnvironment;
 
   @override
   void initState() {
 
     NotificationService().subscribe(this, [
+      Organizations.notifyOrganizationChanged,
       Organizations.notifyEnvironmentChanged,
     ]);
 
+    _organization = Organizations().organization; 
     _environment = Organizations().environment;
+
+    Organizations().ensureOrganizations().then((_) {
+      setState(() {});
+    });
     
     super.initState();
   }
@@ -120,7 +130,40 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
                       
                       Padding(padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16), child:
                         Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-                            Padding(padding: EdgeInsets.only(bottom: 5), child:Text('Config Environment: ')),
+                            Padding(padding: EdgeInsets.only(bottom: 5), child:Text('Organization: ')),
+                            Stack(children: [
+                              Container(decoration: BoxDecoration(color: Styles().colors?.white ?? UiColors.fromHex('#FFFFFF'), border: Border.all(color: Colors.black, width: 1), borderRadius: BorderRadius.all(Radius.circular(4))), child: 
+                                Padding(padding: EdgeInsets.only(left: 12, right: 16), child: 
+                                  DropdownButtonHideUnderline(child: 
+                                    DropdownButton(
+                                        icon: Image.asset('images/icon-down-orange.png', excludeFromSemantics: true,),
+                                        isExpanded: true,
+                                        style: TextStyle(fontFamily: (Styles().fontFamilies?.bold ?? 'ProximaNovaBold'), fontSize: 16, color: (Styles().colors?.textBackground ?? UiColors.fromHex('#404040')),),
+                                        hint: Text(_organization?.name ?? "Select organization...", style: TextStyle(fontFamily: (Styles().fontFamilies?.regular ?? 'ProximaNovaRegular'), fontSize: 16, color: (Styles().colors?.textBackground ?? UiColors.fromHex('#404040')),),),
+                                        items: _dropdownOrganizations,
+                                        onChanged: _onOrganizationSelected
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Visibility(visible: (_switchingOrganization == true), child: 
+                                Container(height: 48, child:
+                                  Align(alignment: Alignment.center, child:
+                                    SizedBox(height: 24, width: 24, child: 
+                                      CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>((Styles().colors?.fillColorSecondary ?? UiColors.fromHex('#E84A27'))), )
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],),
+                        ],),
+                      ),
+
+                      Padding(padding: EdgeInsets.only(top: 5), child: Container(height: 1, color: (Styles().colors?.surfaceAccent ?? UiColors.fromHex('#DADDE1')))),
+                      
+                      Padding(padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16), child:
+                        Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+                            Padding(padding: EdgeInsets.only(bottom: 5), child:Text('Environment: ')),
                             Stack(children: [
                               Container(decoration: BoxDecoration(color: Styles().colors?.white ?? UiColors.fromHex('#FFFFFF'), border: Border.all(color: Colors.black, width: 1), borderRadius: BorderRadius.all(Radius.circular(4))), child: 
                                 Padding(padding: EdgeInsets.only(left: 12, right: 16), child: 
@@ -148,7 +191,9 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
                             ],),
                         ],),
                       ),
+
                       Padding(padding: EdgeInsets.only(bottom: 10), child: Container(height: 1, color: (Styles().colors?.surfaceAccent ?? UiColors.fromHex('#DADDE1')))),
+
                       Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                           child: RoundedButton(
@@ -281,7 +326,12 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
 
   @override
   void onNotification(String name, dynamic param) {
-    if (name == Organizations.notifyEnvironmentChanged){
+    if (name == Organizations.notifyOrganizationChanged){
+      setState(() {
+        _organization = Organizations().organization;
+      });
+    }
+    else if (name == Organizations.notifyEnvironmentChanged){
       setState(() {
         _environment = Organizations().environment;
       });
@@ -407,9 +457,56 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
     return prettyString;
   }
 
+  List<DropdownMenuItem<Organization>> get _dropdownOrganizations {
+    List<DropdownMenuItem<Organization>> organizations = <DropdownMenuItem<Organization>>[];
+    if (Organizations().organizations != null) {
+      for (Organization organization in Organizations().organizations) {
+        organizations.add(DropdownMenuItem<Organization>(
+          value: organization,
+          child: Text(organization.name,
+            style: TextStyle(fontFamily: (Styles().fontFamilies?.regular ?? 'ProximaNovaRegular'), fontSize: 16, color: (Styles().colors?.textBackground ?? UiColors.fromHex('#404040')),),
+          ),
+        ));
+      }
+    }
+    return organizations;
+  }
+
+  void _onOrganizationSelected(Organization organization) {
+    if ((organization is Organization) && (organization?.id != _organization?.id) && (_switchingOrganization != true) && (_switchingEnvironment != true)) {
+      String currentOrg = _organization?.name;
+      String newOrg = organization?.name;
+      String message = "Are you sure you want to switch the current organization from $currentOrg to $newOrg?";
+      showDialog(context: context, builder: (context) {
+        return AlertDialog(
+          content: Text(message),
+            actions: <Widget>[
+              FlatButton(child: Text("Yes"), onPressed: () { Navigator.pop(context, true); }),
+              FlatButton(child: Text("No"), onPressed: () { Navigator.pop(context, false); }),
+            ]);
+      }).then((result) {
+        if (result == true) {
+          _switchOrganization(organization);
+        }
+      });
+    }
+  }
+
+  void _switchOrganization(Organization organization) {
+    setState(() {
+      _switchingOrganization = true;
+    });
+
+    Organizations().setOrganization(organization).then((_) {
+      setState(() {
+        _switchingOrganization = false;
+      });
+    });
+  }
+
   List<DropdownMenuItem<String>> get _dropdownEnvironments {
     List<DropdownMenuItem<String>> environments = <DropdownMenuItem<String>>[];
-    if (Organizations().organization.environments != null) {
+    if (Organizations().organization?.environments != null) {
       for (String environment in Organizations().organization.environments.keys) {
         environments.add(DropdownMenuItem<String>(
           value: environment,
@@ -423,7 +520,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
   }
 
   void _onEnvironmentSelected(String environment) {
-    if ((environment is String) && (environment != _environment) && (_switchingEnvironment != true)) {
+    if ((environment is String) && (environment != _environment) && (_switchingOrganization != true) && (_switchingEnvironment != true)) {
       String currentEnv = _environment?.toUpperCase();
       String newEnv = environment?.toUpperCase();
       String message = "Are you sure you want to switch the application environment from $currentEnv to $newEnv?";

@@ -57,6 +57,7 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
       FirebaseMessaging.notifyPopupMessage,
       FirebaseMessaging.notifyCovid19Notification,
       Localization.notifyStringsUpdated,
+      Organizations.notifyOrganizationChanged,
       Organizations.notifyEnvironmentChanged,
       Health.notifyStatusUpdated,
       DeepLink.notifyUri,
@@ -79,6 +80,9 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
       _onFirebasePopupMessage(param);
     }
     else if (name == Localization.notifyStringsUpdated) {
+      setState(() { });
+    }
+    else if (name == Organizations.notifyOrganizationChanged) {
       setState(() { });
     }
     else if (name == Organizations.notifyEnvironmentChanged) {

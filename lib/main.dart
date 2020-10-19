@@ -127,6 +127,7 @@ class _AppState extends State<App> implements NotificationsListener {
       Onboarding.notifyFinished,
       Config.notifyUpgradeAvailable,
       Config.notifyUpgradeRequired,
+      Organizations.notifyOrganizationChanged,
       Organizations.notifyEnvironmentChanged,
       User.notifyUserDeleted,
     ]);
@@ -219,6 +220,9 @@ class _AppState extends State<App> implements NotificationsListener {
       setState(() {
         _upgradeAvailableVersion = param;
       });
+    }
+    else if (name == Organizations.notifyOrganizationChanged) {
+      _resetUI();
     }
     else if (name == Organizations.notifyEnvironmentChanged) {
       _resetUI();
