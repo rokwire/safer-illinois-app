@@ -34,7 +34,7 @@ class HeaderBar extends AppBar {
       {@required this.context, this.titleWidget,
         this.rightButtonVisible = false, this.rightButtonText, this.onRightButtonTap})
       : super(
-            backgroundColor: Styles().colors.fillColorPrimaryVariant,
+            backgroundColor: (Styles().colors?.fillColorPrimaryVariant ?? UiColors.fromHex('#0F2040')),
             leading: Semantics(
               label: Localization().getStringEx('headerbar.home.title', 'Home'),
               hint: Localization().getStringEx('headerbar.home.hint', ''),
@@ -60,9 +60,9 @@ class HeaderBar extends AppBar {
                       child: Text(rightButtonText,
                           style: TextStyle(color: Colors.white,
                               fontSize: 16,
-                              fontFamily: Styles().fontFamilies.semiBold,
+                              fontFamily: (Styles().fontFamilies?.semiBold ?? 'ProximaNovaSemiBold'),
                               decoration: TextDecoration.underline,
-                              decorationColor: Styles().colors.fillColorSecondary,
+                              decorationColor: (Styles().colors?.fillColorSecondary ?? UiColors.fromHex('#E84A27')),
                               decorationThickness: 1,
                               decorationStyle: TextDecorationStyle.solid)),),)))
             ],
@@ -96,7 +96,7 @@ class SimpleHeaderBarWithBack extends StatelessWidget implements PreferredSizeWi
               onPressed: _onTapBack)),),
       title: titleWidget,
       centerTitle: true,
-      backgroundColor: Styles().colors.fillColorPrimaryVariant,
+      backgroundColor: (Styles().colors?.fillColorPrimaryVariant ?? UiColors.fromHex('#0F2040')),
       actions: actions,
     ));
   }
@@ -132,23 +132,23 @@ class SliverToutHeaderBar extends SliverAppBar {
       pinned: true,
       floating: false,
       expandedHeight: 200,
-      backgroundColor: Styles().colors.fillColorPrimaryVariant,
+      backgroundColor: (Styles().colors?.fillColorPrimaryVariant ?? UiColors.fromHex('#0F2040')),
       flexibleSpace: Semantics(container: true,excludeSemantics: true,child: FlexibleSpaceBar(
           background:
           Container(
-            color: backColor ?? Styles().colors.background,
+            color: backColor ?? (Styles().colors?.background ?? UiColors.fromHex('#F5F5F5')),
             child: Stack(
               alignment: Alignment.bottomCenter,
               children: <Widget>[
                 AppString.isStringNotEmpty(imageUrl) ?  Positioned.fill(child:Image.network(imageUrl, fit: BoxFit.cover, headers: AppImage.getAuthImageHeaders(),)) : Container(),
                 CustomPaint(
-                  painter: TrianglePainter(painterColor: rightTriangleColor ?? Styles().colors.fillColorSecondaryTransparent05, left: false),
+                  painter: TrianglePainter(painterColor: rightTriangleColor ?? (Styles().colors?.fillColorSecondaryTransparent05 ?? UiColors.fromHex('#80E84A27')), left: false),
                   child: Container(
                     height: 53,
                   ),
                 ),
                 CustomPaint(
-                  painter: TrianglePainter(painterColor: leftTriangleColor ?? Styles().colors.background),
+                  painter: TrianglePainter(painterColor: leftTriangleColor ?? (Styles().colors?.background ?? UiColors.fromHex('#F5F5F5'))),
                   child: Container(
                     height: 30,
                   ),
@@ -172,7 +172,7 @@ class SliverToutHeaderBar extends SliverAppBar {
                 child: Container(
                     height: 32,
                     width: 32,
-                    color: Styles().colors.fillColorPrimary,
+                    color: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
                     child: Image.asset('images/chevron-left-white.png')
                 ),
               ),
@@ -197,7 +197,7 @@ class SliverHeaderBar extends SliverAppBar {
         super(
         pinned: true,
         floating: false,
-        backgroundColor: backgroundColor ?? Styles().colors.fillColorPrimaryVariant,
+        backgroundColor: backgroundColor ?? (Styles().colors?.fillColorPrimaryVariant ?? UiColors.fromHex('#0F2040')),
         elevation: 0,
         leading: Visibility(visible: backVisible, child: Semantics(
             label: Localization().getStringEx('headerbar.back.title', 'Back'),
