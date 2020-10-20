@@ -21,6 +21,7 @@ import 'package:flutter/services.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/NotificationService.dart';
+import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/Service.dart';
 import 'package:illinois/utils/Utils.dart';
 
@@ -240,8 +241,8 @@ class NativeCommunicator with Service {
     try {
       result = await _platformChannel.invokeMethod('healthRSAPrivateKey', {
         'userId': userId,
-        'environment': Config().configEnvironment,
-        'organization': null,
+        'environment': Organizations().environment,
+        'organization': Organizations()?.organization?.id,
       });
     } catch (e) {
       print(e?.toString());
@@ -254,8 +255,8 @@ class NativeCommunicator with Service {
     try {
       result = await _platformChannel.invokeMethod('healthRSAPrivateKey', {
         'userId': userId,
-        'environment': Config().configEnvironment,
-        'organization': null,
+        'environment': Organizations().environment,
+        'organization': Organizations()?.organization?.id,
         'value': value,
       });
     } catch (e) {
@@ -269,8 +270,8 @@ class NativeCommunicator with Service {
     try {
       result = await _platformChannel.invokeMethod('healthRSAPrivateKey', {
         'userId': userId,
-        'environment': Config().configEnvironment,
-        //'organization': null,
+        'environment': Organizations().environment,
+        'organization': Organizations()?.organization?.id,
         'remove': true,
       });
     } catch (e) {

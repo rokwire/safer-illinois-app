@@ -31,6 +31,7 @@ import 'package:illinois/ui/onboarding/OnboardingAuthLocationPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginNetIdPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginPhonePanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingAuthNotificationsPanel.dart';
+import 'package:illinois/ui/onboarding/OnboardingOrganizationsPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingRolesPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginPhoneVerifyPanel.dart';
 
@@ -40,6 +41,7 @@ class Onboarding {
 
   static const List<String> _contentPanels = [
     "OnboardingGetStartedPanel",
+    "OnboardingOrganizationsPanel",
     
     "OnboardingAuthNotificationsPanel",
     "OnboardingAuthLocationPanel",
@@ -139,6 +141,7 @@ class Onboarding {
   OnboardingPanel _createPanel({String name, Map<String, dynamic> context}) {
     switch (name) {
       case "OnboardingGetStartedPanel": return OnboardingGetStartedPanel(onboardingContext: context);
+      case "OnboardingOrganizationsPanel": return OnboardingOrganizationsPanel(onboardingContext: context);
 
       case "OnboardingAuthNotificationsPanel": return OnboardingAuthNotificationsPanel(onboardingContext: context);
       case "OnboardingAuthLocationPanel": return OnboardingAuthLocationPanel(onboardingContext: context);

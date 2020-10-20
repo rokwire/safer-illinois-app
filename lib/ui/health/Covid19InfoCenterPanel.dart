@@ -22,8 +22,8 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html/style.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
+import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/utils/AppDateTime.dart';
-import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Connectivity.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
@@ -754,10 +754,10 @@ class _Covid19HomeHeaderBar extends AppBar {
   final GestureTapCallback onRightButtonTap;
 
   static Color get _titleColor  {
-    if (Config().isDev) {
+    if (Organizations().isDevEnvironment) {
       return Colors.yellow;
     }
-    else if (Config().isTest) {
+    else if (Organizations().isTestEnvironment) {
       return Colors.green;
     }
     else {

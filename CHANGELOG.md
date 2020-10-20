@@ -6,7 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.8.0] - 2020-10-19
+### Added
+- Multiple organizations support - first round.
+
 ## [2.7.9] - 2020-10-16
+### Changed
 - Covid19TestLocations panel: update unavailable waith time text [#279](https://github.com/rokwire/safer-illinois-app/issues/279)
 
 ## [2.7.8] - 2020-10-15

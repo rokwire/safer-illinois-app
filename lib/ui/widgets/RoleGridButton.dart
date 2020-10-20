@@ -26,6 +26,7 @@ class RoleGridButton extends StatelessWidget {
   final String hint;
   final String iconPath;
   final String selectedIconPath;
+  final String iconUrl;
   final Color backgroundColor;
   final Color selectedBackgroundColor;
   final Color borderColor;
@@ -42,6 +43,7 @@ class RoleGridButton extends StatelessWidget {
       this.hint,
       this.iconPath,
       this.selectedIconPath,
+      this.iconUrl,
       this.backgroundColor = Colors.white,
       this.selectedBackgroundColor = Colors.white,
       this.borderColor = Colors.white ,
@@ -72,18 +74,18 @@ class RoleGridButton extends StatelessWidget {
             decoration: BoxDecoration(
                 color: (this.selected ? this.selectedBackgroundColor : this.backgroundColor),
                 borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: this.selected ? (this.selectedBorderColor ?? Styles().colors.fillColorPrimary) : this.borderColor, width: 2),
-                boxShadow: [BoxShadow(color: Styles().colors.blackTransparent018, offset: Offset(2, 2), blurRadius: 6),],
+                border: Border.all(color: this.selected ? (this.selectedBorderColor ?? (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855'))) : this.borderColor, width: 2),
+                boxShadow: [BoxShadow(color: (Styles().colors?.blackTransparent018 ?? UiColors.fromHex('#30000000')), offset: Offset(2, 2), blurRadius: 6),],
                 ),
             child: Padding(padding: EdgeInsets.symmetric(horizontal: 28, vertical: 18), child: Column(children: <Widget>[
-              Image.asset((this.selected ? this.selectedIconPath : this.iconPath)),
+              _iconWidget,
               Container(height: 18,),
               Text(title,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        fontFamily: Styles().fontFamilies.bold,
+                        fontFamily: (Styles().fontFamilies?.bold ?? 'ProximaNovaBold'),
                         fontSize: 17,
-                        color: (this.selected ? (this.selectedTextColor ?? Styles().colors.fillColorPrimary) : (this.textColor ?? Styles().colors.fillColorPrimary))),
+                        color: (this.selected ? (this.selectedTextColor ?? (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855'))) : (this.textColor ?? (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855'))))),
                   )
 
             ],),),
@@ -98,5 +100,14 @@ class RoleGridButton extends StatelessWidget {
         ),
       ],
     )));
+  }
+
+  Widget get _iconWidget {
+    if (iconUrl != null) {
+      return Image.network(iconUrl, height: 100,);
+    }
+    else {
+      return Image.asset((this.selected ? this.selectedIconPath : this.iconPath));
+    }
   }
 }

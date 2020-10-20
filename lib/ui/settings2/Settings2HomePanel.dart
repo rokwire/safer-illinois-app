@@ -21,13 +21,13 @@ import 'package:flutter/material.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/AppNavigation.dart';
 import 'package:illinois/service/Auth.dart';
-import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Connectivity.dart';
 import 'package:illinois/service/Exposure.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/NotificationService.dart';
+import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/service/User.dart';
 import 'package:illinois/ui/health/Covid19HistoryPanel.dart';
@@ -763,7 +763,7 @@ class _DebugContainerState extends State<_DebugContainer> {
   }
 
   void _showPinDialog(){
-    TextEditingController pinController = TextEditingController(text: (!kReleaseMode || Config().isDev) ? this.pinOfTheDay : '');
+    TextEditingController pinController = TextEditingController(text: (!kReleaseMode || Organizations().isDevEnvironment) ? this.pinOfTheDay : '');
     showDialog(context: context, barrierDismissible: false, builder: (context) =>  Dialog(
       child:  Padding(
         padding: EdgeInsets.all(18),

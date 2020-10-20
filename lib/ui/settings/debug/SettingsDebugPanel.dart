@@ -19,11 +19,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:illinois/model/Organization.dart';
 import 'package:illinois/service/Auth.dart';
-import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/NotificationService.dart';
+import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/User.dart';
 import 'package:illinois/service/Storage.dart';
 import 'package:illinois/ui/health/debug/Covid19DebugActionPanel.dart';
@@ -50,17 +51,26 @@ class SettingsDebugPanel extends StatefulWidget {
 
 class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements NotificationsListener {
 
+  Organization _organization;
+  bool _switchingOrganization;
+
+  String _environment;
   bool _switchingEnvironment;
-  String _configEnvironment;
 
   @override
   void initState() {
 
     NotificationService().subscribe(this, [
-      Config.notifyEnvironmentChanged,
+      Organizations.notifyOrganizationChanged,
+      Organizations.notifyEnvironmentChanged,
     ]);
 
-    _configEnvironment = Config().configEnvironment;
+    _organization = Organizations().organization; 
+    _environment = Organizations().environment;
+
+    Organizations().ensureOrganizations().then((_) {
+      setState(() {});
+    });
     
     super.initState();
   }
@@ -98,7 +108,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
             child: SingleChildScrollView(
               child: SafeArea(
                 child: Container(
-                  color: Styles().colors.background,
+                  color: (Styles().colors?.background ?? UiColors.fromHex('F5F5F5')),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
@@ -116,20 +126,53 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
                         child: Text('Firebase: $firebaseProjectId'),
                       ),
                       
-                      Padding(padding: EdgeInsets.only(top: 5), child: Container(height: 1, color: Styles().colors.surfaceAccent)),
+                      Padding(padding: EdgeInsets.only(top: 5), child: Container(height: 1, color: (Styles().colors?.surfaceAccent ?? UiColors.fromHex('#DADDE1')))),
                       
                       Padding(padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16), child:
                         Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-                            Padding(padding: EdgeInsets.only(bottom: 5), child:Text('Config Environment: ')),
+                            Padding(padding: EdgeInsets.only(bottom: 5), child:Text('Organization: ')),
                             Stack(children: [
-                              Container(decoration: BoxDecoration(color: Styles().colors.white, border: Border.all(color: Colors.black, width: 1), borderRadius: BorderRadius.all(Radius.circular(4))), child: 
+                              Container(decoration: BoxDecoration(color: Styles().colors?.white ?? UiColors.fromHex('#FFFFFF'), border: Border.all(color: Colors.black, width: 1), borderRadius: BorderRadius.all(Radius.circular(4))), child: 
                                 Padding(padding: EdgeInsets.only(left: 12, right: 16), child: 
                                   DropdownButtonHideUnderline(child: 
                                     DropdownButton(
                                         icon: Image.asset('images/icon-down-orange.png', excludeFromSemantics: true,),
                                         isExpanded: true,
-                                        style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.textBackground,),
-                                        hint: Text(_configEnvironment ?? "Select environment...", style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground,),),
+                                        style: TextStyle(fontFamily: (Styles().fontFamilies?.bold ?? 'ProximaNovaBold'), fontSize: 16, color: (Styles().colors?.textBackground ?? UiColors.fromHex('#404040')),),
+                                        hint: Text(_organization?.name ?? "Select organization...", style: TextStyle(fontFamily: (Styles().fontFamilies?.regular ?? 'ProximaNovaRegular'), fontSize: 16, color: (Styles().colors?.textBackground ?? UiColors.fromHex('#404040')),),),
+                                        items: _dropdownOrganizations,
+                                        onChanged: _onOrganizationSelected
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Visibility(visible: (_switchingOrganization == true), child: 
+                                Container(height: 48, child:
+                                  Align(alignment: Alignment.center, child:
+                                    SizedBox(height: 24, width: 24, child: 
+                                      CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>((Styles().colors?.fillColorSecondary ?? UiColors.fromHex('#E84A27'))), )
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],),
+                        ],),
+                      ),
+
+                      Padding(padding: EdgeInsets.only(top: 5), child: Container(height: 1, color: (Styles().colors?.surfaceAccent ?? UiColors.fromHex('#DADDE1')))),
+                      
+                      Padding(padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16), child:
+                        Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+                            Padding(padding: EdgeInsets.only(bottom: 5), child:Text('Environment: ')),
+                            Stack(children: [
+                              Container(decoration: BoxDecoration(color: Styles().colors?.white ?? UiColors.fromHex('#FFFFFF'), border: Border.all(color: Colors.black, width: 1), borderRadius: BorderRadius.all(Radius.circular(4))), child: 
+                                Padding(padding: EdgeInsets.only(left: 12, right: 16), child: 
+                                  DropdownButtonHideUnderline(child: 
+                                    DropdownButton(
+                                        icon: Image.asset('images/icon-down-orange.png', excludeFromSemantics: true,),
+                                        isExpanded: true,
+                                        style: TextStyle(fontFamily: (Styles().fontFamilies?.bold ?? 'ProximaNovaBold'), fontSize: 16, color: (Styles().colors?.textBackground ?? UiColors.fromHex('#404040')),),
+                                        hint: Text(_environment ?? "Select environment...", style: TextStyle(fontFamily: (Styles().fontFamilies?.regular ?? 'ProximaNovaRegular'), fontSize: 16, color: (Styles().colors?.textBackground ?? UiColors.fromHex('#404040')),),),
                                         items: _dropdownEnvironments,
                                         onChanged: _onEnvironmentSelected
                                     ),
@@ -140,7 +183,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
                                 Container(height: 48, child:
                                   Align(alignment: Alignment.center, child:
                                     SizedBox(height: 24, width: 24, child: 
-                                      CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary), )
+                                      CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>((Styles().colors?.fillColorSecondary ?? UiColors.fromHex('#E84A27'))), )
                                     ),
                                   ),
                                 ),
@@ -148,15 +191,17 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
                             ],),
                         ],),
                       ),
-                      Padding(padding: EdgeInsets.only(bottom: 10), child: Container(height: 1, color: Styles().colors.surfaceAccent)),
+
+                      Padding(padding: EdgeInsets.only(bottom: 10), child: Container(height: 1, color: (Styles().colors?.surfaceAccent ?? UiColors.fromHex('#DADDE1')))),
+
                       Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                           child: RoundedButton(
                               label: "Messaging",
-                              backgroundColor: Styles().colors.background,
+                              backgroundColor: (Styles().colors?.background ?? UiColors.fromHex('F5F5F5')),
                               fontSize: 16.0,
-                              textColor: Styles().colors.fillColorPrimary,
-                              borderColor: Styles().colors.fillColorPrimary,
+                              textColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
+                              borderColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
                               onTap: _onMessagingClicked())),
                       Visibility(
                         visible: true,
@@ -164,104 +209,104 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
                             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                             child: RoundedButton(
                                 label: "User Profile Info",
-                                backgroundColor: Styles().colors.background,
+                                backgroundColor: (Styles().colors?.background ?? UiColors.fromHex('F5F5F5')),
                                 fontSize: 16.0,
-                                textColor: Styles().colors.fillColorPrimary,
-                                borderColor: Styles().colors.fillColorPrimary,
+                                textColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
+                                borderColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
                                 onTap: _onUserProfileInfoClicked(context))),
                       ),
                       Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                           child: RoundedButton(
                               label: "COVID-19: Keys",
-                              backgroundColor: Styles().colors.background,
+                              backgroundColor: (Styles().colors?.background ?? UiColors.fromHex('F5F5F5')),
                               fontSize: 16.0,
-                              textColor: Styles().colors.fillColorPrimary,
-                              borderColor: Styles().colors.fillColorPrimary,
+                              textColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
+                              borderColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
                               onTap: _onTapCovid19Keys)),
                       Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                           child: RoundedButton(
                               label: "COVID-19 Rules",
-                              backgroundColor: Styles().colors.background,
+                              backgroundColor: (Styles().colors?.background ?? UiColors.fromHex('F5F5F5')),
                               fontSize: 16.0,
-                              textColor: Styles().colors.fillColorPrimary,
-                              borderColor: Styles().colors.fillColorPrimary,
+                              textColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
+                              borderColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
                               onTap: _onTapCovid19Rules)),
                       Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                           child: RoundedButton(
                               label: "COVID-19 Create Event",
-                              backgroundColor: Styles().colors.background,
+                              backgroundColor: (Styles().colors?.background ?? UiColors.fromHex('F5F5F5')),
                               fontSize: 16.0,
-                              textColor: Styles().colors.fillColorPrimary,
-                              borderColor: Styles().colors.fillColorPrimary,
+                              textColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
+                              borderColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
                               onTap: _onTapCreateCovid19Event)),
                       Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                           child: RoundedButton(
                               label: "COVID-19 Pending Events",
-                              backgroundColor: Styles().colors.background,
+                              backgroundColor: (Styles().colors?.background ?? UiColors.fromHex('F5F5F5')),
                               fontSize: 16.0,
-                              textColor: Styles().colors.fillColorPrimary,
-                              borderColor: Styles().colors.fillColorPrimary,
+                              textColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
+                              borderColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
                               onTap: _onTapCovid19PendingEvents)),
                       Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                           child: RoundedButton(
                               label: "COVID-19 Trace Contact",
-                              backgroundColor: Styles().colors.background,
+                              backgroundColor: (Styles().colors?.background ?? UiColors.fromHex('F5F5F5')),
                               fontSize: 16.0,
-                              textColor: Styles().colors.fillColorPrimary,
-                              borderColor: Styles().colors.fillColorPrimary,
+                              textColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
+                              borderColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
                               onTap: _onTapTraceCovid19Contact)),
                       Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                           child: RoundedButton(
                               label: "COVID-19 Report Symptoms",
-                              backgroundColor: Styles().colors.background,
+                              backgroundColor: (Styles().colors?.background ?? UiColors.fromHex('F5F5F5')),
                               fontSize: 16.0,
-                              textColor: Styles().colors.fillColorPrimary,
-                              borderColor: Styles().colors.fillColorPrimary,
+                              textColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
+                              borderColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
                               onTap: _onTapReportCovid19Symptoms)),
                       Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                           child: RoundedButton(
                               label: "COVID-19 Create Action",
-                              backgroundColor: Styles().colors.background,
+                              backgroundColor: (Styles().colors?.background ?? UiColors.fromHex('F5F5F5')),
                               fontSize: 16.0,
-                              textColor: Styles().colors.fillColorPrimary,
-                              borderColor: Styles().colors.fillColorPrimary,
+                              textColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
+                              borderColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
                               onTap: _onTapCreateCovid19Action)),
                       Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                           child: RoundedButton(
                               label: "COVID-19 Exposures",
-                              backgroundColor: Styles().colors.background,
+                              backgroundColor: (Styles().colors?.background ?? UiColors.fromHex('F5F5F5')),
                               fontSize: 16.0,
-                              textColor: Styles().colors.fillColorPrimary,
-                              borderColor: Styles().colors.fillColorPrimary,
+                              textColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
+                              borderColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
                               onTap: _onTapCovid19Exposures)),
                       Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                           child: RoundedButton(
                               label: "COVID-19 Exposure Logs",
-                              backgroundColor: Styles().colors.background,
+                              backgroundColor: (Styles().colors?.background ?? UiColors.fromHex('F5F5F5')),
                               fontSize: 16.0,
-                              textColor: Styles().colors.fillColorPrimary,
-                              borderColor: Styles().colors.fillColorPrimary,
+                              textColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
+                              borderColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
                               onTap: _onTapCovid19ExposureLogs)),
                       Padding(padding: EdgeInsets.only(top: 5), child: Container()),
                       Visibility(
-                        visible: Config().isDev,
+                        visible: Organizations().isDevEnvironment,
                         child: Padding(
                             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                             child: RoundedButton(
                                 label: "Http Proxy",
-                                backgroundColor: Styles().colors.background,
+                                backgroundColor: (Styles().colors?.background ?? UiColors.fromHex('F5F5F5')),
                                 fontSize: 16.0,
-                                textColor: Styles().colors.fillColorPrimary,
-                                borderColor: Styles().colors.fillColorPrimary,
+                                textColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
+                                borderColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
                                 onTap: _onTapHttpProxy)),
                       ),
                       Padding(padding: EdgeInsets.only(top: 5), child: Container()),
@@ -273,7 +318,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
           ),
         ],
       ),
-      backgroundColor: Styles().colors.background,
+      backgroundColor: (Styles().colors?.background ?? UiColors.fromHex('F5F5F5')),
     );
   }
 
@@ -281,9 +326,14 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
 
   @override
   void onNotification(String name, dynamic param) {
-    if (name == Config.notifyEnvironmentChanged){
+    if (name == Organizations.notifyOrganizationChanged){
       setState(() {
-        _configEnvironment = Config().configEnvironment;
+        _organization = Organizations().organization;
+      });
+    }
+    else if (name == Organizations.notifyEnvironmentChanged){
+      setState(() {
+        _environment = Organizations().environment;
       });
     }
   }
@@ -310,7 +360,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
                   child: Column(
                     children: <Widget>[
                       Container(
-                        color: Styles().colors.fillColorPrimary,
+                        color: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: <Widget>[
@@ -318,7 +368,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
                             Expanded(
                               child: RoundedButton(
                                 label: "Copy to clipboard",
-                                borderColor: Styles().colors.fillColorSecondary,
+                                borderColor: (Styles().colors?.fillColorSecondary ?? UiColors.fromHex('#E84A27')),
                                 onTap: _onTapCopyToClipboard,
                               ),
                             ),
@@ -330,7 +380,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
                                 child: Text('\u00D7',
                                   style: TextStyle(
                                       color: Colors.white,
-                                      fontFamily: Styles().fontFamilies.medium,
+                                      fontFamily: (Styles().fontFamilies?.medium ?? 'ProximaNovaMedium'),
                                       fontSize: 50
                                   ),
                                 ),
@@ -342,7 +392,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
                       Expanded(
                         child: Container( child:
                             SingleChildScrollView(
-                          child: Container(color: Styles().colors.background, child:Text(_userDebugData))
+                          child: Container(color: (Styles().colors?.background ?? UiColors.fromHex('F5F5F5')), child:Text(_userDebugData))
                         )
                         )
                       )
@@ -407,23 +457,72 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
     return prettyString;
   }
 
+  List<DropdownMenuItem<Organization>> get _dropdownOrganizations {
+    List<DropdownMenuItem<Organization>> organizations = <DropdownMenuItem<Organization>>[];
+    if (Organizations().organizations != null) {
+      for (Organization organization in Organizations().organizations) {
+        organizations.add(DropdownMenuItem<Organization>(
+          value: organization,
+          child: Text(organization.name,
+            style: TextStyle(fontFamily: (Styles().fontFamilies?.regular ?? 'ProximaNovaRegular'), fontSize: 16, color: (Styles().colors?.textBackground ?? UiColors.fromHex('#404040')),),
+          ),
+        ));
+      }
+    }
+    return organizations;
+  }
+
+  void _onOrganizationSelected(Organization organization) {
+    if ((organization is Organization) && (organization?.id != _organization?.id) && (_switchingOrganization != true) && (_switchingEnvironment != true)) {
+      String currentOrg = _organization?.name;
+      String newOrg = organization?.name;
+      String message = "Are you sure you want to switch the current organization from $currentOrg to $newOrg?";
+      showDialog(context: context, builder: (context) {
+        return AlertDialog(
+          content: Text(message),
+            actions: <Widget>[
+              FlatButton(child: Text("Yes"), onPressed: () { Navigator.pop(context, true); }),
+              FlatButton(child: Text("No"), onPressed: () { Navigator.pop(context, false); }),
+            ]);
+      }).then((result) {
+        if (result == true) {
+          _switchOrganization(organization);
+        }
+      });
+    }
+  }
+
+  void _switchOrganization(Organization organization) {
+    setState(() {
+      _switchingOrganization = true;
+    });
+
+    Organizations().setOrganization(organization).then((_) {
+      setState(() {
+        _switchingOrganization = false;
+      });
+    });
+  }
+
   List<DropdownMenuItem<String>> get _dropdownEnvironments {
     List<DropdownMenuItem<String>> environments = <DropdownMenuItem<String>>[];
-    for (String environment in Config().configEnvironments) {
-      environments.add(DropdownMenuItem<String>(
-        value: environment,
-        child: Text(environment,
-          style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground,),
-        ),
-      ));
+    if (Organizations().organization?.environments != null) {
+      for (String environment in Organizations().organization.environments.keys) {
+        environments.add(DropdownMenuItem<String>(
+          value: environment,
+          child: Text(environment,
+            style: TextStyle(fontFamily: (Styles().fontFamilies?.regular ?? 'ProximaNovaRegular'), fontSize: 16, color: (Styles().colors?.textBackground ?? UiColors.fromHex('#404040')),),
+          ),
+        ));
+      }
     }
     return environments;
   }
 
-  void _onEnvironmentSelected(String configEnvironment) {
-    if ((configEnvironment is String) && (configEnvironment != _configEnvironment) && (_switchingEnvironment != true)) {
-      String currentEnv = _configEnvironment?.toUpperCase();
-      String newEnv = configEnvironment?.toUpperCase();
+  void _onEnvironmentSelected(String environment) {
+    if ((environment is String) && (environment != _environment) && (_switchingOrganization != true) && (_switchingEnvironment != true)) {
+      String currentEnv = _environment?.toUpperCase();
+      String newEnv = environment?.toUpperCase();
       String message = "Are you sure you want to switch the application environment from $currentEnv to $newEnv?";
       showDialog(context: context, builder: (context) {
         return AlertDialog(
@@ -434,7 +533,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
             ]);
       }).then((result) {
         if (result == true) {
-          _switchEnvirnment(configEnvironment);
+          _switchEnvirnment(environment);
         }
       });
     }
@@ -445,7 +544,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
       _switchingEnvironment = true;
     });
 
-    Config().setConfigEnvironment(configEnvironment).then((_) {
+    Organizations().setEnvironment(configEnvironment).then((_) {
       setState(() {
         _switchingEnvironment = false;
       });
@@ -453,7 +552,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
   }
 
   void _onTapHttpProxy() {
-    if(Config().isDev) {
+    if(Organizations().isDevEnvironment) {
       Navigator.push(context, CupertinoPageRoute(builder: (context) => HttpProxySettingsPanel()));
     }
   }
