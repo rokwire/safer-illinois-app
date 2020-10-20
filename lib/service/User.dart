@@ -144,7 +144,7 @@ class User with Service implements NotificationsListener {
     String userUuid = _userData.uuid;
     String url = (Config().userProfileUrl != null) ? "${Config().userProfileUrl}/$userUuid" : null;
     Map<String, String> headers = {"Accept": "application/json","content-type":"application/json"};
-    final response = await Network().put(url, body: json.encode(_userData.toJson()), headers: headers, client: _client, auth: NetworkAuth.App);
+    final response = (url != null) ? await Network().put(url, body: json.encode(_userData.toJson()), headers: headers, client: _client, auth: NetworkAuth.App) : null;
     String responseBody = response?.body;
     bool success = ((response != null) && (responseBody != null) && (response.statusCode == 200));
     
@@ -171,7 +171,7 @@ class User with Service implements NotificationsListener {
   Future<UserData> requestUser(String uuid) async {
     String url = ((Config().userProfileUrl != null) && (uuid != null) && (0 < uuid.length)) ? '${Config().userProfileUrl}/$uuid' : null;
 
-    final response = await Network().get(url, auth: NetworkAuth.App);
+    final response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
 
     if(response != null) {
       if (response?.statusCode == 404) {
@@ -190,7 +190,7 @@ class User with Service implements NotificationsListener {
 
   Future<UserData> _requestCreateUser() async {
     try {
-      final response = await Network().post(Config().userProfileUrl, auth: NetworkAuth.App, timeout: 10);
+      final response = (Config().userProfileUrl != null) ? await Network().post(Config().userProfileUrl, auth: NetworkAuth.App, timeout: 10) : null;
       if ((response != null) && (response.statusCode == 200)) {
         String responseBody = response.body;
         Map<String, dynamic> jsonData = AppJson.decode(responseBody);
@@ -235,8 +235,8 @@ class User with Service implements NotificationsListener {
     String applyUserUuid = userData?.uuid;
     String currentUserUuid = _userData?.uuid;
     bool userSwitched = (currentUserUuid != null) && (currentUserUuid != applyUserUuid);
-    if (userSwitched && _removeFCMToken(_userData)) {
-      String url = "${Config().userProfileUrl}/${_userData.uuid}";
+    if (userSwitched && (Config().userProfileUrl != null) && (_userData?.uuid != null) && _removeFCMToken(_userData)) {
+      String url = "${Config().userProfileUrl}/${_userData?.uuid}";
       Map<String, String> headers = {"Accept": "application/json","content-type":"application/json"};
       String post = json.encode(_userData.toJson());
       Network().put(url, body: post, headers: headers, auth: NetworkAuth.App);
