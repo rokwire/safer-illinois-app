@@ -9,6 +9,10 @@
 	},
 	"rules": {
 		"roles" : {
+			"onboarding.login_netid"          : ["student", "OR", "employee"],
+			"onboarding.login_phone"          : ["NOT", ["employee", "OR", "student"]],
+			"onboarding.verify_phone"         : ["NOT", ["employee", "OR", "student"]],
+			"onboarding.confirm_phone"        : ["NOT", ["employee", "OR", "student"]]
 		},
 		"auth": {
 			"settings.user_info"              : { "loggedIn": true },

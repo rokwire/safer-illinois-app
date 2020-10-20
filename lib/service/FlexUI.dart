@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:http/http.dart' as Http;
 
 import 'package:collection/collection.dart';
 import 'package:illinois/model/UserData.dart';
@@ -24,6 +26,8 @@ import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/Assets.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Config.dart';
+import 'package:illinois/service/Log.dart';
+import 'package:illinois/service/Network.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
 import 'package:illinois/service/User.dart';
@@ -39,8 +43,8 @@ class FlexUI with Service implements NotificationsListener {
 
   Map<String, dynamic> _content;
   Set<dynamic>         _features;
-  //Http.Client          _httpClient; // tmp commented
-  //String               _dataVersion; // tmp commented
+  Http.Client          _httpClient;
+  String               _dataVersion;
   File                 _cacheFile;
   DateTime             _pausedDateTime;
 
@@ -78,8 +82,7 @@ class FlexUI with Service implements NotificationsListener {
 
   @override
   Future<void> initService() async {
-    await super.initService();
-    //_dataVersion = AppVersion.majorVersion(Config().appVersion, 2);
+    _dataVersion = AppVersion.majorVersion(Config().appVersion, 2);
     _cacheFile = await _getCacheFile();
     _content = await _loadContentFromCache();
     if (_content == null) {
@@ -93,16 +96,33 @@ class FlexUI with Service implements NotificationsListener {
 
   @override
   Set<Service> get serviceDependsOn {
-    return Set.from([Config(), User(), Auth(), Assets()]);
+    return Set.from([Config(), User(), Auth()]);
+  }
+
+  @override
+  Future<void> clearService() async {
+    AppFile.delete(_cacheFile);
+    _dataVersion = null;
+    _cacheFile = null;
+    _content = null;
+    _features = null;
+    if (_httpClient != null) {
+      _httpClient.close();
+      _httpClient = null;
+    }
   }
 
   // NotificationsListener
 
   @override
   void onNotification(String name, dynamic param) {
-    if ((name == User.notifyUserUpdated) ||
-        (name == User.notifyRolesUpdated) ||
-        (name == Auth.notifyAuthTokenChanged) ||
+    if ((name == User.notifyRolesUpdated) ||
+        (name == User.notifyUserUpdated) ||
+        (name == User.notifyUserDeleted))
+    {
+      _updateFromNet();
+    }
+    else if ((name == Auth.notifyAuthTokenChanged) ||
         (name == Auth.notifyCardChanged) || 
         (name == Auth.notifyUserPiiDataChanged))
     {
@@ -149,9 +169,9 @@ class FlexUI with Service implements NotificationsListener {
 
   Future<String> _loadContentStringFromNet() async {
 
-    //TMP: try { return AppJson.encode(await _localBuild()); } catch (e) { print(e.toString()); }
+    try { return AppJson.encode(await _localBuild()); } catch (e) { print(e.toString()); }
 
-    /*Http.Client httpClient;
+    Http.Client httpClient;
     
     if (_httpClient != null) {
       _httpClient.close();
@@ -184,7 +204,7 @@ class FlexUI with Service implements NotificationsListener {
       if (_httpClient == httpClient) {
         _httpClient = null;
       }
-    }*/
+    }
 
     return null;
   }
@@ -263,7 +283,7 @@ class FlexUI with Service implements NotificationsListener {
     return _updateFromNet();
   }
 
-// Local Build
+  // Local Build
 
   static Future<Map<String, dynamic>> _localBuild() async {
     String flexUIString = await rootBundle.loadString('assets/$_flexUIName');
