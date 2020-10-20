@@ -658,14 +658,14 @@ class Exposure with Service implements NotificationsListener {
   // Networking
 
   Future<bool> reportTEKs(List<ExposureTEK> teks) async {
-    String url = "${Config().healthUrl}/covid19/trace/report";
-    String post = AppJson.encode(ExposureTEK.listToJson(teks));
-    Response response = await Network().post(url, body: post, auth: NetworkAuth.App);
+    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/trace/report" : null;
+    String post = (url != null) ? AppJson.encode(ExposureTEK.listToJson(teks)) : null;
+    Response response = (url != null) ? await Network().post(url, body: post, auth: NetworkAuth.App) : null;
     return (response?.statusCode == 200);
   }
 
   Future<List<ExposureTEK>> loadReportedTEKs({int timestamp, int dateAdded}) async {
-    String url = "${Config().healthUrl}/covid19/trace/exposures";
+    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/trace/exposures" : null;
     
     String params = '';
     if (timestamp != null) {
@@ -684,7 +684,7 @@ class Exposure with Service implements NotificationsListener {
       url += '?$params';
     }
 
-    Response response = await Network().get(url, auth: NetworkAuth.App);
+    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
     String responseString = (response?.statusCode == 200) ? response.body : null;
     List<dynamic> responseJson = (responseString != null) ? AppJson.decodeList(responseString) : null;
     return (responseJson != null) ? ExposureTEK.listFromJson(responseJson) : null;

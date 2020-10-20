@@ -34,16 +34,14 @@ class TransportationService /* with Service */ {
   TransportationService._internal();
 
   Future<Color> loadBussColor({String userId, String deviceId}) async {
-    String transportationUrl =Config().transportationUrl;
-    String url = "$transportationUrl/bus/color";
-    Map<String, dynamic> data = {
-      'user_id': userId,
-      'device_id': deviceId,
-    };
 
     try {
-      String body = json.encode(data);
-      final response = await Network().get(url, auth: NetworkAuth.App, body:body);
+      String url = (Config().transportationUrl != null) ? "${Config().transportationUrl}/bus/color" : null;
+      String body = json.encode({
+        'user_id': userId,
+        'device_id': deviceId,
+      });
+      final response = (url != null) ? await Network().get(url, auth: NetworkAuth.App, body:body) : null;
 
       String responseBody = response?.body;
       if ((response != null) && (response.statusCode == 200)) {
@@ -60,14 +58,13 @@ class TransportationService /* with Service */ {
 
   Future<dynamic> loadBussPass({String userId, String deviceId, Map<String, dynamic> iBeaconData}) async {
     try {
-      String url = "${Config().transportationUrl}/bus/pass";
-      Map<String, dynamic> data = {
+      String url = (Config().transportationUrl != null) ? "${Config().transportationUrl}/bus/pass" : null;
+      String body = json.encode({
         'user_id': userId,
         'device_id': deviceId,
         'ibeacon_data': iBeaconData,
-      };
-      String body = json.encode(data);
-      final response = await Network().get(url, auth: NetworkAuth.App, body:body);
+      });
+      final response = (url != null) ? await Network().get(url, auth: NetworkAuth.App, body:body) : null;
       if (response != null) {
         if (response.statusCode == 200) {
           String responseBody = response.body;
