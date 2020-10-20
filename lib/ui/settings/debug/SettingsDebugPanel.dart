@@ -51,8 +51,9 @@ class SettingsDebugPanel extends StatefulWidget {
 
 class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements NotificationsListener {
 
+  List<Organization> _organizations;
   Organization _organization;
-  bool _switchingOrganization;
+  bool _organizationProgress;
 
   String _environment;
   bool _switchingEnvironment;
@@ -68,8 +69,14 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
     _organization = Organizations().organization; 
     _environment = Organizations().environment;
 
-    Organizations().ensureOrganizations().then((_) {
-      setState(() {});
+    setState(() {
+      _organizationProgress = true;
+    });
+    Organizations().ensureOrganizations().then((List<Organization> organizations) {
+      setState(() {
+        _organizations = organizations;
+        _organizationProgress = false;
+      });
     });
     
     super.initState();
@@ -146,7 +153,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
                                   ),
                                 ),
                               ),
-                              Visibility(visible: (_switchingOrganization == true), child: 
+                              Visibility(visible: (_organizationProgress == true), child: 
                                 Container(height: 48, child:
                                   Align(alignment: Alignment.center, child:
                                     SizedBox(height: 24, width: 24, child: 
@@ -459,8 +466,8 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
 
   List<DropdownMenuItem<Organization>> get _dropdownOrganizations {
     List<DropdownMenuItem<Organization>> organizations = <DropdownMenuItem<Organization>>[];
-    if (Organizations().organizations != null) {
-      for (Organization organization in Organizations().organizations) {
+    if (_organizations != null) {
+      for (Organization organization in _organizations) {
         organizations.add(DropdownMenuItem<Organization>(
           value: organization,
           child: Text(organization.name,
@@ -473,7 +480,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
   }
 
   void _onOrganizationSelected(Organization organization) {
-    if ((organization is Organization) && (organization?.id != _organization?.id) && (_switchingOrganization != true) && (_switchingEnvironment != true)) {
+    if ((organization is Organization) && (organization?.id != _organization?.id) && (_organizationProgress != true) && (_switchingEnvironment != true)) {
       String currentOrg = _organization?.name;
       String newOrg = organization?.name;
       String message = "Are you sure you want to switch the current organization from $currentOrg to $newOrg?";
@@ -494,12 +501,12 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
 
   void _switchOrganization(Organization organization) {
     setState(() {
-      _switchingOrganization = true;
+      _organizationProgress = true;
     });
 
     Organizations().setOrganization(organization).then((_) {
       setState(() {
-        _switchingOrganization = false;
+        _organizationProgress = false;
       });
     });
   }
@@ -520,7 +527,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
   }
 
   void _onEnvironmentSelected(String environment) {
-    if ((environment is String) && (environment != _environment) && (_switchingOrganization != true) && (_switchingEnvironment != true)) {
+    if ((environment is String) && (environment != _environment) && (_organizationProgress != true) && (_switchingEnvironment != true)) {
       String currentEnv = _environment?.toUpperCase();
       String newEnv = environment?.toUpperCase();
       String message = "Are you sure you want to switch the application environment from $currentEnv to $newEnv?";
