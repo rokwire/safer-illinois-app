@@ -160,10 +160,10 @@ bool _parseDefault(dynamic value) {
     }
     else if (value is String) {
       if (value == 'release') {
-        return false; //TMP: kReleaseMode;
+        return kReleaseMode;
       }
       else if (value == 'debug') {
-        return true; //TMP: !kReleaseMode;
+        return !kReleaseMode;
       }
       else if (value == 'true') {
         return true;
