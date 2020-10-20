@@ -82,7 +82,7 @@ class Organizations with Service {
     return _organization;
   }
 
-  Future<void> setOrganization(Organization organization) async {
+  Future<void> setOrganization(Organization organization, {bool notifyChanged = true}) async {
     if ((organization?.id != null) && (_organization?.id != organization.id)) {
       String environment = Storage().configEnvironment;
       List<Organization> organizations = _organizations;
@@ -93,7 +93,9 @@ class Organizations with Service {
         Storage().configEnvironment = environment;
       }
       await Services().init();
-      NotificationService().notify(notifyOrganizationChanged);
+      if (notifyChanged == true) {
+        NotificationService().notify(notifyOrganizationChanged);
+      }
     }
   }
 
@@ -108,7 +110,7 @@ class Organizations with Service {
     return null;
   }
 
-  Future<void> setEnvironment(String value) async {
+  Future<void> setEnvironment(String value, {bool notifyChanged = true}) async {
     if ((_organization != null) && _organization.hasEnvironment(value) && (environment != value)) {
       Organization organization = _organization;
       List<Organization> organizations = _organizations;
@@ -117,7 +119,9 @@ class Organizations with Service {
       Storage().organization = organization;
       Storage().configEnvironment = (organization.defaultEnvironment != value) ? value : null;
       await Services().init();
-      NotificationService().notify(notifyEnvironmentChanged);
+      if (notifyChanged == true) {
+        NotificationService().notify(notifyEnvironmentChanged);
+      }
     }
   }
 

@@ -165,7 +165,7 @@ class _OnboardingOrganizationsPanelState extends State<OnboardingOrganizationsPa
       setState(() {
         _updating = true;
       });
-      Organizations().setOrganization(_selectedOrganization).then((_) {
+      Organizations().setOrganization(_selectedOrganization, notifyChanged: false).then((_) {
         if (mounted) {
           setState((){
             _updating = false;
