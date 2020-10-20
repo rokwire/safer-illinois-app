@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Added
 - Added ability to turn off multiple organizations support and build single organization app.
+- Added backward support for single organization app upgrade.
 - Log "exposure_score" in "check_exposures" analytics event [#309](https://github.com/rokwire/safer-illinois-app/issues/309).
 
 ### Changed
