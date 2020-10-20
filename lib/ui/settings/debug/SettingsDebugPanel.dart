@@ -108,7 +108,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
             child: SingleChildScrollView(
               child: SafeArea(
                 child: Container(
-                  color: (Styles().colors?.background ?? UiColors.fromHex('F5F5F5')),
+                  color: Styles().colors.background,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
@@ -126,20 +126,20 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
                         child: Text('Firebase: $firebaseProjectId'),
                       ),
                       
-                      Padding(padding: EdgeInsets.only(top: 5), child: Container(height: 1, color: (Styles().colors?.surfaceAccent ?? UiColors.fromHex('#DADDE1')))),
+                      Padding(padding: EdgeInsets.only(top: 5), child: Container(height: 1, color: Styles().colors.surfaceAccent)),
                       
                       Padding(padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16), child:
                         Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
                             Padding(padding: EdgeInsets.only(bottom: 5), child:Text('Organization: ')),
                             Stack(children: [
-                              Container(decoration: BoxDecoration(color: Styles().colors?.white ?? UiColors.fromHex('#FFFFFF'), border: Border.all(color: Colors.black, width: 1), borderRadius: BorderRadius.all(Radius.circular(4))), child: 
+                              Container(decoration: BoxDecoration(color: Styles().colors.white, border: Border.all(color: Colors.black, width: 1), borderRadius: BorderRadius.all(Radius.circular(4))), child: 
                                 Padding(padding: EdgeInsets.only(left: 12, right: 16), child: 
                                   DropdownButtonHideUnderline(child: 
                                     DropdownButton(
                                         icon: Image.asset('images/icon-down-orange.png', excludeFromSemantics: true,),
                                         isExpanded: true,
-                                        style: TextStyle(fontFamily: (Styles().fontFamilies?.bold ?? 'ProximaNovaBold'), fontSize: 16, color: (Styles().colors?.textBackground ?? UiColors.fromHex('#404040')),),
-                                        hint: Text(_organization?.name ?? "Select organization...", style: TextStyle(fontFamily: (Styles().fontFamilies?.regular ?? 'ProximaNovaRegular'), fontSize: 16, color: (Styles().colors?.textBackground ?? UiColors.fromHex('#404040')),),),
+                                        style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.textBackground,),
+                                        hint: Text(_organization?.name ?? "Select organization...", style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground,),),
                                         items: _dropdownOrganizations,
                                         onChanged: _onOrganizationSelected
                                     ),
@@ -150,7 +150,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
                                 Container(height: 48, child:
                                   Align(alignment: Alignment.center, child:
                                     SizedBox(height: 24, width: 24, child: 
-                                      CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>((Styles().colors?.fillColorSecondary ?? UiColors.fromHex('#E84A27'))), )
+                                      CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary), )
                                     ),
                                   ),
                                 ),
@@ -159,20 +159,20 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
                         ],),
                       ),
 
-                      Padding(padding: EdgeInsets.only(top: 5), child: Container(height: 1, color: (Styles().colors?.surfaceAccent ?? UiColors.fromHex('#DADDE1')))),
+                      Padding(padding: EdgeInsets.only(top: 5), child: Container(height: 1, color: Styles().colors.surfaceAccent)),
                       
                       Padding(padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16), child:
                         Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
                             Padding(padding: EdgeInsets.only(bottom: 5), child:Text('Environment: ')),
                             Stack(children: [
-                              Container(decoration: BoxDecoration(color: Styles().colors?.white ?? UiColors.fromHex('#FFFFFF'), border: Border.all(color: Colors.black, width: 1), borderRadius: BorderRadius.all(Radius.circular(4))), child: 
+                              Container(decoration: BoxDecoration(color: Styles().colors.white, border: Border.all(color: Colors.black, width: 1), borderRadius: BorderRadius.all(Radius.circular(4))), child: 
                                 Padding(padding: EdgeInsets.only(left: 12, right: 16), child: 
                                   DropdownButtonHideUnderline(child: 
                                     DropdownButton(
                                         icon: Image.asset('images/icon-down-orange.png', excludeFromSemantics: true,),
                                         isExpanded: true,
-                                        style: TextStyle(fontFamily: (Styles().fontFamilies?.bold ?? 'ProximaNovaBold'), fontSize: 16, color: (Styles().colors?.textBackground ?? UiColors.fromHex('#404040')),),
-                                        hint: Text(_environment ?? "Select environment...", style: TextStyle(fontFamily: (Styles().fontFamilies?.regular ?? 'ProximaNovaRegular'), fontSize: 16, color: (Styles().colors?.textBackground ?? UiColors.fromHex('#404040')),),),
+                                        style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.textBackground,),
+                                        hint: Text(_environment ?? "Select environment...", style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground,),),
                                         items: _dropdownEnvironments,
                                         onChanged: _onEnvironmentSelected
                                     ),
@@ -183,7 +183,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
                                 Container(height: 48, child:
                                   Align(alignment: Alignment.center, child:
                                     SizedBox(height: 24, width: 24, child: 
-                                      CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>((Styles().colors?.fillColorSecondary ?? UiColors.fromHex('#E84A27'))), )
+                                      CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary), )
                                     ),
                                   ),
                                 ),
@@ -192,16 +192,16 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
                         ],),
                       ),
 
-                      Padding(padding: EdgeInsets.only(bottom: 10), child: Container(height: 1, color: (Styles().colors?.surfaceAccent ?? UiColors.fromHex('#DADDE1')))),
+                      Padding(padding: EdgeInsets.only(bottom: 10), child: Container(height: 1, color: Styles().colors.surfaceAccent)),
 
                       Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                           child: RoundedButton(
                               label: "Messaging",
-                              backgroundColor: (Styles().colors?.background ?? UiColors.fromHex('F5F5F5')),
+                              backgroundColor: Styles().colors.background,
                               fontSize: 16.0,
-                              textColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
-                              borderColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
+                              textColor: Styles().colors.fillColorPrimary,
+                              borderColor: Styles().colors.fillColorPrimary,
                               onTap: _onMessagingClicked())),
                       Visibility(
                         visible: true,
@@ -209,92 +209,92 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
                             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                             child: RoundedButton(
                                 label: "User Profile Info",
-                                backgroundColor: (Styles().colors?.background ?? UiColors.fromHex('F5F5F5')),
+                                backgroundColor: Styles().colors.background,
                                 fontSize: 16.0,
-                                textColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
-                                borderColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
+                                textColor: Styles().colors.fillColorPrimary,
+                                borderColor: Styles().colors.fillColorPrimary,
                                 onTap: _onUserProfileInfoClicked(context))),
                       ),
                       Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                           child: RoundedButton(
                               label: "COVID-19: Keys",
-                              backgroundColor: (Styles().colors?.background ?? UiColors.fromHex('F5F5F5')),
+                              backgroundColor: Styles().colors.background,
                               fontSize: 16.0,
-                              textColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
-                              borderColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
+                              textColor: Styles().colors.fillColorPrimary,
+                              borderColor: Styles().colors.fillColorPrimary,
                               onTap: _onTapCovid19Keys)),
                       Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                           child: RoundedButton(
                               label: "COVID-19 Rules",
-                              backgroundColor: (Styles().colors?.background ?? UiColors.fromHex('F5F5F5')),
+                              backgroundColor: Styles().colors.background,
                               fontSize: 16.0,
-                              textColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
-                              borderColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
+                              textColor: Styles().colors.fillColorPrimary,
+                              borderColor: Styles().colors.fillColorPrimary,
                               onTap: _onTapCovid19Rules)),
                       Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                           child: RoundedButton(
                               label: "COVID-19 Create Event",
-                              backgroundColor: (Styles().colors?.background ?? UiColors.fromHex('F5F5F5')),
+                              backgroundColor: Styles().colors.background,
                               fontSize: 16.0,
-                              textColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
-                              borderColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
+                              textColor: Styles().colors.fillColorPrimary,
+                              borderColor: Styles().colors.fillColorPrimary,
                               onTap: _onTapCreateCovid19Event)),
                       Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                           child: RoundedButton(
                               label: "COVID-19 Pending Events",
-                              backgroundColor: (Styles().colors?.background ?? UiColors.fromHex('F5F5F5')),
+                              backgroundColor: Styles().colors.background,
                               fontSize: 16.0,
-                              textColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
-                              borderColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
+                              textColor: Styles().colors.fillColorPrimary,
+                              borderColor: Styles().colors.fillColorPrimary,
                               onTap: _onTapCovid19PendingEvents)),
                       Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                           child: RoundedButton(
                               label: "COVID-19 Trace Contact",
-                              backgroundColor: (Styles().colors?.background ?? UiColors.fromHex('F5F5F5')),
+                              backgroundColor: Styles().colors.background,
                               fontSize: 16.0,
-                              textColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
-                              borderColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
+                              textColor: Styles().colors.fillColorPrimary,
+                              borderColor: Styles().colors.fillColorPrimary,
                               onTap: _onTapTraceCovid19Contact)),
                       Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                           child: RoundedButton(
                               label: "COVID-19 Report Symptoms",
-                              backgroundColor: (Styles().colors?.background ?? UiColors.fromHex('F5F5F5')),
+                              backgroundColor: Styles().colors.background,
                               fontSize: 16.0,
-                              textColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
-                              borderColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
+                              textColor: Styles().colors.fillColorPrimary,
+                              borderColor: Styles().colors.fillColorPrimary,
                               onTap: _onTapReportCovid19Symptoms)),
                       Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                           child: RoundedButton(
                               label: "COVID-19 Create Action",
-                              backgroundColor: (Styles().colors?.background ?? UiColors.fromHex('F5F5F5')),
+                              backgroundColor: Styles().colors.background,
                               fontSize: 16.0,
-                              textColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
-                              borderColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
+                              textColor: Styles().colors.fillColorPrimary,
+                              borderColor: Styles().colors.fillColorPrimary,
                               onTap: _onTapCreateCovid19Action)),
                       Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                           child: RoundedButton(
                               label: "COVID-19 Exposures",
-                              backgroundColor: (Styles().colors?.background ?? UiColors.fromHex('F5F5F5')),
+                              backgroundColor: Styles().colors.background,
                               fontSize: 16.0,
-                              textColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
-                              borderColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
+                              textColor: Styles().colors.fillColorPrimary,
+                              borderColor: Styles().colors.fillColorPrimary,
                               onTap: _onTapCovid19Exposures)),
                       Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                           child: RoundedButton(
                               label: "COVID-19 Exposure Logs",
-                              backgroundColor: (Styles().colors?.background ?? UiColors.fromHex('F5F5F5')),
+                              backgroundColor: Styles().colors.background,
                               fontSize: 16.0,
-                              textColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
-                              borderColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
+                              textColor: Styles().colors.fillColorPrimary,
+                              borderColor: Styles().colors.fillColorPrimary,
                               onTap: _onTapCovid19ExposureLogs)),
                       Padding(padding: EdgeInsets.only(top: 5), child: Container()),
                       Visibility(
@@ -303,10 +303,10 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
                             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                             child: RoundedButton(
                                 label: "Http Proxy",
-                                backgroundColor: (Styles().colors?.background ?? UiColors.fromHex('F5F5F5')),
+                                backgroundColor: Styles().colors.background,
                                 fontSize: 16.0,
-                                textColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
-                                borderColor: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
+                                textColor: Styles().colors.fillColorPrimary,
+                                borderColor: Styles().colors.fillColorPrimary,
                                 onTap: _onTapHttpProxy)),
                       ),
                       Padding(padding: EdgeInsets.only(top: 5), child: Container()),
@@ -318,7 +318,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
           ),
         ],
       ),
-      backgroundColor: (Styles().colors?.background ?? UiColors.fromHex('F5F5F5')),
+      backgroundColor: Styles().colors.background,
     );
   }
 
@@ -360,7 +360,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
                   child: Column(
                     children: <Widget>[
                       Container(
-                        color: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
+                        color: Styles().colors.fillColorPrimary,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: <Widget>[
@@ -368,7 +368,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
                             Expanded(
                               child: RoundedButton(
                                 label: "Copy to clipboard",
-                                borderColor: (Styles().colors?.fillColorSecondary ?? UiColors.fromHex('#E84A27')),
+                                borderColor: Styles().colors.fillColorSecondary,
                                 onTap: _onTapCopyToClipboard,
                               ),
                             ),
@@ -380,7 +380,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
                                 child: Text('\u00D7',
                                   style: TextStyle(
                                       color: Colors.white,
-                                      fontFamily: (Styles().fontFamilies?.medium ?? 'ProximaNovaMedium'),
+                                      fontFamily: Styles().fontFamilies.medium,
                                       fontSize: 50
                                   ),
                                 ),
@@ -392,7 +392,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
                       Expanded(
                         child: Container( child:
                             SingleChildScrollView(
-                          child: Container(color: (Styles().colors?.background ?? UiColors.fromHex('F5F5F5')), child:Text(_userDebugData))
+                          child: Container(color: Styles().colors.background, child:Text(_userDebugData))
                         )
                         )
                       )
@@ -464,7 +464,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
         organizations.add(DropdownMenuItem<Organization>(
           value: organization,
           child: Text(organization.name,
-            style: TextStyle(fontFamily: (Styles().fontFamilies?.regular ?? 'ProximaNovaRegular'), fontSize: 16, color: (Styles().colors?.textBackground ?? UiColors.fromHex('#404040')),),
+            style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground,),
           ),
         ));
       }
@@ -511,7 +511,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
         environments.add(DropdownMenuItem<String>(
           value: environment,
           child: Text(environment,
-            style: TextStyle(fontFamily: (Styles().fontFamilies?.regular ?? 'ProximaNovaRegular'), fontSize: 16, color: (Styles().colors?.textBackground ?? UiColors.fromHex('#404040')),),
+            style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground,),
           ),
         ));
       }

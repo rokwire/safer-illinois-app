@@ -67,20 +67,20 @@ class RoundedButton extends StatelessWidget {
             height: height,
             width: width,
             decoration: BoxDecoration(
-              color: (backgroundColor ?? (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855'))),
+              color: (backgroundColor ?? Styles().colors.fillColorPrimary),
               border: Border.all(
-                  color: (borderColor != null) ? borderColor : (backgroundColor ?? (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855'))),
+                  color: (borderColor != null) ? borderColor : (backgroundColor ?? Styles().colors.fillColorPrimary),
                   width: borderWidth),
               borderRadius: BorderRadius.circular(height / 2),
             ),
             child: Container(
               height: (height - 2),
               decoration: BoxDecoration(
-                  color: (backgroundColor ?? (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855'))),
+                  color: (backgroundColor ?? Styles().colors.fillColorPrimary),
                   border: Border.all(
                       color: (secondaryBorderColor != null)
                           ? secondaryBorderColor
-                          : (backgroundColor ?? (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855'))),
+                          : (backgroundColor ?? Styles().colors.fillColorPrimary),
                       width: borderWidth),
                   borderRadius: BorderRadius.circular(height / 2)),
               child: Padding(
@@ -90,7 +90,7 @@ class RoundedButton extends StatelessWidget {
                         label,
                         textAlign: textAlign,
                         style: TextStyle(
-                          fontFamily: fontFamily ?? (Styles().fontFamilies?.bold ?? 'ProximaNovaBold'),
+                          fontFamily: fontFamily ?? Styles().fontFamilies.bold,
                           fontSize: fontSize,
                           color: textColor,
                         ),
@@ -129,7 +129,7 @@ class SmallRoundedButton extends StatelessWidget {
           child: Container(
             height: 32,
             decoration: BoxDecoration(
-              border: Border.all(color: borderColor ?? (Styles().colors?.fillColorSecondary ?? UiColors.fromHex('#E84A27')), width: 2.0),
+              border: Border.all(color: borderColor ?? Styles().colors.fillColorSecondary, width: 2.0),
               borderRadius: BorderRadius.circular(24.0),
             ),
             child: Padding(
@@ -141,9 +141,9 @@ class SmallRoundedButton extends StatelessWidget {
                   Text(
                     label,
                     style: TextStyle(
-                        fontFamily: (Styles().fontFamilies?.bold ?? 'ProximaNovaBold'),
+                        fontFamily: Styles().fontFamilies.bold,
                         fontSize: 16,
-                        color: (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855'))),
+                        color: Styles().colors.fillColorPrimary),
                   ),
                   Visibility(
                       visible: showChevron,
@@ -209,19 +209,19 @@ class ScalableRoundedButton extends StatelessWidget {
           onTap: onTap,
           child: Container(
             decoration: BoxDecoration(
-              color: (backgroundColor ?? (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855'))),
+              color: (backgroundColor ?? Styles().colors.fillColorPrimary),
               border: Border.all(
-                  color: (borderColor != null) ? borderColor : (backgroundColor ?? (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855'))),
+                  color: (borderColor != null) ? borderColor : (backgroundColor ?? Styles().colors.fillColorPrimary),
                   width: borderWidth),
               borderRadius: borderRadius,
             ),
             child: Container(
               decoration: BoxDecoration(
-                  color: (backgroundColor ?? (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855'))),
+                  color: (backgroundColor ?? Styles().colors.fillColorPrimary),
                   border: Border.all(
                       color: (secondaryBorderColor != null)
                           ? secondaryBorderColor
-                          : (backgroundColor ?? (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855'))),
+                          : (backgroundColor ?? Styles().colors.fillColorPrimary),
                       width: borderWidth),
                   borderRadius: borderRadius),
               child: Padding(
@@ -232,7 +232,7 @@ class ScalableRoundedButton extends StatelessWidget {
                       label,
                       textAlign: textAlign,
                       style: TextStyle(
-                        fontFamily: fontFamily ?? (Styles().fontFamilies?.bold  ?? 'ProximaNovaBold'),
+                        fontFamily: fontFamily ?? Styles().fontFamilies.bold,
                         fontSize: fontSize,
                         color: textColor,
                       ),

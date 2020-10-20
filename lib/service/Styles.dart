@@ -81,9 +81,11 @@ class Styles extends Service implements NotificationsListener{
   Future<void> clearService() async {
     AppFile.delete(_cacheFile);
     _stylesData = null;
-    _colors = null;
-    _fontFamilies = null;
-    _uiStyles = null;
+    
+    // Do not clear these as UI reffers to them between clear and init.
+    //_colors = null;
+    //_fontFamilies = null;
+    //_uiStyles = null;
   }
 
   @override

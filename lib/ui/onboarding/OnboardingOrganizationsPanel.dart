@@ -55,7 +55,7 @@ class _OnboardingOrganizationsPanelState extends State<OnboardingOrganizationsPa
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Styles().colors?.background ?? UiColors.fromHex('F5F5F5'),
+      backgroundColor: Styles().colors.background,
       body: SafeArea(child: Column( children: <Widget>[
         Padding(padding: EdgeInsets.only(top: 10, bottom: 10),
           child: Row(children: <Widget>[
@@ -70,7 +70,7 @@ class _OnboardingOrganizationsPanelState extends State<OnboardingOrganizationsPa
                 hint: 'Header 1',
                 excludeSemantics: true,
                 child: Text('Select Organization',
-                  style: TextStyle(fontFamily: Styles().fontFamilies?.extraBold ?? 'ProximaNovaExtraBold', fontSize: 24, color: Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
+                  style: TextStyle(fontFamily: Styles().fontFamilies.extraBold, fontSize: 24, color: Styles().colors.fillColorPrimary),
                 ),
               ),
             ],),),
@@ -88,13 +88,13 @@ class _OnboardingOrganizationsPanelState extends State<OnboardingOrganizationsPa
                 label: _allowNext ? 'Confirm' : 'Select one',
                 hint: '',
                 enabled: _allowNext,
-                backgroundColor: (_allowNext ? (Styles().colors?.white ?? UiColors.fromHex('FFFFFF')) : (Styles().colors?.background ?? UiColors.fromHex('F5F5F5'))),
+                backgroundColor: (_allowNext ? Styles().colors.white : Styles().colors.background),
                 borderColor: (_allowNext
-                    ? (Styles().colors?.fillColorSecondary ?? UiColors.fromHex('#E84A27'))
-                    : (Styles().colors?.fillColorPrimaryTransparent03 ?? UiColors.fromHex('#4D002855'))),
+                    ? Styles().colors.fillColorSecondary
+                    : Styles().colors.fillColorPrimaryTransparent03),
                 textColor: (_allowNext
-                    ? (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855'))
-                    : (Styles().colors?.fillColorPrimaryTransparent03 ?? UiColors.fromHex('#4D002855'))),
+                    ? Styles().colors.fillColorPrimary
+                    : Styles().colors.fillColorPrimaryTransparent03),
                 onTap: () => _onConfirm()),
             Visibility(
               visible: _updating,
@@ -107,7 +107,7 @@ class _OnboardingOrganizationsPanelState extends State<OnboardingOrganizationsPa
                     width: 24,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Styles().colors?.fillColorSecondary ?? UiColors.fromHex('#E84A27')),),),),),),
+                      valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary),),),),),),
           ]),
         ),
 
@@ -132,7 +132,7 @@ class _OnboardingOrganizationsPanelState extends State<OnboardingOrganizationsPa
         title: organization.name,
         hint: '',
         iconUrl: organization.iconUrl,
-        selectedBackgroundColor: Styles().colors?.accentColor3 ?? UiColors.fromHex('#5182CF'),
+        selectedBackgroundColor: Styles().colors.accentColor3,
         selected: organization.id == _selectedOrganization?.id,
         data: organization,
         onTap: _onRoleGridButton,
