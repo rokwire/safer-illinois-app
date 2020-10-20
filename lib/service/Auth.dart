@@ -319,9 +319,11 @@ class Auth with Service implements NotificationsListener {
   }
 
   Future<AuthToken> _loadShibbolethAuthTokenWithCode(String code) async{
+    
     String tokenUriStr = Config().shibbolethAuthTokenUrl
-        .replaceAll("{shibboleth_client_id}", Config().shibbolethClientId)
-        .replaceAll("{shibboleth_client_secret}", Config().shibbolethClientSecret);
+        ?.replaceAll("{shibboleth_client_id}", Config().shibbolethClientId ?? '')
+        ?.replaceAll("{shibboleth_client_secret}", Config().shibbolethClientSecret ?? '');
+    
     Map<String,dynamic> bodyData = {
       'code': code,
       'grant_type': 'authorization_code',
@@ -329,7 +331,7 @@ class Auth with Service implements NotificationsListener {
     };
     Http.Response response;
     try {
-      response = await Network().post(tokenUriStr,body: bodyData);
+      response = (tokenUriStr != null) ? await Network().post(tokenUriStr,body: bodyData) : null;
       String responseBody = (response != null && response.statusCode == 200) ? response.body : null;
       Map<String,dynamic> jsonData = AppString.isStringNotEmpty(responseBody) ? AppJson.decode(responseBody) : null;
       if(jsonData != null){
@@ -495,10 +497,10 @@ class Auth with Service implements NotificationsListener {
     String url = (Config().userProfileUrl != null) ? '${Config().userProfileUrl}/pii' : null;
     optAuthToken = (optAuthToken != null) ? optAuthToken : authToken;
 
-    final response = await Network().post(url,
+    final response = (url != null) ? await Network().post(url,
         headers: {'Content-Type':'application/json', HttpHeaders.authorizationHeader: "${optAuthToken?.tokenType} ${optAuthToken?.idToken}"},
         body: json.jsonEncode(data),
-    );
+    ) : null;
     String responseBody = ((response != null) && (response.statusCode == 200)) ? response.body : null;
     Map<String, dynamic> jsonData = (responseBody != null) ? AppJson.decode(responseBody) : null;
     String userPid = (jsonData != null) ? jsonData['pid'] : null;
@@ -509,11 +511,11 @@ class Auth with Service implements NotificationsListener {
     if(piiData != null) {
       String url = (Config().userProfileUrl != null) ? '${Config().userProfileUrl}/pii/${piiData.pid}' : null;
       String body = json.jsonEncode(piiData.toJson());
-      final response = await Network().put(url,
+      final response = (url != null) ? await Network().put(url,
           headers: {'Content-Type':'application/json'},
           body: body,
           auth: NetworkAuth.User
-      );
+      ) : null;
 
       String responseBody = ((response != null) && (response.statusCode == 200)) ? response.body : null;
       Map<String, dynamic> jsonData = (responseBody != null) ? AppJson.decode(responseBody) : null;
@@ -531,15 +533,17 @@ class Auth with Service implements NotificationsListener {
     return null;
   }
 
-  Future<void> deleteUserPiiData() async{
-    String url = (Config().userProfileUrl != null) ? '${Config().userProfileUrl}/pii/${Storage().userPid}' : null;
+  Future<void> deleteUserPiiData() async {
+    if (Config().userProfileUrl != null) {
+      String url = '${Config().userProfileUrl}/pii/${Storage().userPid}';
 
-    await Network().delete(url,
-        headers: {'Content-Type':'application/json'},
-        auth: NetworkAuth.User
-    ).whenComplete((){
-      _applyUserPiiData(null, null);
-    });
+      await Network().delete(url,
+          headers: {'Content-Type':'application/json'},
+          auth: NetworkAuth.User
+      ).whenComplete((){
+        _applyUserPiiData(null, null);
+      });
+    }
   }
 
   void _applyUserPiiData(UserPiiData userPiiData, String userPiiDataString, [bool notify = true]) {
@@ -595,9 +599,9 @@ class Auth with Service implements NotificationsListener {
     optAuthToken = (optAuthToken != null) ? optAuthToken : authToken;
     try {
       String url = (Config().userProfileUrl != null) ? '${Config().userProfileUrl}/pii/$pid' : null;
-      final response = await Network().get(url, headers: {
+      final response = (url != null) ? await Network().get(url, headers: {
         HttpHeaders.authorizationHeader: "${optAuthToken?.tokenType} ${optAuthToken?.idToken}"
-      });
+      }) : null;
       return ((response != null) && (response.statusCode == 200)) ? response.body : null;
     }
     catch (e) {
@@ -750,15 +754,15 @@ class Auth with Service implements NotificationsListener {
     Log.d("Auth: will refresh token");
 
     String tokenUriStr = Config().shibbolethAuthTokenUrl
-        .replaceAll("{shibboleth_client_id}", Config().shibbolethClientId)
-        .replaceAll("{shibboleth_client_secret}", Config().shibbolethClientSecret);
+        ?.replaceAll("{shibboleth_client_id}", Config().shibbolethClientId ?? '')
+        ?.replaceAll("{shibboleth_client_secret}", Config().shibbolethClientSecret ?? '');
     Map<String, String> body = {
       "refresh_token": authToken?.refreshToken,
       "grant_type": "refresh_token",
     };
     _refreshTokenFuture = Network().post(
         tokenUriStr, body: body, refreshToken: false)
-        .then((tokenResponse){
+        .then((tokenResponse) {
       _refreshTokenFuture = null;
       try {
         String tokenResponseBody = ((tokenResponse != null) && (tokenResponse.statusCode == 200)) ? tokenResponse.body : null;

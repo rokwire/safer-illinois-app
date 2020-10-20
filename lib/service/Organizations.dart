@@ -137,10 +137,11 @@ class Organizations with Service {
     return _organization?.entryPoint(environment: this.environment);
   }
 
-  Future<void> ensureOrganizations() async {
+  Future<List<Organization>> ensureOrganizations() async {
     if (_organizations == null) {
       _organizations = await _loadOrganizations();
     }
+    return _organizations;
   }
 
   static Future<UrlEntryPoint> _loadOrganizationsEntryPoint() async {

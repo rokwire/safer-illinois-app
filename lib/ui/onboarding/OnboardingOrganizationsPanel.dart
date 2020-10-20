@@ -27,6 +27,8 @@ import 'package:illinois/ui/widgets/RoundedButton.dart';
 
 class OnboardingOrganizationsPanel extends StatefulWidget with OnboardingPanel {
   final Map<String, dynamic> onboardingContext;
+  final _Data data = _Data();
+  
   OnboardingOrganizationsPanel({this.onboardingContext});
 
   @override
@@ -34,28 +36,31 @@ class OnboardingOrganizationsPanel extends StatefulWidget with OnboardingPanel {
 
   @override
   Future<bool> get onboardingCanDisplayAsync async {
-    await Organizations().ensureOrganizations();
-    return (1 < (Organizations().organizations?.length ?? 0));
+    data.organizations = await Organizations().ensureOrganizations();
+    return (1 < (data?.organizations?.length ?? 0));
   }
+}
+
+class _Data {
+  List<Organization> organizations;
+  _Data({this.organizations});
 }
 
 class _OnboardingOrganizationsPanelState extends State<OnboardingOrganizationsPanel> {
 
-  List<Organization> _organizations;
   Organization _selectedOrganization;
   bool _updating = false;
 
   @override
   void initState() {
     super.initState();
-    _organizations = Organizations().organizations ?? <Organization>[];
     _selectedOrganization = Organizations().organization;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Styles().colors?.background ?? UiColors.fromHex('F5F5F5'),
+      backgroundColor: Styles().colors.background,
       body: SafeArea(child: Column( children: <Widget>[
         Padding(padding: EdgeInsets.only(top: 10, bottom: 10),
           child: Row(children: <Widget>[
@@ -70,7 +75,7 @@ class _OnboardingOrganizationsPanelState extends State<OnboardingOrganizationsPa
                 hint: 'Header 1',
                 excludeSemantics: true,
                 child: Text('Select Organization',
-                  style: TextStyle(fontFamily: Styles().fontFamilies?.extraBold ?? 'ProximaNovaExtraBold', fontSize: 24, color: Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855')),
+                  style: TextStyle(fontFamily: Styles().fontFamilies.extraBold, fontSize: 24, color: Styles().colors.fillColorPrimary),
                 ),
               ),
             ],),),
@@ -88,13 +93,13 @@ class _OnboardingOrganizationsPanelState extends State<OnboardingOrganizationsPa
                 label: _allowNext ? 'Confirm' : 'Select one',
                 hint: '',
                 enabled: _allowNext,
-                backgroundColor: (_allowNext ? (Styles().colors?.white ?? UiColors.fromHex('FFFFFF')) : (Styles().colors?.background ?? UiColors.fromHex('F5F5F5'))),
+                backgroundColor: (_allowNext ? Styles().colors.white : Styles().colors.background),
                 borderColor: (_allowNext
-                    ? (Styles().colors?.fillColorSecondary ?? UiColors.fromHex('#E84A27'))
-                    : (Styles().colors?.fillColorPrimaryTransparent03 ?? UiColors.fromHex('#4D002855'))),
+                    ? Styles().colors.fillColorSecondary
+                    : Styles().colors.fillColorPrimaryTransparent03),
                 textColor: (_allowNext
-                    ? (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855'))
-                    : (Styles().colors?.fillColorPrimaryTransparent03 ?? UiColors.fromHex('#4D002855'))),
+                    ? Styles().colors.fillColorPrimary
+                    : Styles().colors.fillColorPrimaryTransparent03),
                 onTap: () => _onConfirm()),
             Visibility(
               visible: _updating,
@@ -107,7 +112,7 @@ class _OnboardingOrganizationsPanelState extends State<OnboardingOrganizationsPa
                     width: 24,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Styles().colors?.fillColorSecondary ?? UiColors.fromHex('#E84A27')),),),),),),
+                      valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary),),),),),),
           ]),
         ),
 
@@ -120,26 +125,28 @@ class _OnboardingOrganizationsPanelState extends State<OnboardingOrganizationsPa
     final int colCount = 2;
     List<Widget> row = <Widget>[];
     List<Widget> rows = <Widget>[];
-    for (Organization organization in _organizations) {
-      if (row.length == colCount) {
-        rows.add(Row(crossAxisAlignment: CrossAxisAlignment.start, children: row));
-        row = <Widget>[];
+    if (0 < (widget.data?.organizations?.length ?? 0)) {
+      for (Organization organization in widget.data.organizations) {
+        if (row.length == colCount) {
+          rows.add(Row(crossAxisAlignment: CrossAxisAlignment.start, children: row));
+          row = <Widget>[];
+        }
+        if (0 < row.length) {
+          row.add(Container(height: gridSpacing,),);
+        }
+        row.add(Flexible(flex: 1, child: RoleGridButton(
+          title: organization.name,
+          hint: '',
+          iconUrl: organization.iconUrl,
+          selectedBackgroundColor: Styles().colors.accentColor3,
+          selected: organization.id == _selectedOrganization?.id,
+          data: organization,
+          onTap: _onRoleGridButton,
+        ),));
       }
       if (0 < row.length) {
-        row.add(Container(height: gridSpacing,),);
+        rows.add(Row(crossAxisAlignment: CrossAxisAlignment.start, children: row));
       }
-      row.add(Flexible(flex: 1, child: RoleGridButton(
-        title: organization.name,
-        hint: '',
-        iconUrl: organization.iconUrl,
-        selectedBackgroundColor: Styles().colors?.accentColor3 ?? UiColors.fromHex('#5182CF'),
-        selected: organization.id == _selectedOrganization?.id,
-        data: organization,
-        onTap: _onRoleGridButton,
-      ),));
-    }
-    if (0 < row.length) {
-      rows.add(Row(crossAxisAlignment: CrossAxisAlignment.start, children: row));
     }
     return rows;
   }

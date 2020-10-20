@@ -74,8 +74,8 @@ class RoleGridButton extends StatelessWidget {
             decoration: BoxDecoration(
                 color: (this.selected ? this.selectedBackgroundColor : this.backgroundColor),
                 borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: this.selected ? (this.selectedBorderColor ?? (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855'))) : this.borderColor, width: 2),
-                boxShadow: [BoxShadow(color: (Styles().colors?.blackTransparent018 ?? UiColors.fromHex('#30000000')), offset: Offset(2, 2), blurRadius: 6),],
+                border: Border.all(color: this.selected ? (this.selectedBorderColor ?? Styles().colors.fillColorPrimary) : this.borderColor, width: 2),
+                boxShadow: [BoxShadow(color: Styles().colors.blackTransparent018, offset: Offset(2, 2), blurRadius: 6),],
                 ),
             child: Padding(padding: EdgeInsets.symmetric(horizontal: 28, vertical: 18), child: Column(children: <Widget>[
               _iconWidget,
@@ -83,9 +83,9 @@ class RoleGridButton extends StatelessWidget {
               Text(title,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        fontFamily: (Styles().fontFamilies?.bold ?? 'ProximaNovaBold'),
+                        fontFamily: Styles().fontFamilies.bold,
                         fontSize: 17,
-                        color: (this.selected ? (this.selectedTextColor ?? (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855'))) : (this.textColor ?? (Styles().colors?.fillColorPrimary ?? UiColors.fromHex('#002855'))))),
+                        color: (this.selected ? (this.selectedTextColor ?? Styles().colors.fillColorPrimary) : (this.textColor ?? Styles().colors.fillColorPrimary))),
                   )
 
             ],),),

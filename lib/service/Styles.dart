@@ -81,9 +81,11 @@ class Styles extends Service implements NotificationsListener{
   Future<void> clearService() async {
     AppFile.delete(_cacheFile);
     _stylesData = null;
-    _colors = null;
-    _fontFamilies = null;
-    _uiStyles = null;
+    
+    // Do not clear these as UI reffers to them between clear and init.
+    //_colors = null;
+    //_fontFamilies = null;
+    //_uiStyles = null;
   }
 
   @override
@@ -130,7 +132,7 @@ class Styles extends Service implements NotificationsListener{
   Future<void> _loadFromNet() async {
     try {
       http.Response response = (Config().assetsUrl != null) ? await Network().get("${Config().assetsUrl}/$_assetsName") : null;
-      String stylesContent =  ((response != null) && (response.statusCode == 200)) ? response.body : null;
+      String stylesContent = ((response != null) && (response.statusCode == 200)) ? response.body : null;
       if(stylesContent != null) {
         await _applyContent(stylesContent, cacheContent: true, notifyUpdate: true);
       }
