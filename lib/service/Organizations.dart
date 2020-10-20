@@ -59,6 +59,9 @@ class Organizations with Service {
       if (_organizations?.length == 1) {
         Storage().organization = _organization = _organizations.first;
       }
+      else if (Storage().onBoardingPassed == true) {
+        Storage().organization = _organization = Organization.findInList(_organizations, isDefault: true);
+      }
     }
   }
 

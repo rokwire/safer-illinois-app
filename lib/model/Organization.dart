@@ -20,15 +20,18 @@ class Organization {
   final String id;
   final String name;
   final String iconUrl;
+  final dynamic _isDefault;
   final Map<String, ApiHook> environments;
 
-  Organization({this.id, this.name, this.iconUrl, this.environments});
+  Organization({this.id, this.name, this.iconUrl, dynamic isDefault, this.environments}) :
+    _isDefault = isDefault;
 
   factory Organization.fromJson(Map<String, dynamic> json) {
     return (json != null) ? Organization(
       id: json['id'],
       name: json['name'],
       iconUrl: json['icon_url'],
+      isDefault: json['default'],
       environments: ApiHook.mapFromJson(json['environments']),
     ) : null;
   }
@@ -38,8 +41,13 @@ class Organization {
       'id': id,
       'name': name,
       'icon_url': iconUrl,
+      'default': _isDefault,
       'environments': ApiHook.mapToJson(environments)
     };
+  }
+
+  bool get isDefault {
+    return _parseDefault(_isDefault);
   }
 
   ApiHook apiHook({String environment}) {
@@ -81,6 +89,18 @@ class Organization {
     }
     return values;
   }
+
+  static Organization findInList(List<Organization> organizations, { String organizationId, bool isDefault }) {
+    if (organizations != null) {
+      for (Organization organization in organizations) {
+        if (((organizationId != null) && (organization.id == organizationId)) ||
+            ((isDefault != null) && (organization.isDefault == isDefault))) {
+          return organization;
+        }
+      }
+    }
+    return null;
+  }
 }
 
 class ApiHook {
@@ -108,24 +128,7 @@ class ApiHook {
   }
 
   bool get isDefault {
-    if (_isDefault is bool) {
-      return _isDefault;
-    }
-    else if (_isDefault is String) {
-      if (_isDefault == 'release') {
-        return kReleaseMode;
-      }
-      else if (_isDefault == 'debug') {
-        return !kReleaseMode;
-      }
-      else if (_isDefault == 'true') {
-        return true;
-      }
-      else if (_isDefault == 'false') {
-        return false;
-      }
-    }
-    return null;
+    return _parseDefault(_isDefault);
   }
 
   static Map<String, ApiHook> mapFromJson(Map<String, dynamic> json) {
@@ -149,4 +152,25 @@ class ApiHook {
     }
     return result;
   }
+}
+
+bool _parseDefault(dynamic value) {
+    if (value is bool) {
+      return value;
+    }
+    else if (value is String) {
+      if (value == 'release') {
+        return kReleaseMode;
+      }
+      else if (value == 'debug') {
+        return !kReleaseMode;
+      }
+      else if (value == 'true') {
+        return true;
+      }
+      else if (value == 'false') {
+        return false;
+      }
+    }
+    return null;
 }
