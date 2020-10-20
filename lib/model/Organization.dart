@@ -62,7 +62,7 @@ class Organization {
     if (environments != null) {
 
       for (String environment in environments.keys) {
-        if (environments[environment].isDefault) {
+        if (environments[environment].isDefault == true) {
           return environment;
         }
       }
@@ -160,10 +160,10 @@ bool _parseDefault(dynamic value) {
     }
     else if (value is String) {
       if (value == 'release') {
-        return kReleaseMode;
+        return false; //TMP: kReleaseMode;
       }
       else if (value == 'debug') {
-        return !kReleaseMode;
+        return true; //TMP: !kReleaseMode;
       }
       else if (value == 'true') {
         return true;
