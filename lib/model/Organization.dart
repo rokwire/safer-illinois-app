@@ -20,7 +20,7 @@ class Organization {
   final String id;
   final String name;
   final String iconUrl;
-  final Map<String, UrlEntryPoint> environments;
+  final Map<String, ApiHook> environments;
 
   Organization({this.id, this.name, this.iconUrl, this.environments});
 
@@ -29,7 +29,7 @@ class Organization {
       id: json['id'],
       name: json['name'],
       iconUrl: json['icon_url'],
-      environments: UrlEntryPoint.mapFromJson(json['environments']),
+      environments: ApiHook.mapFromJson(json['environments']),
     ) : null;
   }
 
@@ -38,16 +38,16 @@ class Organization {
       'id': id,
       'name': name,
       'icon_url': iconUrl,
-      'environments': UrlEntryPoint.mapToJson(environments)
+      'environments': ApiHook.mapToJson(environments)
     };
   }
 
-  UrlEntryPoint entryPoint({String environment}) {
+  ApiHook apiHook({String environment}) {
     return ((environments != null) && (environment != null)) ? environments[environment] : null;
   }
 
   bool hasEnvironment(String environment) {
-    return (entryPoint(environment: environment) != null);
+    return (apiHook(environment: environment) != null);
   }
 
   String get defaultEnvironment {
@@ -83,16 +83,16 @@ class Organization {
   }
 }
 
-class UrlEntryPoint {
+class ApiHook {
   final String url;
   final String apiKey;
   final dynamic _isDefault;
 
-  UrlEntryPoint({this.url, this.apiKey, dynamic isDefault}) :
+  ApiHook({this.url, this.apiKey, dynamic isDefault}) :
     _isDefault = isDefault;
 
-  factory UrlEntryPoint.fromJson(Map<String, dynamic> json) {
-    return (json != null) ? UrlEntryPoint(
+  factory ApiHook.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? ApiHook(
       url: json['url'],
       apiKey: json['api_key'],
       isDefault: json['default'],
@@ -128,22 +128,22 @@ class UrlEntryPoint {
     return null;
   }
 
-  static Map<String, UrlEntryPoint> mapFromJson(Map<String, dynamic> json) {
-    Map<String, UrlEntryPoint> result;
+  static Map<String, ApiHook> mapFromJson(Map<String, dynamic> json) {
+    Map<String, ApiHook> result;
     if (json != null) {
-      result = Map<String, UrlEntryPoint>();
+      result = Map<String, ApiHook>();
       json.forEach((String key, dynamic value) {
-        result[key] = UrlEntryPoint.fromJson(value);
+        result[key] = ApiHook.fromJson(value);
       });
     }
     return result;
   }
 
-  static dynamic mapToJson(Map<String, UrlEntryPoint> map) {
+  static dynamic mapToJson(Map<String, ApiHook> map) {
     Map<String, dynamic> result;
     if (map != null) {
       result = Map<String, dynamic>();
-      map.forEach((String key, UrlEntryPoint value) {
+      map.forEach((String key, ApiHook value) {
         result[key] = value.toJson();
       });
     }

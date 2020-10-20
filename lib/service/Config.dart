@@ -97,7 +97,7 @@ class Config with Service implements NotificationsListener {
         _updateFromNet();
     }
     else if (Organizations().organization != null) {
-      String configString = await _loadAsStringFromNet(entryPoint: Organizations().configEntryPoint);
+      String configString = await _loadAsStringFromNet(apiHook: Organizations().configApiHook);
 
       _config = (configString != null) ? _configFromJsonString(configString) : null;
       if (_config != null) {
@@ -139,10 +139,10 @@ class Config with Service implements NotificationsListener {
     }
   }
 
-  Future<String> _loadAsStringFromNet({UrlEntryPoint entryPoint}) async {
+  Future<String> _loadAsStringFromNet({ApiHook apiHook}) async {
     try {
-      String requestUrl = entryPoint?.url ?? this.appConfigUrl;
-      String requestApiKey = entryPoint?.apiKey ?? this.rokwireApiKey;
+      String requestUrl = apiHook?.url ?? this.appConfigUrl;
+      String requestApiKey = apiHook?.apiKey ?? this.rokwireApiKey;
       http.Response response = await Network().get(requestUrl, headers: {
         Network.RokwireApiKey : requestApiKey
       });
