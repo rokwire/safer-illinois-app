@@ -22,6 +22,7 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html/style.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
+import 'package:illinois/service/FlexUI.dart';
 import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/Connectivity.dart';
@@ -68,6 +69,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
   void initState() {
     super.initState();
     NotificationService().subscribe(this, [
+      FlexUI.notifyChanged,
       Health.notifyStatusChanged,
       Health.notifyProcessingFinished,
       Health.notifyUserUpdated,
@@ -107,6 +109,8 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
           _loadHistory();
         }
       }
+    } else if(name == FlexUI.notifyChanged){
+      setState(() {});
     }
   }
 

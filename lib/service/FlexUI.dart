@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:http/http.dart' as Http;
 
 import 'package:collection/collection.dart';
 import 'package:illinois/model/UserData.dart';
@@ -26,8 +24,6 @@ import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/Assets.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Config.dart';
-import 'package:illinois/service/Log.dart';
-import 'package:illinois/service/Network.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
 import 'package:illinois/service/User.dart';
@@ -43,8 +39,8 @@ class FlexUI with Service implements NotificationsListener {
 
   Map<String, dynamic> _content;
   Set<dynamic>         _features;
-  Http.Client          _httpClient;
-  String               _dataVersion;
+  //Http.Client          _httpClient; // tmp commented
+  //String               _dataVersion; // tmp commented
   File                 _cacheFile;
   DateTime             _pausedDateTime;
 
@@ -83,7 +79,7 @@ class FlexUI with Service implements NotificationsListener {
   @override
   Future<void> initService() async {
     await super.initService();
-    _dataVersion = AppVersion.majorVersion(Config().appVersion, 2);
+    //_dataVersion = AppVersion.majorVersion(Config().appVersion, 2);
     _cacheFile = await _getCacheFile();
     _content = await _loadContentFromCache();
     if (_content == null) {
