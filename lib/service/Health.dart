@@ -1279,7 +1279,7 @@ class Health with Service implements NotificationsListener {
     String appVersion = AppVersion.majorVersion(Config().appVersion, 2);
     Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App, headers: { Network.RokwireVersion : appVersion }) : null;
     String responseString = (response?.statusCode == 200) ? response.body : null;
-//TMP: String responseString = await rootBundle.loadString('assets/sample.health.rules.json');
+//TMP: String responseString = await rootBundle.loadString('assets/health.rules.json');
     return (responseString != null) ? AppJson.decodeMap(responseString) : null;
   }
 
