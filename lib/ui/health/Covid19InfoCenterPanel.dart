@@ -16,12 +16,14 @@
 
 import 'dart:collection';
 
+import 'package:collection/equality.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html/style.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
+import 'package:illinois/service/FlexUI.dart';
 import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Connectivity.dart';
@@ -38,7 +40,6 @@ import 'package:illinois/ui/health/Covid19SymptomsPanel.dart';
 import 'package:illinois/ui/health/Covid19TestLocations.dart';
 import 'package:illinois/ui/health/Covid19HistoryPanel.dart';
 import 'package:illinois/ui/health/Covid19WellnessCenter.dart';
-//import 'package:illinois/ui/settings/SettingsNewHomePanel.dart';
 import 'package:illinois/ui/settings/SettingsHomePanel.dart';
 import 'package:illinois/ui/widgets/LinkTileButton.dart';
 import 'package:illinois/ui/widgets/RibbonButton.dart';
@@ -68,6 +69,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
   void initState() {
     super.initState();
     NotificationService().subscribe(this, [
+      FlexUI.notifyChanged,
       Health.notifyStatusChanged,
       Health.notifyProcessingFinished,
       Health.notifyUserUpdated,
@@ -107,6 +109,8 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
           _loadHistory();
         }
       }
+    } else if(name == FlexUI.notifyChanged){
+      setState(() {});
     }
   }
 
