@@ -16,7 +16,6 @@
 
 import 'dart:io';
 
-import 'package:illinois/model/Organization.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/Service.dart';
@@ -57,7 +56,7 @@ class HttpProxy extends Service implements NotificationsListener{
 
   @override
   Set<Service> get serviceDependsOn {
-    return Set.from([Storage(), Organization()]);
+    return Set.from([Storage(), Organizations()]);
   }
 
   void onNotification(String name, dynamic param){
