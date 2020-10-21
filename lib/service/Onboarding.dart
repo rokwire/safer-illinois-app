@@ -34,6 +34,7 @@ import 'package:illinois/ui/onboarding/OnboardingAuthLocationPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginNetIdPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginPhonePanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingAuthNotificationsPanel.dart';
+import 'package:illinois/ui/onboarding/OnboardingOrganizationsPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingRolesPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginPhoneVerifyPanel.dart';
 
@@ -153,6 +154,7 @@ class Onboarding extends Service implements NotificationsListener{
   OnboardingPanel _createPanel({String name, Map<String, dynamic> context}) {
     switch (name) {
       case "get_started": return OnboardingGetStartedPanel(onboardingContext: context);
+      case "organization": return OnboardingOrganizationsPanel(onboardingContext: context);
       case "notifications_auth": return OnboardingAuthNotificationsPanel(onboardingContext: context);
       case "location_auth": return OnboardingAuthLocationPanel(onboardingContext: context);
       case "bluetooth_auth": return OnboardingAuthBluetoothPanel(onboardingContext: context);
@@ -175,6 +177,9 @@ class Onboarding extends Service implements NotificationsListener{
   static String _getPanelCode({OnboardingPanel panel}) {
     if (panel is OnboardingGetStartedPanel) {
       return 'get_started';
+    }
+    if(panel is OnboardingOrganizationsPanel){
+      return 'organization';
     }
     else if (panel is OnboardingAuthNotificationsPanel) {
       return 'notifications_auth';
