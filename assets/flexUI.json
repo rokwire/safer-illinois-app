@@ -1,0 +1,37 @@
+{
+	"content": {
+		"onboarding": ["get_started", "organization", "notifications_auth", "location_auth", "bluetooth_auth", "roles", "login_netid", "login_phone", "verify_phone", "confirm_phone",
+			"covid19_resident_info", "covid19_review_scan", "covid19_intro", "covid19_how_it_works", "covid19_consent", "covid19_qrcode", "covid19_final"],
+
+
+		"info_center": ["next_step", "symptom_checkin", "add_test_result", "health_status", "horizontals", "wellness_center"],
+		"info_center.horizontals": ["care_team", "history"]
+	},
+	"rules": {
+		"roles" : {
+			"onboarding.login_netid"          : ["student", "OR", "employee"],
+			"onboarding.login_phone"          : ["NOT", ["employee", "OR", "student"]],
+			"onboarding.verify_phone"         : ["NOT", ["employee", "OR", "student"]],
+			"onboarding.confirm_phone"        : ["NOT", ["employee", "OR", "student"]]
+		},
+		"auth": {
+			"settings.user_info"              : { "loggedIn": true },
+			"settings.connect"                : { "loggedIn": false },
+			"settings.connected"              : { "loggedIn": true },
+			"settings.account"                : { "loggedIn": true },
+			"settings.connected.netid"        : { "shibbolethLoggedIn": true },
+			"settings.connected.phone"        : { "phoneLoggedIn": true },
+			"settings.connected.netid.info"       : { "shibbolethLoggedIn": true },
+			"settings.connected.netid.disconnect" : { "shibbolethLoggedIn": true },
+			"settings.connected.netid.connect"    : { "shibbolethLoggedIn": false },
+			"settings.connected.phone.info"       : { "phoneLoggedIn": true },
+			"settings.connected.phone.verify"     : { "phoneLoggedIn": false },
+			"settings.connected.phone.disconnect" : { "phoneLoggedIn": true }
+		},
+		"platform":{
+			"onboarding.bluetooth_auth"     : { "os": "ios" }
+		},
+		"enable" : {
+		}
+	}
+}
