@@ -256,16 +256,6 @@ bool covid19HealthStatusIsValid(String status) {
   return (status != null) && (status != kCovid19HealthStatusUnchanged);
 }
 
-int covid19HealthStatusWeight(String status) {
-  switch (status) {
-    case kCovid19HealthStatusRed:    return 4;
-    case kCovid19HealthStatusOrange: return 3;
-    case kCovid19HealthStatusYellow: return 2;
-    case kCovid19HealthStatusGreen:  return 1;
-    default:                         return 0;
-  }
-}
-
 ////////////////////////////////
 // Covid19Access
 
@@ -2262,18 +2252,9 @@ class HealthRuleStatus extends _HealthRuleStatus {
   }
 
   bool canUpdateStatus({Covid19StatusBlob blob}) {
-    int blobStatusWeight = covid19HealthStatusWeight(blob?.healthStatus);
-    int newStatusWeight =  (this.healthStatus != null) ? covid19HealthStatusWeight(this.healthStatus) : blobStatusWeight;
-    if (blobStatusWeight < newStatusWeight) {
-      // status downgrade
-      return true;
-    }
-    else {
-      // status upgrade or preserve
-      int blobStatusPriority = blob?.priority ?? 0;
-      int newStatusPriority = this.priority ?? 0;
-      return (newStatusPriority < 0) || (blobStatusPriority <= newStatusPriority);
-    }
+    int blobStatusPriority = blob?.priority ?? 0;
+    int newStatusPriority = this.priority ?? 0;
+    return (newStatusPriority < 0) || (blobStatusPriority <= newStatusPriority);
   }
 
   DateTime nextStepDateUtc(DateTime startDateUtc, { HealthRulesSet rules }) {
