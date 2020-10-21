@@ -80,7 +80,7 @@
 			},
 			"fail": {
 				"health_status": "yellow",
-				"priority": 1,
+				"priority": 3,
 				"next_step_html": "<h6>You are not required to self-isolate, and you are not required to submit to campus testing for a period of 60 days unless directed to do so by your licensed health professional. Your Safer Illinois App is set to allow you access for this period. Contact <a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a> if you have questions or need help.</h6>",
 				"next_step_interval": 60,
 				"event_explanation": "Your Saliva PCR test shows the VIRUS IS DETECTED in your REPEAT POSITIVE at a NON-INFECTIOUS LEVEL.",
@@ -180,7 +180,46 @@
 				}
 			}
 		},
-
+		
+		"force-test": {
+			"condition": "require-test",
+			"params": {
+				"interval": { "min": 0, "scope": "future" }
+			},
+			"success": {
+				"condition": "timeout",
+				"params": {
+					"interval": { "min": 0, "max": 3, "scope": "future", "origin": "referenceDate" }
+				},
+				"success": {
+					"condition": "require-test",
+					"params": {
+						"interval": { "min": 4, "scope": "future", "origin": "referenceDate" }
+					},
+					"success": null,
+					"fail": {
+						"health_status": "orange",
+						"priority": 1,
+						"next_step": "Get another test now",
+						"reason": "Your status changed to Orange because you are past due for another test."
+					}
+				},
+				"fail": {
+					"health_status": "orange",
+					"priority": 2,
+					"next_step": "Get a test after {next_step_date}",
+					"next_step_interval": { "value": 3, "origin": "referenceDate" },
+					"reason": "Your status changed to Orange because you are required to take another test."
+				}
+			},
+			"fail": {
+				"health_status": "orange",
+				"priority": 1,
+				"next_step": "Get a test now",
+				"reason": "Your status changed to Orange because you are required to get a test."
+			}
+		},
+		
 		"symptoms-match": {
 			"health_status": "orange",
 			"priority": 1,
@@ -668,6 +707,10 @@
 			{
 				"type": "test_pending",
 				"status": "test-monitor"
+			},
+			{
+				"type": "force-test",
+				"status": "force-test"
 			}
 		]
 	}
