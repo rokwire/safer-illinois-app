@@ -934,11 +934,10 @@ class Exposure with Service implements NotificationsListener {
 
     List<Covid19History> histories = await Health().loadCovid19History();
 
-    Analytics().logHealth(action: Analytics.LogHealthCheckExposuresAction);
-
     int detected = 0;
+    bool isContactWithPositive = false;
+    bool hasPassedExposureScoring = false;
     List<Covid19History> results;
-
     
     // Map<int, int> scoringExposures = new Map<int, int>;
     // key = time interval, value = number of rpis in that time interval
@@ -953,7 +952,9 @@ class Exposure with Service implements NotificationsListener {
 
         DateTime exposureDateUtc;
         int exposureDuration = 0;
+        // iterating thru local exposures
         for (ExposureRecord exposure in exposures) {
+          // timing check for rpi
           if (rpisSet.contains(exposure.rpi) &&
               ((exposure.timestamp + _rpiCheckExposureBuffer) >= rpisMap[exposure.rpi]) &&
               ((exposure.timestamp - _rpiCheckExposureBuffer - _rpiRefreshInterval) < rpisMap[exposure.rpi])
@@ -978,12 +979,15 @@ class Exposure with Service implements NotificationsListener {
                 }
                 durationRPISet.add(exposure.rpi);
             }
+
+            // found rpi match, has contact with positve case
+            isContactWithPositive = true;
           }
         }
 
         if ((exposureDateUtc != null) && (_exposureMinDuration <= exposureDuration)) {
           Covid19History result;  
-          
+
           Covid19History history = Covid19History.traceInList(histories, tek: tek.tek);
           if (history != null) {
             if ((history.dateUtc != null) && history.dateUtc.isBefore(exposureDateUtc)) {
@@ -1019,9 +1023,26 @@ class Exposure with Service implements NotificationsListener {
             }
             results.add(result);
           }
+
+          hasPassedExposureScoring = true;
         }
       }
     }
+
+    // converting flags --> int to upload
+    // bit 0 --> is contact with positive
+    // bit 1 --> has passed exposure scoring
+    int score = 0;
+    if (isContactWithPositive) {
+      score += 1;
+    }
+    if (hasPassedExposureScoring) {
+      score += 2;
+    }
+
+    Analytics().logHealth(action: Analytics.LogHealthCheckExposuresAction, attributes: {
+      Analytics.LogHealthExposureScore: score
+    });
 
     if (results != null) {
       NotificationService().notify(Health.notifyHistoryUpdated, null);

@@ -27,10 +27,11 @@ import 'package:illinois/utils/Utils.dart';
 
 class Organizations with Service {
 
-  static const String _organizationsAsset       = 'organizations.json.enc';
+  static const String _organizationsHookAsset    = 'organizations.hook.json.enc';
+  static const String _organizationsAsset        = 'organizations.json.enc';
 
   static const String notifyOrganizationChanged  = "edu.illinois.rokwire.organizations.organization.changed";
-  static const String notifyEnvironmentChanged  = "edu.illinois.rokwire.organizations.environment.changed";
+  static const String notifyEnvironmentChanged   = "edu.illinois.rokwire.organizations.environment.changed";
 
   Organization       _organization;
   List<Organization> _organizations;
@@ -57,6 +58,9 @@ class Organizations with Service {
       _organizations = await _loadOrganizations();
       if (_organizations?.length == 1) {
         Storage().organization = _organization = _organizations.first;
+      }
+      else if (Storage().onBoardingPassed == true) {
+        Storage().organization = _organization = Organization.findInList(_organizations, isDefault: true);
       }
     }
   }
@@ -133,8 +137,8 @@ class Organizations with Service {
     return this.environment == 'test';
   }
 
-  UrlEntryPoint get configEntryPoint {
-    return _organization?.entryPoint(environment: this.environment);
+  ApiHook get configApiHook {
+    return _organization?.apiHook(environment: this.environment);
   }
 
   Future<List<Organization>> ensureOrganizations() async {
@@ -144,31 +148,44 @@ class Organizations with Service {
     return _organizations;
   }
 
-  static Future<UrlEntryPoint> _loadOrganizationsEntryPoint() async {
+  static Future<ApiHook> _loadOrganizationsHookAsset() async {
     try {
-      String organizationsStrEnc = await rootBundle.loadString('assets/$_organizationsAsset');
-      String organizationsStr = (organizationsStrEnc != null) ? AESCrypt.decode(organizationsStrEnc) : null;
-      Map<String, dynamic> organizationsJson = AppJson.decode(organizationsStr);
-      return UrlEntryPoint.fromJson(organizationsJson);
+      String hookStrEnc = await rootBundle.loadString('assets/$_organizationsHookAsset');
+      String hookStr = (hookStrEnc != null) ? AESCrypt.decode(hookStrEnc) : null;
+      Map<String, dynamic> hookJson = AppJson.decodeMap(hookStr);
+      return ApiHook.fromJson(hookJson);
     } catch (e) {
       print(e.toString());
     }
     return null;
   }
 
+  static Future<List<Organization>> _loadOrganizationsAsset() async {
+    try {
+      String organizationsStrEnc = await rootBundle.loadString('assets/$_organizationsAsset');
+      String organizationsStr = (organizationsStrEnc != null) ? AESCrypt.decode(organizationsStrEnc) : null;
+      List<dynamic> organizationsJson = AppJson.decodeList(organizationsStr);
+      return Organization.listFromJson(organizationsJson);
+    } catch (e) {
+      print(e.toString());
+    }
+    return null;
+  }
 
   static Future<List<Organization>> _loadOrganizations() async {
-    UrlEntryPoint entryPoint = await _loadOrganizationsEntryPoint();
-    if ((entryPoint != null) && (entryPoint.url != null)) {
-      Map<String, String> headers = (entryPoint.apiKey != null) ? {
-        Network.RokwireApiKey : entryPoint.apiKey
+    ApiHook apiHook = await _loadOrganizationsHookAsset();
+    if ((apiHook != null) && (apiHook.url != null)) {
+      Map<String, String> headers = (apiHook.apiKey != null) ? {
+        Network.RokwireApiKey : apiHook.apiKey
       } : null;
       
-      Response response = await Network().get(entryPoint.url, headers: headers);
+      Response response = await Network().get(apiHook.url, headers: headers);
       String responseString = (response?.statusCode == 200) ? response.body : null;
       List<dynamic> responseJson = (responseString != null) ? AppJson.decodeList(responseString) : null;
       return (responseJson != null) ? Organization.listFromJson(responseJson) : null;
     }
-    return null;
+    else {
+      return await _loadOrganizationsAsset();
+    }
   }
 }

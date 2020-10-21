@@ -54,7 +54,7 @@ class _OnboardingOrganizationsPanelState extends State<OnboardingOrganizationsPa
   @override
   void initState() {
     super.initState();
-    _selectedOrganization = Organizations().organization;
+    _selectedOrganization = Organizations().organization ?? Organization.findInList(widget.data.organizations, isDefault: true);
   }
 
   @override
