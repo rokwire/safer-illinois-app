@@ -37,7 +37,8 @@
 	</array>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
-			<string>https</string>
+		<string>https</string>
+		<string>http</string>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
