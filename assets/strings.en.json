@@ -1,6 +1,6 @@
 {
     "app.title":"Safer Illinois",
-    "app.offline.message.title":"You appear to be offline",
+    "app.offline.message.title":"You're offline, buddy.",
 
     "dialog.yes.title":"Yes",
     "dialog.yes.hint":"",
