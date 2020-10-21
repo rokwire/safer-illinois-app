@@ -3,7 +3,17 @@
 		"onboarding": ["get_started", "organization", "notifications_auth", "location_auth", "bluetooth_auth", "roles", "login_netid", "login_phone", "verify_phone", "confirm_phone",
 			"covid19_resident_info", "covid19_review_scan", "covid19_intro", "covid19_how_it_works", "covid19_consent", "covid19_qrcode", "covid19_final"],
 
-
+		"settings": ["user_info", "connect", "customizations", "connected", "notifications", "covid19", "privacy", "account", "feedback"],
+		"settings.connect": ["netid", "phone"],
+		"settings.customizations": ["roles"],
+		"settings.connected": ["netid", "phone"],
+		"settings.connected.netid": ["info", "disconnect", "connect"],
+		"settings.connected.phone": ["info", "disconnect", "verify"],
+		"settings.notifications": ["covid19"],
+		"settings.covid19": ["exposure_notifications", "provider_test_result", "qr_code"],
+		"settings.privacy": ["statement"],
+		"settings.account": ["personal_info"],
+		
 		"info_center": ["next_step", "symptom_checkin", "add_test_result", "health_status", "horizontals", "wellness_center"],
 		"info_center.horizontals": ["care_team", "history"]
 	},

@@ -28,6 +28,7 @@ import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
+import 'package:illinois/service/FlexUI.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/User.dart';
@@ -79,11 +80,10 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   void initState() {
     NotificationService().subscribe(this, [
       Auth.notifyUserPiiDataChanged,
-      Auth.notifyAuthTokenChanged,
       User.notifyUserUpdated,
       FirebaseMessaging.notifySettingUpdated,
+      FlexUI.notifyChanged,
     ]);
-
     _loadVersionInfo();
 
     //TBD move to Health service
@@ -103,11 +103,11 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   void onNotification(String name, dynamic param) {
     if (name == Auth.notifyUserPiiDataChanged) {
       _updateState();
-    } else if (name == Auth.notifyAuthTokenChanged) {
-      _updateState();
     } else if (name == User.notifyUserUpdated){
       _updateState();
     } else if (name == FirebaseMessaging.notifySettingUpdated) {
+      _updateState();
+    } else if (name == FlexUI.notifyChanged) {
       _updateState();
     }
   }
@@ -118,32 +118,37 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
     List<Widget> contentList = [];
     List<Widget> actionsList = [];
 
-    if (Auth().isLoggedIn) {
-      contentList.add(_buildUserInfo());
-    }
-    else {
-      contentList.add(_buildConnect());
-    }
-    
-    contentList.add(_buildCustomizations());
+    List<dynamic> codes = FlexUI()['settings'] ?? [];
 
-    if (Auth().isLoggedIn) {
-      contentList.add(_buildConnected());
+    for (String code in codes) {
+      if (code == 'user_info') {
+        contentList.add(_buildUserInfo());
+      }
+      else if (code == 'connect') {
+        contentList.add(_buildConnect());
+      }
+      else if (code == 'customizations') {
+        contentList.add(_buildCustomizations());
+      }
+      else if (code == 'connected') {
+        contentList.add(_buildConnected());
+      }
+      else if (code == 'notifications') {
+        contentList.add(_buildNotifications());
+      }
+      else if (code == 'covid19') {
+        contentList.add(_buildCovid19Settings());
+      }
+      else if (code == 'privacy') {
+        contentList.add(_buildPrivacy());
+      }
+      else if (code == 'account') {
+        contentList.add(_buildAccount());
+      }
+      else if (code == 'feedback') {
+        contentList.add(_buildFeedback(),);
+      }
     }
-    
-    contentList.add(_buildNotifications());
-
-    if (Auth().isLoggedIn) {
-      contentList.add(_buildCovid19Settings());
-    }
-
-    contentList.add(_buildPrivacy());
-
-    if (Auth().isLoggedIn) {
-      contentList.add(_buildAccount());
-    }
-
-    contentList.add(_buildFeedback());
 
     if (!kReleaseMode || Organizations().isDevEnvironment) {
       contentList.add(_buildDebug());
@@ -244,55 +249,61 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
       ),
     );
 
-    contentList.add(Padding(
-      padding: EdgeInsets.all(10),
-      child: new RichText(
-        textScaleFactor: MediaQuery.textScaleFactorOf(context),
-        text: new TextSpan(
-          style: TextStyle(color: Styles().colors.textBackground, fontFamily: Styles().fontFamilies.regular, fontSize: 16),
-          children: <TextSpan>[
-            new TextSpan(text: Localization().getStringEx("panel.settings.home.connect.not_logged_in.netid.description.part_1", "Are you a ")),
-            new TextSpan(
-                text: Localization().getStringEx("panel.settings.home.connect.not_logged_in.netid.description.part_2", "student"),
-                style: TextStyle(color: Styles().colors.fillColorPrimary, fontFamily: Styles().fontFamilies.bold)),
-            new TextSpan(text: Localization().getStringEx("panel.settings.home.connect.not_logged_in.netid.description.part_3", " or ")),
-            new TextSpan(
-                text: Localization().getStringEx("panel.settings.home.connect.not_logged_in.netid.description.part_4", "faculty member"),
-                style: TextStyle(color: Styles().colors.fillColorPrimary, fontFamily: Styles().fontFamilies.bold)),
-            new TextSpan(
-                text: Localization().getStringEx("panel.settings.home.connect.not_logged_in.netid.description.part_5",
-                    "? Log in with your NetID to see Illinois information specific to you, like your Illini Cash and meal plan."))
-          ],
-        ),
-      )),);
-    contentList.add(RibbonButton(
-      height: null,
-      border: Border.all(color: Styles().colors.surfaceAccent, width: 0),
-      borderRadius: _allRounding,
-      label: Localization().getStringEx("panel.settings.home.connect.not_logged_in.netid.title", "Connect your NetID"),
-      onTap: _onConnectNetIdClicked),);
-
-    /*contentList.add(Padding(
-      padding: EdgeInsets.all(10),
-      child: new RichText(
-        textScaleFactor: MediaQuery.textScaleFactorOf(context),
-        text: new TextSpan(
-          style: TextStyle(color: Styles().colors.textBackground, fontFamily: Styles().fontFamilies.regular, fontSize: 16),
-          children: <TextSpan>[
-            new TextSpan(
-                text: Localization().getStringEx("panel.settings.home.connect.not_logged_in.phone.description.part_1", "Don't have a NetID"),
-                style: TextStyle(color: Styles().colors.fillColorPrimary, fontFamily: Styles().fontFamilies.bold)),
-            new TextSpan(
-                text: Localization().getStringEx("panel.settings.home.connect.not_logged_in.phone.description.part_2",
-                    "? Verify your phone number to save your preferences and have the same experience on more than one device.")),
-          ],
-        ),
-      )),);
-    contentList.add(RibbonButton(
-      borderRadius: _allRounding,
-      border: Border.all(color: Styles().colors.surfaceAccent, width: 0),
-      label: Localization().getStringEx("panel.settings.home.connect.not_logged_in.phone.title", "Verify Your Phone Number"),
-      onTap: _onPhoneVerClicked),);*/
+    List<dynamic> codes = FlexUI()['settings.connect'] ?? [];
+    for (String code in codes) {
+      if (code == 'netid') {
+          contentList.add(Padding(
+            padding: EdgeInsets.all(10),
+            child: new RichText(
+              textScaleFactor: MediaQuery.textScaleFactorOf(context),
+              text: new TextSpan(
+                style: TextStyle(color: Styles().colors.textBackground, fontFamily: Styles().fontFamilies.regular, fontSize: 16),
+                children: <TextSpan>[
+                  new TextSpan(text: Localization().getStringEx("panel.settings.home.connect.not_logged_in.netid.description.part_1", "Are you a ")),
+                  new TextSpan(
+                      text: Localization().getStringEx("panel.settings.home.connect.not_logged_in.netid.description.part_2", "student"),
+                      style: TextStyle(color: Styles().colors.fillColorPrimary, fontFamily: Styles().fontFamilies.bold)),
+                  new TextSpan(text: Localization().getStringEx("panel.settings.home.connect.not_logged_in.netid.description.part_3", " or ")),
+                  new TextSpan(
+                      text: Localization().getStringEx("panel.settings.home.connect.not_logged_in.netid.description.part_4", "faculty member"),
+                      style: TextStyle(color: Styles().colors.fillColorPrimary, fontFamily: Styles().fontFamilies.bold)),
+                  new TextSpan(
+                      text: Localization().getStringEx("panel.settings.home.connect.not_logged_in.netid.description.part_5",
+                          "? Log in with your NetID to see Illinois information specific to you, like your Illini Cash and meal plan."))
+                ],
+              ),
+            )),);
+          contentList.add(RibbonButton(
+            height: null,
+            border: Border.all(color: Styles().colors.surfaceAccent, width: 0),
+            borderRadius: _allRounding,
+            label: Localization().getStringEx("panel.settings.home.connect.not_logged_in.netid.title", "Connect your NetID"),
+            onTap: _onConnectNetIdClicked),);
+      }
+      /*else if (code == 'phone') {
+          contentList.add(Padding(
+            padding: EdgeInsets.all(10),
+            child: new RichText(
+              textScaleFactor: MediaQuery.textScaleFactorOf(context),
+              text: new TextSpan(
+                style: TextStyle(color: Styles().colors.textBackground, fontFamily: Styles().fontFamilies.regular, fontSize: 16),
+                children: <TextSpan>[
+                  new TextSpan(
+                      text: Localization().getStringEx("panel.settings.home.connect.not_logged_in.phone.description.part_1", "Don't have a NetID"),
+                      style: TextStyle(color: Styles().colors.fillColorPrimary, fontFamily: Styles().fontFamilies.bold)),
+                  new TextSpan(
+                      text: Localization().getStringEx("panel.settings.home.connect.not_logged_in.phone.description.part_2",
+                          "? Verify your phone number to save your preferences and have the same experience on more than one device.")),
+                ],
+              ),
+            )),);
+          contentList.add(RibbonButton(
+            borderRadius: _allRounding,
+            border: Border.all(color: Styles().colors.surfaceAccent, width: 0),
+            label: Localization().getStringEx("panel.settings.home.connect.not_logged_in.phone.title", "Verify Your Phone Number"),
+            onTap: _onPhoneVerClicked),);
+      }*/
+    }
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -314,16 +325,26 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   // Customizations
 
   Widget _buildCustomizations() {
+    List<Widget> customizationOptions = new List();
+    List<dynamic> codes = FlexUI()['settings.customizations'] ?? [];
+    for (int index = 0; index < codes.length; index++) {
+      String code = codes[index];
+      
+      BorderRadius borderRadius = _borderRadiusFromIndex(index, codes.length);
+      
+      if (code == 'roles') {
+        customizationOptions.add(RibbonButton(
+            height: null,
+            borderRadius: borderRadius,
+            border: Border.all(color: Styles().colors.surfaceAccent, width: 0),
+            label: Localization().getStringEx("panel.settings.home.customizations.role.title", "Who you are"),
+            onTap: _onWhoAreYouClicked));
+      }
+    }
+
     return _OptionsSection(
       title: Localization().getStringEx("panel.settings.home.customizations.title", "Customizations"),
-      widgets: <Widget>[
-        RibbonButton(
-          height: null,
-          borderRadius: _borderRadiusFromIndex(0, 1),
-          border: Border.all(color: Styles().colors.surfaceAccent, width: 0),
-          label: Localization().getStringEx("panel.settings.home.customizations.role.title", "Who you are"),
-          onTap: _onWhoAreYouClicked),
-      ],);
+      widgets: customizationOptions,);
 
   }
 
@@ -341,80 +362,110 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   Widget _buildConnected() {
     List<Widget> contentList = new List();
 
-    if (Auth().isShibbolethLoggedIn) {
-      contentList.add(_OptionsSection(
-        title: Localization().getStringEx("panel.settings.home.net_id.title", "Illinois NetID"),
-        widgets: _buildConnectedNetIdLayout()));
+    List<dynamic> codes = FlexUI()['settings.connected'] ?? [];
+    for (String code in codes) {
+      if (code == 'netid') {
+        contentList.add(_OptionsSection(
+          title: Localization().getStringEx("panel.settings.home.net_id.title", "Illinois NetID"),
+          widgets: _buildConnectedNetIdLayout()));
+      }
+      else if (code == 'phone') {
+        contentList.add(_OptionsSection(
+          title: Localization().getStringEx("panel.settings.home.phone_ver.title", "Phone Verification"),
+          widgets: _buildConnectedPhoneLayout()));
+      }
     }
-
-    if (Auth().isPhoneLoggedIn) {
-      contentList.add(_OptionsSection(
-        title: Localization().getStringEx("panel.settings.home.phone_ver.title", "Phone Verification"),
-        widgets: _buildConnectedPhoneLayout()));
-    }
-
     return Column(children: contentList,);
+
   }
 
   List<Widget> _buildConnectedNetIdLayout() {
-    return <Widget>[
-      Semantics( container: true,
-        child: Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            borderRadius: _borderRadiusFromIndex(0, 2),
-            border: Border.all(color: Styles().colors.surfaceAccent,
-            width: 0.5)),
-          child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-                Text(Localization().getStringEx("panel.settings.home.net_id.message", "Connected as "),
-                    style: TextStyle(color: Styles().colors.textBackground, fontFamily: Styles().fontFamilies.regular, fontSize: 16)),
-                Text(Auth().userPiiData?.fullName ?? "",
-                    style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 20)),
-              ])))),
+    List<Widget> contentList = List();
 
-      RibbonButton(
-        height: null,
-        borderRadius: _borderRadiusFromIndex(1, 2),
-        border: Border.all(color: Styles().colors.surfaceAccent, width: 0),
-        label: Localization().getStringEx("panel.settings.home.net_id.button.disconnect", "Disconnect your NetID"),
-        onTap: _onDisconnectNetIdClicked),
-    ];
+    List<dynamic> codes = FlexUI()['settings.connected.netid'] ?? [];
+    for (int index = 0; index < codes.length; index++) {
+      String code = codes[index];
+      BorderRadius borderRadius = _borderRadiusFromIndex(index, codes.length);
+      if (code == 'info') {
+        contentList.add(
+          Semantics( container: true,
+            child: Container(
+              width: double.infinity,
+              decoration: BoxDecoration(borderRadius: borderRadius, border: Border.all(color: Styles().colors.surfaceAccent, width: 0.5)),
+              child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+                    Text(Localization().getStringEx("panel.settings.home.net_id.message", "Connected as "),
+                        style: TextStyle(color: Styles().colors.textBackground, fontFamily: Styles().fontFamilies.regular, fontSize: 16)),
+                    Text(Auth().userPiiData?.fullName ?? "",
+                        style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 20)),
+                  ])))));
+      }
+      else if (code == 'connect') {
+        contentList.add(RibbonButton(
+            height: null,
+            borderRadius: borderRadius,
+            border: Border.all(color: Styles().colors.surfaceAccent, width: 0),
+            label: Localization().getStringEx("panel.settings.home.net_id.button.connect", "Connect your NetID"),
+            onTap: _onConnectNetIdClicked));
+      }
+      else if (code == 'disconnect') {
+        contentList.add(RibbonButton(
+            height: null,
+            borderRadius: borderRadius,
+            border: Border.all(color: Styles().colors.surfaceAccent, width: 0),
+            label: Localization().getStringEx("panel.settings.home.net_id.button.disconnect", "Disconnect your NetID"),
+            onTap: _onDisconnectNetIdClicked));
+      }
+    }
+
+    return contentList;
   }
 
   List<Widget> _buildConnectedPhoneLayout() {
+    List<Widget> contentList = List();
 
     String fullName = Auth()?.userPiiData?.fullName ?? "";
     bool hasFullName = AppString.isStringNotEmpty(fullName);
 
-    return <Widget>[
-      Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          borderRadius: _borderRadiusFromIndex(0, 2),
-          border: Border.all(color: Styles().colors.surfaceAccent,
-          width: 0.5)),
-        child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-              Text(Localization().getStringEx("panel.settings.home.phone_ver.message", "Verified as "),
-                  style: TextStyle(color: Styles().colors.textBackground, fontFamily: Styles().fontFamilies.regular, fontSize: 16)),
-              Visibility(visible: hasFullName, child: Text(fullName ?? "", style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 20)),),
-              Text(Auth().phoneToken?.phone ?? "", style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 20)),
-            ]))),
-
-      RibbonButton(
-        height: null,
-        borderRadius: _borderRadiusFromIndex(1, 2),
-        border: Border.all(color: Styles().colors.surfaceAccent, width: 0),
-        label: Localization().getStringEx("panel.settings.home.phone_ver.button.disconnect","Disconnect your Phone",),
-        onTap: _onDisconnectNetIdClicked),
-    ];
+    List<dynamic> codes = FlexUI()['settings.connected.phone'] ?? [];
+    for (int index = 0; index < codes.length; index++) {
+      String code = codes[index];
+      BorderRadius borderRadius = _borderRadiusFromIndex(index, codes.length);
+      if (code == 'info') {
+        contentList.add(Container(
+          width: double.infinity,
+          decoration: BoxDecoration(borderRadius: borderRadius, border: Border.all(color: Styles().colors.surfaceAccent, width: 0.5)),
+          child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+                Text(Localization().getStringEx("panel.settings.home.phone_ver.message", "Verified as "),
+                    style: TextStyle(color: Styles().colors.textBackground, fontFamily: Styles().fontFamilies.regular, fontSize: 16)),
+                Visibility(visible: hasFullName, child: Text(fullName ?? "", style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 20)),),
+                Text(Auth().phoneToken?.phone ?? "", style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 20)),
+              ]))));
+      }
+      /*else if (code == 'verify') {
+        contentList.add(RibbonButton(
+            borderRadius: borderRadius,
+            border: Border.all(color: Styles().colors.surfaceAccent, width: 0),
+            label: Localization().getStringEx("panel.settings.home.phone_ver.button.connect", "Verify Your Phone Number"),
+            onTap: _onPhoneVerClicked));
+      }*/
+      else if (code == 'disconnect') {
+        contentList.add(RibbonButton(
+            height: null,
+            borderRadius: borderRadius,
+            border: Border.all(color: Styles().colors.surfaceAccent, width: 0),
+            label: Localization().getStringEx("panel.settings.home.phone_ver.button.disconnect","Disconnect your Phone",),
+            onTap: _onDisconnectNetIdClicked));
+      }
+    }
+    return contentList;
   }
 
   void _onDisconnectNetIdClicked() {
-    if (Auth().isShibbolethLoggedIn) {
+    if(Auth().isShibbolethLoggedIn) {
       Analytics.instance.logSelect(target: "Disconnect netId");
     } else {
       Analytics.instance.logSelect(target: "Disconnect phone");
@@ -468,17 +519,26 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   // NotificationsOptions
 
   Widget _buildNotifications() {
-    return _OptionsSection(
-      title: Localization().getStringEx("panel.settings.home.notifications.title", "Notifications"),
-      widgets: <Widget>[
-        ToggleRibbonButton(
+    List<Widget> contentList = new List();
+
+    List<dynamic> codes = FlexUI()['settings.notifications'] ?? [];
+    for (int index = 0; index < codes.length; index++) {
+      String code = codes[index];
+      BorderRadius borderRadius = _borderRadiusFromIndex(index, codes.length);
+      if (code == 'covid19') {
+        contentList.add(ToggleRibbonButton(
           height: null,
-          borderRadius: _borderRadiusFromIndex(0, 1),
+          borderRadius: borderRadius,
           label: Localization().getStringEx("panel.settings.home.notifications.covid19", "COVID-19 notifications"),
           toggled: FirebaseMessaging().notifyCovid19,
           context: context,
-          onTap: _onCovid19Toggled),
-      ]);
+          onTap: _onCovid19Toggled));
+      }
+    }
+
+    return _OptionsSection(
+      title: Localization().getStringEx("panel.settings.home.notifications.title", "Notifications"),
+      widgets: contentList);
   }
 
   void _onCovid19Toggled() {
@@ -634,25 +694,32 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
       ));
     }
     else {
-      contentList.add(ToggleRibbonButton(
-          height: null,
-          borderRadius: _borderRadiusFromIndex(0, 2),
-          label: Localization().getStringEx("panel.settings.home.covid19.exposure_notifications", "Exposure Notifications"),
-          toggled: (_healthUser?.exposureNotification == true),
-          context: context,
-          onTap: _onExposureNotifications));
-
-      contentList.add(ToggleRibbonButton(
-          height: null,
-          borderRadius: _borderRadiusFromIndex(1, 2),
-          label: Localization().getStringEx("panel.settings.home.covid19.provider_test_result", "Health Provider Test Results"),
-          toggled: (_healthUser?.consent == true),
-          context: context,
-          onTap: _onProviderTestResult));
-
-      contentList.add(
-        Padding(padding: EdgeInsets.only(left: 8, top: 16), child:
-          _buildCovid19KeysSection(),));
+      List<dynamic> codes = FlexUI()['settings.covid19'] ?? [];
+      for (int index = 0; index < codes.length; index++) {
+        String code = codes[index];
+        BorderRadius borderRadius = _borderRadiusFromIndex(index, codes.length);
+        if (code == 'exposure_notifications') {
+          contentList.add(ToggleRibbonButton(
+              height: null,
+              borderRadius: borderRadius,
+              label: Localization().getStringEx("panel.settings.home.covid19.exposure_notifications", "Exposure Notifications"),
+              toggled: (_healthUser?.exposureNotification == true),
+              context: context,
+              onTap: _onExposureNotifications));
+        }
+        else if (code == 'provider_test_result') {
+          contentList.add(ToggleRibbonButton(
+              height: null,
+              borderRadius: borderRadius,
+              label: Localization().getStringEx("panel.settings.home.covid19.provider_test_result", "Health Provider Test Results"),
+              toggled: (_healthUser?.consent == true),
+              context: context,
+              onTap: _onProviderTestResult));
+        }
+        else if (code == 'qr_code') {
+          contentList.add(Padding(padding: EdgeInsets.only(left: 8, top: 16), child: _buildCovid19KeysSection(),));
+        }
+      }
     }
 
     return _OptionsSection(
@@ -912,18 +979,26 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   // Privacy
 
   Widget _buildPrivacy() {
-    return _OptionsSection(
-      title: Localization().getStringEx("panel.settings.home.privacy.title", "Privacy"),
-      widgets: <Widget>[
-        RibbonButton(
+    List<Widget> contentList = new List();
+
+    List<dynamic> codes = FlexUI()['settings.privacy'] ?? [];
+    for (int index = 0; index < codes.length; index++) {
+      String code = codes[index];
+      BorderRadius borderRadius = _borderRadiusFromIndex(index, codes.length);
+      if (code == 'statement') {
+        contentList.add(RibbonButton(
           height: null,
           borderRadius: _borderRadiusFromIndex(0, 1),
-          leftIcon: 'images/external-link.png',
           border: Border.all(color: Styles().colors.surfaceAccent, width: 0),
           label: Localization().getStringEx("panel.settings.home.privacy.privacy_statement.title", "Privacy Statement"),
           onTap: _onPrivacyStatementClicked,
-        ),
-      ]);
+        ));
+      }
+    }
+
+    return _OptionsSection(
+      title: Localization().getStringEx("panel.settings.home.privacy.title", "Privacy"),
+      widgets: contentList);
   }
 
   void _onPrivacyStatementClicked() {
@@ -941,16 +1016,25 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   // Account
 
   Widget _buildAccount() {
-    return _OptionsSection(
-      title: Localization().getStringEx("panel.settings.home.account.title", "Your Account"),
-      widgets: <Widget>[
-        RibbonButton(
+    List<Widget> contentList = new List();
+
+    List<dynamic> codes = FlexUI()['settings.account'] ?? [];
+    for (int index = 0; index < codes.length; index++) {
+      String code = codes[index];
+      BorderRadius borderRadius = _borderRadiusFromIndex(index, codes.length);
+      if (code == 'personal_info') {
+        contentList.add(RibbonButton(
           height: null,
           border: Border.all(color: Styles().colors.surfaceAccent, width: 0),
-          borderRadius: _borderRadiusFromIndex(0, 1),
+          borderRadius: borderRadius,
           label: Localization().getStringEx("panel.settings.home.account.personal_info.title", "Personal Info"),
-          onTap: _onPersonalInfoClicked),
-      ],
+          onTap: _onPersonalInfoClicked));
+      }
+    }
+
+    return _OptionsSection(
+      title: Localization().getStringEx("panel.settings.home.account.title", "Your Account"),
+      widgets: contentList,
     );
   }
 
@@ -968,7 +1052,6 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   // Feedback
 
   Widget _buildFeedback(){
-
     return Column(
       children: <Widget>[
         Padding(
