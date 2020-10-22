@@ -984,11 +984,10 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
     List<dynamic> codes = FlexUI()['settings.privacy'] ?? [];
     for (int index = 0; index < codes.length; index++) {
       String code = codes[index];
-      BorderRadius borderRadius = _borderRadiusFromIndex(index, codes.length);
       if (code == 'statement') {
         contentList.add(RibbonButton(
           height: null,
-          borderRadius: _borderRadiusFromIndex(0, 1),
+          borderRadius: _borderRadiusFromIndex(index, codes.length),
           border: Border.all(color: Styles().colors.surfaceAccent, width: 0),
           label: Localization().getStringEx("panel.settings.home.privacy.privacy_statement.title", "Privacy Statement"),
           onTap: _onPrivacyStatementClicked,
