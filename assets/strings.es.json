@@ -306,7 +306,7 @@
     "panel.covid19home.label.check_in.description":"Autoinforme cualquier síntoma para ver si debe hacerse la prueba o quedarse en casa",
     "panel.covid19home.label.result.title":"Agregar resultado de prueba",
     "panel.covid19home.label.result.description":"Para mantener su estado actualizado",
-    "panel.covid19home.label.status.title":"Current Status:",
+    "panel.covid19home.label.status.title":"Estado actual:",
     "panel.covid19home.label.status.na":"No disponible",
     "panel.covid19home.button.show_status_card.title":"Mostrar tarjeta de estado",
     "panel.covid19home.label.campus_updates.title":"Actualizaciones del campus",
@@ -535,7 +535,7 @@
     "panel.health.covid19.care_team.label.more_info.link": "Learn more",
     "panel.health.covid19.care_team.label.counseling_center.link": "Counseling Center",
     "panel.health.covid19.care_team.label.mc_kiney.link": "McKinley Mental Health Program",
-    "panel.health.covid19.care_team.label.virtual_counseling.link":"Virtual Counseling ",
+    "panel.health.covid19.care_team.label.virtual_counseling.link":"Virtual Counseling",
     "panel.health.covid19.care_team.label.virtual_counseling.description": "(Requires UnitedHealthcare Student Resources coverage.)",
 
     "panel.health.covid19.debug.keys.heading.title.":"Claves COVID-19",
