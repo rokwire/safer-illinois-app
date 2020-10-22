@@ -72,6 +72,7 @@ class FlexUI with Service implements NotificationsListener {
       Auth.notifyAuthTokenChanged,
       Auth.notifyCardChanged,
       Auth.notifyUserPiiDataChanged,
+      Health.notifyUserUpdated,
       AppLivecycle.notifyStateChanged,
     ]);
   }
@@ -127,6 +128,9 @@ class FlexUI with Service implements NotificationsListener {
         (name == Auth.notifyCardChanged) || 
         (name == Auth.notifyUserPiiDataChanged))
     {
+      _updateFromNet();
+    }
+    else if (name == Health.notifyUserUpdated) {
       _updateFromNet();
     }
     else if (name == AppLivecycle.notifyStateChanged) {
