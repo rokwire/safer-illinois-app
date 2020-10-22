@@ -167,7 +167,7 @@ class Covid19StatusBlob {
         return Localization().getStringEx('model.explore.time.tomorrow', 'Tomorrow').toLowerCase();
       }
       else {
-        return AppDateTime.formatDateTime(nextStepDateUtc.toLocal(), format: format);
+        return AppDateTime.formatDateTime(nextStepDateUtc.toLocal(), format: format, locale: Localization().currentLocale?.languageCode);
       }
     }
     return null;

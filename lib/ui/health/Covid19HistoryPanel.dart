@@ -551,7 +551,7 @@ class _Covid19HistoryEntryState extends State<_Covid19HistoryEntry> with SingleT
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
            children: <Widget>[
-             Text(AppDateTime.formatDateTime(widget.history?.dateUtc?.toLocal(), format:dateFormat) ?? '',style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface,)),
+             Text(AppDateTime.formatDateTime(widget.history?.dateUtc?.toLocal(), format:dateFormat, locale: Localization().currentLocale?.languageCode) ?? '',style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface,)),
              Container(height: 4,),
              Row(children: <Widget>[
               Expanded(child:
