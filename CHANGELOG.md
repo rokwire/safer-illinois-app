@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.8.1] - 2020-10-21
+### Added
+- Added "force-test" rule status and action. [#319](https://github.com/rokwire/safer-illinois-app/issues/319).
+- Added "referenceDate" origin when evaluating status. [#319](https://github.com/rokwire/safer-illinois-app/issues/319).
+
+### Changed
+- Apply rule status priority on status downgrade. [#319](https://github.com/rokwire/safer-illinois-app/issues/319).
+
+### Fixed
+- Unable to log in with iOS Default Browser changed [#315](https://github.com/rokwire/safer-illinois-app/issues/315).
+
 ## [2.8.1] - 2020-10-20
 ### Added
 - Added ability to turn off multiple organizations support and build single organization app.

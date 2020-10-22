@@ -274,7 +274,7 @@ class _Covid19DebugCreateEventPanelState extends State<Covid19DebugCreateEventPa
               ),
             ],),
 
-            Container(height: 4,),
+            Container(height: 16,),
 
             Row(children: <Widget>[
               Expanded(child:
@@ -322,6 +322,32 @@ class _Covid19DebugCreateEventPanelState extends State<Covid19DebugCreateEventPa
                   fontFamily: Styles().fontFamilies.bold,
                   fontSize: 16, borderWidth: 2, height: 42,
                   onTap:() { _onPopulate(this._sampleActionTestPendingBlob);  }
+                ),
+              ),
+            ],),
+
+            Container(height: 4,),
+
+            Row(children: <Widget>[
+              Expanded(child:
+                RoundedButton(label: "Force Test",
+                  textColor: Styles().colors.fillColorPrimary,
+                  borderColor: Styles().colors.fillColorSecondary,
+                  backgroundColor: Styles().colors.white,
+                  fontFamily: Styles().fontFamilies.bold,
+                  fontSize: 16, borderWidth: 2, height: 42,
+                  onTap:() { _onPopulate(this._sampleActionForceTestBlob);  }
+                ),
+              ),
+              Container(width: 4,),
+              Expanded(child:
+                RoundedButton(label: "",
+                  textColor: Styles().colors.fillColorPrimary,
+                  borderColor: Styles().colors.fillColorSecondary,
+                  backgroundColor: Styles().colors.white,
+                  fontFamily: Styles().fontFamilies.bold,
+                  fontSize: 16, borderWidth: 2, height: 42,
+                  onTap:() { _onPopulate(''); }
                 ),
               ),
             ],),
@@ -450,6 +476,14 @@ class _Covid19DebugCreateEventPanelState extends State<Covid19DebugCreateEventPa
   "Date": "$date",
   "ActionType": "test_pending",
   "ActionText": "Your test is pending"
+}''';}
+
+  String get _sampleActionForceTestBlob {
+    String date = healthDateTimeToString(DateTime.now().toUtc());
+    return '''{
+  "Date": "$date",
+  "ActionType": "force-test",
+  "ActionText": "You are required to get a test"
 }''';}
 
   void _onPopulate(String content) {
