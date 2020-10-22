@@ -98,7 +98,7 @@ class FlexUI with Service implements NotificationsListener {
 
   @override
   Set<Service> get serviceDependsOn {
-    return Set.from([Config(), User(), Auth()]);
+    return Set.from([Config(), User(), Auth(), Health());
   }
 
   @override
