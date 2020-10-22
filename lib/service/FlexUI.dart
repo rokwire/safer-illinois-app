@@ -26,6 +26,7 @@ import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/Assets.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Config.dart';
+import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/Network.dart';
 import 'package:illinois/service/NotificationService.dart';
@@ -408,6 +409,9 @@ class FlexUI with Service implements NotificationsListener {
           }
           else if ((key == 'phoneLoggedIn') && (value is bool)) {
             result = result && (Auth().isPhoneLoggedIn == value);
+          }
+          else if ((key == 'healthLoggedIn') && (value is bool)) {
+            result = result && (Health().isUserLoggedIn == value);
           }
           
           else if ((key == 'shibbolethMemberOf') && (value is String)) {
