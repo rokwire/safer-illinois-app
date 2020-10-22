@@ -324,22 +324,26 @@ class Localization with Service implements NotificationsListener {
 
   // Translation
 
-  String translate(Map entry) {
+  String localeString(Map entry) {
     // { "en": "...", "es": "...", "zh": "..." }
     
-    if (entry != null) {
-      if (_currentLocale != null) {
-        dynamic str = entry[_currentLocale.languageCode];
-        if (str is String) {
-          return str;
-        }
+    if ((entry != null) && (_currentLocale != null)) {
+      dynamic str = entry[_currentLocale.languageCode];
+      if (str is String) {
+        return str;
       }
-      
-      if (_defaultLocale != null) {
-        dynamic str = entry[_defaultLocale.languageCode];
-        if (str is String) {
-          return str;
-        }
+    }
+
+    return defaultLocaleString(entry);
+  }
+
+  String defaultLocaleString(Map entry) {
+    // { "en": "...", "es": "...", "zh": "..." }
+    
+    if ((entry != null) && (_defaultLocale != null)) {
+      dynamic str = entry[_defaultLocale.languageCode];
+      if (str is String) {
+        return str;
       }
     }
 

@@ -16,6 +16,7 @@
 
 import 'dart:collection';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:illinois/utils/AppDateTime.dart';
@@ -410,7 +411,9 @@ class Covid19History {
       return this.isAction &&
         (this.dateUtc == event?.blob?.dateUtc) &&
         (this.blob?.actionType == event?.blob?.actionType) &&
-        (this.blob?.actionText == event?.blob?.actionText);
+        ((this.blob?.actionText == event?.blob?.actionText) ||
+         ((this.blob?.actionText is Map) && (event?.blob?.actionText is Map) && DeepCollectionEquality().equals(this.blob?.actionText, event?.blob?.actionText))
+        );
     }
     else {
       return false;
@@ -536,7 +539,7 @@ class Covid19HistoryBlob {
   final String traceTEK;
   
   final String actionType;
-  final String actionText;
+  final dynamic actionText;
 
   Covid19HistoryBlob({
     this.provider, this.providerId, this.location, this.locationId, this.countyId, this.testType, this.testResult,
@@ -649,8 +652,20 @@ class Covid19HistoryBlob {
     return null;
   }
 
+  String get localeActionText {
+    if (actionText is Map) {
+      return Localization().localeString(actionText);
+    }
+    else if (actionText is String) {
+      return actionText;
+    }
+    else {
+      return null;
+    }
+  }
+
   String get actionDisplayString {
-    return actionText ?? actionType;
+    return localeActionText ?? actionType;
   }
 }
 
@@ -789,7 +804,7 @@ class Covid19EventBlob {
   final String   testResult;
 
   final String   actionType;
-  final String   actionText;
+  final dynamic  actionText;
 
   Covid19EventBlob({this.dateUtc, this.testType, this.testResult, this.actionType, this.actionText});
 
@@ -799,7 +814,7 @@ class Covid19EventBlob {
       testType:      AppJson.stringValue(json['TestName']),
       testResult:    AppJson.stringValue(json['Result']),
       actionType:    AppJson.stringValue(json['ActionType']),
-      actionText:    AppJson.stringValue(json['ActionText']),
+      actionText:    json['ActionText'],
     ) : null;
   }
 
@@ -832,6 +847,18 @@ class Covid19EventBlob {
   bool get isAction {
     return AppString.isStringNotEmpty(actionType);
   }
+
+  String get defaultLocaleActionText {
+    if (actionText is Map) {
+      return Localization().defaultLocaleString(actionText);
+    }
+    else if (actionText is String) {
+      return actionText;
+    }
+    else {
+      return null;
+    }
+  } 
 }
 
 
@@ -1851,9 +1878,9 @@ class HealthRulesSet {
     constants[UserTestMonitorInterval] = value;
   }
 
-  String translate(dynamic entry) {
+  String localeString(dynamic entry) {
     if (entry is Map) {
-      return Localization().translate(entry);
+      return Localization().localeString(entry);
     }
     else if (entry is String) {
       
