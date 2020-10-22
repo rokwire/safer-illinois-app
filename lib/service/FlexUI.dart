@@ -26,6 +26,7 @@ import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/Assets.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Config.dart';
+import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/Network.dart';
 import 'package:illinois/service/NotificationService.dart';
@@ -71,6 +72,7 @@ class FlexUI with Service implements NotificationsListener {
       Auth.notifyAuthTokenChanged,
       Auth.notifyCardChanged,
       Auth.notifyUserPiiDataChanged,
+      Health.notifyUserUpdated,
       AppLivecycle.notifyStateChanged,
     ]);
   }
@@ -96,7 +98,7 @@ class FlexUI with Service implements NotificationsListener {
 
   @override
   Set<Service> get serviceDependsOn {
-    return Set.from([Config(), User(), Auth()]);
+    return Set.from([Config(), User(), Auth(), Health()]);
   }
 
   @override
@@ -126,6 +128,9 @@ class FlexUI with Service implements NotificationsListener {
         (name == Auth.notifyCardChanged) || 
         (name == Auth.notifyUserPiiDataChanged))
     {
+      _updateFromNet();
+    }
+    else if (name == Health.notifyUserUpdated) {
       _updateFromNet();
     }
     else if (name == AppLivecycle.notifyStateChanged) {
@@ -408,6 +413,9 @@ class FlexUI with Service implements NotificationsListener {
           }
           else if ((key == 'phoneLoggedIn') && (value is bool)) {
             result = result && (Auth().isPhoneLoggedIn == value);
+          }
+          else if ((key == 'healthLoggedIn') && (value is bool)) {
+            result = result && (Health().isUserLoggedIn == value);
           }
           
           else if ((key == 'shibbolethMemberOf') && (value is String)) {
