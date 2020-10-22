@@ -798,9 +798,8 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
   }
 
   String get _accessStatusText{
-    return Localization().getStringEx("panel.covid19home.label.access.title", "Building access")+ " "+
-            (_covid19Access? Localization().getStringEx("panel.covid19home.label.access.granted","granted"):
-                            Localization().getStringEx("panel.covid19home.label.access.denied","denied"));
+    return (_covid19Access? Localization().getStringEx("panel.covid19home.label.access.granted","Building access granted"):
+                            Localization().getStringEx("panel.covid19home.label.access.denied","Building access denied"));
   }
 }
 

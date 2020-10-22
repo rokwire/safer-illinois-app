@@ -316,10 +316,9 @@
     "panel.covid19home.label.action_required.title": "Acción requerida",
     "panel.covid19home.label.contact_trace.title": "Seguimiento de contacto",
     "panel.covid19home.label.reported_symptoms.title": "Síntomas autoinformados",
-    "panel.covid19home.button.info.title": "Info ",
-    "panel.covid19home.label.access.title": "Building access",
-    "panel.covid19home.label.access.granted": "granted",
-    "panel.covid19home.label.access.denied": "denied",
+    "panel.covid19home.button.info.title": "Información ",
+    "panel.covid19home.label.access.granted": "Acceso al edificio concedido",
+    "panel.covid19home.label.access.denied": "Acceso al edificio denegado",
 
     "panel.covid19_test_locations.header.title": "Lugares de prueba",
     "panel.covid19_test_locations.label.contact.title": "Contacto",

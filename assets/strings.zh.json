@@ -316,10 +316,9 @@
 	"panel.covid19home.label.action_required.title": "所需操作",
 	"panel.covid19home.label.contact_trace.title": "接触痕迹",
 	"panel.covid19home.label.reported_symptoms.title": "自述症状",
-	"panel.covid19home.button.info.title": "Info ",
-	"panel.covid19home.label.access.title": "Building access",
-	"panel.covid19home.label.access.granted": "granted",
-	"panel.covid19home.label.access.denied": "denied",
+	"panel.covid19home.button.info.title": "信息 ",
+	"panel.covid19home.label.access.granted": "授予建築物訪問權限",
+	"panel.covid19home.label.access.denied": "拒絕建築物訪問",
 
 	"panel.covid19_test_locations.header.title": "测试位置",
 	"panel.covid19_test_locations.label.contact.title": "联系人",
@@ -535,7 +534,7 @@
 	"panel.health.covid19.care_team.label.more_info.link": "了解更多",
 	"panel.health.covid19.care_team.label.counseling_center.link": "Counseling Center",
 	"panel.health.covid19.care_team.label.mc_kiney.link": "McKinley Mental Health Program",
-	"panel.health.covid19.care_team.label.virtual_counseling.link":"Virtual Counseling ",
+	"panel.health.covid19.care_team.label.virtual_counseling.link":"Virtual Counseling",
 	"panel.health.covid19.care_team.label.virtual_counseling.description": "(Requires UnitedHealthcare Student Resources coverage.)",
 
 	"panel.health.covid19.debug.keys.heading.title.":"COVID-19密钥",
