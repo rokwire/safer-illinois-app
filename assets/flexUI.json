@@ -27,17 +27,10 @@
 			"onboarding.confirm_phone"        : ["NOT", ["employee", "OR", "student"]]
 		},
 		"auth": {
-
-			"info_center.stay_healthy.recent_event" 		: { "healthLoggedIn": true },
-			"info_center.stay_healthy.next_step" 			: { "healthLoggedIn": true },
-			"info_center.stay_healthy.symptom_checkin" 		: { "healthLoggedIn": true },
-			"info_center.stay_healthy.add_test_result" 		: { "healthLoggedIn": true },
-
-
+			"info_center.stay_healthy" 						: { "healthLoggedIn": true },
 			"info_center.your_health.health_status" 		: { "healthLoggedIn": true },
 			"info_center.your_health.health_history" 		: { "healthLoggedIn": true },
 			"info_center.your_health.find_test_location" 	: { "healthLoggedIn": false },
-
 
 			"settings.user_info"              : { "loggedIn": true },
 			"settings.connect"                : { "loggedIn": false },
