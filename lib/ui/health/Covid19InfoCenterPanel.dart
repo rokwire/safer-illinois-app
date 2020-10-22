@@ -392,8 +392,8 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Semantics(explicitChildNodes: true, child: ScalableRoundedButton(
-            label: Localization().getStringEx("panel.covid19home.button.view_history.title", "View Health History"),
-            hint: Localization().getStringEx("panel.covid19home.button.view_history.hint", ""),
+            label: Localization().getStringEx("panel.covid19.button.health_history.title", "View Health History"),
+            hint: Localization().getStringEx("panel.covid19.button.health_history.hint", ""),
             borderColor: Styles().colors.fillColorSecondary,
             backgroundColor: Styles().colors.surface,
             textColor: Styles().colors.fillColorPrimary,
@@ -673,6 +673,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
       ),
       child: RibbonButton(
         label: Localization().getStringEx("panel.covid19.button.health_history.title", "View Health History"),
+        hint: Localization().getStringEx("panel.covid19.button.health_history.hint", ""),
         borderRadius: BorderRadius.circular(4),
         height: null,
         onTap: ()=>_onTapTestHistory(),
