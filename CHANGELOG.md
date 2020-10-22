@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added
+- Enable again Talent Chooser for Safer app [#306](https://github.com/rokwire/safer-illinois-app/issues/306).
 - A pull request template. [#324](https://github.com/rokwire/safer-illinois-app/issues/324)
 
 ## [2.8.1] - 2020-10-21
