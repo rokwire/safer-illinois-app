@@ -56,7 +56,7 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
   @override
   void initState() {
     //_updateStatus();
-    _updateDate = (widget.status?.dateUtc != null) ? AppDateTime.formatDateTime(widget.status.dateUtc?.toLocal(), format:"MMMM dd, yyyy") : '';
+    _updateDate = (widget.status?.dateUtc != null) ? AppDateTime.formatDateTime(widget.status.dateUtc?.toLocal(), format:"MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode) : '';
 
     _oldStatusType = Covid19StatusBlob.localizedHealthStatusTypeFromKey(widget.previousHealthStatus) ?? '';
     _oldStatusDescription = Covid19StatusBlob.localizedHealthStatusDescriptionFromKey(widget.previousHealthStatus) ?? '';
@@ -182,7 +182,7 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
   }
 
   Widget _buildReasonContent(){
-    String date = AppDateTime.formatDateTime(widget.status?.dateUtc?.toLocal(), format: "MMMM dd, yyyy");
+    String date = AppDateTime.formatDateTime(widget.status?.dateUtc?.toLocal(), format: "MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode);
     String reasonStatusText = widget.status?.blob?.displayReason;
 
     Covid19HistoryBlob reasonHistory = widget.status?.blob?.historyBlob;

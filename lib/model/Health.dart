@@ -16,6 +16,7 @@
 
 import 'dart:collection';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:illinois/utils/AppDateTime.dart';
@@ -166,7 +167,7 @@ class Covid19StatusBlob {
         return Localization().getStringEx('model.explore.time.tomorrow', 'Tomorrow').toLowerCase();
       }
       else {
-        return AppDateTime.formatDateTime(nextStepDateUtc.toLocal(), format: format);
+        return AppDateTime.formatDateTime(nextStepDateUtc.toLocal(), format: format, locale: Localization().currentLocale?.languageCode);
       }
     }
     return null;
@@ -410,7 +411,9 @@ class Covid19History {
       return this.isAction &&
         (this.dateUtc == event?.blob?.dateUtc) &&
         (this.blob?.actionType == event?.blob?.actionType) &&
-        (this.blob?.actionText == event?.blob?.actionText);
+        ((this.blob?.actionText == event?.blob?.actionText) ||
+         ((this.blob?.actionText is Map) && (event?.blob?.actionText is Map) && DeepCollectionEquality().equals(this.blob?.actionText, event?.blob?.actionText))
+        );
     }
     else {
       return false;
@@ -536,7 +539,7 @@ class Covid19HistoryBlob {
   final String traceTEK;
   
   final String actionType;
-  final String actionText;
+  final dynamic actionText;
 
   Covid19HistoryBlob({
     this.provider, this.providerId, this.location, this.locationId, this.countyId, this.testType, this.testResult,
@@ -649,8 +652,20 @@ class Covid19HistoryBlob {
     return null;
   }
 
+  String get localeActionText {
+    if (actionText is Map) {
+      return Localization().localeString(actionText);
+    }
+    else if (actionText is String) {
+      return actionText;
+    }
+    else {
+      return null;
+    }
+  }
+
   String get actionDisplayString {
-    return actionText ?? actionType;
+    return localeActionText ?? actionType;
   }
 }
 
@@ -789,7 +804,7 @@ class Covid19EventBlob {
   final String   testResult;
 
   final String   actionType;
-  final String   actionText;
+  final dynamic  actionText;
 
   Covid19EventBlob({this.dateUtc, this.testType, this.testResult, this.actionType, this.actionText});
 
@@ -799,7 +814,7 @@ class Covid19EventBlob {
       testType:      AppJson.stringValue(json['TestName']),
       testResult:    AppJson.stringValue(json['Result']),
       actionType:    AppJson.stringValue(json['ActionType']),
-      actionText:    AppJson.stringValue(json['ActionText']),
+      actionText:    json['ActionText'],
     ) : null;
   }
 
@@ -832,6 +847,18 @@ class Covid19EventBlob {
   bool get isAction {
     return AppString.isStringNotEmpty(actionType);
   }
+
+  String get defaultLocaleActionText {
+    if (actionText is Map) {
+      return Localization().defaultLocaleString(actionText);
+    }
+    else if (actionText is String) {
+      return actionText;
+    }
+    else {
+      return null;
+    }
+  } 
 }
 
 
@@ -1822,11 +1849,13 @@ class HealthRulesSet {
   final HealthDefaultsSet defaults;
   final Map<String, _HealthRuleStatus> statuses;
   final Map<String, dynamic> constants;
+  final Map<String, dynamic> strings;
 
   static const String UserTestMonitorInterval = 'UserTestMonitorInterval';
 
-  HealthRulesSet({this.tests, this.symptoms, this.contactTrace, this.actions, this.defaults, this.statuses, Map<String, dynamic> constants}) :
-    this.constants = constants ?? Map<String, dynamic>();
+  HealthRulesSet({this.tests, this.symptoms, this.contactTrace, this.actions, this.defaults, this.statuses, Map<String, dynamic> constants, Map<String, dynamic> strings}) :
+    this.constants = constants ?? Map<String, dynamic>(),
+    this.strings = strings ?? Map<String, dynamic>();
 
   factory HealthRulesSet.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthRulesSet(
@@ -1837,6 +1866,7 @@ class HealthRulesSet {
       defaults: HealthDefaultsSet.fromJson(json['defaults']),
       statuses: _HealthRuleStatus.mapFromJson(json['statuses']),
       constants: json['constants'],
+      strings: json['strings'],
     ) : null;
   }
 
@@ -1846,6 +1876,35 @@ class HealthRulesSet {
 
   set userTestMonitorInterval(int value) {
     constants[UserTestMonitorInterval] = value;
+  }
+
+  String localeString(dynamic entry) {
+    if (entry is Map) {
+      return Localization().localeString(entry);
+    }
+    else if (entry is String) {
+      
+      String currentLanguage = Localization().currentLocale?.languageCode;
+      Map<String, dynamic> currentLanguageStrings = (strings != null) ? strings[currentLanguage] : null;
+      dynamic str = (currentLanguageStrings != null) ? currentLanguageStrings[entry] : null;
+      if (str != null) {
+        return str;
+      }
+
+      String defaultLanguage = Localization().defaultLocale?.languageCode;
+      if (currentLanguage != defaultLanguage) {
+        Map<String, dynamic> defaultLanguageStrings = (strings != null) ? strings[defaultLanguage] : null;
+        dynamic str = (defaultLanguageStrings != null) ? defaultLanguageStrings[entry] : null;
+        if (str is String) {
+          return str;
+        }
+      }
+
+      return entry;
+    }
+    else {
+      return null;
+    }
   }
 }
 
@@ -2221,45 +2280,49 @@ class HealthRuleStatus extends _HealthRuleStatus {
   final String healthStatus;
   final int priority;
 
-  final String nextStep;
-  final String nextStepHtml;
+  final dynamic nextStep;
+  final dynamic nextStepHtml;
   final _HealthRuleInterval nextStepInterval;
   final DateTime nextStepDateUtc;
 
-  final String eventExplanation;
-  final String eventExplanationHtml;
+  final dynamic eventExplanation;
+  final dynamic eventExplanationHtml;
 
-  final String reason;
-  final String warning;
+  final dynamic reason;
+  final dynamic warning;
 
-  HealthRuleStatus({this.healthStatus, this.priority, this.nextStep, this.nextStepHtml, this.nextStepInterval, this.nextStepDateUtc, this.eventExplanation, this.eventExplanationHtml, this.reason, this.warning });
+  HealthRuleStatus({this.healthStatus, this.priority,
+    this.nextStep, this.nextStepHtml, this.nextStepInterval, this.nextStepDateUtc,
+    this.eventExplanation, this.eventExplanationHtml,
+    this.reason, this.warning });
 
   factory HealthRuleStatus.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthRuleStatus(
-      healthStatus: json['health_status'],
-      priority: json['priority'],
-      nextStep: json['next_step'],
-      nextStepHtml: json['next_step_html'],
-      nextStepInterval: _HealthRuleInterval.fromJson(json['next_step_interval']),
-      eventExplanation: json['event_explanation'],
+      healthStatus:         json['health_status'],
+      priority:             json['priority'],
+      nextStep:             json['next_step'],
+      nextStepHtml:         json['next_step_html'],
+      nextStepInterval:     _HealthRuleInterval.fromJson(json['next_step_interval']),
+      eventExplanation:     json['event_explanation'],
       eventExplanationHtml: json['event_explanation_html'],
-      reason: json['reason'],
-      warning: json['warning'],
+      reason:               json['reason'],
+      warning:              json['warning'],
     ) : null;
   }
 
-  factory HealthRuleStatus.fromStatus(HealthRuleStatus status, { DateTime nextStepDateUtc }) {
+  factory HealthRuleStatus.fromStatus(HealthRuleStatus status, { DateTime nextStepDateUtc, }) {
+    
     return (status != null) ? HealthRuleStatus(
-      healthStatus: status.healthStatus,
-      priority: status.priority,
-      nextStep: status.nextStep,
-      nextStepHtml: status.nextStepHtml,
-      nextStepInterval: status.nextStepInterval,
-      nextStepDateUtc: nextStepDateUtc ?? status.nextStepDateUtc,
-      eventExplanation: status.eventExplanation,
+      healthStatus:         status.healthStatus,
+      priority:             status.priority,
+      nextStep:             status.nextStep,
+      nextStepHtml:         status.nextStepHtml,
+      nextStepInterval:     status.nextStepInterval,
+      nextStepDateUtc:      nextStepDateUtc ?? status.nextStepDateUtc,
+      eventExplanation:     status.eventExplanation,
       eventExplanationHtml: status.eventExplanationHtml,
-      reason: status.reason,
-      warning: status.warning,
+      reason:               status.reason,
+      warning:              status.warning,
     ) : null;
   }
 

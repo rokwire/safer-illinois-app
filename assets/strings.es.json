@@ -306,7 +306,7 @@
     "panel.covid19home.label.check_in.description":"Autoinforme cualquier síntoma para ver si debe hacerse la prueba o quedarse en casa",
     "panel.covid19home.label.result.title":"Agregar resultado de prueba",
     "panel.covid19home.label.result.description":"Para mantener su estado actualizado",
-    "panel.covid19home.label.status.title":"Current Status:",
+    "panel.covid19home.label.status.title":"Estado actual:",
     "panel.covid19home.label.status.na":"No disponible",
     "panel.covid19home.button.show_status_card.title":"Mostrar tarjeta de estado",
     "panel.covid19home.label.campus_updates.title":"Actualizaciones del campus",
@@ -316,10 +316,9 @@
     "panel.covid19home.label.action_required.title": "Acción requerida",
     "panel.covid19home.label.contact_trace.title": "Seguimiento de contacto",
     "panel.covid19home.label.reported_symptoms.title": "Síntomas autoinformados",
-    "panel.covid19home.button.info.title": "Info ",
-    "panel.covid19home.label.access.title": "Building access",
-    "panel.covid19home.label.access.granted": "granted",
-    "panel.covid19home.label.access.denied": "denied",
+    "panel.covid19home.button.info.title": "Información ",
+    "panel.covid19home.label.access.granted": "Acceso al edificio concedido",
+    "panel.covid19home.label.access.denied": "Acceso al edificio denegado",
 
     "panel.covid19_test_locations.header.title": "Lugares de prueba",
     "panel.covid19_test_locations.label.contact.title": "Contacto",
@@ -535,7 +534,7 @@
     "panel.health.covid19.care_team.label.more_info.link": "Learn more",
     "panel.health.covid19.care_team.label.counseling_center.link": "Counseling Center",
     "panel.health.covid19.care_team.label.mc_kiney.link": "McKinley Mental Health Program",
-    "panel.health.covid19.care_team.label.virtual_counseling.link":"Virtual Counseling ",
+    "panel.health.covid19.care_team.label.virtual_counseling.link":"Virtual Counseling",
     "panel.health.covid19.care_team.label.virtual_counseling.description": "(Requires UnitedHealthcare Student Resources coverage.)",
 
     "panel.health.covid19.debug.keys.heading.title.":"Claves COVID-19",

@@ -103,6 +103,10 @@ class Localization with Service implements NotificationsListener {
 
   // Locale
 
+  Locale get defaultLocale {
+    return _defaultLocale;
+  }
+
   Locale get currentLocale {
     return _currentLocale ?? _defaultLocale;
   }
@@ -318,6 +322,33 @@ class Localization with Service implements NotificationsListener {
     return null;
   }
 
+  // Translation
+
+  String localeString(Map entry) {
+    // { "en": "...", "es": "...", "zh": "..." }
+    
+    if ((entry != null) && (_currentLocale != null)) {
+      dynamic str = entry[_currentLocale.languageCode];
+      if (str is String) {
+        return str;
+      }
+    }
+
+    return defaultLocaleString(entry);
+  }
+
+  String defaultLocaleString(Map entry) {
+    // { "en": "...", "es": "...", "zh": "..." }
+    
+    if ((entry != null) && (_defaultLocale != null)) {
+      dynamic str = entry[_defaultLocale.languageCode];
+      if (str is String) {
+        return str;
+      }
+    }
+
+    return null;
+  }
 }
 
 class AppLocalizations {

@@ -301,7 +301,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
       return null;
     }
     String headingText = Localization().getStringEx("panel.covid19home.label.most_recent_event.title", "MOST RECENT EVENT");
-    String dateText = AppDateTime.formatDateTime(_lastHistory?.dateUtc?.toLocal(), format:"MMMM dd, yyyy") ?? '';
+    String dateText = AppDateTime.formatDateTime(_lastHistory?.dateUtc?.toLocal(), format:"MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode) ?? '';
     String eventExplanationText = _status?.blob?.displayEventExplanation;
     String eventExplanationHtml = _status?.blob?.displayEventExplanationHtml;
     String historyTitle = "", info = "";
@@ -392,8 +392,8 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Semantics(explicitChildNodes: true, child: ScalableRoundedButton(
-            label: Localization().getStringEx("panel.covid19home.button.view_history.title", "View Health History"),
-            hint: Localization().getStringEx("panel.covid19home.button.view_history.hint", ""),
+            label: Localization().getStringEx("panel.covid19.button.health_history.title", "View Health History"),
+            hint: Localization().getStringEx("panel.covid19.button.health_history.hint", ""),
             borderColor: Styles().colors.fillColorSecondary,
             backgroundColor: Styles().colors.surface,
             textColor: Styles().colors.fillColorPrimary,
@@ -410,7 +410,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
     String warningTitle = _status?.blob?.displayWarning;
     bool hasNextStep = AppString.isStringNotEmpty(nextStepText) || AppString.isStringNotEmpty(nextStepHtml) || AppString.isStringNotEmpty(warningTitle);
     String headingText = hasNextStep ? Localization().getStringEx("panel.covid19home.label.next_step.title", "NEXT STEP") : '';
-    String headingDate = (hasNextStep && (_status?.blob?.nextStepDateUtc != null)) ? AppDateTime.formatDateTime(_status.blob.nextStepDateUtc.toLocal(), format: "MMMM dd, yyyy") : '';
+    String headingDate = (hasNextStep && (_status?.blob?.nextStepDateUtc != null)) ? AppDateTime.formatDateTime(_status.blob.nextStepDateUtc.toLocal(), format: "MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode) : '';
 
     List<Widget> content = <Widget>[
       Row(children: <Widget>[
@@ -673,6 +673,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
       ),
       child: RibbonButton(
         label: Localization().getStringEx("panel.covid19.button.health_history.title", "View Health History"),
+        hint: Localization().getStringEx("panel.covid19.button.health_history.hint", ""),
         borderRadius: BorderRadius.circular(4),
         height: null,
         onTap: ()=>_onTapTestHistory(),
@@ -798,9 +799,8 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
   }
 
   String get _accessStatusText{
-    return Localization().getStringEx("panel.covid19home.label.access.title", "Building access")+ " "+
-            (_covid19Access? Localization().getStringEx("panel.covid19home.label.access.granted","granted"):
-                            Localization().getStringEx("panel.covid19home.label.access.denied","denied"));
+    return (_covid19Access? Localization().getStringEx("panel.covid19home.label.access.granted","Building access granted"):
+                            Localization().getStringEx("panel.covid19home.label.access.denied","Building access denied"));
   }
 }
 

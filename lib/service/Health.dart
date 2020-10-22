@@ -754,11 +754,11 @@ class Health with Service implements NotificationsListener {
       Covid19History history = histories[index];
       if ((history.dateUtc != null) && history.dateUtc.isBefore(nowUtc)) {
 
-        HealthRuleStatus historyStatus;
+        HealthRuleStatus ruleStatus;
         if (history.isTest && history.canTestUpdateStatus) {
           if (rules.tests != null) {
             HealthTestRuleResult testRuleResult = rules.tests.matchRuleResult(blob: history?.blob, rules: rules);
-            historyStatus = testRuleResult?.status?.eval(history: histories, historyIndex: index, rules: rules);
+            ruleStatus = testRuleResult?.status?.eval(history: histories, historyIndex: index, rules: rules);
           }
           else {
             return null;
@@ -768,7 +768,7 @@ class Health with Service implements NotificationsListener {
         else if (history.isSymptoms) {
           if (rules.symptoms != null) {
             HealthSymptomsRule symptomsRule = rules.symptoms.matchRule(blob: history?.blob, rules: rules);
-            historyStatus = symptomsRule?.status?.eval(history: histories, historyIndex: index, rules: rules);
+            ruleStatus = symptomsRule?.status?.eval(history: histories, historyIndex: index, rules: rules);
           }
           else {
             return null;
@@ -777,7 +777,7 @@ class Health with Service implements NotificationsListener {
         else if (history.isContactTrace) {
           if (rules.contactTrace != null) {
             HealthContactTraceRule contactTraceRule = rules.contactTrace.matchRule(blob: history?.blob, rules: rules);
-            historyStatus = contactTraceRule?.status?.eval(history: histories, historyIndex: index, rules: rules);
+            ruleStatus = contactTraceRule?.status?.eval(history: histories, historyIndex: index, rules: rules);
           }
           else {
             return null;
@@ -786,26 +786,26 @@ class Health with Service implements NotificationsListener {
         else if (history.isAction) {
           if (rules.actions != null) {
             HealthActionRule actionRule = rules.actions.matchRule(blob: history?.blob, rules: rules);
-            historyStatus = actionRule?.status?.eval(history: histories, historyIndex: index, rules: rules);
+            ruleStatus = actionRule?.status?.eval(history: histories, historyIndex: index, rules: rules);
           }
           else {
             return null;
           }
         }
 
-        if ((historyStatus != null) && historyStatus.canUpdateStatus(blob: status.blob)) {
+        if ((ruleStatus != null) && ruleStatus.canUpdateStatus(blob: status.blob)) {
           status = Covid19Status(
             dateUtc: history.dateUtc,
             blob: Covid19StatusBlob(
-              healthStatus: (historyStatus.healthStatus != null) ? historyStatus.healthStatus : status.blob.healthStatus,
-              priority: (historyStatus.priority != null) ? historyStatus.priority.abs() : status.blob.priority,
-              nextStep: ((historyStatus.nextStep != null) || (historyStatus.nextStepHtml != null) || (historyStatus.healthStatus != null)) ? historyStatus.nextStep : status.blob.nextStep,
-              nextStepHtml: ((historyStatus.nextStep != null) || (historyStatus.nextStepHtml != null) || (historyStatus.healthStatus != null)) ? historyStatus.nextStepHtml : status.blob.nextStepHtml,
-              nextStepDateUtc: ((historyStatus.nextStepInterval != null) || (historyStatus.nextStep != null) || (historyStatus.nextStepHtml != null) || (historyStatus.healthStatus != null)) ? historyStatus.nextStepDateUtc : status.blob.nextStepDateUtc,
-              eventExplanation: ((historyStatus.eventExplanation != null) || (historyStatus.eventExplanationHtml != null) || (historyStatus.healthStatus != null)) ? historyStatus.eventExplanation : status.blob.eventExplanation,
-              eventExplanationHtml: ((historyStatus.eventExplanation != null) || (historyStatus.eventExplanationHtml != null) || (historyStatus.healthStatus != null)) ? historyStatus.eventExplanationHtml : status.blob.eventExplanationHtml,
-              reason: ((historyStatus.reason != null) || (historyStatus.healthStatus != null)) ? historyStatus.reason: status.blob.reason,
-              warning: ((historyStatus.warning != null) || (historyStatus.healthStatus != null)) ? historyStatus.warning: status.blob.warning,
+              healthStatus: (ruleStatus.healthStatus != null) ? ruleStatus.healthStatus : status.blob.healthStatus,
+              priority: (ruleStatus.priority != null) ? ruleStatus.priority.abs() : status.blob.priority,
+              nextStep: ((ruleStatus.nextStep != null) || (ruleStatus.nextStepHtml != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.nextStep) : status.blob.nextStep,
+              nextStepHtml: ((ruleStatus.nextStep != null) || (ruleStatus.nextStepHtml != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.nextStepHtml) : status.blob.nextStepHtml,
+              nextStepDateUtc: ((ruleStatus.nextStepInterval != null) || (ruleStatus.nextStep != null) || (ruleStatus.nextStepHtml != null) || (ruleStatus.healthStatus != null)) ? ruleStatus.nextStepDateUtc : status.blob.nextStepDateUtc,
+              eventExplanation: ((ruleStatus.eventExplanation != null) || (ruleStatus.eventExplanationHtml != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.eventExplanation) : status.blob.eventExplanation,
+              eventExplanationHtml: ((ruleStatus.eventExplanation != null) || (ruleStatus.eventExplanationHtml != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.eventExplanationHtml) : status.blob.eventExplanationHtml,
+              reason: ((ruleStatus.reason != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.reason) : status.blob.reason,
+              warning: ((ruleStatus.warning != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.warning) : status.blob.warning,
               historyBlob: history.blob,
             ),
           );
@@ -931,7 +931,7 @@ class Health with Service implements NotificationsListener {
             prevStatus: prevStatus,
             attributes: {
               Analytics.LogHealthActionTypeName: event.blob?.actionType,
-              Analytics.LogHealthActionTextName: event.blob?.actionText,
+              Analytics.LogHealthActionTextName: event.blob?.defaultLocaleActionText,
           });
         }
       }
@@ -1188,7 +1188,7 @@ class Health with Service implements NotificationsListener {
         dateUtc = DateTime.now().toUtc();
       }
       String actionType = AppJson.stringValue(action['health.covid19.action.type']);
-      String actionText = AppJson.stringValue(action['health.covid19.action.text']);
+      dynamic actionText = action['health.covid19.action.text'];
       
       if ((actionType != null) || (actionText != null)) {
         Covid19History history = await _addCovid19History(await Covid19History.encryptedFromBlob(
