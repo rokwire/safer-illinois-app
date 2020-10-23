@@ -199,7 +199,7 @@
 					"success": null,
 					"fail": {
 						"health_status": "orange",
-						"priority": 1,
+						"priority": 2,
 						"next_step": "test.another.now.step",
 						"reason": "test.past.reason"
 					}
@@ -214,7 +214,7 @@
 			},
 			"fail": {
 				"health_status": "orange",
-				"priority": 1,
+				"priority": 2,
 				"next_step": "test.multiple.step",
 				"reason": "test.required.reason"
 			}
