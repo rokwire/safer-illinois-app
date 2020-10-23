@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.8.4] - 2020-10-23
+### Added
+- Added ability to refer local strings from rules and action texts.
+
+### Fixed
+- Fixed "force-test" rule behavior, step texts updated either.
+
 ## [2.8.3] - 2020-10-22
 ### Added
 - Enable again Talent Chooser for Safer app [#306](https://github.com/rokwire/safer-illinois-app/issues/306).
