@@ -494,9 +494,9 @@ class _Covid19DebugCreateEventPanelState extends State<Covid19DebugCreateEventPa
   "Date": "$date",
   "ActionType": "force-test",
   "ActionText": {
-    "en": "You are required to take a test",
-    "es": "Debes realizar una prueba",
-    "zh": "您需要參加考試"
+    "en": "You are required to have 2 tests separated by 3 days",
+    "es": "Debe tener 2 pruebas separadas por 3 días",
+    "zh": "您需要進行2項測試，每3天間隔一次"
   }
 }''';}
 
