@@ -189,12 +189,12 @@
 			"success": {
 				"condition": "timeout",
 				"params": {
-					"interval": { "min": 0, "max": 3, "scope": "future", "origin": "referenceDate" }
+					"interval": { "min": 0, "max": 2, "scope": "future", "origin": "referenceDate" }
 				},
 				"success": {
 					"condition": "require-test",
 					"params": {
-						"interval": { "min": 4, "scope": "future", "origin": "referenceDate" }
+						"interval": { "min": 3, "scope": "future", "origin": "referenceDate" }
 					},
 					"success": null,
 					"fail": {
