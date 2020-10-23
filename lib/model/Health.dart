@@ -653,15 +653,7 @@ class Covid19HistoryBlob {
   }
 
   String get localeActionText {
-    if (actionText is Map) {
-      return Localization().localeString(actionText);
-    }
-    else if (actionText is String) {
-      return actionText;
-    }
-    else {
-      return null;
-    }
+    return Localization().localeString(actionText) ?? actionText;
   }
 
   String get actionDisplayString {
@@ -849,15 +841,7 @@ class Covid19EventBlob {
   }
 
   String get defaultLocaleActionText {
-    if (actionText is Map) {
-      return Localization().defaultLocaleString(actionText);
-    }
-    else if (actionText is String) {
-      return actionText;
-    }
-    else {
-      return null;
-    }
+    return Localization().defaultLocaleString(actionText) ?? actionText;
   } 
 }
 
@@ -1879,32 +1863,23 @@ class HealthRulesSet {
   }
 
   String localeString(dynamic entry) {
-    if (entry is Map) {
-      return Localization().localeString(entry);
-    }
-    else if (entry is String) {
-      
+    if ((strings != null) && (entry is String)) {
       String currentLanguage = Localization().currentLocale?.languageCode;
-      Map<String, dynamic> currentLanguageStrings = (strings != null) ? strings[currentLanguage] : null;
-      dynamic str = (currentLanguageStrings != null) ? currentLanguageStrings[entry] : null;
-      if (str != null) {
-        return str;
+      Map<String, dynamic> currentLanguageStrings = (currentLanguage != null) ? strings[currentLanguage] : null;
+      dynamic currentResult = (currentLanguageStrings != null) ? currentLanguageStrings[entry] : null;
+      if (currentResult != null) {
+        return currentResult;
       }
 
       String defaultLanguage = Localization().defaultLocale?.languageCode;
-      if (currentLanguage != defaultLanguage) {
-        Map<String, dynamic> defaultLanguageStrings = (strings != null) ? strings[defaultLanguage] : null;
-        dynamic str = (defaultLanguageStrings != null) ? defaultLanguageStrings[entry] : null;
-        if (str is String) {
-          return str;
-        }
+      Map<String, dynamic> defaultLanguageStrings = (defaultLanguage != null) ? strings[defaultLanguage] : null;
+      dynamic defaultResult = (defaultLanguageStrings != null) ? defaultLanguageStrings[entry] : null;
+      if (defaultResult is String) {
+        return defaultResult;
       }
+    }
 
-      return entry;
-    }
-    else {
-      return null;
-    }
+    return Localization().localeString(entry) ?? entry;
   }
 }
 

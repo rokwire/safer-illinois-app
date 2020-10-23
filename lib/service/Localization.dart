@@ -324,7 +324,41 @@ class Localization with Service implements NotificationsListener {
 
   // Translation
 
-  String localeString(Map entry) {
+  String localeString(dynamic entry) {
+    dynamic result;
+    if (entry is Map) {
+      // { "en": "...", "es": "...", "zh": "..." }
+      if ((_currentLocale != null) && ((result = entry[_currentLocale.languageCode]) is String)) {
+        return result;
+      }
+    }
+    else if (entry is String) {
+      // tabbar.home.title"
+      if ((_currentLocale != null) && (_localeStrings != null) && ((result = _localeStrings[entry]) is String)) {
+        return result;
+      }
+    }
+    return defaultLocaleString(entry);
+  }
+
+  String defaultLocaleString(dynamic entry) {
+    dynamic result;
+    if (entry is Map) {
+      // { "en": "...", "es": "...", "zh": "..." }
+      if ((_defaultLocale != null) && ((result = entry[_defaultLocale.languageCode]) is String)) {
+        return result;
+      }
+    }
+    else if (entry is String) {
+      // tabbar.home.title"
+      if ((_defaultLocale != null) && (_defaultStrings != null) && ((result = _defaultStrings[entry]) is String)) {
+        return result;
+      }
+    }
+    return null;
+  }
+
+  /*String localeString(Map entry) {
     // { "en": "...", "es": "...", "zh": "..." }
     
     if ((entry != null) && (_currentLocale != null)) {
@@ -348,7 +382,7 @@ class Localization with Service implements NotificationsListener {
     }
 
     return null;
-  }
+  }*/
 }
 
 class AppLocalizations {
