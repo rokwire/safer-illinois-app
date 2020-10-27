@@ -103,6 +103,10 @@ class Localization with Service implements NotificationsListener {
 
   // Locale
 
+  Locale get defaultLocale {
+    return _defaultLocale;
+  }
+
   Locale get currentLocale {
     return _currentLocale ?? _defaultLocale;
   }
@@ -318,6 +322,67 @@ class Localization with Service implements NotificationsListener {
     return null;
   }
 
+  // Translation
+
+  String localeString(dynamic entry) {
+    dynamic result;
+    if (entry is Map) {
+      // { "en": "...", "es": "...", "zh": "..." }
+      if ((_currentLocale != null) && ((result = entry[_currentLocale.languageCode]) is String)) {
+        return result;
+      }
+    }
+    else if (entry is String) {
+      // tabbar.home.title"
+      if ((_currentLocale != null) && (_localeStrings != null) && ((result = _localeStrings[entry]) is String)) {
+        return result;
+      }
+    }
+    return defaultLocaleString(entry);
+  }
+
+  String defaultLocaleString(dynamic entry) {
+    dynamic result;
+    if (entry is Map) {
+      // { "en": "...", "es": "...", "zh": "..." }
+      if ((_defaultLocale != null) && ((result = entry[_defaultLocale.languageCode]) is String)) {
+        return result;
+      }
+    }
+    else if (entry is String) {
+      // tabbar.home.title"
+      if ((_defaultLocale != null) && (_defaultStrings != null) && ((result = _defaultStrings[entry]) is String)) {
+        return result;
+      }
+    }
+    return null;
+  }
+
+  /*String localeString(Map entry) {
+    // { "en": "...", "es": "...", "zh": "..." }
+    
+    if ((entry != null) && (_currentLocale != null)) {
+      dynamic str = entry[_currentLocale.languageCode];
+      if (str is String) {
+        return str;
+      }
+    }
+
+    return defaultLocaleString(entry);
+  }
+
+  String defaultLocaleString(Map entry) {
+    // { "en": "...", "es": "...", "zh": "..." }
+    
+    if ((entry != null) && (_defaultLocale != null)) {
+      dynamic str = entry[_defaultLocale.languageCode];
+      if (str is String) {
+        return str;
+      }
+    }
+
+    return null;
+  }*/
 }
 
 class AppLocalizations {

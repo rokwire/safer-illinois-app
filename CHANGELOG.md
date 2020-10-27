@@ -6,10 +6,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added
-- Enable again Talent Chooser for Safer app [#306](https://github.com/rokwire/safer-illinois-app/issues/306).
 - A pull request template. [#324](https://github.com/rokwire/safer-illinois-app/issues/324)
 
-## [2.8.1] - 2020-10-21
+## [2.8.5] - 2020-10-27
+### Fixed
+- Home panel is not refreshing after successful login and/or private key entrance [#333](https://github.com/rokwire/safer-illinois-app/issues/333).
+
+## [2.8.4] - 2020-10-23
+### Added
+- Added ability to refer local strings from rules and action texts.
+
+### Fixed
+- Fixed "force-test" rule behavior, step texts updated either.
+
+## [2.8.3] - 2020-10-22
+### Added
+- Enable again Talent Chooser for Safer app [#306](https://github.com/rokwire/safer-illinois-app/issues/306).
+- Multilanguage support in Health rules and action events [#308](https://github.com/rokwire/safer-illinois-app/issues/308).
+
+### Fixed
+- Fixed miscellaneous strings translation, display dates localized [#308](https://github.com/rokwire/safer-illinois-app/issues/308).
+
+## [2.8.2] - 2020-10-21
 ### Added
 - Added "force-test" rule status and action. [#319](https://github.com/rokwire/safer-illinois-app/issues/319).
 - Added "referenceDate" origin when evaluating status. [#319](https://github.com/rokwire/safer-illinois-app/issues/319).

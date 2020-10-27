@@ -33,9 +33,9 @@ class AppDateTime {
     return null;
   }
 
-  static String formatDateTime(DateTime dateTime, { String format = 'yyyy-MM-ddTHH:mm:ss' }) {
+  static String formatDateTime(DateTime dateTime, { String format = 'yyyy-MM-ddTHH:mm:ss', String locale }) {
     if ((dateTime != null) && (format != null)) {
-      try { return DateFormat(format).format(dateTime); }
+      try { return DateFormat(format, locale).format(dateTime); }
       catch (e) { print(e?.toString()); }
     }
     return null;

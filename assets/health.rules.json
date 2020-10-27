@@ -2,7 +2,7 @@
 	"defaults": {
 		"status": {
 			"health_status": "orange",
-			"next_step": "Take a SHIELD Saliva Test when you return to campus."
+			"next_step": "default.step"
 		}
 	},
 
@@ -16,7 +16,7 @@
     "PCR.positive": {
       "health_status": "red",
       "priority": 11,
-      "next_step_html": "<h3>You have been placed in mandatory isolation.</h3><ul><h6><li>Stay home. Do not go to work, school, or public areas.</li></h6><h6><li>Separate yourself from others in your home.</li></h6><h6><li>Contact Champaign-Urbana Public Health District immediately at <a href='mailto:coronavirus@c-uphd.org'>coronavirus@c-uphd.org</a></li></h6><h6><li>More Info: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Quarantine and Isolation</a></li></h6></ul>"
+      "next_step_html": "positive.step.html"
     },
 		"PCR.xpositive": {
 			"condition": "timeout",
@@ -32,13 +32,13 @@
 				"fail": {
 					"health_status": "red",
 					"priority": 11,
-					"next_step": "Get a test now"
+					"next_step": "test.now.step"
 				}
 			},
 			"fail": {
 				"health_status": "red",
 				"priority": 11,
-				"next_step_html": "<h3>You have been placed in mandatory isolation.</h3><ul><h6><li>Stay home. Do not go to work, school, or public areas.</li></h6><h6><li>Separate yourself from others in your home.</li></h6><h6><li>Contact Champaign-Urbana Public Health District immediately at <a href='mailto:coronavirus@c-uphd.org'>coronavirus@c-uphd.org</a></li></h6><h6><li>More Info: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Quarantine and Isolation</a></li></h6></ul>"
+				"next_step_html": "positive.step.html"
 			}
 		},
 		
@@ -56,14 +56,14 @@
 				"fail": {
 					"health_status": "red",
 					"priority": 11,
-					"next_step": "Get a test now"
+					"next_step": "test.now.step"
 				}
 			},
 			"fail": {
 				"health_status": "red",
 				"priority": 11,
-				"next_step_html": "<h6>Please continue to self-isolate, and you will be contacted by McKinley or Public Health in the next 24 hours. Please call the McKinley Dial-A-Nurse line if you have questions at <a href='tel:+1-217-333-2700'>217-333-2700</a>.</h6><br><br><h6>A small percentage of people may remain infectious following a 10-day isolation period.  Usually, a brief 3-day period is all that is required before your test shows a safe level for you to gain access to all campus activities for the next 60 days. Your Safer Illinois App will remain in the DENIED STATUS until you are released through CUPHD and McKinley following your case review.</h6>",
-				"event_explanation": "Your Saliva PCR test shows the VIRUS IS DETECTED in your REPEAT POSITIVE at a possibly INFECTIOUS LEVEL. You may require a longer isolation period."
+				"next_step_html": "positive-ip.step.html",
+				"event_explanation": "positive-ip.explanation"
 			}
 		},
 
@@ -75,16 +75,16 @@
 			"success": {
 				"health_status": "orange",
 				"priority": 1,
-				"next_step": "Get a test now",
-				"reason": "Your status changed to Orange because you are past due for a test."
+				"next_step": "test.now.step",
+				"reason": "test.now.reason"
 			},
 			"fail": {
 				"health_status": "yellow",
 				"priority": 3,
-				"next_step_html": "<h6>You are not required to self-isolate, and you are not required to submit to campus testing for a period of 60 days unless directed to do so by your licensed health professional. Your Safer Illinois App is set to allow you access for this period. Contact <a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a> if you have questions or need help.</h6>",
+				"next_step_html": "positive-nip.step.html",
 				"next_step_interval": 60,
-				"event_explanation": "Your Saliva PCR test shows the VIRUS IS DETECTED in your REPEAT POSITIVE at a NON-INFECTIOUS LEVEL.",
-				"warning": "You will turn orange/access denied if no negative test by {next_step_date}."
+				"event_explanation": "positive-nip.explanation",
+				"warning": "test.future.warning"
 			}
 		},
 
@@ -98,15 +98,15 @@
 			"success": {
 				"health_status": null,
 				"priority": null,
-				"next_step": "Get another test asap",
+				"next_step": "test.another.asap.step",
 				"next_step_interval": 1,
-				"warning": "You will turn orange/access denied if no negative test by {next_step_date}."
+				"warning": "test.future.warning"
 			},
 			"fail": {
 				"health_status": "orange",
 				"priority": 1,
-				"next_step": "Get a test now",
-				"reason": "Your status changed to Orange because you are past due for a test."
+				"next_step": "test.now.step",
+				"reason": "test.now.reason"
 			}
 		},
 
@@ -123,15 +123,15 @@
 				"success": {
 					"health_status": "yellow",
 					"priority": 1,
-					"next_step": "Monitor your test results",
+					"next_step": "test.monitor.step",
 					"next_step_interval": "UserTestMonitorInterval",
-					"warning": "You will turn orange/access denied if no negative test by {next_step_date}."
+					"warning": "test.future.warning"
 				},
 				"fail": {
 					"health_status": "orange",
 					"priority": 1,
-					"next_step": "Get a test now",
-					"reason": "Your status changed to Orange because you are past due for a test."
+					"next_step": "test.now.step",
+					"reason": "test.now.reason"
 				}
 			},
 			"fail": {
@@ -148,15 +148,15 @@
 					"success": {
 						"health_status": "yellow",
 						"priority": 1,
-						"next_step": "Monitor your test results",
+						"next_step": "test.monitor.step",
 						"next_step_interval": "UndergraduateTestMonitorInterval",
-						"warning": "You will turn orange/access denied if no negative test by {next_step_date}."
+						"warning": "test.future.warning"
 					},
 					"fail": {
 						"health_status": "orange",
 						"priority": 1,
-						"next_step": "Get a test now",
-						"reason": "Your status changed to Orange because you are past due for a test."
+						"next_step": "test.now.step",
+						"reason": "test.now.reason"
 					}
 				},
 				"fail": {
@@ -167,15 +167,15 @@
 					"success": {
 						"health_status": "yellow",
 						"priority": 1,
-						"next_step": "Monitor your test results",
+						"next_step": "test.monitor.step",
 						"next_step_interval": "DefaultTestMonitorInterval",
-						"warning": "You will turn orange/access denied if no negative test by {next_step_date}."
+						"warning": "test.future.warning"
 					},
 					"fail": {
 						"health_status": "orange",
 						"priority": 1,
-						"next_step": "Get a test now",
-						"reason": "Your status changed to Orange because you are past due for a test."
+						"next_step": "test.now.step",
+						"reason": "test.now.reason"
 					}
 				}
 			}
@@ -189,45 +189,45 @@
 			"success": {
 				"condition": "timeout",
 				"params": {
-					"interval": { "min": 0, "max": 3, "scope": "future", "origin": "referenceDate" }
+					"interval": { "min": 0, "max": 2, "scope": "future", "origin": "referenceDate" }
 				},
 				"success": {
 					"condition": "require-test",
 					"params": {
-						"interval": { "min": 4, "scope": "future", "origin": "referenceDate" }
+						"interval": { "min": 3, "scope": "future", "origin": "referenceDate" }
 					},
 					"success": null,
 					"fail": {
 						"health_status": "orange",
-						"priority": 1,
-						"next_step": "Get another test now",
-						"reason": "Your status changed to Orange because you are past due for another test."
+						"priority": 2,
+						"next_step": "test.another.now.step",
+						"reason": "test.past.reason"
 					}
 				},
 				"fail": {
 					"health_status": "orange",
 					"priority": 2,
-					"next_step": "Get a test after {next_step_date}",
+					"next_step": "test.after.step",
 					"next_step_interval": { "value": 3, "origin": "referenceDate" },
-					"reason": "Your status changed to Orange because you are required to take another test."
+					"reason": "test.after.reason"
 				}
 			},
 			"fail": {
 				"health_status": "orange",
-				"priority": 1,
-				"next_step": "Get a test now",
-				"reason": "Your status changed to Orange because you are required to get a test."
+				"priority": 2,
+				"next_step": "test.multiple.step",
+				"reason": "test.required.reason"
 			}
 		},
 		
 		"symptoms-match": {
 			"health_status": "orange",
 			"priority": 1,
-			"next_step": "Take a COVID-19 test now",
-			"reason": "Your status changed to Orange because you self-reported symptoms consistent with the virus."
+			"next_step": "symptoms.step",
+			"reason": "symptoms.reason"
 		},
 
-		"contact_trace-match": {
+		"exposure-match": {
 			"condition": "timeout",
 			"params": {
 				"interval": { "min": 0, "max": 3, "scope": "future" }
@@ -241,23 +241,23 @@
 				"fail": {
 					"health_status": "orange",
 					"priority": 1,
-					"next_step": "Get a test now",
-					"reason": "Your status changed to Orange because you are past due for a test."
+					"next_step": "test.now.step",
+					"reason": "test.now.reason"
 				}
 			},
 			"fail": {
 				"health_status": "orange",
 				"priority": 2,
-				"next_step_html": "<h3>You have likely been exposed to a person who is infected with COVID-19.</h3><ul><h6><li>You must quarantine yourself immediately.</li></h6><h6><li>Stay home. Do not go to work, school, or public areas.</li></h6><h6><li>Separate yourself from others in your home.</li></h6><h6><li>Contact <a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a> for guidance.</li></h6><h6><li>Get tested after {next_step_date} to see if you have developed the disease.</li></h6><h6><li>More Info: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Quarantine and Isolation</a></li></h6></ul>",
+				"next_step_html": "exposure.step.html",
 				"next_step_interval": 4,
-				"reason": "Your status changed to Orange because you received an exposure notification."
+				"reason": "exposure.reason"
 			}
 		},
 		
 		"quarantine-on": {
 			"health_status": "orange",
 			"priority": 10,
-			"next_step": "Stay at home and avoid contacts",
+			"next_step": "quarantine-on.step",
 			"reason": "Your status changed to Orange because the Public Health department placed you in Quarantine."
 		},
 
@@ -274,15 +274,15 @@
 				"success": {
 					"health_status": "yellow",
 					"priority": -1,
-					"next_step": "Resume testing on your assigned days",
+					"next_step": "test.resume.step",
 					"next_step_interval": "UserTestMonitorInterval",
-					"warning": "You will turn orange/access denied if no negative test by {next_step_date}."
+					"warning": "test.future.warning"
 					},
 				"fail": {
 					"health_status": "orange",
 					"priority": -1,
-					"next_step": "Get a test now",
-					"reason": "Your status changed to Orange because you are past due for a test."
+					"next_step": "test.now.step",
+					"reason": "test.now.reason"
 				}
 			},
 			"fail": {
@@ -299,15 +299,15 @@
 					"success": {
 						"health_status": "yellow",
 						"priority": -1,
-						"next_step": "Resume testing on your assigned days",
+						"next_step": "test.resume.step",
 						"next_step_interval": "UndergraduateTestMonitorInterval",
-						"warning": "You will turn orange/access denied if no negative test by {next_step_date}."
+						"warning": "test.future.warning"
 						},
 					"fail": {
 						"health_status": "orange",
 						"priority": -1,
-						"next_step": "Get a test now",
-						"reason": "Your status changed to Orange because you are past due for a test."
+						"next_step": "test.now.step",
+						"reason": "test.now.reason"
 					}
 				},
 				"fail": {
@@ -318,15 +318,15 @@
 					"success": {
 						"health_status": "yellow",
 						"priority": -1,
-						"next_step": "Resume testing on your assigned days",
+						"next_step": "test.resume.step",
 						"next_step_interval": "DefaultTestMonitorInterval",
-						"warning": "You will turn orange/access denied if no negative test by {next_step_date}."
+						"warning": "test.future.warning"
 					},
 					"fail": {
 						"health_status": "orange",
 						"priority": -1,
-						"next_step": "Get a test now",
-						"reason": "Your status changed to Orange because you are past due for a test."
+						"next_step": "test.now.step",
+						"reason": "test.now.reason"
 					}
 				}
 			}
@@ -340,15 +340,15 @@
 			"success": {
 				"health_status": null,
 				"priority": null,
-				"next_step": "Monitor your test results",
+				"next_step": "test.monitor.step",
 				"next_step_interval": 1,
-				"warning": "You will turn orange/access denied if no negative test by {next_step_date}."
+				"warning": "test.future.warning"
 			},
 			"fail": {
 				"health_status": "orange",
 				"priority": 1,
-				"next_step": "Get a test now",
-				"reason": "Your status changed to Orange because you are past due for a test."
+				"next_step": "test.now.step",
+				"reason": "test.now.reason"
 			}
 		}
 	},
@@ -685,7 +685,7 @@
 		"rules": [
 			{
 				"duration": { "min": 120 },
-				"status": "contact_trace-match"
+				"status": "exposure-match"
 			}
 		]
 	},
@@ -713,5 +713,86 @@
 				"status": "force-test"
 			}
 		]
+	},
+
+	"strings": {
+		"en": {
+			"default.step": "Take a SHIELD Saliva Test when you return to campus.",
+			"positive.step.html": "<h3>You have been placed in mandatory isolation.</h3><ul><h6><li>Stay home. Do not go to work, school, or public areas.</li></h6><h6><li>Separate yourself from others in your home.</li></h6><h6><li>Contact Champaign-Urbana Public Health District immediately at <a href='mailto:coronavirus@c-uphd.org'>coronavirus@c-uphd.org</a></li></h6><h6><li>More Info: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Quarantine and Isolation</a></li></h6></ul>",
+			"positive-ip.step.html": "<h6>Please continue to self-isolate, and you will be contacted by McKinley or Public Health in the next 24 hours. Please call the McKinley Dial-A-Nurse line if you have questions at <a href='tel:+1-217-333-2700'>217-333-2700</a>.</h6><br><br><h6>A small percentage of people may remain infectious following a 10-day isolation period.  Usually, a brief 3-day period is all that is required before your test shows a safe level for you to gain access to all campus activities for the next 60 days. Your Safer Illinois App will remain in the DENIED STATUS until you are released through CUPHD and McKinley following your case review.</h6>",
+			"positive-ip.explanation": "Your Saliva PCR test shows the VIRUS IS DETECTED in your REPEAT POSITIVE at a possibly INFECTIOUS LEVEL. You may require a longer isolation period.",
+			"positive-nip.step.html": "<h6>You are not required to self-isolate, and you are not required to submit to campus testing for a period of 60 days unless directed to do so by your licensed health professional. Your Safer Illinois App is set to allow you access for this period. Contact <a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a> if you have questions or need help.</h6>",
+			"positive-nip.explanation": "Your Saliva PCR test shows the VIRUS IS DETECTED in your REPEAT POSITIVE at a NON-INFECTIOUS LEVEL.",
+			"test.monitor.step": "Monitor your test results",
+			"test.now.step": "Get a test now",
+			"test.now.reason": "Your status changed to Orange because you are past due for a test.",
+			"test.another.asap.step": "Get another test asap",
+			"test.another.now.step": "Get another test now",
+			"test.after.step": "Get your 2nd test after {next_step_date}",
+			"test.after.reason": "Your status changed to Orange because you are required to take another test.",
+			"test.required.reason": "Your status changed to Orange because you are required to get a test.",
+			"test.resume.step": "Resume testing on your assigned days",
+			"test.future.warning": "You will turn orange/access denied if no negative test by {next_step_date}.",
+			"test.past.reason": "Your status changed to Orange because you are past due for another test.",
+			"test.multiple.step": "You will need to have 2 tests separated by 3 days with negative results to turn yellow",
+			"symptoms.step": "Take a COVID-19 test now",
+			"symptoms.reason": "Your status changed to Orange because you self-reported symptoms consistent with the virus.",
+			"exposure.step.html": "<h3>You have likely been exposed to a person who is infected with COVID-19.</h3><ul><h6><li>You must quarantine yourself immediately.</li></h6><h6><li>Stay home. Do not go to work, school, or public areas.</li></h6><h6><li>Separate yourself from others in your home.</li></h6><h6><li>Contact <a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a> for guidance.</li></h6><h6><li>Get tested after {next_step_date} to see if you have developed the disease.</li></h6><h6><li>More Info: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Quarantine and Isolation</a></li></h6></ul>",
+			"exposure.reason": "Your status changed to Orange because you received an exposure notification.",
+			"quarantine-on.step": "Stay at home and avoid contacts",
+			"quarantine-on.reason": "Your status changed to Orange because the Public Health department placed you in Quarantine."
+		},
+		"es": {
+			"default.step": "Realice una prueba de saliva SHIELD cuando regrese al campus.",
+			"positive.step.html": "<h3>Se le ha puesto en aislamiento obligatorio.</h3><ul><h6><li>Quedarse en casa. No vaya al trabajo, la escuela o áreas públicas.</li></h6><h6><li>Sepárate de las demás en tu casa.</li></h6><h6><li>Comuníquese con el Distrito de Salud Pública de Champaign-Urbana inmediatamente al <a href='mailto:coronavirus@c-uphd.org'>coronavirus@c-uphd.org</a></li></h6><h6><li>Más información: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Cuarentena y aislamiento</a></li></h6></ul>",
+			"positive-ip.step.html": "<h6>Continúe aislándose y McKinley o Public Health se comunicarán con usted en las próximas 24 horas. Llame a la línea McKinley Dial-A-Nurse si tiene preguntas al <a href='tel:+1-217-333-2700'>217-333-2700</a>.</h6><br><br><h6>Un pequeño porcentaje de personas puede seguir contagiado después de un período de aislamiento de 10 días. Por lo general, un breve período de 3 días es todo lo que se requiere antes de que su examen muestre un nivel seguro para que pueda acceder a todas las actividades del campus durante los próximos 60 días. Su aplicación Safer Illinois permanecerá en ESTADO DENEGADO hasta que CUPHD y McKinley lo den a conocer después de la revisión de su caso.</h6>",
+			"positive-ip.explanation": "Su prueba de PCR de saliva muestra que el VIRUS ESTÁ DETECTADO en su REPETICIÓN POSITIVA a un NIVEL posiblemente INFECCIOSO. Es posible que necesite un período de aislamiento más prolongado.",
+			"positive-nip.step.html": "<h6>No es necesario que se aísle por sí mismo ni que se someta a las pruebas del campus durante un período de 60 días, a menos que su profesional de la salud con licencia se lo indique. Su aplicación Safer Illinois está configurada para permitirle el acceso durante este período. Contacto <a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a> si tiene preguntas o necesita ayuda.</h6>",
+			"positive-nip.explanation": "Su prueba de PCR de saliva muestra que el VIRUS ESTÁ DETECTADO en su REPETICIÓN POSITIVA en un NIVEL NO INFECCIOSO.",
+			"test.monitor.step": "Controle los resultados de su prueba",
+			"test.now.step": "Haz una prueba ahora",
+			"test.now.reason": "Su estado cambió a Naranja porque está atrasado en un examen.",
+			"test.another.asap.step": "Obtenga otra prueba lo antes posible",
+			"test.another.now.step": "Hazte otra prueba ahora",
+			"test.after.step": "Realice su segunda prueba después del {next_step_date}",
+			"test.after.reason": "Su estado cambió a Naranja porque debe realizar otra prueba.",
+			"test.required.reason": "Su estado cambió a Naranja porque debe realizar una prueba.",
+			"test.resume.step": "Reanudar las pruebas en los días asignados",
+			"test.future.warning": "Se volverá naranja / acceso denegado si no hay una prueba negativa antes del {next_step_date}.",
+			"test.past.reason": "Su estado cambió a Naranja porque está atrasado para otro examen.",
+			"test.multiple.step": "Deberá tener 2 pruebas separadas por 3 días con resultados negativos para volverse amarillo",
+			"symptoms.step": "Realice una prueba de COVID-19 ahora",
+			"symptoms.reason": "Su estado cambió a Naranja porque usted mismo informó de síntomas consistentes con el virus.",
+			"exposure.step.html": "<h3>Es probable que haya estado expuesto a una persona infectada con COVID-19.</h3><ul><h6><li>Debe ponerse en cuarentena inmediatamente.</li></h6><h6><li>Quedarse en casa. No vaya al trabajo, la escuela o áreas públicas.</li></h6><h6><li>Sepárate de las demás en tu casa.</li></h6><h6><li>Póngase en contacto con <a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a> para obtener orientación.</li></h6><h6><li>Hágase la prueba después del {next_step_date} para ver si ha desarrollado la enfermedad.</li></h6><h6><li>Más información: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Cuarentena y aislamiento</a></li></h6></ul>",
+			"exposure.reason": "Su estado cambió a Naranja porque recibió una notificación de exposición.",
+			"quarantine-on.step": "Quédese en casa y evite los contactos",
+			"quarantine-on.reason": "Su estado cambió a Orange porque el departamento de Salud Pública lo puso en cuarentena.."
+		},
+		"zh": {
+			"default.step": "返回校園後，請參加SHIELD唾液測試。",
+			"positive.step.html": "<h3>您已被強制隔離。</h3><ul><h6><li>呆在家裡。 請勿去上班，上學或公共場所。</li></h6><h6><li>與家中的其他人分開。</li></h6><h6><li>立即通過以下方式聯繫香檳-厄巴納公共衛生區 <a href='mailto:coronavirus@c-uphd.org'>coronavirus@c-uphd.org</a></li></h6><h6><li>更多信息: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>隔離與隔離</a></li></h6></ul>",
+			"positive-ip.step.html": "<h6>請繼續進行自我隔離，在接下來的24小時內，麥金利或公共衛生將與您聯繫。 如果您有任何疑問，請致電McKinley Dial-A-Nurse熱線 <a href='tel:+1-217-333-2700'>217-333-2700</a>.</h6><br><br><h6>在隔離期10天后，一小部分人可能仍然具有傳染性。 通常，只需要一個簡短的3天時間，測試就可以顯示一個安全的水平，讓您可以訪問接下來60天的所有校園活動。 在案件審查後，通過CUPHD和McKinley釋放您之前，您的“更安全的伊利諾伊州”應用程序將保持拒絕狀態。</h6>",
+			"positive-ip.explanation": "您的唾液PCR測試顯示病毒在您的重複陽性中被檢測為可能具有感染水平。 您可能需要更長的隔離期。",
+			"positive-nip.step.html": "<h6>您無需進行自我隔離，也不需要60天的時間進行校園測試，除非您的持牌醫護人員指示您這樣做。 您的伊利諾伊州安全應用程序已設置為允許您在此期間訪問。 如果您有疑問或需要幫助，請聯繫<a href='mailto:covidwellness@illinois.edu'> covidwellness@illinois.edu </a>。</h6>",
+			"positive-nip.explanation": "您的唾液PCR測試顯示病毒在非陽性水平的重複陽性中被檢測到。",
+			"test.monitor.step": "監控您的測試結果",
+			"test.now.step": "立即獲得測試",
+			"test.now.reason": "您的狀態更改為“橙色”，因為您已逾期進行測試。",
+			"test.another.asap.step": "盡快獲得另一個測試",
+			"test.another.now.step": "現在再進行一次測試",
+			"test.after.step": "在{next_step_date}之後進行第二次測試",
+			"test.after.reason": "您的狀態更改為“橙色”，因為您需要參加另一項測試。",
+			"test.required.reason": "您的狀態更改為橙色，因為需要進行測試。",
+			"test.resume.step": "在您指定的日期恢復測試",
+			"test.future.warning": "如果在{next_step_date}之前沒有任何負面測試，您將變成橙色/訪問被拒絕。",
+			"test.past.reason": "您的狀態更改為“橙色”，因為您已逾期進行另一項測試。",
+			"test.multiple.step": "您將需要進行2次測試，每3天一次，結果為陰性，然後變為黃色",
+			"symptoms.step": "立即參加COVID-19測試",
+			"symptoms.reason": "您的狀態更改為橙色，因為您自我報告的症狀與病毒一致。",
+			"exposure.step.html": "<h3>您可能已經接觸了感染了COVID-19的人。</h3><ul><h6><li>您必須立即隔離自己。</li></h6><h6><li>您已被強制隔離。</li></h6><h6><li>與家中的其他人分開。</li></h6><h6><li>請與<a href='mailto:covidwellness@illinois.edu'> covidwellness@illinois.edu </a>聯繫以獲取指導。</li></h6><h6><li>在{next_step_date}之後進行測試，看看您是否已患上這種疾病。</li></h6><h6><li>更多信息: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>隔離與隔離</a></li></h6></ul>",
+			"exposure.reason": "您的狀態更改為橙色，因為您收到了曝光通知。",
+			"quarantine-on.step": "呆在家裡，避免接觸",
+			"quarantine-on.reason": "您的狀態更改為“橙色”，因為公共衛生部門已將您隔離。"
+		}
 	}
 }
