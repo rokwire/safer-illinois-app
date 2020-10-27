@@ -578,7 +578,7 @@ class Health with Service implements NotificationsListener {
     }
     
     // 5. Log processed events
-    _logProcessedEvents(events: events, status: newHealthStatus, prevStatus: lastHealthStatus);
+    _logProcessedEvents(events: events, histories: histories, status: newHealthStatus, prevStatus: lastHealthStatus);
 
     // 6. Fnish & Notify
     _processing = null;
@@ -888,41 +888,45 @@ class Health with Service implements NotificationsListener {
     return null;
   }
 
-  void _logProcessedEvents({List<Covid19Event> events, String status, String prevStatus}) {
+  void  _logProcessedEvents({List<Covid19Event> events, List<Covid19History> histories, String status, String prevStatus }) {
     if (events != null) {
       int exposureTestReportDays = Config().settings['covid19ExposureTestReportDays'];
       for (Covid19Event event in events) {
         if (event.isTest) {
-          Analytics().logHealth(
-            action: Analytics.LogHealthProviderTestProcessedAction,
-            status: status,
-            prevStatus: prevStatus,
-            attributes: {
-              Analytics.LogHealthProviderName: event.provider,
-              Analytics.LogHealthTestTypeName: event.blob?.testType,
-              Analytics.LogHealthTestResultName: event.blob?.testResult,
-          });
-          
-          if (exposureTestReportDays != null) {
-            DateTime maxDateUtc = event?.blob?.dateUtc;
-            DateTime minDateUtc = maxDateUtc?.subtract(Duration(days: exposureTestReportDays));
-            if ((maxDateUtc != null) && (minDateUtc != null)) {
-              Covid19History contactTrace = Covid19History.mostRecentContactTrace(_historyCache, minDateUtc: minDateUtc, maxDateUtc: maxDateUtc);
-              if (contactTrace != null) {
-                Analytics().logHealth(
-                  action: Analytics.LogHealthContactTraceTestAction,
-                  status: status,
-                  prevStatus: prevStatus,
-                  attributes: {
-                    Analytics.LogHealthExposureTimestampName: contactTrace.dateUtc?.toIso8601String(),
-                    Analytics.LogHealthDurationName: contactTrace.blob?.traceDuration,
-                    Analytics.LogHealthProviderName: event.provider,
-                    Analytics.LogHealthTestTypeName: event.blob?.testType,
-                    Analytics.LogHealthTestResultName: event.blob?.testResult,
-                });
+          Covid19History previousTest = Covid19History.mostRecentTest(histories, beforeDateUtc: event.blob?.dateUtc);
+          Exposure().evalTestResultExposureScoring(previousTestDateUtc: previousTest?.dateUtc).then((int score) {
+            Analytics().logHealth(
+              action: Analytics.LogHealthProviderTestProcessedAction,
+              status: status,
+              prevStatus: prevStatus,
+              attributes: {
+                Analytics.LogHealthProviderName: event.provider,
+                Analytics.LogHealthTestTypeName: event.blob?.testType,
+                Analytics.LogHealthTestResultName: event.blob?.testResult,
+                Analytics.LogHealthExposureScore: score,
+            });
+            
+            if (exposureTestReportDays != null)  {
+              DateTime maxDateUtc = event?.blob?.dateUtc;
+              DateTime minDateUtc = maxDateUtc?.subtract(Duration(days: exposureTestReportDays));
+              if ((maxDateUtc != null) && (minDateUtc != null)) {
+                Covid19History contactTrace = Covid19History.mostRecentContactTrace(_historyCache, minDateUtc: minDateUtc, maxDateUtc: maxDateUtc);
+                if (contactTrace != null) {
+                  Analytics().logHealth(
+                    action: Analytics.LogHealthContactTraceTestAction,
+                    status: status,
+                    prevStatus: prevStatus,
+                    attributes: {
+                      Analytics.LogHealthExposureTimestampName: contactTrace.dateUtc?.toIso8601String(),
+                      Analytics.LogHealthDurationName: contactTrace.blob?.traceDuration,
+                      Analytics.LogHealthProviderName: event.provider,
+                      Analytics.LogHealthTestTypeName: event.blob?.testType,
+                      Analytics.LogHealthTestResultName: event.blob?.testResult,
+                  });
+                }
               }
             }
-          }
+          });
         }
         else if (event.isAction) {
           Analytics().logHealth(
