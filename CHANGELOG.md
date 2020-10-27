@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Fixed
+- Home panel is not refreshing after successful login and/or private key entrance [#333](https://github.com/rokwire/safer-illinois-app/issues/333).
+
 ## [2.8.4] - 2020-10-23
 ### Added
 - Added ability to refer local strings from rules and action texts.
