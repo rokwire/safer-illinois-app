@@ -129,7 +129,7 @@ class _Covid19GuidelinesPanelState extends State<Covid19GuidelinesPanel> impleme
   }
 
   String get _currentHealthStatus {
-    return _covid19Status?.blob?.healthStatus?.toLowerCase() ?? kCovid19HealthStatusYellow;
+    return _covid19Status?.blob?.healthStatus?.toLowerCase();
   }
 
   @override
@@ -171,7 +171,7 @@ class _Covid19GuidelinesPanelState extends State<Covid19GuidelinesPanel> impleme
                     ),
                   ),
                   _buildCountyDropdown(),
-                  Container(padding: EdgeInsets.all(8), decoration: BoxDecoration(color: (covid19HealthStatusColor(this._currentHealthStatus) ?? Styles().colors.background), borderRadius: BorderRadius.circular(4), border: Border.all(color: Styles().colors.surfaceAccent, width: 1)), child:
+                  Container(padding: EdgeInsets.all(8), decoration: BoxDecoration(color: (Styles().colors.getHealthStatusColor(this._currentHealthStatus) ?? Styles().colors.background), borderRadius: BorderRadius.circular(4), border: Border.all(color: Styles().colors.surfaceAccent, width: 1)), child:
                   (guidelinesCount == 0 ? Container() : ListView.separated(
                       physics: NeverScrollableScrollPhysics(),
                       shrinkWrap: true,

@@ -215,22 +215,17 @@ class Covid19StatusBlob {
   }
 
   static String localizedHealthStatusFromKey(String key) {
-    return _localizedHealthStatusFromKey("com.illinois.covid19.status.long.${key.toLowerCase()}", AppString.capitalize(key));
+    String type = localizedHealthStatusTypeFromKey(key);
+    String description = localizedHealthStatusDescriptionFromKey(key);
+    return ((type != null) && (description != null)) ? "$type, $description" : type;
   }
 
   static String localizedHealthStatusTypeFromKey(String key) {
-    return _localizedHealthStatusFromKey("com.illinois.covid19.status.type.${key.toLowerCase()}", AppString.capitalize(key));
+    return (key != null) ? Localization().getStringEx("com.illinois.covid19.status.type.${key.toLowerCase()}", AppString.capitalize(key)) : null;
   }
 
   static String localizedHealthStatusDescriptionFromKey(String key) {
-    return _localizedHealthStatusFromKey("com.illinois.covid19.status.description.${key.toLowerCase()}", AppString.capitalize(key));
-  }
-
-  static String _localizedHealthStatusFromKey(String key, String defaultValue) {
-    if(key != null){
-      return Localization().getStringEx(key, defaultValue);
-    }
-    return defaultValue;
+    return (key != null) ? Localization().getStringEx("com.illinois.covid19.status.description.${key.toLowerCase()}", null) : null;
   }
 }
 
@@ -242,16 +237,6 @@ const String kCovid19HealthStatusOrange    = 'orange';
 const String kCovid19HealthStatusYellow    = 'yellow';
 const String kCovid19HealthStatusGreen     = 'green';
 const String kCovid19HealthStatusUnchanged = 'no change';
-
-Color covid19HealthStatusColor(String status) {
-  switch (status) {
-    case kCovid19HealthStatusRed:    return Styles().colors.healthStatusRed;
-    case kCovid19HealthStatusOrange: return Styles().colors.healthStatusOrange;
-    case kCovid19HealthStatusYellow: return Styles().colors.healthStatusYellow;
-    case kCovid19HealthStatusGreen:  return Styles().colors.healthStatusGreen;
-    default:                         return null;
-  }
-}
 
 bool covid19HealthStatusIsValid(String status) {
   return (status != null) && (status != kCovid19HealthStatusUnchanged);

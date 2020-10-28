@@ -687,13 +687,6 @@
 	"model.user.role.employee.title": "僱員",
 	"model.user.role.resident.title": "居民",
 
-	"model.covid19.status.color.green": "安全",
-	"model.covid19.status.color.yellow": "警告",
-	"model.covid19.status.color.orange": "可能感染",
-	"model.covid19.status.color.red": "已感染",
-
-    "model.covid19.step.initial": "與您的醫療保健提供者一起進行COVID-19測試",
-
 	"logic.date_time.greeting.morning": "早上好",
 	"logic.date_time.greeting.afternoon": "下午好",
 	"logic.date_time.greeting.evening": "晚上好",
@@ -730,21 +723,16 @@
 	"com.illinois.features2.entry.remove_credit_card":"删除信用卡信息",
 	"com.illinois.features2.entry.dont_share_location":"不和其他人分享我的数据",
 
-	"com.illinois.covid19.status.long.orange": "橙色，需要测试",
-	"com.illinois.covid19.status.long.green": "綠色，最近抗體",
-	"com.illinois.covid19.status.long.yellow": "黃色，最近的陰性測試",
-	"com.illinois.covid19.status.long.red": "紅色，陽性測試",
-	"com.illinois.covid19.status.long.no change": "无变化",
 	"com.illinois.covid19.status.type.orange": "橙色",
 	"com.illinois.covid19.status.type.green": "绿色",
 	"com.illinois.covid19.status.type.yellow": "黄色",
 	"com.illinois.covid19.status.type.red": "红色",
-	"com.illinois.covid19.status.type.no change": "无变化",
+
 	"com.illinois.covid19.status.description.orange": "需要测试",
 	"com.illinois.covid19.status.description.green": "最近抗體",
 	"com.illinois.covid19.status.description.yellow": "最近的陰性測試",
 	"com.illinois.covid19.status.description.red": "正面測試",
-	"com.illinois.covid19.status.description.no change": "",
+
 	"com.illinois.covid19.status.info.description.orange": "橙色：首次使用、过期检测、自我报告症状、收到接触通知或隔离",
 	"com.illinois.covid19.status.info.description.green": "绿色：最近抗体",
 	"com.illinois.covid19.status.info.description.yellow": "黄色：最近阴性测试",

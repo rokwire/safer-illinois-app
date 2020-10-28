@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.8.6] - 2020-10-28
+### Changed
+- Prepare app for flexable health status codes, health status strings cleanup.
+
+## [2.8.5] - 2020-10-27
 ### Fixed
 - Home panel is not refreshing after successful login and/or private key entrance [#333](https://github.com/rokwire/safer-illinois-app/issues/333).
 

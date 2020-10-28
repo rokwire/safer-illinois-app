@@ -687,13 +687,6 @@
     "model.user.role.employee.title": "Empleado",
     "model.user.role.resident.title": "Residente",
 
-    "model.covid19.status.color.green": "Seguro",
-    "model.covid19.status.color.yellow": "Precaución",
-    "model.covid19.status.color.orange": "Probablemente infectado",
-    "model.covid19.status.color.red": "Infectado",
-
-    "model.covid19.step.initial": "Realice una prueba COVID-19 con su proveedor de atención médica",
-
     "logic.date_time.greeting.morning": "Buenos días",
     "logic.date_time.greeting.afternoon": "Buenas tardes",
     "logic.date_time.greeting.evening": "Buena noches",
@@ -730,21 +723,16 @@
     "com.illinois.features2.entry.remove_credit_card":"Eliminar la información de su tarjeta de crédito",
     "com.illinois.features2.entry.dont_share_location":"No comparta sus datos con otros usuarios.",
 
-    "com.illinois.covid19.status.long.orange": "Naranja, prueba requerida",
-    "com.illinois.covid19.status.long.green": "Anticuerpos verdes recientes",
-    "com.illinois.covid19.status.long.yellow": "Amarillo, prueba negativa reciente",
-    "com.illinois.covid19.status.long.red": "Prueba roja, positiva",
-    "com.illinois.covid19.status.long.no change": "Sin alterar",
     "com.illinois.covid19.status.type.orange": "Naranja",
     "com.illinois.covid19.status.type.green": "Verde",
     "com.illinois.covid19.status.type.yellow": "Amarillo",
     "com.illinois.covid19.status.type.red": "Rojo",
-    "com.illinois.covid19.status.type.no change": "Sin alterar",
+
     "com.illinois.covid19.status.description.orange": "Prueba requerida",
     "com.illinois.covid19.status.description.green": "Anticuerpos recientes",
     "com.illinois.covid19.status.description.yellow": "Prueba negativa reciente",
     "com.illinois.covid19.status.description.red": "Prueba positiva",
-    "com.illinois.covid19.status.description.no change": "",
+    
     "com.illinois.covid19.status.info.description.orange": "Naranja: usuario por primera vez, atrasado para la prueba, síntomas autoinformados, notificación de exposición recibida o en cuarentena",
     "com.illinois.covid19.status.info.description.green": "Verde: anticuerpos recientes",
     "com.illinois.covid19.status.info.description.yellow": "Amarillo: prueba negativa reciente",

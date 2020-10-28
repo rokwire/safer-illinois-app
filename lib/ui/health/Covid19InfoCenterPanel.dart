@@ -533,7 +533,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
 
   Widget _buildStatusSection() {
     String statusName = _status?.blob?.localizedHealthStatus;
-    Color statusColor = covid19HealthStatusColor(_status?.blob?.healthStatus) ?? Styles().colors.textSurface;
+    Color statusColor = Styles().colors.getHealthStatusColor(_status?.blob?.healthStatus) ?? Styles().colors.textSurface;
     bool hasStatusCard  = Health().isUserLoggedIn;
     return Semantics(container: true, child: Container(
       padding: EdgeInsets.symmetric(vertical: 16),

@@ -687,13 +687,6 @@
     "model.user.role.employee.title": "Employee",
     "model.user.role.resident.title": "Illinois Resident",
 
-    "model.covid19.status.color.green": "Safe",
-    "model.covid19.status.color.yellow": "Caution",
-    "model.covid19.status.color.orange": "Likely Infected",
-    "model.covid19.status.color.red": "Infected",
-
-    "model.covid19.step.initial": "Take a SHIELD Saliva Test when you return to campus.",
-
     "logic.date_time.greeting.morning": "Good morning",
     "logic.date_time.greeting.afternoon": "Good afternoon",
     "logic.date_time.greeting.evening": "Good evening",
@@ -730,21 +723,16 @@
     "com.illinois.features2.entry.remove_credit_card":"Remove your credit card info",
     "com.illinois.features2.entry.dont_share_location":"Don’t share your data with other users",
 
-    "com.illinois.covid19.status.long.orange": "Orange, Test Required",
-    "com.illinois.covid19.status.long.green": "Green, Recent Antibodies",
-    "com.illinois.covid19.status.long.yellow": "Yellow, Recent Negative Test",
-    "com.illinois.covid19.status.long.red": "Red, Positive Test",
-    "com.illinois.covid19.status.long.no change": "Unchanged",
     "com.illinois.covid19.status.type.orange": "Orange",
     "com.illinois.covid19.status.type.green": "Green",
     "com.illinois.covid19.status.type.yellow": "Yellow",
     "com.illinois.covid19.status.type.red": "Red",
-    "com.illinois.covid19.status.type.no change": "Unchanged",
+
     "com.illinois.covid19.status.description.orange": "Test Required",
     "com.illinois.covid19.status.description.green": "Recent Antibodies",
     "com.illinois.covid19.status.description.yellow": "Recent Negative Test",
     "com.illinois.covid19.status.description.red": "Positive Test",
-    "com.illinois.covid19.status.description.no change": "",
+
     "com.illinois.covid19.status.info.description.orange": "Orange: First time user, Past due for test, Self-reported symptoms, Received exposure notification or Quarantined",
     "com.illinois.covid19.status.info.description.green": "Green: Recent antibodies",
     "com.illinois.covid19.status.info.description.yellow": "Yellow: Recent negative test",
