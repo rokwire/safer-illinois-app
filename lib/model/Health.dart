@@ -243,16 +243,6 @@ const String kCovid19HealthStatusYellow    = 'yellow';
 const String kCovid19HealthStatusGreen     = 'green';
 const String kCovid19HealthStatusUnchanged = 'no change';
 
-Color covid19HealthStatusColor(String status) {
-  switch (status) {
-    case kCovid19HealthStatusRed:    return Styles().colors.healthStatusRed;
-    case kCovid19HealthStatusOrange: return Styles().colors.healthStatusOrange;
-    case kCovid19HealthStatusYellow: return Styles().colors.healthStatusYellow;
-    case kCovid19HealthStatusGreen:  return Styles().colors.healthStatusGreen;
-    default:                         return null;
-  }
-}
-
 bool covid19HealthStatusIsValid(String status) {
   return (status != null) && (status != kCovid19HealthStatusUnchanged);
 }

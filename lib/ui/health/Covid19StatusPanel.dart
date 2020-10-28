@@ -383,7 +383,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
     String healthStatus = _covid19Status?.blob?.healthStatus;
     String statusName = _covid19Status?.blob?.localizedHealthStatus ?? '';
     bool userHasHealthStatus = (healthStatus != null);
-    Color statusColor = (userHasHealthStatus ? (covid19HealthStatusColor(healthStatus) ?? _backgroundColor) : _backgroundColor);
+    Color statusColor = (userHasHealthStatus ? (Styles().colors.getHealthStatusColor(healthStatus) ?? _backgroundColor) : _backgroundColor);
     String authCardOrPhone = Auth().isShibbolethLoggedIn
         ? Auth().authCard?.magTrack2 ?? ""
         : (Auth().isPhoneLoggedIn ? Auth().userPiiData?.phone : "");

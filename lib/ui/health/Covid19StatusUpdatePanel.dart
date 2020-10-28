@@ -60,11 +60,11 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
 
     _oldStatusType = Covid19StatusBlob.localizedHealthStatusTypeFromKey(widget.previousHealthStatus) ?? '';
     _oldStatusDescription = Covid19StatusBlob.localizedHealthStatusDescriptionFromKey(widget.previousHealthStatus) ?? '';
-    _oldSatusColor = covid19HealthStatusColor(widget.previousHealthStatus) ?? Styles().colors.mediumGray;
+    _oldSatusColor = Styles().colors.getHealthStatusColor(widget.previousHealthStatus) ?? Styles().colors.mediumGray;
 
     _newStatusType = widget?.status?.blob?.localizedHealthStatusType ?? '';
     _newStatusDescription = widget?.status?.blob?.localizedHealthStatusDescription ?? '';
-    _newSatusColor = covid19HealthStatusColor(widget.status?.blob?.healthStatus) ?? Styles().colors.mediumGray;
+    _newSatusColor = Styles().colors.getHealthStatusColor(widget.status?.blob?.healthStatus) ?? Styles().colors.mediumGray;
 
     _loadCovidCounties();
     super.initState();
