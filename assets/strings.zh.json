@@ -687,13 +687,6 @@
 	"model.user.role.employee.title": "僱員",
 	"model.user.role.resident.title": "居民",
 
-	"model.covid19.status.color.green": "安全",
-	"model.covid19.status.color.yellow": "警告",
-	"model.covid19.status.color.orange": "可能感染",
-	"model.covid19.status.color.red": "已感染",
-
-    "model.covid19.step.initial": "與您的醫療保健提供者一起進行COVID-19測試",
-
 	"logic.date_time.greeting.morning": "早上好",
 	"logic.date_time.greeting.afternoon": "下午好",
 	"logic.date_time.greeting.evening": "晚上好",

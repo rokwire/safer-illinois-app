@@ -687,13 +687,6 @@
     "model.user.role.employee.title": "Empleado",
     "model.user.role.resident.title": "Residente",
 
-    "model.covid19.status.color.green": "Seguro",
-    "model.covid19.status.color.yellow": "Precaución",
-    "model.covid19.status.color.orange": "Probablemente infectado",
-    "model.covid19.status.color.red": "Infectado",
-
-    "model.covid19.step.initial": "Realice una prueba COVID-19 con su proveedor de atención médica",
-
     "logic.date_time.greeting.morning": "Buenos días",
     "logic.date_time.greeting.afternoon": "Buenas tardes",
     "logic.date_time.greeting.evening": "Buena noches",
