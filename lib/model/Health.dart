@@ -215,22 +215,17 @@ class Covid19StatusBlob {
   }
 
   static String localizedHealthStatusFromKey(String key) {
-    return _localizedHealthStatusFromKey("com.illinois.covid19.status.long.${key.toLowerCase()}", AppString.capitalize(key));
+    String type = localizedHealthStatusTypeFromKey(key);
+    String description = localizedHealthStatusDescriptionFromKey(key);
+    return ((type != null) && (description != null)) ? "$type, $description" : type;
   }
 
   static String localizedHealthStatusTypeFromKey(String key) {
-    return _localizedHealthStatusFromKey("com.illinois.covid19.status.type.${key.toLowerCase()}", AppString.capitalize(key));
+    return (key != null) ? Localization().getStringEx("com.illinois.covid19.status.type.${key.toLowerCase()}", AppString.capitalize(key)) : null;
   }
 
   static String localizedHealthStatusDescriptionFromKey(String key) {
-    return _localizedHealthStatusFromKey("com.illinois.covid19.status.description.${key.toLowerCase()}", AppString.capitalize(key));
-  }
-
-  static String _localizedHealthStatusFromKey(String key, String defaultValue) {
-    if(key != null){
-      return Localization().getStringEx(key, defaultValue);
-    }
-    return defaultValue;
+    return (key != null) ? Localization().getStringEx("com.illinois.covid19.status.description.${key.toLowerCase()}", null) : null;
   }
 }
 
