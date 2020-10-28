@@ -129,7 +129,7 @@ class _Covid19GuidelinesPanelState extends State<Covid19GuidelinesPanel> impleme
   }
 
   String get _currentHealthStatus {
-    return _covid19Status?.blob?.healthStatus?.toLowerCase() ?? kCovid19HealthStatusYellow;
+    return _covid19Status?.blob?.healthStatus?.toLowerCase();
   }
 
   @override
