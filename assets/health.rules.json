@@ -56,14 +56,16 @@
 				"fail": {
 					"health_status": "red",
 					"priority": 11,
-					"next_step": "test.now.step"
+					"next_step": "test.now.step",
+					"fcm_topic": "PCR.positive-IP"
 				}
 			},
 			"fail": {
 				"health_status": "red",
 				"priority": 11,
 				"next_step_html": "positive-ip.step.html",
-				"event_explanation": "positive-ip.explanation"
+				"event_explanation": "positive-ip.explanation",
+				"fcm_topic": "PCR.positive-IP"
 			}
 		},
 
@@ -258,7 +260,8 @@
 			"health_status": "orange",
 			"priority": 10,
 			"next_step": "quarantine-on.step",
-			"reason": "Your status changed to Orange because the Public Health department placed you in Quarantine."
+			"reason": "Your status changed to Orange because the Public Health department placed you in Quarantine.",
+			"fcm_topic": "quarantine-on"
 		},
 
 		"quarantine-off": {
