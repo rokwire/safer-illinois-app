@@ -30,6 +30,7 @@ import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Network.dart';
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/NotificationService.dart';
+import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/Service.dart';
 import 'package:illinois/service/Storage.dart';
 import 'package:illinois/service/User.dart';
@@ -45,14 +46,14 @@ class FirebaseMessaging with Service implements NotificationsListener {
   static const String notifyCovid19Notification   = "edu.illinois.rokwire.firebase.messaging.health.covid19.notification";
 
   // Topic names
-  static const List<String> _permanentTopis = [
-    "config_update",
-    "popup_message",
+  static const List<String> _permanentTopics = [
+    "common.config-update",
+    "common.popup-message",
   ];
 
   // Settings entry : topic name
   static const Map<String, String> _notifySettingTopics = {
-    'notify_covid19'   : 'covid19'
+    'notify_covid19'   : 'notify.covid19'
   };
 
 
@@ -405,7 +406,7 @@ class FirebaseMessaging with Service implements NotificationsListener {
       NotificationService().notify(notifySettingUpdated, name);
 
       Set<String> subscribedTopics = Storage().firebaseSubscriptionTopis;
-      _processNotifySettingSubscription(topic: _notifySettingTopics[name], value: value, subscribedTopics: subscribedTopics);
+      _processNotifySettingSubscription(topic: _topicName(_notifySettingTopics[name]), value: value, subscribedTopics: subscribedTopics);
     }
   }
 
@@ -438,7 +439,8 @@ class FirebaseMessaging with Service implements NotificationsListener {
   }
 
   void _processPermanentSubscriptions({Set<String> subscribedTopics}) {
-    for (String permanentTopic in _permanentTopis) {
+    for (String permanentTopicsEntry in _permanentTopics) {
+      String permanentTopic = _topicName(permanentTopicsEntry);
       if ((subscribedTopics == null) || !subscribedTopics.contains(permanentTopic)) {
         subscribeToTopic(permanentTopic);
       }
@@ -448,7 +450,7 @@ class FirebaseMessaging with Service implements NotificationsListener {
   void _processRolesSubscriptions({Set<String> subscribedTopics}) {
     Set<UserRole> roles = User().roles;
     for (UserRole role in UserRole.values) {
-      String roleTopic = role.toString();
+      String roleTopic = _topicName("role.${role.toString()}");
       bool roleSubscribed = (subscribedTopics != null) && subscribedTopics.contains(roleTopic);
       bool roleSelected = (roles != null) && roles.contains(role);
       if (roleSelected && !roleSubscribed) {
@@ -463,7 +465,7 @@ class FirebaseMessaging with Service implements NotificationsListener {
   void _processNotifySettingsSubscriptions({Set<String> subscribedTopics}) {
     _notifySettingTopics.forEach((String setting, String topic) {
       bool value = _getNotifySetting(setting);
-      _processNotifySettingSubscription(topic: topic, value: value, subscribedTopics: subscribedTopics);
+      _processNotifySettingSubscription(topic: _topicName(topic), value: value, subscribedTopics: subscribedTopics);
     });
   }
 
@@ -477,6 +479,10 @@ class FirebaseMessaging with Service implements NotificationsListener {
         unsubscribeFromTopic(topic);
       }
     }
+  }
+
+  String _topicName(String topicKey) {
+    return (Organizations().organization.id != null) ? "${Organizations().organization.id}.$topicKey" : topicKey;
   }
 
 }
