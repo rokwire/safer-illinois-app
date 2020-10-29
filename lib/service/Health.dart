@@ -893,7 +893,7 @@ class Health with Service implements NotificationsListener {
       int exposureTestReportDays = Config().settings['covid19ExposureTestReportDays'];
       for (Covid19Event event in events) {
         if (event.isTest) {
-          Covid19History previousTest = Covid19History.secondMostRecentTest(histories, beforeDateUtc: event.blob?.dateUtc);
+          Covid19History previousTest = Covid19History.mostRecentTest(histories, beforeDateUtc: event.blob?.dateUtc, onPosition: 2);
           Exposure().evalTestResultExposureScoring(previousTestDateUtc: previousTest?.dateUtc).then((int score) {
             Analytics().logHealth(
               action: Analytics.LogHealthProviderTestProcessedAction,

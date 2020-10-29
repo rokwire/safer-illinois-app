@@ -463,47 +463,21 @@ class Covid19History {
     return null;
   }
 
-  static Covid19History mostRecentTest(List<Covid19History> histories, {DateTime beforeDateUtc}) {
+  static Covid19History mostRecentTest(List<Covid19History> histories, { DateTime beforeDateUtc, int onPosition = 1 }) {
+    Covid19History result;
     if (histories != null) {
       if (beforeDateUtc == null) {
         beforeDateUtc = DateTime.now().toUtc();
       }
-      for (int index = 0; index < histories.length; index++) {
+      for (int index = 0; (index < histories.length) && (0 < onPosition); index++) {
         Covid19History history = histories[index];
         if (history.isTestVerified && (history.dateUtc != null) && (history.dateUtc.isBefore(beforeDateUtc))) {
-          return history;
+          result = history;
+          onPosition--;
         }
       }
     }
-    return null;
-  }
-
-  static Covid19History secondMostRecentTest(List<Covid19History> histories, {DateTime beforeDateUtc}) {
-    // returns the second most recent test
-    if (histories != null) {
-      if (beforeDateUtc == null) {
-        beforeDateUtc = DateTime.now().toUtc();
-      }
-      int count = 0;
-      Covid19History mostRecentTest;
-      for (int index = 0; index < histories.length; index++) {
-        Covid19History history = histories[index];
-        if (history.isTestVerified && (history.dateUtc != null) && (history.dateUtc.isBefore(beforeDateUtc))) {
-          count += 1;
-          if (count == 1) {
-            mostRecentTest = history;
-          } else if (count == 2) {
-            return history;
-          }
-        }
-      }
-
-      // return most recent test if second most recent doesn't exist
-      if (mostRecentTest != null) {
-        return mostRecentTest;
-      }
-    }
-    return null;
+    return result;
   }
 
   static List<Covid19History> pastList(List<Covid19History> histories) {
