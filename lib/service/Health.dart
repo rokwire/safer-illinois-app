@@ -45,7 +45,7 @@ import "package:pointycastle/export.dart";
 class Health with Service implements NotificationsListener {
 
   static const String notifyCountyChanged           = "edu.illinois.rokwire.health.county.changed";
-  static const String notifyStatusChanged           = "edu.illinois.rokwire.health.status.changed";
+  static const String notifyStatusAvailable         = "edu.illinois.rokwire.health.status.available";
   static const String notifyStatusUpdated           = "edu.illinois.rokwire.health.status.updated";
   static const String notifyHistoryUpdated          = "edu.illinois.rokwire.health.history.updated";
   static const String notifyUserUpdated             = "edu.illinois.rokwire.health.user.updated";
@@ -185,7 +185,7 @@ class Health with Service implements NotificationsListener {
 
       _clearHistoryCache();
       
-      NotificationService().notify(notifyStatusChanged, null);
+      NotificationService().notify(notifyStatusAvailable, null);
       NotificationService().notify(notifyHistoryUpdated, null);
       // NotificationService().notify(notifyUserUpdated, null); 
       // NotificationService().notify(notifyUserPrivateKeyUpdated, null); 
@@ -591,7 +591,7 @@ class Health with Service implements NotificationsListener {
     }
 
     if (statusChanged) {
-      NotificationService().notify(notifyStatusChanged, currentStatus);
+      NotificationService().notify(notifyStatusAvailable, currentStatus);
     }
 
     if (historyUpdated) {
@@ -656,7 +656,7 @@ class Health with Service implements NotificationsListener {
     }
 
     if (statusChanged) {
-      NotificationService().notify(notifyStatusChanged, currentStatus);
+      NotificationService().notify(notifyStatusAvailable, currentStatus);
     }
 
     // 4. Check for status update
@@ -686,7 +686,7 @@ class Health with Service implements NotificationsListener {
     Covid19Status status = await _statusForCounty(countyId);
     if (status != null) {
       if (await _updateCovid19Status(status)) {
-        NotificationService().notify(notifyStatusChanged, status);
+        NotificationService().notify(notifyStatusAvailable, status);
         return status;
       }
     }
@@ -739,6 +739,7 @@ class Health with Service implements NotificationsListener {
           eventExplanationHtml: rules.localeString(defaultStatus.eventExplanationHtml),
           reason: rules.localeString(defaultStatus.reason),
           warning: rules.localeString(defaultStatus.warning),
+          fcmTopic: defaultStatus.fcmTopic,
           historyBlob: null,
         ),
       );
@@ -806,6 +807,7 @@ class Health with Service implements NotificationsListener {
               eventExplanationHtml: ((ruleStatus.eventExplanation != null) || (ruleStatus.eventExplanationHtml != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.eventExplanationHtml) : status.blob.eventExplanationHtml,
               reason: ((ruleStatus.reason != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.reason) : status.blob.reason,
               warning: ((ruleStatus.warning != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.warning) : status.blob.warning,
+              fcmTopic: ((ruleStatus.fcmTopic != null) || (ruleStatus.healthStatus != null)) ?  ruleStatus.fcmTopic : status.blob.fcmTopic,
               historyBlob: history.blob,
             ),
           );
@@ -1602,7 +1604,7 @@ class Health with Service implements NotificationsListener {
       _healthUser = null;
 
       NotificationService().notify(notifyCountyChanged, null);
-      NotificationService().notify(notifyStatusChanged, null);
+      NotificationService().notify(notifyStatusAvailable, null);
       NotificationService().notify(notifyHistoryUpdated, null);
       NotificationService().notify(notifyUserUpdated, null);
 

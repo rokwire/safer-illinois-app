@@ -62,7 +62,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
   void initState() {
     super.initState();
     NotificationService().subscribe(this, [
-      Health.notifyStatusChanged,
+      Health.notifyStatusAvailable,
       Health.notifyProcessingFinished,
     ]);
     _loadCounties();
@@ -79,7 +79,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
 
   @override
   void onNotification(String name, param) {
-    if (name == Health.notifyStatusChanged) {
+    if (name == Health.notifyStatusAvailable) {
       _updateCovidStatus(param);
     }
     else if (name == Health.notifyProcessingFinished) {
