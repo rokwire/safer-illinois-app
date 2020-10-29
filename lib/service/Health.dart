@@ -739,6 +739,7 @@ class Health with Service implements NotificationsListener {
           eventExplanationHtml: rules.localeString(defaultStatus.eventExplanationHtml),
           reason: rules.localeString(defaultStatus.reason),
           warning: rules.localeString(defaultStatus.warning),
+          fcmTopic: defaultStatus.fcmTopic,
           historyBlob: null,
         ),
       );
@@ -806,6 +807,7 @@ class Health with Service implements NotificationsListener {
               eventExplanationHtml: ((ruleStatus.eventExplanation != null) || (ruleStatus.eventExplanationHtml != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.eventExplanationHtml) : status.blob.eventExplanationHtml,
               reason: ((ruleStatus.reason != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.reason) : status.blob.reason,
               warning: ((ruleStatus.warning != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.warning) : status.blob.warning,
+              fcmTopic: ((ruleStatus.fcmTopic != null) || (ruleStatus.healthStatus != null)) ?  ruleStatus.fcmTopic : status.blob.fcmTopic,
               historyBlob: history.blob,
             ),
           );

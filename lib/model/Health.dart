@@ -112,12 +112,14 @@ class Covid19StatusBlob {
   final String reason;
   final String warning;
 
+  final dynamic fcmTopic;
+
   final Covid19HistoryBlob historyBlob;
 
   static const String _nextStepDateMacro = '{next_step_date}';
   static const String _nextStepDateFormat = 'EEEE, MMM d';
 
-  Covid19StatusBlob({this.healthStatus, this.priority, this.nextStep, this.nextStepHtml, this.nextStepDateUtc, this.eventExplanation, this.eventExplanationHtml, this.reason, this.warning, this.historyBlob});
+  Covid19StatusBlob({this.healthStatus, this.priority, this.nextStep, this.nextStepHtml, this.nextStepDateUtc, this.eventExplanation, this.eventExplanationHtml, this.reason, this.warning, this.fcmTopic, this.historyBlob});
 
   factory Covid19StatusBlob.fromJson(Map<String, dynamic> json) {
     return (json != null) ? Covid19StatusBlob(
@@ -130,6 +132,7 @@ class Covid19StatusBlob {
       eventExplanationHtml: json['event_explanation_html'],
       reason: json['reason'],
       warning: json['warning'],
+      fcmTopic: json['fcm_topic'],
       historyBlob: Covid19HistoryBlob.fromJson(json['history_blob']),
     ) : null;
   }
@@ -145,6 +148,7 @@ class Covid19StatusBlob {
       'event_explanation_html': eventExplanationHtml,
       'reason': reason,
       'warning': warning,
+      'fcm_topic': fcmTopic,
       'history_blob': historyBlob?.toJson(),
     };
   }
@@ -194,6 +198,17 @@ class Covid19StatusBlob {
       return value.replaceAll(_nextStepDateMacro, displayNextStepDate() ?? '');
     }
     return value;
+  }
+
+  Set<String> get fcmTopics {
+    if (fcmTopic is String) {
+      return Set.from([fcmTopic]);
+    }
+    else if (fcmTopic is List) {
+      try { return Set.from(fcmTopic.cast<String>()); }
+      catch(e) { print(e?.toString()); }
+    }
+    return null;
   }
 
   bool get requiresTest {
@@ -2251,10 +2266,12 @@ class HealthRuleStatus extends _HealthRuleStatus {
   final dynamic reason;
   final dynamic warning;
 
+  final dynamic fcmTopic;
+
   HealthRuleStatus({this.healthStatus, this.priority,
     this.nextStep, this.nextStepHtml, this.nextStepInterval, this.nextStepDateUtc,
     this.eventExplanation, this.eventExplanationHtml,
-    this.reason, this.warning });
+    this.reason, this.warning, this.fcmTopic });
 
   factory HealthRuleStatus.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthRuleStatus(
@@ -2267,6 +2284,7 @@ class HealthRuleStatus extends _HealthRuleStatus {
       eventExplanationHtml: json['event_explanation_html'],
       reason:               json['reason'],
       warning:              json['warning'],
+      fcmTopic:             json['fcm_topic']
     ) : null;
   }
 
@@ -2283,6 +2301,7 @@ class HealthRuleStatus extends _HealthRuleStatus {
       eventExplanationHtml: status.eventExplanationHtml,
       reason:               status.reason,
       warning:              status.warning,
+      fcmTopic:             status.fcmTopic,
     ) : null;
   }
 
