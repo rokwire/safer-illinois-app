@@ -96,6 +96,8 @@
     "panel.onboarding.roles.button.employee.hint":"",
     "panel.onboarding.roles.button.resident.title":"Illinois Resident",
     "panel.onboarding.roles.button.resident.hint":"",
+    "panel.onboarding.roles.button.capitol_staff.title":"Capitol\nStaff",
+    "panel.onboarding.roles.button.capitol_staff.hint":"",
     "panel.onboarding.roles.button.continue.enabled.title":"Confirm",
     "panel.onboarding.roles.button.continue.disabled.title":"Select one",
     "panel.onboarding.roles.button.continue.hint":"",

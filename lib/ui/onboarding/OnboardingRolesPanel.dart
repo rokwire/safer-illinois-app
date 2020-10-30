@@ -107,6 +107,21 @@ class _OnboardingRoleSelectionPanelState extends State<OnboardingRolesPanel> {
                   onTap: _onRoleGridButton,
                 ),)
               ],),
+              Row(children: <Widget>[
+                  Expanded(child: RoleGridButton(
+                  title: Localization().getStringEx("panel.onboarding.roles.button.capitol_staff.title","Capitol Staff"),
+                  hint: Localization().getStringEx('panel.onboarding.roles.button.capitol_staff.hint', ''),
+                  iconPath: 'images/icon-capitol-normal.png',
+                  selectedIconPath: 'images/icon-capitol-selected.png',
+                  selectedBackgroundColor: Styles().colors.fillColorPrimary,
+                  selectedTextColor: Colors.white,
+                  selected:(_selectedRoles.contains(UserRole.capitolStaff)),
+                  data: UserRole.capitolStaff,
+                  sortOrder: 7,
+                  onTap: _onRoleGridButton,
+                ),),
+                Expanded(child: Container()),
+              ],),
               /*Row(children: <Widget>[Expanded(child: RoleGridButton(
                 title: Localization().getStringEx('panel.onboarding.roles.button.resident.title', 'Illinois Resident'),
                 hint: Localization().getStringEx('panel.onboarding.roles.button.resident.hint', ''),

@@ -120,6 +120,22 @@ class _SettingsRolesPanelState extends State<SettingsRolesPanel> implements Noti
                   ),),
                 ]),
                 Container(height: gridSpacing,),
+                Row(children: <Widget>[
+                  Expanded(child: RoleGridButton(
+                    title: Localization().getStringEx("panel.onboarding.roles.button.capitol_staff.title","Capitol Staff"),
+                    hint: Localization().getStringEx('panel.onboarding.roles.button.capitol_staff.hint', ''),
+                    iconPath: 'images/icon-capitol-normal.png',
+                    selectedIconPath: 'images/icon-capitol-selected.png',
+                    selectedBackgroundColor: Styles().colors.fillColorPrimary,
+                    selectedTextColor: Colors.white,
+                    selected:(_selectedRoles.contains(UserRole.capitolStaff)),
+                    data: UserRole.capitolStaff,
+                    sortOrder: 7,
+                    onTap: _onRoleGridButton,
+                  ),),
+                  Container(width: gridSpacing,),
+                  Expanded(child: Container()),
+                ]),
                 _isResident ? Row(children: <Widget>[
                   Expanded(child: RoleGridButton(
                     title: Localization().getStringEx('panel.onboarding.roles.button.resident.title', 'Resident'),

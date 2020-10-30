@@ -89,6 +89,7 @@ class UserRole {
   static const student = const UserRole._internal('student');
   static const employee = const UserRole._internal('employee');
   static const resident = const UserRole._internal('resident');
+  static const capitolStaff = const UserRole._internal('capitol_staff');
 
   static List<UserRole> get values {
     return [student, employee, resident];
@@ -109,6 +110,9 @@ class UserRole {
       else if (userRoleString == 'resident') {
         return UserRole.resident;
       }
+      else if (userRoleString == 'capitol_staff') {
+        return UserRole.capitolStaff;
+      }
     }
     return null;
   }
@@ -123,7 +127,10 @@ class UserRole {
       return Localization().getStringEx('model.user.role.employee.title', 'Employee');
     } else if (this == resident) {
       return Localization().getStringEx('model.user.role.resident.title', 'Resident');
+    } else if (this == capitolStaff) {
+      return Localization().getStringEx('model.user.role.capitol_staff.title', 'Capitol Staff');
     }
+
     else {
       return null;
     }
