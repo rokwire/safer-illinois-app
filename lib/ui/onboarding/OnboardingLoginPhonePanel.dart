@@ -16,6 +16,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:illinois/model/UserData.dart';
 import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Analytics.dart';
@@ -58,6 +59,7 @@ class _OnboardingLoginPhonePanelState extends State<OnboardingLoginPhonePanel> {
   Widget build(BuildContext context) {
     String titleString = Localization().getStringEx('panel.onboarding.login.phone.label.title', 'Verify your phone number');
     String skipTitle = Localization().getStringEx('panel.onboarding.login.phone.button.dont_continue.title', 'Not right now');
+    bool hasSkip = !User().roles.contains(UserRole.capitolStaff);
     return Scaffold(
         backgroundColor: Styles().colors.background,
         body: Stack(
@@ -125,7 +127,7 @@ class _OnboardingLoginPhonePanelState extends State<OnboardingLoginPhonePanel> {
                             onTap: () => _onLoginTapped()),
                       ),
                     ),
-                    Row(
+                    hasSkip ? Row(
                       children: <Widget>[
                         Expanded(
                             child: GestureDetector(
@@ -151,7 +153,7 @@ class _OnboardingLoginPhonePanelState extends State<OnboardingLoginPhonePanel> {
                               )),
                         )),
                       ],
-                    )
+                    ) : Container()
                   ])
                 )),
             _progress
