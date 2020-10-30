@@ -1346,7 +1346,15 @@ class Health with Service implements NotificationsListener {
   }
 
   String get _userId {
-    return Auth().authInfo?.uin ?? Auth().phoneToken?.phone;
+    if (Auth().isShibbolethLoggedIn) {
+      return Auth().authInfo?.uin;
+    }
+    else if (Auth().isPhoneLoggedIn) {
+      return Auth().phoneToken?.phone;
+    }
+    else {
+      return null;
+    }
   }
 
   bool get isUserLoggedIn {
