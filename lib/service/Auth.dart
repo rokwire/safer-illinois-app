@@ -410,14 +410,18 @@ class Auth with Service implements NotificationsListener {
       return false;
     }
 
-    // 2. Pii Pid
+    // 2. Request AuthInfo
+    // Do not fail if Aith Info is NA
+    AuthInfo newAuthInfo = await _loadPhoneAuthInfo(optAuthToken: newAuthToken);
+
+    // 3. Pii Pid
     String newUserPiiPid = await _loadPidWithPhoneAuth(phone: phoneNumber, optAuthToken: newAuthToken);
     if(newUserPiiPid == null) {
       _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginPhoneActionName);
       return false;
     }
 
-    // 3. UserPiiData
+    // 4. UserPiiData
     String newUserPiiDataString = await _loadUserPiiDataStringFromNet(pid: newUserPiiPid, optAuthToken: newAuthToken);
     UserPiiData newUserPiiData = _userPiiDataFromJsonString(newUserPiiDataString);
     if(newUserPiiData == null || AppCollection.isCollectionEmpty(newUserPiiData?.uuidList)){
@@ -425,7 +429,7 @@ class Auth with Service implements NotificationsListener {
       return false;
     }
 
-    // 4. UserData
+    // 5. UserData
     UserData newUserData;
     try {
       newUserData = await User().requestUser(newUserPiiData.uuidList.first);
@@ -436,22 +440,27 @@ class Auth with Service implements NotificationsListener {
     }
 
     // Everything is fine - cleanup and store new tokens and data
-    // 5. Clear everything before proceed further. Notification is not required at this stage
+    // 6. Clear everything before proceed further. Notification is not required at this stage
     _clear(false);
 
-    // 6. Store everything and notify everyone
-    // 6.1 AuthToken
+    // 7. Store everything and notify everyone
+    // 7.1 AuthToken
     _authToken = newAuthToken;
     _saveAuthToken();
     _notifyAuthTokenChanged();
 
-    // 6.2 UserPiiData
+    // 7.2 AuthInfo
+    _authInfo = newAuthInfo;
+    _saveAuthInfo();
+    _notifyAuthInfoChanged();
+
+    // 7.3 UserPiiData
     _applyUserPiiData(newUserPiiData, newUserPiiDataString);
 
-    // 6.3 apply UserData
+    // 7.4 apply UserData
     User().applyUserData(newUserData);
 
-    // 6.4 notifyLoggedIn event
+    // 7.5 notifyLoggedIn event
     _notifyAuthLoginSucceeded(analyticsAction: Analytics.LogAuthLoginPhoneActionName);
 
     return true;
@@ -473,6 +482,25 @@ class Auth with Service implements NotificationsListener {
           return PhoneToken(phone: phone, idToken:jsonData["id_token"]);
         }
       }
+    }
+    return null;
+  }
+
+  Future<AuthInfo> _loadPhoneAuthInfo({AuthToken optAuthToken}) async {
+    optAuthToken = (optAuthToken != null) ? optAuthToken : _authToken;
+    PhoneToken phoneToken = (optAuthToken is PhoneToken) ? optAuthToken : null;
+    if ((Config().healthUrl != null) && (phoneToken?.phone != null)) {
+      try {
+        String url = "${Config().healthUrl}/covid19/rosters/phone/${phoneToken.phone}";
+        Http.Response userDataResp = await Network().get(url, auth: NetworkAuth.Access);
+        String responseBody = ((userDataResp != null) && (userDataResp.statusCode == 200)) ? userDataResp.body : null;
+        List<String> uinList = responseBody?.split(',');
+        String uin = ((uinList != null) && (0 < uinList.length)) ? uinList.first : null;
+        //TMP:
+        uin = '655618818';
+        return (uin != null) ? AuthInfo(uin: uin) : null;
+      }
+      catch(e) { print(e.toString()); }
     }
     return null;
   }
