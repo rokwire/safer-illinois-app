@@ -496,8 +496,7 @@ class Auth with Service implements NotificationsListener {
         String responseBody = ((userDataResp != null) && (userDataResp.statusCode == 200)) ? userDataResp.body : null;
         List<String> uinList = responseBody?.split(',');
         String uin = ((uinList != null) && (0 < uinList.length)) ? uinList.first : null;
-        //TMP:
-        uin = '000000000';
+        //TMP: uin = '000000000';
         return (uin != null) ? AuthInfo(uin: uin) : null;
       }
       catch(e) { print(e.toString()); }
