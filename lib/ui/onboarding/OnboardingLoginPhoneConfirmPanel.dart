@@ -66,12 +66,12 @@ class _OnboardingLoginPhoneConfirmPanelState extends State<OnboardingLoginPhoneC
         excludeFromSemantics: true,
         behavior: HitTestBehavior.translucent,
         onTap: ()=>FocusScope.of(context).requestFocus(new FocusNode()),
-        child:
+        child: SafeArea(child:
             ScalableScrollView(
               scrollableChild:
               Stack(children: <Widget>[
               Padding(
-              padding: EdgeInsets.only(left: 18, right: 18, top: 24, bottom: 24),
+              padding: EdgeInsets.only(left: 18, right: 18, top: 10, bottom: 10),
                 child:
               Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -162,14 +162,15 @@ class _OnboardingLoginPhoneConfirmPanelState extends State<OnboardingLoginPhoneC
                   ),
                 ),
                 ])),
-                Visibility(
-                  visible: _isLoading,
-                  child: Center(
-                    child: CircularProgressIndicator(),
+                Visibility(visible: _isLoading, child:
+                  Padding(padding: EdgeInsets.only(top: 192), child:
+                    Center(
+                      child: CircularProgressIndicator(),
+                    ),
                   ),
                 ),
                 OnboardingBackButton(
-                    padding: const EdgeInsets.only(left: 10, top: 30, right: 20, bottom: 20),
+                    padding: const EdgeInsets.only(left: 10, top: 10, right: 20, bottom: 20),
                     onTap:() {
                       Analytics.instance.logSelect(target: "Back");
                       Navigator.pop(context);
@@ -188,7 +189,7 @@ class _OnboardingLoginPhoneConfirmPanelState extends State<OnboardingLoginPhoneC
                   backgroundColor: Styles().colors.background,
                   textColor: Styles().colors.fillColorPrimary,
                   onTap: () => _onTapConfirm()))
-          ),),
+          ),),),
 
       );
   }
