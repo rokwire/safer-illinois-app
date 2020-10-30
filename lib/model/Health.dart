@@ -2565,11 +2565,11 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
   }
 
   dynamic _evalTestUser({ HealthRulesSet rules }) {
-    dynamic role = params['role'];
+    dynamic role = params['card.role'];
     if ((role != null) && !_matchStringTarget(target: Auth().authCard?.role, source: role)) {
       return false;
     }
-    dynamic studentLevel = params['student_level'];
+    dynamic studentLevel = params['card.student_level'];
     if ((studentLevel != null) && !_matchStringTarget(target: Auth().authCard?.studentLevel, source: studentLevel)) {
       return false;
     }

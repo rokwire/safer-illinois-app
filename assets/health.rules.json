@@ -139,8 +139,8 @@
 			"fail": {
 				"condition": "test-user",
 				"params": {
-					"role": "Undergraduate",
-					"student_level": "1U"
+					"card.role": "Undergraduate",
+					"card.student_level": "1U"
 				},
 				"success": {
 					"condition": "require-test",
@@ -291,8 +291,8 @@
 			"fail": {
 				"condition": "test-user",
 				"params": {
-					"role": "Undergraduate",
-					"student_level": "1U"
+					"card.role": "Undergraduate",
+					"card.student_level": "1U"
 				},
 				"success": {
 					"condition": "require-test",
