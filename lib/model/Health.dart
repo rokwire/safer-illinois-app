@@ -19,6 +19,8 @@ import 'dart:collection';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:illinois/model/UserData.dart';
+import 'package:illinois/service/User.dart';
 import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Localization.dart';
@@ -2565,19 +2567,51 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
   }
 
   dynamic _evalTestUser({ HealthRulesSet rules }) {
-    dynamic role = params['card.role'];
-    if ((role != null) && !_matchStringTarget(target: Auth().authCard?.role, source: role)) {
+    
+    dynamic role = params['role'];
+    if ((role != null) && !_matchStringTarget(target: UserRole.userRolesToList(User().roles), source: role)) {
       return false;
     }
-    dynamic studentLevel = params['card.student_level'];
-    if ((studentLevel != null) && !_matchStringTarget(target: Auth().authCard?.studentLevel, source: studentLevel)) {
+    
+    dynamic login = params['login'];
+    if (login != null) {
+      if (login is bool) {
+        if (Auth().isLoggedIn != login) {
+          return false;
+        }
+      }
+      else if (login is String) {
+        String loginLowerCase = login.toLowerCase();
+        if ((loginLowerCase == 'phone') && !Auth().isPhoneLoggedIn) {
+          return false;
+        }
+        else if ((loginLowerCase == 'phone.uin') && (!Auth().isPhoneLoggedIn || !Auth().hasUIN)) {
+          return false;
+        }
+        else if ((loginLowerCase == 'netid') && !Auth().isShibbolethLoggedIn) {
+          return false;
+        }
+        else if ((loginLowerCase == 'netid.uin') && (!Auth().isShibbolethLoggedIn || !Auth().hasUIN)) {
+          return false;
+        }
+      }
+    }
+    
+    dynamic cardRole = params['card.role'];
+    if ((cardRole != null) && !_matchStringTarget(target: Auth().authCard?.role, source: cardRole)) {
       return false;
     }
+    
+    dynamic cardStudentLevel = params['card.student_level'];
+    if ((cardStudentLevel != null) && !_matchStringTarget(target: Auth().authCard?.studentLevel, source: cardStudentLevel)) {
+      return false;
+    }
+
     return true;
   }
 
-  static bool _matchStringTarget({dynamic source, String target}) {
-    if (target != null) {
+  static bool _matchStringTarget({dynamic source, dynamic target}) {
+    if (target is String) {
       if (source is String) {
         return source.toLowerCase() == target.toLowerCase();
       }
@@ -2589,8 +2623,16 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
         }
       }
     }
+    else if (target is Iterable) {
+      for (dynamic targetEntry in target) {
+        if (_matchStringTarget(source: source, target: targetEntry)) {
+          return true;
+        }
+      }
+    }
     return false;
   }
+
 }
 
 ///////////////////////////////
