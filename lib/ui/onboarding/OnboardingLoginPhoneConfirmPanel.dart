@@ -224,19 +224,29 @@ class _OnboardingLoginPhoneConfirmPanelState extends State<OnboardingLoginPhoneC
   }
 
   void _onPhoneVerified(bool success) {
-    if (!success) {
+    if(success){
+      if(!Auth().hasUIN){
+        setState(() {
+          _verificationErrorMsg = Localization().getStringEx(
+              "panel.onboarding.confirm_phone.validation.has_not_uin.text", "Unable to proceed further, because You are not a member of Capitol Staff");
+        });
+      }
+      else{
+        if (widget.onboardingContext != null) {
+          widget.onboardingContext['shouldDisplayResidentInfo'] = true;
+          Onboarding().next(context, widget);
+        }
+        else if (widget.onFinish != null) {
+          widget.onFinish(widget);
+        }
+      }
+    }
+    else{
       setState(() {
         _verificationErrorMsg = Localization().getStringEx(
             "panel.onboarding.confirm_phone.validation.server_error.text",
             "Failed to verify code");
       });
-    }
-    else if (widget.onboardingContext != null) {
-      widget.onboardingContext['shouldDisplayResidentInfo'] = true;
-      Onboarding().next(context, widget);
-    }
-    else if (widget.onFinish != null) {
-      widget.onFinish(widget);
     }
   }
 

@@ -148,6 +148,7 @@
 	"panel.onboarding.confirm_phone.button.confirm.hint":"",
 	"panel.onboarding.confirm_phone.validation.phone_number.text":"请填写您的代码",
 	"panel.onboarding.confirm_phone.validation.server_error.text":"无法验证代码",
+	"panel.onboarding.confirm_phone.validation.has_not_uin.text": "Unable to proceed further, because You are not a member of Capitol Staff",
 
 	"panel.onboarding.upgrade.required.label.title":"需要升级",
 	"panel.onboarding.upgrade.required.label.description":"%s版本号%s需要升级到%s或者更新的版本。",
