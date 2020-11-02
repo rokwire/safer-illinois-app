@@ -91,7 +91,7 @@ class UserRole {
   static const capitolStaff = const UserRole._internal('capitol_staff');
 
   static List<UserRole> get values {
-    return [student, employee, resident];
+    return [student, employee, resident, capitolStaff];
   }
 
   final String _value;
@@ -99,21 +99,7 @@ class UserRole {
   const UserRole._internal(this._value);
 
   factory UserRole.fromString(String userRoleString) {
-    if (userRoleString != null) {
-      if (userRoleString == 'student') {
-        return UserRole.student;
-      }
-      else if (userRoleString == 'employee') {
-        return UserRole.employee;
-      }
-      else if (userRoleString == 'resident') {
-        return UserRole.resident;
-      }
-      else if (userRoleString == 'capitol_staff') {
-        return UserRole.capitolStaff;
-      }
-    }
-    return null;
+    return (userRoleString != null) ? UserRole._internal(userRoleString) : null;
   }
 
   toString() => _value;
