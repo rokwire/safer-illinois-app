@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import 'package:illinois/service/Localization.dart';
 
 class UserData {
 
@@ -92,7 +91,7 @@ class UserRole {
   static const capitolStaff = const UserRole._internal('capitol_staff');
 
   static List<UserRole> get values {
-    return [student, employee, resident];
+    return [student, employee, resident, capitolStaff];
   }
 
   final String _value;
@@ -100,41 +99,11 @@ class UserRole {
   const UserRole._internal(this._value);
 
   factory UserRole.fromString(String userRoleString) {
-    if (userRoleString != null) {
-      if (userRoleString == 'student') {
-        return UserRole.student;
-      }
-      else if (userRoleString == 'employee') {
-        return UserRole.employee;
-      }
-      else if (userRoleString == 'resident') {
-        return UserRole.resident;
-      }
-      else if (userRoleString == 'capitol_staff') {
-        return UserRole.capitolStaff;
-      }
-    }
-    return null;
+    return (userRoleString != null) ? UserRole._internal(userRoleString) : null;
   }
 
   toString() => _value;
   toJson() => _value;
-
-  String toDisplayString() {
-    if (this == student) {
-      return Localization().getStringEx('model.user.role.student.title', 'Student');
-    } else if (this == employee) {
-      return Localization().getStringEx('model.user.role.employee.title', 'Employee');
-    } else if (this == resident) {
-      return Localization().getStringEx('model.user.role.resident.title', 'Resident');
-    } else if (this == capitolStaff) {
-      return Localization().getStringEx('model.user.role.capitol_staff.title', 'Capitol Staff');
-    }
-
-    else {
-      return null;
-    }
-  }
 
   @override
   bool operator== (dynamic obj) {

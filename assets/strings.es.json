@@ -279,6 +279,7 @@
     "panel.covid19_passport.label.page_1": "Página 1",
     "panel.covid19_passport.label.page_2": "Página 2",
     "panel.covid19_passport.label.update_i_card": "Actualiza tu i-card",
+    "panel.covid19_passport.label.resident": "Residente",
     "panel.covid19_passport.button.info.title": "Info ",
 
     "panel.covid19_guidelines.header.title": "Pautas del condado",
@@ -685,10 +686,6 @@
     "model.explore.time.tomorrow": "Mañana",
     "model.explore.time.at": "a",
     "model.explore.time.all_day": "Todo el dia",
-
-    "model.user.role.student.title": "Alumno",
-    "model.user.role.employee.title": "Empleado",
-    "model.user.role.resident.title": "Residente",
 
     "logic.date_time.greeting.morning": "Buenos días",
     "logic.date_time.greeting.afternoon": "Buenas tardes",
