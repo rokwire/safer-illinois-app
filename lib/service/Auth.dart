@@ -492,10 +492,10 @@ class Auth with Service implements NotificationsListener {
     if ((Config().healthUrl != null) && (phoneToken?.phone != null)) {
       try {
         String url = "${Config().healthUrl}/covid19/rosters/phone/${phoneToken.phone}";
-        Http.Response userDataResp = await Network().get(url, auth: NetworkAuth.Access);
+        Http.Response userDataResp = await Network().get(url, auth: NetworkAuth.App);
         String responseBody = ((userDataResp != null) && (userDataResp.statusCode == 200)) ? userDataResp.body : null;
-        List<String> uinList = responseBody?.split(',');
-        String uin = ((uinList != null) && (0 < uinList.length)) ? uinList.first : null;
+        Map<String, dynamic> responseJson = (responseBody != null) ? AppJson.decodeMap(responseBody) : null;
+        String uin = (responseJson != null) ? responseJson['uin'] : null;
         //TMP: uin = '000000000';
         return (uin != null) ? AuthInfo(uin: uin) : null;
       }
