@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import 'package:illinois/service/Localization.dart';
 
 class UserData {
 
@@ -119,22 +118,6 @@ class UserRole {
 
   toString() => _value;
   toJson() => _value;
-
-  String toDisplayString() {
-    if (this == student) {
-      return Localization().getStringEx('model.user.role.student.title', 'Student');
-    } else if (this == employee) {
-      return Localization().getStringEx('model.user.role.employee.title', 'Employee');
-    } else if (this == resident) {
-      return Localization().getStringEx('model.user.role.resident.title', 'Resident');
-    } else if (this == capitolStaff) {
-      return Localization().getStringEx('model.user.role.capitol_staff.title', 'Capitol Staff');
-    }
-
-    else {
-      return null;
-    }
-  }
 
   @override
   bool operator== (dynamic obj) {
