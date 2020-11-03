@@ -480,17 +480,21 @@ class Covid19History {
     return null;
   }
 
-  static Covid19History mostRecentTest(List<Covid19History> histories) {
+  static Covid19History mostRecentTest(List<Covid19History> histories, { DateTime beforeDateUtc, int onPosition = 1 }) {
+    Covid19History result;
     if (histories != null) {
-      DateTime nowUtc = DateTime.now().toUtc();
-      for (int index = 0; index < histories.length; index++) {
+      if (beforeDateUtc == null) {
+        beforeDateUtc = DateTime.now().toUtc();
+      }
+      for (int index = 0; (index < histories.length) && (0 < onPosition); index++) {
         Covid19History history = histories[index];
-        if (history.isTestVerified && (history.dateUtc != null) && (history.dateUtc.isBefore(nowUtc))) {
-          return history;
+        if (history.isTestVerified && (history.dateUtc != null) && (history.dateUtc.isBefore(beforeDateUtc))) {
+          result = history;
+          onPosition--;
         }
       }
     }
-    return null;
+    return result;
   }
 
   static List<Covid19History> pastList(List<Covid19History> histories) {
