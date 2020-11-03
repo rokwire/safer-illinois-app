@@ -230,10 +230,18 @@ class _OnboardingLoginPhoneVerifyPanelState
       return;
     }
     String phoneNumber = _phoneNumberController.text;
-    if (AppString.isStringNotEmpty(phoneNumber) &&
-        !phoneNumber.startsWith("+1") &&
-        kReleaseMode) {
-      phoneNumber = '+1$phoneNumber';
+    if (AppString.isStringNotEmpty(phoneNumber)) {
+      phoneNumber = phoneNumber.replaceAll(RegExp('\\s+'), '');
+      if (!phoneNumber.startsWith("+")) {
+        // Handle: "4153709574"
+        if ((phoneNumber.length == 10) && RegExp('[0-9]{10}').hasMatch(phoneNumber)) {
+          phoneNumber = '+1$phoneNumber';
+        }
+        // Handle: "14153709574"
+        else if ((phoneNumber.length == 11) && RegExp('1[0-9]{10}').hasMatch(phoneNumber)) {
+          phoneNumber = '+$phoneNumber';
+        }
+      }
     }
     setState(() {
       _isLoading = true;
