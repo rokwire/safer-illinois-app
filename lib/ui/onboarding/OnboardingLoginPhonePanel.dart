@@ -16,6 +16,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:illinois/model/UserData.dart';
 import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Analytics.dart';
@@ -58,11 +59,12 @@ class _OnboardingLoginPhonePanelState extends State<OnboardingLoginPhonePanel> {
   Widget build(BuildContext context) {
     String titleString = Localization().getStringEx('panel.onboarding.login.phone.label.title', 'Verify your phone number');
     String skipTitle = Localization().getStringEx('panel.onboarding.login.phone.button.dont_continue.title', 'Not right now');
+    bool hasSkip = !User().roles.contains(UserRole.capitolStaff);
     return Scaffold(
         backgroundColor: Styles().colors.background,
         body: Stack(
           children: <Widget>[
-            ScalableScrollView(
+            SafeArea(child: ScalableScrollView(
             scrollableChild: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
@@ -75,7 +77,7 @@ class _OnboardingLoginPhonePanelState extends State<OnboardingLoginPhonePanel> {
                       excludeFromSemantics: true,
                     ),
                     OnboardingBackButton(
-                        padding: const EdgeInsets.only(left: 10, top: 30, right: 20, bottom: 20),
+                        padding: const EdgeInsets.only(left: 10, top: 10, right: 20, bottom: 20),
                         onTap: () {
                           Analytics.instance.logSelect(target: "Back");
                           Navigator.pop(context);
@@ -115,7 +117,7 @@ class _OnboardingLoginPhonePanelState extends State<OnboardingLoginPhonePanel> {
                     Align(
                       alignment: Alignment.bottomCenter,
                       child: Padding(
-                        padding: EdgeInsets.all(24),
+                        padding: EdgeInsets.all(12),
                         child: ScalableRoundedButton(
                             label: Localization().getStringEx('panel.onboarding.login.phone.button.continue.title', 'Verify My Phone Number'),
                             hint: Localization().getStringEx('panel.onboarding.login.phone.button.continue.hint', ''),
@@ -125,7 +127,7 @@ class _OnboardingLoginPhonePanelState extends State<OnboardingLoginPhonePanel> {
                             onTap: () => _onLoginTapped()),
                       ),
                     ),
-                    Row(
+                    hasSkip ? Row(
                       children: <Widget>[
                         Expanded(
                             child: GestureDetector(
@@ -136,7 +138,7 @@ class _OnboardingLoginPhonePanelState extends State<OnboardingLoginPhonePanel> {
                               button: true,
                               excludeSemantics: true,
                               child: Padding(
-                                padding: EdgeInsets.only(bottom: 24),
+                                padding: EdgeInsets.only(bottom: 12),
                                 child: Text(
                                   skipTitle,
                                   textAlign: TextAlign.center,
@@ -151,9 +153,9 @@ class _OnboardingLoginPhonePanelState extends State<OnboardingLoginPhonePanel> {
                               )),
                         )),
                       ],
-                    )
+                    ) : Container()
                   ])
-                )),
+                ))),
             _progress
                 ? Container(
                     alignment: Alignment.center,

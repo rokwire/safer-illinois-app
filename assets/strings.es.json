@@ -96,6 +96,8 @@
     "panel.onboarding.roles.button.employee.hint":"",
     "panel.onboarding.roles.button.resident.title":"Residente de Illinois",
     "panel.onboarding.roles.button.resident.hint":"",
+    "panel.onboarding.roles.button.capitol_staff.title":"Capitol\nStaff",
+    "panel.onboarding.roles.button.capitol_staff.hint":"",
     "panel.onboarding.roles.button.continue.enabled.title":"Confirmar",
     "panel.onboarding.roles.button.continue.disabled.title":"Seleccione uno",
     "panel.onboarding.roles.button.continue.hint":"",
@@ -146,6 +148,7 @@
     "panel.onboarding.confirm_phone.button.confirm.hint":"",
     "panel.onboarding.confirm_phone.validation.phone_number.text":"Por favor, complete su código",
     "panel.onboarding.confirm_phone.validation.server_error.text":"Error al verificar el código",
+    "panel.onboarding.confirm_phone.validation.has_not_uin.text": "Unable to proceed further, because You are not a member of Capitol Staff",
 
     "panel.onboarding.upgrade.required.label.title":"Actualización requerida",
     "panel.onboarding.upgrade.required.label.description":"%s versión de la aplicación %s requiere una actualización a la versión %s o posterior",
@@ -276,6 +279,7 @@
     "panel.covid19_passport.label.page_1": "Página 1",
     "panel.covid19_passport.label.page_2": "Página 2",
     "panel.covid19_passport.label.update_i_card": "Actualiza tu i-card",
+    "panel.covid19_passport.label.resident": "Residente",
     "panel.covid19_passport.button.info.title": "Info ",
 
     "panel.covid19_guidelines.header.title": "Pautas del condado",
@@ -682,10 +686,6 @@
     "model.explore.time.tomorrow": "Mañana",
     "model.explore.time.at": "a",
     "model.explore.time.all_day": "Todo el dia",
-
-    "model.user.role.student.title": "Alumno",
-    "model.user.role.employee.title": "Empleado",
-    "model.user.role.resident.title": "Residente",
 
     "logic.date_time.greeting.morning": "Buenos días",
     "logic.date_time.greeting.afternoon": "Buenas tardes",
