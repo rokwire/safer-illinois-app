@@ -110,14 +110,14 @@ class _OnboardingLoginPhonePanelState extends State<OnboardingLoginPhonePanel> {
                 ),
                 ]),
                 bottomNotScrollableWidget: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24),
+                  padding: EdgeInsets.symmetric(horizontal: 36),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: <Widget>[
                     Align(
                       alignment: Alignment.bottomCenter,
                       child: Padding(
-                        padding: EdgeInsets.all(12),
+                        padding: EdgeInsets.only(top: 12, bottom: hasSkip ? 12 : 24),
                         child: ScalableRoundedButton(
                             label: Localization().getStringEx('panel.onboarding.login.phone.button.continue.title', 'Verify My Phone Number'),
                             hint: Localization().getStringEx('panel.onboarding.login.phone.button.continue.hint', ''),
@@ -138,7 +138,7 @@ class _OnboardingLoginPhonePanelState extends State<OnboardingLoginPhonePanel> {
                               button: true,
                               excludeSemantics: true,
                               child: Padding(
-                                padding: EdgeInsets.only(bottom: 12),
+                                padding: EdgeInsets.only(bottom: 24),
                                 child: Text(
                                   skipTitle,
                                   textAlign: TextAlign.center,
