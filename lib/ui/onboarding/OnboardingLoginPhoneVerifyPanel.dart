@@ -202,17 +202,16 @@ class _OnboardingLoginPhoneVerifyPanelState
                   onTap: () {
                     Analytics.instance.logSelect(target: "Back");
                     Navigator.pop(context);
-                  }), Align(alignment: Alignment.bottomCenter, child:
-              Padding(padding: EdgeInsets.only(left: 18, right: 18, bottom: 8),child: ScalableRoundedButton(
-                  label: Localization().getStringEx(
-                      "panel.onboarding.verify_phone.button.next.label",
-                      "Next"),
-                  hint: Localization().getStringEx(
-                      "panel.onboarding.verify_phone.button.next.hint", ""),
-                  borderColor: Styles().colors.fillColorSecondary,
-                  backgroundColor: Styles().colors.background,
-                  textColor: Styles().colors.fillColorPrimary,
-                  onTap: () => _onTapNext()),),)
+                  }),
+              Align(alignment: Alignment.bottomCenter, child:
+                Padding(padding: EdgeInsets.only(left: 36, right: 36, bottom: 24), child:
+                  ScalableRoundedButton(
+                    label: Localization().getStringEx("panel.onboarding.verify_phone.button.next.label", "Next"),
+                    hint: Localization().getStringEx("panel.onboarding.verify_phone.button.next.hint", ""),
+                    borderColor: Styles().colors.fillColorSecondary,
+                    backgroundColor: Styles().colors.background,
+                    textColor: Styles().colors.fillColorPrimary,
+                    onTap: () => _onTapNext()),),)
             ],),
         ),
         ));

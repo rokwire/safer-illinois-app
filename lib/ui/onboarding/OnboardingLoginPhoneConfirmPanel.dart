@@ -178,7 +178,7 @@ class _OnboardingLoginPhoneConfirmPanelState extends State<OnboardingLoginPhoneC
               ]),
               bottomNotScrollableWidget:
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                padding: EdgeInsets.symmetric(horizontal: 36, vertical: 24),
                 child: ScalableRoundedButton(
                   label: Localization().getStringEx(
                       "panel.onboarding.confirm_phone.button.confirm.label",
