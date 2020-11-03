@@ -234,11 +234,11 @@ class _OnboardingLoginPhoneVerifyPanelState
       phoneNumber = phoneNumber.replaceAll(RegExp('\\s+'), '');
       if (!phoneNumber.startsWith("+")) {
         // Handle: "4153709574"
-        if ((phoneNumber.length == 10) && RegExp('[0-9]{10}').hasMatch(phoneNumber)) {
+        if ((phoneNumber.length == 10) && RegExp('[2-9][0-9]{9}').hasMatch(phoneNumber)) {
           phoneNumber = '+1$phoneNumber';
         }
         // Handle: "14153709574"
-        else if ((phoneNumber.length == 11) && RegExp('1[0-9]{10}').hasMatch(phoneNumber)) {
+        else if ((phoneNumber.length == 11) && RegExp('1[2-9][0-9]{9}').hasMatch(phoneNumber)) {
           phoneNumber = '+$phoneNumber';
         }
       }
