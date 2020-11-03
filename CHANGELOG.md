@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Send additional exposure stats with processed test result analytics event [#332](https://github.com/rokwire/safer-illinois-app/issues/332).
 - Implemented exclusive selection by group in role selection panels [#347](https://github.com/rokwire/safer-illinois-app/issues/347).
+- More precise adjusting phone numbers with "+1" prefix [#350](https://github.com/rokwire/safer-illinois-app/issues/350).
 
 ## [2.8.8] - 2020-11-02
 ### Fixed
