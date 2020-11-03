@@ -125,8 +125,8 @@ class _OnboardingRoleSelectionPanelState extends State<OnboardingRolesPanel> {
                 Expanded(child: RoleGridButton(
                   title: Localization().getStringEx("panel.onboarding.roles.button.capitol_staff.title","Capitol Staff"),
                   hint: Localization().getStringEx('panel.onboarding.roles.button.capitol_staff.hint', ''),
-                  iconPath: 'images/icon-capitol-normal.png',
-                  selectedIconPath: 'images/icon-capitol-selected.png',
+                  iconPath: 'images/icon-persona-capitol-normal.png',
+                  selectedIconPath: 'images/icon-persona-capitol-selected.png',
                   selectedBackgroundColor: Styles().colors.fillColorPrimary,
                   selectedTextColor: Colors.white,
                   selected:(_selectedRoles.contains(UserRole.capitolStaff)),
