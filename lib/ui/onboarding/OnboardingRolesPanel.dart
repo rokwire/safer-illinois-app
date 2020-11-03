@@ -83,7 +83,7 @@ class _OnboardingRoleSelectionPanelState extends State<OnboardingRolesPanel> {
         Expanded(child: SingleChildScrollView(child: Padding(padding: EdgeInsets.only(left: 16, right: 8, ), child:
             Column(children: <Widget>[
               Row(children: <Widget>[
-                Flexible(flex: 1, child: RoleGridButton(
+                Expanded(child: RoleGridButton(
                   title: Localization().getStringEx('panel.onboarding.roles.button.student.title', 'University Student'),
                   hint: Localization().getStringEx('panel.onboarding.roles.button.student.hint', ''),
                   iconPath: 'images/icon-persona-student-normal.png',
@@ -94,8 +94,8 @@ class _OnboardingRoleSelectionPanelState extends State<OnboardingRolesPanel> {
                   sortOrder: 1,
                   onTap: _onRoleGridButton,
                 ),),
-                Container(height: gridSpacing,),
-                Flexible(flex: 1, child: RoleGridButton(
+                Container(width: gridSpacing,),
+                Expanded(child: RoleGridButton(
                   title: Localization().getStringEx('panel.onboarding.roles.button.employee.title', 'Employee/Affiliate'),
                   hint: Localization().getStringEx('panel.onboarding.roles.button.employee.hint', ''),
                   iconPath: 'images/icon-persona-employee-normal.png',
@@ -103,12 +103,26 @@ class _OnboardingRoleSelectionPanelState extends State<OnboardingRolesPanel> {
                   selectedBackgroundColor: Styles().colors.accentColor3,
                   selected: (_selectedRoles.contains(UserRole.employee)),
                   data: UserRole.employee,
-                  sortOrder: 4,
+                  sortOrder: 2,
                   onTap: _onRoleGridButton,
                 ),)
               ],),
+              Container(height: gridSpacing,),
               Row(children: <Widget>[
-                  Expanded(child: RoleGridButton(
+                /*Expanded(child: RoleGridButton(
+                  title: Localization().getStringEx('panel.onboarding.roles.button.resident.title', 'Illinois Resident'),
+                  hint: Localization().getStringEx('panel.onboarding.roles.button.resident.hint', ''),
+                  iconPath: 'images/icon-persona-resident-normal.png',
+                  selectedIconPath: 'images/icon-persona-resident-selected.png',
+                  selectedBackgroundColor: Styles().colors.fillColorPrimary,
+                  selectedTextColor: Colors.white,
+                  selected:(_selectedRoles.contains(UserRole.resident)),
+                  data: UserRole.resident,
+                  sortOrder: 3,
+                  onTap: _onRoleGridButton,
+                ),),
+                Container(width: gridSpacing,),*/
+                Expanded(child: RoleGridButton(
                   title: Localization().getStringEx("panel.onboarding.roles.button.capitol_staff.title","Capitol Staff"),
                   hint: Localization().getStringEx('panel.onboarding.roles.button.capitol_staff.hint', ''),
                   iconPath: 'images/icon-capitol-normal.png',
@@ -117,23 +131,12 @@ class _OnboardingRoleSelectionPanelState extends State<OnboardingRolesPanel> {
                   selectedTextColor: Colors.white,
                   selected:(_selectedRoles.contains(UserRole.capitolStaff)),
                   data: UserRole.capitolStaff,
-                  sortOrder: 7,
+                  sortOrder: 4,
                   onTap: _onRoleGridButton,
                 ),),
+                Container(width: gridSpacing,),
                 Expanded(child: Container()),
               ],),
-              /*Row(children: <Widget>[Expanded(child: RoleGridButton(
-                title: Localization().getStringEx('panel.onboarding.roles.button.resident.title', 'Illinois Resident'),
-                hint: Localization().getStringEx('panel.onboarding.roles.button.resident.hint', ''),
-                iconPath: 'images/icon-persona-resident-normal.png',
-                selectedIconPath: 'images/icon-persona-resident-selected.png',
-                selectedBackgroundColor: Styles().colors.fillColorPrimary,
-                selectedTextColor: Colors.white,
-                selected:(_selectedRoles.contains(UserRole.resident)),
-                data: UserRole.resident,
-                sortOrder: 7,
-                onTap: _onRoleGridButton,
-              ),)],)*/
             ],),),),),
 
         Container(color: Styles().colors.white, child: Padding(padding: EdgeInsets.only(left: 24, right: 24, top: 10, bottom: 20),
@@ -180,6 +183,12 @@ class _OnboardingRoleSelectionPanelState extends State<OnboardingRolesPanel> {
         if (_selectedRoles.contains(role)) {
           _selectedRoles.remove(role);
         } else {
+          // Unselect all roles that bellog to other roles groups
+          for (Set<UserRole> group in UserRole.groups) {
+            if (!group.contains(role)) {
+              _selectedRoles.removeAll(group);
+            }
+          }
           _selectedRoles.add(role);
         }
 
