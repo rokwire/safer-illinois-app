@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Added
 - Send additional exposure stats with processed test result analytics event [#332](https://github.com/rokwire/safer-illinois-app/issues/332).
+- Implemented exclusive selection by group in role selection panels [#347](https://github.com/rokwire/safer-illinois-app/issues/347).
 
 ## [2.8.8] - 2020-11-02
 ### Fixed

@@ -94,6 +94,13 @@ class UserRole {
     return [student, employee, resident, capitolStaff];
   }
 
+  static Set<Set<UserRole>> get groups {
+    return Set.from([
+      Set<UserRole>.from([UserRole.student, UserRole.employee, UserRole.resident]),
+      Set<UserRole>.from([UserRole.capitolStaff]),
+    ]);
+  }
+  
   final String _value;
 
   const UserRole._internal(this._value);

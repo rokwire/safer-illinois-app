@@ -121,23 +121,7 @@ class _SettingsRolesPanelState extends State<SettingsRolesPanel> implements Noti
                 ]),
                 Container(height: gridSpacing,),
                 Row(children: <Widget>[
-                  Expanded(child: RoleGridButton(
-                    title: Localization().getStringEx("panel.onboarding.roles.button.capitol_staff.title","Capitol Staff"),
-                    hint: Localization().getStringEx('panel.onboarding.roles.button.capitol_staff.hint', ''),
-                    iconPath: 'images/icon-capitol-normal.png',
-                    selectedIconPath: 'images/icon-capitol-selected.png',
-                    selectedBackgroundColor: Styles().colors.fillColorPrimary,
-                    selectedTextColor: Colors.white,
-                    selected:(_selectedRoles.contains(UserRole.capitolStaff)),
-                    data: UserRole.capitolStaff,
-                    sortOrder: 7,
-                    onTap: _onRoleGridButton,
-                  ),),
-                  Container(width: gridSpacing,),
-                  Expanded(child: Container()),
-                ]),
-                _isResident ? Row(children: <Widget>[
-                  Expanded(child: RoleGridButton(
+                  _isResident ? Expanded(child: RoleGridButton(
                     title: Localization().getStringEx('panel.onboarding.roles.button.resident.title', 'Resident'),
                     hint: Localization().getStringEx('panel.onboarding.roles.button.resident.hint', ''),
                     iconPath: 'images/icon-persona-resident-normal.png',
@@ -148,10 +132,23 @@ class _SettingsRolesPanelState extends State<SettingsRolesPanel> implements Noti
                     data: UserRole.resident,
                     sortOrder: 7,
                     onTap: _onRoleGridButton,
+                  ),) : Container(),
+                  _isResident ? Container(width: gridSpacing,) : Container(),
+                  Expanded(child: RoleGridButton(
+                    title: Localization().getStringEx("panel.onboarding.roles.button.capitol_staff.title","Capitol Staff"),
+                    hint: Localization().getStringEx('panel.onboarding.roles.button.capitol_staff.hint', ''),
+                    iconPath: 'images/icon-persona-capitol-normal.png',
+                    selectedIconPath: 'images/icon-persona-capitol-selected.png',
+                    selectedBackgroundColor: Styles().colors.fillColorPrimary,
+                    selectedTextColor: Colors.white,
+                    selected:(_selectedRoles.contains(UserRole.capitolStaff)),
+                    data: UserRole.capitolStaff,
+                    sortOrder: 7,
+                    onTap: _onRoleGridButton,
                   ),),
-                  Container(width: gridSpacing,),
-                  Expanded(child: Container()),
-                ]) : Container(),
+                  !_isResident ? Container(width: gridSpacing,) : Container(),
+                  !_isResident ? Expanded(child: Container()) : Container(),
+                ]),
               ]),
             ),
           ],
@@ -171,6 +168,14 @@ class _SettingsRolesPanelState extends State<SettingsRolesPanel> implements Noti
         if (_selectedRoles.contains(role)) {
           _selectedRoles.remove(role);
         } else {
+          
+          // Unselect all roles that bellog to other roles groups
+          for (Set<UserRole> group in UserRole.groups) {
+            if (!group.contains(role)) {
+              _selectedRoles.removeAll(group);
+            }
+          }
+
           _selectedRoles.add(role);
         }
 
