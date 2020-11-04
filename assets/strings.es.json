@@ -148,7 +148,7 @@
     "panel.onboarding.confirm_phone.button.confirm.hint":"",
     "panel.onboarding.confirm_phone.validation.phone_number.text":"Por favor, complete su código",
     "panel.onboarding.confirm_phone.validation.server_error.text":"Error al verificar el código",
-    "panel.onboarding.confirm_phone.validation.has_not_uin.text": "Unable to proceed further, because You are not a member of Capitol Staff",
+    "panel.onboarding.confirm_phone.validation.has_not_uin.text": "Su número de teléfono fue verificado, pero no existe en la lista de usuarios autorizados. Deberá ponerse en contacto con el administrador de su organización y pedirle que actualice su lista con su número de teléfono.",
 
     "panel.onboarding.upgrade.required.label.title":"Actualización requerida",
     "panel.onboarding.upgrade.required.label.description":"%s versión de la aplicación %s requiere una actualización a la versión %s o posterior",
