@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Acknowledge exposure log url from app config.
 - Various strings updated [#357](https://github.com/rokwire/safer-illinois-app/issues/357), [#359](https://github.com/rokwire/safer-illinois-app/issues/359).
 
+### Fixed
+- Unable to save qr code during the onboarding process after fresh install [#361](https://github.com/rokwire/safer-illinois-app/issues/361).
+
 ## [2.8.9] - 2020-11-03
 ### Added
 - Send additional exposure stats with processed test result analytics event [#332](https://github.com/rokwire/safer-illinois-app/issues/332).
