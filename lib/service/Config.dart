@@ -365,5 +365,8 @@ class Config with Service implements NotificationsListener {
 
   int get refreshTimeout            { return kReleaseMode ? (settings['refreshTimeout'] ?? 0) : 0; }
 
+  bool get residentRoleEnabled     { return false; }
+  bool get capitolStaffRoleEnabled { return (settings['roleCapitolStaffEnabled'] == true); }
+
 }
 

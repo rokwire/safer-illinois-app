@@ -104,6 +104,7 @@ class Auth with Service implements NotificationsListener {
       DeepLink.notifyUri,
       AppLivecycle.notifyStateChanged,
       User.notifyUserDeleted,
+      Config.notifyConfigChanged,
     ]);
   }
 
@@ -174,6 +175,10 @@ class Auth with Service implements NotificationsListener {
 
   bool isMemberOf(String groupName) {
     return authInfo?.userGroupMembership?.contains(groupName) ?? false;
+  }
+
+  bool get isCapitolStaff {
+    return isPhoneLoggedIn && hasUIN;
   }
 
   void logout(){
@@ -412,7 +417,7 @@ class Auth with Service implements NotificationsListener {
 
     // 2. Request AuthInfo
     // Do not fail if Aith Info is NA
-    AuthInfo newAuthInfo = await _loadPhoneAuthInfo(optAuthToken: newAuthToken);
+    AuthInfo newAuthInfo = Config().capitolStaffRoleEnabled ? await _loadPhoneAuthInfo(optAuthToken: newAuthToken) : null;
 
     // 3. Pii Pid
     String newUserPiiPid = await _loadPidWithPhoneAuth(phone: phoneNumber, optAuthToken: newAuthToken);
@@ -502,6 +507,12 @@ class Auth with Service implements NotificationsListener {
       catch(e) { print(e.toString()); }
     }
     return null;
+  }
+
+  void _checkCapitolStuffConfigEnabled() {
+    if (isCapitolStaff && !Config().capitolStaffRoleEnabled) {
+      logout();
+    }
   }
 
   /// UserPIIData
@@ -896,6 +907,9 @@ class Auth with Service implements NotificationsListener {
     }
     else if (name == User.notifyUserDeleted) {
       logout();
+    }
+    else if (name == Config.notifyConfigChanged) {
+      _checkCapitolStuffConfigEnabled();
     }
   }
 
