@@ -339,6 +339,7 @@ class Config with Service implements NotificationsListener {
   String get feedbackUrl            { return otherUniversityServices['feedback_url']; }               // "https://forms.illinois.edu/sec/1971889"
   String get iCardUrl               { return otherUniversityServices['icard_url']; }                  // "https://www.icard.uillinois.edu/rest/rw/rwIDData/rwCardInfo"
   String get privacyPolicyUrl       { return otherUniversityServices['privacy_policy_url']; }         // "https://www.vpaa.uillinois.edu/resources/web_privacy"
+  String get exposureLogUrl         { return otherUniversityServices['exposure_log_url']; }           // "http://ec2-18-191-37-235.us-east-2.compute.amazonaws.com:8003/PostSessionData"
 
   String get appConfigUrl           { return platformBuildingBlocks['appconfig_url']; }               // "https://api-dev.rokwire.illinois.edu/app/configs"
   String get loggingUrl             { return platformBuildingBlocks['logging_url']; }                 // "https://api-dev.rokwire.illinois.edu/logs"

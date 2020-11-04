@@ -1191,30 +1191,33 @@ class Exposure with Service implements NotificationsListener {
   }
 
   Future<bool> _postSessionData({int sessionId, String deviceId, bool isAndroid}) async {
-    List<Map<String, dynamic>> recordRssi;
-    String rssiQuery = "SELECT * FROM $_databaseRssiTable WHERE $_databaseRssiSessionIdField = $sessionId";
-    try { recordRssi = (_database != null) ? await _database.rawQuery(rssiQuery) : null; } catch (e) { print(e?.toString()); }
+    if (AppString.isStringNotEmpty(Config().exposureLogUrl)) {
+      List<Map<String, dynamic>> recordRssi;
+      String rssiQuery = "SELECT * FROM $_databaseRssiTable WHERE $_databaseRssiSessionIdField = $sessionId";
+      try { recordRssi = (_database != null) ? await _database.rawQuery(rssiQuery) : null; } catch (e) { print(e?.toString()); }
 
-    List<Map<String, dynamic>> recordContact;
-    String contactQuery = "SELECT * FROM $_databaseContactTable WHERE $_databaseContactSessionIdField = $sessionId";
-    try { recordContact = (_database != null) ? await _database.rawQuery(contactQuery) : null; } catch (e) { print(e?.toString()); }
+      List<Map<String, dynamic>> recordContact;
+      String contactQuery = "SELECT * FROM $_databaseContactTable WHERE $_databaseContactSessionIdField = $sessionId";
+      try { recordContact = (_database != null) ? await _database.rawQuery(contactQuery) : null; } catch (e) { print(e?.toString()); }
 
-    List<Map<String, dynamic>> recordRpi;
-    String rpiQuery = "SELECT * FROM $_databaseRpiTable WHERE $_databaseRpiSessionIdField = $sessionId";
-    try { recordRpi = (_database != null) ? await _database.rawQuery(rpiQuery) : null; } catch (e) { print(e?.toString()); }
+      List<Map<String, dynamic>> recordRpi;
+      String rpiQuery = "SELECT * FROM $_databaseRpiTable WHERE $_databaseRpiSessionIdField = $sessionId";
+      try { recordRpi = (_database != null) ? await _database.rawQuery(rpiQuery) : null; } catch (e) { print(e?.toString()); }
 
-    Map<String, dynamic> upload = {
-      "deviceID": deviceId,
-      "isAndroid": isAndroid,
-      "contact": recordContact,
-      "rpi": recordRpi,
-      "rssi": recordRssi
-    };
-    Response response = await Network().post(
-        'http://ec2-18-191-37-235.us-east-2.compute.amazonaws.com:8003/PostSessionData',
-        body: AppJson.encode(upload),
-        auth: NetworkAuth.App);
-    return response?.statusCode == 200;
+      Map<String, dynamic> upload = {
+        "deviceID": deviceId,
+        "isAndroid": isAndroid,
+        "contact": recordContact,
+        "rpi": recordRpi,
+        "rssi": recordRssi
+      };
+      Response response = await Network().post(
+          Config().exposureLogUrl,
+          body: AppJson.encode(upload),
+          auth: NetworkAuth.App);
+      return response?.statusCode == 200;
+    }
+    return null;
   }
 
 
