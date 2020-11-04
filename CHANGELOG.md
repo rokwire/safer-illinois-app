@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Acknowledge exposure log url from app config.
-- Various strings updated [#357](https://github.com/rokwire/safer-illinois-app/issues/357).
+- Various strings updated [#357](https://github.com/rokwire/safer-illinois-app/issues/357), [#359](https://github.com/rokwire/safer-illinois-app/issues/359).
 
 ## [2.8.9] - 2020-11-03
 ### Added

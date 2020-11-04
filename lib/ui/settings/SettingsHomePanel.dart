@@ -274,7 +274,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
                       style: TextStyle(color: Styles().colors.fillColorPrimary, fontFamily: Styles().fontFamilies.bold)),
                   new TextSpan(
                       text: Localization().getStringEx("panel.settings.home.connect.not_logged_in.netid.description.part_5",
-                          "? Log in with your NetID to see Illinois information specific to you, like your Illini Cash and meal plan."))
+                          "? Log in with your NetID."))
                 ],
               ),
             )),);
@@ -294,11 +294,11 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
                 style: TextStyle(color: Styles().colors.textBackground, fontFamily: Styles().fontFamilies.regular, fontSize: 16),
                 children: <TextSpan>[
                   new TextSpan(
-                      text: Localization().getStringEx("panel.settings.home.connect.not_logged_in.phone.description.part_1", "Don't have a NetID"),
+                      text: Localization().getStringEx("panel.settings.home.connect.not_logged_in.phone.description.part_1", "Don't have a NetID? "),
                       style: TextStyle(color: Styles().colors.fillColorPrimary, fontFamily: Styles().fontFamilies.bold)),
                   new TextSpan(
                       text: Localization().getStringEx("panel.settings.home.connect.not_logged_in.phone.description.part_2",
-                          "? Verify your phone number to save your preferences and have the same experience on more than one device.")),
+                          "Verify your phone number.")),
                 ],
               ),
             )),);
