@@ -492,26 +492,54 @@ class Auth with Service implements NotificationsListener {
   }
 
   Future<AuthInfo> _loadPhoneAuthInfo({AuthToken optAuthToken}) async {
+    dynamic result = await _loadCapitolStaffUIN(optAuthToken: optAuthToken);
+    return (result is String) ? AuthInfo(uin: result) : null;
+  }
+
+  Future<dynamic> _loadCapitolStaffUIN({AuthToken optAuthToken}) async {
     optAuthToken = (optAuthToken != null) ? optAuthToken : _authToken;
     PhoneToken phoneToken = (optAuthToken is PhoneToken) ? optAuthToken : null;
     if ((Config().healthUrl != null) && (phoneToken?.phone != null)) {
-      try {
-        String url = "${Config().healthUrl}/covid19/rosters/phone/${phoneToken.phone}";
-        Http.Response userDataResp = await Network().get(url, auth: NetworkAuth.App);
-        String responseBody = ((userDataResp != null) && (userDataResp.statusCode == 200)) ? userDataResp.body : null;
-        Map<String, dynamic> responseJson = (responseBody != null) ? AppJson.decodeMap(responseBody) : null;
+      String url = "${Config().healthUrl}/covid19/rosters/phone/${phoneToken.phone}";
+      Http.Response userDataResp = await Network().get(url, auth: NetworkAuth.App);
+      if ((userDataResp != null) && (userDataResp.statusCode == 200)) {
+        Map<String, dynamic> responseJson = AppJson.decodeMap(userDataResp.body);
         String uin = (responseJson != null) ? responseJson['uin'] : null;
         //TMP: uin = '000000000';
-        return (uin != null) ? AuthInfo(uin: uin) : null;
+        // String or null, if the user does not bellong to roster
+        return uin;
       }
-      catch(e) { print(e.toString()); }
+      else {
+        // Request failed
+        return Exception("${userDataResp?.statusCode} ${userDataResp?.body}");
+      }
     }
-    return null;
+    else {
+      // Not Available
+      return false;
+    }
   }
 
-  void _checkCapitolStuffConfigEnabled() {
-    if (isCapitolStaff && !Config().capitolStaffRoleEnabled) {
+  bool _checkCapitolStaffConfigEnabled() {
+    if (!isCapitolStaff) {
+      return null;
+    }
+    else if (Config().capitolStaffRoleEnabled) {
+      return true;
+    }
+    else {
       logout();
+      return false;
+    }
+  }
+
+  void _checkCapitolStaffRosterEnabled() {
+    if (_checkCapitolStaffConfigEnabled() == true) {
+      _loadCapitolStaffUIN().then((dynamic result) {
+        if (result == null) {
+          logout();
+        }
+      });
     }
   }
 
@@ -903,13 +931,14 @@ class Auth with Service implements NotificationsListener {
       if (param == AppLifecycleState.resumed) {
         _reloadAuthCardIfNeeded();
         _reloadUserPiiDataIfNeeded();
+        _checkCapitolStaffRosterEnabled();
       }
     }
     else if (name == User.notifyUserDeleted) {
       logout();
     }
     else if (name == Config.notifyConfigChanged) {
-      _checkCapitolStuffConfigEnabled();
+      _checkCapitolStaffConfigEnabled();
     }
   }
 
