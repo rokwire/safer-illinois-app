@@ -148,7 +148,7 @@
     "panel.onboarding.confirm_phone.button.confirm.hint":"",
     "panel.onboarding.confirm_phone.validation.phone_number.text":"Please, fill your code",
     "panel.onboarding.confirm_phone.validation.server_error.text":"Failed to verify code",
-    "panel.onboarding.confirm_phone.validation.has_not_uin.text": "Unable to proceed further, because You are not a member of Capitol Staff",
+    "panel.onboarding.confirm_phone.validation.has_not_uin.text": "Your phone number was verified but does not exist in the authorized users list. You will need to contact your organization's administrator and have them update their roster with your phone number.",
 
     "panel.onboarding.upgrade.required.label.title":"Upgrade Required",
     "panel.onboarding.upgrade.required.label.description":"%s app version %s requires an upgrade to version %s or later.",

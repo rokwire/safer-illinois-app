@@ -229,7 +229,7 @@ class _OnboardingLoginPhoneConfirmPanelState extends State<OnboardingLoginPhoneC
       if(!Auth().hasUIN){
         setState(() {
           _verificationErrorMsg = Localization().getStringEx(
-              "panel.onboarding.confirm_phone.validation.has_not_uin.text", "Unable to proceed further, because You are not a member of Capitol Staff");
+              "panel.onboarding.confirm_phone.validation.has_not_uin.text", "Your phone number was verified but does not exist in the authorized users list. You will need to contact your organization's administrator and have them update their roster with your phone number.");
         });
       }
       else{
