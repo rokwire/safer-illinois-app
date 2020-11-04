@@ -51,7 +51,73 @@ class _OnboardingRoleSelectionPanelState extends State<OnboardingRolesPanel> {
   
   @override
   Widget build(BuildContext context) {
-    
+    return Scaffold(
+      backgroundColor: Styles().colors.background,
+      body: SafeArea(child: Column( children: <Widget>[
+        Container(color: Styles().colors.white, child: Padding(padding: EdgeInsets.only(top: 10, bottom: 10),
+          child: Row(children: <Widget>[
+            OnboardingBackButton(image: 'images/chevron-left.png', padding: const EdgeInsets.only(left: 10,),
+                onTap:() {
+                  Analytics.instance.logSelect(target: "Back");
+                  Navigator.pop(context);
+                }),
+            Expanded(child: Column(children: <Widget>[
+              Semantics(
+                label: Localization().getStringEx('panel.onboarding.roles.label.title', 'Who are you?').toLowerCase(),
+                hint: Localization().getStringEx('panel.onboarding.roles.label.title.hint', 'Header 1').toLowerCase(),
+                excludeSemantics: true,
+                child: Text(Localization().getStringEx('panel.onboarding.roles.label.title', 'Who are you?'),
+                  style: TextStyle(fontFamily: Styles().fontFamilies.extraBold, fontSize: 24, color: Styles().colors.fillColorPrimary),
+                ),
+              ),
+              Padding(padding: EdgeInsets.only(top: 8),
+                child: Text(Localization().getStringEx('panel.onboarding.roles.label.description', 'Select all that apply'),
+                  style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground),
+                ),
+              )
+            ],),),
+            Padding(padding: EdgeInsets.only(left: 42),),
+          ],),
+        ),),
+
+        Expanded(child: SingleChildScrollView(child:
+          Padding(padding: EdgeInsets.only(left: 16, right: 8, ), child:
+            Column(children: _rolesWidgets,),),),),
+
+        Container(color: Styles().colors.white, child: Padding(padding: EdgeInsets.only(left: 24, right: 24, top: 10, bottom: 20),
+          child: Stack(children:<Widget>[
+            ScalableRoundedButton(
+                label: _allowNext ? Localization().getStringEx('panel.onboarding.roles.button.continue.enabled.title', 'Confirm') : Localization().getStringEx('panel.onboarding.roles.button.continue.disabled.title', 'Select one'),
+                hint: Localization().getStringEx('panel.onboarding.roles.button.continue.hint', ''),
+                enabled: _allowNext,
+                backgroundColor: (_allowNext ? Styles().colors.white : Styles().colors.background),
+                borderColor: (_allowNext
+                    ? Styles().colors.fillColorSecondary
+                    : Styles().colors.fillColorPrimaryTransparent03),
+                textColor: (_allowNext
+                    ? Styles().colors.fillColorPrimary
+                    : Styles().colors.fillColorPrimaryTransparent03),
+                onTap: () => _onExploreClicked()),
+            Visibility(
+              visible: _updating,
+              child: Container(
+                height: 48,
+                child: Align(
+                  alignment:Alignment.center,
+                  child: SizedBox(
+                    height: 24,
+                    width: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorPrimary),),),),),),
+          ]),
+        ),)
+
+      ],),),
+    );
+  }
+
+  List<Widget> get _rolesWidgets {
     final double gridSpacing = 5;
     final int colsCount = 2;
     List<Widget> rows = <Widget>[], row = <Widget>[];
@@ -85,71 +151,25 @@ class _OnboardingRoleSelectionPanelState extends State<OnboardingRolesPanel> {
       }
       rows.add(Row(children:row));
     }
+    return rows;
+  }
 
-    return Scaffold(
-      backgroundColor: Styles().colors.background,
-      body: SafeArea(child: Column( children: <Widget>[
-        Container(color: Styles().colors.white, child: Padding(padding: EdgeInsets.only(top: 10, bottom: 10),
-          child: Row(children: <Widget>[
-            OnboardingBackButton(image: 'images/chevron-left.png', padding: const EdgeInsets.only(left: 10,),
-                onTap:() {
-                  Analytics.instance.logSelect(target: "Back");
-                  Navigator.pop(context);
-                }),
-            Expanded(child: Column(children: <Widget>[
-              Semantics(
-                label: Localization().getStringEx('panel.onboarding.roles.label.title', 'Who are you?').toLowerCase(),
-                hint: Localization().getStringEx('panel.onboarding.roles.label.title.hint', 'Header 1').toLowerCase(),
-                excludeSemantics: true,
-                child: Text(Localization().getStringEx('panel.onboarding.roles.label.title', 'Who are you?'),
-                  style: TextStyle(fontFamily: Styles().fontFamilies.extraBold, fontSize: 24, color: Styles().colors.fillColorPrimary),
-                ),
-              ),
-              Padding(padding: EdgeInsets.only(top: 8),
-                child: Text(Localization().getStringEx('panel.onboarding.roles.label.description', 'Select all that apply'),
-                  style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground),
-                ),
-              )
-            ],),),
-            Padding(padding: EdgeInsets.only(left: 42),),
-          ],),
-        ),),
-
-        Expanded(child: SingleChildScrollView(child:
-          Padding(padding: EdgeInsets.only(left: 16, right: 8, ), child:
-            Column(children: rows,),),),),
-
-        Container(color: Styles().colors.white, child: Padding(padding: EdgeInsets.only(left: 24, right: 24, top: 10, bottom: 20),
-          child: Stack(children:<Widget>[
-            ScalableRoundedButton(
-                label: _allowNext ? Localization().getStringEx('panel.onboarding.roles.button.continue.enabled.title', 'Confirm') : Localization().getStringEx('panel.onboarding.roles.button.continue.disabled.title', 'Select one'),
-                hint: Localization().getStringEx('panel.onboarding.roles.button.continue.hint', ''),
-                enabled: _allowNext,
-                backgroundColor: (_allowNext ? Styles().colors.white : Styles().colors.background),
-                borderColor: (_allowNext
-                    ? Styles().colors.fillColorSecondary
-                    : Styles().colors.fillColorPrimaryTransparent03),
-                textColor: (_allowNext
-                    ? Styles().colors.fillColorPrimary
-                    : Styles().colors.fillColorPrimaryTransparent03),
-                onTap: () => _onExploreClicked()),
-            Visibility(
-              visible: _updating,
-              child: Container(
-                height: 48,
-                child: Align(
-                  alignment:Alignment.center,
-                  child: SizedBox(
-                    height: 24,
-                    width: 24,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorPrimary),),),),),),
-          ]),
-        ),)
-
-      ],),),
-    );
+  RoleGridButton _roleButton(UserRole role) {
+    if (role == UserRole.student) {
+      return _studentButton;
+    }
+    else if (role == UserRole.employee) {
+      return _employeeButton;
+    }
+    else if (role == UserRole.resident) {
+      return _residentButton;
+    }
+    else if (role == UserRole.capitolStaff) {
+      return _capitolStaffButton;
+    }
+    else {
+      return null;
+    }
   }
 
   RoleGridButton get _studentButton {
@@ -208,24 +228,6 @@ class _OnboardingRoleSelectionPanelState extends State<OnboardingRolesPanel> {
       sortOrder: 4,
       onTap: _onRoleGridButton,
     ) : null;
-  }
-
-  RoleGridButton _roleButton(UserRole role) {
-    if (role == UserRole.student) {
-      return _studentButton;
-    }
-    else if (role == UserRole.employee) {
-      return _employeeButton;
-    }
-    else if (role == UserRole.resident) {
-      return _residentButton;
-    }
-    else if (role == UserRole.capitolStaff) {
-      return _capitolStaffButton;
-    }
-    else {
-      return null;
-    }
   }
 
   void _onRoleGridButton(RoleGridButton button) {
