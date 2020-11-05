@@ -1,0 +1,801 @@
+{
+	"defaults": {
+		"status": {
+			"health_status": "orange",
+			"next_step": "default.step"
+		}
+	},
+
+	"constants": {
+		"UserTestMonitorInterval": null,
+		"UndergraduateTestMonitorInterval": 4,
+		"DefaultTestMonitorInterval": 8
+	},
+
+	"statuses": {
+    "PCR.positive": {
+      "health_status": "red",
+      "priority": 11,
+      "next_step_html": "positive.step.html"
+    },
+		"PCR.xpositive": {
+			"condition": "timeout",
+			"params": {
+				"interval": { "min": 0, "max": 8, "scope": "future" }
+			},
+			"success": {
+				"condition": "require-test",
+				"params": {
+					"interval": { "min": 9, "max": null, "scope": "future" }
+				},
+				"success": null,
+				"fail": {
+					"health_status": "red",
+					"priority": 11,
+					"next_step": "test.now.step"
+				}
+			},
+			"fail": {
+				"health_status": "red",
+				"priority": 11,
+				"next_step_html": "positive.step.html"
+			}
+		},
+		
+		"PCR.positive-IP": {
+			"condition": "timeout",
+			"params": {
+				"interval": { "min": 0, "max": 8, "scope": "future" }
+			},
+			"success": {
+				"condition": "require-test",
+				"params": {
+					"interval": { "min": 9, "max": null, "scope": "future" }
+				},
+				"success": null,
+				"fail": {
+					"health_status": "red",
+					"priority": 11,
+					"next_step": "test.now.step",
+					"fcm_topic": "PCR.positive-IP"
+				}
+			},
+			"fail": {
+				"health_status": "red",
+				"priority": 11,
+				"next_step_html": "positive-ip.step.html",
+				"event_explanation": "positive-ip.explanation",
+				"fcm_topic": "PCR.positive-IP"
+			}
+		},
+
+		"PCR.positive-NIP": {
+			"condition": "timeout",
+			"params": {
+				"interval": { "min": 0, "max": 60, "scope": "future" }
+			},
+			"success": {
+				"health_status": "orange",
+				"priority": 1,
+				"next_step": "test.now.step",
+				"reason": "test.now.reason"
+			},
+			"fail": {
+				"health_status": "yellow",
+				"priority": 3,
+				"next_step_html": "positive-nip.step.html",
+				"next_step_interval": 60,
+				"event_explanation": "positive-nip.explanation",
+				"warning": "test.future.warning"
+			}
+		},
+
+		"PCR.negative": "test-monitor",
+		
+		"PCR.invalid": {
+			"condition": "require-test",
+			"params": {
+				"interval": { "min": 0, "max": 1, "scope": "future", "current": true }
+			},
+			"success": {
+				"health_status": null,
+				"priority": null,
+				"next_step": "test.another.asap.step",
+				"next_step_interval": 1,
+				"warning": "test.future.warning"
+			},
+			"fail": {
+				"health_status": "orange",
+				"priority": 1,
+				"next_step": "test.now.step",
+				"reason": "test.now.reason"
+			}
+		},
+
+		"test-monitor": {
+			"condition": "test-interval",
+			"params": {
+				"interval": "UserTestMonitorInterval"
+			},
+			"success": {
+				"condition": "require-test",
+				"params": {
+					"interval": { "min": 0, "max": "UserTestMonitorInterval", "scope": "future", "current": true }
+				},
+				"success": {
+					"health_status": "yellow",
+					"priority": 1,
+					"next_step": "test.monitor.step",
+					"next_step_interval": "UserTestMonitorInterval",
+					"warning": "test.future.warning"
+				},
+				"fail": {
+					"health_status": "orange",
+					"priority": 1,
+					"next_step": "test.now.step",
+					"reason": "test.now.reason"
+				}
+			},
+			"fail": {
+				"condition": "test-user",
+				"params": {
+					"card.role": "Undergraduate",
+					"card.student_level": "1U"
+				},
+				"success": {
+					"condition": "require-test",
+					"params": {
+						"interval": { "min": 0, "max": "UndergraduateTestMonitorInterval", "scope": "future", "current": true }
+					},
+					"success": {
+						"health_status": "yellow",
+						"priority": 1,
+						"next_step": "test.monitor.step",
+						"next_step_interval": "UndergraduateTestMonitorInterval",
+						"warning": "test.future.warning"
+					},
+					"fail": {
+						"health_status": "orange",
+						"priority": 1,
+						"next_step": "test.now.step",
+						"reason": "test.now.reason"
+					}
+				},
+				"fail": {
+					"condition": "require-test",
+					"params": {
+						"interval": { "min": 0, "max": "DefaultTestMonitorInterval", "scope": "future", "current": true }
+					},
+					"success": {
+						"health_status": "yellow",
+						"priority": 1,
+						"next_step": "test.monitor.step",
+						"next_step_interval": "DefaultTestMonitorInterval",
+						"warning": "test.future.warning"
+					},
+					"fail": {
+						"health_status": "orange",
+						"priority": 1,
+						"next_step": "test.now.step",
+						"reason": "test.now.reason"
+					}
+				}
+			}
+		},
+		
+		"force-test": {
+			"condition": "require-test",
+			"params": {
+				"interval": { "min": 0, "scope": "future" }
+			},
+			"success": {
+				"condition": "timeout",
+				"params": {
+					"interval": { "min": 0, "max": 2, "scope": "future", "origin": "referenceDate" }
+				},
+				"success": {
+					"condition": "require-test",
+					"params": {
+						"interval": { "min": 3, "scope": "future", "origin": "referenceDate" }
+					},
+					"success": null,
+					"fail": {
+						"health_status": "orange",
+						"priority": 2,
+						"next_step": "test.another.now.step",
+						"reason": "test.past.reason"
+					}
+				},
+				"fail": {
+					"health_status": "orange",
+					"priority": 2,
+					"next_step": "test.after.step",
+					"next_step_interval": { "value": 3, "origin": "referenceDate" },
+					"reason": "test.after.reason"
+				}
+			},
+			"fail": {
+				"health_status": "orange",
+				"priority": 2,
+				"next_step": "test.multiple.step",
+				"reason": "test.required.reason"
+			}
+		},
+		
+		"symptoms-match": {
+			"health_status": "orange",
+			"priority": 1,
+			"next_step": "symptoms.step",
+			"reason": "symptoms.reason"
+		},
+
+		"exposure-match": {
+			"condition": "timeout",
+			"params": {
+				"interval": { "min": 0, "max": 3, "scope": "future" }
+			},
+			"success": {
+				"condition": "require-test",
+				"params": {
+					"interval": { "min": 4, "max": null, "scope": "future" }
+				},
+				"success": null,
+				"fail": {
+					"health_status": "orange",
+					"priority": 1,
+					"next_step": "test.now.step",
+					"reason": "test.now.reason"
+				}
+			},
+			"fail": {
+				"health_status": "orange",
+				"priority": 2,
+				"next_step_html": "exposure.step.html",
+				"next_step_interval": 4,
+				"reason": "exposure.reason"
+			}
+		},
+		
+		"quarantine-on": {
+			"health_status": "orange",
+			"priority": 10,
+			"next_step": "quarantine-on.step",
+			"reason": "Your status changed to Orange because the Public Health department placed you in Quarantine.",
+			"fcm_topic": "quarantine-on"
+		},
+
+		"quarantine-off": {
+			"condition": "test-interval",
+			"params": {
+				"interval": "UserTestMonitorInterval"
+			},
+			"success": {
+				"condition": "require-test",
+				"params": {
+					"interval": { "min": 0, "max": "UserTestMonitorInterval", "scope": "future", "current": true }
+				},
+				"success": {
+					"health_status": "yellow",
+					"priority": -1,
+					"next_step": "test.resume.step",
+					"next_step_interval": "UserTestMonitorInterval",
+					"warning": "test.future.warning"
+					},
+				"fail": {
+					"health_status": "orange",
+					"priority": -1,
+					"next_step": "test.now.step",
+					"reason": "test.now.reason"
+				}
+			},
+			"fail": {
+				"condition": "test-user",
+				"params": {
+					"card.role": "Undergraduate",
+					"card.student_level": "1U"
+				},
+				"success": {
+					"condition": "require-test",
+					"params": {
+						"interval": { "min": 0, "max": "UndergraduateTestMonitorInterval", "scope": "future", "current": true }
+					},
+					"success": {
+						"health_status": "yellow",
+						"priority": -1,
+						"next_step": "test.resume.step",
+						"next_step_interval": "UndergraduateTestMonitorInterval",
+						"warning": "test.future.warning"
+						},
+					"fail": {
+						"health_status": "orange",
+						"priority": -1,
+						"next_step": "test.now.step",
+						"reason": "test.now.reason"
+					}
+				},
+				"fail": {
+					"condition": "require-test",
+					"params": {
+						"interval": { "min": 0, "max": "DefaultTestMonitorInterval", "scope": "future", "current": true }
+					},
+					"success": {
+						"health_status": "yellow",
+						"priority": -1,
+						"next_step": "test.resume.step",
+						"next_step_interval": "DefaultTestMonitorInterval",
+						"warning": "test.future.warning"
+					},
+					"fail": {
+						"health_status": "orange",
+						"priority": -1,
+						"next_step": "test.now.step",
+						"reason": "test.now.reason"
+					}
+				}
+			}
+		},
+
+		"out-of-test-compliance": {
+			"condition": "require-test",
+			"params": {
+				"interval": { "min": -1, "max": 1, "current": true }
+			},
+			"success": {
+				"health_status": null,
+				"priority": null,
+				"next_step": "test.monitor.step",
+				"next_step_interval": 1,
+				"warning": "test.future.warning"
+			},
+			"fail": {
+				"health_status": "orange",
+				"priority": 1,
+				"next_step": "test.now.step",
+				"reason": "test.now.reason"
+			}
+		}
+	},
+
+	"tests" : {
+		"rules": [
+			{
+				"test_type": "Covid-19 test B1",
+				"category": "PCR",
+				"results": [
+					{
+						"result": "positive",
+						"category": "PCR.positive",
+						"status": "PCR.positive"
+					},
+					{
+						"result": "negative",
+						"category": "PCR.negative",
+						"status": "PCR.negative"
+					}
+				]
+			},
+			{
+				"test_type": "COVID-19 Antigen",
+				"category": "PCR",
+				"results": [
+					{
+						"result": "Positive",
+						"category": "PCR.positive",
+						"status": "PCR.positive"
+					},
+					{
+						"result": "Negative",
+						"category": "PCR.negative",
+						"status": "PCR.negative"
+					}
+				]
+			},
+			{
+				"test_type": "SARS-COV-2 BY PCR, BKR",
+				"category": "PCR",
+				"results": [
+					{
+						"result": "DETECTED",
+						"category": "PCR.positive",
+						"status": "PCR.positive"
+					},
+					{
+						"result": "Not Detected",
+						"category": "PCR.negative",
+						"status": "PCR.negative"
+					}
+				]
+			},
+			{
+				"test_type": "COVID-19 PCR",
+				"category": "PCR",
+				"results": [
+					{
+						"result": "POSITIVE",
+						"category": "PCR.positive",
+						"status": "PCR.positive"
+					},
+					{
+						"result": "POSITIVE-IP",
+						"category": "PCR.positive",
+						"status": "PCR.positive-IP"
+					},
+					{
+						"result": "POSITIVE-NIP",
+						"category": "PCR.negative",
+						"status": "PCR.positive-NIP"
+					},
+					{
+						"result": "NEGATIVE",
+						"category": "PCR.negative",
+						"status": "PCR.negative"
+					},
+					{
+						"result": "INVALID",
+						"category": "PCR.invalid",
+						"status": "PCR.invalid"
+					},
+					{
+						"result": "INCONCLUSIVE",
+						"category": "PCR.invalid",
+						"status": "PCR.invalid"
+					},
+					{
+						"result": "REJECTED",
+						"category": "PCR.invalid",
+						"status": "PCR.invalid"
+					}
+				]
+			},
+			{
+				"test_type": "SARS-COV-2 BY PCR",
+				"category": "PCR",
+				"results": [
+					{
+						"result": "DETECTED",
+						"category": "PCR.positive",
+						"status": "PCR.positive"
+					},
+					{
+						"result": "NOT DETECTED",
+						"category": "PCR.negative",
+						"status": "PCR.negative"
+					},
+					{
+						"result": "INVALID RESULT",
+						"category": "PCR.invalid",
+						"status": "PCR.invalid"
+					},
+					{
+						"result": "INDETERMINATE",
+						"category": "PCR.invalid",
+						"status": "PCR.invalid"
+					}
+				]
+			},
+			{
+				"test_type": "COVID19 BY RRT/PCR (IDPH/MDHHS STATE HEALTH LAB)",
+				"category": "PCR",
+				"results": [
+					{
+						"result": "DETECTED",
+						"category": "PCR.positive",
+						"status": "PCR.positive"
+					},
+					{
+						"result": "NOT DETECTED",
+						"category": "PCR.negative",
+						"status": "PCR.negative"
+					},
+					{
+						"result": " INDETERMINATE/INCONCLUSIVE",
+						"category": "PCR.invalid",
+						"status": "PCR.invalid"
+					}
+				]
+			},
+			{
+				"test_type": "COVID19 BY RRT/PCR (NON INTERFACED LAB)",
+				"category": "PCR",
+				"results": [
+					{
+						"result": "DETECTED",
+						"category": "PCR.positive",
+						"status": "PCR.positive"
+					},
+					{
+						"result": "NOT DETECTED",
+						"category": "PCR.negative",
+						"status": "PCR.negative"
+					},
+					{
+						"result": " INDETERMINATE/INCONCLUSIVE",
+						"category": "PCR.invalid",
+						"status": "PCR.invalid"
+					}
+				]
+			},
+			{
+				"test_type": "PRE PROCEDURAL SCREEN SARS-COV-2 PCR [1230105976]/ PRE PROCEDURE SCREEN SARS-COV-2 PCR",
+				"category": "PCR",
+				"results": [
+					{
+						"result": "DETECTED",
+						"category": "PCR.positive",
+						"status": "PCR.positive"
+					},
+					{
+						"result": "NOT DETECTED",
+						"category": "PCR.negative",
+						"status": "PCR.negative"
+					},
+					{
+						"result": "INVALID RESULT",
+						"category": "PCR.invalid",
+						"status": "PCR.invalid"
+					},
+					{
+						"result": " INDETERMINATE",
+						"category": "PCR.invalid",
+						"status": "PCR.invalid"
+					}
+				]
+			},
+			{
+				"test_type": "SEVERE ACUTE RESPIRATORY SYNDROME CORONAVIRUS 2 - MAYO COVID",
+				"category": "SAR",
+				"results": [
+					{
+						"result": "DETECTED",
+						"category": "SAR.positive",
+						"status": "PCR.positive"
+					},
+					{
+						"result": "NOT DETECTED",
+						"category": "SAR.negative",
+						"status": "PCR.negative"
+					},
+					{
+						"result": "INDETERMINATE/INCONCLUSIVE",
+						"category": "SAR.invalid",
+						"status": "PCR.invalid"
+					}
+				]
+			}
+		]
+	},
+	
+	"symptoms": {
+		"rules": [
+			{
+				"counts": {
+					"gr-2.4-1": { "min": 1 }
+				},
+				"status": "symptoms-match"
+			},
+			{
+				"counts": {
+					"gr-2.5-1": { "min": 1 }
+				},
+				"status": "symptoms-match"
+			}
+		],
+		
+		"groups": [
+			{
+				"id": null,
+				"name": "gr-2.4-0",
+				"group" : "no-symptoms",
+				"visible": true,
+				"symptoms": [
+					{
+						"id": "b669503f-938b-11ea-8f2a-0a58a9feac2a",
+						"name": "No symptoms"
+					}
+				]
+			},
+			{
+				"id": null,
+				"name": "gr-2.4-1",
+				"visible": false,
+				"symptoms": [
+					{
+						"id": "b41b12cc-93be-11ea-ae23-0a58a9feac2a",
+						"name": "Fever"
+					},
+					{
+						"id": "8f83787b-93c9-11ea-ae23-0a58a9feac2a",
+						"name": "Chills"
+					},
+					{
+						"id": "191df3ae-93ca-11ea-ae23-0a58a9feac2a",
+						"name": "Shaking or Shivering"
+					},
+					{
+						"id": "f3b23b65-93ca-11ea-ae23-0a58a9feac2a",
+						"name": "Shortness of breath"
+					},
+					{
+						"id": "05239c9e-93cb-11ea-ae23-0a58a9feac2a",
+						"name": "Difficulty breathing"
+					},
+					{
+						"id": "9ee1831e-93ca-11ea-ae23-0a58a9feac2a",
+						"name": "Muscle or joint pain"
+					},
+					{
+						"id": "d5afe77f-93ca-11ea-ae23-0a58a9feac2a",
+						"name": "Loss of taste and/or smell"
+					}
+				]
+			},
+			{
+				"id": null,
+				"name": "gr-2.5-1",
+				"visible": true,
+				"group" : "have-symptoms",
+				"symptoms": [
+					{
+						"id": "7c76102e-7c99-4743-80a6-5f09503fe92a",
+						"name": "Fever or chills"
+					},
+					{
+						"id": "e35c8441-93ca-11ea-ae23-0a58a9feac2a",
+						"name": "Cough"
+					},
+					{
+						"id": "ef5ebc2f-7f0c-4373-9ae0-9d2095dd2e62",
+						"name": "Shortness of breath or difficulty breathing"
+					},
+					{
+						"id": "d3859c19-fdf4-408c-8da5-7b882baa845d",
+						"name": "Fatigue"
+					},
+					{
+						"id": "7b3b3997-de7c-4a7d-8106-51aa1fbcbf5b",
+						"name": "Muscle or body aches"
+					},
+					{
+						"id": "acda4f1e-93ca-11ea-ae23-0a58a9feac2a",
+						"name": "Headache"
+					},
+					{
+						"id": "0f8a0f45-4207-4823-8482-50ec141d1ddf",
+						"name": "New loss of taste or smell"
+					},
+					{
+						"id": "bad0cc3c-93ca-11ea-ae23-0a58a9feac2a",
+						"name": "Sore Throat"
+					},
+					{
+						"id": "09e1e994-387c-437b-aeca-5534b7f52ffa",
+						"name": "Congestion or runny nose"
+					},
+					{
+						"id": "64f38a81-0591-4fd1-bb00-5395b8c0d97d",
+						"name": "Nausea or vomiting"
+					},
+					{
+						"id": "c7aa955f-02b5-46a5-ab47-d51850de2b3c",
+						"name": "Diarrhea"
+					}
+				]
+			}
+		]
+	},
+	
+	"contact_trace": {
+		"rules": [
+			{
+				"duration": { "min": 120 },
+				"status": "exposure-match"
+			}
+		]
+	},
+	
+	"actions": {
+		"rules": [
+			{
+				"type": "quarantine-on",
+				"status": "quarantine-on"
+			},
+			{
+				"type": "quarantine-off",
+				"status": "quarantine-off"
+			},
+			{
+				"type": "out-of-test-compliance",
+				"status": "out-of-test-compliance"
+			},
+			{
+				"type": "test_pending",
+				"status": "test-monitor"
+			},
+			{
+				"type": "force-test",
+				"status": "force-test"
+			}
+		]
+	},
+
+	"strings": {
+		"en": {
+			"default.step": "Take a SHIELD Saliva Test when you return to campus.",
+			"positive.step.html": "<h3>You have been placed in mandatory isolation.</h3><ul><h6><li>Stay home. Do not go to work, school, or public areas.</li></h6><h6><li>Separate yourself from others in your home.</li></h6><h6><li>Contact Champaign-Urbana Public Health District immediately at <a href='mailto:coronavirus@c-uphd.org'>coronavirus@c-uphd.org</a></li></h6><h6><li>More Info: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Quarantine and Isolation</a></li></h6></ul>",
+			"positive-ip.step.html": "<h6>Please continue to self-isolate, and you will be contacted by McKinley or Public Health in the next 24 hours. Please call the McKinley Dial-A-Nurse line if you have questions at <a href='tel:+1-217-333-2700'>217-333-2700</a>.</h6><br><br><h6>A small percentage of people may remain infectious following a 10-day isolation period.  Usually, a brief 3-day period is all that is required before your test shows a safe level for you to gain access to all campus activities for the next 60 days. Your Safer Illinois App will remain in the DENIED STATUS until you are released through CUPHD and McKinley following your case review.</h6>",
+			"positive-ip.explanation": "Your Saliva PCR test shows the VIRUS IS DETECTED in your REPEAT POSITIVE at a possibly INFECTIOUS LEVEL. You may require a longer isolation period.",
+			"positive-nip.step.html": "<h6>You are not required to self-isolate, and you are not required to submit to campus testing for a period of 60 days unless directed to do so by your licensed health professional. Your Safer Illinois App is set to allow you access for this period. Contact <a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a> if you have questions or need help.</h6>",
+			"positive-nip.explanation": "Your Saliva PCR test shows the VIRUS IS DETECTED in your REPEAT POSITIVE at a NON-INFECTIOUS LEVEL.",
+			"test.monitor.step": "Monitor your test results",
+			"test.now.step": "Get a test now",
+			"test.now.reason": "Your status changed to Orange because you are past due for a test.",
+			"test.another.asap.step": "Get another test asap",
+			"test.another.now.step": "Get another test now",
+			"test.after.step": "Get your 2nd test after {next_step_date}",
+			"test.after.reason": "Your status changed to Orange because you are required to take another test.",
+			"test.required.reason": "Your status changed to Orange because you are required to get a test.",
+			"test.resume.step": "Resume testing on your assigned days",
+			"test.future.warning": "You will turn orange/access denied if no negative test by {next_step_date}.",
+			"test.past.reason": "Your status changed to Orange because you are past due for another test.",
+			"test.multiple.step": "You will need to have 2 tests separated by 3 days with negative results to turn yellow",
+			"symptoms.step": "Take a COVID-19 test now",
+			"symptoms.reason": "Your status changed to Orange because you self-reported symptoms consistent with the virus.",
+			"exposure.step.html": "<h3>You have likely been exposed to a person who is infected with COVID-19.</h3><ul><h6><li>You must quarantine yourself immediately.</li></h6><h6><li>Stay home. Do not go to work, school, or public areas.</li></h6><h6><li>Separate yourself from others in your home.</li></h6><h6><li>Contact <a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a> for guidance.</li></h6><h6><li>Get tested after {next_step_date} to see if you have developed the disease.</li></h6><h6><li>More Info: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Quarantine and Isolation</a></li></h6></ul>",
+			"exposure.reason": "Your status changed to Orange because you received an exposure notification.",
+			"quarantine-on.step": "Stay at home and avoid contacts",
+			"quarantine-on.reason": "Your status changed to Orange because the Public Health department placed you in Quarantine."
+		},
+		"es": {
+			"default.step": "Realice una prueba de saliva SHIELD cuando regrese al campus.",
+			"positive.step.html": "<h3>Se le ha puesto en aislamiento obligatorio.</h3><ul><h6><li>Quedarse en casa. No vaya al trabajo, la escuela o áreas públicas.</li></h6><h6><li>Sepárate de las demás en tu casa.</li></h6><h6><li>Comuníquese con el Distrito de Salud Pública de Champaign-Urbana inmediatamente al <a href='mailto:coronavirus@c-uphd.org'>coronavirus@c-uphd.org</a></li></h6><h6><li>Más información: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Cuarentena y aislamiento</a></li></h6></ul>",
+			"positive-ip.step.html": "<h6>Continúe aislándose y McKinley o Public Health se comunicarán con usted en las próximas 24 horas. Llame a la línea McKinley Dial-A-Nurse si tiene preguntas al <a href='tel:+1-217-333-2700'>217-333-2700</a>.</h6><br><br><h6>Un pequeño porcentaje de personas puede seguir contagiado después de un período de aislamiento de 10 días. Por lo general, un breve período de 3 días es todo lo que se requiere antes de que su examen muestre un nivel seguro para que pueda acceder a todas las actividades del campus durante los próximos 60 días. Su aplicación Safer Illinois permanecerá en ESTADO DENEGADO hasta que CUPHD y McKinley lo den a conocer después de la revisión de su caso.</h6>",
+			"positive-ip.explanation": "Su prueba de PCR de saliva muestra que el VIRUS ESTÁ DETECTADO en su REPETICIÓN POSITIVA a un NIVEL posiblemente INFECCIOSO. Es posible que necesite un período de aislamiento más prolongado.",
+			"positive-nip.step.html": "<h6>No es necesario que se aísle por sí mismo ni que se someta a las pruebas del campus durante un período de 60 días, a menos que su profesional de la salud con licencia se lo indique. Su aplicación Safer Illinois está configurada para permitirle el acceso durante este período. Contacto <a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a> si tiene preguntas o necesita ayuda.</h6>",
+			"positive-nip.explanation": "Su prueba de PCR de saliva muestra que el VIRUS ESTÁ DETECTADO en su REPETICIÓN POSITIVA en un NIVEL NO INFECCIOSO.",
+			"test.monitor.step": "Controle los resultados de su prueba",
+			"test.now.step": "Haz una prueba ahora",
+			"test.now.reason": "Su estado cambió a Naranja porque está atrasado en un examen.",
+			"test.another.asap.step": "Obtenga otra prueba lo antes posible",
+			"test.another.now.step": "Hazte otra prueba ahora",
+			"test.after.step": "Realice su segunda prueba después del {next_step_date}",
+			"test.after.reason": "Su estado cambió a Naranja porque debe realizar otra prueba.",
+			"test.required.reason": "Su estado cambió a Naranja porque debe realizar una prueba.",
+			"test.resume.step": "Reanudar las pruebas en los días asignados",
+			"test.future.warning": "Se volverá naranja / acceso denegado si no hay una prueba negativa antes del {next_step_date}.",
+			"test.past.reason": "Su estado cambió a Naranja porque está atrasado para otro examen.",
+			"test.multiple.step": "Deberá tener 2 pruebas separadas por 3 días con resultados negativos para volverse amarillo",
+			"symptoms.step": "Realice una prueba de COVID-19 ahora",
+			"symptoms.reason": "Su estado cambió a Naranja porque usted mismo informó de síntomas consistentes con el virus.",
+			"exposure.step.html": "<h3>Es probable que haya estado expuesto a una persona infectada con COVID-19.</h3><ul><h6><li>Debe ponerse en cuarentena inmediatamente.</li></h6><h6><li>Quedarse en casa. No vaya al trabajo, la escuela o áreas públicas.</li></h6><h6><li>Sepárate de las demás en tu casa.</li></h6><h6><li>Póngase en contacto con <a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a> para obtener orientación.</li></h6><h6><li>Hágase la prueba después del {next_step_date} para ver si ha desarrollado la enfermedad.</li></h6><h6><li>Más información: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Cuarentena y aislamiento</a></li></h6></ul>",
+			"exposure.reason": "Su estado cambió a Naranja porque recibió una notificación de exposición.",
+			"quarantine-on.step": "Quédese en casa y evite los contactos",
+			"quarantine-on.reason": "Su estado cambió a Orange porque el departamento de Salud Pública lo puso en cuarentena.."
+		},
+		"zh": {
+			"default.step": "返回校園後，請參加SHIELD唾液測試。",
+			"positive.step.html": "<h3>您已被強制隔離。</h3><ul><h6><li>呆在家裡。 請勿去上班，上學或公共場所。</li></h6><h6><li>與家中的其他人分開。</li></h6><h6><li>立即通過以下方式聯繫香檳-厄巴納公共衛生區 <a href='mailto:coronavirus@c-uphd.org'>coronavirus@c-uphd.org</a></li></h6><h6><li>更多信息: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>隔離與隔離</a></li></h6></ul>",
+			"positive-ip.step.html": "<h6>請繼續進行自我隔離，在接下來的24小時內，麥金利或公共衛生將與您聯繫。 如果您有任何疑問，請致電McKinley Dial-A-Nurse熱線 <a href='tel:+1-217-333-2700'>217-333-2700</a>.</h6><br><br><h6>在隔離期10天后，一小部分人可能仍然具有傳染性。 通常，只需要一個簡短的3天時間，測試就可以顯示一個安全的水平，讓您可以訪問接下來60天的所有校園活動。 在案件審查後，通過CUPHD和McKinley釋放您之前，您的“更安全的伊利諾伊州”應用程序將保持拒絕狀態。</h6>",
+			"positive-ip.explanation": "您的唾液PCR測試顯示病毒在您的重複陽性中被檢測為可能具有感染水平。 您可能需要更長的隔離期。",
+			"positive-nip.step.html": "<h6>您無需進行自我隔離，也不需要60天的時間進行校園測試，除非您的持牌醫護人員指示您這樣做。 您的伊利諾伊州安全應用程序已設置為允許您在此期間訪問。 如果您有疑問或需要幫助，請聯繫<a href='mailto:covidwellness@illinois.edu'> covidwellness@illinois.edu </a>。</h6>",
+			"positive-nip.explanation": "您的唾液PCR測試顯示病毒在非陽性水平的重複陽性中被檢測到。",
+			"test.monitor.step": "監控您的測試結果",
+			"test.now.step": "立即獲得測試",
+			"test.now.reason": "您的狀態更改為“橙色”，因為您已逾期進行測試。",
+			"test.another.asap.step": "盡快獲得另一個測試",
+			"test.another.now.step": "現在再進行一次測試",
+			"test.after.step": "在{next_step_date}之後進行第二次測試",
+			"test.after.reason": "您的狀態更改為“橙色”，因為您需要參加另一項測試。",
+			"test.required.reason": "您的狀態更改為橙色，因為需要進行測試。",
+			"test.resume.step": "在您指定的日期恢復測試",
+			"test.future.warning": "如果在{next_step_date}之前沒有任何負面測試，您將變成橙色/訪問被拒絕。",
+			"test.past.reason": "您的狀態更改為“橙色”，因為您已逾期進行另一項測試。",
+			"test.multiple.step": "您將需要進行2次測試，每3天一次，結果為陰性，然後變為黃色",
+			"symptoms.step": "立即參加COVID-19測試",
+			"symptoms.reason": "您的狀態更改為橙色，因為您自我報告的症狀與病毒一致。",
+			"exposure.step.html": "<h3>您可能已經接觸了感染了COVID-19的人。</h3><ul><h6><li>您必須立即隔離自己。</li></h6><h6><li>您已被強制隔離。</li></h6><h6><li>與家中的其他人分開。</li></h6><h6><li>請與<a href='mailto:covidwellness@illinois.edu'> covidwellness@illinois.edu </a>聯繫以獲取指導。</li></h6><h6><li>在{next_step_date}之後進行測試，看看您是否已患上這種疾病。</li></h6><h6><li>更多信息: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>隔離與隔離</a></li></h6></ul>",
+			"exposure.reason": "您的狀態更改為橙色，因為您收到了曝光通知。",
+			"quarantine-on.step": "呆在家裡，避免接觸",
+			"quarantine-on.reason": "您的狀態更改為“橙色”，因為公共衛生部門已將您隔離。"
+		}
+	}
+}

@@ -19,11 +19,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:illinois/model/Organization.dart';
 import 'package:illinois/service/Auth.dart';
-import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/NotificationService.dart';
+import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/User.dart';
 import 'package:illinois/service/Storage.dart';
 import 'package:illinois/ui/health/debug/Covid19DebugActionPanel.dart';
@@ -48,14 +49,35 @@ class SettingsDebugPanel extends StatefulWidget {
   _SettingsDebugPanelState createState() => _SettingsDebugPanelState();
 }
 
-class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements NotificationsListener{
+class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements NotificationsListener {
+
+  List<Organization> _organizations;
+  Organization _organization;
+  bool _organizationProgress;
+
+  String _environment;
+  bool _switchingEnvironment;
 
   @override
   void initState() {
 
     NotificationService().subscribe(this, [
-      Config.notifyEnvironmentChanged,
+      Organizations.notifyOrganizationChanged,
+      Organizations.notifyEnvironmentChanged,
     ]);
+
+    _organization = Organizations().organization; 
+    _environment = Organizations().environment;
+
+    setState(() {
+      _organizationProgress = true;
+    });
+    Organizations().ensureOrganizations().then((List<Organization> organizations) {
+      setState(() {
+        _organizations = organizations;
+        _organizationProgress = false;
+      });
+    });
     
     super.initState();
   }
@@ -79,6 +101,163 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
     String userUuid = User().uuid;
     String pid = Storage().userPid;
     String firebaseProjectId = FirebaseMessaging().projectID;
+
+    List<Widget> content = <Widget>[
+      Padding(padding: EdgeInsets.only(top: 4), child: Container()),
+      Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+        child: Text(AppString.isStringNotEmpty(userUuid) ? 'Uuid: $userUuid' : "unknown uuid"),
+      ),
+      Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+        child: Text(AppString.isStringNotEmpty(pid) ? 'PID: $pid' : "unknown pid"),
+      ),
+      Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+        child: Text('Firebase: $firebaseProjectId'),
+      ),
+    ];
+
+    Widget organizations = _buildOrganizations();
+    if (organizations != null) {
+      content.addAll(<Widget>[
+        Padding(padding: EdgeInsets.only(top: 5), child: Container(height: 1, color: Styles().colors.surfaceAccent)),
+        organizations,
+      ]);
+    }
+    
+    Widget environments = _buildEnvironments();
+    if (environments != null) {
+      content.addAll(<Widget>[
+        Padding(padding: EdgeInsets.only(top: 5), child: Container(height: 1, color: Styles().colors.surfaceAccent)),
+        environments,
+      ]);
+    }
+
+    if ((organizations != null) || (environments != null)) {
+      content.add(
+        Padding(padding: EdgeInsets.only(bottom: 10), child: Container(height: 1, color: Styles().colors.surfaceAccent)),
+      );
+    }
+
+    content.addAll(<Widget>[
+      Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+          child: RoundedButton(
+              label: "Messaging",
+              backgroundColor: Styles().colors.background,
+              fontSize: 16.0,
+              textColor: Styles().colors.fillColorPrimary,
+              borderColor: Styles().colors.fillColorPrimary,
+              onTap: _onMessagingClicked())),
+      Visibility(
+        visible: true,
+        child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+            child: RoundedButton(
+                label: "User Profile Info",
+                backgroundColor: Styles().colors.background,
+                fontSize: 16.0,
+                textColor: Styles().colors.fillColorPrimary,
+                borderColor: Styles().colors.fillColorPrimary,
+                onTap: _onUserProfileInfoClicked(context))),
+      ),
+      Visibility(
+        visible: Organizations().isDevEnvironment,
+        child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+            child: RoundedButton(
+                label: "Http Proxy",
+                backgroundColor: Styles().colors.background,
+                fontSize: 16.0,
+                textColor: Styles().colors.fillColorPrimary,
+                borderColor: Styles().colors.fillColorPrimary,
+                onTap: _onTapHttpProxy)),
+      ),
+      Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+          child: RoundedButton(
+              label: "COVID-19 Keys",
+              backgroundColor: Styles().colors.background,
+              fontSize: 16.0,
+              textColor: Styles().colors.fillColorPrimary,
+              borderColor: Styles().colors.fillColorPrimary,
+              onTap: _onTapCovid19Keys)),
+      Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+          child: RoundedButton(
+              label: "COVID-19 Rules",
+              backgroundColor: Styles().colors.background,
+              fontSize: 16.0,
+              textColor: Styles().colors.fillColorPrimary,
+              borderColor: Styles().colors.fillColorPrimary,
+              onTap: _onTapCovid19Rules)),
+      Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+          child: RoundedButton(
+              label: "COVID-19 Create Event",
+              backgroundColor: Styles().colors.background,
+              fontSize: 16.0,
+              textColor: Styles().colors.fillColorPrimary,
+              borderColor: Styles().colors.fillColorPrimary,
+              onTap: _onTapCreateCovid19Event)),
+      Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+          child: RoundedButton(
+              label: "COVID-19 Pending Events",
+              backgroundColor: Styles().colors.background,
+              fontSize: 16.0,
+              textColor: Styles().colors.fillColorPrimary,
+              borderColor: Styles().colors.fillColorPrimary,
+              onTap: _onTapCovid19PendingEvents)),
+      Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+          child: RoundedButton(
+              label: "COVID-19 Trace Contact",
+              backgroundColor: Styles().colors.background,
+              fontSize: 16.0,
+              textColor: Styles().colors.fillColorPrimary,
+              borderColor: Styles().colors.fillColorPrimary,
+              onTap: _onTapTraceCovid19Contact)),
+      Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+          child: RoundedButton(
+              label: "COVID-19 Report Symptoms",
+              backgroundColor: Styles().colors.background,
+              fontSize: 16.0,
+              textColor: Styles().colors.fillColorPrimary,
+              borderColor: Styles().colors.fillColorPrimary,
+              onTap: _onTapReportCovid19Symptoms)),
+      Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+          child: RoundedButton(
+              label: "COVID-19 Create Action",
+              backgroundColor: Styles().colors.background,
+              fontSize: 16.0,
+              textColor: Styles().colors.fillColorPrimary,
+              borderColor: Styles().colors.fillColorPrimary,
+              onTap: _onTapCreateCovid19Action)),
+      Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+          child: RoundedButton(
+              label: "COVID-19 Exposures",
+              backgroundColor: Styles().colors.background,
+              fontSize: 16.0,
+              textColor: Styles().colors.fillColorPrimary,
+              borderColor: Styles().colors.fillColorPrimary,
+              onTap: _onTapCovid19Exposures)),
+      Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+          child: RoundedButton(
+              label: "COVID-19 Exposure Logs",
+              backgroundColor: Styles().colors.background,
+              fontSize: 16.0,
+              textColor: Styles().colors.fillColorPrimary,
+              borderColor: Styles().colors.fillColorPrimary,
+              onTap: _onTapCovid19ExposureLogs)),
+      Padding(padding: EdgeInsets.only(top: 10), child: Container()),
+    ]);
+
     return Scaffold(
       appBar: SimpleHeaderBarWithBack(
         context: context,
@@ -96,160 +275,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
                   color: Styles().colors.background,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Padding(padding: EdgeInsets.only(top: 4), child: Container()),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                        child: Text(AppString.isStringNotEmpty(userUuid) ? 'Uuid: $userUuid' : "unknown uuid"),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                        child: Text(AppString.isStringNotEmpty(pid) ? 'PID: $pid' : "unknown pid"),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                        child: Text('Firebase: $firebaseProjectId'),
-                      ),
-                      
-                      Padding(padding: EdgeInsets.only(top: 5), child: Container(height: 1, color: Styles().colors.surfaceAccent)),
-                      
-                      Padding(padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16), child:
-                        Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-                            Padding(padding: EdgeInsets.only(bottom: 5), child:Text('Config Environment: ')),
-                            Container(decoration: BoxDecoration(color: Styles().colors.white, border: Border.all(color: Colors.black, width: 1), borderRadius: BorderRadius.all(Radius.circular(4))), child: 
-                              Padding(padding: EdgeInsets.only(left: 12, right: 16), child: 
-                                DropdownButtonHideUnderline(child: 
-                                  DropdownButton(
-                                      icon: Image.asset('images/icon-down-orange.png', excludeFromSemantics: true,),
-                                      isExpanded: true,
-                                      style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.textBackground,),
-                                      hint: Text(configEnvToString(Config().configEnvironment) ?? "Select environment...", style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground,),),
-                                      items: _dropdownEnvironments,
-                                      onChanged: _onEnvironmentSelected
-                                  ),
-                                ),
-                              ),
-                            ),
-                        ],),
-                      ),
-                      Padding(padding: EdgeInsets.only(bottom: 10), child: Container(height: 1, color: Styles().colors.surfaceAccent)),
-                      Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                          child: RoundedButton(
-                              label: "Messaging",
-                              backgroundColor: Styles().colors.background,
-                              fontSize: 16.0,
-                              textColor: Styles().colors.fillColorPrimary,
-                              borderColor: Styles().colors.fillColorPrimary,
-                              onTap: _onMessagingClicked())),
-                      Visibility(
-                        visible: true,
-                        child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                            child: RoundedButton(
-                                label: "User Profile Info",
-                                backgroundColor: Styles().colors.background,
-                                fontSize: 16.0,
-                                textColor: Styles().colors.fillColorPrimary,
-                                borderColor: Styles().colors.fillColorPrimary,
-                                onTap: _onUserProfileInfoClicked(context))),
-                      ),
-                      Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                          child: RoundedButton(
-                              label: "COVID-19: Keys",
-                              backgroundColor: Styles().colors.background,
-                              fontSize: 16.0,
-                              textColor: Styles().colors.fillColorPrimary,
-                              borderColor: Styles().colors.fillColorPrimary,
-                              onTap: _onTapCovid19Keys)),
-                      Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                          child: RoundedButton(
-                              label: "COVID-19 Rules",
-                              backgroundColor: Styles().colors.background,
-                              fontSize: 16.0,
-                              textColor: Styles().colors.fillColorPrimary,
-                              borderColor: Styles().colors.fillColorPrimary,
-                              onTap: _onTapCovid19Rules)),
-                      Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                          child: RoundedButton(
-                              label: "COVID-19 Create Event",
-                              backgroundColor: Styles().colors.background,
-                              fontSize: 16.0,
-                              textColor: Styles().colors.fillColorPrimary,
-                              borderColor: Styles().colors.fillColorPrimary,
-                              onTap: _onTapCreateCovid19Event)),
-                      Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                          child: RoundedButton(
-                              label: "COVID-19 Pending Events",
-                              backgroundColor: Styles().colors.background,
-                              fontSize: 16.0,
-                              textColor: Styles().colors.fillColorPrimary,
-                              borderColor: Styles().colors.fillColorPrimary,
-                              onTap: _onTapCovid19PendingEvents)),
-                      Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                          child: RoundedButton(
-                              label: "COVID-19 Trace Contact",
-                              backgroundColor: Styles().colors.background,
-                              fontSize: 16.0,
-                              textColor: Styles().colors.fillColorPrimary,
-                              borderColor: Styles().colors.fillColorPrimary,
-                              onTap: _onTapTraceCovid19Contact)),
-                      Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                          child: RoundedButton(
-                              label: "COVID-19 Report Symptoms",
-                              backgroundColor: Styles().colors.background,
-                              fontSize: 16.0,
-                              textColor: Styles().colors.fillColorPrimary,
-                              borderColor: Styles().colors.fillColorPrimary,
-                              onTap: _onTapReportCovid19Symptoms)),
-                      Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                          child: RoundedButton(
-                              label: "COVID-19 Create Action",
-                              backgroundColor: Styles().colors.background,
-                              fontSize: 16.0,
-                              textColor: Styles().colors.fillColorPrimary,
-                              borderColor: Styles().colors.fillColorPrimary,
-                              onTap: _onTapCreateCovid19Action)),
-                      Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                          child: RoundedButton(
-                              label: "COVID-19 Exposures",
-                              backgroundColor: Styles().colors.background,
-                              fontSize: 16.0,
-                              textColor: Styles().colors.fillColorPrimary,
-                              borderColor: Styles().colors.fillColorPrimary,
-                              onTap: _onTapCovid19Exposures)),
-                      Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                          child: RoundedButton(
-                              label: "COVID-19 Exposure Logs",
-                              backgroundColor: Styles().colors.background,
-                              fontSize: 16.0,
-                              textColor: Styles().colors.fillColorPrimary,
-                              borderColor: Styles().colors.fillColorPrimary,
-                              onTap: _onTapCovid19ExposureLogs)),
-                      Padding(padding: EdgeInsets.only(top: 5), child: Container()),
-                      Visibility(
-                        visible: Config().isDev,
-                        child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                            child: RoundedButton(
-                                label: "Http Proxy",
-                                backgroundColor: Styles().colors.background,
-                                fontSize: 16.0,
-                                textColor: Styles().colors.fillColorPrimary,
-                                borderColor: Styles().colors.fillColorPrimary,
-                                onTap: _onTapHttpProxy)),
-                      ),
-                      Padding(padding: EdgeInsets.only(top: 5), child: Container()),
-                    ],
+                    children: content,
                   ),
                 ),
               ),
@@ -265,8 +291,15 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
 
   @override
   void onNotification(String name, dynamic param) {
-    if (name == Config.notifyEnvironmentChanged){
-      setState(() { });
+    if (name == Organizations.notifyOrganizationChanged){
+      setState(() {
+        _organization = Organizations().organization;
+      });
+    }
+    else if (name == Organizations.notifyEnvironmentChanged){
+      setState(() {
+        _environment = Organizations().environment;
+      });
     }
   }
 
@@ -389,23 +422,161 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
     return prettyString;
   }
 
-  List<DropdownMenuItem<ConfigEnvironment>> get _dropdownEnvironments {
-    List<DropdownMenuItem<ConfigEnvironment>> environments = <DropdownMenuItem<ConfigEnvironment>>[];
-    for (ConfigEnvironment environment in ConfigEnvironment.values) {
-      environments.add(DropdownMenuItem<ConfigEnvironment>(
-        value: environment,
-        child: Text(configEnvToString(environment),
-          style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground,),
-        ),
-      ));
+  //////////////////////////
+  // Organizations
+
+  Widget _buildOrganizations() {
+    List<DropdownMenuItem<Organization>> organizations = <DropdownMenuItem<Organization>>[];
+    if (_organizations != null) {
+      for (Organization organization in _organizations) {
+        organizations.add(DropdownMenuItem<Organization>(
+          value: organization,
+          child: Text(organization.name ?? '',
+            style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground,),
+          ),
+        ));
+      }
     }
-    return environments;
+
+    Widget content;
+    double progressSize, progressHeight;
+    String title = (_organization != null) ? ((_organization.name != null) ? _organization.name : "Unknown") : "Select organization...";
+    if (1 < organizations.length) {
+      content = Container(decoration: BoxDecoration(color: Styles().colors.white, border: Border.all(color: Colors.black, width: 1), borderRadius: BorderRadius.all(Radius.circular(4))), child: 
+        Padding(padding: EdgeInsets.only(left: 12, right: 16), child: 
+          DropdownButtonHideUnderline(child: 
+            DropdownButton(
+                icon: Image.asset('images/icon-down-orange.png', excludeFromSemantics: true,),
+                isExpanded: true,
+                style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.textBackground,),
+                hint: Text(title, style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground,),),
+                items: organizations,
+                onChanged: _onOrganizationSelected
+            ),
+          ),
+        ),
+      );
+      progressHeight = 48; progressSize = 24;
+    }
+    else {
+      content = Text(title, style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground,),);
+      progressHeight = progressSize = 16;
+    }
+
+    return Padding(padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16), child:
+      Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+          Padding(padding: EdgeInsets.only(bottom: 5), child:Text('Organization: ')),
+          Stack(children: [
+            content,
+            Visibility(visible: (_organizationProgress == true), child: 
+              Container(height: progressHeight, child:
+                Align(alignment: Alignment.center, child:
+                  SizedBox(height: progressSize, width: progressSize, child: 
+                    CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary), )
+                  ),
+                ),
+              ),
+            ),
+          ],),
+      ],),
+    );
   }
 
-  void _onEnvironmentSelected(ConfigEnvironment env) {
-    if ((env is ConfigEnvironment) && (env != Config().configEnvironment)) {
-      String currentEnv = configEnvToString(Config().configEnvironment).toUpperCase();
-      String newEnv = configEnvToString(env).toUpperCase();
+  void _onOrganizationSelected(Organization organization) {
+    if ((organization is Organization) && (organization?.id != _organization?.id) && (_organizationProgress != true) && (_switchingEnvironment != true)) {
+      String currentOrg = _organization?.name;
+      String newOrg = organization?.name;
+      String message = "Are you sure you want to switch the current organization from $currentOrg to $newOrg?";
+      showDialog(context: context, builder: (context) {
+        return AlertDialog(
+          content: Text(message),
+            actions: <Widget>[
+              FlatButton(child: Text("Yes"), onPressed: () { Navigator.pop(context, true); }),
+              FlatButton(child: Text("No"), onPressed: () { Navigator.pop(context, false); }),
+            ]);
+      }).then((result) {
+        if (result == true) {
+          _switchOrganization(organization);
+        }
+      });
+    }
+  }
+
+  void _switchOrganization(Organization organization) {
+    setState(() {
+      _organizationProgress = true;
+    });
+
+    Organizations().setOrganization(organization).then((_) {
+      setState(() {
+        _organizationProgress = false;
+      });
+    });
+  }
+
+  //////////////////////////
+  // Environments
+
+  Widget _buildEnvironments() {
+    List<DropdownMenuItem<String>> environments = <DropdownMenuItem<String>>[];
+    if (Organizations().organization?.environments != null) {
+      for (String environment in Organizations().organization.environments.keys) {
+        environments.add(DropdownMenuItem<String>(
+          value: environment,
+          child: Text(environment,
+            style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground,),
+          ),
+        ));
+      }
+    }
+
+    Widget content; 
+    double progressSize, progressHeight;
+    if (1 < environments.length) {
+      content = Container(decoration: BoxDecoration(color: Styles().colors.white, border: Border.all(color: Colors.black, width: 1), borderRadius: BorderRadius.all(Radius.circular(4))), child: 
+        Padding(padding: EdgeInsets.only(left: 12, right: 16), child: 
+          DropdownButtonHideUnderline(child: 
+            DropdownButton(
+                icon: Image.asset('images/icon-down-orange.png', excludeFromSemantics: true,),
+                isExpanded: true,
+                style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.textBackground,),
+                hint: Text(_environment ?? "Select environment...", style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground,),),
+                items: environments,
+                onChanged: _onEnvironmentSelected
+            ),
+          ),
+        ),
+      );
+      progressHeight = 48; progressSize = 24;
+    }
+    else {
+      content = Text(_environment ?? "unknown", style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground,),);
+      progressHeight = progressSize = 16;
+    }
+
+    return Padding(padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16), child:
+      Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+          Padding(padding: EdgeInsets.only(bottom: 5), child:Text('Environment: ')),
+          Stack(children: [
+            content,
+            Visibility(visible: (_switchingEnvironment == true), child: 
+              Container(height: progressHeight, child:
+                Align(alignment: Alignment.center, child:
+                  SizedBox(height: progressSize, width: progressSize, child: 
+                    CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary), )
+                  ),
+                ),
+              ),
+            ),
+          ],),
+      ],),
+    );
+  }
+
+  void _onEnvironmentSelected(String environment) {
+    if ((environment is String) && (environment != _environment) && (_organizationProgress != true) && (_switchingEnvironment != true)) {
+      String currentEnv = _environment?.toUpperCase();
+      String newEnv = environment?.toUpperCase();
       String message = "Are you sure you want to switch the application environment from $currentEnv to $newEnv?";
       showDialog(context: context, builder: (context) {
         return AlertDialog(
@@ -416,16 +587,26 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
             ]);
       }).then((result) {
         if (result == true) {
-          setState(() {
-            Config().configEnvironment = env;
-          });
+          _switchEnvirnment(environment);
         }
       });
     }
   }
 
+  void _switchEnvirnment(String configEnvironment) {
+    setState(() {
+      _switchingEnvironment = true;
+    });
+
+    Organizations().setEnvironment(configEnvironment).then((_) {
+      setState(() {
+        _switchingEnvironment = false;
+      });
+    });
+  }
+
   void _onTapHttpProxy() {
-    if(Config().isDev) {
+    if(Organizations().isDevEnvironment) {
       Navigator.push(context, CupertinoPageRoute(builder: (context) => HttpProxySettingsPanel()));
     }
   }

@@ -19,10 +19,13 @@ import 'dart:collection';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_html/style.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
+import 'package:illinois/service/Auth.dart';
+import 'package:illinois/service/FlexUI.dart';
+import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/utils/AppDateTime.dart';
-import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Connectivity.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
@@ -37,7 +40,6 @@ import 'package:illinois/ui/health/Covid19SymptomsPanel.dart';
 import 'package:illinois/ui/health/Covid19TestLocations.dart';
 import 'package:illinois/ui/health/Covid19HistoryPanel.dart';
 import 'package:illinois/ui/health/Covid19WellnessCenter.dart';
-//import 'package:illinois/ui/settings/SettingsNewHomePanel.dart';
 import 'package:illinois/ui/settings/SettingsHomePanel.dart';
 import 'package:illinois/ui/widgets/LinkTileButton.dart';
 import 'package:illinois/ui/widgets/RibbonButton.dart';
@@ -58,7 +60,8 @@ class Covid19InfoCenterPanel extends StatefulWidget {
 class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> implements NotificationsListener {
 
   Covid19Status _status;
-  bool          _loadingStatus;
+  bool _covid19Access = false;
+  bool _loadingStatus;
   Covid19History _lastHistory;
   String _currentCountyName;
 
@@ -66,7 +69,9 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
   void initState() {
     super.initState();
     NotificationService().subscribe(this, [
-      Health.notifyStatusChanged,
+      FlexUI.notifyChanged,
+      Auth.notifyLoginChanged,
+      Health.notifyStatusAvailable,
       Health.notifyProcessingFinished,
       Health.notifyUserUpdated,
       Health.notifyHistoryUpdated,
@@ -84,7 +89,12 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
 
   @override
   void onNotification(String name, param) {
-    if (name == Health.notifyStatusChanged) {
+    if(name == Auth.notifyLoginChanged){
+      if(mounted) {
+        _updateState();
+      }
+    }
+    else if (name == Health.notifyStatusAvailable) {
       _updateStatus(param);
     }
     else if (name == Health.notifyProcessingFinished) {
@@ -105,6 +115,8 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
           _loadHistory();
         }
       }
+    } else if(name == FlexUI.notifyChanged){
+      setState(() {});
     }
   }
 
@@ -124,7 +136,16 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
         _loadingStatus = (Health().processing == true);
         if (Health().processing != true) {
           _loadHistory();
+          _updateCovid19Access();
         }
+      });
+    }
+  }
+
+  void _updateState(){
+    if(!Health().isUserLoggedIn){
+      setState(() {
+        _status = null;
       });
     }
   }
@@ -152,6 +173,16 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
     });
   }
 
+  void _updateCovid19Access() {
+    Health().isBuildingAccessGranted(_status?.blob?.healthStatus).then((bool granted) {
+      if (mounted) {
+        setState(() {
+          _covid19Access = granted;
+        });
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -159,29 +190,46 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
       appBar: _Covid19HomeHeaderBar(context: context,),
       body: SingleChildScrollView(
         child: SafeArea(
-          child: Column(
-            children: <Widget>[
-              _buildNextStepPrimarySection(),
-              _buildHealthPrimarySection(),
-            ],
-          ),
+          child: _buildMainContent(),
         ),
       ),
     );
   }
 
+  Widget _buildMainContent(){
+    List<Widget> contentList = [];
+
+    List<dynamic> codes = FlexUI()['info_center'] ?? [];
+    for (String code in codes) {
+      if (code == 'stay_healthy') {
+        contentList.add(_buildNextStepPrimarySection());
+      } else if (code == 'your_health') {
+        contentList.add(_buildHealthPrimarySection());
+      }
+    }
+
+    return Column(children: contentList,);
+  }
+
   Widget _buildNextStepPrimarySection() {
-    if (Health().isUserLoggedIn) {
-      
-      List<Widget> entries = <Widget>[
-        _buildMostRecentEvent(),
-        _buildNextStepSection(),
-        _buildSymptomCheckInSection(),
-        _buildAddTestResultSection(),
-      ];
-      
+    List<Widget> contentList = [];
+
+    List<dynamic> codes = FlexUI()['info_center.stay_healthy'] ?? [];
+    for (String code in codes) {
+      if (code == 'recent_event') {
+        contentList.add(_buildMostRecentEvent());
+      } else if (code == 'next_step') {
+        contentList.add(_buildNextStepSection());
+      } else if (code == 'symptom_checkin') {
+        contentList.add(_buildSymptomCheckInSection());
+      } else if (code == 'add_test_result') {
+        contentList.add(_buildAddTestResultSection());
+      }
+    }
+
+    if(AppCollection.isCollectionNotEmpty(contentList)){
       List<Widget> content = <Widget>[];
-      for (Widget entry in entries) {
+      for (Widget entry in contentList) {
         if (entry != null) {
           if (content.isNotEmpty) {
             content.add(Container(height: 10,),);
@@ -189,7 +237,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
           content.add(entry);
         }
       }
-      
+
       if (content.isNotEmpty) {
         content.add(Container(height: 20,),);
       }
@@ -199,33 +247,61 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
         iconPath: 'images/icon-health.png',
         children: content,);
     }
-    else {
+    else{
       return Container();
     }
   }
 
   Widget _buildHealthPrimarySection() {
-    bool isLoggedIn = Health().isUserLoggedIn;
-    return SectionTitlePrimary(
-      title: Localization().getStringEx("panel.covid19home.label.health.title","Your Health"),
-      iconPath: 'images/icon-member.png',
-      children: <Widget>[
-        isLoggedIn ? _buildStatusSection() : Container(),
-        isLoggedIn ? Container(height: 10,) : Container(),
-        _buildTileButtons(),
-        Container(height: 5,),
-        isLoggedIn ? _buildViewHistoryButton() : _buildFindTestLocationsButton(),
-        Container(height: 10,),
-        _buildCovidWellnessCenter(),
-      ]);
+    List<Widget> contentList = [];
 
+    List<dynamic> codes = FlexUI()['info_center.your_health'] ?? [];
+    for (String code in codes) {
+      if (code == 'health_status') {
+        contentList.add(_buildStatusSection());
+      } else if (code == 'tiles') {
+        contentList.add(_buildTileButtons());
+      } else if (code == 'health_history') {
+        contentList.add(_buildViewHistoryButton());
+      } else if (code == 'wellness_center') {
+        contentList.add(_buildCovidWellnessCenter());
+      } else if (code == 'find_test_location') {
+        contentList.add(_buildFindTestLocationsButton());
+      }
+
+    }
+
+    if(AppCollection.isCollectionNotEmpty(contentList)){
+      List<Widget> content = <Widget>[];
+      for (Widget entry in contentList) {
+        if (entry != null) {
+          if (content.isNotEmpty) {
+            content.add(Container(height: 10,),);
+          }
+          content.add(entry);
+        }
+      }
+
+      if (content.isNotEmpty) {
+        content.add(Container(height: 20,),);
+      }
+
+      return SectionTitlePrimary(
+        title: Localization().getStringEx("panel.covid19home.label.health.title","Your Health"),
+        iconPath: 'images/icon-member.png',
+        children: content,);
+    }
+    else{
+      return Container();
+    }
   }
+
   Widget _buildMostRecentEvent(){
     if(_lastHistory?.blob == null) {
       return null;
     }
     String headingText = Localization().getStringEx("panel.covid19home.label.most_recent_event.title", "MOST RECENT EVENT");
-    String dateText = AppDateTime.formatDateTime(_lastHistory?.dateUtc?.toLocal(), format:"MMMM dd, yyyy") ?? '';
+    String dateText = AppDateTime.formatDateTime(_lastHistory?.dateUtc?.toLocal(), format:"MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode) ?? '';
     String eventExplanationText = _status?.blob?.displayEventExplanation;
     String eventExplanationHtml = _status?.blob?.displayEventExplanationHtml;
     String historyTitle = "", info = "";
@@ -281,7 +357,11 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
     if (AppString.isStringNotEmpty(eventExplanationHtml)) {
       content.addAll(<Widget>[
           Container(height: 12,),
-          Html(data: eventExplanationHtml, onLinkTap: (url) => _onTapLink(url), defaultTextStyle: TextStyle(fontSize:16, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground),),
+          Html(data: eventExplanationHtml, onLinkTap: (url) => _onTapLink(url),
+            style: {
+              "body": Style(fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground),
+            },
+          ),
       ]);
     }
 
@@ -312,8 +392,8 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Semantics(explicitChildNodes: true, child: ScalableRoundedButton(
-            label: Localization().getStringEx("panel.covid19home.button.view_history.title", "View Health History"),
-            hint: Localization().getStringEx("panel.covid19home.button.view_history.hint", ""),
+            label: Localization().getStringEx("panel.covid19.button.health_history.title", "View Health History"),
+            hint: Localization().getStringEx("panel.covid19.button.health_history.hint", ""),
             borderColor: Styles().colors.fillColorSecondary,
             backgroundColor: Styles().colors.surface,
             textColor: Styles().colors.fillColorPrimary,
@@ -330,7 +410,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
     String warningTitle = _status?.blob?.displayWarning;
     bool hasNextStep = AppString.isStringNotEmpty(nextStepText) || AppString.isStringNotEmpty(nextStepHtml) || AppString.isStringNotEmpty(warningTitle);
     String headingText = hasNextStep ? Localization().getStringEx("panel.covid19home.label.next_step.title", "NEXT STEP") : '';
-    String headingDate = (hasNextStep && (_status?.blob?.nextStepDateUtc != null)) ? AppDateTime.formatDateTime(_status.blob.nextStepDateUtc.toLocal(), format: "MMMM dd, yyyy") : '';
+    String headingDate = (hasNextStep && (_status?.blob?.nextStepDateUtc != null)) ? AppDateTime.formatDateTime(_status.blob.nextStepDateUtc.toLocal(), format: "MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode) : '';
 
     List<Widget> content = <Widget>[
       Row(children: <Widget>[
@@ -350,7 +430,11 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
     if (AppString.isStringNotEmpty(nextStepHtml)) {
       content.addAll(<Widget>[
           Container(height: 12,),
-          Html(data: nextStepHtml, onLinkTap: (url) => _onTapLink(url), defaultTextStyle: TextStyle(fontSize:16, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground),),
+          Html(data: nextStepHtml, onLinkTap: (url) => _onTapLink(url),
+            style: {
+              "body": Style(fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground)
+            },
+          ),
       ]);
     }
 
@@ -449,7 +533,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
 
   Widget _buildStatusSection() {
     String statusName = _status?.blob?.localizedHealthStatus;
-    Color statusColor = covid19HealthStatusColor(_status?.blob?.healthStatus) ?? Styles().colors.textSurface;
+    Color statusColor = Styles().colors.getHealthStatusColor(_status?.blob?.healthStatus) ?? Styles().colors.textSurface;
     bool hasStatusCard  = Health().isUserLoggedIn;
     return Semantics(container: true, child: Container(
       padding: EdgeInsets.symmetric(vertical: 16),
@@ -481,7 +565,15 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
                       Text(AppString.isStringNotEmpty(statusName) ? statusName : Localization().getStringEx('panel.covid19home.label.status.na', 'Not Available'), style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Styles().colors.textSurface),),
                     )
                   ],
-                )
+                ),
+                Container(height: 6,),
+                Row(
+                  children: <Widget>[
+                    Expanded(child:
+                    Text(AppString.isStringNotEmpty(_accessStatusText) ? _accessStatusText : Localization().getStringEx('panel.covid19home.label.status.na', 'Not Available'), style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Styles().colors.textSurface),),
+                    )
+                  ],
+                ),
               ],),
             ),
           ),
@@ -520,61 +612,57 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
   }
 
   Widget _buildTileButtons(){
-    return Column(
-      children: <Widget>[
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Expanded(
-              child: LinkTileSmallButton(
-                width: double.infinity,
-                iconPath: 'images/icon-country-guidelines.png',
-                label: Localization().getStringEx("panel.covid19home.button.country_guidelines.title", "County\nGuidelines"),
-                hint: Localization().getStringEx("panel.covid19home.button.country_guidelines.hint", ""),
-                onTap: ()=>_onTapCountryGuidelines(),
-              ),
-            ),
-            Container(width: 8,),
-            Expanded(
-              child: LinkTileSmallButton(
-                width: double.infinity,
-                iconPath: 'images/icon-your-care-team.png',
-                label: Localization().getStringEx( "panel.covid19home.button.care_team.title", "Your\nCare Team"),
-                hint: Localization().getStringEx( "panel.covid19home.button.care_team.hint", ""),
-                onTap: () => _onTapCareTeam(),
-              ),
-            ),
-          ],
-        ),
-        Container(height: 8,),
-        /*Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Expanded(
-              child: LinkTileSmallButton(
-                width: double.infinity,
-                iconPath: 'images/icon-report-test.png',
-                label: Localization().getStringEx("panel.covid19home.button.report_test.title", "Report a Test Result"),
-                hint: Localization().getStringEx("panel.covid19home.button.report_test.hint", ""),
-                onTap: ()=> _onTapReportTest(),
-              ),
-            ),
-            Container(width: 8,),
-            Expanded(
-              child: LinkTileSmallButton(
-                width: double.infinity,
-                iconPath: 'images/icon-test-history.png',
-                label: Localization().getStringEx("panel.covid19home.button.test_history.title", "Your Testing History"),
-                hint: Localization().getStringEx("panel.covid19home.button.test_history.hint", ""),
-                onTap: ()=>_onTapTestHistory(),
-              ),
-            ),
-          ],
-        )*/
-      ],
-    );
+    List<Widget> contentList = [];
+
+    List<dynamic> codes = FlexUI()['info_center.your_health.tiles'] ?? [];
+    for (String code in codes) {
+      if (code == 'care_team') {
+        contentList.add(Expanded(
+          child: LinkTileSmallButton(
+            width: double.infinity,
+            iconPath: 'images/icon-your-care-team.png',
+            label: Localization().getStringEx( "panel.covid19home.button.care_team.title", "Your\nCare Team"),
+            hint: Localization().getStringEx( "panel.covid19home.button.care_team.hint", ""),
+            onTap: () => _onTapCareTeam(),
+          ),
+        ));
+      } else if (code == 'county_guidelines') {
+        contentList.add(Expanded(
+          child: LinkTileSmallButton(
+            width: double.infinity,
+            iconPath: 'images/icon-country-guidelines.png',
+            label: Localization().getStringEx("panel.covid19home.button.country_guidelines.title", "County\nGuidelines"),
+            hint: Localization().getStringEx("panel.covid19home.button.country_guidelines.hint", ""),
+            onTap: ()=>_onTapCountryGuidelines(),
+          ),
+        ));
+      }
+    }
+
+    if(AppCollection.isCollectionNotEmpty(contentList)) {
+      List<Widget> content = <Widget>[];
+      for (Widget entry in contentList) {
+        if (entry != null) {
+          if (content.isNotEmpty) {
+            content.add(Container(height: 10,),);
+          }
+          content.add(entry);
+        }
+      }
+
+      return Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: content,
+          )
+        ],
+      );
+    }
+    else{
+      return Container();
+    }
   }
 
   Widget _buildViewHistoryButton() {
@@ -585,6 +673,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
       ),
       child: RibbonButton(
         label: Localization().getStringEx("panel.covid19.button.health_history.title", "View Health History"),
+        hint: Localization().getStringEx("panel.covid19.button.health_history.hint", ""),
         borderRadius: BorderRadius.circular(4),
         height: null,
         onTap: ()=>_onTapTestHistory(),
@@ -708,6 +797,11 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
       AppAlert.showOfflineMessage(context);
     }
   }
+
+  String get _accessStatusText{
+    return (_covid19Access? Localization().getStringEx("panel.covid19home.label.access.granted","Building access granted"):
+                            Localization().getStringEx("panel.covid19home.label.access.denied","Building access denied"));
+  }
 }
 
 class _Covid19HomeHeaderBar extends AppBar {
@@ -719,10 +813,10 @@ class _Covid19HomeHeaderBar extends AppBar {
   final GestureTapCallback onRightButtonTap;
 
   static Color get _titleColor  {
-    if (Config().isDev) {
+    if (Organizations().isDevEnvironment) {
       return Colors.yellow;
     }
-    else if (Config().isTest) {
+    else if (Organizations().isTestEnvironment) {
       return Colors.green;
     }
     else {

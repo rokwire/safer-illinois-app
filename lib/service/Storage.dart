@@ -15,12 +15,15 @@
  */
 
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:illinois/model/Auth.dart';
 import 'package:illinois/model/Health.dart';
-import 'package:illinois/service/Log.dart';
+import 'package:illinois/model/Organization.dart';
 import 'package:illinois/model/UserData.dart';
+import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
+import 'package:illinois/utils/Crypt.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -38,18 +41,22 @@ class Storage with Service {
   Storage._internal();
 
   SharedPreferences _sharedPreferences;
+  Uint8List _encryptionKey;
 
   @override
   Future<void> initService() async {
-    Log.d("Init Storage");
-    _sharedPreferences = await SharedPreferences.getInstance();
+    if (_sharedPreferences == null) {
+      _sharedPreferences = await SharedPreferences.getInstance();
+    }
+    if (_encryptionKey == null) {
+      _encryptionKey = await NativeCommunicator().encryptionKey(name: 'storage', size: AESCrypt.kCCBlockSizeAES128);
+    }
   }
 
-  void deleteEverything(){
-    for(String key in _sharedPreferences.getKeys()){
-      if(key != _configEnvKey){  // skip selected environment
-        _sharedPreferences.remove(key);
-      }
+  @override
+  Future<void> clearService() async {
+    if (_sharedPreferences != null) {
+      await _sharedPreferences.clear();
     }
   }
 
@@ -58,6 +65,22 @@ class Storage with Service {
   }
 
   void _setStringWithName(String name, String value) {
+    _sharedPreferences.setString(name, value);
+    NotificationService().notify(notifySettingChanged, name);
+  }
+
+  String _getEncryptedStringWithName(String name, {String defaultValue}) {
+    String value = _sharedPreferences.getString(name);
+    if ((_encryptionKey != null) && (value != null)) {
+      value = AESCrypt.decrypt(value, keyBytes: _encryptionKey);
+    }
+    return value ?? defaultValue;
+  }
+
+  void _setEncryptedStringWithName(String name, String value) {
+    if ((_encryptionKey != null) && (value != null)) {
+      value = AESCrypt.encrypt(value, keyBytes: _encryptionKey);
+    }
     _sharedPreferences.setString(name, value);
     NotificationService().notify(notifySettingChanged, name);
   }
@@ -289,6 +312,19 @@ class Storage with Service {
   }
 
   /////////////
+  // Organizaton
+
+  static const String _organiationKey = 'organization';
+
+  Organization get organization {
+    return Organization.fromJson(AppJson.decode(_getEncryptedStringWithName(_organiationKey)));
+  }
+
+  set organization(Organization organization) {
+    _setEncryptedStringWithName(_organiationKey, AppJson.encode(organization.toJson()));
+  }
+
+  /////////////
   // Config
 
   static const String _configEnvKey = 'config_environment';
@@ -434,6 +470,19 @@ class Storage with Service {
 
   set httpProxyPort(String value) {
     _setStringWithName(_httpProxyPortKey, value);
+  }
+
+  /////////////
+  // Test Encryption
+
+  static const String _testEncryptionStringKey = 'test_encryption';
+  
+  String get testEncryptionString {
+    return _getEncryptedStringWithName(_testEncryptionStringKey);
+  }
+
+  set testEncryptionString(String value) {
+    _setEncryptedStringWithName(_testEncryptionStringKey, value);
   }
 
   /////////////

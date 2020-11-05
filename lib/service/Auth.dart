@@ -104,6 +104,7 @@ class Auth with Service implements NotificationsListener {
       DeepLink.notifyUri,
       AppLivecycle.notifyStateChanged,
       User.notifyUserDeleted,
+      Config.notifyConfigChanged,
     ]);
   }
 
@@ -120,6 +121,19 @@ class Auth with Service implements NotificationsListener {
 
     _syncProfilePiiDataIfNeed(); // No need for await
   }
+
+  @override
+  Future<void> clearService() async {
+    _authToken = null;
+    _authInfo = null;
+
+    AppFile.delete(_authCardCacheFile);
+    _authCard = null;
+
+    AppFile.delete(_userPiiCacheFile);
+    _userPiiData = null;
+  }
+
 
   @override
   void destroyService() {
@@ -161,6 +175,10 @@ class Auth with Service implements NotificationsListener {
 
   bool isMemberOf(String groupName) {
     return authInfo?.userGroupMembership?.contains(groupName) ?? false;
+  }
+
+  bool get isCapitolStaff {
+    return isPhoneLoggedIn && hasUIN;
   }
 
   void logout(){
@@ -306,9 +324,11 @@ class Auth with Service implements NotificationsListener {
   }
 
   Future<AuthToken> _loadShibbolethAuthTokenWithCode(String code) async{
+    
     String tokenUriStr = Config().shibbolethAuthTokenUrl
-        .replaceAll("{shibboleth_client_id}", Config().shibbolethClientId)
-        .replaceAll("{shibboleth_client_secret}", Config().shibbolethClientSecret);
+        ?.replaceAll("{shibboleth_client_id}", Config().shibbolethClientId ?? '')
+        ?.replaceAll("{shibboleth_client_secret}", Config().shibbolethClientSecret ?? '');
+    
     Map<String,dynamic> bodyData = {
       'code': code,
       'grant_type': 'authorization_code',
@@ -316,7 +336,7 @@ class Auth with Service implements NotificationsListener {
     };
     Http.Response response;
     try {
-      response = await Network().post(tokenUriStr,body: bodyData);
+      response = (tokenUriStr != null) ? await Network().post(tokenUriStr,body: bodyData) : null;
       String responseBody = (response != null && response.statusCode == 200) ? response.body : null;
       Map<String,dynamic> jsonData = AppString.isStringNotEmpty(responseBody) ? AppJson.decode(responseBody) : null;
       if(jsonData != null){
@@ -395,14 +415,18 @@ class Auth with Service implements NotificationsListener {
       return false;
     }
 
-    // 2. Pii Pid
+    // 2. Request AuthInfo
+    // Do not fail if Aith Info is NA
+    AuthInfo newAuthInfo = Config().capitolStaffRoleEnabled ? await _loadPhoneAuthInfo(optAuthToken: newAuthToken) : null;
+
+    // 3. Pii Pid
     String newUserPiiPid = await _loadPidWithPhoneAuth(phone: phoneNumber, optAuthToken: newAuthToken);
     if(newUserPiiPid == null) {
       _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginPhoneActionName);
       return false;
     }
 
-    // 3. UserPiiData
+    // 4. UserPiiData
     String newUserPiiDataString = await _loadUserPiiDataStringFromNet(pid: newUserPiiPid, optAuthToken: newAuthToken);
     UserPiiData newUserPiiData = _userPiiDataFromJsonString(newUserPiiDataString);
     if(newUserPiiData == null || AppCollection.isCollectionEmpty(newUserPiiData?.uuidList)){
@@ -410,7 +434,7 @@ class Auth with Service implements NotificationsListener {
       return false;
     }
 
-    // 4. UserData
+    // 5. UserData
     UserData newUserData;
     try {
       newUserData = await User().requestUser(newUserPiiData.uuidList.first);
@@ -421,22 +445,27 @@ class Auth with Service implements NotificationsListener {
     }
 
     // Everything is fine - cleanup and store new tokens and data
-    // 5. Clear everything before proceed further. Notification is not required at this stage
+    // 6. Clear everything before proceed further. Notification is not required at this stage
     _clear(false);
 
-    // 6. Store everything and notify everyone
-    // 6.1 AuthToken
+    // 7. Store everything and notify everyone
+    // 7.1 AuthToken
     _authToken = newAuthToken;
     _saveAuthToken();
     _notifyAuthTokenChanged();
 
-    // 6.2 UserPiiData
+    // 7.2 AuthInfo
+    _authInfo = newAuthInfo;
+    _saveAuthInfo();
+    _notifyAuthInfoChanged();
+
+    // 7.3 UserPiiData
     _applyUserPiiData(newUserPiiData, newUserPiiDataString);
 
-    // 6.3 apply UserData
+    // 7.4 apply UserData
     User().applyUserData(newUserData);
 
-    // 6.4 notifyLoggedIn event
+    // 7.5 notifyLoggedIn event
     _notifyAuthLoginSucceeded(analyticsAction: Analytics.LogAuthLoginPhoneActionName);
 
     return true;
@@ -462,6 +491,58 @@ class Auth with Service implements NotificationsListener {
     return null;
   }
 
+  Future<AuthInfo> _loadPhoneAuthInfo({AuthToken optAuthToken}) async {
+    dynamic result = await _loadCapitolStaffUIN(optAuthToken: optAuthToken);
+    return (result is String) ? AuthInfo(uin: result) : null;
+  }
+
+  Future<dynamic> _loadCapitolStaffUIN({AuthToken optAuthToken}) async {
+    optAuthToken = (optAuthToken != null) ? optAuthToken : _authToken;
+    PhoneToken phoneToken = (optAuthToken is PhoneToken) ? optAuthToken : null;
+    if ((Config().healthUrl != null) && (phoneToken?.phone != null)) {
+      String url = "${Config().healthUrl}/covid19/rosters/phone/${phoneToken.phone}";
+      Http.Response userDataResp = await Network().get(url, auth: NetworkAuth.App);
+      if ((userDataResp != null) && (userDataResp.statusCode == 200)) {
+        Map<String, dynamic> responseJson = AppJson.decodeMap(userDataResp.body);
+        String uin = (responseJson != null) ? responseJson['uin'] : null;
+        //TMP: uin = '000000000';
+        // String or null, if the user does not bellong to roster
+        return uin;
+      }
+      else {
+        // Request failed
+        return Exception("${userDataResp?.statusCode} ${userDataResp?.body}");
+      }
+    }
+    else {
+      // Not Available
+      return false;
+    }
+  }
+
+  bool _checkCapitolStaffConfigEnabled() {
+    if (!isCapitolStaff) {
+      return null;
+    }
+    else if (Config().capitolStaffRoleEnabled) {
+      return true;
+    }
+    else {
+      logout();
+      return false;
+    }
+  }
+
+  void _checkCapitolStaffRosterEnabled() {
+    if (_checkCapitolStaffConfigEnabled() == true) {
+      _loadCapitolStaffUIN().then((dynamic result) {
+        if (result == null) {
+          logout();
+        }
+      });
+    }
+  }
+
   /// UserPIIData
 
   Future<String> _loadPidWithPhoneAuth({String phone, AuthToken optAuthToken}) async {
@@ -482,10 +563,10 @@ class Auth with Service implements NotificationsListener {
     String url = (Config().userProfileUrl != null) ? '${Config().userProfileUrl}/pii' : null;
     optAuthToken = (optAuthToken != null) ? optAuthToken : authToken;
 
-    final response = await Network().post(url,
+    final response = (url != null) ? await Network().post(url,
         headers: {'Content-Type':'application/json', HttpHeaders.authorizationHeader: "${optAuthToken?.tokenType} ${optAuthToken?.idToken}"},
         body: json.jsonEncode(data),
-    );
+    ) : null;
     String responseBody = ((response != null) && (response.statusCode == 200)) ? response.body : null;
     Map<String, dynamic> jsonData = (responseBody != null) ? AppJson.decode(responseBody) : null;
     String userPid = (jsonData != null) ? jsonData['pid'] : null;
@@ -496,11 +577,11 @@ class Auth with Service implements NotificationsListener {
     if(piiData != null) {
       String url = (Config().userProfileUrl != null) ? '${Config().userProfileUrl}/pii/${piiData.pid}' : null;
       String body = json.jsonEncode(piiData.toJson());
-      final response = await Network().put(url,
+      final response = (url != null) ? await Network().put(url,
           headers: {'Content-Type':'application/json'},
           body: body,
           auth: NetworkAuth.User
-      );
+      ) : null;
 
       String responseBody = ((response != null) && (response.statusCode == 200)) ? response.body : null;
       Map<String, dynamic> jsonData = (responseBody != null) ? AppJson.decode(responseBody) : null;
@@ -518,15 +599,17 @@ class Auth with Service implements NotificationsListener {
     return null;
   }
 
-  Future<void> deleteUserPiiData() async{
-    String url = (Config().userProfileUrl != null) ? '${Config().userProfileUrl}/pii/${Storage().userPid}' : null;
+  Future<void> deleteUserPiiData() async {
+    if (Config().userProfileUrl != null) {
+      String url = '${Config().userProfileUrl}/pii/${Storage().userPid}';
 
-    await Network().delete(url,
-        headers: {'Content-Type':'application/json'},
-        auth: NetworkAuth.User
-    ).whenComplete((){
-      _applyUserPiiData(null, null);
-    });
+      await Network().delete(url,
+          headers: {'Content-Type':'application/json'},
+          auth: NetworkAuth.User
+      ).whenComplete((){
+        _applyUserPiiData(null, null);
+      });
+    }
   }
 
   void _applyUserPiiData(UserPiiData userPiiData, String userPiiDataString, [bool notify = true]) {
@@ -582,9 +665,9 @@ class Auth with Service implements NotificationsListener {
     optAuthToken = (optAuthToken != null) ? optAuthToken : authToken;
     try {
       String url = (Config().userProfileUrl != null) ? '${Config().userProfileUrl}/pii/$pid' : null;
-      final response = await Network().get(url, headers: {
+      final response = (url != null) ? await Network().get(url, headers: {
         HttpHeaders.authorizationHeader: "${optAuthToken?.tokenType} ${optAuthToken?.idToken}"
-      });
+      }) : null;
       return ((response != null) && (response.statusCode == 200)) ? response.body : null;
     }
     catch (e) {
@@ -737,15 +820,15 @@ class Auth with Service implements NotificationsListener {
     Log.d("Auth: will refresh token");
 
     String tokenUriStr = Config().shibbolethAuthTokenUrl
-        .replaceAll("{shibboleth_client_id}", Config().shibbolethClientId)
-        .replaceAll("{shibboleth_client_secret}", Config().shibbolethClientSecret);
+        ?.replaceAll("{shibboleth_client_id}", Config().shibbolethClientId ?? '')
+        ?.replaceAll("{shibboleth_client_secret}", Config().shibbolethClientSecret ?? '');
     Map<String, String> body = {
       "refresh_token": authToken?.refreshToken,
       "grant_type": "refresh_token",
     };
     _refreshTokenFuture = Network().post(
         tokenUriStr, body: body, refreshToken: false)
-        .then((tokenResponse){
+        .then((tokenResponse) {
       _refreshTokenFuture = null;
       try {
         String tokenResponseBody = ((tokenResponse != null) && (tokenResponse.statusCode == 200)) ? tokenResponse.body : null;
@@ -848,10 +931,14 @@ class Auth with Service implements NotificationsListener {
       if (param == AppLifecycleState.resumed) {
         _reloadAuthCardIfNeeded();
         _reloadUserPiiDataIfNeeded();
+        _checkCapitolStaffRosterEnabled();
       }
     }
     else if (name == User.notifyUserDeleted) {
       logout();
+    }
+    else if (name == Config.notifyConfigChanged) {
+      _checkCapitolStaffConfigEnabled();
     }
   }
 

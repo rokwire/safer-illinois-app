@@ -46,7 +46,8 @@ xcuserdata
 /.travis.yml
 /secrets.tar.enc
 
-/assets/configs.json.enc
+/assets/organizations.json.enc
+/assets/organizations.hook.json.enc
 
 /ios/Runner/GoogleService-Info-Dev.plist
 /ios/Runner/GoogleService-Info-Prod.plist

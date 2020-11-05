@@ -19,8 +19,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
+import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/utils/AppDateTime.dart';
-import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
@@ -209,7 +209,7 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
         ),
         Expanded(child:
         new ListView.builder(
-        itemCount: _statusHistory.length + ((!kReleaseMode || Config().isDev) ? 2 : 1),
+        itemCount: _statusHistory.length + ((!kReleaseMode || Organizations().isDevEnvironment) ? 2 : 1),
         itemBuilder: (BuildContext ctxt, int index) {
           if (index < _statusHistory.length) {
             return _Covid19HistoryEntry(history: _statusHistory[index]);
@@ -551,7 +551,7 @@ class _Covid19HistoryEntryState extends State<_Covid19HistoryEntry> with SingleT
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
            children: <Widget>[
-             Text(AppDateTime.formatDateTime(widget.history?.dateUtc?.toLocal(), format:dateFormat) ?? '',style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface,)),
+             Text(AppDateTime.formatDateTime(widget.history?.dateUtc?.toLocal(), format:dateFormat, locale: Localization().currentLocale?.languageCode) ?? '',style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface,)),
              Container(height: 4,),
              Row(children: <Widget>[
               Expanded(child:

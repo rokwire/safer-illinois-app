@@ -297,8 +297,9 @@ class _SettingsPersonalInfoPanelState extends State<SettingsPersonalInfoPanel> {
                 FlatButton(
                     onPressed: () {
                       Analytics.instance.logAlert(text: "Sign out", selection: "Yes");
-                      Navigator.pop(context);
                       Auth().logout();
+                      Navigator.pop(context);
+                      Navigator.pop(context);
                     },
                     child: Text(Localization().getStringEx("panel.profile_info.logout.button.yes", "Yes"))),
                 FlatButton(

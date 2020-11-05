@@ -22,7 +22,8 @@ import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/BluetoothServices.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Connectivity.dart';
-import 'package:illinois/service/Crashlytics.dart';
+import 'package:illinois/service/FirebaseService.dart';
+import 'package:illinois/service/FirebaseCrashlytics.dart';
 import 'package:illinois/service/DeepLink.dart';
 import 'package:illinois/service/Exposure.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
@@ -34,6 +35,7 @@ import 'package:illinois/service/LocationServices.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/OSFHealth.dart';
 import 'package:illinois/service/Onboarding.dart';
+import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/Storage.dart';
 import 'package:illinois/service/LocalNotifications.dart';
 import 'package:illinois/service/Styles.dart';
@@ -50,7 +52,10 @@ abstract class Service {
   Future<void> initService() async {
   }
 
-  void initServiceUI() async {
+  void initServiceUI() {
+  }
+
+  Future<void> clearService() async {
   }
 
   Set<Service> get serviceDependsOn {
@@ -73,11 +78,12 @@ class Services {
 
   List<Service> _services = [
     // Add highest priority services at top
-    
-    Crashlytics(),
+    FirebaseService(),
+    FirebaseCrashlytics(),
     Storage(),
-    HttpProxy(),
+    Organizations(),
     Config(),
+    HttpProxy(),
 
     AppLivecycle(),
     Connectivity(),
@@ -87,6 +93,8 @@ class Services {
     LocalNotifications(),
     DeepLink(),
 
+    FlexUI(),
+    Onboarding(),
     Localization(),
     Assets(),
     Styles(),
@@ -94,8 +102,6 @@ class Services {
     User(),
     Analytics(),
     FirebaseMessaging(),
-    FlexUI(),
-    Onboarding(),
     Health(),
     Exposure(),
     OSFHealth(),
@@ -126,6 +132,12 @@ class Services {
   void initUI() {
     for (Service service in _services) {
       service.initServiceUI();
+    }
+  }
+
+  Future<void> clear() async {
+    for (Service service in _services) {
+      await service.clearService();
     }
   }
 

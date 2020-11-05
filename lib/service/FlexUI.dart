@@ -23,8 +23,10 @@ import 'package:http/http.dart' as Http;
 import 'package:collection/collection.dart';
 import 'package:illinois/model/UserData.dart';
 import 'package:illinois/service/AppLivecycle.dart';
+import 'package:illinois/service/Assets.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Config.dart';
+import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/Network.dart';
 import 'package:illinois/service/NotificationService.dart';
@@ -36,7 +38,7 @@ import 'package:path_provider/path_provider.dart';
 
 class FlexUI with Service implements NotificationsListener {
 
-  static const String notifyChanged  = "edu.illinois.rokwire.flexui.changed";
+  static const String notifyChanged  = "edu.illinois.rokwire.health.flexui.changed";
 
   static const String _flexUIName   = "flexUI.json";
 
@@ -70,6 +72,8 @@ class FlexUI with Service implements NotificationsListener {
       Auth.notifyAuthTokenChanged,
       Auth.notifyCardChanged,
       Auth.notifyUserPiiDataChanged,
+      Health.notifyUserUpdated,
+      Health.notifyUserPrivateKeyUpdated,
       AppLivecycle.notifyStateChanged,
     ]);
   }
@@ -95,7 +99,20 @@ class FlexUI with Service implements NotificationsListener {
 
   @override
   Set<Service> get serviceDependsOn {
-    return Set.from([Config(), User(), Auth()]);
+    return Set.from([Config(), User(), Auth(), Health()]);
+  }
+
+  @override
+  Future<void> clearService() async {
+    AppFile.delete(_cacheFile);
+    _dataVersion = null;
+    _cacheFile = null;
+    _content = null;
+    _features = null;
+    if (_httpClient != null) {
+      _httpClient.close();
+      _httpClient = null;
+    }
   }
 
   // NotificationsListener
@@ -112,6 +129,10 @@ class FlexUI with Service implements NotificationsListener {
         (name == Auth.notifyCardChanged) || 
         (name == Auth.notifyUserPiiDataChanged))
     {
+      _updateFromNet();
+    }
+    else if ((name == Health.notifyUserUpdated) ||
+            (name == Health.notifyUserPrivateKeyUpdated)) {
       _updateFromNet();
     }
     else if (name == AppLivecycle.notifyStateChanged) {
@@ -293,6 +314,10 @@ class FlexUI with Service implements NotificationsListener {
 
   static bool _localeIsEntryAvailable(String entry, { String group, Map<String, dynamic> rules }) {
 
+    if (rules == null) {
+      rules = Assets()['flex_ui.rules'];
+    }
+
     String pathEntry = (group != null) ? '$group.$entry' : null;
 
     Map<String, dynamic> roleRules = rules['roles'];
@@ -301,12 +326,6 @@ class FlexUI with Service implements NotificationsListener {
       return false;
     }
 
-    Map<String, dynamic> privacyRules = rules['privacy'];
-    dynamic privacyRule = (privacyRules != null) ? (((pathEntry != null) ? privacyRules[pathEntry] : null) ?? privacyRules[entry]) : null;
-    if ((privacyRule != null) && !_localeEvalPrivacyRule(privacyRule)) {
-      return false;
-    }
-    
     Map<String, dynamic> authRules = rules['auth'];
     dynamic authRule = (authRules != null) ? (((pathEntry != null) ? authRules[pathEntry] : null) ?? authRules[entry])  : null;
     if ((authRule != null) && !_localeEvalAuthRule(authRule)) {
@@ -383,10 +402,6 @@ class FlexUI with Service implements NotificationsListener {
     return true; // allow everything that is not defined or we do not understand
   }
 
-  static bool _localeEvalPrivacyRule(dynamic privacyRule) {
-    return true; // we do not support privacy levels in Safer
-  }
-
   static bool _localeEvalAuthRule(dynamic authRule) {
     bool result = true;  // allow everything that is not defined or we do not understand
     if (authRule is Map) {
@@ -400,6 +415,9 @@ class FlexUI with Service implements NotificationsListener {
           }
           else if ((key == 'phoneLoggedIn') && (value is bool)) {
             result = result && (Auth().isPhoneLoggedIn == value);
+          }
+          else if ((key == 'healthLoggedIn') && (value is bool)) {
+            result = result && (Health().isUserLoggedIn == value);
           }
           
           else if ((key == 'shibbolethMemberOf') && (value is String)) {

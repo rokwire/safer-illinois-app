@@ -17,6 +17,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_html/style.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Styles.dart';
@@ -96,7 +97,11 @@ class _Covid19NextStepsPanelState extends State<Covid19NextStepsPanel> {
       content.addAll(<Widget>[
           Container(height: 12,),
           Padding(padding: EdgeInsets.only(left: 34, right: 39), child:
-            Html(data: nextStepHtml, onLinkTap: (url) => _onTapLink(url), linkStyle: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, decoration: TextDecoration.underline, color: Styles().colors.white, decorationColor: Styles().colors.fillColorSecondary), defaultTextStyle: TextStyle(fontSize:16, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.white),),
+            Html(data: nextStepHtml, onLinkTap: (url) => _onTapLink(url),
+              style: {
+                "body": Style(fontFamily: Styles().fontFamilies.regular, color: Styles().colors.white)
+              },
+            ),
           ),
       ]);
     }

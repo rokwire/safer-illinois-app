@@ -39,7 +39,8 @@ public class Constants {
     static final String APP_BLUETOOTH_AUTHORIZATION = "bluetooth_authorization";
     static final String FIREBASE_INFO = "firebaseInfo";
     static final String DEVICE_ID_KEY = "deviceId";
-    static final String HEALTH_RSI_PRIVATE_KEY = "healthRSAPrivateKey";
+    static final String HEALTH_RSA_PRIVATE_KEY = "healthRSAPrivateKey";
+    static final String ENCRYPTION_KEY_KEY = "encryptionKey";
     static final String BARCODE_KEY = "barcode";
 
     //Maps
@@ -55,6 +56,9 @@ public class Constants {
 
     //Health
     static final String HEALTH_SHARED_PREFS_FILE_NAME = "health_shared_prefs";
+
+    //Encryption Key
+    static final String ENCRYPTION_SHARED_PREFS_FILE_NAME = "encryption_shared_prefs";
 
     //Exposure
     public static final String EXPOSURE_PLUGIN_METHOD_NAME_START = "start";

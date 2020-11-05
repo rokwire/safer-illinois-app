@@ -21,6 +21,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:illinois/service/AppNavigation.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
+import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/User.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/NotificationService.dart';
@@ -29,7 +30,7 @@ import 'package:illinois/ui/onboarding/OnboardingUpgradePanel.dart';
 
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/Analytics.dart';
-import 'package:illinois/service/Crashlytics.dart';
+import 'package:illinois/service/FirebaseCrashlytics.dart';
 import 'package:illinois/service/Storage.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/Onboarding.dart';
@@ -56,7 +57,7 @@ void main() async {
 
   runZonedGuarded(() async {
     runApp(App());
-  }, Crashlytics().handleZoneError);
+  }, FirebaseCrashlytics().handleZoneError);
 }
 
 Future<void> _init() async {
@@ -87,7 +88,7 @@ class AppExitListener implements NotificationsListener {
 }
 
 class _AppData {
-  _AppState _panelState;
+  _AppState _appState;
 }
 
 class App extends StatefulWidget {
@@ -103,18 +104,17 @@ class App extends StatefulWidget {
     return _instance;
   }
 
-  get panelState {
-    return _data._panelState;
+  get appState {
+    return _data._appState;
   }
 
   _AppState createState() {
-    return _data._panelState = _AppState();
+    return _data._appState = _AppState();
   }
 }
 
 class _AppState extends State<App> implements NotificationsListener {
 
-  RootPanel rootPanel;
   String _upgradeRequiredVersion;
   String _upgradeAvailableVersion;
   Key key = UniqueKey();
@@ -127,12 +127,13 @@ class _AppState extends State<App> implements NotificationsListener {
       Onboarding.notifyFinished,
       Config.notifyUpgradeAvailable,
       Config.notifyUpgradeRequired,
+      Organizations.notifyOrganizationChanged,
+      Organizations.notifyEnvironmentChanged,
       User.notifyUserDeleted,
     ]);
 
     AppLivecycle.instance.ensureBinding();
 
-    rootPanel = RootPanel();
     _upgradeRequiredVersion = Config().upgradeRequiredVersion;
     _upgradeAvailableVersion = Config().upgradeAvailableVersion;
     
@@ -187,20 +188,19 @@ class _AppState extends State<App> implements NotificationsListener {
       return Onboarding().startPanel;
     }
     else {
-      return rootPanel;
+      return RootPanel();
     }
   }
 
   void _resetUI() async {
     this.setState(() {
-      rootPanel = RootPanel();
       key = new UniqueKey();
     });
   }
 
   void _finishOnboarding(BuildContext context) {
     Storage().onBoardingPassed = true;
-    Route routeToHome = CupertinoPageRoute(builder: (context) => rootPanel);
+    Route routeToHome = CupertinoPageRoute(builder: (context) => RootPanel());
     Navigator.pushAndRemoveUntil(context, routeToHome, (_) => false);
   }
 
@@ -220,6 +220,12 @@ class _AppState extends State<App> implements NotificationsListener {
       setState(() {
         _upgradeAvailableVersion = param;
       });
+    }
+    else if (name == Organizations.notifyOrganizationChanged) {
+      _resetUI();
+    }
+    else if (name == Organizations.notifyEnvironmentChanged) {
+      _resetUI();
     }
     else if (name == User.notifyUserDeleted) {
       _resetUI();

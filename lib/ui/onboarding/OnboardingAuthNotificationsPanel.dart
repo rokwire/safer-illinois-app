@@ -32,6 +32,15 @@ class OnboardingAuthNotificationsPanel extends StatelessWidget with OnboardingPa
   final Map<String, dynamic> onboardingContext;
   OnboardingAuthNotificationsPanel({this.onboardingContext});
 
+  bool get onboardingCanDisplay {
+    return Platform.isIOS;
+  }
+
+  Future<bool> get onboardingCanDisplayAsync async {
+    bool notificationsAuthorized = await NativeCommunicator().queryNotificationsAuthorization("query");
+    return !notificationsAuthorized;
+  }
+
   @override
   Widget build(BuildContext context) {
     String titleText = Localization().getStringEx('panel.onboarding.notifications.label.title', 'Info when you need it');

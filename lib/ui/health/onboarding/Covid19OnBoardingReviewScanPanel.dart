@@ -27,6 +27,7 @@ import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Styles.dart';
+import 'package:illinois/service/User.dart';
 import 'package:illinois/ui/health/onboarding/Covid19OnBoardingIndicator.dart';
 import 'package:illinois/ui/onboarding/OnboardingBackButton.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
@@ -42,7 +43,7 @@ class Covid19OnBoardingReviewScanPanel extends StatefulWidget with OnboardingPan
 
   @override
   bool get onboardingCanDisplay {
-    return (onboardingContext != null) && onboardingContext['shouldDisplayReviewScan'] == true;
+    return !User().isStudentOrEmployee && (onboardingContext != null) && onboardingContext['shouldDisplayReviewScan'] == true;
   }
 }
 

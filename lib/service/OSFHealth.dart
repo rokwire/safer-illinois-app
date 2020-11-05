@@ -72,87 +72,91 @@ class OSFHealth with Service implements NotificationsListener {
     return Set.from([Storage(), Config(), Auth()]);
   }
 
-  Future<void> authenticate() async{
-    var uriStr = '${Config().osfBaseUrl}/oauth2/authorize?response_type=code&client_id=${Config().osfClientId}&redirect_uri=$OSF_REDIRECT_URI';
-    url_launcher.canLaunch(uriStr).then((bool result) {
-      if (result) {
-        url_launcher.launch(uriStr,);
-      }
-    });
+  Future<void> authenticate() async {
+    if (Config().osfBaseUrl != null) {
+      var uriStr = '${Config().osfBaseUrl}/oauth2/authorize?response_type=code&client_id=${Config().osfClientId}&redirect_uri=$OSF_REDIRECT_URI';
+      url_launcher.canLaunch(uriStr).then((bool result) {
+        if (result) {
+          url_launcher.launch(uriStr,);
+        }
+      });
+    }
   }
 
-  Future<void> _handleOSFAuthentication(String code) async{
-    NotificationService().notify(notifyOnFetchBegin, null);
-    NativeCommunicator().dismissSafariVC();
-    int processedEntriesCount = 0;
-    try {
-      Response response = await Network().post("${Config().osfBaseUrl}/oauth2/token",
-          headers: {"Accept": "application/json"},
-          body: {
-            "code": code,
-            'grant_type': 'authorization_code',
-            'redirect_uri': OSF_REDIRECT_URI,
-            "client_id": Config().osfClientId,
-          }
-      );
-      if (response?.statusCode == 200) {
-        String responseBody = (response?.statusCode == 200) ? response.body : null;
-        Map<String, dynamic> responseJson = (responseBody != null) ? AppJson.decode(responseBody) : null;
-        if (responseJson != null) {
-          AppToast.show("Logged in successfully");
-          HealthOSFAuth _osfAuth = HealthOSFAuth.fromJson(responseJson);
+  Future<void> _handleOSFAuthentication(String code) async {
+    if (Config().osfBaseUrl != null) {
+      NotificationService().notify(notifyOnFetchBegin, null);
+      NativeCommunicator().dismissSafariVC();
+      int processedEntriesCount = 0;
+      try {
+        Response response = await Network().post("${Config().osfBaseUrl}/oauth2/token",
+            headers: {"Accept": "application/json"},
+            body: {
+              "code": code,
+              'grant_type': 'authorization_code',
+              'redirect_uri': OSF_REDIRECT_URI,
+              "client_id": Config().osfClientId,
+            }
+        );
+        if (response?.statusCode == 200) {
+          String responseBody = (response?.statusCode == 200) ? response.body : null;
+          Map<String, dynamic> responseJson = (responseBody != null) ? AppJson.decode(responseBody) : null;
+          if (responseJson != null) {
+            AppToast.show("Logged in successfully");
+            HealthOSFAuth _osfAuth = HealthOSFAuth.fromJson(responseJson);
 
-          Response observationResponse = await Network().get("${Config().osfBaseUrl}/api/FHIR/DSTU2/Observation/?patient=${_osfAuth.patient}&category=laboratory",
-            headers: {
-              "Accept": "application/json",
-              "Authorization": "Bearer ${_osfAuth.accessToken}"
-            },
-          );
-          if (observationResponse?.statusCode == 200) {
-            String observationBody = (observationResponse?.statusCode == 200) ? observationResponse.body : null;
-            print(observationBody);
-            List<Covid19OSFTest> osfTests = List<Covid19OSFTest>();
-            Map<String, dynamic> observJson = (observationBody != null) ? AppJson.decode(observationBody) : null;
-            if(observJson != null){
-              List<dynamic> resultsList = observJson["entry"];
-              if(resultsList is List){
-                for(Map<String, dynamic> resultEntry in resultsList){
-                  if(resultEntry is Map){
-                    String code = AppMapPathKey.entry(resultEntry, "resource.code.text");
-                    String dateStr = AppMapPathKey.entry(resultEntry, "resource.issued");
-                    String valueStr = AppMapPathKey.entry(resultEntry, "resource.valueCodeableConcept.text");
-                    if(valueStr == null){
-                      valueStr = AppMapPathKey.entry(resultEntry, "resource.valueString");
+            Response observationResponse = await Network().get("${Config().osfBaseUrl}/api/FHIR/DSTU2/Observation/?patient=${_osfAuth.patient}&category=laboratory",
+              headers: {
+                "Accept": "application/json",
+                "Authorization": "Bearer ${_osfAuth.accessToken}"
+              },
+            );
+            if (observationResponse?.statusCode == 200) {
+              String observationBody = (observationResponse?.statusCode == 200) ? observationResponse.body : null;
+              print(observationBody);
+              List<Covid19OSFTest> osfTests = List<Covid19OSFTest>();
+              Map<String, dynamic> observJson = (observationBody != null) ? AppJson.decode(observationBody) : null;
+              if(observJson != null){
+                List<dynamic> resultsList = observJson["entry"];
+                if(resultsList is List){
+                  for(Map<String, dynamic> resultEntry in resultsList){
+                    if(resultEntry is Map){
+                      String code = AppMapPathKey.entry(resultEntry, "resource.code.text");
+                      String dateStr = AppMapPathKey.entry(resultEntry, "resource.issued");
+                      String valueStr = AppMapPathKey.entry(resultEntry, "resource.valueCodeableConcept.text");
+                      if(valueStr == null){
+                        valueStr = AppMapPathKey.entry(resultEntry, "resource.valueString");
+                      }
+                      if(code != null && dateStr != null && valueStr != null){
+                        DateTime dateUtc;
+                        try {
+                          dateUtc = DateFormat("yyyy-MM-ddTHH:mm:ssZ").parse(dateStr, true);
+                        } catch(e){ print(e); }
+                        osfTests.add(Covid19OSFTest(
+                            dateUtc: dateUtc,
+                            provider: Storage().lastHealthProvider?.name,
+                            providerId: Storage().lastHealthProvider?.id,
+                            testType: code,
+                            testResult: valueStr
+                        ));
+                      }
+                      //AppJson
                     }
-                    if(code != null && dateStr != null && valueStr != null){
-                      DateTime dateUtc;
-                      try {
-                        dateUtc = DateFormat("yyyy-MM-ddTHH:mm:ssZ").parse(dateStr, true);
-                      } catch(e){ print(e); }
-                      osfTests.add(Covid19OSFTest(
-                          dateUtc: dateUtc,
-                          provider: Storage().lastHealthProvider?.name,
-                          providerId: Storage().lastHealthProvider?.id,
-                          testType: code,
-                          testResult: valueStr
-                      ));
-                    }
-                    //AppJson
                   }
                 }
               }
-            }
-            if(osfTests.isNotEmpty){
-              processedEntriesCount = await Health().processOsfTests(osfTests: osfTests);
+              if(osfTests.isNotEmpty){
+                processedEntriesCount = await Health().processOsfTests(osfTests: osfTests);
+              }
             }
           }
         }
+        else {
+          AppToast.show("POST ${response.request.url.toString()} \n${response.reasonPhrase}");
+        }
+      } finally {
+        NotificationService().notify(notifyOnFetchFinished, {"processedEntriesCount": processedEntriesCount});
       }
-      else {
-        AppToast.show("POST ${response.request.url.toString()} \n${response.reasonPhrase}");
-      }
-    } finally {
-      NotificationService().notify(notifyOnFetchFinished, {"processedEntriesCount": processedEntriesCount});
     }
   }
 

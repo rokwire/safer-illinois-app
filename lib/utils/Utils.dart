@@ -290,6 +290,18 @@ class AppJson {
   }
 }
 
+class AppFile {
+  static Future<void> delete(File file) async {
+    try { 
+      if ((file != null) && await file.exists()) {
+        await file.delete();
+      }
+    } catch (e) {
+      print(e?.toString());
+    }
+  }
+}
+
 class AppToast {
   static void show(String msg) {
     Fluttertoast.showToast(

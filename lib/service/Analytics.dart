@@ -31,7 +31,6 @@ import 'package:illinois/service/Connectivity.dart';
 import 'package:illinois/service/Network.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
-import 'package:location/location.dart';
 
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -69,7 +68,6 @@ class Analytics with Service implements NotificationsListener {
   static const String   LogStdConnectionName               = "connection";
   static const String   LogStdLocationSvcName              = "location_services";
   static const String   LogStdNotifySvcName                = "notification_services";
-  static const String   LogStdLocationName                 = "location";
   static const String   LogStdSessionUuidName              = "session_uuid";
   static const String   LogStdUserUuidName                 = "user_uuid";
   static const String   LogStdUserRolesName                = "user_roles";
@@ -93,7 +91,6 @@ class Analytics with Service implements NotificationsListener {
     LogStdConnectionName,
     LogStdLocationSvcName,
     LogStdNotifySvcName,
-//  LogStdLocationName,
     LogStdSessionUuidName,
     LogStdUserUuidName,
     LogStdUserRolesName,
@@ -215,6 +212,7 @@ class Analytics with Service implements NotificationsListener {
   static const String   LogHealthActionTypeName              = "action_type";
   static const String   LogHealthActionTextName              = "action_text";
   static const String   LogHealthActionTimestampName         = "action_timestamp";
+  static const String   LogHealthExposureScore               = "exposure_score";
 
   // Event Attributes
   static const String   LogAttributeUrl                    = "url";
@@ -286,7 +284,6 @@ class Analytics with Service implements NotificationsListener {
       NativeCommunicator.notifyMapRouteStart,
       NativeCommunicator.notifyMapRouteFinish,
     ]);
-
   }
 
   @override
@@ -324,6 +321,15 @@ class Analytics with Service implements NotificationsListener {
   }
 
   @override
+  Future<void> clearService() async {
+    await _clearDatabase();
+    _closeTimer();
+    
+    _clearUserRoles();
+    _updateSessionUuid();
+  }
+
+  @override
   void destroyService() {
     NotificationService().unsubscribe(this);
 
@@ -345,6 +351,12 @@ class Analytics with Service implements NotificationsListener {
       _database = await openDatabase(databaseFile, version: _databaseVersion, onCreate: (db, version) {
         return db.execute("CREATE TABLE IF NOT EXISTS $_databaseTable($_databaseColumn TEXT NOT NULL)",);
       });
+    }
+  }
+
+  Future<void> _clearDatabase() async {
+    if (_database != null) {
+      await _database.execute("DELETE FROM $_databaseTable",);
     }
   }
 
@@ -508,16 +520,6 @@ class Analytics with Service implements NotificationsListener {
     }
   }
 
-  Map<String, dynamic> get _location {
-    LocationData location = LocationServices().lastLocation;
-    return (location != null) ? {
-      'latitude': location.latitude,
-      'longitude': location.longitude,
-      'timestamp': (location.time * 1000).toInt(),
-    } : null;
-  }
-  
-
   // Notification Services
 
   void updateNotificationServices() {
@@ -556,6 +558,10 @@ class Analytics with Service implements NotificationsListener {
   void _updateUserRoles() {
     Set<UserRole> roles = User().roles;
     _userRoles = UserRole.userRolesToList(roles);
+  }
+
+  void _clearUserRoles() {
+    _userRoles = null;
   }
 
   // Packets Processing
@@ -615,7 +621,7 @@ class Analytics with Service implements NotificationsListener {
   Future<bool>_sendPacket(String packet) async {
     if (packet != null) {
       try {
-        final response = await Network().post(Config().loggingUrl, body: packet, headers: { "Accept": "application/json", "Content-type":"application/json" }, auth: NetworkAuth.App, sendAnalytics: false);
+        final response = (Config().loggingUrl != null) ? await Network().post(Config().loggingUrl, body: packet, headers: { "Accept": "application/json", "Content-type":"application/json" }, auth: NetworkAuth.App, sendAnalytics: false) : null;
         return (response != null) && ((response.statusCode == 200) || (response.statusCode == 201));
       }
       catch (e) {
@@ -668,9 +674,6 @@ class Analytics with Service implements NotificationsListener {
         else if (attributeName == LogStdNotifySvcName) {
           analyticsEvent[LogStdNotifySvcName] = _notificationServices;
         }
-        else if (attributeName == LogStdLocationName) {
-          analyticsEvent[LogStdLocationName] = _location;
-        }
         else if (attributeName == LogStdSessionUuidName) {
           analyticsEvent[LogStdSessionUuidName] = _sessionUuid;
         }
@@ -721,7 +724,9 @@ class Analytics with Service implements NotificationsListener {
 
   void logPage({String name,  Map<String, dynamic> attributes, bool anonymous : true}) {
 
-    bool previousPageAnonymous = (_currentPageAnonymous != false);
+    if (_currentPageAnonymous != null) {
+      anonymous = (anonymous != null) ? (anonymous || _currentPageAnonymous) : _currentPageAnonymous;
+    }
 
     // Update Current page name
     String previousPageName = _currentPageName;
@@ -741,7 +746,7 @@ class Analytics with Service implements NotificationsListener {
     }
 
     // Log the event
-    logEvent(event, anonymous: (anonymous != false) || previousPageAnonymous);
+    logEvent(event, anonymous: (anonymous != false));
   }
 
   void logSelect({String target, bool anonymous = true}) {

@@ -17,12 +17,12 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:illinois/model/UserData.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Config.dart';
+import 'package:illinois/service/FirebaseCrashlytics.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/NotificationService.dart';
@@ -75,6 +75,11 @@ class User with Service implements NotificationsListener {
     }
   }
 
+  @override
+  Future<void> clearService() async {
+    _userData = null;
+  }
+
   Set<Service> get serviceDependsOn {
     return Set.from([Storage(), Config()]);
   }
@@ -112,7 +117,7 @@ class User with Service implements NotificationsListener {
 
   Future<void> _loadUser() async {
     // silently refresh user profile
-    requestUser(_userData.uuid).then((UserData userData) {
+    requestUser(_userData?.uuid).then((UserData userData) {
       if (userData != null) {
         applyUserData(userData);
       }
@@ -139,14 +144,14 @@ class User with Service implements NotificationsListener {
     String userUuid = _userData.uuid;
     String url = (Config().userProfileUrl != null) ? "${Config().userProfileUrl}/$userUuid" : null;
     Map<String, String> headers = {"Accept": "application/json","content-type":"application/json"};
-    final response = await Network().put(url, body: json.encode(_userData.toJson()), headers: headers, client: _client, auth: NetworkAuth.App);
+    final response = (url != null) ? await Network().put(url, body: json.encode(_userData.toJson()), headers: headers, client: _client, auth: NetworkAuth.App) : null;
     String responseBody = response?.body;
     bool success = ((response != null) && (responseBody != null) && (response.statusCode == 200));
     
     if (!success) {
       //error
       String message = "Error on updating user - " + (response != null ? response.statusCode.toString() : "null");
-      Crashlytics().log(message);
+      FirebaseCrashlytics().log(message);
     }
     else if (_client == client) {
       _client = null;
@@ -166,7 +171,7 @@ class User with Service implements NotificationsListener {
   Future<UserData> requestUser(String uuid) async {
     String url = ((Config().userProfileUrl != null) && (uuid != null) && (0 < uuid.length)) ? '${Config().userProfileUrl}/$uuid' : null;
 
-    final response = await Network().get(url, auth: NetworkAuth.App);
+    final response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
 
     if(response != null) {
       if (response?.statusCode == 404) {
@@ -185,7 +190,7 @@ class User with Service implements NotificationsListener {
 
   Future<UserData> _requestCreateUser() async {
     try {
-      final response = await Network().post(Config().userProfileUrl, auth: NetworkAuth.App, timeout: 10);
+      final response = (Config().userProfileUrl != null) ? await Network().post(Config().userProfileUrl, auth: NetworkAuth.App, timeout: 10) : null;
       if ((response != null) && (response.statusCode == 200)) {
         String responseBody = response.body;
         Map<String, dynamic> jsonData = AppJson.decode(responseBody);
@@ -230,8 +235,8 @@ class User with Service implements NotificationsListener {
     String applyUserUuid = userData?.uuid;
     String currentUserUuid = _userData?.uuid;
     bool userSwitched = (currentUserUuid != null) && (currentUserUuid != applyUserUuid);
-    if (userSwitched && _removeFCMToken(_userData)) {
-      String url = "${Config().userProfileUrl}/${_userData.uuid}";
+    if (userSwitched && (Config().userProfileUrl != null) && (_userData?.uuid != null) && _removeFCMToken(_userData)) {
+      String url = "${Config().userProfileUrl}/${_userData?.uuid}";
       Map<String, String> headers = {"Accept": "application/json","content-type":"application/json"};
       String post = json.encode(_userData.toJson());
       Network().put(url, body: post, headers: headers, auth: NetworkAuth.App);
@@ -286,6 +291,19 @@ class User with Service implements NotificationsListener {
         _notifyUserRolesUpdated();
       });
     }
+  }
+
+  bool get isStudent {
+    return _userData?.roles?.contains(UserRole.student) ?? false;
+  }
+
+  bool get isEmployee {
+    return _userData?.roles?.contains(UserRole.employee) ?? false;
+  }
+
+  bool get isStudentOrEmployee {
+    Set<UserRole> roles = _userData?.roles;
+    return (roles != null) && (roles.contains(UserRole.student) || roles.contains(UserRole.employee));
   }
 
   // Notifications

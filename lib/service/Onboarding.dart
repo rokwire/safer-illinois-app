@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:illinois/service/FlexUI.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
+import 'package:illinois/service/Storage.dart';
 import 'package:illinois/ui/health/onboarding/Covid19OnBoardingConsentPanel.dart';
 import 'package:illinois/ui/health/onboarding/Covid19OnBoardingFinalPanel.dart';
 import 'package:illinois/ui/health/onboarding/Covid19OnBoardingHowItWorks.dart';
@@ -33,10 +34,11 @@ import 'package:illinois/ui/onboarding/OnboardingAuthLocationPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginNetIdPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginPhonePanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingAuthNotificationsPanel.dart';
+import 'package:illinois/ui/onboarding/OnboardingOrganizationsPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingRolesPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginPhoneVerifyPanel.dart';
 
-class Onboarding with Service implements NotificationsListener {
+class Onboarding extends Service implements NotificationsListener{
 
   static const String notifyFinished  = "edu.illinois.rokwire.onboarding.finished";
 
@@ -55,48 +57,54 @@ class Onboarding with Service implements NotificationsListener {
     return _instance;
   }
 
-  // Service
+  // Implementation
 
   @override
   void createService() {
+    super.createService();
     NotificationService().subscribe(this,[
       FlexUI.notifyChanged,
     ]);
   }
 
   @override
+  Future<void> initService() async{
+    await super.initService();
+    _loadContentCodes();
+  }
+
+  @override
   void destroyService() {
+    super.destroyService();
     NotificationService().unsubscribe(this);
   }
 
-  @override
-  Future<void> initService() async {
-    _contentCodes = FlexUI()['onboarding'];
-  }
-
-  @override
   Set<Service> get serviceDependsOn {
-    return Set.from([FlexUI()]);
+    return Set<Service>.from([Storage(), FlexUI()]);
   }
 
-  // NotificationsListener
-
-  @override
-  void onNotification(String name, dynamic param) {
-    if (name == FlexUI.notifyChanged) {
-      _contentCodes = FlexUI()['onboarding'];
+  void onNotification(String name, dynamic param){
+    if(name == FlexUI.notifyChanged){
+      _loadContentCodes();
     }
   }
 
-  // Implementation
-
-  Widget get startPanel {
-    dynamic widget = _nextPanel(null);
-    return (widget is Widget) ? widget : null;
+  void _loadContentCodes(){
+    _contentCodes = FlexUI()['onboarding'];
   }
 
-  void next(BuildContext context, OnboardingPanel panel, {bool replace = false}) {
-    dynamic nextPanel = _nextPanel(panel);
+  Widget get startPanel {
+    for (int index = 0; index < _contentCodes.length; index++) {
+      OnboardingPanel nextPanel = _createPanel(name: _contentCodes[index], context: {});
+      if ((nextPanel != null) && nextPanel.onboardingCanDisplay) {
+        return nextPanel as Widget;
+      }
+    }
+    return null;
+  }
+
+  Future<void> next(BuildContext context, OnboardingPanel panel, {bool replace = false}) async {
+    dynamic nextPanel = await _nextPanel(panel);
     if (nextPanel is Widget) {
       if (replace) {
         Navigator.pushReplacement(context, CupertinoPageRoute(builder: (context) => nextPanel));
@@ -114,87 +122,54 @@ class Onboarding with Service implements NotificationsListener {
     NotificationService().notify(notifyFinished, context);
   }
 
-  dynamic _nextPanel(OnboardingPanel panel) {
-    if (_contentCodes != null) {
-      int nextPanelIndex;
-      if (panel == null) {
-        nextPanelIndex = 0;
+  Future<dynamic> _nextPanel(OnboardingPanel panel) async {
+    int nextPanelIndex;
+    if (panel == null) {
+      nextPanelIndex = 0;
+    }
+    else {
+      String panelName = _getPanelCode(panel: panel);
+      int panelIndex = _contentCodes.indexOf(panelName);
+      if (0 <= panelIndex) {
+        nextPanelIndex = panelIndex + 1;
       }
-      else {
-        String panelCode = _getPanelCode(panel: panel);
-        int panelIndex = _contentCodes.indexOf(panelCode);
-        if (0 <= panelIndex) {
-          nextPanelIndex = panelIndex + 1;
-        }
-      }
+    }
 
-      if (nextPanelIndex != null) {
-        while (nextPanelIndex < _contentCodes.length) {
-          String nextPanelCode = _contentCodes[nextPanelIndex];
-          OnboardingPanel nextPanel = _createPanel(code: nextPanelCode, context: panel?.onboardingContext ?? {});
-          if ((nextPanel != null) && nextPanel.onboardingCanDisplay) {
-            return nextPanel as Widget;
-          }
-          else {
-            nextPanelIndex++;
-          }
+    if (nextPanelIndex != null) {
+      while (nextPanelIndex < _contentCodes.length) {
+        String nextPanelName = _contentCodes[nextPanelIndex];
+        OnboardingPanel nextPanel = _createPanel(name: nextPanelName, context: panel?.onboardingContext ?? {});
+        if ((nextPanel != null) && nextPanel.onboardingCanDisplay && await nextPanel.onboardingCanDisplayAsync) {
+          return nextPanel as Widget;
         }
-        return false;
+        else {
+          nextPanelIndex++;
+        }
       }
+      return false;
     }
     return null;
   }
 
-  OnboardingPanel _createPanel({String code, Map<String, dynamic> context}) {
-    if (code != null) {
-      if (code == 'get_started') {
-        return OnboardingGetStartedPanel(onboardingContext: context);
-      }
-      else if (code == 'notifications_auth') {
-        return OnboardingAuthNotificationsPanel(onboardingContext: context);
-      }
-      else if (code == 'location_auth') {
-        return OnboardingAuthLocationPanel(onboardingContext: context);
-      }
-      else if (code == 'bluetooth_auth') {
-        return OnboardingAuthBluetoothPanel(onboardingContext: context);
-      }
-      else if (code == 'roles') {
-        return OnboardingRolesPanel(onboardingContext: context);
-      }
-      else if (code == 'login_netid') {
-        return OnboardingLoginNetIdPanel(onboardingContext: context);
-      }
-      else if (code == 'login_phone') {
-        return OnboardingLoginPhonePanel(onboardingContext: context);
-      }
-      else if (code == 'verify_phone') {
-        return OnboardingLoginPhoneVerifyPanel(onboardingContext: context);
-      }
-      else if (code == 'confirm_phone') {
-        return OnboardingLoginPhoneConfirmPanel(onboardingContext: context);
-      }
-      else if (code == 'resident_info') {
-        return Covid19OnBoardingResidentInfoPanel(onboardingContext: context);
-      }
-      else if (code == 'review_scan') {
-        return Covid19OnBoardingReviewScanPanel(onboardingContext: context);
-      }
-      else if (code == 'covid19_intro') {
-        return Covid19OnBoardingIntroPanel(onboardingContext: context);
-      }
-      else if (code == 'covid19_how_works') {
-        return Covid19OnBoardingHowItWorks(onboardingContext: context);
-      }
-      else if (code == 'covid19_consent') {
-        return Covid19OnBoardingConsentPanel(onboardingContext: context);
-      }
-      else if (code == 'covid19_qrcode') {
-        return Covid19OnBoardingQrCodePanel(onboardingContext: context);
-      }
-      else if (code == 'covid19_final') {
-        return Covid19OnBoardingFinalPanel(onboardingContext: context);
-      }
+  OnboardingPanel _createPanel({String name, Map<String, dynamic> context}) {
+    switch (name) {
+      case "get_started": return OnboardingGetStartedPanel(onboardingContext: context);
+      case "organization": return OnboardingOrganizationsPanel(onboardingContext: context);
+      case "notifications_auth": return OnboardingAuthNotificationsPanel(onboardingContext: context);
+      case "location_auth": return OnboardingAuthLocationPanel(onboardingContext: context);
+      case "bluetooth_auth": return OnboardingAuthBluetoothPanel(onboardingContext: context);
+      case "roles": return OnboardingRolesPanel(onboardingContext: context);
+      case "login_netid": return OnboardingLoginNetIdPanel(onboardingContext: context);
+      case "login_phone": return OnboardingLoginPhonePanel(onboardingContext: context);
+      case "verify_phone": return OnboardingLoginPhoneVerifyPanel(onboardingContext: context);
+      case "confirm_phone": return OnboardingLoginPhoneConfirmPanel(onboardingContext: context);
+      case "covid19_resident_info": return Covid19OnBoardingResidentInfoPanel(onboardingContext: context);
+      case "covid19_review_scan": return Covid19OnBoardingReviewScanPanel(onboardingContext: context);
+      case "covid19_intro": return Covid19OnBoardingIntroPanel(onboardingContext: context);
+      case "covid19_how_it_works": return Covid19OnBoardingHowItWorks(onboardingContext: context);
+      case "covid19_consent": return Covid19OnBoardingConsentPanel(onboardingContext: context);
+      case "covid19_qrcode": return Covid19OnBoardingQrCodePanel(onboardingContext: context);
+      case "covid19_final": return Covid19OnBoardingFinalPanel(onboardingContext: context);
     }
     return null;
   }
@@ -202,6 +177,9 @@ class Onboarding with Service implements NotificationsListener {
   static String _getPanelCode({OnboardingPanel panel}) {
     if (panel is OnboardingGetStartedPanel) {
       return 'get_started';
+    }
+    if(panel is OnboardingOrganizationsPanel){
+      return 'organization';
     }
     else if (panel is OnboardingAuthNotificationsPanel) {
       return 'notifications_auth';
@@ -228,16 +206,16 @@ class Onboarding with Service implements NotificationsListener {
       return 'confirm_phone';
     }
     else if (panel is Covid19OnBoardingResidentInfoPanel) {
-      return 'resident_info';
+      return 'covid19_resident_info';
     }
     else if (panel is Covid19OnBoardingReviewScanPanel) {
-      return 'review_scan';
+      return 'covid19_review_scan';
     }
     else if (panel is Covid19OnBoardingIntroPanel) {
       return 'covid19_intro';
     }
     else if (panel is Covid19OnBoardingHowItWorks) {
-      return 'covid19_how_works';
+      return 'covid19_how_it_works';
     }
     else if (panel is Covid19OnBoardingConsentPanel) {
       return 'covid19_consent';
@@ -250,7 +228,6 @@ class Onboarding with Service implements NotificationsListener {
     }
     return null;
   }
-
 }
 
 abstract class OnboardingPanel {
@@ -260,6 +237,10 @@ abstract class OnboardingPanel {
   }
   
   bool get onboardingCanDisplay {
+    return true;
+  }
+
+  Future<bool> get onboardingCanDisplayAsync async {
     return true;
   }
 }

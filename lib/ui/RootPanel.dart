@@ -18,11 +18,10 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/DeepLink.dart';
-import 'package:illinois/service/FlexUI.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/Health.dart';
+import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/Service.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Localization.dart';
@@ -36,10 +35,15 @@ import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/utils/Utils.dart';
 
-class RootPanel extends StatefulWidget {
+class RootPanel extends StatefulWidget with AnalyticsPageAnonymous {
 
   @override
   _RootPanelState createState() => _RootPanelState();
+
+  @override
+  bool get analyticsPageAnonymous {
+    return false;
+  }
 }
 
 class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMixin implements NotificationsListener {
@@ -53,8 +57,8 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
       FirebaseMessaging.notifyPopupMessage,
       FirebaseMessaging.notifyCovid19Notification,
       Localization.notifyStringsUpdated,
-      Config.notifyEnvironmentChanged,
-      FlexUI.notifyChanged,
+      Organizations.notifyOrganizationChanged,
+      Organizations.notifyEnvironmentChanged,
       Health.notifyStatusUpdated,
       DeepLink.notifyUri,
     ]);
@@ -78,10 +82,10 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
     else if (name == Localization.notifyStringsUpdated) {
       setState(() { });
     }
-    else if (name == FlexUI.notifyChanged) {
+    else if (name == Organizations.notifyOrganizationChanged) {
       setState(() { });
     }
-    else if (name == Config.notifyEnvironmentChanged) {
+    else if (name == Organizations.notifyEnvironmentChanged) {
       setState(() { });
     }
     else if (name == Health.notifyStatusUpdated) {

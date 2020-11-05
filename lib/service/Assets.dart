@@ -16,7 +16,6 @@
 
 import 'dart:core';
 import 'dart:io';
-import 'dart:math';
 import 'dart:ui';
 import 'package:collection/collection.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -32,12 +31,13 @@ import 'package:illinois/utils/Utils.dart';
 
 class Assets with Service implements NotificationsListener {
 
-  static const String notifyChanged  = "edu.illinois.rokwire.assets.changed";
+  static const String notifyChanged = "edu.illinois.rokwire.assets.changed";
 
-  static const String _assetsName      = "assets.json";
+  static const String _assetsName   = "assets.json";
 
-  File      _cacheFile;
-  DateTime  _pausedDateTime;
+  Map<String, dynamic> _assets;
+  File                 _cacheFile;
+  DateTime             _pausedDateTime;
 
   // Singleton Factory
 
@@ -50,20 +50,6 @@ class Assets with Service implements NotificationsListener {
 
   Assets get instance {
     return _instance;
-  }
-
-  // Assets
-
-  Map<String, dynamic> _assets;
-
-  dynamic operator [](dynamic key) {
-    return AppMapPathKey.entry(_assets, key);
-  }
-
-  String randomStringFromListWithKey(dynamic key) {
-    dynamic list = AppMapPathKey.entry(_assets, key);
-    dynamic entry = ((list != null) && (list is List) && (0 < list.length)) ? list[Random().nextInt(list.length)] : null;
-    return ((entry != null) && (entry is String)) ? entry : null;
   }
 
   // Initialization
@@ -89,8 +75,21 @@ class Assets with Service implements NotificationsListener {
   }
 
   @override
+  Future<void> clearService() async {
+    AppFile.delete(_cacheFile);
+    _cacheFile = null;
+    _assets = null;
+  }
+  
+  @override
   Set<Service> get serviceDependsOn {
     return Set.from([Config()]);
+  }
+
+  // Assets
+
+  dynamic operator [](dynamic key) {
+    return AppMapPathKey.entry(_assets, key);
   }
 
   Future<void> _getCacheFile() async {

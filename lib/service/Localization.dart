@@ -91,11 +91,21 @@ class Localization with Service implements NotificationsListener {
   }
 
   @override
+  Future<void> clearService() async {
+    await _clearDefaultStirngs(_defaultLocale?.languageCode);
+    await _clearLocaleStirngs(_currentLocale?.languageCode);
+  }
+
+  @override
   Set<Service> get serviceDependsOn {
     return Set.from([Storage(), Config() ]);
   }
 
   // Locale
+
+  Locale get defaultLocale {
+    return _defaultLocale;
+  }
 
   Locale get currentLocale {
     return _currentLocale ?? _defaultLocale;
@@ -146,7 +156,7 @@ class Localization with Service implements NotificationsListener {
   Future<Map<String,dynamic>> _loadAssetsStrings(String language) async {
     dynamic jsonData;
     try {
-      String jsonString = await rootBundle.loadString('assets/strings.$language.json');
+      String jsonString = (language != null) ? await rootBundle.loadString('assets/strings.$language.json') : null;
       jsonData = AppJson.decode(jsonString);
     }
     catch (e) { print(e?.toString()); }
@@ -156,13 +166,30 @@ class Localization with Service implements NotificationsListener {
   Future<Map<String,dynamic>> _loadCachedStrings(String language) async {
     dynamic jsonData;
     try { 
-      String cacheFilePath = (_assetsDir != null) ? join(_assetsDir.path, 'strings.$language.json') : null;
-      File cacheFile = (cacheFilePath != null) ? File(cacheFilePath) : null;
-      
+      File cacheFile = _cachedFile(language);
       String jsonString = ((cacheFile != null) && await cacheFile.exists()) ? await cacheFile.readAsString() : null;
       jsonData = AppJson.decode(jsonString);
     } catch (e) { print(e?.toString()); }
     return ((jsonData != null) && (jsonData is Map<String,dynamic>)) ? jsonData : null;
+  }
+
+  File _cachedFile(String language) {
+      String cacheFilePath = ((_assetsDir != null) && (language != null)) ? join(_assetsDir.path, 'strings.$language.json') : null;
+      return (cacheFilePath != null) ? File(cacheFilePath) : null;
+  }
+
+  Future<void> _clearDefaultStirngs(String language) async {
+    await AppFile.delete(_cachedFile(language));
+    _defaultStrings = _buildStrings(
+      asset: _defaultAssetsStrings,
+      cache: _defaultCachedStrings = null);
+  }
+
+  Future<void> _clearLocaleStirngs(String language) async {
+    await AppFile.delete(_cachedFile(language));
+    _localeStrings = _buildStrings(
+      asset: _localeAssetsStrings,
+      cache: _localeCachedStrings = null);
   }
 
   void _updateDefaultStrings() {
@@ -186,6 +213,7 @@ class Localization with Service implements NotificationsListener {
       });
     }
   }
+
   Future<Map<String,dynamic>> _updateStringsFromNet(String language, { Map<String, dynamic> cache }) async {
     Map<String, dynamic> jsonData;
     try {
@@ -294,6 +322,67 @@ class Localization with Service implements NotificationsListener {
     return null;
   }
 
+  // Translation
+
+  String localeString(dynamic entry) {
+    dynamic result;
+    if (entry is Map) {
+      // { "en": "...", "es": "...", "zh": "..." }
+      if ((_currentLocale != null) && ((result = entry[_currentLocale.languageCode]) is String)) {
+        return result;
+      }
+    }
+    else if (entry is String) {
+      // tabbar.home.title"
+      if ((_currentLocale != null) && (_localeStrings != null) && ((result = _localeStrings[entry]) is String)) {
+        return result;
+      }
+    }
+    return defaultLocaleString(entry);
+  }
+
+  String defaultLocaleString(dynamic entry) {
+    dynamic result;
+    if (entry is Map) {
+      // { "en": "...", "es": "...", "zh": "..." }
+      if ((_defaultLocale != null) && ((result = entry[_defaultLocale.languageCode]) is String)) {
+        return result;
+      }
+    }
+    else if (entry is String) {
+      // tabbar.home.title"
+      if ((_defaultLocale != null) && (_defaultStrings != null) && ((result = _defaultStrings[entry]) is String)) {
+        return result;
+      }
+    }
+    return null;
+  }
+
+  /*String localeString(Map entry) {
+    // { "en": "...", "es": "...", "zh": "..." }
+    
+    if ((entry != null) && (_currentLocale != null)) {
+      dynamic str = entry[_currentLocale.languageCode];
+      if (str is String) {
+        return str;
+      }
+    }
+
+    return defaultLocaleString(entry);
+  }
+
+  String defaultLocaleString(Map entry) {
+    // { "en": "...", "es": "...", "zh": "..." }
+    
+    if ((entry != null) && (_defaultLocale != null)) {
+      dynamic str = entry[_defaultLocale.languageCode];
+      if (str is String) {
+        return str;
+      }
+    }
+
+    return null;
+  }*/
 }
 
 class AppLocalizations {

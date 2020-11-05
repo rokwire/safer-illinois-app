@@ -16,9 +16,11 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:illinois/model/UserData.dart';
 import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Analytics.dart';
+import 'package:illinois/service/User.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginPhoneVerifyPanel.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/ui/onboarding/OnboardingBackButton.dart';
@@ -33,6 +35,11 @@ class OnboardingLoginPhonePanel extends StatefulWidget with OnboardingPanel {
   OnboardingLoginPhonePanel({this.onboardingContext, this.onFinish});
 
   _OnboardingLoginPhonePanelState createState() => _OnboardingLoginPhonePanelState();
+
+  @override
+  bool get onboardingCanDisplay {
+    return !User().isStudentOrEmployee;
+  }
 }
 
 class _OnboardingLoginPhonePanelState extends State<OnboardingLoginPhonePanel> {
@@ -52,11 +59,12 @@ class _OnboardingLoginPhonePanelState extends State<OnboardingLoginPhonePanel> {
   Widget build(BuildContext context) {
     String titleString = Localization().getStringEx('panel.onboarding.login.phone.label.title', 'Verify your phone number');
     String skipTitle = Localization().getStringEx('panel.onboarding.login.phone.button.dont_continue.title', 'Not right now');
+    bool hasSkip = !User().roles.contains(UserRole.capitolStaff);
     return Scaffold(
         backgroundColor: Styles().colors.background,
         body: Stack(
           children: <Widget>[
-            ScalableScrollView(
+            SafeArea(child: ScalableScrollView(
             scrollableChild: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
@@ -69,7 +77,7 @@ class _OnboardingLoginPhonePanelState extends State<OnboardingLoginPhonePanel> {
                       excludeFromSemantics: true,
                     ),
                     OnboardingBackButton(
-                        padding: const EdgeInsets.only(left: 10, top: 30, right: 20, bottom: 20),
+                        padding: const EdgeInsets.only(left: 10, top: 10, right: 20, bottom: 20),
                         onTap: () {
                           Analytics.instance.logSelect(target: "Back");
                           Navigator.pop(context);
@@ -102,14 +110,14 @@ class _OnboardingLoginPhonePanelState extends State<OnboardingLoginPhonePanel> {
                 ),
                 ]),
                 bottomNotScrollableWidget: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24),
+                  padding: EdgeInsets.symmetric(horizontal: 36),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: <Widget>[
                     Align(
                       alignment: Alignment.bottomCenter,
                       child: Padding(
-                        padding: EdgeInsets.all(24),
+                        padding: EdgeInsets.only(top: 12, bottom: hasSkip ? 12 : 24),
                         child: ScalableRoundedButton(
                             label: Localization().getStringEx('panel.onboarding.login.phone.button.continue.title', 'Verify My Phone Number'),
                             hint: Localization().getStringEx('panel.onboarding.login.phone.button.continue.hint', ''),
@@ -119,7 +127,7 @@ class _OnboardingLoginPhonePanelState extends State<OnboardingLoginPhonePanel> {
                             onTap: () => _onLoginTapped()),
                       ),
                     ),
-                    Row(
+                    hasSkip ? Row(
                       children: <Widget>[
                         Expanded(
                             child: GestureDetector(
@@ -145,9 +153,9 @@ class _OnboardingLoginPhonePanelState extends State<OnboardingLoginPhonePanel> {
                               )),
                         )),
                       ],
-                    )
+                    ) : Container()
                   ])
-                )),
+                ))),
             _progress
                 ? Container(
                     alignment: Alignment.center,

@@ -17,6 +17,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/NotificationService.dart';
@@ -32,17 +33,16 @@ class SettingsRolesPanel extends StatefulWidget {
 }
 
 class _SettingsRolesPanelState extends State<SettingsRolesPanel> implements NotificationsListener {
-  //User _user;
-  Set<UserRole> _selectedRoles = Set<UserRole>();
-  bool _isResident;
+  Set<UserRole> _userRoles;
+  Set<UserRole> _selectedRoles;
 
   Timer _saveRolesTimer;
 
   @override
   void initState() {
     NotificationService().subscribe(this, User.notifyRolesUpdated);
-    _selectedRoles = User().roles ?? Set<UserRole>();
-    _isResident = _selectedRoles.contains(UserRole.resident);
+    _userRoles = User().roles ?? Set<UserRole>();
+    _selectedRoles = Set<UserRole>.from(_userRoles);
     super.initState();
   }
 
@@ -72,8 +72,6 @@ class _SettingsRolesPanelState extends State<SettingsRolesPanel> implements Noti
   }
 
   Widget _buildContent() {
-    final double gridSpacing = 5;
-
     return SingleChildScrollView(
       child: Container(
         color: Styles().colors.background,
@@ -93,55 +91,125 @@ class _SettingsRolesPanelState extends State<SettingsRolesPanel> implements Noti
               padding: EdgeInsets.only(left: 16, top: 8, right: 8, bottom: 16),
               child:
 
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-                Row(children: <Widget>[
-                  Expanded(child: RoleGridButton(
-                    title: Localization().getStringEx('panel.onboarding.roles.button.student.title', 'University Student'),
-                    hint: Localization().getStringEx('panel.onboarding.roles.button.student.hint', ''),
-                    iconPath: 'images/icon-persona-student-normal.png',
-                    selectedIconPath: 'images/icon-persona-student-selected.png',
-                    selectedBackgroundColor: Styles().colors.fillColorSecondary,
-                    selected: (_selectedRoles.contains(UserRole.student)),
-                    data: UserRole.student,
-                    sortOrder: 1,
-                    onTap: _onRoleGridButton,
-                  ),),
-                  Container(width: gridSpacing,),
-                  Expanded(child: RoleGridButton(
-                    title: Localization().getStringEx('panel.onboarding.roles.button.employee.title', 'Employee/Affiliate'),
-                    hint: Localization().getStringEx('panel.onboarding.roles.button.employee.hint', ''),
-                    iconPath: 'images/icon-persona-employee-normal.png',
-                    selectedIconPath: 'images/icon-persona-employee-selected.png',
-                    selectedBackgroundColor: Styles().colors.accentColor3,
-                    selected: (_selectedRoles.contains(UserRole.employee)),
-                    data: UserRole.employee,
-                    sortOrder: 4,
-                    onTap: _onRoleGridButton,
-                  ),),
-                ]),
-                Container(height: gridSpacing,),
-                _isResident ? Row(children: <Widget>[
-                  Expanded(child: RoleGridButton(
-                    title: Localization().getStringEx('panel.onboarding.roles.button.resident.title', 'Resident'),
-                    hint: Localization().getStringEx('panel.onboarding.roles.button.resident.hint', ''),
-                    iconPath: 'images/icon-persona-resident-normal.png',
-                    selectedIconPath: 'images/icon-persona-resident-selected.png',
-                    selectedBackgroundColor: Styles().colors.fillColorPrimary,
-                    selectedTextColor: Colors.white,
-                    selected:(_selectedRoles.contains(UserRole.resident)),
-                    data: UserRole.resident,
-                    sortOrder: 7,
-                    onTap: _onRoleGridButton,
-                  ),),
-                  Container(width: gridSpacing,),
-                  Expanded(child: Container()),
-                ]) : Container(),
-              ]),
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: _rolesWidgets),
             ),
           ],
         ),
       ),
     );
+  }
+
+  List<Widget> get _rolesWidgets {
+    final double gridSpacing = 5;
+    final int colsCount = 2;
+    List<Widget> rows = <Widget>[], row = <Widget>[];
+    int rowEntries = 0;
+    for (UserRole role in UserRole.values) {
+      RoleGridButton roleButton = _roleButton(role);
+      if (roleButton != null) {
+        if (0 < row.length) {
+          row.add(Container(width: gridSpacing));
+        }
+        row.add(Expanded(child: roleButton));
+        rowEntries++;
+        if (rowEntries >= colsCount) {
+          if (0 < rows.length) {
+            rows.add(Container(height: gridSpacing));
+          }
+          rows.add(Row(children:row));
+          row = <Widget>[];
+          rowEntries = 0;
+        }
+      }
+    }
+    if (0 < rowEntries) {
+      while (rowEntries < colsCount) {
+        row.add(Container(width: gridSpacing));
+        row.add(Expanded(child: Container()));
+        rowEntries++;
+      }
+      if (0 < rows.length) {
+        rows.add(Container(height: gridSpacing));
+      }
+      rows.add(Row(children:row));
+    }
+    return rows;
+  }
+
+  RoleGridButton _roleButton(UserRole role) {
+    if (role == UserRole.student) {
+      return _studentButton;
+    }
+    else if (role == UserRole.employee) {
+      return _employeeButton;
+    }
+    else if (role == UserRole.resident) {
+      return _residentButton;
+    }
+    else if (role == UserRole.capitolStaff) {
+      return _capitolStaffButton;
+    }
+    else {
+      return null;
+    }
+  }
+
+  RoleGridButton get _studentButton {
+    return RoleGridButton(
+      title: Localization().getStringEx('panel.onboarding.roles.button.student.title', 'University Student'),
+      hint: Localization().getStringEx('panel.onboarding.roles.button.student.hint', ''),
+      iconPath: 'images/icon-persona-student-normal.png',
+      selectedIconPath: 'images/icon-persona-student-selected.png',
+      selectedBackgroundColor: Styles().colors.fillColorSecondary,
+      selected: (_selectedRoles.contains(UserRole.student)),
+      data: UserRole.student,
+      sortOrder: 1,
+      onTap: _onRoleGridButton,
+    );
+  }
+
+  RoleGridButton get _employeeButton {
+    return RoleGridButton(
+      title: Localization().getStringEx('panel.onboarding.roles.button.employee.title', 'Employee/Affiliate'),
+      hint: Localization().getStringEx('panel.onboarding.roles.button.employee.hint', ''),
+      iconPath: 'images/icon-persona-employee-normal.png',
+      selectedIconPath: 'images/icon-persona-employee-selected.png',
+      selectedBackgroundColor: Styles().colors.accentColor3,
+      selected: (_selectedRoles.contains(UserRole.employee)),
+      data: UserRole.employee,
+      sortOrder: 4,
+      onTap: _onRoleGridButton,
+    );
+  }
+
+  RoleGridButton get _residentButton {
+    return (Config().residentRoleEnabled || _userRoles.contains(UserRole.resident)) ? RoleGridButton(
+      title: Localization().getStringEx('panel.onboarding.roles.button.resident.title', 'Resident'),
+      hint: Localization().getStringEx('panel.onboarding.roles.button.resident.hint', ''),
+      iconPath: 'images/icon-persona-resident-normal.png',
+      selectedIconPath: 'images/icon-persona-resident-selected.png',
+      selectedBackgroundColor: Styles().colors.fillColorPrimary,
+      selectedTextColor: Colors.white,
+      selected:(_selectedRoles.contains(UserRole.resident)),
+      data: UserRole.resident,
+      sortOrder: 7,
+      onTap: _onRoleGridButton,
+    ) : null;
+  }
+
+  RoleGridButton get _capitolStaffButton {
+    return (Config().capitolStaffRoleEnabled || _userRoles.contains(UserRole.capitolStaff)) ? RoleGridButton(
+      title: Localization().getStringEx("panel.onboarding.roles.button.capitol_staff.title","Capitol Staff"),
+      hint: Localization().getStringEx('panel.onboarding.roles.button.capitol_staff.hint', ''),
+      iconPath: 'images/icon-persona-capitol-normal.png',
+      selectedIconPath: 'images/icon-persona-capitol-selected.png',
+      selectedBackgroundColor: Styles().colors.fillColorPrimary,
+      selectedTextColor: Colors.white,
+      selected:(_selectedRoles.contains(UserRole.capitolStaff)),
+      data: UserRole.capitolStaff,
+      sortOrder: 7,
+      onTap: _onRoleGridButton,
+    ) : null;
   }
 
   void _onRoleGridButton(RoleGridButton button) {
@@ -155,6 +223,14 @@ class _SettingsRolesPanelState extends State<SettingsRolesPanel> implements Noti
         if (_selectedRoles.contains(role)) {
           _selectedRoles.remove(role);
         } else {
+          
+          // Unselect all roles that bellog to other roles groups
+          for (Set<UserRole> group in UserRole.groups) {
+            if (!group.contains(role)) {
+              _selectedRoles.removeAll(group);
+            }
+          }
+
           _selectedRoles.add(role);
         }
 
