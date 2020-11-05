@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Fixed
+- Build error related to ios app [#374](https://github.com/rokwire/safer-illinois-app/issues/374).
 
 ## [2.8.11] - 2020-11-05
 ### Added
