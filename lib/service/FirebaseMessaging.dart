@@ -257,7 +257,11 @@ class FirebaseMessaging with Service implements NotificationsListener {
       if (Config().sportsServiceUrl != null) {
         String url = "${Config().sportsServiceUrl}/api/message";
         String body = json.encode({'topic': topic, 'message': message});
-        final response = await Network().post(url, timeout: 10, body: body, auth: NetworkAuth.App, headers: { "Accept": "application/json", "content-type": "application/json" });
+        final response = await Network().post(url, timeout: 10, body: body, auth: NetworkAuth.App, headers: {
+          "Accept": "application/json",
+          "content-type": "application/json",
+          Network.RokwireAppId : Config().appId
+        });
         if ((response != null) && (response.statusCode == 200)) {
           return true;
         }
