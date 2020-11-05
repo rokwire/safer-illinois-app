@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Pass application id as header field in FCM API calls from sports service [#364](https://github.com/rokwire/safer-illinois-app/issues/364).
 - Improved Initial loading screen [#366](https://github.com/rokwire/safer-illinois-app/issues/366)
+- CareTeamPanel: update link urls [#269](https://github.com/rokwire/safer-illinois-app/issues/269)
 
 ### Fixed
 - Fixed various string entry translations [#364](https://github.com/rokwire/safer-illinois-app/issues/364).

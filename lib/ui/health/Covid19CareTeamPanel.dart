@@ -296,13 +296,13 @@ class _Covid19CareTeamPanelState extends State<Covid19CareTeamPanel> with Ticker
                       _linkWidget(
                         title:Localization().getStringEx(
                           "panel.health.covid19.care_team.label.counseling_center.link", "Counseling Center"),
-                        url: ' https://www.counselingcenter.illinois.edu/'
+                        url: ' https://www.counselingcenter.illinois.edu/#quicklinks'
                       ),
                       Container(height: 12,),
                       _linkWidget(
                         title:Localization().getStringEx(
                           "panel.health.covid19.care_team.label.mc_kiney.link", "McKinley Mental Health Program"),
-                        url: 'https://www.mckinley.illinois.edu/medical- services/mental-health'
+                        url: 'https://www.mckinley.illinois.edu/medical-services/mental-health'
                       ),
                       Container(height: 12,),
                       _linkWidget(
