@@ -52,7 +52,7 @@ class LocationServices with Service implements NotificationsListener {
     return _instance;
   }
 
-  // Iniitlaization   
+  // Initialization
 
   @override
   void createService() {
