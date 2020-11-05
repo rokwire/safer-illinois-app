@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixed various string entry translations [#364](https://github.com/rokwire/safer-illinois-app/issues/364).
 - Fixed Initial loading screen [#366](https://github.com/rokwire/safer-illinois-app/issues/366)
+- CareTeamPanel: update link urls [#269](https://github.com/rokwire/safer-illinois-app/issues/269)
 
 ## [2.8.10] - 2020-11-04
 ### Added
