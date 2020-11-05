@@ -472,7 +472,7 @@ class Health with Service implements NotificationsListener {
     /*
     String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/symptoms" : null;
     String appVersion = AppVersion.majorVersion(Config().appVersion, 2);
-    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App, headers: { Network.RokwireVersion : appVersion }) : null;
+    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App, headers: { Network.RokwireAppVersion : appVersion }) : null;
     String responseBody = (response?.statusCode == 200) ? response.body : null;
     List<dynamic> responseJson = (responseBody != null) ? AppJson.decodeList(responseBody) : null;
     return (responseJson != null) ? HealthSymptomsGroup.listFromJson(responseJson) : null;
@@ -1283,7 +1283,7 @@ class Health with Service implements NotificationsListener {
   Future<Map<String, dynamic>> _loadRules2Json({String countyId}) async {
     String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/crules/county/$countyId" : null;
     String appVersion = AppVersion.majorVersion(Config().appVersion, 2);
-    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App, headers: { Network.RokwireVersion : appVersion }) : null;
+    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App, headers: { Network.RokwireAppVersion : appVersion }) : null;
     String responseString = (response?.statusCode == 200) ? response.body : null;
 //TMP: String responseString = await rootBundle.loadString('assets/health.rules.json');
     return (responseString != null) ? AppJson.decodeMap(responseString) : null;
