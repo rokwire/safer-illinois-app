@@ -501,6 +501,7 @@
 	"panel.health.covid19.care_team.label.status": "当前状态:",
 	"panel.health.covid19.care_team.label.emergency.text1": "在紧急情况下,",
 	"panel.health.covid19.care_team.label.emergency.text2": "call 911.",
+	"panel.health.covid19.care_team.label.emergency.text3": "If you already have a local primary care provider, contact them immediately.",
 	"panel.health.covid19.care_team.team.title.mc_kinley": "呼 叫麦金利健康中心",
 	"panel.health.covid19.care_team.team.contact.mc_kinley": "1-217-333-2700",
 	"panel.health.covid19.care_team.team.semantic_contact.mc_kinley": "12173332700",
