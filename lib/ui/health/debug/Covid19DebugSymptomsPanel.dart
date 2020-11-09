@@ -36,8 +36,9 @@ class Covid19DebugSymptomsPanel extends StatefulWidget {
 class _Covid19DebugSymptomsPanelState extends State<Covid19DebugSymptomsPanel> {
 
   DateTime _selectedDate;
-  List<HealthSymptomsGroup> _symptoms;
-  Map<String, String> _symptomsGroups;
+  HealthRulesSet _rules;
+  List<HealthSymptomsGroup> _symptomsGroups;
+  Map<String, String> _symptomsToGroup;
   Set<String> _selectedSymptoms = Set<String>();
   bool _loadingSymptoms;
   bool _submittingSymptoms;
@@ -46,11 +47,12 @@ class _Covid19DebugSymptomsPanelState extends State<Covid19DebugSymptomsPanel> {
   void initState() {
     super.initState();
     _loadingSymptoms = true;
-    Health().loadSymptomsGroups().then((List<HealthSymptomsGroup> groups) {
+    Health().loadRules2().then((HealthRulesSet rules) {
       setState(() {
         _loadingSymptoms = false;
-        _symptoms = groups;
-        _symptomsGroups = _buildSymptomsGroups(groups);
+        _rules = rules;
+        _symptomsGroups = _rules?.symptoms?.groups;
+        _symptomsToGroup = _buildSymptomsToGroups(_symptomsGroups);
       });
     });
   }
@@ -107,12 +109,12 @@ class _Covid19DebugSymptomsPanelState extends State<Covid19DebugSymptomsPanel> {
     List<Widget> result = <Widget>[];
     result.add(_buildDatePicker());
     
-    if (_symptoms != null) {
+    if (_symptomsGroups != null) {
       result.add(Padding(padding: EdgeInsets.only(bottom: 4),
         child: Text("Symptoms", style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.fillColorPrimary),),
       ),);
       
-      for (HealthSymptomsGroup group in _symptoms) {
+      for (HealthSymptomsGroup group in _symptomsGroups) {
         if ((group.symptoms != null) && (group.visible != false)) {
           for (HealthSymptom symptom in group.symptoms) {
             result.add(_buildSymptom(symptom));
@@ -127,7 +129,7 @@ class _Covid19DebugSymptomsPanelState extends State<Covid19DebugSymptomsPanel> {
     return result;
   }
 
-  static Map<String, String> _buildSymptomsGroups(List<HealthSymptomsGroup> symptoms) {
+  static Map<String, String> _buildSymptomsToGroups(List<HealthSymptomsGroup> symptoms) {
     Map<String, String> symptomsGroups;
     if (symptoms != null) {
       symptomsGroups = Map<String, String>();
@@ -251,8 +253,8 @@ class _Covid19DebugSymptomsPanelState extends State<Covid19DebugSymptomsPanel> {
 
   int get _symptomsCount {
     int count = 0;
-    if (_symptomsGroups != null) {
-      for (HealthSymptomsGroup group in _symptoms) {
+    if (_symptomsToGroup != null) {
+      for (HealthSymptomsGroup group in _symptomsGroups) {
         count += (group.symptoms?.length ?? 0);
       }
     }
@@ -291,10 +293,10 @@ class _Covid19DebugSymptomsPanelState extends State<Covid19DebugSymptomsPanel> {
         _selectedSymptoms.remove(symptom.id);
       }
       else {
-        String symptomGroup = (_symptomsGroups != null) ? _symptomsGroups[symptom.id] : null;
+        String symptomGroup = (_symptomsToGroup != null) ? _symptomsToGroup[symptom.id] : null;
         if (symptomGroup != null) {
           for (String selectedSymptomId in List.from(_selectedSymptoms)) {
-            String selectedSymptomGroup = (_symptomsGroups != null) ? _symptomsGroups[selectedSymptomId] : null;
+            String selectedSymptomGroup = (_symptomsToGroup != null) ? _symptomsToGroup[selectedSymptomId] : null;
             if ((selectedSymptomGroup != null) && (selectedSymptomGroup != symptomGroup)) {
               _selectedSymptoms.remove(selectedSymptomId);
             }
@@ -327,7 +329,7 @@ class _Covid19DebugSymptomsPanelState extends State<Covid19DebugSymptomsPanel> {
       _submittingSymptoms = true;
     });
 
-    Health().processSymptoms(groups: _symptoms, selected: _selectedSymptoms, dateUtc: _selectedDate?.toUtc()).then((dynamic result) {
+    Health().processSymptoms(groups: _symptomsGroups, selected: _selectedSymptoms, dateUtc: _selectedDate?.toUtc()).then((dynamic result) {
       if (mounted) {
         setState(() {
           _submittingSymptoms = false;
