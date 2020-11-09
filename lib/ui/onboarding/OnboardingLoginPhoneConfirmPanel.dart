@@ -30,7 +30,6 @@ import 'package:illinois/service/Styles.dart';
 import 'package:sprintf/sprintf.dart';
 
 class OnboardingLoginPhoneConfirmPanel extends StatefulWidget with OnboardingPanel {
-
   final Map<String, dynamic> onboardingContext;
   final String phoneNumber;
   final ValueSetter<dynamic> onFinish;
@@ -56,147 +55,124 @@ class _OnboardingLoginPhoneConfirmPanelState extends State<OnboardingLoginPhoneC
   Widget build(BuildContext context) {
     String phoneNumber = Auth().phoneToken?.phone;
     String maskedPhoneNumber = AppString.getMaskedPhoneNumber(phoneNumber);
-    String description = sprintf(
-        Localization().getStringEx(
-            'panel.onboarding.confirm_phone.description.send', 'A one time code has been sent to %s. Enter your code below to continue.'),
-        [maskedPhoneNumber]);
+    String description =
+        sprintf(Localization().getStringEx('panel.onboarding.confirm_phone.description.send', 'A one time code has been sent to %s. Enter your code below to continue.'), [maskedPhoneNumber]);
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      //resizeToAvoidBottomInset: false, // This brakes iOS with small screens!!!  https://github.com/rokwire/safer-illinois-app/issues/379
       body: GestureDetector(
         excludeFromSemantics: true,
         behavior: HitTestBehavior.translucent,
-        onTap: ()=>FocusScope.of(context).requestFocus(new FocusNode()),
-        child: SafeArea(child:
-            ScalableScrollView(
-              scrollableChild:
-              Stack(children: <Widget>[
-              Padding(
-              padding: EdgeInsets.only(left: 18, right: 18, top: 10, bottom: 10),
-                child:
-              Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.only(left: 64, right: 64, bottom: 12),
-                  child: Text(
-                    Localization().getStringEx("panel.onboarding.confirm_phone.title",
-                        "Confirm your code"),
-                    textAlign: TextAlign.center,
-                    style:
-                        TextStyle(fontSize: 36, color: Styles().colors.fillColorPrimary),
-                  ),
-                ),
-                Container(
-                  height: 48,
-                ),
-                Padding(
-                  padding: EdgeInsets.only(left: 12, right: 12, bottom: 32),
-                  child: Text(
-                    description,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: 18,
-                        color: Styles().colors.fillColorPrimary,
-                        fontFamily: Styles().fontFamilies.regular),
-                  ),
-                ),
-                Container(
-                  height: 26,
-                ),
-                Padding(
-                  padding: EdgeInsets.only(left: 12, right: 12, bottom: 6),
-                  child: Text(
-                    Localization().getStringEx(
-                        "panel.onboarding.confirm_phone.code.label",
-                        "One-time code"),
-                    textAlign: TextAlign.left,
-                    style: TextStyle(
-                        fontSize: 16,
-                        color: Styles().colors.fillColorPrimary,
-                        fontFamily: Styles().fontFamilies.bold),
-                  ),
-                ),
-                Padding(
-                    padding: EdgeInsets.only(left: 12, right: 12, bottom: 12),
-                    child: Semantics(
-                      excludeSemantics: true,
-                      label: Localization().getStringEx("panel.onboarding.confirm_phone.code.label", "One-time code"),
-                      hint: Localization().getStringEx("panel.onboarding.confirm_phone.code.hint", ""),
-                      value: _codeController.text,
-                      child: TextField(
-                        controller: _codeController,
-                        autofocus: false,
-                        onSubmitted: (_) => _clearErrorMsg,
-                        cursorColor: Styles().colors.textBackground,
-                        keyboardType: TextInputType.number,
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontFamily: Styles().fontFamilies.regular,
-                            color: Styles().colors.textBackground),
-                        decoration: InputDecoration(
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 2.0,
-                                style: BorderStyle.solid),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.black, width: 2.0),
+        onTap: () => FocusScope.of(context).requestFocus(new FocusNode()),
+        child: SafeArea(
+          child:  Stack(children: <Widget>[
+            Padding(
+                padding: EdgeInsets.only(left: 18, right: 18, top: 10, bottom: 10),
+                child: SafeArea(
+                  child: SingleChildScrollView(
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
+                      Padding(
+                        padding: EdgeInsets.only(left: 64, right: 64, bottom: 12),
+                        child: Text(
+                          Localization().getStringEx("panel.onboarding.confirm_phone.title", "Confirm your code"),
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 36, color: Styles().colors.fillColorPrimary),
+                        ),
+                      ),
+                      Container(
+                        height: 48,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 12, right: 12, bottom: 32),
+                        child: Text(
+                          description,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 18, color: Styles().colors.fillColorPrimary, fontFamily: Styles().fontFamilies.regular),
+                        ),
+                      ),
+                      Container(
+                        height: 26,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 12, right: 12, bottom: 6),
+                        child: Text(
+                          Localization().getStringEx("panel.onboarding.confirm_phone.code.label", "One-time code"),
+                          textAlign: TextAlign.left,
+                          style: TextStyle(fontSize: 16, color: Styles().colors.fillColorPrimary, fontFamily: Styles().fontFamilies.bold),
+                        ),
+                      ),
+                      Padding(
+                          padding: EdgeInsets.only(left: 12, right: 12, bottom: 70),
+                          child: Semantics(
+                            excludeSemantics: true,
+                            label: Localization().getStringEx("panel.onboarding.confirm_phone.code.label", "One-time code"),
+                            hint: Localization().getStringEx("panel.onboarding.confirm_phone.code.hint", ""),
+                            value: _codeController.text,
+                            child: TextField(
+                              controller: _codeController,
+                              autofocus: false,
+                              onSubmitted: (_) => _clearErrorMsg,
+                              cursorColor: Styles().colors.textBackground,
+                              keyboardType: TextInputType.number,
+                              style: TextStyle(fontSize: 16, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground),
+                              decoration: InputDecoration(
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.black, width: 2.0, style: BorderStyle.solid),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.black, width: 2.0),
+                                ),
+                              ),
+                            ),
+                          )),
+                      Visibility(
+                        visible: AppString.isStringNotEmpty(_verificationErrorMsg),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                          child: Text(
+                            AppString.getDefaultEmptyString(value: _verificationErrorMsg),
+                            style: TextStyle(color: Colors.red, fontSize: 14, fontFamily: Styles().fontFamilies.medium),
                           ),
                         ),
                       ),
-                    )),
-                Visibility(
-                  visible: AppString.isStringNotEmpty(_verificationErrorMsg),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-                    child: Text(
-                      AppString.getDefaultEmptyString(
-                          value: _verificationErrorMsg),
-                      style: TextStyle(
-                          color: Colors.red,
-                          fontSize: 14,
-                          fontFamily: Styles().fontFamilies.medium),
-                    ),
+                    ]),
                   ),
+                )
+            ),
+            Visibility(
+              visible: _isLoading,
+              child: Padding(
+                padding: EdgeInsets.only(top: 192),
+                child: Center(
+                  child: CircularProgressIndicator(),
                 ),
-                ])),
-                Visibility(visible: _isLoading, child:
-                  Padding(padding: EdgeInsets.only(top: 192), child:
-                    Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  ),
-                ),
-                OnboardingBackButton(
-                    padding: const EdgeInsets.only(left: 10, top: 10, right: 20, bottom: 20),
-                    onTap:() {
-                      Analytics.instance.logSelect(target: "Back");
-                      Navigator.pop(context);
-                    }),
-              ]),
-              bottomNotScrollableWidget:
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 36, vertical: 24),
-                child: ScalableRoundedButton(
-                  label: Localization().getStringEx(
-                      "panel.onboarding.confirm_phone.button.confirm.label",
-                      "Confirm phone number"),
-                  hint: Localization().getStringEx(
-                      "panel.onboarding.confirm_phone.button.confirm.hint", ""),
-                  borderColor: Styles().colors.fillColorSecondary,
-                  backgroundColor: Styles().colors.background,
-                  textColor: Styles().colors.fillColorPrimary,
-                  onTap: () => _onTapConfirm()))
-          ),),),
-
-      );
+              ),
+            ),
+            OnboardingBackButton(
+                padding: const EdgeInsets.only(left: 10, top: 10, right: 20, bottom: 20),
+                onTap: () {
+                  Analytics.instance.logSelect(target: "Back");
+                  Navigator.pop(context);
+                }),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 36, vertical: 24),
+                  child: ScalableRoundedButton(
+                      label: Localization().getStringEx("panel.onboarding.confirm_phone.button.confirm.label", "Confirm phone number"),
+                      hint: Localization().getStringEx("panel.onboarding.confirm_phone.button.confirm.hint", ""),
+                      borderColor: Styles().colors.fillColorSecondary,
+                      backgroundColor: Styles().colors.background,
+                      textColor: Styles().colors.fillColorPrimary,
+                      onTap: () => _onTapConfirm())),
+            )
+          ])
+        ),
+      ),
+    );
   }
 
   void _onTapConfirm() {
-
-    if(_isLoading){
+    if (_isLoading) {
       return;
     }
 
@@ -211,42 +187,33 @@ class _OnboardingLoginPhoneConfirmPanelState extends State<OnboardingLoginPhoneC
       _isLoading = true;
     });
 
-    Auth()
-        .validatePhoneNumber(_codeController.text, phoneNumber)
-        .then((success) => {
-          _onPhoneVerified(success)
-        }).whenComplete((){
-          if(mounted) {
-            setState(() {
-              _isLoading = false;
-            });
-          }
+    Auth().validatePhoneNumber(_codeController.text, phoneNumber).then((success) => {_onPhoneVerified(success)}).whenComplete(() {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     });
   }
 
   void _onPhoneVerified(bool success) {
-    if(success){
-      if(!Auth().hasUIN){
+    if (success) {
+      if (!Auth().hasUIN) {
         setState(() {
-          _verificationErrorMsg = Localization().getStringEx(
-              "panel.onboarding.confirm_phone.validation.has_not_uin.text", "Your phone number was verified but does not exist in the authorized users list. You will need to contact your organization's administrator and have them update their roster with your phone number.");
+          _verificationErrorMsg = Localization().getStringEx("panel.onboarding.confirm_phone.validation.has_not_uin.text",
+              "Your phone number was verified but does not exist in the authorized users list. You will need to contact your organization's administrator and have them update their roster with your phone number.");
         });
-      }
-      else{
+      } else {
         if (widget.onboardingContext != null) {
           widget.onboardingContext['shouldDisplayResidentInfo'] = true;
           Onboarding().next(context, widget);
-        }
-        else if (widget.onFinish != null) {
+        } else if (widget.onFinish != null) {
           widget.onFinish(widget);
         }
       }
-    }
-    else{
+    } else {
       setState(() {
-        _verificationErrorMsg = Localization().getStringEx(
-            "panel.onboarding.confirm_phone.validation.server_error.text",
-            "Failed to verify code");
+        _verificationErrorMsg = Localization().getStringEx("panel.onboarding.confirm_phone.validation.server_error.text", "Failed to verify code");
       });
     }
   }
@@ -255,9 +222,7 @@ class _OnboardingLoginPhoneConfirmPanelState extends State<OnboardingLoginPhoneC
     String phoneNumberValue = _codeController.text;
     if (AppString.isStringEmpty(phoneNumberValue)) {
       setState(() {
-        _verificationErrorMsg = Localization().getStringEx(
-            "panel.onboarding.confirm_phone.validation.phone_number.text",
-            "Please, fill your code");
+        _verificationErrorMsg = Localization().getStringEx("panel.onboarding.confirm_phone.validation.phone_number.text", "Please, fill your code");
       });
       return;
     }
