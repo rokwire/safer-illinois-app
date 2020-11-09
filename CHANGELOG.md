@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Fixed
 - Cannot confirm one time code [#379](https://github.com/rokwire/safer-illinois-app/issues/379).
+- Added symptoms translations [#337](https://github.com/rokwire/safer-illinois-app/issues/337).
 
 ## [2.8.12] - 2020-11-06
 ### Fixed

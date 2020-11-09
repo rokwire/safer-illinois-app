@@ -464,21 +464,6 @@ class Health with Service implements NotificationsListener {
     return (responseJson != null) ? HealthTestType.listFromJson(responseJson) : null;
   }
 
-  // Network API: HealthSymptomsGroup
-
-  Future<List<HealthSymptomsGroup>> loadSymptomsGroups() async {
-    HealthRulesSet rules = await _loadRules2();
-    return rules?.symptoms?.groups;
-    /*
-    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/symptoms" : null;
-    String appVersion = AppVersion.majorVersion(Config().appVersion, 2);
-    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App, headers: { Network.RokwireAppVersion : appVersion }) : null;
-    String responseBody = (response?.statusCode == 200) ? response.body : null;
-    List<dynamic> responseJson = (responseBody != null) ? AppJson.decodeList(responseBody) : null;
-    return (responseJson != null) ? HealthSymptomsGroup.listFromJson(responseJson) : null;
-    */
-  }
-
   // Network API: HealthCounty
 
   Future<String> _loadCurrentCountyId() async {
