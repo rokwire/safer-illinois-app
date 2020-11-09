@@ -16,6 +16,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:illinois/model/UserData.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Localization.dart';
@@ -60,6 +61,7 @@ class _OnboardingLoginNetIdPanelState extends State<OnboardingLoginNetIdPanel> i
   Widget build(BuildContext context) {
     String titleString = Localization().getStringEx('panel.onboarding.login.netid.label.title', 'Connect your NetID');
     String skipTitle = Localization().getStringEx('panel.onboarding.login.netid.button.dont_continue.title', 'Not right now');
+    bool hasSkip = !User().roles.contains(UserRole.capitolStaff);
     return Scaffold(
         backgroundColor: Styles().colors.background,
         body: Stack(
@@ -117,46 +119,46 @@ class _OnboardingLoginNetIdPanelState extends State<OnboardingLoginNetIdPanel> i
                 ),
                 ]),
                 bottomNotScrollableWidget:
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                Padding(
-                    padding: EdgeInsets.all(24),
-                    child: ScalableRoundedButton(
-                        label: Localization().getStringEx('panel.onboarding.login.netid.button.continue.title', 'Log in with NetID'),
-                        hint: Localization().getStringEx('panel.onboarding.login.netid.button.continue.hint', ''),
-                        borderColor: Styles().colors.fillColorSecondary,
-                        backgroundColor: Styles().colors.background,
-                        textColor: Styles().colors.fillColorPrimary,
-                        onTap: () => _onLoginTapped()),
-                  ),
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                        child: GestureDetector(
-                      onTap: () => _onSkipTapped(),
-                      child: Semantics(
-                          label: skipTitle,
-                          hint: Localization().getStringEx('panel.onboarding.login.netid.button.dont_continue.hint', 'Skip verification'),
-                          button: true,
-                          excludeSemantics: true,
-                          child: Padding(
-                            padding: EdgeInsets.only(bottom: 24),
-                            child: Text(
-                              skipTitle,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Styles().colors.fillColorPrimary,
-                                decoration: TextDecoration.underline,
-                                decorationColor: Styles().colors.fillColorSecondary,
-                                fontFamily: Styles().fontFamilies.medium,
-                                fontSize: 16,
-                              ),
-                            ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      Padding(
+                          padding: EdgeInsets.all(24),
+                          child: ScalableRoundedButton(
+                              label: Localization().getStringEx('panel.onboarding.login.netid.button.continue.title', 'Log in with NetID'),
+                              hint: Localization().getStringEx('panel.onboarding.login.netid.button.continue.hint', ''),
+                              borderColor: Styles().colors.fillColorSecondary,
+                              backgroundColor: Styles().colors.background,
+                              textColor: Styles().colors.fillColorPrimary,
+                              onTap: () => _onLoginTapped()),
+                        ),
+                      hasSkip ? Row(
+                        children: <Widget>[
+                          Expanded(
+                              child: GestureDetector(
+                            onTap: () => _onSkipTapped(),
+                            child: Semantics(
+                                label: skipTitle,
+                                hint: Localization().getStringEx('panel.onboarding.login.netid.button.dont_continue.hint', 'Skip verification'),
+                                button: true,
+                                excludeSemantics: true,
+                                child: Padding(
+                                  padding: EdgeInsets.only(bottom: 24),
+                                  child: Text(
+                                    skipTitle,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: Styles().colors.fillColorPrimary,
+                                      decoration: TextDecoration.underline,
+                                      decorationColor: Styles().colors.fillColorSecondary,
+                                      fontFamily: Styles().fontFamilies.medium,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                )),
                           )),
-                    )),
-                  ],
-                )
+                        ],
+                      ) : Container()
               ])),
             _progress
                 ? Container(

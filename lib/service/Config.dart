@@ -229,8 +229,12 @@ class Config with Service implements NotificationsListener {
 
   // Upgrade
 
+  String get appId {
+    return _packageInfo?.packageName;
+  }
+
   String get appVersion {
-    return _packageInfo.version;
+    return _packageInfo?.version;
   }
 
   String get upgradeRequiredVersion {
@@ -339,6 +343,7 @@ class Config with Service implements NotificationsListener {
   String get feedbackUrl            { return otherUniversityServices['feedback_url']; }               // "https://forms.illinois.edu/sec/1971889"
   String get iCardUrl               { return otherUniversityServices['icard_url']; }                  // "https://www.icard.uillinois.edu/rest/rw/rwIDData/rwCardInfo"
   String get privacyPolicyUrl       { return otherUniversityServices['privacy_policy_url']; }         // "https://www.vpaa.uillinois.edu/resources/web_privacy"
+  String get exposureLogUrl         { return otherUniversityServices['exposure_log_url']; }           // "http://ec2-18-191-37-235.us-east-2.compute.amazonaws.com:8003/PostSessionData"
 
   String get appConfigUrl           { return platformBuildingBlocks['appconfig_url']; }               // "https://api-dev.rokwire.illinois.edu/app/configs"
   String get loggingUrl             { return platformBuildingBlocks['logging_url']; }                 // "https://api-dev.rokwire.illinois.edu/logs"
@@ -363,6 +368,9 @@ class Config with Service implements NotificationsListener {
   String get healthApiKey           { return secretHealth['api_key']; }
 
   int get refreshTimeout            { return kReleaseMode ? (settings['refreshTimeout'] ?? 0) : 0; }
+
+  bool get residentRoleEnabled     { return false; }
+  bool get capitolStaffRoleEnabled { return (settings['roleCapitolStaffEnabled'] == true); }
 
 }
 

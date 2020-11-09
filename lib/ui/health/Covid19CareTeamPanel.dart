@@ -100,7 +100,7 @@ class _Covid19CareTeamPanelState extends State<Covid19CareTeamPanel> with Ticker
                 _isNotStudent?
                 Column(children: [
                   Container(height: 16,),
-                  Text(Localization().getStringEx("panel.health.covid19.care_team.label.emergency.text1", "In case of an emergency, "),textAlign: TextAlign.left, style: TextStyle(color: Styles().colors.textSurface, fontSize: 16, fontFamily:  Styles().fontFamilies.regular),),
+                  Text(Localization().getStringEx("panel.health.covid19.care_team.label.emergency.text3", "If you already have a local primary care provider, contact them immediately."),textAlign: TextAlign.left, style: TextStyle(color: Styles().colors.textSurface, fontSize: 16, fontFamily:  Styles().fontFamilies.regular),),
                 ],) :
                 Container(),
                 Container(height: 16,),
@@ -296,13 +296,13 @@ class _Covid19CareTeamPanelState extends State<Covid19CareTeamPanel> with Ticker
                       _linkWidget(
                         title:Localization().getStringEx(
                           "panel.health.covid19.care_team.label.counseling_center.link", "Counseling Center"),
-                        url: ' https://www.counselingcenter.illinois.edu/'
+                        url: ' https://www.counselingcenter.illinois.edu/#quicklinks'
                       ),
                       Container(height: 12,),
                       _linkWidget(
                         title:Localization().getStringEx(
                           "panel.health.covid19.care_team.label.mc_kiney.link", "McKinley Mental Health Program"),
-                        url: 'https://www.mckinley.illinois.edu/medical- services/mental-health'
+                        url: 'https://www.mckinley.illinois.edu/medical-services/mental-health'
                       ),
                       Container(height: 12,),
                       _linkWidget(

@@ -164,10 +164,9 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
                 rlCallback.onResult(granted);
                 rlCallback = null;
             }
+        } else if(requestCode == GalleryPlugin.STORAGE_PERMISSION_REQUEST_CODE){
+            galleryPlugin.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
-        //} else if(requestCode == GalleryPlugin.STORAGE_PERMISSION_REQUEST_CODE){
-        //    galleryPlugin.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        //}
     }
 
     @Override

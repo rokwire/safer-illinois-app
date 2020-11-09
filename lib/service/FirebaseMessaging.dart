@@ -21,15 +21,18 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:http/http.dart';
 import 'package:firebase_messaging/firebase_messaging.dart' as FirebaseMessagingPlugin;
+import 'package:illinois/model/Health.dart';
 import 'package:illinois/model/UserData.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/FirebaseService.dart';
+import 'package:illinois/service/Health.dart';
 
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Network.dart';
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/NotificationService.dart';
+import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/Service.dart';
 import 'package:illinois/service/Storage.dart';
 import 'package:illinois/service/User.dart';
@@ -44,15 +47,20 @@ class FirebaseMessaging with Service implements NotificationsListener {
   static const String notifySettingUpdated        = "edu.illinois.rokwire.firebase.messaging.setting.updated";
   static const String notifyCovid19Notification   = "edu.illinois.rokwire.firebase.messaging.health.covid19.notification";
 
+  static const String _commonTopicCategory        = "common";
+  static const String _notifyTopicCategory        = "notify";
+  static const String _roleTopicCategory          = "role";
+  static const String _healthStatusTopicCategory  = "health-status";
+
   // Topic names
-  static const List<String> _permanentTopis = [
-    "config_update",
-    "popup_message",
+  static const List<String> _permanentTopics = [
+    "$_commonTopicCategory.config-update",
+    "$_commonTopicCategory.popup-message",
   ];
 
   // Settings entry : topic name
   static const Map<String, String> _notifySettingTopics = {
-    'notify_covid19'   : 'covid19'
+    'notify_covid19'   : '$_notifyTopicCategory.covid19'
   };
 
 
@@ -90,8 +98,10 @@ class FirebaseMessaging with Service implements NotificationsListener {
       User.notifyRolesUpdated,
       User.notifyUserUpdated,
       User.notifyUserDeleted,
+      Health.notifyUserUpdated,
+      Health.notifyStatusAvailable,
+      LocalNotifications.notifySelected,
       AppLivecycle.notifyStateChanged,
-      LocalNotifications.notifySelected
     ]);
   }
 
@@ -145,10 +155,7 @@ class FirebaseMessaging with Service implements NotificationsListener {
 
   @override
   void onNotification(String name, dynamic param) {
-    if (name == LocalNotifications.notifySelected) {
-      _processDataMessage(AppJson.decode(param));
-    }
-    else if (name == User.notifyRolesUpdated) {
+    if (name == User.notifyRolesUpdated) {
       _updateRolesSubscriptions();
     }
     else if (name == User.notifyUserUpdated) {
@@ -156,6 +163,15 @@ class FirebaseMessaging with Service implements NotificationsListener {
     }
     else if (name == User.notifyUserDeleted) {
       _updateSubscriptions();
+    }
+    else if (name == Health.notifyUserUpdated) {
+      _updateHealthStatusSubscriptions();
+    }
+    else if (name == Health.notifyStatusAvailable) {
+      _updateHealthStatusSubscriptions(status: param);
+    }
+    else if (name == LocalNotifications.notifySelected) {
+      _processDataMessage(AppJson.decode(param));
     }
     else if (name == AppLivecycle.notifyStateChanged) {
       _onAppLivecycleStateChanged(param); 
@@ -192,7 +208,7 @@ class FirebaseMessaging with Service implements NotificationsListener {
       if (Config().sportsServiceUrl != null) {
         String url =  "${Config().sportsServiceUrl}/api/subscribe";
         String body = json.encode({'token': _token, 'topic': topic});
-        Response response = await Network().post(url, body: body, auth: NetworkAuth.App);
+        Response response = await Network().post(url, body: body, auth: NetworkAuth.App, headers: { Network.RokwireAppId: Config().appId });
         if ((response != null) && (response.statusCode == 200)) {
           Log.d("FCM: Succesfully subscribed for $topic topic");
           Storage().addFirebaseSubscriptionTopic(topic);
@@ -221,7 +237,7 @@ class FirebaseMessaging with Service implements NotificationsListener {
       if (Config().sportsServiceUrl != null) {
         String url =  "${Config().sportsServiceUrl}/api/unsubscribe";
         String body = json.encode({'token': _token, 'topic': topic});
-        Response response = await Network().post(url, body: body, auth: NetworkAuth.App);
+        Response response = await Network().post(url, body: body, auth: NetworkAuth.App, headers: { Network.RokwireAppId: Config().appId });
         if ((response != null) && (response.statusCode == 200)) {
           Log.d("FCM: Succesfully unsubscribed from $topic topic");
           Storage().removeFirebaseSubscriptionTopic(topic);
@@ -241,7 +257,11 @@ class FirebaseMessaging with Service implements NotificationsListener {
       if (Config().sportsServiceUrl != null) {
         String url = "${Config().sportsServiceUrl}/api/message";
         String body = json.encode({'topic': topic, 'message': message});
-        final response = await Network().post(url, timeout: 10, body: body, auth: NetworkAuth.App, headers: { "Accept": "application/json", "content-type": "application/json" });
+        final response = await Network().post(url, timeout: 10, body: body, auth: NetworkAuth.App, headers: {
+          "Accept": "application/json",
+          "content-type": "application/json",
+          Network.RokwireAppId : Config().appId
+        });
         if ((response != null) && (response.statusCode == 200)) {
           return true;
         }
@@ -405,7 +425,7 @@ class FirebaseMessaging with Service implements NotificationsListener {
       NotificationService().notify(notifySettingUpdated, name);
 
       Set<String> subscribedTopics = Storage().firebaseSubscriptionTopis;
-      _processNotifySettingSubscription(topic: _notifySettingTopics[name], value: value, subscribedTopics: subscribedTopics);
+      _processNotifySettingSubscription(topic: _topicName(_notifySettingTopics[name]), value: value, subscribedTopics: subscribedTopics);
     }
   }
 
@@ -416,6 +436,7 @@ class FirebaseMessaging with Service implements NotificationsListener {
       Set<String> subscribedTopics = Storage().firebaseSubscriptionTopis;
       _processPermanentSubscriptions(subscribedTopics: subscribedTopics);
       _processRolesSubscriptions(subscribedTopics: subscribedTopics);
+      _processHealthStatusSubscriptions(subscribedTopics: subscribedTopics);
       _processNotifySettingsSubscriptions(subscribedTopics: subscribedTopics);
     }
   }
@@ -437,8 +458,15 @@ class FirebaseMessaging with Service implements NotificationsListener {
     }
   }
 
+  void _updateHealthStatusSubscriptions({ Covid19Status status}) {
+    if (hasToken) {
+      _processHealthStatusSubscriptions(status: status, subscribedTopics: Storage().firebaseSubscriptionTopis);
+    }
+  }
+
   void _processPermanentSubscriptions({Set<String> subscribedTopics}) {
-    for (String permanentTopic in _permanentTopis) {
+    for (String permanentTopicsEntry in _permanentTopics) {
+      String permanentTopic = _topicName(permanentTopicsEntry);
       if ((subscribedTopics == null) || !subscribedTopics.contains(permanentTopic)) {
         subscribeToTopic(permanentTopic);
       }
@@ -448,7 +476,7 @@ class FirebaseMessaging with Service implements NotificationsListener {
   void _processRolesSubscriptions({Set<String> subscribedTopics}) {
     Set<UserRole> roles = User().roles;
     for (UserRole role in UserRole.values) {
-      String roleTopic = role.toString();
+      String roleTopic = _topicName("$_roleTopicCategory.${role.toString()}");
       bool roleSubscribed = (subscribedTopics != null) && subscribedTopics.contains(roleTopic);
       bool roleSelected = (roles != null) && roles.contains(role);
       if (roleSelected && !roleSubscribed) {
@@ -459,11 +487,45 @@ class FirebaseMessaging with Service implements NotificationsListener {
       }
     }
   }
+
+  void _processHealthStatusSubscriptions({ Covid19Status status, Set<String> subscribedTopics}) {
+    if (!Health().isUserLoggedIn) {
+      _processHealthStatusTopicsSubscriptions(statusTopics: null, subscribedTopics: subscribedTopics);
+    }
+    else if (status != null) {
+      _processHealthStatusTopicsSubscriptions(statusTopics: status?.blob?.fcmTopics, subscribedTopics: subscribedTopics);
+    }
+  }
+
+  void _processHealthStatusTopicsSubscriptions({Set<String> statusTopics, Set<String> subscribedTopics}) {
+    // Add all statusTopics entries that does not persist in subscribedTopics
+    if (statusTopics != null) {
+      for (String statusTopic in statusTopics) {
+        String topic = _topicName("$_healthStatusTopicCategory.$statusTopic");
+        if ((subscribedTopics == null) || !subscribedTopics.contains(topic)) {
+          subscribeToTopic(topic);
+        }
+      }
+    }
+
+    // Remove all health status entries from subscribedTopics that does not persist in statusTopics
+    if (subscribedTopics != null) {
+      String healthStatusPrefix = _topicName("$_healthStatusTopicCategory.");
+      for (String subscribedTopic in subscribedTopics) {
+        if (subscribedTopic.startsWith(healthStatusPrefix)) {
+          String topic = subscribedTopic.substring(healthStatusPrefix.length);
+          if ((statusTopics == null) || !statusTopics.contains(topic)) {
+            unsubscribeFromTopic(topic);
+          }
+        }
+      }
+    }
+  }
   
   void _processNotifySettingsSubscriptions({Set<String> subscribedTopics}) {
     _notifySettingTopics.forEach((String setting, String topic) {
       bool value = _getNotifySetting(setting);
-      _processNotifySettingSubscription(topic: topic, value: value, subscribedTopics: subscribedTopics);
+      _processNotifySettingSubscription(topic: _topicName(topic), value: value, subscribedTopics: subscribedTopics);
     });
   }
 
@@ -477,6 +539,10 @@ class FirebaseMessaging with Service implements NotificationsListener {
         unsubscribeFromTopic(topic);
       }
     }
+  }
+
+  String _topicName(String topicKey) {
+    return (Organizations().organization.id != null) ? "${Organizations().organization.id}.$topicKey" : topicKey;
   }
 
 }

@@ -139,16 +139,10 @@ class _Covid19DebugCreateEventPanelState extends State<Covid19DebugCreateEventPa
 
     return Semantics(container: true, child:
       Container(color:Colors.white,
-      child: Padding(padding: EdgeInsets.all(32),
+      child: Padding(padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start,
           children:<Widget>[
-            Row(children: <Widget>[
-              Padding(padding: EdgeInsets.only(right: 4), child: Image.asset('images/campus-tools-blue.png',excludeFromSemantics: true,)),
-              Text("Enter COVID-19 Event", style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.fillColorPrimary),),
-            ],),
-            Padding(padding: EdgeInsets.only(top: 8), child:
-              Semantics(label: Localization().getStringEx("panel.health.covid19.debug.create.label.description.hint","status: "), child: Text(input, style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Color(0xff494949)))),
-            ),
+            Semantics(label: Localization().getStringEx("panel.health.covid19.debug.create.label.description.hint","status: "), child: Text(input, style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Color(0xff494949)))),
             _buildRefresh(),
           ]),
       ),
@@ -224,7 +218,7 @@ class _Covid19DebugCreateEventPanelState extends State<Covid19DebugCreateEventPa
             Stack(children: <Widget>[
               Semantics(textField: true, child:Container(color: Styles().colors.white,
                 child: TextField(
-                  maxLines: 5,
+                  maxLines: 8,
                   controller: _blobController,
                   decoration: InputDecoration(border: OutlineInputBorder(borderSide: BorderSide(color: Colors.black, width: 1.0))),
                   style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground,),
@@ -451,7 +445,11 @@ class _Covid19DebugCreateEventPanelState extends State<Covid19DebugCreateEventPa
     return '''{
   "Date": "$date",
   "ActionType": "quarantine-on",
-  "ActionText": "You are in quarantine"
+  "ActionText": {
+    "en": "You are in quarantine",
+    "es": "Estas en cuarentena",
+    "zh": "您正在隔離"
+  }
 }''';}
 
   String get _sampleActionQuarantineOffBlob {
@@ -459,7 +457,11 @@ class _Covid19DebugCreateEventPanelState extends State<Covid19DebugCreateEventPa
     return '''{
   "Date": "$date",
   "ActionType": "quarantine-off",
-  "ActionText": "You are out of quarantine"
+  "ActionText": {
+    "en": "You are out of quarantine",
+    "es": "Estas fuera de cuarentena",
+    "zh": "你沒隔離"
+  }
 }''';}
 
   String get _sampleActionOutOfComplianceBlob {
@@ -467,7 +469,11 @@ class _Covid19DebugCreateEventPanelState extends State<Covid19DebugCreateEventPa
     return '''{
   "Date": "$date",
   "ActionType": "out-of-test-compliance",
-  "ActionText": "You are out of test compliance"
+  "ActionText": {
+    "en": "You are out of test compliance",
+    "es": "No cumple con las pruebas",
+    "zh": "您沒有符合測試要求"
+  }
 }''';}
 
   String get _sampleActionTestPendingBlob {
@@ -475,7 +481,11 @@ class _Covid19DebugCreateEventPanelState extends State<Covid19DebugCreateEventPa
     return '''{
   "Date": "$date",
   "ActionType": "test_pending",
-  "ActionText": "Your test is pending"
+  "ActionText": {
+    "en": "Your test is pending",
+    "es": "Tu prueba esta pendiente",
+    "zh": "您的測試正在等待中"
+  }
 }''';}
 
   String get _sampleActionForceTestBlob {
@@ -483,7 +493,11 @@ class _Covid19DebugCreateEventPanelState extends State<Covid19DebugCreateEventPa
     return '''{
   "Date": "$date",
   "ActionType": "force-test",
-  "ActionText": "You are required to get a test"
+  "ActionText": {
+    "en": "You are required to have 2 tests separated by 3 days",
+    "es": "Debe tener 2 pruebas separadas por 3 días",
+    "zh": "您需要進行2項測試，每3天間隔一次"
+  }
 }''';}
 
   void _onPopulate(String content) {

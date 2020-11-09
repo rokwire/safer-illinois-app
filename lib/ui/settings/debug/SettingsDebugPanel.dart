@@ -162,10 +162,22 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
                 borderColor: Styles().colors.fillColorPrimary,
                 onTap: _onUserProfileInfoClicked(context))),
       ),
+      Visibility(
+        visible: Organizations().isDevEnvironment,
+        child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+            child: RoundedButton(
+                label: "Http Proxy",
+                backgroundColor: Styles().colors.background,
+                fontSize: 16.0,
+                textColor: Styles().colors.fillColorPrimary,
+                borderColor: Styles().colors.fillColorPrimary,
+                onTap: _onTapHttpProxy)),
+      ),
       Padding(
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
           child: RoundedButton(
-              label: "COVID-19: Keys",
+              label: "COVID-19 Keys",
               backgroundColor: Styles().colors.background,
               fontSize: 16.0,
               textColor: Styles().colors.fillColorPrimary,
@@ -243,19 +255,6 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
               textColor: Styles().colors.fillColorPrimary,
               borderColor: Styles().colors.fillColorPrimary,
               onTap: _onTapCovid19ExposureLogs)),
-      Padding(padding: EdgeInsets.only(top: 5), child: Container()),
-      Visibility(
-        visible: Organizations().isDevEnvironment,
-        child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-            child: RoundedButton(
-                label: "Http Proxy",
-                backgroundColor: Styles().colors.background,
-                fontSize: 16.0,
-                textColor: Styles().colors.fillColorPrimary,
-                borderColor: Styles().colors.fillColorPrimary,
-                onTap: _onTapHttpProxy)),
-      ),
       Padding(padding: EdgeInsets.only(top: 10), child: Container()),
     ]);
 

@@ -298,6 +298,10 @@ class UiColors {
   Color get healthStatusOrange         => _colorMap['healthStatusOrange'];
   Color get healthStatusRed            => _colorMap['healthStatusRed'];
 
+  Color getHealthStatusColor(String status) {
+    return  ((status != null) && (0 < status.length)) ? _colorMap['healthStatus${AppString.capitalize(status)}'] : null;
+  }
+
   Color get lightBlue                  => _colorMap['lightBlue'];
 
   Color get healthLocationWaitTimeColorRed        => _colorMap['healthLocationWaitTimeColorRed'];

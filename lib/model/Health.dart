@@ -16,8 +16,11 @@
 
 import 'dart:collection';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:illinois/model/UserData.dart';
+import 'package:illinois/service/User.dart';
 import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Localization.dart';
@@ -111,12 +114,14 @@ class Covid19StatusBlob {
   final String reason;
   final String warning;
 
+  final dynamic fcmTopic;
+
   final Covid19HistoryBlob historyBlob;
 
   static const String _nextStepDateMacro = '{next_step_date}';
   static const String _nextStepDateFormat = 'EEEE, MMM d';
 
-  Covid19StatusBlob({this.healthStatus, this.priority, this.nextStep, this.nextStepHtml, this.nextStepDateUtc, this.eventExplanation, this.eventExplanationHtml, this.reason, this.warning, this.historyBlob});
+  Covid19StatusBlob({this.healthStatus, this.priority, this.nextStep, this.nextStepHtml, this.nextStepDateUtc, this.eventExplanation, this.eventExplanationHtml, this.reason, this.warning, this.fcmTopic, this.historyBlob});
 
   factory Covid19StatusBlob.fromJson(Map<String, dynamic> json) {
     return (json != null) ? Covid19StatusBlob(
@@ -129,6 +134,7 @@ class Covid19StatusBlob {
       eventExplanationHtml: json['event_explanation_html'],
       reason: json['reason'],
       warning: json['warning'],
+      fcmTopic: json['fcm_topic'],
       historyBlob: Covid19HistoryBlob.fromJson(json['history_blob']),
     ) : null;
   }
@@ -144,6 +150,7 @@ class Covid19StatusBlob {
       'event_explanation_html': eventExplanationHtml,
       'reason': reason,
       'warning': warning,
+      'fcm_topic': fcmTopic,
       'history_blob': historyBlob?.toJson(),
     };
   }
@@ -166,7 +173,7 @@ class Covid19StatusBlob {
         return Localization().getStringEx('model.explore.time.tomorrow', 'Tomorrow').toLowerCase();
       }
       else {
-        return AppDateTime.formatDateTime(nextStepDateUtc.toLocal(), format: format);
+        return AppDateTime.formatDateTime(nextStepDateUtc.toLocal(), format: format, locale: Localization().currentLocale?.languageCode);
       }
     }
     return null;
@@ -195,6 +202,17 @@ class Covid19StatusBlob {
     return value;
   }
 
+  Set<String> get fcmTopics {
+    if (fcmTopic is String) {
+      return Set.from([fcmTopic]);
+    }
+    else if (fcmTopic is List) {
+      try { return Set.from(fcmTopic.cast<String>()); }
+      catch(e) { print(e?.toString()); }
+    }
+    return null;
+  }
+
   bool get requiresTest {
     // TBD
     return (nextStep?.toLowerCase()?.contains("test") ?? false) ||
@@ -214,22 +232,17 @@ class Covid19StatusBlob {
   }
 
   static String localizedHealthStatusFromKey(String key) {
-    return _localizedHealthStatusFromKey("com.illinois.covid19.status.long.${key.toLowerCase()}", AppString.capitalize(key));
+    String type = localizedHealthStatusTypeFromKey(key);
+    String description = localizedHealthStatusDescriptionFromKey(key);
+    return ((type != null) && (description != null)) ? "$type, $description" : type;
   }
 
   static String localizedHealthStatusTypeFromKey(String key) {
-    return _localizedHealthStatusFromKey("com.illinois.covid19.status.type.${key.toLowerCase()}", AppString.capitalize(key));
+    return (key != null) ? Localization().getStringEx("com.illinois.covid19.status.type.${key.toLowerCase()}", AppString.capitalize(key)) : null;
   }
 
   static String localizedHealthStatusDescriptionFromKey(String key) {
-    return _localizedHealthStatusFromKey("com.illinois.covid19.status.description.${key.toLowerCase()}", AppString.capitalize(key));
-  }
-
-  static String _localizedHealthStatusFromKey(String key, String defaultValue) {
-    if(key != null){
-      return Localization().getStringEx(key, defaultValue);
-    }
-    return defaultValue;
+    return (key != null) ? Localization().getStringEx("com.illinois.covid19.status.description.${key.toLowerCase()}", null) : null;
   }
 }
 
@@ -241,16 +254,6 @@ const String kCovid19HealthStatusOrange    = 'orange';
 const String kCovid19HealthStatusYellow    = 'yellow';
 const String kCovid19HealthStatusGreen     = 'green';
 const String kCovid19HealthStatusUnchanged = 'no change';
-
-Color covid19HealthStatusColor(String status) {
-  switch (status) {
-    case kCovid19HealthStatusRed:    return Styles().colors.healthStatusRed;
-    case kCovid19HealthStatusOrange: return Styles().colors.healthStatusOrange;
-    case kCovid19HealthStatusYellow: return Styles().colors.healthStatusYellow;
-    case kCovid19HealthStatusGreen:  return Styles().colors.healthStatusGreen;
-    default:                         return null;
-  }
-}
 
 bool covid19HealthStatusIsValid(String status) {
   return (status != null) && (status != kCovid19HealthStatusUnchanged);
@@ -410,7 +413,9 @@ class Covid19History {
       return this.isAction &&
         (this.dateUtc == event?.blob?.dateUtc) &&
         (this.blob?.actionType == event?.blob?.actionType) &&
-        (this.blob?.actionText == event?.blob?.actionText);
+        ((this.blob?.actionText == event?.blob?.actionText) ||
+         ((this.blob?.actionText is Map) && (event?.blob?.actionText is Map) && DeepCollectionEquality().equals(this.blob?.actionText, event?.blob?.actionText))
+        );
     }
     else {
       return false;
@@ -475,17 +480,21 @@ class Covid19History {
     return null;
   }
 
-  static Covid19History mostRecentTest(List<Covid19History> histories) {
+  static Covid19History mostRecentTest(List<Covid19History> histories, { DateTime beforeDateUtc, int onPosition = 1 }) {
+    Covid19History result;
     if (histories != null) {
-      DateTime nowUtc = DateTime.now().toUtc();
-      for (int index = 0; index < histories.length; index++) {
+      if (beforeDateUtc == null) {
+        beforeDateUtc = DateTime.now().toUtc();
+      }
+      for (int index = 0; (index < histories.length) && (0 < onPosition); index++) {
         Covid19History history = histories[index];
-        if (history.isTestVerified && (history.dateUtc != null) && (history.dateUtc.isBefore(nowUtc))) {
-          return history;
+        if (history.isTestVerified && (history.dateUtc != null) && (history.dateUtc.isBefore(beforeDateUtc))) {
+          result = history;
+          onPosition--;
         }
       }
     }
-    return null;
+    return result;
   }
 
   static List<Covid19History> pastList(List<Covid19History> histories) {
@@ -536,7 +545,7 @@ class Covid19HistoryBlob {
   final String traceTEK;
   
   final String actionType;
-  final String actionText;
+  final dynamic actionText;
 
   Covid19HistoryBlob({
     this.provider, this.providerId, this.location, this.locationId, this.countyId, this.testType, this.testResult,
@@ -649,8 +658,12 @@ class Covid19HistoryBlob {
     return null;
   }
 
+  String get localeActionText {
+    return Localization().localeString(actionText) ?? actionText;
+  }
+
   String get actionDisplayString {
-    return actionText ?? actionType;
+    return localeActionText ?? actionType;
   }
 }
 
@@ -789,7 +802,7 @@ class Covid19EventBlob {
   final String   testResult;
 
   final String   actionType;
-  final String   actionText;
+  final dynamic  actionText;
 
   Covid19EventBlob({this.dateUtc, this.testType, this.testResult, this.actionType, this.actionText});
 
@@ -799,7 +812,7 @@ class Covid19EventBlob {
       testType:      AppJson.stringValue(json['TestName']),
       testResult:    AppJson.stringValue(json['Result']),
       actionType:    AppJson.stringValue(json['ActionType']),
-      actionText:    AppJson.stringValue(json['ActionText']),
+      actionText:    json['ActionText'],
     ) : null;
   }
 
@@ -832,6 +845,10 @@ class Covid19EventBlob {
   bool get isAction {
     return AppString.isStringNotEmpty(actionType);
   }
+
+  String get defaultLocaleActionText {
+    return Localization().defaultLocaleString(actionText) ?? actionText;
+  } 
 }
 
 
@@ -1822,11 +1839,13 @@ class HealthRulesSet {
   final HealthDefaultsSet defaults;
   final Map<String, _HealthRuleStatus> statuses;
   final Map<String, dynamic> constants;
+  final Map<String, dynamic> strings;
 
   static const String UserTestMonitorInterval = 'UserTestMonitorInterval';
 
-  HealthRulesSet({this.tests, this.symptoms, this.contactTrace, this.actions, this.defaults, this.statuses, Map<String, dynamic> constants}) :
-    this.constants = constants ?? Map<String, dynamic>();
+  HealthRulesSet({this.tests, this.symptoms, this.contactTrace, this.actions, this.defaults, this.statuses, Map<String, dynamic> constants, Map<String, dynamic> strings}) :
+    this.constants = constants ?? Map<String, dynamic>(),
+    this.strings = strings ?? Map<String, dynamic>();
 
   factory HealthRulesSet.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthRulesSet(
@@ -1837,6 +1856,7 @@ class HealthRulesSet {
       defaults: HealthDefaultsSet.fromJson(json['defaults']),
       statuses: _HealthRuleStatus.mapFromJson(json['statuses']),
       constants: json['constants'],
+      strings: json['strings'],
     ) : null;
   }
 
@@ -1846,6 +1866,26 @@ class HealthRulesSet {
 
   set userTestMonitorInterval(int value) {
     constants[UserTestMonitorInterval] = value;
+  }
+
+  String localeString(dynamic entry) {
+    if ((strings != null) && (entry is String)) {
+      String currentLanguage = Localization().currentLocale?.languageCode;
+      Map<String, dynamic> currentLanguageStrings = (currentLanguage != null) ? strings[currentLanguage] : null;
+      dynamic currentResult = (currentLanguageStrings != null) ? currentLanguageStrings[entry] : null;
+      if (currentResult != null) {
+        return currentResult;
+      }
+
+      String defaultLanguage = Localization().defaultLocale?.languageCode;
+      Map<String, dynamic> defaultLanguageStrings = (defaultLanguage != null) ? strings[defaultLanguage] : null;
+      dynamic defaultResult = (defaultLanguageStrings != null) ? defaultLanguageStrings[entry] : null;
+      if (defaultResult is String) {
+        return defaultResult;
+      }
+    }
+
+    return Localization().localeString(entry) ?? entry;
   }
 }
 
@@ -2221,45 +2261,53 @@ class HealthRuleStatus extends _HealthRuleStatus {
   final String healthStatus;
   final int priority;
 
-  final String nextStep;
-  final String nextStepHtml;
+  final dynamic nextStep;
+  final dynamic nextStepHtml;
   final _HealthRuleInterval nextStepInterval;
   final DateTime nextStepDateUtc;
 
-  final String eventExplanation;
-  final String eventExplanationHtml;
+  final dynamic eventExplanation;
+  final dynamic eventExplanationHtml;
 
-  final String reason;
-  final String warning;
+  final dynamic reason;
+  final dynamic warning;
 
-  HealthRuleStatus({this.healthStatus, this.priority, this.nextStep, this.nextStepHtml, this.nextStepInterval, this.nextStepDateUtc, this.eventExplanation, this.eventExplanationHtml, this.reason, this.warning });
+  final dynamic fcmTopic;
+
+  HealthRuleStatus({this.healthStatus, this.priority,
+    this.nextStep, this.nextStepHtml, this.nextStepInterval, this.nextStepDateUtc,
+    this.eventExplanation, this.eventExplanationHtml,
+    this.reason, this.warning, this.fcmTopic });
 
   factory HealthRuleStatus.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthRuleStatus(
-      healthStatus: json['health_status'],
-      priority: json['priority'],
-      nextStep: json['next_step'],
-      nextStepHtml: json['next_step_html'],
-      nextStepInterval: _HealthRuleInterval.fromJson(json['next_step_interval']),
-      eventExplanation: json['event_explanation'],
+      healthStatus:         json['health_status'],
+      priority:             json['priority'],
+      nextStep:             json['next_step'],
+      nextStepHtml:         json['next_step_html'],
+      nextStepInterval:     _HealthRuleInterval.fromJson(json['next_step_interval']),
+      eventExplanation:     json['event_explanation'],
       eventExplanationHtml: json['event_explanation_html'],
-      reason: json['reason'],
-      warning: json['warning'],
+      reason:               json['reason'],
+      warning:              json['warning'],
+      fcmTopic:             json['fcm_topic']
     ) : null;
   }
 
-  factory HealthRuleStatus.fromStatus(HealthRuleStatus status, { DateTime nextStepDateUtc }) {
+  factory HealthRuleStatus.fromStatus(HealthRuleStatus status, { DateTime nextStepDateUtc, }) {
+    
     return (status != null) ? HealthRuleStatus(
-      healthStatus: status.healthStatus,
-      priority: status.priority,
-      nextStep: status.nextStep,
-      nextStepHtml: status.nextStepHtml,
-      nextStepInterval: status.nextStepInterval,
-      nextStepDateUtc: nextStepDateUtc ?? status.nextStepDateUtc,
-      eventExplanation: status.eventExplanation,
+      healthStatus:         status.healthStatus,
+      priority:             status.priority,
+      nextStep:             status.nextStep,
+      nextStepHtml:         status.nextStepHtml,
+      nextStepInterval:     status.nextStepInterval,
+      nextStepDateUtc:      nextStepDateUtc ?? status.nextStepDateUtc,
+      eventExplanation:     status.eventExplanation,
       eventExplanationHtml: status.eventExplanationHtml,
-      reason: status.reason,
-      warning: status.warning,
+      reason:               status.reason,
+      warning:              status.warning,
+      fcmTopic:             status.fcmTopic,
     ) : null;
   }
 
@@ -2523,19 +2571,51 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
   }
 
   dynamic _evalTestUser({ HealthRulesSet rules }) {
+    
     dynamic role = params['role'];
-    if ((role != null) && !_matchStringTarget(target: Auth().authCard?.role, source: role)) {
+    if ((role != null) && !_matchStringTarget(target: UserRole.userRolesToList(User().roles), source: role)) {
       return false;
     }
-    dynamic studentLevel = params['student_level'];
-    if ((studentLevel != null) && !_matchStringTarget(target: Auth().authCard?.studentLevel, source: studentLevel)) {
+    
+    dynamic login = params['login'];
+    if (login != null) {
+      if (login is bool) {
+        if (Auth().isLoggedIn != login) {
+          return false;
+        }
+      }
+      else if (login is String) {
+        String loginLowerCase = login.toLowerCase();
+        if ((loginLowerCase == 'phone') && !Auth().isPhoneLoggedIn) {
+          return false;
+        }
+        else if ((loginLowerCase == 'phone.uin') && (!Auth().isPhoneLoggedIn || !Auth().hasUIN)) {
+          return false;
+        }
+        else if ((loginLowerCase == 'netid') && !Auth().isShibbolethLoggedIn) {
+          return false;
+        }
+        else if ((loginLowerCase == 'netid.uin') && (!Auth().isShibbolethLoggedIn || !Auth().hasUIN)) {
+          return false;
+        }
+      }
+    }
+    
+    dynamic cardRole = params['card.role'];
+    if ((cardRole != null) && !_matchStringTarget(target: Auth().authCard?.role, source: cardRole)) {
       return false;
     }
+    
+    dynamic cardStudentLevel = params['card.student_level'];
+    if ((cardStudentLevel != null) && !_matchStringTarget(target: Auth().authCard?.studentLevel, source: cardStudentLevel)) {
+      return false;
+    }
+
     return true;
   }
 
-  static bool _matchStringTarget({dynamic source, String target}) {
-    if (target != null) {
+  static bool _matchStringTarget({dynamic source, dynamic target}) {
+    if (target is String) {
       if (source is String) {
         return source.toLowerCase() == target.toLowerCase();
       }
@@ -2547,8 +2627,16 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
         }
       }
     }
+    else if (target is Iterable) {
+      for (dynamic targetEntry in target) {
+        if (_matchStringTarget(source: source, target: targetEntry)) {
+          return true;
+        }
+      }
+    }
     return false;
   }
+
 }
 
 ///////////////////////////////

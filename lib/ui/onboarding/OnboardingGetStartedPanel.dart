@@ -59,7 +59,7 @@ class OnboardingGetStartedPanel extends StatelessWidget with OnboardingPanel {
                     child: Padding(padding: EdgeInsets.only(top: 17), child: Image.asset('images/powered-by.png'),)
                 )
               ],),),),
-              Column(children: <Widget>[Expanded(child: Container(),), Padding(
+              SafeArea(child: Column(children: <Widget>[Expanded(child: Container(),), Padding(
                 padding: EdgeInsets.all(16),
                 child: ScalableRoundedButton(
                   label: Localization().getStringEx(
@@ -74,7 +74,7 @@ class OnboardingGetStartedPanel extends StatelessWidget with OnboardingPanel {
                   borderColor: Styles().colors.white,
                 ),
               )
-              ],)
+              ],),),
             ])));
   }
 
