@@ -5,10 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Fixed
+- Cannot confirm one time code [#379](https://github.com/rokwire/safer-illinois-app/issues/379).
 
 ## [2.8.12] - 2020-11-06
 ### Fixed
-- CareTeamPanel fix non student aditional message. [#269](https://github.com/rokwire/safer-illinois-app/issues/269)
+- CareTeamPanel fix non student aditional message. [#269](https://github.com/rokwire/safer-illinois-app/issues/269).
 - Build error related to ios app [#374](https://github.com/rokwire/safer-illinois-app/issues/374).
 - Fixed the error related to app framework minimum os version [#375](https://github.com/rokwire/safer-illinois-app/issues/375).
 
