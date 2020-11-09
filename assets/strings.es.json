@@ -501,6 +501,7 @@
     "panel.health.covid19.care_team.label.status":"Estado actual:",
     "panel.health.covid19.care_team.label.emergency.text1": "En caso de emergencia, ",
     "panel.health.covid19.care_team.label.emergency.text2": "call 911.",
+    "panel.health.covid19.care_team.label.emergency.text3": "If you already have a local primary care provider, contact them immediately.",
     "panel.health.covid19.care_team.team.title.mc_kinley": "Llame a McKinley Health",
     "panel.health.covid19.care_team.team.contact.mc_kinley": "1-217-333-2700",
     "panel.health.covid19.care_team.team.semantic_contact.mc_kinley": "12173332700",
