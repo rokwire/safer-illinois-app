@@ -53,6 +53,8 @@ class _OnboardingLoginPhoneConfirmPanelState extends State<OnboardingLoginPhoneC
 
   @override
   Widget build(BuildContext context) {
+    double scaleFactor = MediaQuery.textScaleFactorOf(context);
+    double bottomPadding = scaleFactor > 1.0 ? scaleFactor * 70 : 70;
     String phoneNumber = Auth().phoneToken?.phone;
     String maskedPhoneNumber = AppString.getMaskedPhoneNumber(phoneNumber);
     String description =
@@ -101,7 +103,7 @@ class _OnboardingLoginPhoneConfirmPanelState extends State<OnboardingLoginPhoneC
                         ),
                       ),
                       Padding(
-                          padding: EdgeInsets.only(left: 12, right: 12, bottom: 70),
+                          padding: EdgeInsets.only(left: 12, right: 12, bottom: bottomPadding),
                           child: Semantics(
                             excludeSemantics: true,
                             label: Localization().getStringEx("panel.onboarding.confirm_phone.code.label", "One-time code"),
