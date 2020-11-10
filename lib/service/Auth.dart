@@ -624,12 +624,20 @@ class Auth with Service implements NotificationsListener {
   }
 
   Future<File> _getUserPiiCacheFile() async {
+    //TBD: DD - web
+    if (kIsWeb) {
+      return null;
+    }
     Directory appDocDir = await getApplicationDocumentsDirectory();
     String cacheFilePath = join(appDocDir.path, _userPiiFileName);
     return File(cacheFilePath);
   }
 
   Future<String> _loadUserPiiDataStringFromCache() async {
+    //TBD: DD - web
+    if (kIsWeb) {
+      return null;
+    }
     try {
       return ((_userPiiCacheFile != null) && await _userPiiCacheFile.exists()) ? await _userPiiCacheFile.readAsString() : null;
     }
@@ -716,12 +724,20 @@ class Auth with Service implements NotificationsListener {
   }
 
   Future<File> _getAuthCardCacheFile() async {
+    //TBD: DD - web
+    if (kIsWeb) {
+      return null;
+    }
     Directory appDocDir = await getApplicationDocumentsDirectory();
     String cacheFilePath = join(appDocDir.path, _authCardName);
     return File(cacheFilePath);
   }
 
   Future<String> _loadAuthCardStringFromCache() async {
+    //TBD: DD - web
+    if (kIsWeb) {
+      return null;
+    }
     try {
       return ((_authCardCacheFile != null) && await _authCardCacheFile.exists()) ? await _authCardCacheFile.readAsString() : null;
     }

@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-import 'package:firebase_crashlytics/firebase_crashlytics.dart' as GoogleFirebase;
+// import 'package:firebase_crashlytics/firebase_crashlytics.dart' as GoogleFirebase;
 import 'package:flutter/material.dart';
 import 'package:illinois/service/FirebaseService.dart';
 import 'package:illinois/service/Service.dart';
 
+//TBD: DD - web
 class FirebaseCrashlytics with Service {
   static final FirebaseCrashlytics _crashlytics = new FirebaseCrashlytics._internal();
 
@@ -34,32 +35,32 @@ class FirebaseCrashlytics with Service {
 
   @override
   Future<void> initService() async{
-    await super.initService();
-
-    // Use Auto collection enabled
-    GoogleFirebase.FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
-
-    // Pass all uncaught errors to Firebase.Crashlytics.
-    FlutterError.onError = handleFlutterError;
+    // await super.initService();
+    //
+    // // Use Auto collection enabled
+    // GoogleFirebase.FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+    //
+    // // Pass all uncaught errors to Firebase.Crashlytics.
+    // FlutterError.onError = handleFlutterError;
   }
 
   void handleFlutterError(FlutterErrorDetails details) {
     FlutterError.dumpErrorToConsole(details);
-    GoogleFirebase.FirebaseCrashlytics.instance.recordFlutterError(details);
+    // GoogleFirebase.FirebaseCrashlytics.instance.recordFlutterError(details);
   }
 
   void handleZoneError(dynamic exception, StackTrace stack) {
     print(exception);
-    GoogleFirebase.FirebaseCrashlytics.instance.recordError(exception, stack);
+    // GoogleFirebase.FirebaseCrashlytics.instance.recordError(exception, stack);
   }
 
   void recordError(dynamic exception, StackTrace stack) {
     print(exception);
-    GoogleFirebase.FirebaseCrashlytics.instance.recordError(exception, stack);
+    // GoogleFirebase.FirebaseCrashlytics.instance.recordError(exception, stack);
   }
 
   void log(String message) {
-    GoogleFirebase.FirebaseCrashlytics.instance.log(message);
+    // GoogleFirebase.FirebaseCrashlytics.instance.log(message);
   }
 
   @override

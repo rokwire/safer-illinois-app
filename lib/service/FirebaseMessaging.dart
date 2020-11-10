@@ -20,7 +20,7 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 import 'package:http/http.dart';
-import 'package:firebase_messaging/firebase_messaging.dart' as FirebaseMessagingPlugin;
+// import 'package:firebase_messaging/firebase_messaging.dart' as FirebaseMessagingPlugin;
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/model/UserData.dart';
 import 'package:illinois/service/AppLivecycle.dart';
@@ -39,6 +39,7 @@ import 'package:illinois/service/User.dart';
 import 'package:illinois/service/LocalNotifications.dart';
 import 'package:illinois/utils/Utils.dart';
 
+//TBD: DD - web
 class FirebaseMessaging with Service implements NotificationsListener {
 
   static const String notifyToken                 = "edu.illinois.rokwire.firebase.messaging.token";
@@ -74,7 +75,7 @@ class FirebaseMessaging with Service implements NotificationsListener {
 
   FirebaseMessaging._internal();
   static final FirebaseMessaging _firebase = FirebaseMessaging._internal();
-  FirebaseMessagingPlugin.FirebaseMessaging _firebaseMessaging = FirebaseMessagingPlugin.FirebaseMessaging();
+  // FirebaseMessagingPlugin.FirebaseMessaging _firebaseMessaging = FirebaseMessagingPlugin.FirebaseMessaging();
 
   factory FirebaseMessaging() {
     return _firebase;
@@ -94,15 +95,15 @@ class FirebaseMessaging with Service implements NotificationsListener {
 
   @override
   void createService() {
-    NotificationService().subscribe(this, [
-      User.notifyRolesUpdated,
-      User.notifyUserUpdated,
-      User.notifyUserDeleted,
-      Health.notifyUserUpdated,
-      Health.notifyStatusAvailable,
-      LocalNotifications.notifySelected,
-      AppLivecycle.notifyStateChanged,
-    ]);
+    // NotificationService().subscribe(this, [
+    //   User.notifyRolesUpdated,
+    //   User.notifyUserUpdated,
+    //   User.notifyUserDeleted,
+    //   Health.notifyUserUpdated,
+    //   Health.notifyStatusAvailable,
+    //   LocalNotifications.notifySelected,
+    //   AppLivecycle.notifyStateChanged,
+    // ]);
   }
 
   @override
@@ -113,37 +114,37 @@ class FirebaseMessaging with Service implements NotificationsListener {
   @override
   Future<void> initService() async {
     
-    // Cache messages until UI is displayed
-    _messagesCache = List<Map<String, dynamic>>();
-
-    _firebaseMessaging.configure(
-      onMessage: _onFirebaseMessage,
-      onBackgroundMessage: null, // causes exception in FirebaseMessaging plugin 
-      onLaunch: _onFirebaseLaunch,
-      onResume: _onFirebaseResume,
-    );
-    
-    _firebaseMessaging.getToken().then((String token) {
-      _token = token;
-      Log.d('FCM: token: $token');
-      NotificationService().notify(notifyToken, null);
-      _updateSubscriptions();
-    });
-    
-    //The project id is not given via the lib so we need to get it via NativeCommunicator
-    NativeCommunicator().queryFirebaseInfo().then((String info) {
-      _projectID = info;
-    });
+    // // Cache messages until UI is displayed
+    // _messagesCache = List<Map<String, dynamic>>();
+    //
+    // _firebaseMessaging.configure(
+    //   onMessage: _onFirebaseMessage,
+    //   onBackgroundMessage: null, // causes exception in FirebaseMessaging plugin
+    //   onLaunch: _onFirebaseLaunch,
+    //   onResume: _onFirebaseResume,
+    // );
+    //
+    // _firebaseMessaging.getToken().then((String token) {
+    //   _token = token;
+    //   Log.d('FCM: token: $token');
+    //   NotificationService().notify(notifyToken, null);
+    //   _updateSubscriptions();
+    // });
+    //
+    // //The project id is not given via the lib so we need to get it via NativeCommunicator
+    // NativeCommunicator().queryFirebaseInfo().then((String info) {
+    //   _projectID = info;
+    // });
   }
 
   @override
   void initServiceUI() {
-    _processCachedMessages();
+    // _processCachedMessages();
   }
 
   @override
   Future<void> clearService() async {
-    _clearSubscriptions();
+    // _clearSubscriptions();
   }
 
   @override
@@ -155,27 +156,27 @@ class FirebaseMessaging with Service implements NotificationsListener {
 
   @override
   void onNotification(String name, dynamic param) {
-    if (name == User.notifyRolesUpdated) {
-      _updateRolesSubscriptions();
-    }
-    else if (name == User.notifyUserUpdated) {
-      _updateSubscriptions();
-    }
-    else if (name == User.notifyUserDeleted) {
-      _updateSubscriptions();
-    }
-    else if (name == Health.notifyUserUpdated) {
-      _updateHealthStatusSubscriptions();
-    }
-    else if (name == Health.notifyStatusAvailable) {
-      _updateHealthStatusSubscriptions(status: param);
-    }
-    else if (name == LocalNotifications.notifySelected) {
-      _processDataMessage(AppJson.decode(param));
-    }
-    else if (name == AppLivecycle.notifyStateChanged) {
-      _onAppLivecycleStateChanged(param); 
-    }
+    // if (name == User.notifyRolesUpdated) {
+    //   _updateRolesSubscriptions();
+    // }
+    // else if (name == User.notifyUserUpdated) {
+    //   _updateSubscriptions();
+    // }
+    // else if (name == User.notifyUserDeleted) {
+    //   _updateSubscriptions();
+    // }
+    // else if (name == Health.notifyUserUpdated) {
+    //   _updateHealthStatusSubscriptions();
+    // }
+    // else if (name == Health.notifyStatusAvailable) {
+    //   _updateHealthStatusSubscriptions(status: param);
+    // }
+    // else if (name == LocalNotifications.notifySelected) {
+    //   _processDataMessage(AppJson.decode(param));
+    // }
+    // else if (name == AppLivecycle.notifyStateChanged) {
+    //   _onAppLivecycleStateChanged(param);
+    // }
   }
 
   void _onAppLivecycleStateChanged(AppLifecycleState state) {
@@ -195,80 +196,80 @@ class FirebaseMessaging with Service implements NotificationsListener {
   // Subscription APIs
 
   Future<bool> subscribeToTopic(String topic) async {
-    if (topic == null) {
-      return false;
-    }
-
-    if (_token == null) {
-      Log.e("FCM: Unable to subscribe to $topic topic (missing token)");
-      return false;
-    }
-
-    try {
-      if (Config().sportsServiceUrl != null) {
-        String url =  "${Config().sportsServiceUrl}/api/subscribe";
-        String body = json.encode({'token': _token, 'topic': topic});
-        Response response = await Network().post(url, body: body, auth: NetworkAuth.App, headers: { Network.RokwireAppId: Config().appId });
-        if ((response != null) && (response.statusCode == 200)) {
-          Log.d("FCM: Succesfully subscribed for $topic topic");
-          Storage().addFirebaseSubscriptionTopic(topic);
-          return true;
-        } else {
-          Log.e("FCM: Error occured on subscribing for $topic topic");
-        }
-      }
-    } catch (e) {
-      Log.e(e.toString());
-    }
+    // if (topic == null) {
+    //   return false;
+    // }
+    //
+    // if (_token == null) {
+    //   Log.e("FCM: Unable to subscribe to $topic topic (missing token)");
+    //   return false;
+    // }
+    //
+    // try {
+    //   if (Config().sportsServiceUrl != null) {
+    //     String url =  "${Config().sportsServiceUrl}/api/subscribe";
+    //     String body = json.encode({'token': _token, 'topic': topic});
+    //     Response response = await Network().post(url, body: body, auth: NetworkAuth.App, headers: { Network.RokwireAppId: Config().appId });
+    //     if ((response != null) && (response.statusCode == 200)) {
+    //       Log.d("FCM: Succesfully subscribed for $topic topic");
+    //       Storage().addFirebaseSubscriptionTopic(topic);
+    //       return true;
+    //     } else {
+    //       Log.e("FCM: Error occured on subscribing for $topic topic");
+    //     }
+    //   }
+    // } catch (e) {
+    //   Log.e(e.toString());
+    // }
     return false;
   }
 
   Future<bool> unsubscribeFromTopic(String topic) async {
-    if (topic == null) {
-      return false;
-    }
-
-    if (_token == null) {
-      Log.e("FCM: Unable to unsubscribe to $topic topic (missing token)");
-      return false;
-    }
-
-    try {
-      if (Config().sportsServiceUrl != null) {
-        String url =  "${Config().sportsServiceUrl}/api/unsubscribe";
-        String body = json.encode({'token': _token, 'topic': topic});
-        Response response = await Network().post(url, body: body, auth: NetworkAuth.App, headers: { Network.RokwireAppId: Config().appId });
-        if ((response != null) && (response.statusCode == 200)) {
-          Log.d("FCM: Succesfully unsubscribed from $topic topic");
-          Storage().removeFirebaseSubscriptionTopic(topic);
-          return true;
-        } else {
-          Log.e("FCM: Error occured on unsubscribe from $topic topic");
-        }
-      }
-    } catch (e) {
-      Log.e(e.toString());
-    }
+    // if (topic == null) {
+    //   return false;
+    // }
+    //
+    // if (_token == null) {
+    //   Log.e("FCM: Unable to unsubscribe to $topic topic (missing token)");
+    //   return false;
+    // }
+    //
+    // try {
+    //   if (Config().sportsServiceUrl != null) {
+    //     String url =  "${Config().sportsServiceUrl}/api/unsubscribe";
+    //     String body = json.encode({'token': _token, 'topic': topic});
+    //     Response response = await Network().post(url, body: body, auth: NetworkAuth.App, headers: { Network.RokwireAppId: Config().appId });
+    //     if ((response != null) && (response.statusCode == 200)) {
+    //       Log.d("FCM: Succesfully unsubscribed from $topic topic");
+    //       Storage().removeFirebaseSubscriptionTopic(topic);
+    //       return true;
+    //     } else {
+    //       Log.e("FCM: Error occured on unsubscribe from $topic topic");
+    //     }
+    //   }
+    // } catch (e) {
+    //   Log.e(e.toString());
+    // }
     return false;
   }
 
   Future<bool> send({String topic, dynamic message}) async {
-    try {
-      if (Config().sportsServiceUrl != null) {
-        String url = "${Config().sportsServiceUrl}/api/message";
-        String body = json.encode({'topic': topic, 'message': message});
-        final response = await Network().post(url, timeout: 10, body: body, auth: NetworkAuth.App, headers: {
-          "Accept": "application/json",
-          "content-type": "application/json",
-          Network.RokwireAppId : Config().appId
-        });
-        if ((response != null) && (response.statusCode == 200)) {
-          return true;
-        }
-      }
-    } catch (e) {
-      Log.e(e.toString());
-    }
+    // try {
+    //   if (Config().sportsServiceUrl != null) {
+    //     String url = "${Config().sportsServiceUrl}/api/message";
+    //     String body = json.encode({'topic': topic, 'message': message});
+    //     final response = await Network().post(url, timeout: 10, body: body, auth: NetworkAuth.App, headers: {
+    //       "Accept": "application/json",
+    //       "content-type": "application/json",
+    //       Network.RokwireAppId : Config().appId
+    //     });
+    //     if ((response != null) && (response.statusCode == 200)) {
+    //       return true;
+    //     }
+    //   }
+    // } catch (e) {
+    //   Log.e(e.toString());
+    // }
     return false;
   }
 

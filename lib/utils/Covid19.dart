@@ -2,7 +2,8 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:firebase_ml_vision/firebase_ml_vision.dart';
+//TBD: DD - web
+// import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:flutter/material.dart';
 import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/Gallery.dart';
@@ -62,29 +63,30 @@ class Covid19Utils {
     PickedFile imageFile = await ImagePicker().getImage(source: ImageSource.gallery);
     if (imageFile != null) {
       try {
-        final FirebaseVisionImage visionImage = FirebaseVisionImage.fromFile(File(imageFile.path));
-        final BarcodeDetector barcodeDetector = FirebaseVision.instance.barcodeDetector(BarcodeDetectorOptions(barcodeFormats: BarcodeFormat.qrCode));
-        final List<Barcode> barcodes = await barcodeDetector.detectInImage(visionImage);
-        if ((barcodes != null) && (0 < barcodes.length)) {
-          Barcode resultBarcode, anyBarcode;
-          for (Barcode barcode in barcodes) {
-            if (barcode.format.value == BarcodeFormat.qrCode.value) {
-              if (barcode.valueType == BarcodeValueType.text) {
-                resultBarcode = barcode;
-                break;
-              }
-              else if (anyBarcode == null) {
-                anyBarcode = barcode;
-              }
-            }
-          }
-          if (resultBarcode == null) {
-            resultBarcode = anyBarcode;
-          }
-          if (resultBarcode != null) {
-            qrCodeString = resultBarcode.rawValue;
-          }
-        }
+        //TBD: DD - web
+        // final FirebaseVisionImage visionImage = FirebaseVisionImage.fromFile(File(imageFile.path));
+        // final BarcodeDetector barcodeDetector = FirebaseVision.instance.barcodeDetector(BarcodeDetectorOptions(barcodeFormats: BarcodeFormat.qrCode));
+        // final List<Barcode> barcodes = await barcodeDetector.detectInImage(visionImage);
+        // if ((barcodes != null) && (0 < barcodes.length)) {
+        //   Barcode resultBarcode, anyBarcode;
+        //   for (Barcode barcode in barcodes) {
+        //     if (barcode.format.value == BarcodeFormat.qrCode.value) {
+        //       if (barcode.valueType == BarcodeValueType.text) {
+        //         resultBarcode = barcode;
+        //         break;
+        //       }
+        //       else if (anyBarcode == null) {
+        //         anyBarcode = barcode;
+        //       }
+        //     }
+        //   }
+        //   if (resultBarcode == null) {
+        //     resultBarcode = anyBarcode;
+        //   }
+        //   if (resultBarcode != null) {
+        //     qrCodeString = resultBarcode.rawValue;
+        //   }
+        // }
       }
       catch(e) {
         print(e?.toString());

@@ -19,6 +19,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:path/path.dart' as Path;
 import 'package:flutter/cupertino.dart';
@@ -31,6 +32,7 @@ import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/Network.dart';
+import 'package:universal_html/html.dart' as html;
 
 class AppBytes{
   static Uint8List decodeBase64Bytes(String base64String){
@@ -175,6 +177,27 @@ class AppUrl {
 
   static bool launchInternal(String url) {
     return AppUrl.isWebScheme(url) && !(Platform.isAndroid && AppUrl.isPdf(url));
+  }
+}
+
+//TBD: DD - web
+class AppWeb {
+  static String host() {
+    if (kIsWeb) {
+      //TBD: DD - web tmp until deployed
+      return 'https://api-dev.rokwire.illinois.edu';
+      // return html.window.location.origin;
+    } else {
+      return null;
+    }
+  }
+
+  static String appHost() {
+    if (kIsWeb) {
+      return host() + '/safer';
+    } else {
+      return null;
+    }
   }
 }
 

@@ -16,6 +16,7 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart' as Http;
@@ -157,6 +158,10 @@ class FlexUI with Service implements NotificationsListener {
   // Flex UI
 
   Future<File> _getCacheFile() async {
+    //TBD: DD - web
+    if (kIsWeb) {
+      return null;
+    }
     Directory appDocDir = await getApplicationDocumentsDirectory();
     String cacheFilePath = join(appDocDir.path, _flexUIName);
     return File(cacheFilePath);
@@ -293,6 +298,10 @@ class FlexUI with Service implements NotificationsListener {
   // Local Build
 
   static Future<Map<String, dynamic>> _localBuild() async {
+    //TBD: DD - web
+    if (kIsWeb) {
+      return null;
+    }
     String flexUIString = await rootBundle.loadString('assets/$_flexUIName');
     Map<String, dynamic> flexUI = AppJson.decodeMap(flexUIString);
     Map<String, dynamic> contents = flexUI['content'];

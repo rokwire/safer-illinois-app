@@ -15,6 +15,7 @@
  */
 
 
+import 'package:flutter/foundation.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/Assets.dart';
@@ -76,7 +77,8 @@ class Services {
     return _instance;
   }
 
-  List<Service> _services = [
+  //TBD: DD - web
+  List<Service> _allServices = [
     // Add highest priority services at top
     FirebaseService(),
     FirebaseCrashlytics(),
@@ -110,7 +112,10 @@ class Services {
     // ...
   ];
 
+  List<Service> _services;
+
   void create() {
+    _init();
     _sort();
     for (Service service in _services) {
       service.createService();
@@ -138,6 +143,26 @@ class Services {
   Future<void> clear() async {
     for (Service service in _services) {
       await service.clearService();
+    }
+  }
+
+  //TBD: DD - web
+  void _init() {
+    _services = List();
+    for (Service service in _allServices) {
+      // Do not include these services in web app
+      if (((service is LocationServices) ||
+              (service is BluetoothServices) ||
+              (service is NativeCommunicator) ||
+              (service is LocalNotifications) ||
+              (service is DeepLink) ||
+              (service is FirebaseMessaging) ||
+              (service is Exposure)) &&
+          kIsWeb) {
+        continue;
+      } else {
+        _services.add(service);
+      }
     }
   }
 

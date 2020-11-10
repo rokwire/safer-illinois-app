@@ -17,6 +17,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Config.dart';
@@ -25,6 +26,7 @@ import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/Service.dart';
 import 'package:illinois/utils/Utils.dart';
 
+//TBD: DD - web
 class NativeCommunicator with Service {
   
   static const String notifyMapSelectExplore  = "edu.illinois.rokwire.nativecommunicator.map.explore.select";
@@ -43,7 +45,9 @@ class NativeCommunicator with Service {
   }
 
   NativeCommunicator._internal() {
-    _platformChannel.setMethodCallHandler(_handleMethodCall);
+    if (!kIsWeb) {
+      _platformChannel.setMethodCallHandler(_handleMethodCall);
+    }
   }
 
   // Initialization
@@ -63,6 +67,9 @@ class NativeCommunicator with Service {
   }
 
   Future<void> _nativeInit() async {
+    if (kIsWeb) {
+      return;
+    }
     try {
       await _platformChannel.invokeMethod('init', { "keys": Config().secretKeys });
     } on PlatformException catch (e) {
@@ -71,6 +78,9 @@ class NativeCommunicator with Service {
   }
 
   Future<void> launchExploreMapDirections({dynamic target}) async {
+    if (kIsWeb) {
+      return;
+    }
     dynamic jsonData;
     try {
       if (target != null) {
@@ -94,6 +104,9 @@ class NativeCommunicator with Service {
   }
 
   Future<void> launchMapDirections({dynamic jsonData}) async {
+    if (kIsWeb) {
+      return;
+    }
     try {
       String lastPageName = Analytics().currentPageName;
       Map<String, dynamic> lastPageAttributes = Analytics().currentPageAttributes;
@@ -112,6 +125,9 @@ class NativeCommunicator with Service {
   }
 
   Future<void> launchMap({dynamic target, dynamic markers}) async {
+    if (kIsWeb) {
+      return;
+    }
     try {
       String lastPageName = Analytics().currentPageName;
       Map<String, dynamic> lastPageAttributes = Analytics().currentPageAttributes;
@@ -131,7 +147,10 @@ class NativeCommunicator with Service {
     }
   }
 
-  Future<void>launchNotification({String title, String subtitle, String body, bool sound = true}) async {
+  Future<void> launchNotification({String title, String subtitle, String body, bool sound = true}) async {
+    if (kIsWeb) {
+      return;
+    }
     await _platformChannel.invokeMethod('showNotification', {
       'title': title,
       'subtitle': subtitle,
@@ -141,6 +160,9 @@ class NativeCommunicator with Service {
   }
 
   Future<void> dismissSafariVC() async {
+    if (kIsWeb) {
+      return;
+    }
     try {
       await _platformChannel.invokeMethod('dismissSafariVC');
     } on PlatformException catch (e) {
@@ -149,6 +171,9 @@ class NativeCommunicator with Service {
   }
 
   Future<void> dismissLaunchScreen() async {
+    if (kIsWeb) {
+      return;
+    }
     try {
       await _platformChannel.invokeMethod('dismissLaunchScreen');
     } on PlatformException catch (e) {
@@ -157,6 +182,9 @@ class NativeCommunicator with Service {
   }
 
   Future<void> addCardToWallet(List<int> cardData) async {
+    if (kIsWeb) {
+      return;
+    }
     try {
       String cardBase64Data = base64Encode(cardData);
       await _platformChannel.invokeMethod('addToWallet', { "cardBase64Data" : cardBase64Data });
@@ -166,6 +194,9 @@ class NativeCommunicator with Service {
   }
 
   Future<dynamic> microBlinkScan({List<String> recognizers}) async {
+    if (kIsWeb) {
+      return null;
+    }
     try {
       return await _platformChannel.invokeMethod('microBlinkScan', { 'recognizers' : recognizers });
     } on PlatformException catch (e) {
@@ -175,6 +206,9 @@ class NativeCommunicator with Service {
   }
 
   Future<List<DeviceOrientation>> enabledOrientations(List<DeviceOrientation> orientationsList) async {
+    if (kIsWeb) {
+      return null;
+    }
     List<DeviceOrientation> result;
     try {
       dynamic inputStringsList = AppDeviceOrientation.toStrList(orientationsList);
@@ -187,6 +221,9 @@ class NativeCommunicator with Service {
   }
 
   Future<String> queryFirebaseInfo() async {
+    if (kIsWeb) {
+      return null;
+    }
     String result;
     try {
       result = await _platformChannel.invokeMethod('firebaseInfo');
@@ -197,6 +234,9 @@ class NativeCommunicator with Service {
   }
 
   Future<bool> queryNotificationsAuthorization(String method) async {
+    if (kIsWeb) {
+      return null;
+    }
     bool result = false;
     try {
       result = await _platformChannel.invokeMethod('notifications_authorization', {"method": method });
@@ -207,6 +247,9 @@ class NativeCommunicator with Service {
   }
 
   Future<String> queryLocationServicesPermission(String method) async {
+    if (kIsWeb) {
+      return null;
+    }
     String result;
     try {
       result = await _platformChannel.invokeMethod('location_services_permission', {"method": method });
@@ -217,6 +260,9 @@ class NativeCommunicator with Service {
   }
 
   Future<String> queryBluetoothAuthorization(String method) async {
+    if (kIsWeb) {
+      return null;
+    }
     String result;
     try {
       result = await _platformChannel.invokeMethod('bluetooth_authorization', {"method": method });
@@ -227,6 +273,9 @@ class NativeCommunicator with Service {
   }
 
   Future<String> getDeviceId() async {
+    if (kIsWeb) {
+      return null;
+    }
     String result;
     try {
       result = await _platformChannel.invokeMethod('deviceId');
@@ -237,6 +286,9 @@ class NativeCommunicator with Service {
   }
 
   Future<String> getHealthRSAPrivateKey({String userId}) async {
+    if (kIsWeb) {
+      return null;
+    }
     String result;
     try {
       result = await _platformChannel.invokeMethod('healthRSAPrivateKey', {
@@ -251,6 +303,9 @@ class NativeCommunicator with Service {
   }
 
   Future<bool> setHealthRSAPrivateKey({String userId, String value}) async {
+    if (kIsWeb) {
+      return false;
+    }
     bool result;
     try {
       result = await _platformChannel.invokeMethod('healthRSAPrivateKey', {
@@ -266,6 +321,9 @@ class NativeCommunicator with Service {
   }
 
   Future<bool> removeHealthRSAPrivateKey({String userId}) async {
+    if (kIsWeb) {
+      return false;
+    }
     bool result;
     try {
       result = await _platformChannel.invokeMethod('healthRSAPrivateKey', {
@@ -281,6 +339,9 @@ class NativeCommunicator with Service {
   }
 
   Future<Uint8List> encryptionKey({String name, int size}) async {
+    if (kIsWeb) {
+      return null;
+    }
     try {
       String base64String = await _platformChannel.invokeMethod('encryptionKey', {
         'name': name,
@@ -294,6 +355,9 @@ class NativeCommunicator with Service {
   }
 
   Future<Uint8List> getBarcodeImageData(Map<String, dynamic> params) async {
+    if (kIsWeb) {
+      return null;
+    }
     try {
       String base64String = await _platformChannel.invokeMethod('barcode', params);
       return (base64String != null) ? base64Decode(base64String) : null;
@@ -305,6 +369,9 @@ class NativeCommunicator with Service {
   }
 
   Future<void> launchTest() async {
+    if (kIsWeb) {
+      return;
+    }
     try {
       await _platformChannel.invokeMethod('test');
     } on PlatformException catch (e) {

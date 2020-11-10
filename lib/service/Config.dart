@@ -44,7 +44,7 @@ class Config with Service implements NotificationsListener {
   static const String notifyConfigChanged       = "edu.illinois.rokwire.config.changed";
 
   Map<String, dynamic> _config;
-  
+
   PackageInfo          _packageInfo;
   Directory            _appDocumentsDir; 
   DateTime             _pausedDateTime;
@@ -80,14 +80,16 @@ class Config with Service implements NotificationsListener {
 
   @override
   Future<void> initService() async {
+    //TBD: DD - web
+    if (!kIsWeb) {
+      if (_packageInfo == null) {
+        _packageInfo = await PackageInfo.fromPlatform();
+      }
 
-    if (_packageInfo == null) {
-      _packageInfo = await PackageInfo.fromPlatform();
-    }
-
-    if (_appDocumentsDir == null) {
-      _appDocumentsDir = await getApplicationDocumentsDirectory();
-      Log.d('Application Documents Directory: ${_appDocumentsDir.path}');
+      if (_appDocumentsDir == null) {
+        _appDocumentsDir = await getApplicationDocumentsDirectory();
+        Log.d('Application Documents Directory: ${_appDocumentsDir.path}');
+      }
     }
 
     _config = await _loadFromFile(_configFile);
@@ -125,8 +127,13 @@ class Config with Service implements NotificationsListener {
   }
 
   File get _configFile {
-    String configFilePath = join(_appDocumentsDir.path, _configFileName);
-    return File(configFilePath);
+    //TBD: DD - web
+    if (kIsWeb) {
+      return null;
+    } else {
+      String configFilePath = join(_appDocumentsDir.path, _configFileName);
+      return File(configFilePath);
+    }
   }
 
   Future<Map<String, dynamic>> _loadFromFile(File configFile) async {
@@ -164,7 +171,7 @@ class Config with Service implements NotificationsListener {
 
       for (int index = jsonList.length - 1; index >= 0; index--) {
         Map<String, dynamic> cfg = jsonList[index];
-        if (AppVersion.compareVersions(cfg['mobileAppVersion'], _packageInfo.version) <= 0) {
+        if (AppVersion.compareVersions(cfg['mobileAppVersion'], _version) <= 0) {
           _decodeSecretKeys(cfg);
           return cfg;
         }
@@ -192,7 +199,9 @@ class Config with Service implements NotificationsListener {
       Map<String, dynamic> config = _configFromJsonString(configString);
       if ((config != null) && (AppVersion.compareVersions(_config['mobileAppVersion'], config['mobileAppVersion']) <= 0) && !DeepCollectionEquality().equals(_config, config))  {
         _config = config;
-        _configFile.writeAsString(configString, flush: true);
+        if (_configFile != null) {
+          _configFile.writeAsString(configString, flush: true);
+        }
         NotificationService().notify(notifyConfigChanged, null);
 
         _checkUpgrade();
@@ -230,16 +239,20 @@ class Config with Service implements NotificationsListener {
   // Upgrade
 
   String get appId {
-    return _packageInfo?.packageName;
+    if (kIsWeb) {
+      return AppWeb.appHost();
+    } else {
+      return _packageInfo?.packageName;
+    }
   }
 
   String get appVersion {
-    return _packageInfo?.version;
+    return _version;
   }
 
   String get upgradeRequiredVersion {
     dynamic requiredVersion = _upgradeStringEntry('required_version');
-    if ((requiredVersion is String) && (AppVersion.compareVersions(_packageInfo.version, requiredVersion) < 0)) {
+    if ((requiredVersion is String) && (AppVersion.compareVersions(_version, requiredVersion) < 0)) {
       return requiredVersion;
     }
     return null;
@@ -248,7 +261,7 @@ class Config with Service implements NotificationsListener {
   String get upgradeAvailableVersion {
     dynamic availableVersion = _upgradeStringEntry('available_version');
     bool upgradeAvailable = (availableVersion is String) &&
-        (AppVersion.compareVersions(_packageInfo.version, availableVersion) < 0) &&
+        (AppVersion.compareVersions(_version, availableVersion) < 0) &&
         !Storage().reportedUpgradeVersions.contains(availableVersion) &&
         !_reportedUpgradeVersions.contains(availableVersion);
     return upgradeAvailable ? availableVersion : null;
@@ -268,6 +281,10 @@ class Config with Service implements NotificationsListener {
   }
 
   void _checkUpgrade() {
+    //TBD: DD - web
+    if (kIsWeb) {
+      return;
+    }
     String value;
     if ((value = this.upgradeRequiredVersion) != null) {
       NotificationService().notify(notifyUpgradeRequired, value);
@@ -288,6 +305,14 @@ class Config with Service implements NotificationsListener {
     }
     else {
       return null;
+    }
+  }
+
+  String get _version {
+    if (kIsWeb) {
+      return '2.8.13';
+    } else {
+      return _packageInfo?.version;
     }
   }
 

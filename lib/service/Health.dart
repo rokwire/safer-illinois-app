@@ -17,6 +17,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 //TMP: import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart';
@@ -237,6 +238,10 @@ class Health with Service implements NotificationsListener {
   // Network API: Covid19History
 
   Future<File> _getHistoryCacheFile() async {
+    //TBD: DD - web
+    if (kIsWeb) {
+      return null;
+    }
     Directory appDocDir = await getApplicationDocumentsDirectory();
     String cacheFilePath = join(appDocDir.path, _historyFileName);
     return File(cacheFilePath);

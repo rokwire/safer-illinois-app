@@ -298,25 +298,27 @@ class Analytics with Service implements NotificationsListener {
     _updateUserRoles();
     _updateSessionUuid();
 
-    PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
-      _packageInfo = packageInfo;
-      _appId = _packageInfo?.packageName;
-      _appVersion = "${_packageInfo?.version}+${_packageInfo?.buildNumber}";
-    });
+    //TBD: DD - web
+    if (!kIsWeb) {
+      PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
+        _packageInfo = packageInfo;
+        _appId = _packageInfo?.packageName;
+        _appVersion = "${_packageInfo?.version}+${_packageInfo?.buildNumber}";
+      });
 
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      DeviceInfoPlugin().androidInfo.then((AndroidDeviceInfo androidDeviceInfo) {
-        _androidDeviceInfo = androidDeviceInfo;
-        _deviceModel = _androidDeviceInfo.model;
-        _osVersion = _androidDeviceInfo.version.release;
-      });
-    }
-    else if (defaultTargetPlatform == TargetPlatform.iOS) {
-      DeviceInfoPlugin().iosInfo.then((IosDeviceInfo iosDeviceInfo) {
-        _iosDeviceInfo = iosDeviceInfo;
-        _deviceModel = _iosDeviceInfo.model;
-        _osVersion = _iosDeviceInfo.systemVersion;
-      });
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        DeviceInfoPlugin().androidInfo.then((AndroidDeviceInfo androidDeviceInfo) {
+          _androidDeviceInfo = androidDeviceInfo;
+          _deviceModel = _androidDeviceInfo.model;
+          _osVersion = _androidDeviceInfo.version.release;
+        });
+      } else if (defaultTargetPlatform == TargetPlatform.iOS) {
+        DeviceInfoPlugin().iosInfo.then((IosDeviceInfo iosDeviceInfo) {
+          _iosDeviceInfo = iosDeviceInfo;
+          _deviceModel = _iosDeviceInfo.model;
+          _osVersion = _iosDeviceInfo.systemVersion;
+        });
+      }
     }
   }
 
@@ -345,25 +347,34 @@ class Analytics with Service implements NotificationsListener {
   // Database
 
   Future<void> _initDatabase() async {
-    if (_database == null) {
-      String databasePath = await getDatabasesPath();
-      String databaseFile = join(databasePath, _databaseName);
-      _database = await openDatabase(databaseFile, version: _databaseVersion, onCreate: (db, version) {
-        return db.execute("CREATE TABLE IF NOT EXISTS $_databaseTable($_databaseColumn TEXT NOT NULL)",);
-      });
+    //TBD: DD - web
+    if (!kIsWeb) {
+      if (_database == null) {
+        String databasePath = await getDatabasesPath();
+        String databaseFile = join(databasePath, _databaseName);
+        _database = await openDatabase(databaseFile, version: _databaseVersion, onCreate: (db, version) {
+          return db.execute("CREATE TABLE IF NOT EXISTS $_databaseTable($_databaseColumn TEXT NOT NULL)",);
+        });
+      }
     }
   }
 
   Future<void> _clearDatabase() async {
-    if (_database != null) {
-      await _database.execute("DELETE FROM $_databaseTable",);
+    //TBD: DD - web
+    if (!kIsWeb) {
+      if (_database != null) {
+        await _database.execute("DELETE FROM $_databaseTable",);
+      }
     }
   }
 
   void _closeDatabase() {
-    if (_database != null) {
-      _database.close();
-      _database = null;
+    //TBD: DD - web
+    if (!kIsWeb) {
+      if (_database != null) {
+        _database.close();
+        _database = null;
+      }
     }
   }
 
@@ -506,9 +517,12 @@ class Analytics with Service implements NotificationsListener {
   // Location Services
 
   void _updateLocationServices() {
-    LocationServices.instance.status.then((LocationServicesStatus locationServicesStatus) {
-      _applyLocationServicesStatus(locationServicesStatus);
-    });
+    //TBD: DD - web
+    if (!kIsWeb) {
+      LocationServices.instance.status.then((LocationServicesStatus locationServicesStatus) {
+        _applyLocationServicesStatus(locationServicesStatus);
+      });
+    }
   }
 
   void _applyLocationServicesStatus(LocationServicesStatus locationServicesStatus) {
@@ -527,13 +541,16 @@ class Analytics with Service implements NotificationsListener {
   }
 
   void _updateNotificationServices() {
-    // Android does not need for permission for user notifications
-    if (Platform.isAndroid) {
-      _notificationServices = 'enabled';
-    } else if (Platform.isIOS) {
-      NativeCommunicator().queryNotificationsAuthorization("query").then((bool notificationsAuthorized) {
-        _notificationServices = notificationsAuthorized ? 'enabled' : "not_enabled";
-      });
+    //TBD: DD - web
+    if (!kIsWeb) {
+      // Android does not need for permission for user notifications
+      if (Platform.isAndroid) {
+        _notificationServices = 'enabled';
+      } else if (Platform.isIOS) {
+        NativeCommunicator().queryNotificationsAuthorization("query").then((bool notificationsAuthorized) {
+          _notificationServices = notificationsAuthorized ? 'enabled' : "not_enabled";
+        });
+      }
     }
   }
 
@@ -654,13 +671,19 @@ class Analytics with Service implements NotificationsListener {
           analyticsEvent[LogStdAppVersionName] = _appVersion;
         }
         else if (attributeName == LogStdOSName) {
-          analyticsEvent[LogStdOSName] = Platform.operatingSystem;
+          //TBD: DD - web
+          if (!kIsWeb) {
+            analyticsEvent[LogStdOSName] = Platform.operatingSystem;
+          }
         }
         else if (attributeName == LogStdOSVersionName) {
           analyticsEvent[LogStdOSVersionName] =_osVersion; // Platform.operatingSystemVersion;
         }
         else if (attributeName == LogStdLocaleName) {
-          analyticsEvent[LogStdLocaleName] = Platform.localeName;
+          //TBD: DD - web
+          if (!kIsWeb) {
+            analyticsEvent[LogStdLocaleName] = Platform.localeName;
+          }
         }
         else if (attributeName == LogStdDeviceModelName) {
           analyticsEvent[LogStdDeviceModelName] = _deviceModel;

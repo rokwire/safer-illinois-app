@@ -15,8 +15,9 @@
  */
 
 import 'package:illinois/service/Service.dart';
-import 'package:firebase_core/firebase_core.dart' as GoogleFirebase;
+// import 'package:firebase_core/firebase_core.dart' as GoogleFirebase;
 
+//TBD: DD - web
 class FirebaseService extends Service{
   static final FirebaseService _instance = new FirebaseService._internal();
 
@@ -30,6 +31,6 @@ class FirebaseService extends Service{
   Future<void> initService() async{
     await super.initService();
 
-    await GoogleFirebase.Firebase.initializeApp();
+    // await GoogleFirebase.Firebase.initializeApp();
   }
 }

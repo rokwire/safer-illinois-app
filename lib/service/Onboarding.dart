@@ -89,8 +89,11 @@ class Onboarding extends Service implements NotificationsListener{
     }
   }
 
+  //TBD: DD - web
   void _loadContentCodes(){
-    _contentCodes = FlexUI()['onboarding'];
+    //_contentCodes = FlexUI()['onboarding'];
+    _contentCodes = ["get_started", "organization", "notifications_auth", "location_auth", "bluetooth_auth", "roles", "login_netid", "login_phone", "verify_phone", "confirm_phone",
+      "covid19_intro", "covid19_how_it_works", "covid19_consent", "covid19_qrcode", "covid19_final"];//FlexUI()['onboarding'];
   }
 
   Widget get startPanel {
