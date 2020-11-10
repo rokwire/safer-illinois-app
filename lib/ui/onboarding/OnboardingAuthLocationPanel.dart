@@ -31,9 +31,15 @@ class OnboardingAuthLocationPanel extends StatelessWidget with OnboardingPanel {
   final Map<String, dynamic> onboardingContext;
   OnboardingAuthLocationPanel({this.onboardingContext});
 
+  // TBD: DD - web
+  // Do not show location authorization panel for web. Decide if we want it on a later stage
   Future<bool> get onboardingCanDisplayAsync async {
-    LocationServicesStatus status = await LocationServices.instance.status;
-    return (status != LocationServicesStatus.PermissionAllowed);
+    if (kIsWeb) {
+      return false;
+    } else {
+      LocationServicesStatus status = await LocationServices.instance.status;
+      return (status != LocationServicesStatus.PermissionAllowed);
+    }
   }
 
   @override
