@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added
+- A pull request template. [#324](https://github.com/rokwire/safer-illinois-app/issues/324)
 - Contributor guidelines (CONTRIBUTING.md). [#322](https://github.com/rokwire/safer-illinois-app/issues/322).
 
 ## [2.8.13] - 2020-11-09
