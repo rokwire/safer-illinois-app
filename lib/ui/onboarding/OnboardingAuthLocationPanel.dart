@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:illinois/service/Analytics.dart';
@@ -153,24 +154,26 @@ class OnboardingAuthLocationPanel extends StatelessWidget with OnboardingPanel {
 
   void _requestLocation(BuildContext context) async {
     Analytics.instance.logSelect(target: 'Share My location') ;
-    LocationServices.instance.status.then((LocationServicesStatus status){
-      if (status == LocationServicesStatus.ServiceDisabled) {
-        LocationServices.instance.requestService();
-      }
-      else if (status == LocationServicesStatus.PermissionNotDetermined) {
-        LocationServices.instance.requestPermission().then((LocationServicesStatus status) {
-          _goNext(context);
-        });
-      }
-      else if (status == LocationServicesStatus.PermissionDenied) {
-        String message = Localization().getStringEx('panel.onboarding.location.label.access_denied', 'You have already denied access to this app.');
-        showDialog(context: context, builder: (context) => _buildDialogWidget(context, message:message, pushNext : false ));
-      }
-      else if (status == LocationServicesStatus.PermissionAllowed) {
-        String message = Localization().getStringEx('panel.onboarding.location.label.access_granted', 'You have already granted access to this app.');
-        showDialog(context: context, builder: (context) => _buildDialogWidget(context, message:message, pushNext : true ));
-      }
-    });
+    //TBD: DD - web
+    if (kIsWeb) {
+      _goNext(context);
+    } else {
+      LocationServices.instance.status.then((LocationServicesStatus status) {
+        if (status == LocationServicesStatus.ServiceDisabled) {
+          LocationServices.instance.requestService();
+        } else if (status == LocationServicesStatus.PermissionNotDetermined) {
+          LocationServices.instance.requestPermission().then((LocationServicesStatus status) {
+            _goNext(context);
+          });
+        } else if (status == LocationServicesStatus.PermissionDenied) {
+          String message = Localization().getStringEx('panel.onboarding.location.label.access_denied', 'You have already denied access to this app.');
+          showDialog(context: context, builder: (context) => _buildDialogWidget(context, message: message, pushNext: false));
+        } else if (status == LocationServicesStatus.PermissionAllowed) {
+          String message = Localization().getStringEx('panel.onboarding.location.label.access_granted', 'You have already granted access to this app.');
+          showDialog(context: context, builder: (context) => _buildDialogWidget(context, message: message, pushNext: true));
+        }
+      });
+    }
   }
 
   Widget _buildDialogWidget(BuildContext context, {String message, bool pushNext}) {

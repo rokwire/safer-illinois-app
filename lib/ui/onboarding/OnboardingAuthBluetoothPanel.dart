@@ -16,6 +16,7 @@
 
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:illinois/service/Analytics.dart';
@@ -39,7 +40,11 @@ class OnboardingAuthBluetoothPanel extends StatefulWidget with OnboardingPanel {
 
   @override
   bool get onboardingCanDisplay {
-    return Platform.isIOS && (BluetoothServices().status != BluetoothStatus.PermissionAllowed);
+    if (kIsWeb) {
+      return false;
+    } else {
+      return Platform.isIOS && (BluetoothServices().status != BluetoothStatus.PermissionAllowed);
+    }
   }
 }
 

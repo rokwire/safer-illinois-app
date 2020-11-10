@@ -15,6 +15,7 @@
  */
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Onboarding.dart';
@@ -33,7 +34,12 @@ class OnboardingAuthNotificationsPanel extends StatelessWidget with OnboardingPa
   OnboardingAuthNotificationsPanel({this.onboardingContext});
 
   bool get onboardingCanDisplay {
-    return Platform.isIOS;
+    //TBD: DD - web
+    if (kIsWeb) {
+      return false;
+    } else {
+      return Platform.isIOS;
+    }
   }
 
   Future<bool> get onboardingCanDisplayAsync async {
@@ -161,17 +167,22 @@ class OnboardingAuthNotificationsPanel extends StatelessWidget with OnboardingPa
   }
 
   void _onReceiveNotifications(BuildContext context) {
-    Analytics.instance.logSelect(target: 'Enable Notifications') ;
+    Analytics.instance.logSelect(target: 'Enable Notifications');
 
-    //Android does not need for permission for user notifications
-    if (Platform.isAndroid) {
+    //TBD: DD - web
+    if (kIsWeb) {
       _goNext(context);
-    } else if (Platform.isIOS) {
-      _requestAuthorization(context);
+    } else {
+      //Android does not need for permission for user notifications
+      if (Platform.isAndroid) {
+        _goNext(context);
+      } else if (Platform.isIOS) {
+        _requestAuthorization(context);
+      }
     }
   }
 
-void _requestAuthorization(BuildContext context) async {
+  void _requestAuthorization(BuildContext context) async {
     bool notificationsAuthorized = await NativeCommunicator().queryNotificationsAuthorization("query");
     if (notificationsAuthorized) {
       showDialog(context: context, builder: (context) => _buildDialogWidget(context));
@@ -186,7 +197,7 @@ void _requestAuthorization(BuildContext context) async {
     }
   }
 
-Widget _buildDialogWidget(BuildContext context) {
+  Widget _buildDialogWidget(BuildContext context) {
     return Dialog(
       child: Padding(
         padding: EdgeInsets.all(18),
