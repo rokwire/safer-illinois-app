@@ -56,14 +56,16 @@
 				"fail": {
 					"health_status": "red",
 					"priority": 11,
-					"next_step": "test.now.step"
+					"next_step": "test.now.step",
+					"fcm_topic": "PCR.positive-IP"
 				}
 			},
 			"fail": {
 				"health_status": "red",
 				"priority": 11,
 				"next_step_html": "positive-ip.step.html",
-				"event_explanation": "positive-ip.explanation"
+				"event_explanation": "positive-ip.explanation",
+				"fcm_topic": "PCR.positive-IP"
 			}
 		},
 
@@ -137,8 +139,8 @@
 			"fail": {
 				"condition": "test-user",
 				"params": {
-					"role": "Undergraduate",
-					"student_level": "1U"
+					"card.role": "Undergraduate",
+					"card.student_level": "1U"
 				},
 				"success": {
 					"condition": "require-test",
@@ -258,7 +260,8 @@
 			"health_status": "orange",
 			"priority": 10,
 			"next_step": "quarantine-on.step",
-			"reason": "Your status changed to Orange because the Public Health department placed you in Quarantine."
+			"reason": "Your status changed to Orange because the Public Health department placed you in Quarantine.",
+			"fcm_topic": "quarantine-on"
 		},
 
 		"quarantine-off": {
@@ -288,8 +291,8 @@
 			"fail": {
 				"condition": "test-user",
 				"params": {
-					"role": "Undergraduate",
-					"student_level": "1U"
+					"card.role": "Undergraduate",
+					"card.student_level": "1U"
 				},
 				"success": {
 					"condition": "require-test",
@@ -587,7 +590,7 @@
 				"symptoms": [
 					{
 						"id": "b669503f-938b-11ea-8f2a-0a58a9feac2a",
-						"name": "No symptoms"
+						"name": "symptoms.no-symptoms"
 					}
 				]
 			},
@@ -598,31 +601,31 @@
 				"symptoms": [
 					{
 						"id": "b41b12cc-93be-11ea-ae23-0a58a9feac2a",
-						"name": "Fever"
+						"name": "symptoms.fever"
 					},
 					{
 						"id": "8f83787b-93c9-11ea-ae23-0a58a9feac2a",
-						"name": "Chills"
+						"name": "symptoms.chills"
 					},
 					{
 						"id": "191df3ae-93ca-11ea-ae23-0a58a9feac2a",
-						"name": "Shaking or Shivering"
+						"name": "symptoms.shaking-or-shivering"
 					},
 					{
 						"id": "f3b23b65-93ca-11ea-ae23-0a58a9feac2a",
-						"name": "Shortness of breath"
+						"name": "symptoms.shortness-of-breath"
 					},
 					{
 						"id": "05239c9e-93cb-11ea-ae23-0a58a9feac2a",
-						"name": "Difficulty breathing"
+						"name": "symptoms.difficulty-breathing"
 					},
 					{
 						"id": "9ee1831e-93ca-11ea-ae23-0a58a9feac2a",
-						"name": "Muscle or joint pain"
+						"name": "symptoms.muscle-or-joint-pain"
 					},
 					{
 						"id": "d5afe77f-93ca-11ea-ae23-0a58a9feac2a",
-						"name": "Loss of taste and/or smell"
+						"name": "symptoms.loss-of-taste-and-or-smell"
 					}
 				]
 			},
@@ -634,47 +637,47 @@
 				"symptoms": [
 					{
 						"id": "7c76102e-7c99-4743-80a6-5f09503fe92a",
-						"name": "Fever or chills"
+						"name": "symptoms.fever-or-chills"
 					},
 					{
 						"id": "e35c8441-93ca-11ea-ae23-0a58a9feac2a",
-						"name": "Cough"
+						"name": "symptoms.cough"
 					},
 					{
 						"id": "ef5ebc2f-7f0c-4373-9ae0-9d2095dd2e62",
-						"name": "Shortness of breath or difficulty breathing"
+						"name": "symptoms.shortness-of-breath-or-difficulty-breathing"
 					},
 					{
 						"id": "d3859c19-fdf4-408c-8da5-7b882baa845d",
-						"name": "Fatigue"
+						"name": "symptoms.fatigue"
 					},
 					{
 						"id": "7b3b3997-de7c-4a7d-8106-51aa1fbcbf5b",
-						"name": "Muscle or body aches"
+						"name": "symptoms.muscle-or-body-aches"
 					},
 					{
 						"id": "acda4f1e-93ca-11ea-ae23-0a58a9feac2a",
-						"name": "Headache"
+						"name": "symptoms.headache"
 					},
 					{
 						"id": "0f8a0f45-4207-4823-8482-50ec141d1ddf",
-						"name": "New loss of taste or smell"
+						"name": "symptoms.new-loss-of-taste-or-smell"
 					},
 					{
 						"id": "bad0cc3c-93ca-11ea-ae23-0a58a9feac2a",
-						"name": "Sore Throat"
+						"name": "symptoms.sore-throat"
 					},
 					{
 						"id": "09e1e994-387c-437b-aeca-5534b7f52ffa",
-						"name": "Congestion or runny nose"
+						"name": "symptoms.congestion-or-runny-nose"
 					},
 					{
 						"id": "64f38a81-0591-4fd1-bb00-5395b8c0d97d",
-						"name": "Nausea or vomiting"
+						"name": "symptoms.nausea-or-vomiting"
 					},
 					{
 						"id": "c7aa955f-02b5-46a5-ab47-d51850de2b3c",
-						"name": "Diarrhea"
+						"name": "symptoms.diarrhea"
 					}
 				]
 			}
@@ -740,7 +743,26 @@
 			"exposure.step.html": "<h3>You have likely been exposed to a person who is infected with COVID-19.</h3><ul><h6><li>You must quarantine yourself immediately.</li></h6><h6><li>Stay home. Do not go to work, school, or public areas.</li></h6><h6><li>Separate yourself from others in your home.</li></h6><h6><li>Contact <a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a> for guidance.</li></h6><h6><li>Get tested after {next_step_date} to see if you have developed the disease.</li></h6><h6><li>More Info: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Quarantine and Isolation</a></li></h6></ul>",
 			"exposure.reason": "Your status changed to Orange because you received an exposure notification.",
 			"quarantine-on.step": "Stay at home and avoid contacts",
-			"quarantine-on.reason": "Your status changed to Orange because the Public Health department placed you in Quarantine."
+			"quarantine-on.reason": "Your status changed to Orange because the Public Health department placed you in Quarantine.",
+			"symptoms.no-symptoms": "No symptoms",
+			"symptoms.fever": "Fever",
+			"symptoms.chills": "Chills",
+			"symptoms.shaking-or-shivering": "Shaking or Shivering",
+			"symptoms.shortness-of-breath": "Shortness of breath",
+			"symptoms.difficulty-breathing": "Difficulty breathing",
+			"symptoms.muscle-or-joint-pain": "Muscle or joint pain",
+			"symptoms.loss-of-taste-and-or-smell": "Loss of taste and/or smell",
+			"symptoms.fever-or-chills": "Fever or chills",
+			"symptoms.cough": "Cough",
+			"symptoms.shortness-of-breath-or-difficulty-breathing": "Shortness of breath or difficulty breathing",
+			"symptoms.fatigue": "Fatigue",
+			"symptoms.muscle-or-body-aches": "Muscle or body aches",
+			"symptoms.headache": "Headache",
+			"symptoms.new-loss-of-taste-or-smell": "New loss of taste or smell",
+			"symptoms.sore-throat": "Sore Throat",
+			"symptoms.congestion-or-runny-nose": "Congestion or runny nose",
+			"symptoms.nausea-or-vomiting": "Nausea or vomiting",
+			"symptoms.diarrhea":"Diarrhea"
 		},
 		"es": {
 			"default.step": "Realice una prueba de saliva SHIELD cuando regrese al campus.",
@@ -766,7 +788,26 @@
 			"exposure.step.html": "<h3>Es probable que haya estado expuesto a una persona infectada con COVID-19.</h3><ul><h6><li>Debe ponerse en cuarentena inmediatamente.</li></h6><h6><li>Quedarse en casa. No vaya al trabajo, la escuela o áreas públicas.</li></h6><h6><li>Sepárate de las demás en tu casa.</li></h6><h6><li>Póngase en contacto con <a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a> para obtener orientación.</li></h6><h6><li>Hágase la prueba después del {next_step_date} para ver si ha desarrollado la enfermedad.</li></h6><h6><li>Más información: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Cuarentena y aislamiento</a></li></h6></ul>",
 			"exposure.reason": "Su estado cambió a Naranja porque recibió una notificación de exposición.",
 			"quarantine-on.step": "Quédese en casa y evite los contactos",
-			"quarantine-on.reason": "Su estado cambió a Orange porque el departamento de Salud Pública lo puso en cuarentena.."
+			"quarantine-on.reason": "Su estado cambió a Orange porque el departamento de Salud Pública lo puso en cuarentena.",
+			"symptoms.no-symptoms": "Sin síntomas",
+			"symptoms.fever": "Fiebre",
+			"symptoms.chills": "Resfriado",
+			"symptoms.shaking-or-shivering": "Temblando o temblando",
+			"symptoms.shortness-of-breath": "Dificultad para respirar",
+			"symptoms.difficulty-breathing": "Respiración dificultosa",
+			"symptoms.muscle-or-joint-pain": "Dolor muscular o articular",
+			"symptoms.loss-of-taste-and-or-smell": "Pérdida del gusto y / o del olfato",
+			"symptoms.fever-or-chills": "Fiebre o escalofríos",
+			"symptoms.cough": "Tos",
+			"symptoms.shortness-of-breath-or-difficulty-breathing": "Falta de aire o dificultad para respirar.",
+			"symptoms.fatigue": "Fatiga",
+			"symptoms.muscle-or-body-aches": "Dolores musculares o corporales",
+			"symptoms.headache": "Dolor de cabeza",
+			"symptoms.new-loss-of-taste-or-smell": "Nueva pérdida del gusto u olfato",
+			"symptoms.sore-throat": "Dolor de garganta",
+			"symptoms.congestion-or-runny-nose": "Congestión o secreción nasal",
+			"symptoms.nausea-or-vomiting": "Náuseas o vómitos",
+			"symptoms.diarrhea": "Diarrea"
 		},
 		"zh": {
 			"default.step": "返回校園後，請參加SHIELD唾液測試。",
@@ -792,7 +833,26 @@
 			"exposure.step.html": "<h3>您可能已經接觸了感染了COVID-19的人。</h3><ul><h6><li>您必須立即隔離自己。</li></h6><h6><li>您已被強制隔離。</li></h6><h6><li>與家中的其他人分開。</li></h6><h6><li>請與<a href='mailto:covidwellness@illinois.edu'> covidwellness@illinois.edu </a>聯繫以獲取指導。</li></h6><h6><li>在{next_step_date}之後進行測試，看看您是否已患上這種疾病。</li></h6><h6><li>更多信息: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>隔離與隔離</a></li></h6></ul>",
 			"exposure.reason": "您的狀態更改為橙色，因為您收到了曝光通知。",
 			"quarantine-on.step": "呆在家裡，避免接觸",
-			"quarantine-on.reason": "您的狀態更改為“橙色”，因為公共衛生部門已將您隔離。"
+			"quarantine-on.reason": "您的狀態更改為“橙色”，因為公共衛生部門已將您隔離。",
+			"symptoms.no-symptoms": "無症狀",
+			"symptoms.fever": "發熱",
+			"symptoms.chills": "寒意",
+			"symptoms.shaking-or-shivering": "顫抖或顫抖",
+			"symptoms.shortness-of-breath": "氣促",
+			"symptoms.difficulty-breathing": "呼吸困難",
+			"symptoms.muscle-or-joint-pain": "肌肉或關節痛",
+			"symptoms.loss-of-taste-and-or-smell": "失去味覺和/或氣味",
+			"symptoms.fever-or-chills": "發燒或發冷",
+			"symptoms.cough": "咳嗽",
+			"symptoms.shortness-of-breath-or-difficulty-breathing": "呼吸急促或呼吸困難",
+			"symptoms.fatigue": "疲勞",
+			"symptoms.muscle-or-body-aches": "肌肉或身體酸痛",
+			"symptoms.headache": "頭痛",
+			"symptoms.new-loss-of-taste-or-smell": "新的味道或氣味損失",
+			"symptoms.sore-throat": "咽喉痛",
+			"symptoms.congestion-or-runny-nose": "充血或流鼻涕",
+			"symptoms.nausea-or-vomiting": "噁心或嘔吐",
+			"symptoms.diarrhea":"腹瀉"
 		}
 	}
 }

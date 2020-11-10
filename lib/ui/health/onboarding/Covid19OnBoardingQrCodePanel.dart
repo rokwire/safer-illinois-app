@@ -365,7 +365,7 @@ class _Covid19OnBoardingQrCodePanelState extends State<Covid19OnBoardingQrCodePa
 
   Widget _buildRefreshQrCodeDialog(BuildContext context) {
     return StatefulBuilder(
-      builder: (context, setState){
+      builder: (context, setStateEx){
         return ClipRRect(
           borderRadius: BorderRadius.all(Radius.circular(8)),
           child: Dialog(
@@ -456,7 +456,7 @@ class _Covid19OnBoardingQrCodePanelState extends State<Covid19OnBoardingQrCodePa
                             alignment: Alignment.center,
                             children: <Widget>[
                               ScalableRoundedButton(
-                                  onTap: () => _onConfirmRefreshQrCode(context, setState),
+                                  onTap: () => _onConfirmRefreshQrCode(context, setStateEx),
                                   backgroundColor: Colors.transparent,
                                   borderColor: Styles().colors.fillColorSecondary,
                                   textColor: Styles().colors.fillColorPrimary,

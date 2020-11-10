@@ -22,7 +22,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:illinois/model/Health.dart';
-import 'package:illinois/model/UserData.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
@@ -62,7 +61,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
   void initState() {
     super.initState();
     NotificationService().subscribe(this, [
-      Health.notifyStatusChanged,
+      Health.notifyStatusAvailable,
       Health.notifyProcessingFinished,
     ]);
     _loadCounties();
@@ -79,7 +78,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
 
   @override
   void onNotification(String name, param) {
-    if (name == Health.notifyStatusChanged) {
+    if (name == Health.notifyStatusAvailable) {
       _updateCovidStatus(param);
     }
     else if (name == Health.notifyProcessingFinished) {
@@ -383,7 +382,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
     String healthStatus = _covid19Status?.blob?.healthStatus;
     String statusName = _covid19Status?.blob?.localizedHealthStatus ?? '';
     bool userHasHealthStatus = (healthStatus != null);
-    Color statusColor = (userHasHealthStatus ? (covid19HealthStatusColor(healthStatus) ?? _backgroundColor) : _backgroundColor);
+    Color statusColor = (userHasHealthStatus ? (Styles().colors.getHealthStatusColor(healthStatus) ?? _backgroundColor) : _backgroundColor);
     String authCardOrPhone = Auth().isShibbolethLoggedIn
         ? Auth().authCard?.magTrack2 ?? ""
         : (Auth().isPhoneLoggedIn ? Auth().userPiiData?.phone : "");
@@ -502,7 +501,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
     if(Auth().isShibbolethLoggedIn && AppString.isStringNotEmpty(roleDisplayString)){
       return roleDisplayString;
     }
-    return UserRole.resident.toDisplayString();
+    return Localization().getStringEx('panel.covid19_passport.label.resident', 'Resident');
   }
 
   Widget _userAvatar() {

@@ -932,17 +932,19 @@ class Exposure with Service implements NotificationsListener {
       Log.d('Processing ${reportedTEKs.length} TEKs newer than $thresholdTimestamp reported.');
     }
 
+    Analytics().logHealth(action: Analytics.LogHealthCheckExposuresAction);
+
     List<Covid19History> histories = await Health().loadCovid19History();
+    Covid19History lastTest = Covid19History.mostRecentTest(histories);
+    DateTime lastTestDateUtc = lastTest?.dateUtc;
+    int scoringDayThreshold = _evalScoringDayThreshold(lastTestDateUtc: lastTestDateUtc);
 
     int detected = 0;
-    bool isContactWithPositive = false;
-    bool hasPassedExposureScoring = false;
     List<Covid19History> results;
     
     // Map<int, int> scoringExposures = new Map<int, int>;
     // key = time interval, value = number of rpis in that time interval
     Map<int, Set<String>> scoringExposures = new Map<int, Set<String>>(); 
-    int scoringDayThreshold = _evalScoringDayThreshold(histories: histories);
 
     for (ExposureTEK tek in reportedTEKs) {
       Map<String, int> rpisMap = await _loadTekRPIs(tek);
@@ -979,9 +981,6 @@ class Exposure with Service implements NotificationsListener {
                 }
                 durationRPISet.add(exposure.rpi);
             }
-
-            // found rpi match, has contact with positve case
-            isContactWithPositive = true;
           }
         }
 
@@ -1023,26 +1022,9 @@ class Exposure with Service implements NotificationsListener {
             }
             results.add(result);
           }
-
-          hasPassedExposureScoring = true;
         }
       }
     }
-
-    // converting flags --> int to upload
-    // bit 0 --> is contact with positive
-    // bit 1 --> has passed exposure scoring
-    int score = 0;
-    if (isContactWithPositive) {
-      score += 1;
-    }
-    if (hasPassedExposureScoring) {
-      score += 2;
-    }
-
-    Analytics().logHealth(action: Analytics.LogHealthCheckExposuresAction, attributes: {
-      Analytics.LogHealthExposureScore: score
-    });
 
     if (results != null) {
       NotificationService().notify(Health.notifyHistoryUpdated, null);
@@ -1118,10 +1100,8 @@ class Exposure with Service implements NotificationsListener {
     return detected;
   }
 
-  int _evalScoringDayThreshold({List<Covid19History> histories}) {
+  int _evalScoringDayThreshold({DateTime lastTestDateUtc}) {
     int scoringDateTimestamp;
-    Covid19History lastTest = Covid19History.mostRecentTest(histories);
-    DateTime lastTestDateUtc = lastTest?.dateUtc;
     if (lastTestDateUtc != null) {
       int lastTestTimestamp = lastTestDateUtc.millisecondsSinceEpoch;
       scoringDateTimestamp = lastTestTimestamp - _millisecondsInDay; // a day before last test timestamp
@@ -1132,6 +1112,69 @@ class Exposure with Service implements NotificationsListener {
       scoringDateTimestamp = midnightTimestamp - (5 * _millisecondsInDay); // five days ago midnight timestamp
     }
     return scoringDateTimestamp ~/ _rpiRefreshInterval;
+  }
+
+  Future<int> evalTestResultExposureScoring({DateTime previousTestDateUtc}) async {
+    
+    if (!_serviceEnabled) {
+      return null;
+    }
+
+    int previousTestTimestamp = previousTestDateUtc?.millisecondsSinceEpoch;
+
+    List<Future<dynamic>> futures = <Future>[
+        loadLocalExposures(timestamp: previousTestTimestamp),
+        loadReportedTEKs(timestamp: previousTestTimestamp),
+    ];
+    List<dynamic> results = await Future.wait(futures);
+
+    List<ExposureRecord> exposures = ((results != null) && (0 < results.length)) ? results[0] : null;
+    List<ExposureTEK> reportedTEKs = ((results != null) && (1 < results.length)) ? results[1] : null;
+    if ((exposures == null) || (reportedTEKs == null)) {
+      return null;
+    }
+    else if (exposures.isEmpty || reportedTEKs.isEmpty) {
+      // no ContactWithPositive or PassedExposureScoring
+      return _buildTestResultExposureScoring(hasExposureNotificationsEnabled: Health().userExposureNotification);
+    }
+
+    bool hasContactWithPositive, hasPassedExposureScoring;
+    for (ExposureTEK tek in reportedTEKs) {
+      Map<String, int> rpisMap = await _loadTekRPIs(tek);
+      if (rpisMap != null) {
+        int exposureDuration = 0;
+        Set<String> rpisSet = Set.from(rpisMap.keys);
+        for (ExposureRecord exposure in exposures) {
+          if (rpisSet.contains(exposure.rpi) &&
+              ((exposure.timestamp + _rpiCheckExposureBuffer) >= rpisMap[exposure.rpi]) &&
+              ((exposure.timestamp - _rpiCheckExposureBuffer - _rpiRefreshInterval) < rpisMap[exposure.rpi])
+          ) {
+            exposureDuration += exposure.duration;
+            hasContactWithPositive = true;
+          }
+        }
+        if (_exposureMinDuration <= exposureDuration) {
+          hasPassedExposureScoring = true;
+        }
+      }
+    }
+    
+    return _buildTestResultExposureScoring(
+      hasContactWithPositive: hasContactWithPositive,
+      hasPassedExposureScoring: hasPassedExposureScoring,
+      hasExposureNotificationsEnabled: Health().userExposureNotification);
+  }
+
+  static int _buildTestResultExposureScoring({bool hasContactWithPositive, bool hasPassedExposureScoring, bool hasExposureNotificationsEnabled}) {
+    // converting flags --> int to upload
+    // bit 0 --> has contact with positive
+    // bit 1 --> has passed exposure scoring
+    // bit 2 --> has exposure notifications enabled
+
+    return
+      (((hasContactWithPositive == true) ? 1 : 0) << 0) |
+      (((hasPassedExposureScoring == true) ? 1 : 0) << 1) |
+      (((hasExposureNotificationsEnabled == true) ? 1 : 0) << 2);
   }
 
   // Logging
@@ -1148,30 +1191,33 @@ class Exposure with Service implements NotificationsListener {
   }
 
   Future<bool> _postSessionData({int sessionId, String deviceId, bool isAndroid}) async {
-    List<Map<String, dynamic>> recordRssi;
-    String rssiQuery = "SELECT * FROM $_databaseRssiTable WHERE $_databaseRssiSessionIdField = $sessionId";
-    try { recordRssi = (_database != null) ? await _database.rawQuery(rssiQuery) : null; } catch (e) { print(e?.toString()); }
+    if (AppString.isStringNotEmpty(Config().exposureLogUrl)) {
+      List<Map<String, dynamic>> recordRssi;
+      String rssiQuery = "SELECT * FROM $_databaseRssiTable WHERE $_databaseRssiSessionIdField = $sessionId";
+      try { recordRssi = (_database != null) ? await _database.rawQuery(rssiQuery) : null; } catch (e) { print(e?.toString()); }
 
-    List<Map<String, dynamic>> recordContact;
-    String contactQuery = "SELECT * FROM $_databaseContactTable WHERE $_databaseContactSessionIdField = $sessionId";
-    try { recordContact = (_database != null) ? await _database.rawQuery(contactQuery) : null; } catch (e) { print(e?.toString()); }
+      List<Map<String, dynamic>> recordContact;
+      String contactQuery = "SELECT * FROM $_databaseContactTable WHERE $_databaseContactSessionIdField = $sessionId";
+      try { recordContact = (_database != null) ? await _database.rawQuery(contactQuery) : null; } catch (e) { print(e?.toString()); }
 
-    List<Map<String, dynamic>> recordRpi;
-    String rpiQuery = "SELECT * FROM $_databaseRpiTable WHERE $_databaseRpiSessionIdField = $sessionId";
-    try { recordRpi = (_database != null) ? await _database.rawQuery(rpiQuery) : null; } catch (e) { print(e?.toString()); }
+      List<Map<String, dynamic>> recordRpi;
+      String rpiQuery = "SELECT * FROM $_databaseRpiTable WHERE $_databaseRpiSessionIdField = $sessionId";
+      try { recordRpi = (_database != null) ? await _database.rawQuery(rpiQuery) : null; } catch (e) { print(e?.toString()); }
 
-    Map<String, dynamic> upload = {
-      "deviceID": deviceId,
-      "isAndroid": isAndroid,
-      "contact": recordContact,
-      "rpi": recordRpi,
-      "rssi": recordRssi
-    };
-    Response response = await Network().post(
-        'http://ec2-18-191-37-235.us-east-2.compute.amazonaws.com:8003/PostSessionData',
-        body: AppJson.encode(upload),
-        auth: NetworkAuth.App);
-    return response?.statusCode == 200;
+      Map<String, dynamic> upload = {
+        "deviceID": deviceId,
+        "isAndroid": isAndroid,
+        "contact": recordContact,
+        "rpi": recordRpi,
+        "rssi": recordRssi
+      };
+      Response response = await Network().post(
+          Config().exposureLogUrl,
+          body: AppJson.encode(upload),
+          auth: NetworkAuth.App);
+      return response?.statusCode == 200;
+    }
+    return null;
   }
 
 

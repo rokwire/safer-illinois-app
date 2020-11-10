@@ -72,7 +72,7 @@ class StatusInfoDialog extends StatelessWidget{
                               Container(height: 10,),
                               Row(
                                 children: <Widget>[
-                                  Image.asset('images/icon-member.png', excludeFromSemantics: true, color: covid19HealthStatusColor(kCovid19HealthStatusYellow),),
+                                  Image.asset('images/icon-member.png', excludeFromSemantics: true, color: Styles().colors.getHealthStatusColor(kCovid19HealthStatusYellow),),
                                   Container(width: 8,),
                                   Expanded(
                                     child: Text(Localization().getStringEx("com.illinois.covid19.status.info.description.yellow", "Yellow: Recent negative test"),
@@ -84,7 +84,7 @@ class StatusInfoDialog extends StatelessWidget{
                               Container(height: 10,),
                               Row(
                                 children: <Widget>[
-                                  Image.asset('images/icon-member.png', excludeFromSemantics: true, color: covid19HealthStatusColor(kCovid19HealthStatusOrange),),
+                                  Image.asset('images/icon-member.png', excludeFromSemantics: true, color: Styles().colors.getHealthStatusColor(kCovid19HealthStatusOrange),),
                                   Container(width: 8,),
                                   Expanded(
                                     child: Text(Localization().getStringEx("com.illinois.covid19.status.info.description.orange", "Orange: First time user, Past due for test, Self-reported symptoms, Received exposure notification or Quarantined"),
@@ -96,7 +96,7 @@ class StatusInfoDialog extends StatelessWidget{
                               Container(height: 10,),
                               Row(
                                 children: <Widget>[
-                                  Image.asset('images/icon-member.png', excludeFromSemantics: true, color: covid19HealthStatusColor(kCovid19HealthStatusRed),),
+                                  Image.asset('images/icon-member.png', excludeFromSemantics: true, color: Styles().colors.getHealthStatusColor(kCovid19HealthStatusRed),),
                                   Container(width: 8,),
                                   Expanded(
                                     child: Text(Localization().getStringEx("com.illinois.covid19.status.info.description.red", "Red: Positive test"),

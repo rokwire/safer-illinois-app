@@ -43,7 +43,7 @@ import io.flutter.plugin.common.PluginRegistry;
 public class GalleryPlugin implements MethodChannel.MethodCallHandler, FlutterPlugin {
 
     private static final String TAG = "GalleryPlugin";
-    public static int STORAGE_PERMISSION_REQUEST_CODE = 100;
+    public static final int STORAGE_PERMISSION_REQUEST_CODE = 100;
 
     private final MainActivity activityContext;
     private MethodChannel methodChannel;
