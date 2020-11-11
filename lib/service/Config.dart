@@ -312,7 +312,7 @@ class Config with Service implements NotificationsListener {
 
   String get _version {
     if (kIsWeb) {
-      return '2.8.13';
+      return '2.9.0';
     } else {
       return _packageInfo?.version;
     }
