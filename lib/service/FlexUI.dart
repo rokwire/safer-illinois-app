@@ -269,7 +269,7 @@ class FlexUI with Service implements NotificationsListener {
 
   static Map<String, dynamic> get platformJson {
     return {
-        'os': Platform.operatingSystem,
+        'os': _operatingSystem(),
     };
   }
 
@@ -299,9 +299,6 @@ class FlexUI with Service implements NotificationsListener {
 
   static Future<Map<String, dynamic>> _localBuild() async {
     //TBD: DD - web
-    if (kIsWeb) {
-      return null;
-    }
     String flexUIString = await rootBundle.loadString('assets/$_flexUIName');
     Map<String, dynamic> flexUI = AppJson.decodeMap(flexUIString);
     Map<String, dynamic> contents = flexUI['content'];
@@ -461,10 +458,10 @@ class FlexUI with Service implements NotificationsListener {
         if (key is String) {
           if (key == 'os') {
             if (value is List) {
-              result = result && value.contains(Platform.operatingSystem);
+              result = result && value.contains(_operatingSystem());
             }
             else if (value is String) {
-              result = result && (value == Platform.operatingSystem);
+              result = result && (value == _operatingSystem());
             }
           }
         }
@@ -475,5 +472,9 @@ class FlexUI with Service implements NotificationsListener {
 
   static bool _localeEvalEnableRule(dynamic enableRule) {
     return (enableRule is bool) ? enableRule : true; // allow everything that is not defined or we do not understand
+  }
+
+  static String _operatingSystem() {
+    return kIsWeb ? 'web' : Platform.operatingSystem;
   }
 }
