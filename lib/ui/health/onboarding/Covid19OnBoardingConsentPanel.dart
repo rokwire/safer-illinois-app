@@ -15,6 +15,7 @@
  */
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:illinois/service/Analytics.dart';
@@ -125,23 +126,25 @@ class _Covid19OnBoardingConsentPanelState extends State<Covid19OnBoardingConsent
                       child:Text(Localization().getStringEx('panel.health.onboarding.covid19.consent.label.title', 'Special consents for COVID-19 features'),
                       style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 28, color: Styles().colors.fillColorPrimary),
                     )),
-                    Container(height: 11,),
-                    Semantics( header: true, hint: Localization().getStringEx("app.common.heading.two.hint","Header 2"),
-                      child: Text(Localization().getStringEx("panel.health.onboarding.covid19.consent.label.description", "Exposure Notifications"),
-                      style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color:Styles().colors.fillColorPrimary),
-                    )),
-                    Container(height: 4,),
-                    Text(
-                      Localization().getStringEx("panel.health.onboarding.covid19.consent.label.content1", "If you consent to exposure notifications, you allow your phone to send an anonymous Bluetooth signal to nearby Safer Illinois app users who are also using this feature. Your phone will receive and record a signal from their phones as well. If one of those users tests positive for COVID-19 in the next 14 days, the app will alert you to your potential exposure and advise you on next steps. Your identity and health status will remain anonymous, as will the identity and health status of all other users."),
-                      style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color:Styles().colors.fillColorPrimary),
-                    ),
-                    Container(height: 8,),
-                    ToggleRibbonButton(
-                      label:  Localization().getStringEx("panel.health.onboarding.covid19.consent.check_box.label.participate","I consent to participate in the Exposure Notification System (requires Bluetooth to be ON)."),
-                      toggled: _exposureNotification,
-                      onTap: _onParticipateTap,
-                      context: context,
-                      height: null),
+                    Visibility(visible: !kIsWeb, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Container(height: 11,),
+                      Semantics( header: true, hint: Localization().getStringEx("app.common.heading.two.hint","Header 2"),
+                          child: Text(Localization().getStringEx("panel.health.onboarding.covid19.consent.label.description", "Exposure Notifications"),
+                            style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color:Styles().colors.fillColorPrimary),
+                          )),
+                      Container(height: 4,),
+                      Text(
+                        Localization().getStringEx("panel.health.onboarding.covid19.consent.label.content1", "If you consent to exposure notifications, you allow your phone to send an anonymous Bluetooth signal to nearby Safer Illinois app users who are also using this feature. Your phone will receive and record a signal from their phones as well. If one of those users tests positive for COVID-19 in the next 14 days, the app will alert you to your potential exposure and advise you on next steps. Your identity and health status will remain anonymous, as will the identity and health status of all other users."),
+                        style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color:Styles().colors.fillColorPrimary),
+                      ),
+                      Container(height: 8,),
+                      ToggleRibbonButton(
+                          label:  Localization().getStringEx("panel.health.onboarding.covid19.consent.check_box.label.participate","I consent to participate in the Exposure Notification System (requires Bluetooth to be ON)."),
+                          toggled: _exposureNotification,
+                          onTap: _onParticipateTap,
+                          context: context,
+                          height: null),
+                    ],)),
                     Container(height: 24,),
                     Semantics( header: true, hint: Localization().getStringEx("app.common.heading.two.hint","Header 2"),
                     child:
