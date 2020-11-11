@@ -1292,9 +1292,14 @@ class Health with Service implements NotificationsListener {
       accessRules = (force != true) ? _accessRulesCache[countyId] : null;
       if (accessRules == null) {
         String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/access-rules/county/$countyId" : null;
-        Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
+        Response response;
+        try {
+          response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
+        } catch (e) {
+          Log.e(e.toString());
+        }
         String responseBody = (response?.statusCode == 200) ? response.body : null;
-        accessRules = (responseBody != null) ? AppJson.decodeMap(responseBody) : null; 
+        accessRules = (responseBody != null) ? AppJson.decodeMap(responseBody) : null;
         if (accessRules != null) {
           _accessRulesCache[countyId] = accessRules;
         }
