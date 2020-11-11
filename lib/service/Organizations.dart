@@ -187,8 +187,13 @@ class Organizations with Service {
       Map<String, String> headers = (apiHook.apiKey != null) ? {
         Network.RokwireApiKey : apiHook.apiKey
       } : null;
-      
-      Response response = await Network().get(apiHook.url, headers: headers);
+
+      Response response;
+      try {
+        response = await Network().get(apiHook.url, headers: headers);
+      } catch (e) {
+        Log.e(e.toString());
+      }
       String responseString = (response?.statusCode == 200) ? response.body : null;
       List<dynamic> responseJson = (responseString != null) ? AppJson.decodeList(responseString) : null;
       return (responseJson != null) ? Organization.listFromJson(responseJson) : null;
