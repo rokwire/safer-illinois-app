@@ -6,6 +6,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.9.0] - 2020-11-10
+### Added
+- A pull request template. [#324](https://github.com/rokwire/safer-illinois-app/issues/324)
+- Contributor guidelines (CONTRIBUTING.md). [#322](https://github.com/rokwire/safer-illinois-app/issues/322).
+
+## [2.8.13] - 2020-11-09
+### Fixed
+- Cannot confirm one time code [#379](https://github.com/rokwire/safer-illinois-app/issues/379).
+- Added symptoms translations [#337](https://github.com/rokwire/safer-illinois-app/issues/337).
+
+## [2.8.12] - 2020-11-06
+### Fixed
+- CareTeamPanel fix non student aditional message. [#269](https://github.com/rokwire/safer-illinois-app/issues/269).
+- Build error related to ios app [#374](https://github.com/rokwire/safer-illinois-app/issues/374).
+- Fixed the error related to app framework minimum os version [#375](https://github.com/rokwire/safer-illinois-app/issues/375).
+
+## [2.8.11] - 2020-11-05
+### Added
+- Pass application id as header field in FCM API calls from sports service [#364](https://github.com/rokwire/safer-illinois-app/issues/364).
+
+### Fixed
+- Fixed various string entry translations [#364](https://github.com/rokwire/safer-illinois-app/issues/364).
+- Fixed Initial loading screen [#366](https://github.com/rokwire/safer-illinois-app/issues/366).
+- CareTeamPanel: update link urls [#269](https://github.com/rokwire/safer-illinois-app/issues/269).
+- User is not able to Sign out successfully by tapping the Sign-out button on Personal Info screen [#303](https://github.com/rokwire/safer-illinois-app/issues/303).
+
 ## [2.8.10] - 2020-11-04
 ### Added
 - Added ability to enable/disable capitol stuff from app config settings [#353](https://github.com/rokwire/safer-illinois-app/issues/353).
@@ -55,7 +81,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fixed miscellaneous strings translation, display dates localized [#308](https://github.com/rokwire/safer-illinois-app/issues/308).
-
 
 ## [2.8.2] - 2020-10-21
 ### Added

@@ -25,7 +25,6 @@ import 'package:illinois/ui/onboarding/OnboardingLoginPhoneVerifyPanel.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/ui/onboarding/OnboardingBackButton.dart';
 import 'package:illinois/service/Styles.dart';
-import 'package:illinois/ui/widgets/ScalableScrollView.dart';
 
 class OnboardingLoginPhonePanel extends StatefulWidget with OnboardingPanel {
 
@@ -64,98 +63,106 @@ class _OnboardingLoginPhonePanelState extends State<OnboardingLoginPhonePanel> {
         backgroundColor: Styles().colors.background,
         body: Stack(
           children: <Widget>[
-            SafeArea(child: ScalableScrollView(
-            scrollableChild: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Stack(
-                  children: <Widget>[
-                    Image.asset(
-                      "images/login-header.png",
-                      fit: BoxFit.fitWidth,
-                      width: MediaQuery.of(context).size.width,
-                      excludeFromSemantics: true,
-                    ),
-                    OnboardingBackButton(
-                        padding: const EdgeInsets.only(left: 10, top: 10, right: 20, bottom: 20),
-                        onTap: () {
-                          Analytics.instance.logSelect(target: "Back");
-                          Navigator.pop(context);
-                        }),
-                  ],
-                ),
-                Container(
-                  height: 24,
-                ),
-                Semantics(
-                  label: titleString,
-                  hint: Localization().getStringEx('panel.onboarding.login.phone.label.title.hint', ''),
-                  excludeSemantics: true,
-                  child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 18),
-                      child: Center(
-                        child: Text(titleString,
-                            textAlign: TextAlign.center, style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 36, color: Styles().colors.fillColorPrimary)),
-                      )),
-                ),
-                Container(
-                  height: 24,
+            SafeArea(child: Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Stack(
+                        children: <Widget>[
+                          Image.asset(
+                            "images/login-header.png",
+                            fit: BoxFit.fitWidth,
+                            width: MediaQuery.of(context).size.width,
+                            excludeFromSemantics: true,
+                          ),
+                          OnboardingBackButton(
+                              padding: const EdgeInsets.only(left: 10, top: 10, right: 20, bottom: 20),
+                              onTap: () {
+                                Analytics.instance.logSelect(target: "Back");
+                                Navigator.pop(context);
+                              }),
+                        ],
+                      ),
+                      Container(
+                        height: 24,
+                      ),
+                      Semantics(
+                        label: titleString,
+                        hint: Localization().getStringEx('panel.onboarding.login.phone.label.title.hint', ''),
+                        excludeSemantics: true,
+                        child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 18),
+                            child: Center(
+                              child: Text(titleString,
+                                  textAlign: TextAlign.center, style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 36, color: Styles().colors.fillColorPrimary)),
+                            )),
+                      ),
+                      Container(
+                        height: 24,
+                      ),
+                      Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 32),
+                          child: Text(Localization().getStringEx('panel.onboarding.login.phone.label.description', 'This saves your preferences so you can have the same experience on more than one device.'),
+                              textAlign: TextAlign.center, style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 20, color: Styles().colors.fillColorPrimary))),
+                      Container(
+                        height: 32,
+                      ),
+                      ]),
+                  ),
                 ),
                 Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 32),
-                    child: Text(Localization().getStringEx('panel.onboarding.login.phone.label.description', 'This saves your preferences so you can have the same experience on more than one device.'),
-                        textAlign: TextAlign.center, style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 20, color: Styles().colors.fillColorPrimary))),
-                Container(
-                  height: 32,
-                ),
-                ]),
-                bottomNotScrollableWidget: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 36),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: <Widget>[
-                    Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 12, bottom: hasSkip ? 12 : 24),
-                        child: ScalableRoundedButton(
-                            label: Localization().getStringEx('panel.onboarding.login.phone.button.continue.title', 'Verify My Phone Number'),
-                            hint: Localization().getStringEx('panel.onboarding.login.phone.button.continue.hint', ''),
-                            borderColor: Styles().colors.fillColorSecondary,
-                            backgroundColor: Styles().colors.background,
-                            textColor: Styles().colors.fillColorPrimary,
-                            onTap: () => _onLoginTapped()),
-                      ),
-                    ),
-                    hasSkip ? Row(
-                      children: <Widget>[
-                        Expanded(
-                            child: GestureDetector(
-                          onTap: () => _onSkipTapped(),
-                          child: Semantics(
-                              label: skipTitle,
-                              hint: Localization().getStringEx('panel.onboarding.login.phone.button.dont_continue.hint', 'Skip verification'),
-                              button: true,
-                              excludeSemantics: true,
-                              child: Padding(
-                                padding: EdgeInsets.only(bottom: 24),
-                                child: Text(
-                                  skipTitle,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Styles().colors.fillColorPrimary,
-                                    decoration: TextDecoration.underline,
-                                    decorationColor: Styles().colors.fillColorSecondary,
-                                    fontFamily: Styles().fontFamilies.medium,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              )),
-                        )),
-                      ],
-                    ) : Container()
-                  ])
-                ))),
+                    padding: EdgeInsets.symmetric(horizontal: 36),
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: <Widget>[
+                          Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 12, bottom: hasSkip ? 12 : 24),
+                              child: ScalableRoundedButton(
+                                  label: Localization().getStringEx('panel.onboarding.login.phone.button.continue.title', 'Verify My Phone Number'),
+                                  hint: Localization().getStringEx('panel.onboarding.login.phone.button.continue.hint', ''),
+                                  borderColor: Styles().colors.fillColorSecondary,
+                                  backgroundColor: Styles().colors.background,
+                                  textColor: Styles().colors.fillColorPrimary,
+                                  onTap: () => _onLoginTapped()),
+                            ),
+                          ),
+                          hasSkip ? Row(
+                            children: <Widget>[
+                              Expanded(
+                                  child: GestureDetector(
+                                    onTap: () => _onSkipTapped(),
+                                    child: Semantics(
+                                        label: skipTitle,
+                                        hint: Localization().getStringEx('panel.onboarding.login.phone.button.dont_continue.hint', 'Skip verification'),
+                                        button: true,
+                                        excludeSemantics: true,
+                                        child: Padding(
+                                          padding: EdgeInsets.only(bottom: 24),
+                                          child: Text(
+                                            skipTitle,
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              color: Styles().colors.fillColorPrimary,
+                                              decoration: TextDecoration.underline,
+                                              decorationColor: Styles().colors.fillColorSecondary,
+                                              fontFamily: Styles().fontFamilies.medium,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                        )),
+                                  )),
+                            ],
+                          ) : Container()
+                        ])
+                )
+              ],
+            )
+            ),
             _progress
                 ? Container(
                     alignment: Alignment.center,
