@@ -103,7 +103,9 @@ class Config with Service implements NotificationsListener {
 
       _config = (configString != null) ? _configFromJsonString(configString) : null;
       if (_config != null) {
-        _configFile.writeAsStringSync(configString, flush: true);
+        if (_configFile != null) {
+          _configFile.writeAsStringSync(configString, flush: true);
+        }
         NotificationService().notify(notifyConfigChanged, null);
         
         _checkUpgrade();
