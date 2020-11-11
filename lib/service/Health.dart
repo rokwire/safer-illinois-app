@@ -508,8 +508,12 @@ class Health with Service implements NotificationsListener {
     if ((url != null) && (0 < params.length)) {
       url += "?$params";
     }
-
-    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
+    Response response;
+    try {
+      response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
+    } catch (e) {
+      Log.e(e.toString());
+    }
     String responseBody = (response?.statusCode == 200) ? response.body : null;
     List<dynamic> responseJson = (responseBody != null) ? AppJson.decodeList(responseBody) : null;
     return (responseJson != null) ? HealthCounty.listFromJson(responseJson) : null;
