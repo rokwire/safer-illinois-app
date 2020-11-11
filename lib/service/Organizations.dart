@@ -15,10 +15,10 @@
  */
 
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:illinois/model/Organization.dart';
+import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/Network.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
@@ -151,9 +151,6 @@ class Organizations with Service {
 
   static Future<ApiHook> _loadOrganizationsHookAsset() async {
     //TBD: DD - web
-    if (kIsWeb) {
-      return null;
-    }
     try {
       String hookStrEnc = await rootBundle.loadString('assets/$_organizationsHookAsset');
       String hookStr = (hookStrEnc != null) ? AESCrypt.decode(hookStrEnc) : null;
@@ -167,9 +164,6 @@ class Organizations with Service {
 
   static Future<List<Organization>> _loadOrganizationsAsset() async {
     //TBD: DD - web
-    if (kIsWeb) {
-      return null;
-    }
     try {
       String organizationsStrEnc = await rootBundle.loadString('assets/$_organizationsAsset');
       String organizationsStr = (organizationsStrEnc != null) ? AESCrypt.decode(organizationsStrEnc) : null;
