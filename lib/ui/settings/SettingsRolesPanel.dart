@@ -82,7 +82,7 @@ class _SettingsRolesPanelState extends State<SettingsRolesPanel> implements Noti
               child: Padding(
                 padding: EdgeInsets.only(top: 16),
                 child: Text(
-                  Localization().getStringEx('panel.onboarding.roles.label.description', 'Select all that apply'),
+                  Localization().getStringEx('panel.onboarding.roles.label.description', 'Select one'),
                   style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground),
                 ),
               ),
