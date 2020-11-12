@@ -71,7 +71,7 @@ class _OnboardingRoleSelectionPanelState extends State<OnboardingRolesPanel> {
                 ),
               ),
               Padding(padding: EdgeInsets.only(top: 8),
-                child: Text(Localization().getStringEx('panel.onboarding.roles.label.description', 'Select all that apply'),
+                child: Text(Localization().getStringEx('panel.onboarding.roles.label.description', 'Select one'),
                   style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground),
                 ),
               )
@@ -87,7 +87,7 @@ class _OnboardingRoleSelectionPanelState extends State<OnboardingRolesPanel> {
         Container(color: Styles().colors.white, child: Padding(padding: EdgeInsets.only(left: 24, right: 24, top: 10, bottom: 20),
           child: Stack(children:<Widget>[
             ScalableRoundedButton(
-                label: _allowNext ? Localization().getStringEx('panel.onboarding.roles.button.continue.enabled.title', 'Confirm') : Localization().getStringEx('panel.onboarding.roles.button.continue.disabled.title', 'Select one'),
+                label:Localization().getStringEx('panel.onboarding.roles.button.continue.enabled.title', 'Confirm'),
                 hint: Localization().getStringEx('panel.onboarding.roles.button.continue.hint', ''),
                 enabled: _allowNext,
                 backgroundColor: (_allowNext ? Styles().colors.white : Styles().colors.background),

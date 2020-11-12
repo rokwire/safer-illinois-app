@@ -55,9 +55,9 @@ class _OnboardingLoginPhoneConfirmPanelState extends State<OnboardingLoginPhoneC
     double scaleFactor = MediaQuery.textScaleFactorOf(context);
     double bottomPadding = scaleFactor > 1.0 ? scaleFactor * 70 : 70;
     String phoneNumber = Auth().phoneToken?.phone;
-    String maskedPhoneNumber = AppString.getMaskedPhoneNumber(phoneNumber);
+
     String description =
-        sprintf(Localization().getStringEx('panel.onboarding.confirm_phone.description.send', 'A one time code has been sent to %s. Enter your code below to continue.'), [maskedPhoneNumber]);
+        sprintf(Localization().getStringEx('panel.onboarding.confirm_phone.description.send', 'A one time code has been sent to %s. Enter your code below to continue.'), [phoneNumber]);
     return Scaffold(
       //resizeToAvoidBottomInset: false, // This brakes iOS with small screens!!!  https://github.com/rokwire/safer-illinois-app/issues/379
       body: GestureDetector(

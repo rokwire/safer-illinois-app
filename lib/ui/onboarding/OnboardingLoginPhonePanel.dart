@@ -123,7 +123,7 @@ class _OnboardingLoginPhonePanelState extends State<OnboardingLoginPhonePanel> {
                             child: Padding(
                               padding: EdgeInsets.only(top: 12, bottom: hasSkip ? 12 : 24),
                               child: ScalableRoundedButton(
-                                  label: Localization().getStringEx('panel.onboarding.login.phone.button.continue.title', 'Verify My Phone Number'),
+                                  label: Localization().getStringEx('panel.onboarding.login.phone.button.continue.title', 'Verify Phone Number'),
                                   hint: Localization().getStringEx('panel.onboarding.login.phone.button.continue.hint', ''),
                                   borderColor: Styles().colors.fillColorSecondary,
                                   backgroundColor: Styles().colors.background,
