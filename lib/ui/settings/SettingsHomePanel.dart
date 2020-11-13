@@ -1169,11 +1169,15 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   }
 
   void _loadVersionInfo() async {
-    PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
-      setState(() {
-        _versionName = packageInfo?.version;
+    if (kIsWeb) {
+      _versionName = AppVersion.webVersion();
+    } else {
+      PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
+        setState(() {
+          _versionName = packageInfo?.version;
+        });
       });
-    });
+    }
   }
 
   // Utilities

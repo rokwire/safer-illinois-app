@@ -145,6 +145,11 @@ class AppVersion {
     }
     return null;
   }
+
+  //TBD: DD - web
+  static String webVersion() {
+    return '2.9.1';
+  }
 }
 
 class AppUrl {

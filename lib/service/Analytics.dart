@@ -31,6 +31,7 @@ import 'package:illinois/service/Connectivity.dart';
 import 'package:illinois/service/Network.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
+import 'package:illinois/utils/Utils.dart';
 
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -299,7 +300,10 @@ class Analytics with Service implements NotificationsListener {
     _updateSessionUuid();
 
     //TBD: DD - web
-    if (!kIsWeb) {
+    if (kIsWeb) {
+      _appVersion = AppVersion.webVersion();
+      _appId = AppWeb.appHost();
+    } else {
       PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
         _packageInfo = packageInfo;
         _appId = _packageInfo?.packageName;
