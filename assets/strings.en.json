@@ -89,7 +89,7 @@
 
 	"panel.onboarding.roles.label.title": "Who are you?",
 	"panel.onboarding.roles.label.title.hint": "Header 1",
-	"panel.onboarding.roles.label.description": "Select all that apply",
+	"panel.onboarding.roles.label.description": "Select one",
 	"panel.onboarding.roles.button.student.title": "University Student",
 	"panel.onboarding.roles.button.student.hint": "",
 	"panel.onboarding.roles.button.employee.title": "Employee/Affiliate",
@@ -107,10 +107,10 @@
 	"panel.onboarding.login.netid.label.title.hint": "Header 1",
 	"panel.onboarding.login.phone.label.title.hint": "Header 1",
 	"panel.onboarding.login.netid.label.description": "Log in with your NetID",
-	"panel.onboarding.login.phone.label.description": "This saves your preferences so you can have the same experience on more than one device.",
+	"panel.onboarding.login.phone.label.description": "Your phone number allows us to confirm your identity.",
 	"panel.onboarding.login.label.login_failed": "Unable to login. Please try again later",
 	"panel.onboarding.login.netid.button.continue.title": "Log in with NetID",
-	"panel.onboarding.login.phone.button.continue.title": "Verify My Phone Number",
+	"panel.onboarding.login.phone.button.continue.title": "Verify Phone Number",
 	"panel.onboarding.login.netid.button.continue.hint": "",
 	"panel.onboarding.login.phone.button.continue.hint": "",
 	"panel.onboarding.login.netid.button.dont_continue.title": "Not right now",
@@ -280,6 +280,8 @@
 	"panel.covid19_passport.label.page_2": "Page 2",
 	"panel.covid19_passport.label.update_i_card": "Update your i-card",
 	"panel.covid19_passport.label.resident": "Illinois Resident",
+	"panel.covid19_passport.label.capitol_staff": "Capitol Staff",
+
 	"panel.covid19_passport.button.info.title": "Info ",
 
 	"panel.covid19_guidelines.header.title": "County Guidelines",

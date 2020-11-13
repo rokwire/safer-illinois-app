@@ -22,6 +22,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:illinois/model/Health.dart';
+import 'package:illinois/model/UserData.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
@@ -385,7 +386,11 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
     Color statusColor = (userHasHealthStatus ? (Styles().colors.getHealthStatusColor(healthStatus) ?? _backgroundColor) : _backgroundColor);
     String authCardOrPhone = Auth().isShibbolethLoggedIn
         ? Auth().authCard?.magTrack2 ?? ""
-        : (Auth().isPhoneLoggedIn ? Auth().userPiiData?.phone : "");
+        : (Auth().isPhoneLoggedIn
+            ? (AppString.isStringNotEmpty(Auth().authInfo?.uin) ? "xxxx${Auth().authInfo?.uin}xxx=xxxxxxxxxxx" : Auth().userPiiData?.phone)
+        : "");
+
+
     String textAuthCardOrPhone = Auth().isShibbolethLoggedIn
         ? ""
         : (Auth().isPhoneLoggedIn ? Auth().userPiiData?.phone : "");
@@ -500,6 +505,9 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
     String roleDisplayString = Auth()?.authCard?.roleDisplayString;
     if(Auth().isShibbolethLoggedIn && AppString.isStringNotEmpty(roleDisplayString)){
       return roleDisplayString;
+    }
+    else if(Auth().isPhoneLoggedIn && User().roles.contains(UserRole.capitolStaff)){
+      return Localization().getStringEx("panel.covid19_passport.label.capitol_staff", "Capitol Staff");
     }
     return Localization().getStringEx('panel.covid19_passport.label.resident', 'Resident');
   }

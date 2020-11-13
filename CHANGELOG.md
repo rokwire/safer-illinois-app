@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.9.1] - 2020-11-12
+### Changed
+- Safer onboarding changes 11/12 [#390](https://github.com/rokwire/safer-illinois-app/issues/390).
+
 ## [2.9.0] - 2020-11-10
 ### Added
 - A pull request template. [#324](https://github.com/rokwire/safer-illinois-app/issues/324)

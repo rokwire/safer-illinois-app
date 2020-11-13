@@ -89,7 +89,7 @@
 
 	"panel.onboarding.roles.label.title": "你是",
 	"panel.onboarding.roles.label.title.hint": "标题1",
-	"panel.onboarding.roles.label.description": "选择所有适用项",
+	"panel.onboarding.roles.label.description": "Select one",
 	"panel.onboarding.roles.button.student.title": "大学生",
 	"panel.onboarding.roles.button.student.hint": "",
 	"panel.onboarding.roles.button.employee.title": "員工/會員",
@@ -107,7 +107,7 @@
 	"panel.onboarding.login.netid.label.title.hint": "标题1",
 	"panel.onboarding.login.phone.label.title.hint": "标题1",
 	"panel.onboarding.login.netid.label.description": "用您的NETID登录",
-	"panel.onboarding.login.phone.label.description": "这将保存您的首选项，因此您可以在多台设备上获得相同的体验。",
+	"panel.onboarding.login.phone.label.description": "Your phone number allows us to confirm your identity.",
 	"panel.onboarding.login.label.login_failed": "无法登录。请稍后再试",
 	"panel.onboarding.login.netid.button.continue.title": "使用NetID登录",
 	"panel.onboarding.login.phone.button.continue.title": "验证我的电话号码",
@@ -280,6 +280,7 @@
 	"panel.covid19_passport.label.page_2": "Page 2",
 	"panel.covid19_passport.label.update_i_card": "Update your i-card",
 	"panel.covid19_passport.label.resident": "居民",
+	"panel.covid19_passport.label.capitol_staff": "Capitol Staff",
 	"panel.covid19_passport.button.info.title": "Info ",
 
 	"panel.covid19_guidelines.header.title": "縣準則",
