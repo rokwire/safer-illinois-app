@@ -499,6 +499,11 @@ class Auth with Service implements NotificationsListener {
   }
 
   Future<AuthInfo> _loadPhoneAuthInfo({AuthToken optAuthToken}) async {
+    dynamic result = await _loadCapitolStaffUIN(optAuthToken: optAuthToken);
+    return (result is AuthInfo) ? result : null;
+  }
+
+  Future<dynamic> _loadCapitolStaffUIN({AuthToken optAuthToken}) async {
     optAuthToken = (optAuthToken != null) ? optAuthToken : _authToken;
     PhoneToken phoneToken = (optAuthToken is PhoneToken) ? optAuthToken : null;
     if ((Config().healthUrl != null) && (phoneToken?.phone != null)) {
@@ -506,13 +511,19 @@ class Auth with Service implements NotificationsListener {
       Http.Response userDataResp = await Network().get(url, auth: NetworkAuth.App);
       if ((userDataResp != null) && (userDataResp.statusCode == 200)) {
         Map<String, dynamic> responseJson = AppJson.decodeMap(userDataResp.body);
-        //TMP: uin = '000000000';
+        //TMP: return AuthInfo(uin: '000000000');
         // AuthInfo or null, if the user does not bellong to roster
-        return AuthInfo.fromRosterJson(responseJson);
+        return responseJson != null ? AuthInfo.fromRosterJson(responseJson) : null;
+      }
+      else {
+        // Request failed
+        return Exception("${userDataResp?.statusCode} ${userDataResp?.body}");
       }
     }
-    // Not Available
-    return null;
+    else {
+      // Not Available
+      return false;
+    }
   }
 
   bool _checkCapitolStaffConfigEnabled() {
@@ -530,7 +541,7 @@ class Auth with Service implements NotificationsListener {
 
   void _checkCapitolStaffRosterEnabled() {
     if (_checkCapitolStaffConfigEnabled() == true) {
-      _loadPhoneAuthInfo().then((dynamic result) {
+      _loadCapitolStaffUIN().then((dynamic result) {
         if (result == null) {
           logout();
         }
