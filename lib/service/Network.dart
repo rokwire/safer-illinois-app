@@ -32,7 +32,6 @@ import 'FirebaseCrashlytics.dart';
 enum NetworkAuth {
   App,
   User,
-  Access,
 }
 
 class Network  {
@@ -333,15 +332,6 @@ class Network  {
         headers[HttpHeaders.authorizationHeader] = "$tokenType $idToken";
       }
     }
-    else if (auth == NetworkAuth.Access) {
-      String accessToken = Auth().authToken?.accessToken;
-      if ((accessToken != null) && accessToken.isNotEmpty) {
-        if (headers == null) {
-          headers = new Map();
-        }
-        headers['access_token'] = accessToken;
-      }
-    }
 
     //cookies
     String cookies = _loadCookiesForRequest(url);
@@ -356,13 +346,7 @@ class Network  {
   }
 
   bool _requiresRefreshToken(Http.Response response, NetworkAuth auth){
-    return (response != null
-       && (
-//          response.statusCode == 400 || 
-            response.statusCode == 401
-        )
-        && Auth().isLoggedIn
-        && (NetworkAuth.User == auth || NetworkAuth.Access == auth));
+    return (response != null && (response.statusCode == 401) && Auth().isLoggedIn && (NetworkAuth.User == auth));
   }
 
   void _saveCookiesFromResponse(String url, Http.Response response) {
