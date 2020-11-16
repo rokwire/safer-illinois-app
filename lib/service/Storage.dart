@@ -321,7 +321,7 @@ class Storage with Service {
   }
 
   set organization(Organization organization) {
-    _setEncryptedStringWithName(_organiationKey, AppJson.encode(organization.toJson()));
+    _setEncryptedStringWithName(_organiationKey, AppJson.encode(organization?.toJson()));
   }
 
   /////////////
