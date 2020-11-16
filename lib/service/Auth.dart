@@ -110,7 +110,14 @@ class Auth with Service implements NotificationsListener {
 
   @override
   Future<void> initService() async {
-    _authToken = Storage().authToken;
+    //TMP: _authToken = Storage().authToken;
+    _authToken = ShibbolethToken.fromJson({
+      "access_token":"AApzZWNyZXQxNzkxjcXojosOzvvzQPDk0MFeyNP8Kl0gXI8myvMds3LMIMFxjEH5EfSeK5RoDrNhZzclpv0-pGZErQbgwWDU_Os-hRqW8jJv7GszY6W_mt_JU2kwMVVYRhv_j7cv3-xUKScUEF5kfDANLtP7n3Nv0_96ds-aZ9G97slutfgiTquGsgwH-MF-PYnvTwWLyf14e-1VIWJ_ie3A7agZqa3rpf9rORWC7CEhBe7aD7tqNbzxPyHxt_OmFjhXclbYR2XrGGOrENLJ6bp9jvugXJ29fDtAT8VxHT-rGBYhy8pTUss5B62wYmlwdTKR8xfJzm6V3be0I2F4a946IsHzRZkFTJsyJ70Qji7wagcOZVYyOEEMhnurtVE3BMoouZFpXRDnK7yTyI7Zz_GLPErZC3OCPxbdV-j2kLB7EUp4hWcFRxxYBaWkCzrLi118ZF6rzff2B8fSMmoHqoOqXoDddrzaWrtM6QyDqABUvQeDWqbJ-CLFb8Mil063JA",
+      "refresh_token":"AApzZWNyZXQxNzkxnUzSlSRCuHnj8YBK8vqM4fwp_PG-plscUBbd3hd1wABcMOXsHnAAzQBrJzRWPl5HKNrLVVd67GAj_lF2ldQg1HcQjMlhHwfBDKtzPX1LXL3m3J0qQ_2NtyQeeLBJgEmWRs3KrCgslU9i-tYepWLwEU2t9ggdtbCY5vH6-nOmM0SPP6q67BMZlt5xY-sDcVvcH1ORTJmbwaVIZfDTaTiUkBac4nPEZ1fUDe2gmSGy5Vw7zcpV4f0SXVvSelAMsS0o9cpbjlGoCZCn_26I6732-LY6M16IJxf-Ydze5w9AK9jvQa2ONtQjQKBbEAHvHRmuVdiICZyVVyiUjw26BGealupqfUwPTRYkC7OZFzbSSnzpyzvF73BJX-RfhbQkPL7l1mwdNeb8ww-I9IRmdTCL1-1rvOmvmzgk-PWaFRW0UeMxEg7SqGIBZIfnoBZKa4dm2DIYrAXPYJoSJuuJmFnFY1GIN2IAJ3WzHQrJdESb4W_BDdU5nj4-dw",
+      "id_token":"eyJraWQiOiJkZWZhdWx0UlNBU2lnbiIsImFsZyI6IlJTMjU2In0.eyJhdF9oYXNoIjoiZmlMdGFXcDB5TGtWNXVibk14UlBsQSIsInN1YiI6IkxHUkxERkFPVlZJNkEzSzVETVBOMzRaUk9QMjdINkFCIiwiYXVkIjoiXzMzODM1MTE3NmVhNmNmOGEzNzFjYTk5MTI2NmU4ZjQzIiwiYXV0aF90aW1lIjoxNjA1MTc4MTMzLCJpc3MiOiJodHRwczpcL1wvc2hpYmJvbGV0aC5pbGxpbm9pcy5lZHUiLCJ1aXVjZWR1X3VpbiI6IjY1NTYxODgxOCIsImV4cCI6MTYwNTI2NDUzNCwiaWF0IjoxNjA1MTc4MTM0LCJ1aXVjZWR1X2lzX21lbWJlcl9vZiI6WyJ1cm46bWFjZTp1aXVjLmVkdTp1cmJhbmE6YXV0aG1hbjphcHAtcm9rd2lyZS1zZXJ2aWNlLXBvbGljeS1yb2t3aXJlIGhlYWx0aCBwcm92aWRlciIsInVybjptYWNlOnVpdWMuZWR1OnVyYmFuYTphdXRobWFuOmFwcC1yb2t3aXJlLXNlcnZpY2UtcG9saWN5LXJva3dpcmUgc3RhZGl1bSBwb2xsIG1hbmFnZXIiLCJ1cm46bWFjZTp1aXVjLmVkdTp1cmJhbmE6YXV0aG1hbjphcHAtcm9rd2lyZS1zZXJ2aWNlLXBvbGljeS1yb2t3aXJlIHRhbGVudCBjaG9vc2VyIG1hbmFnZXIiLCJ1cm46bWFjZTp1aXVjLmVkdTp1cmJhbmE6YXV0aG1hbjphcHAtcm9rd2lyZS1zZXJ2aWNlLXBvbGljeS1yb2t3aXJlIGRlYnVnIiwidXJuOm1hY2U6dWl1Yy5lZHU6dXJiYW5hOmF1dGhtYW46YXBwLXJva3dpcmUtc2VydmljZS1wb2xpY3ktcm9rd2lyZSBhZG1pbiBjb25maWdzIiwidXJuOm1hY2U6dWl1Yy5lZHU6dXJiYW5hOmF1dGhtYW46YXBwLXJva3dpcmUtc2VydmljZS1wb2xpY3ktcm9rd2lyZSBhcHAgY29uZmlnIG1hbmFnZXIiLCJ1cm46bWFjZTp1aXVjLmVkdTp1cmJhbmE6YXV0aG1hbjphcHAtcm9rd2lyZS1zZXJ2aWNlLXBvbGljeS1yb2t3aXJlIGdyb3VwcyBhY2Nlc3MiLCJ1cm46bWFjZTp1aXVjLmVkdTp1cmJhbmE6YXV0aG1hbjphcHAtcm9rd2lyZS1zZXJ2aWNlLXBvbGljeS1yb2t3aXJlIGhlYWx0aCBtZWRpYSIsInVybjptYWNlOnVpdWMuZWR1OnVyYmFuYTphdXRobWFuOmFwcC1yb2t3aXJlLXNlcnZpY2UtcG9saWN5LXJva3dpcmUgYWRtaW4gYXBwIiwidXJuOm1hY2U6dWl1Yy5lZHU6dXJiYW5hOmF1dGhtYW46YXBwLXJva3dpcmUtc2VydmljZS1wb2xpY3ktcm9rd2lyZSBoZWFsdGggdGVzdCB2ZXJpZnkiLCJ1cm46bWFjZTp1aXVjLmVkdTp1cmJhbmE6YXV0aG1hbjphcHAtcm9rd2lyZS1zZXJ2aWNlLXBvbGljeS1yb2t3aXJlIHB1YmxpYyBoZWFsdGgiXSwiZW1haWwiOiJ2YXJiYW5vdkBpbGxpbm9pcy5lZHUifQ.AWjDJKK0-plQAS6CA0G1dyWPYjIbwDBOyAgJmY-7EIE3MJ8CDux5sCEpyst-cnSzsZsHjvSRAJhk4XgGto7p2ottxAbyjy1IyMFa95bHvoQbQMNN8DHib_Fwp2hZp2OuMTiijfNi9I3UwegXDpOe3FP9BtEQ14ify1cKjhVTt3agM62TYxy-khXqNP8qFpbwwWAkV3YcmshGeHt8JVIhMKHhRj1mhM-S7MmJ1nE2wV4WMTgxhkNRFd6RLjZ_VJGda5bPM1HKHjM-XgtHutDoNSKETAnAccgVZWuIKCXvFJmAK7GthsvdCIS5DOq3rbRjihnlBIWOiNUZQgYQ3xx9xA",
+      "token_type":"Bearer",
+      "expires_in":86400
+    });
     _authInfo = Storage().authInfo;
 
     _authCardCacheFile = await _getAuthCardCacheFile();
@@ -803,56 +810,45 @@ class Auth with Service implements NotificationsListener {
   // Refresh Token
 
   Future<void> doRefreshToken() async {
+    if (isShibbolethLoggedIn && (Config().shibbolethAuthTokenUrl != null) && (Config().shibbolethClientId != null) && (Config().shibbolethClientSecret != null)) {
+      if(_refreshTokenFuture != null){
+        Log.d("Auth: will await refresh token");
+        await _refreshTokenFuture;
+        Log.d("Auth: did await refresh token");
+      }
+      else {
+        try {
+          Log.d("Auth: will refresh token");
 
-    if(!isShibbolethLoggedIn){
-      return; // Execute only if the user is loggedin
-    }
+          String tokenUriStr = Config().shibbolethAuthTokenUrl
+              ?.replaceAll("{shibboleth_client_id}", Config().shibbolethClientId ?? '')
+              ?.replaceAll("{shibboleth_client_secret}", Config().shibbolethClientSecret ?? '');
+          
+          Map<String, String> body = {
+            "refresh_token": authToken?.refreshToken,
+            "grant_type": "refresh_token",
+          };
 
-    if((Config().shibbolethAuthTokenUrl == null) || (Config().shibbolethClientId == null) || (Config().shibbolethClientSecret == null)) {
-      return;
-    }
+          _refreshTokenFuture = Network().post(tokenUriStr, body: body);
+          Response tokenResponse = await _refreshTokenFuture;
+          _refreshTokenFuture = null;
 
-    if(_refreshTokenFuture != null){
-      await Future.wait([_refreshTokenFuture]);
-      return;
-    }
-
-    Log.d("Auth: will refresh token");
-
-    String tokenUriStr = Config().shibbolethAuthTokenUrl
-        ?.replaceAll("{shibboleth_client_id}", Config().shibbolethClientId ?? '')
-        ?.replaceAll("{shibboleth_client_secret}", Config().shibbolethClientSecret ?? '');
-    Map<String, String> body = {
-      "refresh_token": authToken?.refreshToken,
-      "grant_type": "refresh_token",
-    };
-    _refreshTokenFuture = Network().post(
-        tokenUriStr, body: body, refreshToken: false)
-        .then((tokenResponse) {
-      _refreshTokenFuture = null;
-      try {
-        String tokenResponseBody = ((tokenResponse != null) && (tokenResponse.statusCode == 200)) ? tokenResponse.body : null;
-        var bodyMap = (tokenResponseBody != null) ? AppJson.decode(tokenResponseBody) : null;
-        _authToken = ShibbolethToken.fromJson(bodyMap);
-        _saveAuthToken();
-        if (authToken?.idToken == null) { // Why we need this if ?
-          _authInfo = null;
-          _saveAuthInfo();
-          _clearAuthCard();
-          _notifyAuthCardChanged();
-          _notifyAuthInfoChanged();
+          String tokenResponseBody = ((tokenResponse != null) && (tokenResponse.statusCode == 200)) ? tokenResponse.body : null;
+          Map<String, dynamic> bodyMap = (tokenResponseBody != null) ? AppJson.decodeMap(tokenResponseBody) : null;
+          ShibbolethToken token = (bodyMap != null) ? ShibbolethToken.fromJson(bodyMap) : null;
+          if (token?.idToken != null) {
+            Log.d("Auth: did refresh token: ${authToken?.idToken}");
+            _authToken = token;
+            _saveAuthToken();
+            _notifyAuthTokenChanged();
+          }
         }
-        Log.d("Auth: did refresh token: ${authToken?.idToken}");
-        _notifyAuthTokenChanged();
+        catch(e) {
+          print(e.toString());
+          _refreshTokenFuture = null; // make sure to clear this in case something went wrong.
+        }
       }
-      catch(e) {
-        print(e.toString());
-        logout();
-      }
-
-      return;
-    });
-    return _refreshTokenFuture;
+    }
   }
 
   // Utils
