@@ -460,12 +460,19 @@ class Auth with Service implements NotificationsListener {
     _notifyAuthInfoChanged();
 
     // 7.3 UserPiiData
-    _applyUserPiiData(newUserPiiData, newUserPiiDataString);
 
-    // 7.4 apply UserData
+    // 7.4 Update UserPiiData if need and then apply
+    if(newUserPiiData.updateFromAuthInfo(newAuthInfo)){
+      storeUserPiiData(newUserPiiData);
+    }
+    else {
+      _applyUserPiiData(newUserPiiData, newUserPiiDataString);
+    }
+
+    // 7.5 apply UserData
     User().applyUserData(newUserData);
 
-    // 7.5 notifyLoggedIn event
+    // 7.6 notifyLoggedIn event
     _notifyAuthLoginSucceeded(analyticsAction: Analytics.LogAuthLoginPhoneActionName);
 
     return true;
@@ -492,11 +499,6 @@ class Auth with Service implements NotificationsListener {
   }
 
   Future<AuthInfo> _loadPhoneAuthInfo({AuthToken optAuthToken}) async {
-    dynamic result = await _loadCapitolStaffUIN(optAuthToken: optAuthToken);
-    return (result is String) ? AuthInfo(uin: result) : null;
-  }
-
-  Future<dynamic> _loadCapitolStaffUIN({AuthToken optAuthToken}) async {
     optAuthToken = (optAuthToken != null) ? optAuthToken : _authToken;
     PhoneToken phoneToken = (optAuthToken is PhoneToken) ? optAuthToken : null;
     if ((Config().healthUrl != null) && (phoneToken?.phone != null)) {
@@ -504,20 +506,13 @@ class Auth with Service implements NotificationsListener {
       Http.Response userDataResp = await Network().get(url, auth: NetworkAuth.App);
       if ((userDataResp != null) && (userDataResp.statusCode == 200)) {
         Map<String, dynamic> responseJson = AppJson.decodeMap(userDataResp.body);
-        String uin = (responseJson != null) ? responseJson['uin'] : null;
         //TMP: uin = '000000000';
-        // String or null, if the user does not bellong to roster
-        return uin;
-      }
-      else {
-        // Request failed
-        return Exception("${userDataResp?.statusCode} ${userDataResp?.body}");
+        // AuthInfo or null, if the user does not bellong to roster
+        return AuthInfo.fromRosterJson(responseJson);
       }
     }
-    else {
-      // Not Available
-      return false;
-    }
+    // Not Available
+    return null;
   }
 
   bool _checkCapitolStaffConfigEnabled() {
@@ -535,7 +530,7 @@ class Auth with Service implements NotificationsListener {
 
   void _checkCapitolStaffRosterEnabled() {
     if (_checkCapitolStaffConfigEnabled() == true) {
-      _loadCapitolStaffUIN().then((dynamic result) {
+      _loadPhoneAuthInfo().then((dynamic result) {
         if (result == null) {
           logout();
         }
