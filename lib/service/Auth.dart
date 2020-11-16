@@ -462,7 +462,7 @@ class Auth with Service implements NotificationsListener {
     // 7.3 UserPiiData
 
     // 7.4 Update UserPiiData if need and then apply
-    if(newUserPiiData.updateFromAuthInfo(newAuthInfo)){
+    if(newAuthInfo != null && newUserPiiData.updateFromAuthInfo(newAuthInfo)){
       storeUserPiiData(newUserPiiData);
     }
     else {
