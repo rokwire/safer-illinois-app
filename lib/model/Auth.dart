@@ -157,6 +157,32 @@ class AuthInfo {
     ) : null;
   }
 
+  factory AuthInfo.fromRosterJson(Map<String, dynamic> json) {
+    String firstName = AppString.isStringNotEmpty(json["first_name"]) ? json["first_name"] : "";
+    String middleName = AppString.isStringNotEmpty(json["middle_name"]) ? json["middle_name"] : "";
+    String lastName = AppString.isStringNotEmpty(json["last_name"]) ? json["last_name"] : "";
+    String uin = AppString.isStringNotEmpty(json["uin"]) ? json["uin"] : "";
+
+    String fullName = "";
+    List<String> fullNameList = [firstName, middleName, lastName];
+    fullNameList.forEach((name) {
+      if(AppString.isStringNotEmpty(name)){
+        if(fullName.isNotEmpty) {
+          fullName += " ";
+        }
+        fullName += name;
+      }
+    });
+
+    return (json != null &&  AppString.isStringNotEmpty(uin)) ? AuthInfo(
+        firstName: firstName,
+        middleName: middleName,
+        lastName: lastName,
+        fullName: fullName,
+        uin: uin
+    ) : null;
+  }
+
   toJson() {
     List<dynamic> userGroupsToJson = (userGroupMembership != null) ?
     userGroupMembership.toList() : null;
