@@ -346,13 +346,7 @@ class Network  {
   }
 
   bool _requiresTokenRefresh(Http.Response response, NetworkAuth auth){
-    //TMP: return (response?.statusCode == 401) && (auth == NetworkAuth.User) && Auth().isLoggedIn;
-    if ((response?.statusCode == 401) && (auth == NetworkAuth.User) && Auth().isLoggedIn) {
-      return true;
-    }
-    else {
-      return false;
-    }
+    return (response?.statusCode == 401) && (auth == NetworkAuth.User) && Auth().isLoggedIn;
   }
 
   void _saveCookiesFromResponse(String url, Http.Response response) {
