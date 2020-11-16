@@ -420,6 +420,10 @@ class _TestLocation extends StatelessWidget{
   }
 
   Widget _buildWaitTime(){
+    if(!_isLocationOpen){
+      return Container();
+    }
+
     HealthLocationWaitTimeColor waitTimeColor = testLocation.waitTimeColor;
     bool isWaitTimeAvailable = (waitTimeColor == HealthLocationWaitTimeColor.red) ||
         (waitTimeColor == HealthLocationWaitTimeColor.yellow) ||
@@ -599,6 +603,18 @@ class _TestLocation extends StatelessWidget{
             'longitude': testLocation?.longitude,
           }]);
     }
+  }
+
+
+  bool get _isLocationOpen{
+    HealthLocationDayOfOperation todayPeriod;
+    if(AppCollection.isCollectionNotEmpty(testLocation?.daysOfOperation)) {
+      todayPeriod = _determineTodayPeriod(
+          Map<int, HealthLocationDayOfOperation>.fromIterable(
+              testLocation.daysOfOperation, key: (period) => period?.weekDay));
+    }
+
+    return todayPeriod?.isOpen ?? false;
   }
 }
 
