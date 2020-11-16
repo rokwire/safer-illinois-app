@@ -335,10 +335,9 @@ class Config with Service implements NotificationsListener {
 
   Map<String, dynamic> get settings                { return (_config != null) ? (_config['settings'] ?? {}) : {}; }
 
-  String get shibbolethAuthTokenUrl { return otherUniversityServices['shibboleth_auth_token_url']; }  // "https://{shibboleth_client_id}:{shibboleth_client_secret}@shibboleth.illinois.edu/idp/profile/oidc/token"
-  String get shibbolethOauthHostUrl { return otherUniversityServices['shibboleth_oauth_host_url']; }  // "shibboleth.illinois.edu"
-  String get shibbolethOauthPathUrl { return otherUniversityServices['shibboleth_oauth_path_url']; }  // "/idp/profile/oidc/authorize"
-  String get userAuthUrl            { return otherUniversityServices['user_auth_url']; }              // "https://shibboleth.illinois.edu/idp/profile/oidc/userinfo"
+  String get shibbolethOidcTokenUrl { return otherUniversityServices['shibboleth_oidc_token_url']; }  // "https://{shibboleth_client_id}:{shibboleth_client_secret}@shibboleth.illinois.edu/idp/profile/oidc/token"
+  String get shibbolethOidcAuthUrl  { return otherUniversityServices['shibboleth_oidc_auth_url']; }   // "https://shibboleth.illinois.edu/idp/profile/oidc/authorize"
+  String get shibbolethOidcUserUrl  { return otherUniversityServices['shibboleth_oidc_user_url']; }   // "https://shibboleth.illinois.edu/idp/profile/oidc/userinfo"
   String get assetsUrl              { return otherUniversityServices['assets_url']; }                 // "https://rokwire-assets.s3.us-east-2.amazonaws.com"
   String get feedbackUrl            { return otherUniversityServices['feedback_url']; }               // "https://forms.illinois.edu/sec/1971889"
   String get iCardUrl               { return otherUniversityServices['icard_url']; }                  // "https://www.icard.uillinois.edu/rest/rw/rwIDData/rwCardInfo"
