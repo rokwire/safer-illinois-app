@@ -63,7 +63,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
@@ -78,7 +77,6 @@ import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;
-import io.flutter.view.FlutterMain;
 
 public class MainActivity extends FlutterActivity implements MethodChannel.MethodCallHandler, PluginRegistry.PluginRegistrantCallback {
 
@@ -117,9 +115,6 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
 
         instance = this;
         initScreenOrientation();
-
-        // TODO: Check do we need the next two lines at all?
-        FlutterMain.startInitialization(this);
     }
 
     @Override
