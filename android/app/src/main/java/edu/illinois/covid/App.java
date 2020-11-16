@@ -23,10 +23,7 @@ import android.content.Intent;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-
-
-import io.flutter.plugin.common.PluginRegistry;
-import io.flutter.plugins.GeneratedPluginRegistrant;
+import io.flutter.view.FlutterMain;
 
 public class App extends Application {
 
@@ -35,6 +32,7 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        FlutterMain.startInitialization(this);
     }
 
 
