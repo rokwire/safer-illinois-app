@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Fixed
+- iOS Crash while trying to retrieve device uuid from native part [#397](https://github.com/rokwire/safer-illinois-app/issues/397).
 - Crashes with FCM notifications in Android [#394](https://github.com/rokwire/safer-illinois-app/issues/394).
 - Do not show the wait time if the location is closed [#398](https://github.com/rokwire/safer-illinois-app/issues/398).
 
