@@ -21,6 +21,7 @@
 #import "ExposurePlugin.h"
 #import <CoreBluetooth/CoreBluetooth.h>
 #import <CoreLocation/CoreLocation.h>
+#import <AVFoundation/AVFoundation.h>
 #import <UserNotifications/UserNotifications.h>
 #import <HKDFKit/HKDFKit.h>
 
@@ -123,6 +124,8 @@ static int const kNoRssi = 127;
 	CLLocationManager*                               _locationManager;
 	CLBeaconRegion*                                  _beaconRegion;
 	bool                                             _monitoringLocation;
+	
+	AVAudioPlayer*                                   _mutedAudioPlayer;
 
 	NSTimeInterval                                   _exposureTimeoutInterval;
 	NSTimeInterval                                   _exposurePingInterval;
@@ -229,6 +232,7 @@ static ExposurePlugin *g_Instance = nil;
 		[self startPeripheral];
 		[self startCentral];
 		[self startLocationManager];
+		[self startAudioPlayer];
 		[self connectAppLiveCycleEvents];
 	}
 	else if (result != nil) {
@@ -262,6 +266,7 @@ static ExposurePlugin *g_Instance = nil;
 	[self stopPeripheral];
 	[self stopCentral];
 	[self stopLocationManager];
+	[self stopAudioPlayer];
 	[self clearRPI];
 	[self clearExposures];
 	[self disconnectAppLiveCycleEvents];
@@ -649,14 +654,52 @@ static ExposurePlugin *g_Instance = nil;
 - (void)peripheral:(CBPeripheral *)peripheral didUpdateNotificationStateForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error {
 }
 
+#pragma mark Audio Player
+
+- (void)startAudioPlayer {
+	if (_mutedAudioPlayer == nil) {
+	
+		// Init audio session
+		AVAudioSession *session = [AVAudioSession sharedInstance];
+		[session setCategory:AVAudioSessionCategoryPlayback withOptions:AVAudioSessionCategoryOptionMixWithOthers error:nil];
+		[session setActive:YES error:nil];
+
+		// Init audio player
+		NSError *error = nil;
+//	NSString *audioPath = [[NSBundle mainBundle] pathForResource:@"audio" ofType:@"mp3"];
+		NSString *audioPath = [[NSBundle mainBundle] pathForResource:@"silence" ofType:@"mp3"];
+		NSURL *audioUrl = [NSURL fileURLWithPath:audioPath];
+		_mutedAudioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:audioUrl error:&error];
+		
+		if ((_mutedAudioPlayer != nil) && (error == nil)) {
+			_mutedAudioPlayer.numberOfLoops = -1;
+			_mutedAudioPlayer.volume = 0.0f;
+			[_mutedAudioPlayer play];
+		}
+		else {
+			NSLog(@"ExposurePlugin Audio Player init error: %@", error.localizedDescription);
+		}
+	}
+}
+
+- (void)stopAudioPlayer {
+	if (_mutedAudioPlayer != nil) {
+		if (_mutedAudioPlayer.playing) {
+			[_mutedAudioPlayer stop];
+		}
+		_mutedAudioPlayer = nil;
+	}
+}
+
+
 #pragma mark Location Monitor
 
 - (void)startLocationManager {
 	if (_locationManager == nil) {
 		_locationManager = [[CLLocationManager alloc] init];
 		_locationManager.delegate = self;
-		_locationManager.distanceFilter = kCLDistanceFilterNone;
-		_locationManager.desiredAccuracy = kCLLocationAccuracyBest;
+		_locationManager.distanceFilter = 1000;
+		_locationManager.desiredAccuracy = kCLLocationAccuracyKilometer;
 		_locationManager.pausesLocationUpdatesAutomatically = NO;
 		_locationManager.allowsBackgroundLocationUpdates = YES;
 		[self startBeaconRanging];
@@ -716,8 +759,8 @@ static ExposurePlugin *g_Instance = nil;
 
 - (void)startLocationMonitor {
 	if ((_locationManager != nil) && !_monitoringLocation && self.canLocationMonitor) {
-    [_locationManager startUpdatingLocation];
-    [_locationManager startUpdatingHeading];
+//  [_locationManager startUpdatingLocation];
+//  [_locationManager startUpdatingHeading];
     [_locationManager startMonitoringSignificantLocationChanges];
     _monitoringLocation = YES;
 	}
@@ -725,8 +768,8 @@ static ExposurePlugin *g_Instance = nil;
 
 - (void)stopLocationMonitor {
 	if ((_locationManager != nil) && _monitoringLocation) {
-		[_locationManager stopUpdatingLocation];
-		[_locationManager stopUpdatingHeading];
+//	[_locationManager stopUpdatingLocation];
+//	[_locationManager stopUpdatingHeading];
 		_monitoringLocation = NO;
 	}
 }
@@ -807,6 +850,7 @@ static ExposurePlugin *g_Instance = nil;
 	[notificationCenter addObserver:self selector:@selector(applicationWillEnterForeground) name:UIApplicationWillEnterForegroundNotification object:nil];
 	[notificationCenter addObserver:self selector:@selector(applicationWillResignActive) name:UIApplicationWillResignActiveNotification object:nil];
 	[notificationCenter addObserver:self selector:@selector(applicationDidBecomeActive) name:UIApplicationDidBecomeActiveNotification object:nil];
+	[notificationCenter addObserver:self selector:@selector(audioSessionInterruptionNotification:) name:AVAudioSessionInterruptionNotification object:nil];
 }
 
 - (void)disconnectAppLiveCycleEvents {
@@ -815,7 +859,7 @@ static ExposurePlugin *g_Instance = nil;
 	[notificationCenter removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
 	[notificationCenter removeObserver:self name:UIApplicationWillResignActiveNotification object:nil];
 	[notificationCenter removeObserver:self name:UIApplicationDidBecomeActiveNotification object:nil];
-	
+	[notificationCenter removeObserver:self name:AVAudioSessionInterruptionNotification object:nil];
 }
 
 - (void)applicationDidEnterBackground {
@@ -837,8 +881,8 @@ static ExposurePlugin *g_Instance = nil;
 - (void)applicationWillResignActive {
 	[UIApplication.sharedApplication beginReceivingRemoteControlEvents];
 	if ((_locationManager != nil) && self.canLocationMonitor && _monitoringLocation) {
-    [_locationManager startUpdatingLocation];
-    [_locationManager startUpdatingHeading];
+//  [_locationManager startUpdatingLocation];
+//  [_locationManager startUpdatingHeading];
     [_locationManager startMonitoringSignificantLocationChanges];
 	}
 }
@@ -847,6 +891,18 @@ static ExposurePlugin *g_Instance = nil;
 	[UIApplication.sharedApplication endReceivingRemoteControlEvents];
 }
 
+- (void)audioSessionInterruptionNotification:(NSNotification *)notification {
+	if (_mutedAudioPlayer != nil) {
+		int interruptionType = [notification.userInfo inaIntForKey:AVAudioSessionInterruptionTypeKey];
+		int interruptionOption = [notification.userInfo inaIntForKey:AVAudioSessionInterruptionOptionKey];
+		if ((interruptionType == AVAudioSessionInterruptionTypeBegan) && _mutedAudioPlayer.playing) {
+			[_mutedAudioPlayer pause];
+		}
+		else if ((interruptionType == AVAudioSessionInterruptionTypeEnded) && (interruptionOption == AVAudioSessionInterruptionOptionShouldResume) && !_mutedAudioPlayer.playing) {
+			[_mutedAudioPlayer play];
+		}
+	}
+}
 
 #pragma mark Settings
 

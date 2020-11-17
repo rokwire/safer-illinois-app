@@ -1026,7 +1026,7 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 		if (rndStatus == errSecSuccess) {
 			NSNumber *result = uiucSecStorageData(deviceUUID, deviceUUID, [NSData dataWithBytes:uuidData length:sizeof(uuidData)]);
 			if ([result isKindOfClass:[NSNumber class]] && [result boolValue]) {
-				return [[NSUUID alloc] initWithUUIDBytes:data.bytes];
+				return [[NSUUID alloc] initWithUUIDBytes:uuidData];
 			}
 		}
 	}

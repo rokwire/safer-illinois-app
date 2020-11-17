@@ -45,13 +45,6 @@
     <!-- MapActivity -->
     <string name="mapTitle">地圖</string>
 
-    <!-- MapPickLocationActivity -->
-    <string name="pick_location">選擇地點</string>
-    <string name="custom">定制</string>
-    <string name="select_location_msg">請選擇一個位置</string>
-    <string name="location_label">位置: %1$s</string>
-    <string name="save">保存</string>
-
     <!-- Exposure -->
     <string name="exposure_notification_channel_description">曝光通知系統</string>
     <string name="exposure_notification_title">曝光通知系統檢查</string>

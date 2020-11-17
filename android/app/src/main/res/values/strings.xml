@@ -45,13 +45,6 @@
     <!-- MapActivity -->
     <string name="mapTitle">Maps</string>
 
-    <!-- MapPickLocationActivity -->
-    <string name="pick_location">Pick Location</string>
-    <string name="custom">CUSTOM</string>
-    <string name="select_location_msg">Please, select a location</string>
-    <string name="location_label">Location: %1$s</string>
-    <string name="save">Save</string>
-
     <!-- Exposure -->
     <string name="exposure_notification_channel_description">Exposure Notification system</string>
     <string name="exposure_notification_title">Exposure Notification system checking</string>

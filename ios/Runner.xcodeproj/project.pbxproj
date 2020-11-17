@@ -47,6 +47,8 @@
 		26C07E2E247677A600E28D43 /* ExposurePlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 26C07E2D247677A600E28D43 /* ExposurePlugin.m */; };
 		26C90CED2361CF480092E07F /* NSDictionary+InaPathKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 26C90CEC2361CF480092E07F /* NSDictionary+InaPathKey.m */; };
 		26C90CF02361D13E0092E07F /* NSDictionary+UIUCConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 26C90CEE2361D13E0092E07F /* NSDictionary+UIUCConfig.m */; };
+		26DD091D2563DE0D003E7F70 /* audio.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 26DD091C2563DE0D003E7F70 /* audio.mp3 */; };
+		26DD091F2563DF35003E7F70 /* silence.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 26DD091E2563DF35003E7F70 /* silence.mp3 */; };
 		26ECB3232487938C00479487 /* CommonCrypto+UIUCUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 26ECB3222487938C00479487 /* CommonCrypto+UIUCUtils.m */; };
 		26ECB3262487AD0900479487 /* Security+UIUCUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 26ECB3252487AD0900479487 /* Security+UIUCUtils.m */; };
 		26FA06BE22CCA9B5003B78E4 /* NSDictionary+InaTypedValue.m in Sources */ = {isa = PBXBuildFile; fileRef = 26FA06BC22CCA9B5003B78E4 /* NSDictionary+InaTypedValue.m */; };
@@ -138,6 +140,8 @@
 		26C90CEC2361CF480092E07F /* NSDictionary+InaPathKey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+InaPathKey.m"; sourceTree = "<group>"; };
 		26C90CEE2361D13E0092E07F /* NSDictionary+UIUCConfig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+UIUCConfig.m"; sourceTree = "<group>"; };
 		26C90CEF2361D13E0092E07F /* NSDictionary+UIUCConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+UIUCConfig.h"; sourceTree = "<group>"; };
+		26DD091C2563DE0D003E7F70 /* audio.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = audio.mp3; sourceTree = "<group>"; };
+		26DD091E2563DF35003E7F70 /* silence.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = silence.mp3; sourceTree = "<group>"; };
 		26E0DD6D2525C33B002B7B11 /* Release-Dev.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = "Release-Dev.xcconfig"; path = "Flutter/Release-Dev.xcconfig"; sourceTree = "<group>"; };
 		26E0DD712525C46D002B7B11 /* Debug-Dev.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "Debug-Dev.xcconfig"; path = "Flutter/Debug-Dev.xcconfig"; sourceTree = "<group>"; };
 		26E0DD722525C46D002B7B11 /* Dev.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Dev.xcconfig; path = Flutter/Dev.xcconfig; sourceTree = "<group>"; };
@@ -234,6 +238,8 @@
 		26C0B694230584BF005F0A88 /* Assets */ = {
 			isa = PBXGroup;
 			children = (
+				26DD091C2563DE0D003E7F70 /* audio.mp3 */,
+				26DD091E2563DF35003E7F70 /* silence.mp3 */,
 			);
 			path = Assets;
 			sourceTree = "<group>";
@@ -474,12 +480,14 @@
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
 				269F83E822D73E7400CC11A4 /* maps-icon-marker-circle-20@2x.png in Resources */,
 				26962B542306E8000026240A /* maps-icon-marker-pin-20@2x.png in Resources */,
+				26DD091F2563DF35003E7F70 /* silence.mp3 in Resources */,
 				26962B592306EB190026240A /* maps-icon-marker-pin-50@2x.png in Resources */,
 				26A170ED22DDFB6500299773 /* button-icon-nav-clear.png in Resources */,
 				268F30F222E5DD7900547FE1 /* travel-mode-transit@2x.png in Resources */,
 				26962B562306E8000026240A /* maps-icon-marker-pin-10@2x.png in Resources */,
 				268F30F622E5E47600547FE1 /* travel-mode-unknown@2x.png in Resources */,
 				26A170EB22DDFB6500299773 /* button-icon-nav-next.png in Resources */,
+				26DD091D2563DE0D003E7F70 /* audio.mp3 in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
 				2605FF54236C13A6002F71BE /* GoogleService-Info-Dev.plist in Resources */,

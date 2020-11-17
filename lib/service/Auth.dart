@@ -460,12 +460,19 @@ class Auth with Service implements NotificationsListener {
     _notifyAuthInfoChanged();
 
     // 7.3 UserPiiData
-    _applyUserPiiData(newUserPiiData, newUserPiiDataString);
 
-    // 7.4 apply UserData
+    // 7.4 Update UserPiiData if need and then apply
+    if(newAuthInfo != null && newUserPiiData.updateFromAuthInfo(newAuthInfo)){
+      storeUserPiiData(newUserPiiData);
+    }
+    else {
+      _applyUserPiiData(newUserPiiData, newUserPiiDataString);
+    }
+
+    // 7.5 apply UserData
     User().applyUserData(newUserData);
 
-    // 7.5 notifyLoggedIn event
+    // 7.6 notifyLoggedIn event
     _notifyAuthLoginSucceeded(analyticsAction: Analytics.LogAuthLoginPhoneActionName);
 
     return true;
@@ -493,7 +500,7 @@ class Auth with Service implements NotificationsListener {
 
   Future<AuthInfo> _loadPhoneAuthInfo({AuthToken optAuthToken}) async {
     dynamic result = await _loadCapitolStaffUIN(optAuthToken: optAuthToken);
-    return (result is String) ? AuthInfo(uin: result) : null;
+    return (result is AuthInfo) ? result : null;
   }
 
   Future<dynamic> _loadCapitolStaffUIN({AuthToken optAuthToken}) async {
@@ -504,10 +511,9 @@ class Auth with Service implements NotificationsListener {
       Http.Response userDataResp = await Network().get(url, auth: NetworkAuth.App);
       if ((userDataResp != null) && (userDataResp.statusCode == 200)) {
         Map<String, dynamic> responseJson = AppJson.decodeMap(userDataResp.body);
-        String uin = (responseJson != null) ? responseJson['uin'] : null;
-        //TMP: uin = '000000000';
-        // String or null, if the user does not bellong to roster
-        return uin;
+        //TMP: return AuthInfo(uin: '000000000');
+        // AuthInfo or null, if the user does not bellong to roster
+        return responseJson != null ? AuthInfo.fromRosterJson(responseJson) : null;
       }
       else {
         // Request failed
