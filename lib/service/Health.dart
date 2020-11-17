@@ -1336,7 +1336,7 @@ class Health with Service implements NotificationsListener {
 
   String get _userId {
     if (Auth().isShibbolethLoggedIn) {
-      return Auth().authInfo?.uin;
+      return Auth().authUser?.uin;
     }
     else if (Auth().isPhoneLoggedIn) {
       return Auth().phoneToken?.phone;
@@ -1373,7 +1373,7 @@ class Health with Service implements NotificationsListener {
     }
     
     // Always update user info.
-    String userInfo = AppString.isStringNotEmpty(Auth().authInfo?.fullName) ? Auth().authInfo.fullName : Auth().phoneToken?.phone;
+    String userInfo = AppString.isStringNotEmpty(Auth().authUser?.fullName) ? Auth().authUser.fullName : Auth().phoneToken?.phone;
     await user.encryptBlob(HealthUserBlob(info: userInfo), _servicePublicKey);
     // update user info only if we have something to set
     // userUpdated = true;

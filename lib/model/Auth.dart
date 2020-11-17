@@ -87,7 +87,7 @@ class ShibbolethToken with AuthToken {
       expiresIn.hashCode;
 }
 
-class PhoneToken with AuthToken{
+class PhoneToken with AuthToken {
   final String phone;
   final String idToken;
   final String tokenType = "Bearer"; // missing data from the phone validation
@@ -111,14 +111,14 @@ class PhoneToken with AuthToken{
   bool operator ==(o) =>
       o is PhoneToken &&
           o.phone == phone &&
-          o.accessToken == accessToken;
+          o.idToken == idToken;
 
   int get hashCode =>
       phone.hashCode ^
-      accessToken.hashCode;
+      idToken.hashCode;
 }
 
-class AuthInfo {
+class AuthUser {
 
   String fullName;
   String firstName;
@@ -134,17 +134,17 @@ class AuthInfo {
   static const analyticsFirstName = 'FirstNameXXXXXX';
   static const analyticsLastName = 'LastNameXXXXXX';
 
-  AuthInfo({this.fullName, this.firstName, this.middleName, this.lastName,
+  AuthUser({this.fullName, this.firstName, this.middleName, this.lastName,
     this.username, this.uin, this.sub, this.email, this.userGroupMembership});
 
-  factory AuthInfo.fromJson(Map<String, dynamic> json) {
+  factory AuthUser.fromJson(Map<String, dynamic> json) {
     dynamic groupMembershipJson = json != null
         ? json['uiucedu_is_member_of']
         : null;
     Set<String> userGroupMembership = groupMembershipJson != null ? Set.from(
         groupMembershipJson) : null;
 
-    return (json != null) ? AuthInfo(
+    return (json != null) ? AuthUser(
         fullName: AppString.isStringNotEmpty(json["name"]) ? json["name"] : "",
         firstName: AppString.isStringNotEmpty(json["given_name"]) ? json["given_name"] : "",
         middleName: AppString.isStringNotEmpty(json["middle_name"]) ? json["middle_name"] : "",
@@ -157,7 +157,7 @@ class AuthInfo {
     ) : null;
   }
 
-  factory AuthInfo.fromRosterJson(Map<String, dynamic> json) {
+  factory AuthUser.fromRosterJson(Map<String, dynamic> json) {
     if(json != null) {
       String firstName = AppString.isStringNotEmpty(json["first_name"]) ? json["first_name"] : "";
       String middleName = AppString.isStringNotEmpty(json["middle_name"]) ? json["middle_name"] : "";
@@ -175,7 +175,7 @@ class AuthInfo {
         }
       });
 
-      return AppString.isStringNotEmpty(uin) ? AuthInfo(
+      return AppString.isStringNotEmpty(uin) ? AuthUser(
           firstName: firstName,
           middleName: middleName,
           lastName: lastName,
@@ -295,3 +295,70 @@ class AuthCard {
   }
 }
 
+class RokmetroToken {
+  final String idToken;
+  final String tokenType = "Bearer"; // missing data from the phone validation
+
+  RokmetroToken({this.idToken});
+
+  factory RokmetroToken.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? RokmetroToken(
+      idToken: json['id_token'],
+    ) : null;
+  }
+
+  toJson() {
+    return {
+      'id_token': idToken,
+    };
+  }
+
+  bool operator ==(o) =>
+      o is RokmetroToken &&
+          o.idToken == idToken;
+
+  int get hashCode =>
+      idToken.hashCode;
+}
+
+class RokmetroUser {
+  final String uid;
+  final String name;
+  final String email;
+  final String phone;
+  final String groups;
+  final String auth;
+  final String type;
+  final String iss;
+  final int exp;
+
+  RokmetroUser({this.uid, this.name, this.email, this.phone, this.groups, this.auth, this.type, this.iss, this.exp});  
+
+  factory RokmetroUser.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? RokmetroUser(
+      uid: AppJson.stringValue(json['uid']),
+      name: AppJson.stringValue(json['name']),
+      email: AppJson.stringValue(json['email']),
+      phone: AppJson.stringValue(json['phone']),
+      groups: AppJson.stringValue(json['groups']),
+      auth: AppJson.stringValue(json['auth']),
+      type: AppJson.stringValue(json['type']),
+      iss: AppJson.stringValue(json['iss']),
+      exp: AppJson.intValue(json['exp']),
+    ) : null;
+  }
+
+  dynamic toJson() {
+    return {
+      "uid" : uid,
+      "name" : name,
+      "email" : email,
+      "phone" : phone,
+      "groups" : groups,
+      "auth" : auth,
+      "type" : type,
+      "iss" : iss,
+      "exp" : exp,
+    };
+  }
+}

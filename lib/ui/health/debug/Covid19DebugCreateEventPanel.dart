@@ -516,7 +516,7 @@ class _Covid19DebugCreateEventPanelState extends State<Covid19DebugCreateEventPa
     String url = "${Config().healthUrl}/covid19/ctests";
     String post = AppJson.encode({
       'provider_id': providerId,
-      'uin': Auth().authInfo?.uin,
+      'uin': Auth().authUser?.uin,
       'encrypted_key': encryptedKey,
       'encrypted_blob': encryptedBlob
     });

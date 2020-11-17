@@ -53,7 +53,7 @@ class Auth with Service implements NotificationsListener {
   static const String notifyLoginSucceeded  = "edu.illinois.rokwire.auth.login_succeeded";
   static const String notifyLoginFailed  = "edu.illinois.rokwire.auth.login_failed";
   static const String notifyLoginChanged  = "edu.illinois.rokwire.auth.login_changed";
-  static const String notifyInfoChanged  = "edu.illinois.rokwire.auth.info.changed";
+  static const String notifyUserChanged  = "edu.illinois.rokwire.auth.user.changed";
   static const String notifyUserPiiDataChanged  = "edu.illinois.rokwire.auth.pii.changed";
   static const String notifyCardChanged  = "edu.illinois.rokwire.auth.card.changed";
 
@@ -63,25 +63,31 @@ class Auth with Service implements NotificationsListener {
   static final Auth _auth = Auth._internal();
 
   AuthToken _authToken;
-  AuthToken get authToken{ return _authToken; }
+  AuthToken get authToken { return _authToken; }
 
-  ShibbolethToken get shibbolethToken{ return _authToken is ShibbolethToken ? _authToken : null; }
-  PhoneToken get phoneToken{ return _authToken is PhoneToken ? _authToken : null; }
+  ShibbolethToken get shibbolethToken { return _authToken is ShibbolethToken ? _authToken : null; }
+  PhoneToken get phoneToken { return _authToken is PhoneToken ? _authToken : null; }
 
-  AuthInfo _authInfo;
-  AuthInfo get authInfo{ return _authInfo; }
+  AuthUser _authUser;
+  AuthUser get authUser { return _authUser; }
+
+  RokmetroToken _rokmetroToken;
+  RokmetroToken get rokmetroToken { return _rokmetroToken; }
+
+  RokmetroUser _rokmetroUser;
+  RokmetroUser get rokmetroUser { return _rokmetroUser; }
 
   UserPiiData _userPiiData;
-  UserPiiData get userPiiData{ return _userPiiData; }
+  UserPiiData get userPiiData { return _userPiiData; }
   File _userPiiCacheFile;
 
   AuthCard _authCard;
-  AuthCard get authCard{ return _authCard; }
+  AuthCard get authCard { return _authCard; }
   File _authCardCacheFile;
 
   Future<Http.Response> _refreshTokenFuture;
 
-  Future<Uint8List> get photoImageBytes async{
+  Future<Uint8List> get photoImageBytes async {
     Uint8List bytes;
     if(Auth().isShibbolethLoggedIn){
       bytes = await Auth().authCard.photoBytes;
@@ -111,7 +117,10 @@ class Auth with Service implements NotificationsListener {
   @override
   Future<void> initService() async {
     _authToken = Storage().authToken;
-    _authInfo = Storage().authInfo;
+    _authUser = Storage().authUser;
+
+    _rokmetroToken = Storage().rokmetroToken;
+    _rokmetroUser = Storage().rokmetroUser;
 
     _authCardCacheFile = await _getAuthCardCacheFile();
     _authCard = await _loadAuthCardFromCache();
@@ -125,7 +134,10 @@ class Auth with Service implements NotificationsListener {
   @override
   Future<void> clearService() async {
     _authToken = null;
-    _authInfo = null;
+    _authUser = null;
+
+    _rokmetroToken = null;
+    _rokmetroUser = null;
 
     AppFile.delete(_authCardCacheFile);
     _authCard = null;
@@ -158,23 +170,23 @@ class Auth with Service implements NotificationsListener {
   }
 
   bool get hasUIN {
-    return (0 < (authInfo?.uin?.length ?? 0));
+    return (0 < (_authUser?.uin?.length ?? 0));
   }
 
   bool get isEventEditor {
-    return authInfo?.userGroupMembership?.contains('urn:mace:uiuc.edu:urbana:authman:app-rokwire-service-policy-rokwire event approvers') ?? false;
+    return _authUser?.userGroupMembership?.contains('urn:mace:uiuc.edu:urbana:authman:app-rokwire-service-policy-rokwire event approvers') ?? false;
   }
 
   bool get isStadiumPollManager {
-    return authInfo?.userGroupMembership?.contains('urn:mace:uiuc.edu:urbana:authman:app-rokwire-service-policy-rokwire stadium poll manager') ?? false;
+    return _authUser?.userGroupMembership?.contains('urn:mace:uiuc.edu:urbana:authman:app-rokwire-service-policy-rokwire stadium poll manager') ?? false;
   }
 
   bool get isDebugManager {
-    return authInfo?.userGroupMembership?.contains('urn:mace:uiuc.edu:urbana:authman:app-rokwire-service-policy-rokwire debug') ?? false;
+    return _authUser?.userGroupMembership?.contains('urn:mace:uiuc.edu:urbana:authman:app-rokwire-service-policy-rokwire debug') ?? false;
   }
 
   bool isMemberOf(String groupName) {
-    return authInfo?.userGroupMembership?.contains(groupName) ?? false;
+    return _authUser?.userGroupMembership?.contains(groupName) ?? false;
   }
 
   bool get isCapitolStaff {
@@ -187,17 +199,21 @@ class Auth with Service implements NotificationsListener {
 
   void _clear([bool notify = false]){
     _authToken = null;
-    _authInfo = null;
+    _authUser = null;
+    _rokmetroToken = null;
+    _rokmetroUser = null;
     _authCard = null;
 
     _applyUserPiiData(null, null);
 
     _saveAuthToken();
-    _saveAuthInfo();
+    _saveAuthUser();
+    _saveRokmetroToken();
+    _saveRokmetroUser();
     _clearAuthCard();
 
     if(notify) {
-      _notifyAuthInfoChanged();
+      _notifyAuthUserChanged();
       _notifyAuthCardChanged();
       _notifyAuthTokenChanged();
       _notifyAuthLoggedOut();
@@ -236,26 +252,44 @@ class Auth with Service implements NotificationsListener {
 
     // 1. Request Tokens 
     AuthToken newAuthToken = await _loadShibbolethAuthTokenWithCode(code);
-    if(newAuthToken == null){
+    if (newAuthToken == null) {
       _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
       return;
     }
 
-    // 2. Request AuthInfo
-    AuthInfo newAuthInfo = await _loadAuthInfo(optAuthToken: newAuthToken);
-    if(newAuthInfo == null){
+    // 2. Request Rokmetro token
+    RokmetroToken newRokmetroToken = await _loadRokmetroToken(optAuthToken: newAuthToken);
+    if (newRokmetroToken == null) {
       _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
       return;
     }
 
-    // 3. Request User Pii Pid
-    String newUserPiiPid = await _loadPidWithShibbolethAuth(email: newAuthInfo?.email, optAuthToken: newAuthToken);
-    if(newUserPiiPid == null){
+    // 3. Request AuthUser & RokmetroUser
+    List<dynamic> userResults = await Future.wait([
+      _loadShibbolethAuthUser(optAuthToken: newAuthToken),
+      _loadRokmetroUser(optRokmetroToken: newRokmetroToken)
+    ]);
+
+    AuthUser newAuthUser = ((userResults != null) && (0 < userResults.length)) ? userResults[0] : null;
+    if (newAuthUser == null) {
       _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
       return;
     }
 
-    // 4. Request UserPiiData
+    RokmetroUser newRokmetroUser = ((userResults != null) && (1 < userResults.length)) ? userResults[1] : null;
+    if (newRokmetroUser == null) {
+      _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
+      return;
+    }
+
+    // 4. Request User Pii Pid
+    String newUserPiiPid = await _loadPidWithShibbolethAuth(email: newAuthUser?.email, optAuthToken: newAuthToken);
+    if (newUserPiiPid == null) {
+      _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
+      return;
+    }
+
+    // 5. Request UserPiiData
     String newUserPiiDataString = await _loadUserPiiDataStringFromNet(pid: newUserPiiPid, optAuthToken: newAuthToken);
     UserPiiData newUserPiiData = _userPiiDataFromJsonString(newUserPiiDataString);
     if(newUserPiiData == null || AppCollection.isCollectionEmpty(newUserPiiData?.uuidList)){
@@ -263,65 +297,75 @@ class Auth with Service implements NotificationsListener {
       return;
     }
 
-    // 5. Request UserData
-    UserData newUserData;
-    try {
-      newUserData = await User().requestUser(newUserPiiData.uuidList.first);
-    } on UserNotFoundException catch (_) {}
-    if(newUserData == null){
+    // 6. Request UserData &  AuthCard
+    List<Future<dynamic>> dataFutures = <Future>[
+      _loadUserProfile(userUuid: newUserPiiData.uuid),
+    ];
+    if (0 < (newAuthUser?.uin?.length ?? 0)) {
+      dataFutures.add(
+        _loadAuthCardStringFromNet(optAuthToken: newAuthToken, optAuthUser: newAuthUser)
+      );
+    }
+    List<dynamic> dataResults = await Future.wait(dataFutures);
+
+    UserData newUserProfile = ((dataResults != null) && (0 < dataResults.length)) ? dataResults[0] : null;
+    if (newUserProfile == null) {
       _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
       return;
     }
-    
-    // 6. Load Auth Card
-    String jsonString = ((0 < (newAuthInfo?.uin?.length ?? 0))) ? await _loadAuthCardStringFromNet(optAuthToken: newAuthToken, optAuthInfo: newAuthInfo) : null;
-    AuthCard authCard = _authCardFromJsonString(jsonString);
+
+    String authCardString = ((dataResults != null) && (1 < dataResults.length)) ? dataResults[1] : null;
+    AuthCard authCard = _authCardFromJsonString(authCardString);
 
     // Everything is fine - cleanup and store new tokens and data
     // 7. Clear everything before proceed further. Notification is not required at this stage
     _clear(false);
 
     // 8. Store everythong and notify everyone
-    // 8.1 AuthToken
+    // 8.1 AuthToken && AuthUser
     _authToken = newAuthToken;
-    _saveAuthToken();
-    _notifyAuthTokenChanged();
+    _authUser = newAuthUser;
 
-    // 8.2 AuthInfo
-    _authInfo = newAuthInfo;
-    _saveAuthInfo();
-    _notifyAuthInfoChanged();
+    _saveAuthToken();
+    _saveAuthUser();
+
+    _notifyAuthTokenChanged();
+    _notifyAuthUserChanged();
+
+    // 8.2 RokmetroToken & RokmetroUser
+    _rokmetroToken = newRokmetroToken;
+    _rokmetroUser = newRokmetroUser;
+
+    _saveRokmetroToken();
+    _saveRokmetroUser();
 
     // 8.3 UserPiiData
-    _applyUserPiiData(newUserPiiData, newUserPiiDataString);
-
-    // 8.4 UserData
-    User().applyUserData(newUserData);
-
-    // 6.2 Update UserPiiData if need and then apply
-    if(newUserPiiData.updateFromAuthInfo(newAuthInfo)){
+    if(newUserPiiData.updateFromAuthUser(newAuthUser)){
       storeUserPiiData(newUserPiiData);
     }
     else {
       _applyUserPiiData(newUserPiiData, newUserPiiDataString);
     }
 
+    // 8.4 UserProfile
+    _applyUserProfile(newUserProfile);
+
     // 8.5 AuthCard
-    _applyAuthCard(authCard, jsonString);
+    _applyAuthCard(authCard, authCardString);
 
     _notifyAuthLoginSucceeded(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
   }
 
-  Future<void> _syncProfilePiiDataIfNeed() async{
+  Future<void> _syncProfilePiiDataIfNeed() async {
     if(isShibbolethLoggedIn){
       UserPiiData piiData = userPiiData;
-      if((piiData != null) && piiData.updateFromAuthInfo(authInfo)){
+      if((piiData != null) && piiData.updateFromAuthUser(_authUser)){
         storeUserPiiData(piiData);
       }
     }
   }
 
-  Future<AuthToken> _loadShibbolethAuthTokenWithCode(String code) async{
+  Future<AuthToken> _loadShibbolethAuthTokenWithCode(String code) async {
     
     String tokenUriStr = Config().shibbolethOidcTokenUrl
         ?.replaceAll("{shibboleth_client_id}", Config().shibbolethClientId ?? '')
@@ -340,14 +384,12 @@ class Auth with Service implements NotificationsListener {
       if(jsonData != null){
         return ShibbolethToken.fromJson(jsonData);
       }
-    }catch(e){}
-    finally{
-      Analytics().logHttpResponse(response, requestMethod: 'POST', requestUrl: tokenUriStr);
     }
+    catch(e) { print(e?.toString()); }
     return null;
   }
 
-  Future<AuthInfo> _loadAuthInfo({AuthToken optAuthToken}) async{
+  Future<AuthUser> _loadShibbolethAuthUser({AuthToken optAuthToken}) async {
     optAuthToken = (optAuthToken != null) ? optAuthToken : _authToken;
     if (Config().shibbolethOidcUserUrl != null) {
       try {
@@ -355,10 +397,53 @@ class Auth with Service implements NotificationsListener {
         String responseBody = ((userDataResp != null) && (userDataResp.statusCode == 200)) ? userDataResp.body : null;
         if ((responseBody != null) && (userDataResp.statusCode == 200)) {
           var userDataMap = (responseBody != null) ? AppJson.decode(responseBody) : null;
-          return (userDataMap != null) ? AuthInfo.fromJson(userDataMap) : null;
+          return (userDataMap != null) ? AuthUser.fromJson(userDataMap) : null;
         }
       }
       catch(e) { print(e.toString()); }
+    }
+    return null;
+  }
+
+  Future<RokmetroToken> _loadRokmetroToken({AuthToken optAuthToken}) async {
+    if ((Config().rokmetroAuthUrl != null) && (Config().rokmetroApiKey != null)) {
+      try {
+        String url = "${Config().rokmetroAuthUrl}/swap-token";
+        AuthToken token = optAuthToken ?? _authToken;
+        String idToken = token?.idToken;
+        String tokenType = token?.tokenType ?? 'Bearer';
+        Map <String, String> headers = {
+          Network.RokwireApiKey : Config().rokmetroApiKey,
+          HttpHeaders.authorizationHeader: "$tokenType $idToken"
+        };
+        Http.Response response = await Network().get(url, headers: headers);
+        String responseBody = (response?.statusCode == 200) ? response.body : null;
+        return (responseBody != null) ? RokmetroToken(idToken: responseBody) : null;
+      } catch(e) {
+        print(e?.toString());
+      }
+    }
+    return null;
+  }
+
+  Future<RokmetroUser> _loadRokmetroUser({RokmetroToken optRokmetroToken}) async {
+    if ((Config().rokmetroAuthUrl != null) && (Config().rokmetroApiKey != null)) {
+      try {
+        String url = "${Config().rokmetroAuthUrl}/user-info";
+        RokmetroToken token = optRokmetroToken ?? _rokmetroToken;
+        String idToken = token?.idToken;
+        String tokenType = token?.tokenType ?? 'Bearer';
+        Map <String, String> headers = {
+          Network.RokwireApiKey : Config().rokmetroApiKey,
+          HttpHeaders.authorizationHeader: "$tokenType $idToken"
+        };
+        Http.Response response = await Network().get(url, headers: headers);
+        String responseBody = (response?.statusCode == 200) ? response.body : null;
+        Map<String, dynamic> responseJson = (responseBody != null) ? AppJson.decodeMap(responseBody) : null;
+        return (responseJson != null) ? RokmetroUser.fromJson(responseJson) : null;
+      } catch(e) {
+        print(e?.toString());
+      }
     }
     return null;
   }
@@ -413,9 +498,9 @@ class Auth with Service implements NotificationsListener {
       return false;
     }
 
-    // 2. Request AuthInfo
+    // 2. Request AuthUser
     // Do not fail if Aith Info is NA
-    AuthInfo newAuthInfo = Config().capitolStaffRoleEnabled ? await _loadPhoneAuthInfo(optAuthToken: newAuthToken) : null;
+    AuthUser newAuthUser = Config().capitolStaffRoleEnabled ? await _loadPhoneAuthUser(optAuthToken: newAuthToken) : null;
 
     // 3. Pii Pid
     String newUserPiiPid = await _loadPidWithPhoneAuth(phone: phoneNumber, optAuthToken: newAuthToken);
@@ -433,11 +518,11 @@ class Auth with Service implements NotificationsListener {
     }
 
     // 5. UserData
-    UserData newUserData;
+    UserData newUserProfile;
     try {
-      newUserData = await User().requestUser(newUserPiiData.uuidList.first);
+      newUserProfile = await User().requestUser(newUserPiiData.uuidList.first);
     } on UserNotFoundException catch (_) {}
-    if(newUserData == null){
+    if(newUserProfile == null){
       _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginPhoneActionName);
       return false;
     }
@@ -452,15 +537,15 @@ class Auth with Service implements NotificationsListener {
     _saveAuthToken();
     _notifyAuthTokenChanged();
 
-    // 7.2 AuthInfo
-    _authInfo = newAuthInfo;
-    _saveAuthInfo();
-    _notifyAuthInfoChanged();
+    // 7.2 AuthUser
+    _authUser = newAuthUser;
+    _saveAuthUser();
+    _notifyAuthUserChanged();
 
     // 7.3 UserPiiData
 
     // 7.4 Update UserPiiData if need and then apply
-    if(newAuthInfo != null && newUserPiiData.updateFromAuthInfo(newAuthInfo)){
+    if(newAuthUser != null && newUserPiiData.updateFromAuthUser(newAuthUser)){
       storeUserPiiData(newUserPiiData);
     }
     else {
@@ -468,7 +553,7 @@ class Auth with Service implements NotificationsListener {
     }
 
     // 7.5 apply UserData
-    User().applyUserData(newUserData);
+    User().applyUserData(newUserProfile);
 
     // 7.6 notifyLoggedIn event
     _notifyAuthLoginSucceeded(analyticsAction: Analytics.LogAuthLoginPhoneActionName);
@@ -476,7 +561,7 @@ class Auth with Service implements NotificationsListener {
     return true;
   }
 
-  Future<AuthToken> _validatePhoneCode({String phone, String code}) async{
+  Future<AuthToken> _validatePhoneCode({String phone, String code}) async {
     String phoneVerifyBody = '{"phoneNumber":"$phone", "code":"$code"}';
     var headers = {
       "Content-Type": "application/json"
@@ -496,9 +581,9 @@ class Auth with Service implements NotificationsListener {
     return null;
   }
 
-  Future<AuthInfo> _loadPhoneAuthInfo({AuthToken optAuthToken}) async {
+  Future<AuthUser> _loadPhoneAuthUser({AuthToken optAuthToken}) async {
     dynamic result = await _loadCapitolStaffUIN(optAuthToken: optAuthToken);
-    return (result is AuthInfo) ? result : null;
+    return (result is AuthUser) ? result : null;
   }
 
   Future<dynamic> _loadCapitolStaffUIN({AuthToken optAuthToken}) async {
@@ -509,9 +594,9 @@ class Auth with Service implements NotificationsListener {
       Http.Response userDataResp = await Network().get(url, auth: NetworkAuth.App);
       if ((userDataResp != null) && (userDataResp.statusCode == 200)) {
         Map<String, dynamic> responseJson = AppJson.decodeMap(userDataResp.body);
-        //TMP: return AuthInfo(uin: '000000000');
-        // AuthInfo or null, if the user does not bellong to roster
-        return responseJson != null ? AuthInfo.fromRosterJson(responseJson) : null;
+        //TMP: return AuthUser(uin: '000000000');
+        // AuthUser or null, if the user does not bellong to roster
+        return (responseJson != null) ? AuthUser.fromRosterJson(responseJson) : null;
       }
       else {
         // Request failed
@@ -711,6 +796,17 @@ class Auth with Service implements NotificationsListener {
     return null;
   }
 
+  // User Profile Data
+
+  Future<UserData> _loadUserProfile({String userUuid}) async {
+    try { return await User().requestUser(userUuid); }
+    catch (_) { return null; }
+  }
+
+  void _applyUserProfile(UserData userProfile) {
+    User().applyUserData(userProfile);
+  }
+
   // Auth Card
 
   void _applyAuthCard(AuthCard authCard, String authCardJson) {
@@ -756,13 +852,13 @@ class Auth with Service implements NotificationsListener {
     return _authCardFromJsonString(await _loadAuthCardStringFromCache());
   }
 
-  Future<String> _loadAuthCardStringFromNet({AuthToken optAuthToken, AuthInfo optAuthInfo}) async {
-    optAuthToken = (optAuthToken != null) ? optAuthToken : authToken;
-    optAuthInfo = (optAuthInfo != null) ? optAuthInfo : authInfo;
+  Future<String> _loadAuthCardStringFromNet({AuthToken optAuthToken, AuthUser optAuthUser}) async {
+    optAuthToken = (optAuthToken != null) ? optAuthToken : _authToken;
+    optAuthUser = (optAuthUser != null) ? optAuthUser : _authUser;
     try {
       String url = Config().iCardUrl;
       Map<String, String> headers = {
-        'UIN': optAuthInfo?.uin,
+        'UIN': optAuthUser?.uin,
         'access_token': optAuthToken?.accessToken
       };
       Response response = (url != null) ? await Network().post(url, headers: headers) : null;
@@ -851,11 +947,19 @@ class Auth with Service implements NotificationsListener {
   // Utils
 
   void _saveAuthToken() {
-    Storage().authToken = authToken;
+    Storage().authToken = _authToken;
   }
 
-  void _saveAuthInfo() {
-    Storage().authInfo = authInfo;
+  void _saveAuthUser() {
+    Storage().authUser = _authUser;
+  }
+
+  void _saveRokmetroToken() {
+    Storage().rokmetroToken = _rokmetroToken;
+  }
+
+  void _saveRokmetroUser() {
+    Storage().rokmetroUser = _rokmetroUser;
   }
 
   void _clearAuthCard(){
@@ -876,8 +980,8 @@ class Auth with Service implements NotificationsListener {
     NotificationService().notify(notifyAuthTokenChanged, null);
   }
 
-  void _notifyAuthInfoChanged(){
-    NotificationService().notify(notifyInfoChanged, null);
+  void _notifyAuthUserChanged(){
+    NotificationService().notify(notifyUserChanged, null);
   }
 
   void _notifyAuthCardChanged(){
