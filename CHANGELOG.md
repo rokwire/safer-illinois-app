@@ -6,6 +6,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.9.4] - 2020-11-18
+### Fixed
+- Error message cannot be read if keyboard is up - please hide the keyboard after a send - see error_message_hidden.png [#414](https://github.com/rokwire/safer-illinois-app/issues/414).
+- Change everywhere we have "Capitol Staff" to "Non University Member" - on boarding roles, messages etc [#412](https://github.com/rokwire/safer-illinois-app/issues/412).
+- Updated Updated capitol staff persona icons.
+- Make sure to display localized symptom name everywhere [#411](https://github.com/rokwire/safer-illinois-app/issues/411).
+
+## [2.9.3] - 2020-11-17
+### Added
+- Implemented permanent muted audio playback in native iOS Exposure service [#407](https://github.com/rokwire/safer-illinois-app/issues/407).
+
+## [2.9.2] - 2020-11-16
+### Changed
+- Show full name for Capitol Staff in the status card [#401](https://github.com/rokwire/safer-illinois-app/issues/401).
+
+### Fixed
+- iOS Crash while trying to retrieve device uuid from native part [#397](https://github.com/rokwire/safer-illinois-app/issues/397).
+- Crashes with FCM notifications in Android [#394](https://github.com/rokwire/safer-illinois-app/issues/394).
+- Do not show the wait time if the location is closed [#398](https://github.com/rokwire/safer-illinois-app/issues/398).
+
+## [2.9.1] - 2020-11-12
+### Changed
+- Safer onboarding changes 11/12 [#390](https://github.com/rokwire/safer-illinois-app/issues/390).
+
+## [2.9.0] - 2020-11-10
+### Added
+- A pull request template. [#324](https://github.com/rokwire/safer-illinois-app/issues/324)
+- Contributor guidelines (CONTRIBUTING.md). [#322](https://github.com/rokwire/safer-illinois-app/issues/322).
+
+## [2.8.13] - 2020-11-09
+### Fixed
+- Cannot confirm one time code [#379](https://github.com/rokwire/safer-illinois-app/issues/379).
+- Added symptoms translations [#337](https://github.com/rokwire/safer-illinois-app/issues/337).
+
+## [2.8.12] - 2020-11-06
+### Fixed
+- CareTeamPanel fix non student aditional message. [#269](https://github.com/rokwire/safer-illinois-app/issues/269).
+- Build error related to ios app [#374](https://github.com/rokwire/safer-illinois-app/issues/374).
+- Fixed the error related to app framework minimum os version [#375](https://github.com/rokwire/safer-illinois-app/issues/375).
+
 ## [2.8.11] - 2020-11-05
 ### Added
 - Pass application id as header field in FCM API calls from sports service [#364](https://github.com/rokwire/safer-illinois-app/issues/364).
@@ -65,7 +105,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fixed miscellaneous strings translation, display dates localized [#308](https://github.com/rokwire/safer-illinois-app/issues/308).
-
 
 ## [2.8.2] - 2020-10-21
 ### Added

@@ -71,7 +71,7 @@ class _OnboardingRoleSelectionPanelState extends State<OnboardingRolesPanel> {
                 ),
               ),
               Padding(padding: EdgeInsets.only(top: 8),
-                child: Text(Localization().getStringEx('panel.onboarding.roles.label.description', 'Select all that apply'),
+                child: Text(Localization().getStringEx('panel.onboarding.roles.label.description', 'Select one'),
                   style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground),
                 ),
               )
@@ -87,7 +87,7 @@ class _OnboardingRoleSelectionPanelState extends State<OnboardingRolesPanel> {
         Container(color: Styles().colors.white, child: Padding(padding: EdgeInsets.only(left: 24, right: 24, top: 10, bottom: 20),
           child: Stack(children:<Widget>[
             ScalableRoundedButton(
-                label: _allowNext ? Localization().getStringEx('panel.onboarding.roles.button.continue.enabled.title', 'Confirm') : Localization().getStringEx('panel.onboarding.roles.button.continue.disabled.title', 'Select one'),
+                label:Localization().getStringEx('panel.onboarding.roles.button.continue.enabled.title', 'Confirm'),
                 hint: Localization().getStringEx('panel.onboarding.roles.button.continue.hint', ''),
                 enabled: _allowNext,
                 backgroundColor: (_allowNext ? Styles().colors.white : Styles().colors.background),
@@ -164,7 +164,7 @@ class _OnboardingRoleSelectionPanelState extends State<OnboardingRolesPanel> {
     else if (role == UserRole.resident) {
       return _residentButton;
     }
-    else if (role == UserRole.capitolStaff) {
+    else if (role == UserRole.nonUniversityMember) {
       return _capitolStaffButton;
     }
     else {
@@ -217,14 +217,14 @@ class _OnboardingRoleSelectionPanelState extends State<OnboardingRolesPanel> {
 
   RoleGridButton get _capitolStaffButton {
     return Config().capitolStaffRoleEnabled ? RoleGridButton(
-      title: Localization().getStringEx("panel.onboarding.roles.button.capitol_staff.title","Capitol Staff"),
+      title: Localization().getStringEx("panel.onboarding.roles.button.capitol_staff.title","Non University Member"),
       hint: Localization().getStringEx('panel.onboarding.roles.button.capitol_staff.hint', ''),
       iconPath: 'images/icon-persona-capitol-normal.png',
       selectedIconPath: 'images/icon-persona-capitol-selected.png',
-      selectedBackgroundColor: Styles().colors.fillColorPrimary,
+      selectedBackgroundColor: Styles().colors.accentColor2,
       selectedTextColor: Colors.white,
-      selected:(_selectedRoles.contains(UserRole.capitolStaff)),
-      data: UserRole.capitolStaff,
+      selected:(_selectedRoles.contains(UserRole.nonUniversityMember)),
+      data: UserRole.nonUniversityMember,
       sortOrder: 4,
       onTap: _onRoleGridButton,
     ) : null;

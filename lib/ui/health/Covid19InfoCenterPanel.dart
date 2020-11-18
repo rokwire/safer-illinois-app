@@ -64,6 +64,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
   bool _loadingStatus;
   Covid19History _lastHistory;
   String _currentCountyName;
+  HealthRulesSet _rules;
 
   @override
   void initState() {
@@ -135,6 +136,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
         _status = status;
         _loadingStatus = (Health().processing == true);
         if (Health().processing != true) {
+          _loadRules();
           _loadHistory();
           _updateCovid19Access();
         }
@@ -150,12 +152,22 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
     }
   }
 
+  void _loadRules() {
+    Health().loadRules2().then((HealthRulesSet rules) {
+      if (mounted) {
+        setState(() {
+          _rules = rules;
+        });
+      }
+    });
+  }
+
   void _loadHistory(){
     Health().loadCovid19History().then((List<Covid19History> history) {
       if (mounted) {
-       setState(() {
-         _lastHistory = Covid19History.mostRecent(history);
-       });
+        setState(() {
+          _lastHistory = Covid19History.mostRecent(history);
+        });
       }
     });
   }
@@ -319,7 +331,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
       info = blob.traceDurationDisplayString;
     } else if(blob.isSymptoms){
       historyTitle = Localization().getStringEx("panel.covid19home.label.reported_symptoms.title", "Self Reported Symptoms");
-      info = blob.symptomsDisplayString;
+      info = blob.symptomsDisplayString(rules: _rules);
     }
 
     List <Widget> content = <Widget>[

@@ -88,16 +88,16 @@ class UserRole {
   static const student = const UserRole._internal('student');
   static const employee = const UserRole._internal('employee');
   static const resident = const UserRole._internal('resident');
-  static const capitolStaff = const UserRole._internal('capitol_staff');
+  static const nonUniversityMember = const UserRole._internal('non_university_member');
 
   static List<UserRole> get values {
-    return [student, employee, resident, capitolStaff];
+    return [student, employee, resident, nonUniversityMember];
   }
 
   static Set<Set<UserRole>> get groups {
     return Set.from([
       Set<UserRole>.from([UserRole.student, UserRole.employee, UserRole.resident]),
-      Set<UserRole>.from([UserRole.capitolStaff]),
+      Set<UserRole>.from([UserRole.nonUniversityMember]),
     ]);
   }
   
