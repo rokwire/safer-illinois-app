@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Error message cannot be read if keyboard is up - please hide the keyboard after a send - see error_message_hidden.png [#414](https://github.com/rokwire/safer-illinois-app/issues/414).
 - Change everywhere we have "Capitol Staff" to "Non University Member" - on boarding roles, messages etc [#412](https://github.com/rokwire/safer-illinois-app/issues/412).
+- Updated Updated capitol staff persona icons.
 - Make sure to display localized symptom name everywhere [#411](https://github.com/rokwire/safer-illinois-app/issues/411).
 
 ## [2.9.3] - 2020-11-17
