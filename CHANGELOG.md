@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Fixed
+- Error message cannot be read if keyboard is up - please hide the keyboard after a send - see error_message_hidden.png [#414](https://github.com/rokwire/safer-illinois-app/issues/414).
+- Change everywhere we have "Capitol Staff" to "Non University Member" - on boarding roles, messages etc [#412](https://github.com/rokwire/safer-illinois-app/issues/412).
+- Make sure to display localized symptom name everywhere [#411](https://github.com/rokwire/safer-illinois-app/issues/411).
+
+## [2.9.3] - 2020-11-17
 ### Added
 - Implemented permanent muted audio playback in native iOS Exposure service [#407](https://github.com/rokwire/safer-illinois-app/issues/407).
 
