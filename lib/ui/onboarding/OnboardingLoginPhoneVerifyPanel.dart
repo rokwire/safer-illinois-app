@@ -62,162 +62,169 @@ class _OnboardingLoginPhoneVerifyPanelState
           behavior: HitTestBehavior.translucent,
           onTap: () => FocusScope.of(context).requestFocus(new FocusNode()),
           child: SafeArea(child:
-            Stack(children: <Widget>[
-              Padding(
-                padding: EdgeInsets.only(left: 18, right: 18, top: 10, bottom: 10),
-                child: SafeArea(child: SingleChildScrollView(child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
+            Column(
+              children: [
+                Expanded(
+                  child: Stack(children: <Widget>[
                     Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 36),
-                        child: Text(
-                            Localization().getStringEx(
-                                'panel.onboarding.verify_phone.title',
-                                'Connect to Illinois'),
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                fontFamily: Styles().fontFamilies.bold,
-                                fontSize: 36,
-                                color: Styles().colors.fillColorPrimary))),
-                    Container(
-                      height: 48,
-                    ),
-                    Padding(
-                        padding: EdgeInsets.only(left: 12, right: 12, bottom: 32),
-                        child: Text(
-                            Localization().getStringEx(
-                                "panel.onboarding.verify_phone.description",
-                                "To verify your phone number, choose your preferred contact channel, and we'll send you a one-time authentication code."),
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                fontFamily: Styles().fontFamilies.regular,
-                                fontSize: 18,
-                                color: Styles().colors.fillColorPrimary))),
-                    Padding(
-                      padding: EdgeInsets.only(left: 12, top: 12, bottom: 6),
-                      child: Text(
-                        Localization().getStringEx(
-                            "panel.onboarding.verify_phone.phone_number.label",
-                            "Phone number"),
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                            fontSize: 16,
-                            color: Styles().colors.fillColorPrimary,
-                            fontFamily: Styles().fontFamilies.bold),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 12, right: 12, bottom: 12),
-                      child: Semantics(
-                        label: Localization().getStringEx(
-                            "panel.onboarding.verify_phone.phone_number.label",
-                            "Phone number"),
-                        hint: Localization().getStringEx(
-                            "panel.onboarding.verify_phone.phone_number.hint",
-                            ""),
-                        textField: true,
-                        excludeSemantics: true,
-                        value: _phoneNumberController.text,
-                        child: TextField(
-                          controller: _phoneNumberController,
-                          autofocus: false,
-                          onSubmitted: (_) => _clearErrorMsg,
-                          cursorColor: Styles().colors.textBackground,
-                          keyboardType: TextInputType.phone,
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontFamily: Styles().fontFamilies.regular,
-                              color: Styles().colors.textBackground),
-                          decoration: InputDecoration(
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                  color: Colors.black,
-                                  width: 2.0,
-                                  style: BorderStyle.solid),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black, width: 2.0),
+                      padding: EdgeInsets.only(left: 18, right: 18, top: 10, bottom: 10),
+                      child: SafeArea(child: SingleChildScrollView(child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 36),
+                              child: Text(
+                                  Localization().getStringEx(
+                                      'panel.onboarding.verify_phone.title',
+                                      'Connect to Illinois'),
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      fontFamily: Styles().fontFamilies.bold,
+                                      fontSize: 36,
+                                      color: Styles().colors.fillColorPrimary))),
+                          Container(
+                            height: 48,
+                          ),
+                          Padding(
+                              padding: EdgeInsets.only(left: 12, right: 12, bottom: 32),
+                              child: Text(
+                                  Localization().getStringEx(
+                                      "panel.onboarding.verify_phone.description",
+                                      "To verify your phone number, choose your preferred contact channel, and we'll send you a one-time authentication code."),
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      fontFamily: Styles().fontFamilies.regular,
+                                      fontSize: 18,
+                                      color: Styles().colors.fillColorPrimary))),
+                          Padding(
+                            padding: EdgeInsets.only(left: 12, top: 12, bottom: 6),
+                            child: Text(
+                              Localization().getStringEx(
+                                  "panel.onboarding.verify_phone.phone_number.label",
+                                  "Phone number"),
+                              textAlign: TextAlign.left,
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  color: Styles().colors.fillColorPrimary,
+                                  fontFamily: Styles().fontFamilies.bold),
                             ),
                           ),
-                        ),
-                      ),
-                    ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Row(
-                          children: <Widget>[
-                            Semantics(
+                          Padding(
+                            padding: EdgeInsets.only(left: 12, right: 12, bottom: 12),
+                            child: Semantics(
+                              label: Localization().getStringEx(
+                                  "panel.onboarding.verify_phone.phone_number.label",
+                                  "Phone number"),
+                              hint: Localization().getStringEx(
+                                  "panel.onboarding.verify_phone.phone_number.hint",
+                                  ""),
+                              textField: true,
                               excludeSemantics: true,
-                              label: Localization().getStringEx("panel.onboarding.verify_phone.text_me.label", "Text me"),
-                              hint: Localization().getStringEx("panel.onboarding.verify_phone.text_me.hint", ""),
-                              selected: _verificationMethod == VerificationMethod.sms,
-                              button: true,
-                              child: Radio(
-                                activeColor: Styles().colors.fillColorSecondary,
-                                value: VerificationMethod.sms,
-                                groupValue: _verificationMethod,
-                                onChanged: _onMethodChanged,
+                              value: _phoneNumberController.text,
+                              child: TextField(
+                                controller: _phoneNumberController,
+                                autofocus: false,
+                                onSubmitted: (_) => _clearErrorMsg,
+                                cursorColor: Styles().colors.textBackground,
+                                keyboardType: TextInputType.phone,
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    fontFamily: Styles().fontFamilies.regular,
+                                    color: Styles().colors.textBackground),
+                                decoration: InputDecoration(
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Colors.black,
+                                        width: 2.0,
+                                        style: BorderStyle.solid),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.black, width: 2.0),
+                                  ),
+                                ),
                               ),
                             ),
-                            Text(
-                              Localization().getStringEx(
-                                  "panel.onboarding.verify_phone.text_me.label",
-                                  "Text me"),
-                              style: TextStyle(
-                                  fontSize: 16, fontFamily: Styles().fontFamilies.regular),
-                            )
-                          ],
-                        ),
-                      ],
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Row(
+                                children: <Widget>[
+                                  Semantics(
+                                    excludeSemantics: true,
+                                    label: Localization().getStringEx("panel.onboarding.verify_phone.text_me.label", "Text me"),
+                                    hint: Localization().getStringEx("panel.onboarding.verify_phone.text_me.hint", ""),
+                                    selected: _verificationMethod == VerificationMethod.sms,
+                                    button: true,
+                                    child: Radio(
+                                      activeColor: Styles().colors.fillColorSecondary,
+                                      value: VerificationMethod.sms,
+                                      groupValue: _verificationMethod,
+                                      onChanged: _onMethodChanged,
+                                    ),
+                                  ),
+                                  Text(
+                                    Localization().getStringEx(
+                                        "panel.onboarding.verify_phone.text_me.label",
+                                        "Text me"),
+                                    style: TextStyle(
+                                        fontSize: 16, fontFamily: Styles().fontFamilies.regular),
+                                  )
+                                ],
+                              ),
+                            ],
+                          ),
+                          Visibility(
+                            visible: AppString.isStringNotEmpty(_validationErrorMsg),
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(vertical: 12),
+                              child: Text(
+                                AppString.getDefaultEmptyString(value: _validationErrorMsg),
+                                style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 14,
+                                    fontFamily: Styles().fontFamilies.medium),
+                              ),
+                            ),
+                          ),
+                          Container(
+                            height: 20,
+                          ),
+                        ],
+                      ),),),
                     ),
                     Visibility(
-                      visible: AppString.isStringNotEmpty(_validationErrorMsg),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 12),
-                        child: Text(
-                          AppString.getDefaultEmptyString(value: _validationErrorMsg),
-                          style: TextStyle(
-                              color: Colors.red,
-                              fontSize: 14,
-                              fontFamily: Styles().fontFamilies.medium),
-                        ),
+                      visible: _isLoading,
+                      child: Center(
+                        child: CircularProgressIndicator(),
                       ),
                     ),
-                    Container(
-                      height: 48,
-                    ),
-                  ],
-                ),),),
-              ),
-              Visibility(
-                visible: _isLoading,
-                child: Center(
-                  child: CircularProgressIndicator(),
+                    OnboardingBackButton(
+                        padding: const EdgeInsets.only(left: 10, top: 10, right: 20, bottom: 20),
+                        onTap: () {
+                          Analytics.instance.logSelect(target: "Back");
+                          Navigator.pop(context);
+                        }),
+                  ],),
                 ),
-              ),
-              OnboardingBackButton(
-                  padding: const EdgeInsets.only(left: 10, top: 10, right: 20, bottom: 20),
-                  onTap: () {
-                    Analytics.instance.logSelect(target: "Back");
-                    Navigator.pop(context);
-                  }),
-              Align(alignment: Alignment.bottomCenter, child:
                 Padding(padding: EdgeInsets.only(left: 36, right: 36, bottom: 24), child:
-                  ScalableRoundedButton(
+                ScalableRoundedButton(
                     label: Localization().getStringEx("panel.onboarding.verify_phone.button.next.label", "Next"),
                     hint: Localization().getStringEx("panel.onboarding.verify_phone.button.next.hint", ""),
                     borderColor: Styles().colors.fillColorSecondary,
                     backgroundColor: Styles().colors.background,
                     textColor: Styles().colors.fillColorPrimary,
-                    onTap: () => _onTapNext()),),)
-            ],),
+                    onTap: () => _onTapNext()),)
+              ],
+            ),
         ),
         ));
   }
 
   void _onTapNext() {
+    FocusScope.of(context).unfocus();
+
     if (_isLoading) {
       return;
     }
