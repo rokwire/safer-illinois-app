@@ -27,11 +27,11 @@ abstract class AuthToken {
   int get expiresIn => null;
 
   factory AuthToken.fromJson(Map<String, dynamic> json) {
-    if(json != null){
-      if(json.containsKey("phone")){
+    if (json != null) {
+      if (json.containsKey("phone")) {
         return PhoneToken.fromJson(json);
       }
-      else{
+      else {
         return ShibbolethToken.fromJson(json);
       }
     }
@@ -295,7 +295,7 @@ class AuthCard {
   }
 }
 
-class RokmetroToken {
+class RokmetroToken with AuthToken {
   final String idToken;
   final String tokenType = "Bearer"; // missing data from the phone validation
 

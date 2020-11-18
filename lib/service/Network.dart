@@ -138,7 +138,7 @@ class Network  {
     Http.Response response = await _get(url, headers: headers, body: body, encoding: encoding, auth: auth, client: client, timeout: timeout);
     
     if (_requiresTokenRefresh(response, auth)) {
-      await Auth().doRefreshToken();
+      await Auth().refreshUserSignToken();
       response = await _get(url, headers: headers, body: body, encoding: encoding, auth: auth, client: client, timeout: timeout);
     }
 
@@ -168,7 +168,7 @@ class Network  {
     Http.Response response = await _post(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout);
 
     if (_requiresTokenRefresh(response, auth)) {
-      await Auth().doRefreshToken();
+      await Auth().refreshUserSignToken();
       response = await _post(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout);
     }
 
@@ -204,7 +204,7 @@ class Network  {
     Http.Response response = await _put(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout, client: client);
 
     if (_requiresTokenRefresh(response, auth)) {
-      await Auth().doRefreshToken();
+      await Auth().refreshUserSignToken();
       response = await _put(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout, client: client);
     }
 
@@ -234,7 +234,7 @@ class Network  {
     Http.Response response = await _patch(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout);
 
     if (_requiresTokenRefresh(response, auth)) {
-      await Auth().doRefreshToken();
+      await Auth().refreshUserSignToken();
       response = await _patch(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout);
     }
 
@@ -264,7 +264,7 @@ class Network  {
     Http.Response response = await _delete(url, headers: headers, auth: auth, timeout: timeout);
 
     if (_requiresTokenRefresh(response, auth)) {
-      await Auth().doRefreshToken();
+      await Auth().refreshUserSignToken();
       response = await _delete(url, headers: headers, auth: auth, timeout: timeout);
     }
 
@@ -323,8 +323,8 @@ class Network  {
       }
     }
     else if (auth == NetworkAuth.User) {
-      String idToken = Auth().authToken?.idToken;
-      String tokenType = Auth().authToken?.tokenType ?? 'Bearer';
+      String idToken = Auth().userSignToken?.idToken;
+      String tokenType = Auth().userSignToken?.tokenType ?? 'Bearer';
       if ((idToken != null) && idToken.isNotEmpty) {
         if (headers == null) {
           headers = new Map();

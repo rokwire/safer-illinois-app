@@ -41,8 +41,6 @@ import 'package:url_launcher/url_launcher.dart' as url_launcher;
 import 'package:illinois/service/User.dart';
 import 'package:illinois/utils/Utils.dart';
 
-
-
 class Auth with Service implements NotificationsListener {
 
   static const String REDIRECT_URI = 'edu.illinois.covid://covid.illinois.edu/shib-auth';
@@ -76,6 +74,8 @@ class Auth with Service implements NotificationsListener {
 
   RokmetroUser _rokmetroUser;
   RokmetroUser get rokmetroUser { return _rokmetroUser; }
+
+  AuthToken get userSignToken { return _authToken; } //TBD: _rokmetroToken
 
   UserPiiData _userPiiData;
   UserPiiData get userPiiData { return _userPiiData; }
@@ -924,10 +924,23 @@ class Auth with Service implements NotificationsListener {
     return null;
   }
 
-  // Refresh Token
+  // Refresh Auth Token
 
-  Future<void> doRefreshToken() async {
-    if (isShibbolethLoggedIn && (Config().shibbolethOidcTokenUrl != null) && (Config().shibbolethClientId != null) && (Config().shibbolethClientSecret != null)) {
+  Future<void> refreshUserSignToken() {
+    return _refreshAuthToken(); //TBD: _refreshRokmetroToken();
+  }
+
+  Future<void> _refreshAuthToken() async {
+    if (isShibbolethLoggedIn) {
+      await _refreshShibbolethAuthToken();
+    }
+    else {
+      // We do not support this currently
+    }
+  }
+
+  Future<void> _refreshShibbolethAuthToken() async {
+    if ((_authToken is ShibbolethToken) && (Config().shibbolethOidcTokenUrl != null) && (Config().shibbolethClientId != null) && (Config().shibbolethClientSecret != null)) {
       if(_refreshTokenFuture != null){
         Log.d("Auth: will await refresh token");
         await _refreshTokenFuture;
@@ -942,7 +955,7 @@ class Auth with Service implements NotificationsListener {
               ?.replaceAll("{shibboleth_client_secret}", Config().shibbolethClientSecret ?? '');
           
           Map<String, String> body = {
-            "refresh_token": authToken?.refreshToken,
+            "refresh_token": _authToken?.refreshToken,
             "grant_type": "refresh_token",
           };
 
@@ -967,6 +980,14 @@ class Auth with Service implements NotificationsListener {
       }
     }
   }
+
+  /*Future<void> _refreshRokmetroToken() async {
+    RokmetroToken newRokmetroToken = await _loadRokmetroToken(optAuthToken: _authToken);
+    if (newRokmetroToken?.idToken != null) {
+      _rokmetroToken = newRokmetroToken;
+      _saveRokmetroToken();
+    }
+  }*/
 
   // Utils
 
