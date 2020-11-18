@@ -60,7 +60,9 @@ class _OnboardingLoginPhoneConfirmPanelState extends State<OnboardingLoginPhoneC
 
   @override
   Widget build(BuildContext context) {
-    String phoneNumber = Auth().phoneToken?.phone;
+    String phoneNumber = (widget.onboardingContext != null && widget.onboardingContext.containsKey("phone"))
+              ? widget?.onboardingContext["phone"] ?? ""
+              : widget?.phoneNumber ?? "";
 
     String description =
         sprintf(Localization().getStringEx('panel.onboarding.confirm_phone.description.send', 'A one time code has been sent to %s. Enter your code below to continue.'), [phoneNumber]);
