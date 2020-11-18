@@ -621,14 +621,17 @@ class Covid19HistoryBlob {
     return symptomsIds;
   }
 
-  String get symptomsDisplayString {
+  String symptomsDisplayString({HealthRulesSet rules}) {
     String result = "";
     if (symptoms != null) {
       for (HealthSymptom symptom in symptoms) {
-        if (0 < result.length) {
-          result += ", ";
+        String symptomName = rules?.localeString(symptom?.name) ?? symptom?.name;
+        if (AppString.isStringNotEmpty(symptomName)) {
+          if (0 < result.length) {
+            result += ", ";
+          }
+          result += symptomName;
         }
-        result += symptom.name;
       }
     }
     return result;

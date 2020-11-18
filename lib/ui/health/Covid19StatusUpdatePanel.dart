@@ -26,6 +26,7 @@ import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/health/Covid19NextStepsPanel.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/ui/widgets/StatusInfoDialog.dart';
+import 'package:illinois/utils/Utils.dart';
 
 class Covid19StatusUpdatePanel extends StatefulWidget {
   final Covid19Status status;
@@ -50,6 +51,7 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
   String _newStatusDescription;
   Color _newSatusColor;
 
+  HealthRulesSet _rules;
   LinkedHashMap<String, HealthCounty> _counties;
   String _currentCountyName;
 
@@ -66,24 +68,34 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
     _newStatusDescription = widget?.status?.blob?.localizedHealthStatusDescription ?? '';
     _newSatusColor = Styles().colors.getHealthStatusColor(widget.status?.blob?.healthStatus) ?? Styles().colors.mediumGray;
 
-    _loadCovidCounties();
+    _prepareData();
     super.initState();
   }
 
-  void _loadCovidCounties(){
+  void _prepareData(){
     setState(() {
       _loading = true;
     });
-    Health().loadCounties().then((List<HealthCounty> counties) {
-      _counties = HealthCounty.listToMap(counties);
-      if(_counties != null && _counties.containsKey(Health().currentCountyId)) {
-        _currentCountyName = _counties[Health().currentCountyId].nameDisplayText;
-      }
-    }).whenComplete((){
+    _loadData().then((_) {
       setState(() {
         _loading = false;
       });
     });
+  }
+
+  Future<void> _loadData() async {
+    List<dynamic> result = await Future.wait([
+      Health().loadRules2(),
+      Health().loadCounties(),
+    ]);
+
+    _rules = ((result != null) && (0 < result.length)) ? result[0] : null;
+
+    List<HealthCounty> countiesList = ((result != null) && (1 < result.length)) ? result[1] : null;
+    _counties = HealthCounty.listToMap(countiesList);
+    if(_counties != null && _counties.containsKey(Health().currentCountyId)) {
+      _currentCountyName = _counties[Health().currentCountyId].nameDisplayText;
+    }
   }
 
   @override
@@ -210,7 +222,10 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
         List<HealthSymptom> symptoms = reasonHistory.symptoms;
         if (symptoms?.isNotEmpty ?? false) {
           symptoms.forEach((HealthSymptom symptom){
-            symptomLayouts.add(Text(symptom?.name ?? "", style: TextStyle(color: Colors.white, fontSize: 14, fontFamily: Styles().fontFamilies.regular)));
+            String symptomName = _rules?.localeString(symptom?.name) ?? symptom?.name;
+            if (AppString.isStringNotEmpty(symptomName)) {
+              symptomLayouts.add(Text(symptomName, style: TextStyle(color: Colors.white, fontSize: 14, fontFamily: Styles().fontFamilies.regular)));
+            }
           });
         }
 

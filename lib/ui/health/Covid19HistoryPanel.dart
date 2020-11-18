@@ -50,6 +50,7 @@ class Covid19HistoryPanel extends StatefulWidget {
 class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements NotificationsListener {
   
   List<Covid19History> _statusHistory = List();
+  HealthRulesSet _rules;
   bool _isLoading = false;
   bool _isDeleting = false;
   bool _isReposting = false;
@@ -110,14 +111,19 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
       setState(() { _isLoading = true; });
       
       Health().loadUpdatedHistory().then((List<Covid19History> history) {
-        if (mounted) {
-          setState(() {
-            if (history != null) {
-              _statusHistory = Covid19History.pastList(history);
-            }
-            _isLoading = (Health().processing == true);
-          });
-        }
+        Health().loadRules2().then((HealthRulesSet rules) {
+          if (mounted) {
+            setState(() {
+              if (history != null) {
+                _statusHistory = Covid19History.pastList(history);
+              }
+              if (rules != null) {
+                _rules = rules;
+              }
+              _isLoading = (Health().processing == true);
+            });
+          }
+        });
       });
     }
   }
@@ -212,7 +218,7 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
         itemCount: _statusHistory.length + ((!kReleaseMode || Organizations().isDevEnvironment) ? 2 : 1),
         itemBuilder: (BuildContext ctxt, int index) {
           if (index < _statusHistory.length) {
-            return _Covid19HistoryEntry(history: _statusHistory[index]);
+            return _Covid19HistoryEntry(history: _statusHistory[index], rules: _rules);
           }
           else if (index == _statusHistory.length) {
             return _buildRepostButton();
@@ -449,8 +455,9 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
 
 class _Covid19HistoryEntry extends StatefulWidget{
   final Covid19History history;
+  final HealthRulesSet rules;
 
-  const _Covid19HistoryEntry({Key key, this.history}) : super(key: key);
+  const _Covid19HistoryEntry({Key key, this.history, this.rules}) : super(key: key);
 
   @override
   _Covid19HistoryEntryState createState() => _Covid19HistoryEntryState();
@@ -520,7 +527,7 @@ class _Covid19HistoryEntryState extends State<_Covid19HistoryEntry> with SingleT
           Row(children: <Widget>[
             Expanded(child:
               Semantics(label: Localization().getStringEx("panel.health.covid19.history.label.self_reported.symptoms","symptoms: "), child:
-               Text(widget.history.blob?.symptomsDisplayString ?? '', style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground,))
+               Text(widget.history.blob?.symptomsDisplayString(rules: widget.rules) ?? '', style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground,))
               )
             )
           ],);

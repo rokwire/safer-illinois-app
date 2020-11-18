@@ -149,8 +149,9 @@ class _Covid19DebugSymptomsPanelState extends State<Covid19DebugSymptomsPanel> {
   Widget _buildSymptom(HealthSymptom symptom) {
     bool _selected = _selectedSymptoms.contains(symptom.id);
     String imageName = _selected ? 'images/icon-selected-checkbox.png' : 'images/icon-deselected-checkbox.png';
+    String symptomName = (_rules?.localeString(symptom?.name) ?? symptom?.name) ?? '';
     return Semantics(
-      label: symptom.name,
+      label: symptomName,
       value: (_selected?Localization().getStringEx("toggle_button.status.checked", "checked",) :
       Localization().getStringEx("toggle_button.status.unchecked", "unchecked")) +
       ", "+ Localization().getStringEx("toggle_button.status.checkbox", "checkbox"),
@@ -163,7 +164,7 @@ class _Covid19DebugSymptomsPanelState extends State<Covid19DebugSymptomsPanel> {
                 Image.asset(imageName),
                 Expanded(child:
                   Padding(padding: EdgeInsets.only(left: 16), child:
-                    Text(symptom.name, style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.fillColorPrimary),),
+                    Text(symptomName, style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.fillColorPrimary),),
                   ),
                 ),
               ],)
@@ -305,7 +306,8 @@ class _Covid19DebugSymptomsPanelState extends State<Covid19DebugSymptomsPanel> {
 
         _selectedSymptoms.add(symptom.id);
       }
-      AppSemantics.announceCheckBoxStateChange(context, _selectedSymptoms?.contains(symptom.id), symptom.name);
+      String symptomName = (_rules?.localeString(symptom?.name) ?? symptom?.name) ?? '';
+      AppSemantics.announceCheckBoxStateChange(context, _selectedSymptoms?.contains(symptom.id), symptomName);
     });
   }
 
@@ -329,7 +331,7 @@ class _Covid19DebugSymptomsPanelState extends State<Covid19DebugSymptomsPanel> {
       _submittingSymptoms = true;
     });
 
-    Health().processSymptoms(groups: _symptomsGroups, selected: _selectedSymptoms, dateUtc: _selectedDate?.toUtc()).then((dynamic result) {
+    Health().processSymptoms(rules: _rules, selected: _selectedSymptoms, dateUtc: _selectedDate?.toUtc()).then((dynamic result) {
       if (mounted) {
         setState(() {
           _submittingSymptoms = false;
