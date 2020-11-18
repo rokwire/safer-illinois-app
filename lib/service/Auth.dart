@@ -250,6 +250,8 @@ class Auth with Service implements NotificationsListener {
 
     NativeCommunicator().dismissSafariVC();
 
+    List<dynamic> results;
+
     // 1. Request Tokens 
     AuthToken newAuthToken = await _loadShibbolethAuthTokenWithCode(code);
     if (newAuthToken == null) {
@@ -265,64 +267,47 @@ class Auth with Service implements NotificationsListener {
     }
 
     // 3. Request AuthUser & RokmetroUser
-    List<dynamic> userResults = await Future.wait([
+    results = await Future.wait([
       _loadShibbolethAuthUser(optAuthToken: newAuthToken),
       _loadRokmetroUser(optRokmetroToken: newRokmetroToken)
     ]);
 
-    AuthUser newAuthUser = ((userResults != null) && (0 < userResults.length)) ? userResults[0] : null;
+    AuthUser newAuthUser = ((results != null) && (0 < results.length)) ? results[0] : null;
     if (newAuthUser == null) {
       _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
       return;
     }
 
-    RokmetroUser newRokmetroUser = ((userResults != null) && (1 < userResults.length)) ? userResults[1] : null;
+    RokmetroUser newRokmetroUser = ((results != null) && (1 < results.length)) ? results[1] : null;
     if (newRokmetroUser == null) {
       _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
       return;
     }
 
-    // 4. Request User Pii Pid
-    String newUserPiiPid = await _loadPidWithShibbolethAuth(email: newAuthUser?.email, optAuthToken: newAuthToken);
-    if (newUserPiiPid == null) {
+    // 4. Request User PersonalData and AuthCard
+    results = await Future.wait([
+      _loadUserPersonalData(optAuthToken: newAuthToken, optAuthUser: newAuthUser),
+      _loadAuthCardStringFromNet(optAuthToken: newAuthToken, optAuthUser: newAuthUser),
+    ]);
+
+    _UserPersonalData userPersonalData = ((results != null) && (0 < results.length)) ? results[0] : null;
+    String newUserPiiDataString = userPersonalData?.userPiiDataString;
+    UserPiiData newUserPiiData = userPersonalData?.userPiiData;
+    UserData newUserProfile = userPersonalData?.userProfile;
+    if ((newUserPiiDataString == null) || (newUserPiiData == null) || (newUserProfile == null)) {
       _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
       return;
     }
 
-    // 5. Request UserPiiData
-    String newUserPiiDataString = await _loadUserPiiDataStringFromNet(pid: newUserPiiPid, optAuthToken: newAuthToken);
-    UserPiiData newUserPiiData = _userPiiDataFromJsonString(newUserPiiDataString);
-    if(newUserPiiData == null || AppCollection.isCollectionEmpty(newUserPiiData?.uuidList)){
-      _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
-      return;
-    }
-
-    // 6. Request UserData &  AuthCard
-    List<Future<dynamic>> dataFutures = <Future>[
-      _loadUserProfile(userUuid: newUserPiiData.uuid),
-    ];
-    if (0 < (newAuthUser?.uin?.length ?? 0)) {
-      dataFutures.add(
-        _loadAuthCardStringFromNet(optAuthToken: newAuthToken, optAuthUser: newAuthUser)
-      );
-    }
-    List<dynamic> dataResults = await Future.wait(dataFutures);
-
-    UserData newUserProfile = ((dataResults != null) && (0 < dataResults.length)) ? dataResults[0] : null;
-    if (newUserProfile == null) {
-      _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
-      return;
-    }
-
-    String authCardString = ((dataResults != null) && (1 < dataResults.length)) ? dataResults[1] : null;
+    String authCardString = ((results != null) && (1 < results.length)) ? results[1] : null;
     AuthCard authCard = _authCardFromJsonString(authCardString);
 
     // Everything is fine - cleanup and store new tokens and data
     // 7. Clear everything before proceed further. Notification is not required at this stage
     _clear(false);
 
-    // 8. Store everythong and notify everyone
-    // 8.1 AuthToken && AuthUser
+    // 5. Store everythong and notify everyone
+    // 5.1 AuthToken && AuthUser
     _authToken = newAuthToken;
     _authUser = newAuthUser;
 
@@ -332,14 +317,14 @@ class Auth with Service implements NotificationsListener {
     _notifyAuthTokenChanged();
     _notifyAuthUserChanged();
 
-    // 8.2 RokmetroToken & RokmetroUser
+    // 5.2 RokmetroToken & RokmetroUser
     _rokmetroToken = newRokmetroToken;
     _rokmetroUser = newRokmetroUser;
 
     _saveRokmetroToken();
     _saveRokmetroUser();
 
-    // 8.3 UserPiiData
+    // 5.3 UserPiiData
     if(newUserPiiData.updateFromAuthUser(newAuthUser)){
       storeUserPiiData(newUserPiiData);
     }
@@ -347,10 +332,10 @@ class Auth with Service implements NotificationsListener {
       _applyUserPiiData(newUserPiiData, newUserPiiDataString);
     }
 
-    // 8.4 UserProfile
+    // 5.4 UserProfile
     _applyUserProfile(newUserProfile);
 
-    // 8.5 AuthCard
+    // 5.5 AuthCard
     _applyAuthCard(authCard, authCardString);
 
     _notifyAuthLoginSucceeded(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
@@ -799,12 +784,25 @@ class Auth with Service implements NotificationsListener {
   // User Profile Data
 
   Future<UserData> _loadUserProfile({String userUuid}) async {
-    try { return await User().requestUser(userUuid); }
+    try { return (userUuid != null) ? await User().requestUser(userUuid) : null; }
     catch (_) { return null; }
   }
 
   void _applyUserProfile(UserData userProfile) {
     User().applyUserData(userProfile);
+  }
+
+  // User Personal Data
+
+  Future<_UserPersonalData> _loadUserPersonalData({AuthToken optAuthToken, AuthUser optAuthUser}) async {
+    optAuthToken = (optAuthToken != null) ? optAuthToken : _authToken;
+    optAuthUser = (optAuthUser != null) ? optAuthUser : _authUser;
+
+    String userPiiPid = await _loadPidWithShibbolethAuth(email: optAuthUser?.email, optAuthToken: optAuthToken);
+    String userPiiDataString = (userPiiPid != null) ? await _loadUserPiiDataStringFromNet(pid: userPiiPid, optAuthToken: optAuthToken) : null;
+    UserPiiData userPiiData = (userPiiDataString != null) ? _userPiiDataFromJsonString(userPiiDataString) : null;
+    UserData userProfile = (userPiiData?.uuid != null) ? await _loadUserProfile(userUuid: userPiiData.uuid) : null;
+    return _UserPersonalData(userPiiDataString: userPiiDataString, userPiiData: userPiiData, userProfile: userProfile );
   }
 
   // Auth Card
@@ -1060,3 +1058,10 @@ class Auth with Service implements NotificationsListener {
 }
 
 enum VerificationMethod { call, sms }
+
+class _UserPersonalData {
+  final UserPiiData userPiiData;
+  final String userPiiDataString;
+  final UserData userProfile;
+  _UserPersonalData({this.userPiiData, this.userPiiDataString, this.userProfile});
+}
