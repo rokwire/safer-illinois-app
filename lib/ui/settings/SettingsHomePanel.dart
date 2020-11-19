@@ -155,7 +155,9 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
       }
     }
 
-    if (!kReleaseMode || Organizations().isDevEnvironment) {
+    //TBD: DD - web
+    // Do not show debug in web, yet.
+    if (!kReleaseMode || Organizations().isDevEnvironment || !kIsWeb) {
       contentList.add(_buildDebug());
       actionsList.add(_buildHeaderBarDebug());
     }
