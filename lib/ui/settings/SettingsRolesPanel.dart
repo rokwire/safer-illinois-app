@@ -146,7 +146,7 @@ class _SettingsRolesPanelState extends State<SettingsRolesPanel> implements Noti
     else if (role == UserRole.resident) {
       return _residentButton;
     }
-    else if (role == UserRole.capitolStaff) {
+    else if (role == UserRole.nonUniversityMember) {
       return _capitolStaffButton;
     }
     else {
@@ -198,15 +198,15 @@ class _SettingsRolesPanelState extends State<SettingsRolesPanel> implements Noti
   }
 
   RoleGridButton get _capitolStaffButton {
-    return (Config().capitolStaffRoleEnabled || _userRoles.contains(UserRole.capitolStaff)) ? RoleGridButton(
-      title: Localization().getStringEx("panel.onboarding.roles.button.capitol_staff.title","Capitol Staff"),
+    return (Config().capitolStaffRoleEnabled || _userRoles.contains(UserRole.nonUniversityMember)) ? RoleGridButton(
+      title: Localization().getStringEx("panel.onboarding.roles.button.capitol_staff.title","Non University Member"),
       hint: Localization().getStringEx('panel.onboarding.roles.button.capitol_staff.hint', ''),
       iconPath: 'images/icon-persona-capitol-normal.png',
       selectedIconPath: 'images/icon-persona-capitol-selected.png',
-      selectedBackgroundColor: Styles().colors.fillColorPrimary,
+      selectedBackgroundColor: Styles().colors.accentColor2,
       selectedTextColor: Colors.white,
-      selected:(_selectedRoles.contains(UserRole.capitolStaff)),
-      data: UserRole.capitolStaff,
+      selected:(_selectedRoles.contains(UserRole.nonUniversityMember)),
+      data: UserRole.nonUniversityMember,
       sortOrder: 7,
       onTap: _onRoleGridButton,
     ) : null;

@@ -58,7 +58,7 @@ class _OnboardingLoginPhonePanelState extends State<OnboardingLoginPhonePanel> {
   Widget build(BuildContext context) {
     String titleString = Localization().getStringEx('panel.onboarding.login.phone.label.title', 'Verify your phone number');
     String skipTitle = Localization().getStringEx('panel.onboarding.login.phone.button.dont_continue.title', 'Not right now');
-    bool hasSkip = !(User().roles?.contains(UserRole.capitolStaff) ?? false);
+    bool hasSkip = !(User().roles?.contains(UserRole.nonUniversityMember) ?? false);
     return Scaffold(
         backgroundColor: Styles().colors.background,
         body: Stack(

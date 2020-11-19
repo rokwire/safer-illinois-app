@@ -1088,9 +1088,8 @@ class Health with Service implements NotificationsListener {
 
   // Symptoms processing
 
-  Future<dynamic> processSymptoms({List<HealthSymptomsGroup> groups, Set<String> selected, DateTime dateUtc}) async {
-
-    List<HealthSymptom> symptoms = HealthSymptomsGroup.getSymptoms(groups, selected);
+  Future<dynamic> processSymptoms({HealthRulesSet rules, Set<String> selected, DateTime dateUtc}) async {
+    List<HealthSymptom> symptoms = HealthSymptomsGroup.getSymptoms(rules?.symptoms?.groups, selected);
     Covid19History history = await _applySymptomsHistory(symptoms, dateUtc: dateUtc ?? DateTime.now().toUtc());
     if (history != null) {
       NotificationService().notify(notifyHistoryUpdated, null);
@@ -1103,7 +1102,12 @@ class Health with Service implements NotificationsListener {
       }
 
       List<String> analyticsSymptoms = [];
-      symptoms?.forEach((HealthSymptom symptom) { analyticsSymptoms.add(symptom?.name); });
+      symptoms?.forEach((HealthSymptom symptom) {
+        String symptomName = rules?.localeString(symptom?.name) ?? symptom?.name;
+        if (AppString.isStringNotEmpty(symptomName)) {
+          analyticsSymptoms.add(symptomName);
+        }
+      });
       Analytics().logHealth(
         action: Analytics.LogHealthSymptomsSubmittedAction,
         status: newHealthStatus,

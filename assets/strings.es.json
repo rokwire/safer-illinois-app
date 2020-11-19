@@ -96,7 +96,7 @@
 	"panel.onboarding.roles.button.employee.hint": "",
 	"panel.onboarding.roles.button.resident.title": "Residente de Illinois",
 	"panel.onboarding.roles.button.resident.hint": "",
-	"panel.onboarding.roles.button.capitol_staff.title": "Capitol\nStaff",
+	"panel.onboarding.roles.button.capitol_staff.title": "Non University Member",
 	"panel.onboarding.roles.button.capitol_staff.hint": "",
 	"panel.onboarding.roles.button.continue.enabled.title": "Confirmar",
 	"panel.onboarding.roles.button.continue.disabled.title": "Seleccione uno",
@@ -280,7 +280,7 @@
 	"panel.covid19_passport.label.page_2": "Página 2",
 	"panel.covid19_passport.label.update_i_card": "Actualiza tu i-card",
 	"panel.covid19_passport.label.resident": "Residente",
-	"panel.covid19_passport.label.capitol_staff": "Capitol Staff",
+	"panel.covid19_passport.label.capitol_staff": "Non University Member",
 	"panel.covid19_passport.button.info.title": "Info ",
 
 	"panel.covid19_guidelines.header.title": "Pautas del condado",

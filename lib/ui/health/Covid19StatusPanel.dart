@@ -506,8 +506,8 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
     if(Auth().isShibbolethLoggedIn && AppString.isStringNotEmpty(roleDisplayString)){
       return roleDisplayString;
     }
-    else if(Auth().isPhoneLoggedIn && User().roles.contains(UserRole.capitolStaff)){
-      return Localization().getStringEx("panel.covid19_passport.label.capitol_staff", "Capitol Staff");
+    else if(Auth().isPhoneLoggedIn && User().roles.contains(UserRole.nonUniversityMember)){
+      return Localization().getStringEx("panel.covid19_passport.label.capitol_staff", "Non University Member");
     }
     return Localization().getStringEx('panel.covid19_passport.label.resident', 'Resident');
   }
