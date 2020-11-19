@@ -221,7 +221,7 @@ class _OnboardingRoleSelectionPanelState extends State<OnboardingRolesPanel> {
       hint: Localization().getStringEx('panel.onboarding.roles.button.capitol_staff.hint', ''),
       iconPath: 'images/icon-persona-capitol-normal.png',
       selectedIconPath: 'images/icon-persona-capitol-selected.png',
-      selectedBackgroundColor: Styles().colors.fillColorPrimary,
+      selectedBackgroundColor: Styles().colors.accentColor2,
       selectedTextColor: Colors.white,
       selected:(_selectedRoles.contains(UserRole.nonUniversityMember)),
       data: UserRole.nonUniversityMember,
