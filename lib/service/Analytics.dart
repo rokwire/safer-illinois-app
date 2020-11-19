@@ -723,7 +723,10 @@ class Analytics with Service implements NotificationsListener {
 
       String packet = json.encode(analyticsEvent);
       if (packet != null) {
-        print('Analytics: $packet');
+        //TBD: DD - web
+        if (!kIsWeb) {
+          print('Analytics: $packet');
+        }
         _savePacket(packet);
       }
     }
