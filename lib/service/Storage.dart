@@ -435,6 +435,15 @@ class Storage with Service {
     _setIntWithName(lastHealthStatusEvalKey, value);
   }
 
+  static const String healthUserStatusKey = 'health_user_status';
+
+  String get healthUserStatus {
+    return _getStringWithName(healthUserStatusKey);
+  }
+
+  set healthUserStatus(String value) {
+    _setStringWithName(healthUserStatusKey, value);
+  }
 
   /////////////
   // Exposure
