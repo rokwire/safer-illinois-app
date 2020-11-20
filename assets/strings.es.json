@@ -512,6 +512,7 @@
 	"panel.health.covid19.care_team.team.semantic_contact.osf": "18336735669",
 	"panel.health.covid19.care_team.team.description.osf": "Nos hemos asociado con el programa OSF OnCall Connect y el Departamento de Atención Médica y Servicios Familiares de Illinois para ayudarlo a superar el COVID-19. Llame a la línea directa de enfermería al 1-833-OSF-KNOW (833-673-5669) para obtener más información sobre el programa, que incluye la entrega de un kit de atención y visitas digitales para monitorearlo durante un período de 16 días.",
 	"panel.health.covid19.care_team.label.more_info.title": "Más información sobre el Programa de trabajadores de salud pandémicos",
+	"panel.health.covid19.care_team.label.more_info.title.semantics.label": "More about the OSF On Call Connect program",
 	"panel.health.covid19.care_team.label.more_info.description": "Un trabajador de salud pandémica (PHW) es un socio capacitado de OSF HealthCare Mission que está conectado con usted para brindarle apoyo y actuar como una conexión directa entre usted y los proveedores de atención médica a medida que se recupera de COVID-19, lo que disminuye el riesgo de una mayor exposición. Si bien los PHW no son enfermeras registradas, las enfermeras clínicas y los médicos estarán disponibles si su afección empeora o si tiene preguntas clínicas específicas. ",
 	"panel.health.covid19.care_team.label.more_info.hint": "Tocar dos veces para mostrar más información",
 	"panel.health.covid19.care_team.label.call.hint": "Llamada ",

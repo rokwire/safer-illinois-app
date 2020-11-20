@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Fixed
 - Removed unused images from application project [#419](https://github.com/rokwire/safer-illinois-app/issues/419).
+- CareTeamPanel fix semantics pronauncement for Mental Health button [#422](https://github.com/rokwire/safer-illinois-app/issues/422)
 
 ## [2.9.4] - 2020-11-18
 ### Fixed
