@@ -157,9 +157,11 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
 
     //TBD: DD - web
     // Do not show debug in web, yet.
-    if (!kReleaseMode || Organizations().isDevEnvironment || !kIsWeb) {
-      contentList.add(_buildDebug());
-      actionsList.add(_buildHeaderBarDebug());
+    if (!kIsWeb) {
+      if (!kReleaseMode || Organizations().isDevEnvironment) {
+        contentList.add(_buildDebug());
+        actionsList.add(_buildHeaderBarDebug());
+      }
     }
 
     contentList.add(_buildVersionInfo());
@@ -545,7 +547,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
     if (kIsWeb) {
       return Container();
     }
-    
+
     List<Widget> contentList = new List();
 
     List<dynamic> codes = FlexUI()['settings.notifications'] ?? [];
