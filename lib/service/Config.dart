@@ -349,7 +349,9 @@ class Config with Service implements NotificationsListener {
   String get loggingUrl             { return platformBuildingBlocks['logging_url']; }                 // "https://api-dev.rokwire.illinois.edu/logs"
   String get userProfileUrl         { return platformBuildingBlocks['user_profile_url']; }            // "https://api-dev.rokwire.illinois.edu/profiles"
   String get rokwireAuthUrl         { return platformBuildingBlocks['rokwire_auth_url']; }            // "https://api-dev.rokwire.illinois.edu/authentication"
-  String get rokmetroAuthUrl        { return platformBuildingBlocks['rokmetro_auth_url']; }           // "https://auth.api.dev.services.rokmetro.com/23147768-73ac-4830-bca7-ea927785f2ae"
+//RokmetroAuth: teporarly disabled
+//String get rokmetroAuthUrl        { return platformBuildingBlocks['rokmetro_auth_url']; }           // "https://auth.api.dev.services.rokmetro.com/23147768-73ac-4830-bca7-ea927785f2ae"
+  String get rokmetroAuthUrl        { return null; }
   String get sportsServiceUrl       { return platformBuildingBlocks['sports_service_url']; }          // "https://api-dev.rokwire.illinois.edu/sports-service";
   String get healthUrl              { return platformBuildingBlocks['health_url']; }                  // "https://api-dev.rokwire.illinois.edu/health"
   String get talentChooserUrl       { return platformBuildingBlocks['talent_chooser_url']; }          // "https://api-dev.rokwire.illinois.edu/talent-chooser/api/ui-content"
@@ -359,7 +361,9 @@ class Config with Service implements NotificationsListener {
   String get osfBaseUrl             { return thirdPartyServices['osf_base_url']; }                    // "https://ssproxy.osfhealthcare.org/fhir-proxy"
 
   String get rokwireApiKey          { return secretRokwire['api_key']; }
-  String get rokmetroApiKey         { return secretRokmetro['api_key']; }
+//RokmetroAuth: teporarly disabled
+//String get rokmetroApiKey         { return secretRokmetro['api_key']; }
+  String get rokmetroApiKey         { return null; }
 
   String get shibbolethClientId     { return secretShibboleth['client_id']; }
   String get shibbolethClientSecret { return secretShibboleth['client_secret']; }

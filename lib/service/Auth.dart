@@ -261,10 +261,11 @@ class Auth with Service implements NotificationsListener {
 
     // 2. Request Rokmetro token
     RokmetroToken newRokmetroToken = await _loadRokmetroToken(optAuthToken: newAuthToken);
-    if (newRokmetroToken == null) {
-      _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
-      return;
-    }
+//  RokmetroAuth: teporarly disabled
+//  if (newRokmetroToken == null) {
+//    _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
+//    return;
+//  }
 
     // 3. Request AuthUser & RokmetroUser
     results = await Future.wait([
@@ -279,10 +280,11 @@ class Auth with Service implements NotificationsListener {
     }
 
     RokmetroUser newRokmetroUser = ((results != null) && (1 < results.length)) ? results[1] : null;
-    if (newRokmetroUser == null) {
-      _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
-      return;
-    }
+//  RokmetroAuth: teporarly disabled
+//  if (newRokmetroUser == null) {
+//    _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
+//    return;
+//  }
 
     // 4. Request User PersonalData and AuthCard
     results = await Future.wait([
@@ -491,7 +493,7 @@ class Auth with Service implements NotificationsListener {
 
     // 2. Request Rokmetro token
     RokmetroToken newRokmetroToken = await _loadRokmetroToken(optAuthToken: newAuthToken);
-//  Disable this for awhile until Stephen update auth serviec to support rokwire phone authentication.
+//  RokmetroAuth: teporarly disabled
 //  if (newRokmetroToken == null) {
 //    _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
 //    return false;
@@ -505,9 +507,10 @@ class Auth with Service implements NotificationsListener {
     ]);
 
     RokmetroUser newRokmetroUser = ((results != null) && (0 < results.length)) ? results[0] : null;
-//  Disable this for awhile until Stephen update auth serviec to support rokwire phone authentication.
+//  RokmetroAuth: teporarly disabled
 //  if (newRokmetroUser == null) {
 //    _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
+//    return false;
 //  }
 
     // Do not fail if Aith User is NA, keep allowing regular phone flow
