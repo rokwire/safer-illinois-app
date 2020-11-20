@@ -16,11 +16,11 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:illinois/model/UserData.dart';
+import 'package:illinois/model/UserProfile.dart';
 import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Analytics.dart';
-import 'package:illinois/service/User.dart';
+import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginPhoneVerifyPanel.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/ui/onboarding/OnboardingBackButton.dart';
@@ -37,7 +37,7 @@ class OnboardingLoginPhonePanel extends StatefulWidget with OnboardingPanel {
 
   @override
   bool get onboardingCanDisplay {
-    return !User().isStudentOrEmployee;
+    return !UserProfile().isStudentOrEmployee;
   }
 }
 
@@ -58,7 +58,7 @@ class _OnboardingLoginPhonePanelState extends State<OnboardingLoginPhonePanel> {
   Widget build(BuildContext context) {
     String titleString = Localization().getStringEx('panel.onboarding.login.phone.label.title', 'Verify your phone number');
     String skipTitle = Localization().getStringEx('panel.onboarding.login.phone.button.dont_continue.title', 'Not right now');
-    bool hasSkip = !(User().roles?.contains(UserRole.nonUniversityMember) ?? false);
+    bool hasSkip = !(UserProfile().roles?.contains(UserRole.nonUniversityMember) ?? false);
     return Scaffold(
         backgroundColor: Styles().colors.background,
         body: Stack(

@@ -22,14 +22,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:illinois/model/Health.dart';
-import 'package:illinois/model/UserData.dart';
+import 'package:illinois/model/UserProfile.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/TransportationService.dart';
-import 'package:illinois/service/User.dart';
+import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/ui/widgets/StatusInfoDialog.dart';
 import 'package:illinois/ui/widgets/TrianglePainter.dart';
 import 'package:illinois/utils/Utils.dart';
@@ -159,7 +159,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
   void _loadColorOfTheDay() {
     _loadingProgress++;
     NativeCommunicator().getDeviceId().then((deviceId) {
-      TransportationService().loadBussColor(deviceId: deviceId, userId: User().uuid).then((color) {
+      TransportationService().loadBussColor(deviceId: deviceId, userId: UserProfile().uuid).then((color) {
         if (mounted) {
           setState(() {
             _colorOfTheDay = color;
@@ -397,7 +397,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
     String noStatusDescription = (_counties?.isNotEmpty ?? false) ? 
       Localization().getStringEx('panel.covid19_passport.label.status.empty', "No available status for this County") :
       Localization().getStringEx('panel.covid19_passport.label.counties.empty', "No counties available");
-    String qrCodeImageData = AppString.getDefaultEmptyString(value: authCardOrPhone, defaultValue: User().uuid);
+    String qrCodeImageData = AppString.getDefaultEmptyString(value: authCardOrPhone, defaultValue: UserProfile().uuid);
     return Semantics(
       label: Localization().getStringEx("panel.covid19_passport.label.page_2", "Page 2"),
       explicitChildNodes: true,
@@ -506,7 +506,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
     if(Auth().isShibbolethLoggedIn && AppString.isStringNotEmpty(roleDisplayString)){
       return roleDisplayString;
     }
-    else if(Auth().isPhoneLoggedIn && User().roles.contains(UserRole.nonUniversityMember)){
+    else if(Auth().isPhoneLoggedIn && UserProfile().roles.contains(UserRole.nonUniversityMember)){
       return Localization().getStringEx("panel.covid19_passport.label.capitol_staff", "Non University Member");
     }
     return Localization().getStringEx('panel.covid19_passport.label.resident', 'Resident');

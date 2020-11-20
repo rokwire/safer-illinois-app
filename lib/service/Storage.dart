@@ -20,7 +20,7 @@ import 'package:flutter/foundation.dart';
 import 'package:illinois/model/Auth.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/model/Organization.dart';
-import 'package:illinois/model/UserData.dart';
+import 'package:illinois/model/UserProfile.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
@@ -147,27 +147,27 @@ class Storage with Service {
   /////////////
   // User
 
-  static const String userKey  = 'user';
+  static const String userProfileKey  = 'user';
 
-  UserData get userData {
-    final String userToString = _getStringWithName(userKey);
+  UserProfileData get userProfile {
+    final String userToString = _getStringWithName(userProfileKey);
     final Map<String, dynamic> userToJson = AppJson.decode(userToString);
-    return (userToJson != null) ? UserData.fromJson(userToJson) : null;
+    return (userToJson != null) ? UserProfileData.fromJson(userToJson) : null;
   }
 
-  set userData(UserData user) {
+  set userProfile(UserProfileData user) {
     String userToString = (user != null) ? json.encode(user) : null;
-    _setStringWithName(userKey, userToString);
+    _setStringWithName(userProfileKey, userToString);
   }
 
-  static const String localUserUuidKey  = 'user_local_uuid';
+  static const String localProfileUuidKey  = 'user_local_uuid';
 
-  String get localUserUuid {
-    return _getStringWithName(localUserUuidKey);
+  String get localProfileUuid {
+    return _getStringWithName(localProfileUuidKey);
   }
 
-  set localUserUuid(String value) {
-    _setStringWithName(localUserUuidKey, value);
+  set localProfileUuid(String value) {
+    _setStringWithName(localProfileUuidKey, value);
   }
 
   /////////////

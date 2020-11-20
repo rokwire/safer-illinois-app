@@ -19,8 +19,8 @@ import 'dart:collection';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:illinois/model/UserData.dart';
-import 'package:illinois/service/User.dart';
+import 'package:illinois/model/UserProfile.dart';
+import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Localization.dart';
@@ -2576,7 +2576,7 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
   dynamic _evalTestUser({ HealthRulesSet rules }) {
     
     dynamic role = params['role'];
-    if ((role != null) && !_matchStringTarget(target: UserRole.userRolesToList(User().roles), source: role)) {
+    if ((role != null) && !_matchStringTarget(target: UserRole.userRolesToList(UserProfile().roles), source: role)) {
       return false;
     }
     

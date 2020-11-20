@@ -22,7 +22,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart' as Http;
 
 import 'package:collection/collection.dart';
-import 'package:illinois/model/UserData.dart';
+import 'package:illinois/model/UserProfile.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/Assets.dart';
 import 'package:illinois/service/Auth.dart';
@@ -32,7 +32,7 @@ import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/Network.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
-import 'package:illinois/service/User.dart';
+import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -68,8 +68,9 @@ class FlexUI with Service implements NotificationsListener {
   @override
   void createService() {
     NotificationService().subscribe(this,[
-      User.notifyUserUpdated,
-      User.notifyRolesUpdated,
+      UserProfile.notifyProfileUpdated,
+      UserProfile.notifyProfileDeleted,
+      UserProfile.notifyRolesUpdated,
       Auth.notifyAuthTokenChanged,
       Auth.notifyCardChanged,
       Auth.notifyUserPiiDataChanged,
@@ -100,7 +101,7 @@ class FlexUI with Service implements NotificationsListener {
 
   @override
   Set<Service> get serviceDependsOn {
-    return Set.from([Config(), User(), Auth(), Health()]);
+    return Set.from([Config(), UserProfile(), Auth(), Health()]);
   }
 
   @override
@@ -120,9 +121,9 @@ class FlexUI with Service implements NotificationsListener {
 
   @override
   void onNotification(String name, dynamic param) {
-    if ((name == User.notifyRolesUpdated) ||
-        (name == User.notifyUserUpdated) ||
-        (name == User.notifyUserDeleted))
+    if ((name == UserProfile.notifyRolesUpdated) ||
+        (name == UserProfile.notifyProfileUpdated) ||
+        (name == UserProfile.notifyProfileDeleted))
     {
       _updateFromNet();
     }
@@ -193,7 +194,7 @@ class FlexUI with Service implements NotificationsListener {
     String url = '${Config().talentChooserUrl}/ui-content?data-version=$_dataVersion';
     
     Map<String, dynamic> post = {
-      'user': User().data?.toShortJson(),
+      'user': UserProfile().data?.toShortJson(),
       'auth_token': Auth().authToken?.toJson(),
       'auth_user': Auth().authUser?.toJson(),
       'card': Auth().authCard?.toShortJson(),
@@ -366,7 +367,7 @@ class FlexUI with Service implements NotificationsListener {
       
       UserRole userRole = UserRole.fromString(roleRule);
       if (userRole != null) {
-        Set<UserRole> userRoles = User().roles;
+        Set<UserRole> userRoles = UserProfile().roles;
         return (userRoles != null) && (userRoles.contains(userRole));
       }
     }

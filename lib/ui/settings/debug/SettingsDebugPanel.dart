@@ -25,7 +25,7 @@ import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Organizations.dart';
-import 'package:illinois/service/User.dart';
+import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/service/Storage.dart';
 import 'package:illinois/ui/health/debug/Covid19DebugActionPanel.dart';
 import 'package:illinois/ui/health/debug/Covid19DebugCreateEventPanel.dart';
@@ -89,7 +89,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
   }
 
   String get _userDebugData{
-    String userDataText = prettyPrintJson((User()?.data?.toJson()));
+    String userDataText = prettyPrintJson((UserProfile()?.data?.toJson()));
     String authUserText = prettyPrintJson(Auth()?.authUser?.toJson());
     String userData =  "Profile: " + (userDataText ?? "unknown") + "\n\n" +
         "Auth: " + (authUserText ?? "unknown");
@@ -98,7 +98,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
 
   @override
   Widget build(BuildContext context) {
-    String userUuid = User().uuid;
+    String userUuid = UserProfile().uuid;
     String pid = Storage().userPid;
     String firebaseProjectId = FirebaseMessaging().projectID;
 
