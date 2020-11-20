@@ -90,9 +90,9 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
 
   String get _userDebugData{
     String userDataText = prettyPrintJson((User()?.data?.toJson()));
-    String authInfoText = prettyPrintJson(Auth()?.authInfo?.toJson());
-    String userData =  "UserData: " + (userDataText ?? "unknown") + "\n\n" +
-        "AuthInfo: " + (authInfoText ?? "unknown");
+    String authUserText = prettyPrintJson(Auth()?.authUser?.toJson());
+    String userData =  "Profile: " + (userDataText ?? "unknown") + "\n\n" +
+        "Auth: " + (authUserText ?? "unknown");
     return userData;
   }
 
