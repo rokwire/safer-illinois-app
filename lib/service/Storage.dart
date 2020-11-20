@@ -16,6 +16,7 @@
 
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:illinois/model/Auth.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/model/Organization.dart';
@@ -27,6 +28,8 @@ import 'package:illinois/utils/Crypt.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:universal_html/html.dart' as html;
+import 'package:universal_html/prefer_universal/html.dart';
 
 class Storage with Service {
 
@@ -48,13 +51,18 @@ class Storage with Service {
     if (_sharedPreferences == null) {
       _sharedPreferences = await SharedPreferences.getInstance();
     }
-    if (_encryptionKey == null) {
+    //TBD: DD - web
+    if ((_encryptionKey == null) && !kIsWeb) {
       _encryptionKey = await NativeCommunicator().encryptionKey(name: 'storage', size: AESCrypt.kCCBlockSizeAES128);
     }
   }
 
   @override
   Future<void> clearService() async {
+    if (kIsWeb) {
+      html.window.document.cookie = ""; //clear cookies
+      window.localStorage.clear();
+    }
     if (_sharedPreferences != null) {
       await _sharedPreferences.clear();
     }
@@ -235,27 +243,51 @@ class Storage with Service {
   static const String authTokenKey  = '_auth_token';
 
   AuthToken get authToken {
-    try {
-      String jsonString = _getStringWithName(authTokenKey);
-      dynamic jsonData = AppJson.decode(jsonString);
-      return (jsonData != null) ? AuthToken.fromJson(jsonData) : null;
-    } on Exception catch (e) { print(e.toString()); }
-    return null;
+    if (kIsWeb) {
+      return null;
+    } else {
+      try {
+        String jsonString = _getStringWithName(authTokenKey);
+        dynamic jsonData = AppJson.decode(jsonString);
+        return (jsonData != null) ? AuthToken.fromJson(jsonData) : null;
+      } on Exception catch (e) {
+        print(e.toString());
+      }
+      return null;
+    }
   }
 
   set authToken(AuthToken value) {
-    _setStringWithName(authTokenKey, value != null ? json.encode(value.toJson()) : null);
+    if (kIsWeb) {
+      return;
+    } else {
+      _setStringWithName(authTokenKey, value != null ? json.encode(value.toJson()) : null);
+    }
   }
 
   static const String authInfoKey  = '_auth_info';
 
   AuthInfo get authInfo {
-    final String authInfoToString = _getStringWithName(authInfoKey);
-    AuthInfo authInfo = AuthInfo.fromJson(AppJson.decode(authInfoToString));
-    return authInfo;
+    if (kIsWeb) {
+      String ai = _getCookie("rwa-ai-data");
+      if (ai == null || ai.isEmpty) {
+        return null;
+      }
+
+      String decoded = utf8.decode(base64.decode(ai));
+      AuthInfo authInfo = AuthInfo.fromJson(AppJson.decode(decoded));
+      return authInfo;
+    } else {
+      final String authInfoToString = _getStringWithName(authInfoKey);
+      AuthInfo authInfo = AuthInfo.fromJson(AppJson.decode(authInfoToString));
+      return authInfo;
+    }
   }
 
   set authInfo(AuthInfo value) {
+    if (kIsWeb) {
+      return;
+    }
     _setStringWithName(authInfoKey, value != null ? json.encode(value.toJson()) : null);
   }
 
@@ -486,4 +518,24 @@ class Storage with Service {
   }
 
   /////////////
+  // Web
+
+  String _getCookie(String name) {
+    String cookie = html.window.document.cookie;
+    if (cookie == null || cookie.isEmpty || cookie.trim().isEmpty) {
+      return null;
+    }
+    List<String> cookies = cookie.split("; ");
+    if (cookies == null || cookies.isEmpty) {
+      return null;
+    }
+
+    for (var current in cookies) {
+      if (current.startsWith(name)) {
+        String value = current.substring(name.length + 1); //"name=...
+        return value;
+      }
+    }
+    return null;
+  }
 }
