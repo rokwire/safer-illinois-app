@@ -512,6 +512,7 @@
 	"panel.health.covid19.care_team.team.semantic_contact.osf": "18336735669",
 	"panel.health.covid19.care_team.team.description.osf": "我们与OSF OnCall Connect计划和伊利诺伊州医疗和家庭服务部合作，给您提供COVID-19的支持。拨打护士热线1-833-OSF-KNOW（833-673-5669）了解更多有关该计划的信息，包括提供护理包和在16天内对您进行网络访问",
 	"panel.health.covid19.care_team.label.more_info.title": "有关大流行卫生工作者计划的更多信息",
+	"panel.health.covid19.care_team.label.more_info.title.semantics.label": "More about the OSF On Call Connect program",
 	"panel.health.covid19.care_team.label.more_info.description": "大流行卫生工作者（PHW）是经过培训的OSF医疗任务合作伙伴，在您从COVID-19恢复时，与您建立联系以提供支持，并在您和医疗保健提供者之间起到直接的联系，从而降低进一步暴露的风险。虽然PHW工作者不是注册护士，但如果您的病情恶化或您有具体的临床问题，临床护士和医生将随时待命 ",
 	"panel.health.covid19.care_team.label.more_info.hint": "双击可显示更多信息",
 	"panel.health.covid19.care_team.label.call.hint": "致电 ",
