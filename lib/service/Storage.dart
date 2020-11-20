@@ -19,7 +19,7 @@ import 'dart:typed_data';
 import 'package:illinois/model/Auth.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/model/Organization.dart';
-import 'package:illinois/model/UserProfileData.dart';
+import 'package:illinois/model/UserProfile.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';

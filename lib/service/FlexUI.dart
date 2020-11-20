@@ -21,7 +21,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart' as Http;
 
 import 'package:collection/collection.dart';
-import 'package:illinois/model/UserProfileData.dart';
+import 'package:illinois/model/UserProfile.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/Assets.dart';
 import 'package:illinois/service/Auth.dart';
