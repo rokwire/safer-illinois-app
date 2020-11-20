@@ -93,11 +93,10 @@ class Services {
     LocalNotifications(),
     DeepLink(),
 
-    FlexUI(),
-    Onboarding(),
     Localization(),
     Assets(),
     Styles(),
+
     Auth(),
     UserProfile(),
     Analytics(),
@@ -106,6 +105,9 @@ class Services {
     Exposure(),
     OSFHealth(),
     
+    FlexUI(),
+    Onboarding(),
+
     // These do not rely on Service initialization API so they are not registered as services.
     // ...
   ];
