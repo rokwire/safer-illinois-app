@@ -1446,10 +1446,17 @@ class Health with Service implements NotificationsListener {
     return user;
   }
 
-  Future<void> repostHealthHistory() async{
-    HealthUser user = await _loadUser();
-    user.repost = true;
-    await _saveUser(user);
+  Future<bool> repostHealthHistory() async{
+
+    HealthUser user;
+    try { user = await _loadUser(); }
+    catch (e) { print(e?.toString()); }
+
+    if (user != null) {
+      user.repost = true;
+      return await _saveUser(user);
+    }
+    return false;
   }
 
   Future<PrivateKey> loadRSAPrivateKey() async {
