@@ -29,7 +29,7 @@ import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/Styles.dart';
-import 'package:illinois/service/User.dart';
+import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/ui/health/Covid19HistoryPanel.dart';
 import 'package:illinois/ui/health/Covid19TransferEncryptionKeyPanel.dart';
 import 'package:illinois/ui/health/onboarding/Covid19OnBoardingResidentInfoPanel.dart';
@@ -61,7 +61,7 @@ class _Settings2HomePanelState extends State<Settings2HomePanel> implements Noti
 
     NotificationService().subscribe(this, [
       Auth.notifyUserPiiDataChanged,
-      User.notifyUserUpdated,
+      UserProfile.notifyProfileUpdated,
       Health.notifyUserUpdated,
     ]);
 
@@ -86,7 +86,7 @@ class _Settings2HomePanelState extends State<Settings2HomePanel> implements Noti
     await Health().deleteUser();
     await Exposure().deleteUser();
     await Auth().deleteUserPiiData();
-    await User().deleteUser();
+    await UserProfile().deleteProfile();
     Auth().logout();
   }
 
@@ -107,7 +107,7 @@ class _Settings2HomePanelState extends State<Settings2HomePanel> implements Noti
   void onNotification(String name, dynamic param) {
     if (name == Auth.notifyUserPiiDataChanged) {
       _updateState();
-    } else if (name == User.notifyUserUpdated){
+    } else if (name == UserProfile.notifyProfileUpdated){
       _updateState();
     } else if (name == Health.notifyUserUpdated){
       _updateState();

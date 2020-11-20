@@ -22,8 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as Http;
 import 'package:http/http.dart';
 import 'package:illinois/model/Auth.dart';
-import 'package:illinois/model/UserData.dart';
-import 'package:illinois/model/UserPiiData.dart';
+import 'package:illinois/model/UserProfile.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/DeepLink.dart';
@@ -38,7 +37,7 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart' as url_launcher;
 
-import 'package:illinois/service/User.dart';
+import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/utils/Utils.dart';
 
 class Auth with Service implements NotificationsListener {
@@ -109,7 +108,7 @@ class Auth with Service implements NotificationsListener {
     NotificationService().subscribe(this, [
       DeepLink.notifyUri,
       AppLivecycle.notifyStateChanged,
-      User.notifyUserDeleted,
+      UserProfile.notifyProfileDeleted,
       Config.notifyConfigChanged,
     ]);
   }
@@ -286,7 +285,7 @@ class Auth with Service implements NotificationsListener {
 //    return;
 //  }
 
-    // 4. Request User PersonalData and AuthCard
+    // 4. Request UserProfile PersonalData and AuthCard
     results = await Future.wait([
       _loadUserPersonalDataWithShibbolethAuth(optAuthToken: newAuthToken, optAuthUser: newAuthUser),
       _loadAuthCardStringFromNet(optAuthToken: newAuthToken, optAuthUser: newAuthUser),
@@ -295,7 +294,7 @@ class Auth with Service implements NotificationsListener {
     _UserPersonalData userPersonalData = ((results != null) && (0 < results.length)) ? results[0] : null;
     String newUserPiiDataString = userPersonalData?.userPiiDataString;
     UserPiiData newUserPiiData = userPersonalData?.userPiiData;
-    UserData newUserProfile = userPersonalData?.userProfile;
+    UserProfileData newUserProfile = userPersonalData?.userProfile;
     if ((newUserPiiDataString == null) || (newUserPiiData == null) || (newUserProfile == null)) {
       _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
       return;
@@ -519,7 +518,7 @@ class Auth with Service implements NotificationsListener {
     _UserPersonalData userPersonalData = ((results != null) && (2 < results.length)) ? results[2] : null;
     String newUserPiiDataString = userPersonalData?.userPiiDataString;
     UserPiiData newUserPiiData = userPersonalData?.userPiiData;
-    UserData newUserProfile = userPersonalData?.userProfile;
+    UserProfileData newUserProfile = userPersonalData?.userProfile;
     if ((newUserPiiDataString == null) || (newUserPiiData == null) || (newUserProfile == null)) {
       _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
       return false;
@@ -640,14 +639,14 @@ class Auth with Service implements NotificationsListener {
 
   Future<String> _loadPidWithPhoneAuth({String phone, AuthToken optAuthToken}) async {
     return await _loadPidWithData(
-      data:{'uuid' : User().uuid, 'phone': phone},
+      data:{'uuid' : UserProfile().uuid, 'phone': phone},
       optAuthToken: optAuthToken
     );
   }
 
   Future<String> _loadPidWithShibbolethAuth({String email, AuthToken optAuthToken}) async {
     return await _loadPidWithData(
-        data:{'uuid' : User().uuid, 'email': email,},
+        data:{'uuid' : UserProfile().uuid, 'email': email,},
         optAuthToken: optAuthToken
     );
   }
@@ -802,13 +801,13 @@ class Auth with Service implements NotificationsListener {
 
   // User Profile Data
 
-  Future<UserData> _loadUserProfile({String userUuid}) async {
-    try { return (userUuid != null) ? await User().requestUser(userUuid) : null; }
+  Future<UserProfileData> _loadUserProfile({String userUuid}) async {
+    try { return (userUuid != null) ? await UserProfile().requestProfile(userUuid) : null; }
     catch (_) { return null; }
   }
 
-  void _applyUserProfile(UserData userProfile) {
-    User().applyUserData(userProfile);
+  void _applyUserProfile(UserProfileData userProfile) {
+    UserProfile().applyProfileData(userProfile);
   }
 
   // User Personal Data
@@ -820,7 +819,7 @@ class Auth with Service implements NotificationsListener {
     String userPiiPid = await _loadPidWithShibbolethAuth(email: optAuthUser?.email, optAuthToken: optAuthToken);
     String userPiiDataString = (userPiiPid != null) ? await _loadUserPiiDataStringFromNet(pid: userPiiPid, optAuthToken: optAuthToken) : null;
     UserPiiData userPiiData = (userPiiDataString != null) ? _userPiiDataFromJsonString(userPiiDataString) : null;
-    UserData userProfile = (userPiiData?.uuid != null) ? await _loadUserProfile(userUuid: userPiiData.uuid) : null;
+    UserProfileData userProfile = (userPiiData?.uuid != null) ? await _loadUserProfile(userUuid: userPiiData.uuid) : null;
     return _UserPersonalData(userPiiDataString: userPiiDataString, userPiiData: userPiiData, userProfile: userProfile );
   }
 
@@ -830,7 +829,7 @@ class Auth with Service implements NotificationsListener {
     String userPiiPid = await _loadPidWithPhoneAuth(phone: phone, optAuthToken: optAuthToken);
     String userPiiDataString = (userPiiPid != null) ? await _loadUserPiiDataStringFromNet(pid: userPiiPid, optAuthToken: optAuthToken) : null;
     UserPiiData userPiiData = (userPiiDataString != null) ? _userPiiDataFromJsonString(userPiiDataString) : null;
-    UserData userProfile = (userPiiData?.uuid != null) ? await _loadUserProfile(userUuid: userPiiData.uuid) : null;
+    UserProfileData userProfile = (userPiiData?.uuid != null) ? await _loadUserProfile(userUuid: userPiiData.uuid) : null;
     return _UserPersonalData(userPiiDataString: userPiiDataString, userPiiData: userPiiData, userProfile: userProfile );
   }
 
@@ -1079,7 +1078,7 @@ class Auth with Service implements NotificationsListener {
         _checkCapitolStaffRosterEnabled();
       }
     }
-    else if (name == User.notifyUserDeleted) {
+    else if (name == UserProfile.notifyProfileDeleted) {
       logout();
     }
     else if (name == Config.notifyConfigChanged) {
@@ -1112,6 +1111,6 @@ enum VerificationMethod { call, sms }
 class _UserPersonalData {
   final UserPiiData userPiiData;
   final String userPiiDataString;
-  final UserData userProfile;
+  final UserProfileData userProfile;
   _UserPersonalData({this.userPiiData, this.userPiiDataString, this.userProfile});
 }

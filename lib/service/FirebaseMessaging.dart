@@ -22,7 +22,7 @@ import 'dart:ui';
 import 'package:http/http.dart';
 import 'package:firebase_messaging/firebase_messaging.dart' as FirebaseMessagingPlugin;
 import 'package:illinois/model/Health.dart';
-import 'package:illinois/model/UserData.dart';
+import 'package:illinois/model/UserProfile.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/FirebaseService.dart';
 import 'package:illinois/service/Health.dart';
@@ -35,7 +35,7 @@ import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/Service.dart';
 import 'package:illinois/service/Storage.dart';
-import 'package:illinois/service/User.dart';
+import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/service/LocalNotifications.dart';
 import 'package:illinois/utils/Utils.dart';
 
@@ -95,9 +95,9 @@ class FirebaseMessaging with Service implements NotificationsListener {
   @override
   void createService() {
     NotificationService().subscribe(this, [
-      User.notifyRolesUpdated,
-      User.notifyUserUpdated,
-      User.notifyUserDeleted,
+      UserProfile.notifyRolesUpdated,
+      UserProfile.notifyProfileUpdated,
+      UserProfile.notifyProfileDeleted,
       Health.notifyUserUpdated,
       Health.notifyStatusAvailable,
       LocalNotifications.notifySelected,
@@ -148,20 +148,20 @@ class FirebaseMessaging with Service implements NotificationsListener {
 
   @override
   Set<Service> get serviceDependsOn {
-    return Set.from([FirebaseService(), Storage(), Config(), User()]);
+    return Set.from([FirebaseService(), Storage(), Config(), UserProfile()]);
   }
 
   // NotificationsListener
 
   @override
   void onNotification(String name, dynamic param) {
-    if (name == User.notifyRolesUpdated) {
+    if (name == UserProfile.notifyRolesUpdated) {
       _updateRolesSubscriptions();
     }
-    else if (name == User.notifyUserUpdated) {
+    else if (name == UserProfile.notifyProfileUpdated) {
       _updateSubscriptions();
     }
-    else if (name == User.notifyUserDeleted) {
+    else if (name == UserProfile.notifyProfileDeleted) {
       _updateSubscriptions();
     }
     else if (name == Health.notifyUserUpdated) {
@@ -474,7 +474,7 @@ class FirebaseMessaging with Service implements NotificationsListener {
   }
 
   void _processRolesSubscriptions({Set<String> subscribedTopics}) {
-    Set<UserRole> roles = User().roles;
+    Set<UserRole> roles = UserProfile().roles;
     for (UserRole role in UserRole.values) {
       String roleTopic = _topicName("$_roleTopicCategory.${role.toString()}");
       bool roleSubscribed = (subscribedTopics != null) && subscribedTopics.contains(roleTopic);

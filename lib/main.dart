@@ -22,7 +22,7 @@ import 'package:flutter/foundation.dart';
 import 'package:illinois/service/AppNavigation.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Organizations.dart';
-import 'package:illinois/service/User.dart';
+import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
@@ -129,7 +129,7 @@ class _AppState extends State<App> implements NotificationsListener {
       Config.notifyUpgradeRequired,
       Organizations.notifyOrganizationChanged,
       Organizations.notifyEnvironmentChanged,
-      User.notifyUserDeleted,
+      UserProfile.notifyProfileDeleted,
     ]);
 
     AppLivecycle.instance.ensureBinding();
@@ -227,7 +227,7 @@ class _AppState extends State<App> implements NotificationsListener {
     else if (name == Organizations.notifyEnvironmentChanged) {
       _resetUI();
     }
-    else if (name == User.notifyUserDeleted) {
+    else if (name == UserProfile.notifyProfileDeleted) {
       _resetUI();
     }
   }

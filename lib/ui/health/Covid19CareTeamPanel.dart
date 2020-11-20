@@ -20,7 +20,7 @@ import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Styles.dart';
-import 'package:illinois/service/User.dart';
+import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/ui/WebPanel.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/utils/Utils.dart';
@@ -349,11 +349,11 @@ class _Covid19CareTeamPanelState extends State<Covid19CareTeamPanel> with Ticker
   }
 
   bool get _canMcKinley{
-    return User().isStudent;
+    return UserProfile().isStudent;
   }
 
   bool get _isNotStudent{
-    return !User().isStudent;
+    return !UserProfile().isStudent;
   }
 
   void _onLinkTapped(String url){
