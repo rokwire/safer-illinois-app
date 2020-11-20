@@ -728,15 +728,16 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
         String code = codes[index];
         BorderRadius borderRadius = _borderRadiusFromIndex(index, codes.length);
         if (code == 'exposure_notifications') {
-          contentList.add(ToggleRibbonButton(
-              height: null,
-              borderRadius: borderRadius,
-              label: Localization().getStringEx("panel.settings.home.covid19.exposure_notifications", "Exposure Notifications"),
-              toggled: (_healthUser?.exposureNotification == true),
-              context: context,
-              onTap: _onExposureNotifications));
-        }
-        else if (code == 'provider_test_result') {
+          if (!kIsWeb) {
+            contentList.add(ToggleRibbonButton(
+                height: null,
+                borderRadius: borderRadius,
+                label: Localization().getStringEx("panel.settings.home.covid19.exposure_notifications", "Exposure Notifications"),
+                toggled: (_healthUser?.exposureNotification == true),
+                context: context,
+                onTap: _onExposureNotifications));
+          }
+        } else if (code == 'provider_test_result') {
           contentList.add(ToggleRibbonButton(
               height: null,
               borderRadius: borderRadius,
