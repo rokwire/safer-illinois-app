@@ -139,27 +139,27 @@ class Storage with Service {
   /////////////
   // User
 
-  static const String userKey  = 'user';
+  static const String userProfileKey  = 'user';
 
-  UserProfileData get userData {
-    final String userToString = _getStringWithName(userKey);
+  UserProfileData get userProfile {
+    final String userToString = _getStringWithName(userProfileKey);
     final Map<String, dynamic> userToJson = AppJson.decode(userToString);
     return (userToJson != null) ? UserProfileData.fromJson(userToJson) : null;
   }
 
-  set userData(UserProfileData user) {
+  set userProfile(UserProfileData user) {
     String userToString = (user != null) ? json.encode(user) : null;
-    _setStringWithName(userKey, userToString);
+    _setStringWithName(userProfileKey, userToString);
   }
 
-  static const String localUserUuidKey  = 'user_local_uuid';
+  static const String localProfileUuidKey  = 'user_local_uuid';
 
-  String get localUserUuid {
-    return _getStringWithName(localUserUuidKey);
+  String get localProfileUuid {
+    return _getStringWithName(localProfileUuidKey);
   }
 
-  set localUserUuid(String value) {
-    _setStringWithName(localUserUuidKey, value);
+  set localProfileUuid(String value) {
+    _setStringWithName(localProfileUuidKey, value);
   }
 
   /////////////

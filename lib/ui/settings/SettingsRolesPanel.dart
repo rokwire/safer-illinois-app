@@ -23,7 +23,7 @@ import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/RoleGridButton.dart';
-import 'package:illinois/service/User.dart';
+import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/model/UserProfile.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:illinois/service/Styles.dart';
@@ -40,8 +40,8 @@ class _SettingsRolesPanelState extends State<SettingsRolesPanel> implements Noti
 
   @override
   void initState() {
-    NotificationService().subscribe(this, User.notifyRolesUpdated);
-    _userRoles = User().roles ?? Set<UserRole>();
+    NotificationService().subscribe(this, UserProfile.notifyRolesUpdated);
+    _userRoles = UserProfile().roles ?? Set<UserRole>();
     _selectedRoles = Set<UserRole>.from(_userRoles);
     super.initState();
   }
@@ -255,7 +255,7 @@ class _SettingsRolesPanelState extends State<SettingsRolesPanel> implements Noti
   }
 
   void _saveSelectedRoles() {
-    User().roles = _selectedRoles;
+    UserProfile().roles = _selectedRoles;
     _saveRolesTimer = null;
   }
 
@@ -263,9 +263,9 @@ class _SettingsRolesPanelState extends State<SettingsRolesPanel> implements Noti
 
   @override
   void onNotification(String name, dynamic param) {
-    if (name == User.notifyRolesUpdated) {
+    if (name == UserProfile.notifyRolesUpdated) {
       setState(() {
-        _selectedRoles = User().roles ?? Set<UserRole>();
+        _selectedRoles = UserProfile().roles ?? Set<UserRole>();
       });
     }
   }

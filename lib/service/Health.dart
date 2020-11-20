@@ -35,7 +35,7 @@ import 'package:illinois/service/Network.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
 import 'package:illinois/service/Storage.dart';
-import 'package:illinois/service/User.dart';
+import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/utils/Crypt.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:path/path.dart';
@@ -135,7 +135,7 @@ class Health with Service implements NotificationsListener {
 
   @override
   Set<Service> get serviceDependsOn {
-    return Set.from([Storage(), Config(), User(), Auth(), NativeCommunicator()]);
+    return Set.from([Storage(), Config(), UserProfile(), Auth(), NativeCommunicator()]);
   }
 
   // NotificationsListener
@@ -1372,7 +1372,7 @@ class Health with Service implements NotificationsListener {
     bool userUpdated;
     if (user == null) {
       // User had not logged in -> create new user
-      user = HealthUser(uuid: User().uuid);
+      user = HealthUser(uuid: UserProfile().uuid);
       userUpdated = true;
     }
     

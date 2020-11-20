@@ -22,7 +22,7 @@ import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/NotificationService.dart';
-import 'package:illinois/service/User.dart';
+import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/ui/onboarding/OnboardingBackButton.dart';
 import 'package:illinois/service/Styles.dart';
@@ -38,7 +38,7 @@ class OnboardingLoginNetIdPanel extends StatefulWidget with OnboardingPanel {
 
   @override
   bool get onboardingCanDisplay {
-    return User().isStudentOrEmployee;
+    return UserProfile().isStudentOrEmployee;
   }
 }
 
@@ -61,7 +61,7 @@ class _OnboardingLoginNetIdPanelState extends State<OnboardingLoginNetIdPanel> i
   Widget build(BuildContext context) {
     String titleString = Localization().getStringEx('panel.onboarding.login.netid.label.title', 'Connect your NetID');
     String skipTitle = Localization().getStringEx('panel.onboarding.login.netid.button.dont_continue.title', 'Not right now');
-    bool hasSkip = !User().roles.contains(UserRole.nonUniversityMember);
+    bool hasSkip = !UserProfile().roles.contains(UserRole.nonUniversityMember);
     return Scaffold(
         backgroundColor: Styles().colors.background,
         body: Stack(

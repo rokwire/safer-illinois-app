@@ -39,7 +39,7 @@ import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/Storage.dart';
 import 'package:illinois/service/LocalNotifications.dart';
 import 'package:illinois/service/Styles.dart';
-import 'package:illinois/service/User.dart';
+import 'package:illinois/service/UserProfile.dart';
 
 abstract class Service {
   
@@ -99,7 +99,7 @@ class Services {
     Assets(),
     Styles(),
     Auth(),
-    User(),
+    UserProfile(),
     Analytics(),
     FirebaseMessaging(),
     Health(),

@@ -33,7 +33,7 @@ import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/FlexUI.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Log.dart';
-import 'package:illinois/service/User.dart';
+import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Config.dart';
@@ -83,7 +83,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
     NotificationService().subscribe(this, [
       Auth.notifyLoginSucceeded,
       Auth.notifyUserPiiDataChanged,
-      User.notifyUserUpdated,
+      UserProfile.notifyProfileUpdated,
       FirebaseMessaging.notifySettingUpdated,
       FlexUI.notifyChanged,
     ]);
@@ -108,7 +108,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
       _updateState();
     } else if (name == Auth.notifyLoginSucceeded) {
       _loadHealthUser();
-    } else if (name == User.notifyUserUpdated){
+    } else if (name == UserProfile.notifyProfileUpdated){
       _updateState();
     } else if (name == FirebaseMessaging.notifySettingUpdated) {
       _updateState();
@@ -208,7 +208,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
     );
   }
 
-  // User Info
+  // UserProfile Info
 
   String get _greeting {
     switch (AppDateTime.timeOfDay()) {

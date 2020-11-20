@@ -29,7 +29,7 @@ import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Styles.dart';
-import 'package:illinois/service/User.dart';
+import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/utils/Utils.dart';
@@ -109,7 +109,7 @@ class _Settings2GovernmentIdPanelPanelState extends State<Settings2GovernmentIdP
     await Health().deleteUser();
     await Exposure().deleteUser();
     await Auth().deleteUserPiiData();
-    await User().deleteUser();
+    await UserProfile().deleteProfile();
     Auth().logout();
   }
 

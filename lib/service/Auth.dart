@@ -37,7 +37,7 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart' as url_launcher;
 
-import 'package:illinois/service/User.dart';
+import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/utils/Utils.dart';
 
 class Auth with Service implements NotificationsListener {
@@ -108,7 +108,7 @@ class Auth with Service implements NotificationsListener {
     NotificationService().subscribe(this, [
       DeepLink.notifyUri,
       AppLivecycle.notifyStateChanged,
-      User.notifyUserDeleted,
+      UserProfile.notifyProfileDeleted,
       Config.notifyConfigChanged,
     ]);
   }
@@ -285,7 +285,7 @@ class Auth with Service implements NotificationsListener {
 //    return;
 //  }
 
-    // 4. Request User PersonalData and AuthCard
+    // 4. Request UserProfile PersonalData and AuthCard
     results = await Future.wait([
       _loadUserPersonalDataWithShibbolethAuth(optAuthToken: newAuthToken, optAuthUser: newAuthUser),
       _loadAuthCardStringFromNet(optAuthToken: newAuthToken, optAuthUser: newAuthUser),
@@ -639,14 +639,14 @@ class Auth with Service implements NotificationsListener {
 
   Future<String> _loadPidWithPhoneAuth({String phone, AuthToken optAuthToken}) async {
     return await _loadPidWithData(
-      data:{'uuid' : User().uuid, 'phone': phone},
+      data:{'uuid' : UserProfile().uuid, 'phone': phone},
       optAuthToken: optAuthToken
     );
   }
 
   Future<String> _loadPidWithShibbolethAuth({String email, AuthToken optAuthToken}) async {
     return await _loadPidWithData(
-        data:{'uuid' : User().uuid, 'email': email,},
+        data:{'uuid' : UserProfile().uuid, 'email': email,},
         optAuthToken: optAuthToken
     );
   }
@@ -802,12 +802,12 @@ class Auth with Service implements NotificationsListener {
   // User Profile Data
 
   Future<UserProfileData> _loadUserProfile({String userUuid}) async {
-    try { return (userUuid != null) ? await User().requestUser(userUuid) : null; }
+    try { return (userUuid != null) ? await UserProfile().requestProfile(userUuid) : null; }
     catch (_) { return null; }
   }
 
   void _applyUserProfile(UserProfileData userProfile) {
-    User().applyUserData(userProfile);
+    UserProfile().applyProfileData(userProfile);
   }
 
   // User Personal Data
@@ -1078,7 +1078,7 @@ class Auth with Service implements NotificationsListener {
         _checkCapitolStaffRosterEnabled();
       }
     }
-    else if (name == User.notifyUserDeleted) {
+    else if (name == UserProfile.notifyProfileDeleted) {
       logout();
     }
     else if (name == Config.notifyConfigChanged) {

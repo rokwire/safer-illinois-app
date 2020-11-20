@@ -32,23 +32,23 @@ import 'package:illinois/service/Network.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:http/http.dart' as http;
 
-class User with Service implements NotificationsListener {
+class UserProfile with Service implements NotificationsListener {
 
-  static const String notifyUserUpdated = "edu.illinois.rokwire.user.updated";
-  static const String notifyUserDeleted = "edu.illinois.rokwire.user.deleted";
-  static const String notifyRolesUpdated  = "edu.illinois.rokwire.user.roles.updated";
+  static const String notifyProfileUpdated = "edu.illinois.rokwire.user.profile.updated";
+  static const String notifyProfileDeleted = "edu.illinois.rokwire.user.profile.deleted";
+  static const String notifyRolesUpdated  = "edu.illinois.rokwire.user.profile.roles.updated";
 
-  UserProfileData _userData;
+  UserProfileData _profileData;
 
   http.Client _client = http.Client();
 
-  static final User _service = new User._internal();
+  static final UserProfile _service = new UserProfile._internal();
 
-  factory User() {
+  factory UserProfile() {
     return _service;
   }
 
-  User._internal();
+  UserProfile._internal();
 
   @override
   void createService() {
@@ -66,18 +66,18 @@ class User with Service implements NotificationsListener {
   @override
   Future<void> initService() async {
 
-    _userData = Storage().userData;
+    _profileData = Storage().userProfile;
     
-    if (_userData == null) {
-      await _createUser();
-    } else if (_userData.uuid != null) {
-      await _loadUser();
+    if (_profileData == null) {
+      await _createProfile();
+    } else if (_profileData.uuid != null) {
+      await _loadProfile();
     }
   }
 
   @override
   Future<void> clearService() async {
-    _userData = null;
+    _profileData = null;
   }
 
   Set<Service> get serviceDependsOn {
@@ -91,45 +91,45 @@ class User with Service implements NotificationsListener {
       _updateFCMToken();
     }
     else if(name == AppLivecycle.notifyStateChanged && param == AppLifecycleState.resumed){
-      //_loadUser();
+      //_loadProfile();
     }
   }
 
-  // User
+  // User Profile Data
 
   String get uuid {
-    return _userData?.uuid;
+    return _profileData?.uuid;
   }
   
   UserProfileData get data {
-    return _userData;
+    return _profileData;
   }
 
   static String get analyticsUuid {
     return UserProfileData.analyticsUuid;
   }
 
-  Future<void> _createUser() async {  
-    UserProfileData userData = await _requestCreateUser();
-    applyUserData(userData);
-    Storage().localUserUuid = userData?.uuid;
+  Future<void> _createProfile() async {  
+    UserProfileData profileData = await _requestCreateProfile();
+    applyProfileData(profileData);
+    Storage().localProfileUuid = profileData?.uuid;
   }
 
-  Future<void> _loadUser() async {
+  Future<void> _loadProfile() async {
     // silently refresh user profile
-    requestUser(_userData?.uuid).then((UserProfileData userData) {
-      if (userData != null) {
-        applyUserData(userData);
+    requestProfile(_profileData?.uuid).then((UserProfileData profileData) {
+      if (profileData != null) {
+        applyProfileData(profileData);
       }
     })
     .catchError((_){
-        _clearStoredUserData();
-      }, test: (error){return error is UserNotFoundException;});
+        _clearStoredProfile();
+      }, test: (error){return error is UserProfileNotFoundException;});
   }
 
-  Future<void> _updateUser() async {
+  Future<void> _updateProfile() async {
 
-    if (_userData == null) {
+    if (_profileData == null) {
       return;
     }
 
@@ -141,10 +141,10 @@ class User with Service implements NotificationsListener {
     http.Client client;
     _client = client = http.Client();
 
-    String userUuid = _userData.uuid;
-    String url = (Config().userProfileUrl != null) ? "${Config().userProfileUrl}/$userUuid" : null;
+    String profileUuid = _profileData.uuid;
+    String url = (Config().userProfileUrl != null) ? "${Config().userProfileUrl}/$profileUuid" : null;
     Map<String, String> headers = {"Accept": "application/json","content-type":"application/json"};
-    final response = (url != null) ? await Network().put(url, body: json.encode(_userData.toJson()), headers: headers, client: _client, auth: NetworkAuth.App) : null;
+    final response = (url != null) ? await Network().put(url, body: json.encode(_profileData.toJson()), headers: headers, client: _client, auth: NetworkAuth.App) : null;
     String responseBody = response?.body;
     bool success = ((response != null) && (responseBody != null) && (response.statusCode == 200));
     
@@ -158,8 +158,8 @@ class User with Service implements NotificationsListener {
       Map<String, dynamic> jsonData = AppJson.decode(responseBody);
       UserProfileData update = UserProfileData.fromJson(jsonData);
       if (update != null) {
-        Storage().userData = _userData = update;
-        //_notifyUserUpdated();
+        Storage().userProfile = _profileData = update;
+        //_notifyProfileUpdated();
       }
     }
     else {
@@ -168,14 +168,14 @@ class User with Service implements NotificationsListener {
 
   }
 
-  Future<UserProfileData> requestUser(String uuid) async {
+  Future<UserProfileData> requestProfile(String uuid) async {
     String url = ((Config().userProfileUrl != null) && (uuid != null) && (0 < uuid.length)) ? '${Config().userProfileUrl}/$uuid' : null;
 
     final response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
 
     if(response != null) {
       if (response?.statusCode == 404) {
-        throw UserNotFoundException();
+        throw UserProfileNotFoundException();
       }
 
       String responseBody = ((response != null) && (response?.statusCode == 200)) ? response?.body : null;
@@ -188,7 +188,7 @@ class User with Service implements NotificationsListener {
     return null;
   }
 
-  Future<UserProfileData> _requestCreateUser() async {
+  Future<UserProfileData> _requestCreateProfile() async {
     try {
       final response = (Config().userProfileUrl != null) ? await Network().post(Config().userProfileUrl, auth: NetworkAuth.App, timeout: 10) : null;
       if ((response != null) && (response.statusCode == 200)) {
@@ -205,59 +205,59 @@ class User with Service implements NotificationsListener {
     }
   }
 
-  Future<void> deleteUser() async{
-    String userUuid = _userData?.uuid;
-    if((Config().userProfileUrl != null) && (userUuid != null)) {
-      await Network().delete("${Config().userProfileUrl}/$userUuid", headers: {"Accept": "application/json", "content-type": "application/json"}, auth: NetworkAuth.App);
+  Future<void> deleteProfile() async{
+    String profileUuid = _profileData?.uuid;
+    if((Config().userProfileUrl != null) && (profileUuid != null)) {
+      await Network().delete("${Config().userProfileUrl}/$profileUuid", headers: {"Accept": "application/json", "content-type": "application/json"}, auth: NetworkAuth.App);
 
-      _clearStoredUserData();
-      _notifyUserDeleted();
+      _clearStoredProfile();
+      _notifyProfileDeleted();
 
       try {
-        _userData = await requestUser(Storage().localUserUuid);
-      } on UserNotFoundException catch (_) {
-        _userData = await _requestCreateUser();
-        if (_userData?.uuid != null) {
-          Storage().localUserUuid = _userData?.uuid;
+        _profileData = await requestProfile(Storage().localProfileUuid);
+      } on UserProfileNotFoundException catch (_) {
+        _profileData = await _requestCreateProfile();
+        if (_profileData?.uuid != null) {
+          Storage().localProfileUuid = _profileData?.uuid;
         }
       }
-      if (_userData != null) {
-        Storage().userData = _userData;
-        _notifyUserUpdated();
+      if (_profileData != null) {
+        Storage().userProfile = _profileData;
+        _notifyProfileUpdated();
       }
     }
 
   }
 
-  void applyUserData(UserProfileData userData) {
+  void applyProfileData(UserProfileData profileData) {
     
     // 1. We might need to remove FCM token from current user
-    String applyUserUuid = userData?.uuid;
-    String currentUserUuid = _userData?.uuid;
-    bool userSwitched = (currentUserUuid != null) && (currentUserUuid != applyUserUuid);
-    if (userSwitched && (Config().userProfileUrl != null) && (_userData?.uuid != null) && _removeFCMToken(_userData)) {
-      String url = "${Config().userProfileUrl}/${_userData?.uuid}";
+    String applyProfileUuid = profileData?.uuid;
+    String currentProfileUuid = _profileData?.uuid;
+    bool profileSwitched = (currentProfileUuid != null) && (currentProfileUuid != applyProfileUuid);
+    if (profileSwitched && (Config().userProfileUrl != null) && (_profileData?.uuid != null) && _removeFCMToken(_profileData)) {
+      String url = "${Config().userProfileUrl}/${_profileData?.uuid}";
       Map<String, String> headers = {"Accept": "application/json","content-type":"application/json"};
-      String post = json.encode(_userData.toJson());
+      String post = json.encode(_profileData.toJson());
       Network().put(url, body: post, headers: headers, auth: NetworkAuth.App);
     }
 
     // 2. We might need to add FCM token and user roles from Storage to new user
-    bool applyUserUpdated = _applyFCMToken(userData);
+    bool applyProfileUpdated = _applyFCMToken(profileData);
 
-    Storage().userData = _userData = userData;
+    Storage().userProfile = _profileData = profileData;
 
-    if (userSwitched) {
-      _notifyUserUpdated();
+    if (profileSwitched) {
+      _notifyProfileUpdated();
     }
     
-    if (applyUserUpdated) {
-      _updateUser();
+    if (applyProfileUpdated) {
+      _updateProfile();
     }
   }
 
-  void _clearStoredUserData(){
-    Storage().userData = _userData = null;
+  void _clearStoredProfile(){
+    Storage().userProfile = _profileData = null;
     Auth().logout();
     Storage().onBoardingPassed = false;
   }
@@ -265,55 +265,55 @@ class User with Service implements NotificationsListener {
   // FCM Tokens
 
   void _updateFCMToken() {
-    if (_applyFCMToken(_userData)) {
-      _updateUser();
+    if (_applyFCMToken(_profileData)) {
+      _updateProfile();
     }
   }
 
-  static bool _applyFCMToken(UserProfileData userData) {
-    return userData?.applyFCMToken(FirebaseMessaging().token) ?? false;
+  static bool _applyFCMToken(UserProfileData profileData) {
+    return profileData?.applyFCMToken(FirebaseMessaging().token) ?? false;
   }
 
-  static bool _removeFCMToken(UserProfileData userData) {
-    return userData?.removeFCMToken(FirebaseMessaging().token) ?? false;
+  static bool _removeFCMToken(UserProfileData profileData) {
+    return profileData?.removeFCMToken(FirebaseMessaging().token) ?? false;
   }
 
   //UserRoles
 
   Set<UserRole> get roles {
-    return _userData?.roles;
+    return _profileData?.roles;
   }
 
   set roles(Set<UserRole> userRoles) {
-    if (_userData != null) {
-      _userData.roles = userRoles;
-      _updateUser().then((_){
+    if (_profileData != null) {
+      _profileData.roles = userRoles;
+      _updateProfile().then((_){
         _notifyUserRolesUpdated();
       });
     }
   }
 
   bool get isStudent {
-    return _userData?.roles?.contains(UserRole.student) ?? false;
+    return _profileData?.roles?.contains(UserRole.student) ?? false;
   }
 
   bool get isEmployee {
-    return _userData?.roles?.contains(UserRole.employee) ?? false;
+    return _profileData?.roles?.contains(UserRole.employee) ?? false;
   }
 
   bool get isStudentOrEmployee {
-    Set<UserRole> roles = _userData?.roles;
+    Set<UserRole> roles = _profileData?.roles;
     return (roles != null) && (roles.contains(UserRole.student) || roles.contains(UserRole.employee));
   }
 
   // Notifications
 
-  void _notifyUserUpdated() {
-    NotificationService().notify(notifyUserUpdated, null);
+  void _notifyProfileUpdated() {
+    NotificationService().notify(notifyProfileUpdated, null);
   }
 
-  void _notifyUserDeleted() {
-    NotificationService().notify(notifyUserDeleted, null);
+  void _notifyProfileDeleted() {
+    NotificationService().notify(notifyProfileDeleted, null);
   }
 
   void _notifyUserRolesUpdated() {
@@ -321,9 +321,9 @@ class User with Service implements NotificationsListener {
   }
 }
 
-class UserNotFoundException implements Exception{
+class UserProfileNotFoundException implements Exception{
   final String message;
-  UserNotFoundException({this.message});
+  UserProfileNotFoundException({this.message});
 
   @override
   String toString() {
