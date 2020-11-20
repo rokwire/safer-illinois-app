@@ -265,9 +265,9 @@ class Storage with Service {
     }
   }
 
-  static const String authInfoKey  = '_auth_info';
+  static const String authUserKey  = '_auth_info';
 
-  AuthInfo get authInfo {
+  AuthUser get authUser {
     if (kIsWeb) {
       String ai = _getCookie("rwa-ai-data");
       if (ai == null || ai.isEmpty) {
@@ -275,20 +275,20 @@ class Storage with Service {
       }
 
       String decoded = utf8.decode(base64.decode(ai));
-      AuthInfo authInfo = AuthInfo.fromJson(AppJson.decode(decoded));
+      AuthUser authInfo = AuthUser.fromJson(AppJson.decode(decoded));
       return authInfo;
     } else {
-      final String authInfoToString = _getStringWithName(authInfoKey);
-      AuthInfo authInfo = AuthInfo.fromJson(AppJson.decode(authInfoToString));
-      return authInfo;
+      final String authUserToString = _getStringWithName(authUserKey);
+      AuthUser authUser = AuthUser.fromJson(AppJson.decode(authUserToString));
+      return authUser;
     }
   }
 
-  set authInfo(AuthInfo value) {
+  set authUser(AuthUser value) {
     if (kIsWeb) {
       return;
     }
-    _setStringWithName(authInfoKey, value != null ? json.encode(value.toJson()) : null);
+    _setStringWithName(authUserKey, value != null ? json.encode(value.toJson()) : null);
   }
 
   static const String authCardTimeKey  = '_auth_card_time';
@@ -299,6 +299,36 @@ class Storage with Service {
 
   set authCardTime(int value) {
     _setIntWithName(authCardTimeKey, value);
+  }
+
+  static const String rokmetroTokenKey  = '_rokmetro_token';
+
+  RokmetroToken get rokmetroToken {
+    try {
+      String jsonString = _getStringWithName(rokmetroTokenKey);
+      Map<String, dynamic> jsonData = AppJson.decodeMap(jsonString);
+      return (jsonData != null) ? RokmetroToken.fromJson(jsonData) : null;
+    } on Exception catch (e) { print(e.toString()); }
+    return null;
+  }
+
+  set rokmetroToken(RokmetroToken value) {
+    _setStringWithName(rokmetroTokenKey, AppJson.encode(value?.toJson()));
+  }
+
+  static const String rokmetroUserKey  = '_rokmetro_user';
+
+  RokmetroUser get rokmetroUser {
+    try {
+      String jsonString = _getStringWithName(rokmetroUserKey);
+      Map<String, dynamic> jsonData = AppJson.decodeMap(jsonString);
+      return (jsonData != null) ? RokmetroUser.fromJson(jsonData) : null;
+    } on Exception catch (e) { print(e.toString()); }
+    return null;
+  }
+
+  set rokmetroUser(RokmetroUser value) {
+    _setStringWithName(rokmetroUserKey, AppJson.encode(value?.toJson()));
   }
 
   /////////////////
@@ -353,7 +383,7 @@ class Storage with Service {
   }
 
   set organization(Organization organization) {
-    _setEncryptedStringWithName(_organiationKey, AppJson.encode(organization.toJson()));
+    _setEncryptedStringWithName(_organiationKey, AppJson.encode(organization?.toJson()));
   }
 
   /////////////

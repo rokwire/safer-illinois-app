@@ -226,6 +226,10 @@ class UserPiiData {
     return fullName;
   }
 
+  String get uuid {
+    return (0 < (uuidList?.length ?? 0)) ? uuidList.first : null;
+  }
+
   bool get identityVerified{
     return (AppString.isStringNotEmpty(firstName) ||
         AppString.isStringNotEmpty(middleName) ||
@@ -242,26 +246,26 @@ class UserPiiData {
     return (documentType != null);
   }
 
-  bool updateFromAuthInfo(AuthInfo authInfo){
+  bool updateFromAuthUser(AuthUser authUser) {
     bool updated = false;
 
-    if(AppString.isStringEmpty(firstName) && AppString.isStringNotEmpty(authInfo?.firstName) ){
-      firstName = authInfo.firstName; updated = true;
+    if(AppString.isStringEmpty(firstName) && AppString.isStringNotEmpty(authUser?.firstName) ){
+      firstName = authUser.firstName; updated = true;
     }
-    if(AppString.isStringEmpty(middleName) && AppString.isStringNotEmpty(authInfo?.middleName) ){
-      middleName = authInfo.middleName; updated = true;
+    if(AppString.isStringEmpty(middleName) && AppString.isStringNotEmpty(authUser?.middleName) ){
+      middleName = authUser.middleName; updated = true;
     }
-    if(AppString.isStringEmpty(lastName) && AppString.isStringNotEmpty(authInfo?.lastName) ){
-      lastName = authInfo.lastName; updated = true;
+    if(AppString.isStringEmpty(lastName) && AppString.isStringNotEmpty(authUser?.lastName) ){
+      lastName = authUser.lastName; updated = true;
     }
-    if(AppString.isStringEmpty(uin) && AppString.isStringNotEmpty(authInfo?.uin) ){
-      uin = authInfo.uin; updated = true;
+    if(AppString.isStringEmpty(uin) && AppString.isStringNotEmpty(authUser?.uin) ){
+      uin = authUser.uin; updated = true;
     }
-    if(AppString.isStringEmpty(netId) && AppString.isStringNotEmpty(authInfo?.username) ){
-      netId = authInfo.username; updated = true;
+    if(AppString.isStringEmpty(netId) && AppString.isStringNotEmpty(authUser?.username) ){
+      netId = authUser.username; updated = true;
     }
-    if(AppString.isStringEmpty(email) && AppString.isStringNotEmpty(authInfo?.email) ){
-      email = authInfo.email; updated = true;
+    if(AppString.isStringEmpty(email) && AppString.isStringNotEmpty(authUser?.email) ){
+      email = authUser.email; updated = true;
     }
 
     return updated;

@@ -55,7 +55,7 @@ class Organizations with Service {
   @override
   Future<void> initService() async {
     _organization = Storage().organization;
-    if (_organization == null) {
+    if (_organization?.id == null) {
       _organizations = await _loadOrganizations();
       if (_organizations?.length == 1) {
         Storage().organization = _organization = _organizations.first;

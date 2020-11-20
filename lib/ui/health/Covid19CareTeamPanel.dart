@@ -205,7 +205,7 @@ class _Covid19CareTeamPanelState extends State<Covid19CareTeamPanel> with Ticker
             textTheme: TextTheme(subtitle1: TextStyle(color: Styles().colors.white, fontFamily: Styles().fontFamilies.bold, fontSize: 16))),
             child: ExpansionTile(
               title:
-              Semantics(label: Localization().getStringEx("panel.health.covid19.care_team.label.more_info.title", "More about the OSF OnCall Connect program"),
+              Semantics(label: Localization().getStringEx("panel.health.covid19.care_team.label.more_info.title.semantics.label", "More about the OSF On Call Connect program"),
                   hint: Localization().getStringEx("panel.health.covid19.care_team.label.more_info.hint", "Double tap to show more info"),/*+(expanded?"Hide" : "Show ")+" questions",*/
                   excludeSemantics:true,child:
                   Container(child: Text(Localization().getStringEx("panel.health.covid19.care_team.label.more_info.title", "More about the OSF OnCall Connect program"), style: TextStyle(color: Styles().colors.white, fontFamily: Styles().fontFamilies.bold, fontSize: 16),))),
@@ -268,8 +268,7 @@ class _Covid19CareTeamPanelState extends State<Covid19CareTeamPanel> with Ticker
             child: ExpansionTile(
               title:
               Semantics(label: Localization().getStringEx(
-                  "panel.health.covid19.care_team.label.more_info.title",
-                  "More about the OSF OnCall Connect program"),
+                  "panel.health.covid19.care_team.label.more_info.title.semantics.label", "More about the OSF On Call Connect program"),
                   hint: Localization().getStringEx(
                       "panel.health.covid19.care_team.label.more_info.hint",
                       "Double tap to show more info"), /*+(expanded?"Hide" : "Show ")+" questions",*/

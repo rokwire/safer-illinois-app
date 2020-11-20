@@ -387,7 +387,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
     String authCardOrPhone = Auth().isShibbolethLoggedIn
         ? Auth().authCard?.magTrack2 ?? ""
         : (Auth().isPhoneLoggedIn
-            ? (AppString.isStringNotEmpty(Auth().authInfo?.uin) ? "xxxx${Auth().authInfo?.uin}xxx=xxxxxxxxxxx" : Auth().userPiiData?.phone)
+            ? (AppString.isStringNotEmpty(Auth().authUser?.uin) ? "xxxx${Auth().authUser?.uin}xxx=xxxxxxxxxxx" : Auth().userPiiData?.phone)
         : "");
 
 

@@ -354,6 +354,7 @@ class Config with Service implements NotificationsListener {
 
   Map<String, dynamic> get secretKeys              { return (_config != null) ? (_config['secretKeys'] ?? {}) : {}; }
   Map<String, dynamic> get secretRokwire           { return secretKeys['rokwire'] ?? {}; }
+  Map<String, dynamic> get secretRokmetro          { return secretKeys['rokmetro'] ?? {}; }
   Map<String, dynamic> get secretShibboleth        { return secretKeys['shibboleth'] ?? {}; }
   Map<String, dynamic> get secretOsf               { return secretKeys['osf'] ?? {}; }
   Map<String, dynamic> get secretHealth            { return secretKeys['health'] ?? {}; }
@@ -362,10 +363,9 @@ class Config with Service implements NotificationsListener {
 
   Map<String, dynamic> get settings                { return (_config != null) ? (_config['settings'] ?? {}) : {}; }
 
-  String get shibbolethAuthTokenUrl { return otherUniversityServices['shibboleth_auth_token_url']; }  // "https://{shibboleth_client_id}:{shibboleth_client_secret}@shibboleth.illinois.edu/idp/profile/oidc/token"
-  String get shibbolethOauthHostUrl { return otherUniversityServices['shibboleth_oauth_host_url']; }  // "shibboleth.illinois.edu"
-  String get shibbolethOauthPathUrl { return otherUniversityServices['shibboleth_oauth_path_url']; }  // "/idp/profile/oidc/authorize"
-  String get userAuthUrl            { return otherUniversityServices['user_auth_url']; }              // "https://shibboleth.illinois.edu/idp/profile/oidc/userinfo"
+  String get shibbolethOidcTokenUrl { return otherUniversityServices['shibboleth_oidc_token_url']; }  // "https://{shibboleth_client_id}:{shibboleth_client_secret}@shibboleth.illinois.edu/idp/profile/oidc/token"
+  String get shibbolethOidcAuthUrl  { return otherUniversityServices['shibboleth_oidc_auth_url']; }   // "https://shibboleth.illinois.edu/idp/profile/oidc/authorize"
+  String get shibbolethOidcUserUrl  { return otherUniversityServices['shibboleth_oidc_user_url']; }   // "https://shibboleth.illinois.edu/idp/profile/oidc/userinfo"
   String get assetsUrl              { return otherUniversityServices['assets_url']; }                 // "https://rokwire-assets.s3.us-east-2.amazonaws.com"
   String get feedbackUrl            { return otherUniversityServices['feedback_url']; }               // "https://forms.illinois.edu/sec/1971889"
   String get iCardUrl               { return otherUniversityServices['icard_url']; }                  // "https://www.icard.uillinois.edu/rest/rw/rwIDData/rwCardInfo"
@@ -376,6 +376,7 @@ class Config with Service implements NotificationsListener {
   String get loggingUrl             { return platformBuildingBlocks['logging_url']; }                 // "https://api-dev.rokwire.illinois.edu/logs"
   String get userProfileUrl         { return platformBuildingBlocks['user_profile_url']; }            // "https://api-dev.rokwire.illinois.edu/profiles"
   String get rokwireAuthUrl         { return platformBuildingBlocks['rokwire_auth_url']; }            // "https://api-dev.rokwire.illinois.edu/authentication"
+  String get rokmetroAuthUrl        { return platformBuildingBlocks['rokmetro_auth_url']; }           // "https://auth.api.dev.services.rokmetro.com/23147768-73ac-4830-bca7-ea927785f2ae"
   String get sportsServiceUrl       { return platformBuildingBlocks['sports_service_url']; }          // "https://api-dev.rokwire.illinois.edu/sports-service";
   String get healthUrl              { return platformBuildingBlocks['health_url']; }                  // "https://api-dev.rokwire.illinois.edu/health"
   String get talentChooserUrl       { return platformBuildingBlocks['talent_chooser_url']; }          // "https://api-dev.rokwire.illinois.edu/talent-chooser/api/ui-content"
@@ -385,6 +386,7 @@ class Config with Service implements NotificationsListener {
   String get osfBaseUrl             { return thirdPartyServices['osf_base_url']; }                    // "https://ssproxy.osfhealthcare.org/fhir-proxy"
 
   String get rokwireApiKey          { return secretRokwire['api_key']; }
+  String get rokmetroApiKey         { return secretRokmetro['api_key']; }
 
   String get shibbolethClientId     { return secretShibboleth['client_id']; }
   String get shibbolethClientSecret { return secretShibboleth['client_secret']; }
