@@ -23,7 +23,6 @@ import 'package:http/http.dart' as Http;
 import 'package:http/http.dart';
 import 'package:illinois/model/Auth.dart';
 import 'package:illinois/model/UserProfileData.dart';
-import 'package:illinois/model/UserPiiData.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/DeepLink.dart';
