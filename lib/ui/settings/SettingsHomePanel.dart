@@ -543,11 +543,6 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   // NotificationsOptions
 
   Widget _buildNotifications() {
-    //TBD: DD - web
-    if (kIsWeb) {
-      return Container();
-    }
-
     List<Widget> contentList = new List();
 
     List<dynamic> codes = FlexUI()['settings.notifications'] ?? [];
