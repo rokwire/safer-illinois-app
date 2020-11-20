@@ -19,7 +19,7 @@ import 'dart:typed_data';
 import 'package:illinois/model/Auth.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/model/Organization.dart';
-import 'package:illinois/model/UserData.dart';
+import 'package:illinois/model/UserProfileData.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
@@ -141,13 +141,13 @@ class Storage with Service {
 
   static const String userKey  = 'user';
 
-  UserData get userData {
+  UserProfileData get userData {
     final String userToString = _getStringWithName(userKey);
     final Map<String, dynamic> userToJson = AppJson.decode(userToString);
-    return (userToJson != null) ? UserData.fromJson(userToJson) : null;
+    return (userToJson != null) ? UserProfileData.fromJson(userToJson) : null;
   }
 
-  set userData(UserData user) {
+  set userData(UserProfileData user) {
     String userToString = (user != null) ? json.encode(user) : null;
     _setStringWithName(userKey, userToString);
   }

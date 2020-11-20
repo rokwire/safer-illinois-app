@@ -19,7 +19,7 @@ import 'dart:collection';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:illinois/model/UserData.dart';
+import 'package:illinois/model/UserProfileData.dart';
 import 'package:illinois/service/User.dart';
 import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/Auth.dart';

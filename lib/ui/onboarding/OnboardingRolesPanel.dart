@@ -21,7 +21,7 @@ import 'package:illinois/service/FlexUI.dart';
 import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/User.dart';
 import 'package:illinois/service/Localization.dart';
-import 'package:illinois/model/UserData.dart';
+import 'package:illinois/model/UserProfileData.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/ui/widgets/RoleGridButton.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';

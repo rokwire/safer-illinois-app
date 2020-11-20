@@ -22,7 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as Http;
 import 'package:http/http.dart';
 import 'package:illinois/model/Auth.dart';
-import 'package:illinois/model/UserData.dart';
+import 'package:illinois/model/UserProfileData.dart';
 import 'package:illinois/model/UserPiiData.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/AppLivecycle.dart';
@@ -295,7 +295,7 @@ class Auth with Service implements NotificationsListener {
     _UserPersonalData userPersonalData = ((results != null) && (0 < results.length)) ? results[0] : null;
     String newUserPiiDataString = userPersonalData?.userPiiDataString;
     UserPiiData newUserPiiData = userPersonalData?.userPiiData;
-    UserData newUserProfile = userPersonalData?.userProfile;
+    UserProfileData newUserProfile = userPersonalData?.userProfile;
     if ((newUserPiiDataString == null) || (newUserPiiData == null) || (newUserProfile == null)) {
       _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
       return;
@@ -519,7 +519,7 @@ class Auth with Service implements NotificationsListener {
     _UserPersonalData userPersonalData = ((results != null) && (2 < results.length)) ? results[2] : null;
     String newUserPiiDataString = userPersonalData?.userPiiDataString;
     UserPiiData newUserPiiData = userPersonalData?.userPiiData;
-    UserData newUserProfile = userPersonalData?.userProfile;
+    UserProfileData newUserProfile = userPersonalData?.userProfile;
     if ((newUserPiiDataString == null) || (newUserPiiData == null) || (newUserProfile == null)) {
       _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
       return false;
@@ -802,12 +802,12 @@ class Auth with Service implements NotificationsListener {
 
   // User Profile Data
 
-  Future<UserData> _loadUserProfile({String userUuid}) async {
+  Future<UserProfileData> _loadUserProfile({String userUuid}) async {
     try { return (userUuid != null) ? await User().requestUser(userUuid) : null; }
     catch (_) { return null; }
   }
 
-  void _applyUserProfile(UserData userProfile) {
+  void _applyUserProfile(UserProfileData userProfile) {
     User().applyUserData(userProfile);
   }
 
@@ -820,7 +820,7 @@ class Auth with Service implements NotificationsListener {
     String userPiiPid = await _loadPidWithShibbolethAuth(email: optAuthUser?.email, optAuthToken: optAuthToken);
     String userPiiDataString = (userPiiPid != null) ? await _loadUserPiiDataStringFromNet(pid: userPiiPid, optAuthToken: optAuthToken) : null;
     UserPiiData userPiiData = (userPiiDataString != null) ? _userPiiDataFromJsonString(userPiiDataString) : null;
-    UserData userProfile = (userPiiData?.uuid != null) ? await _loadUserProfile(userUuid: userPiiData.uuid) : null;
+    UserProfileData userProfile = (userPiiData?.uuid != null) ? await _loadUserProfile(userUuid: userPiiData.uuid) : null;
     return _UserPersonalData(userPiiDataString: userPiiDataString, userPiiData: userPiiData, userProfile: userProfile );
   }
 
@@ -830,7 +830,7 @@ class Auth with Service implements NotificationsListener {
     String userPiiPid = await _loadPidWithPhoneAuth(phone: phone, optAuthToken: optAuthToken);
     String userPiiDataString = (userPiiPid != null) ? await _loadUserPiiDataStringFromNet(pid: userPiiPid, optAuthToken: optAuthToken) : null;
     UserPiiData userPiiData = (userPiiDataString != null) ? _userPiiDataFromJsonString(userPiiDataString) : null;
-    UserData userProfile = (userPiiData?.uuid != null) ? await _loadUserProfile(userUuid: userPiiData.uuid) : null;
+    UserProfileData userProfile = (userPiiData?.uuid != null) ? await _loadUserProfile(userUuid: userPiiData.uuid) : null;
     return _UserPersonalData(userPiiDataString: userPiiDataString, userPiiData: userPiiData, userProfile: userProfile );
   }
 
@@ -1112,6 +1112,6 @@ enum VerificationMethod { call, sms }
 class _UserPersonalData {
   final UserPiiData userPiiData;
   final String userPiiDataString;
-  final UserData userProfile;
+  final UserProfileData userProfile;
   _UserPersonalData({this.userPiiData, this.userPiiDataString, this.userProfile});
 }

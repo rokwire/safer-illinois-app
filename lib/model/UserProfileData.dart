@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-class UserData {
+class UserProfileData {
 
   final Map<String, dynamic> content;
   
   static const String analyticsUuid = 'UUIDxxxxxx';
 
-  UserData({this.content});
+  UserProfileData({this.content});
 
-  factory UserData.fromJson(Map<String, dynamic> json) {
-    return (json != null) ? UserData(content: json) : null;
+  factory UserProfileData.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? UserProfileData(content: json) : null;
   }
 
   toJson() {

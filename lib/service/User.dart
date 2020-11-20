@@ -18,7 +18,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:illinois/model/UserData.dart';
+import 'package:illinois/model/UserProfileData.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Config.dart';
@@ -38,7 +38,7 @@ class User with Service implements NotificationsListener {
   static const String notifyUserDeleted = "edu.illinois.rokwire.user.deleted";
   static const String notifyRolesUpdated  = "edu.illinois.rokwire.user.roles.updated";
 
-  UserData _userData;
+  UserProfileData _userData;
 
   http.Client _client = http.Client();
 
@@ -101,23 +101,23 @@ class User with Service implements NotificationsListener {
     return _userData?.uuid;
   }
   
-  UserData get data {
+  UserProfileData get data {
     return _userData;
   }
 
   static String get analyticsUuid {
-    return UserData.analyticsUuid;
+    return UserProfileData.analyticsUuid;
   }
 
   Future<void> _createUser() async {  
-    UserData userData = await _requestCreateUser();
+    UserProfileData userData = await _requestCreateUser();
     applyUserData(userData);
     Storage().localUserUuid = userData?.uuid;
   }
 
   Future<void> _loadUser() async {
     // silently refresh user profile
-    requestUser(_userData?.uuid).then((UserData userData) {
+    requestUser(_userData?.uuid).then((UserProfileData userData) {
       if (userData != null) {
         applyUserData(userData);
       }
@@ -156,7 +156,7 @@ class User with Service implements NotificationsListener {
     else if (_client == client) {
       _client = null;
       Map<String, dynamic> jsonData = AppJson.decode(responseBody);
-      UserData update = UserData.fromJson(jsonData);
+      UserProfileData update = UserProfileData.fromJson(jsonData);
       if (update != null) {
         Storage().userData = _userData = update;
         //_notifyUserUpdated();
@@ -168,7 +168,7 @@ class User with Service implements NotificationsListener {
 
   }
 
-  Future<UserData> requestUser(String uuid) async {
+  Future<UserProfileData> requestUser(String uuid) async {
     String url = ((Config().userProfileUrl != null) && (uuid != null) && (0 < uuid.length)) ? '${Config().userProfileUrl}/$uuid' : null;
 
     final response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
@@ -181,20 +181,20 @@ class User with Service implements NotificationsListener {
       String responseBody = ((response != null) && (response?.statusCode == 200)) ? response?.body : null;
       Map<String, dynamic> jsonData = AppJson.decode(responseBody);
       if (jsonData != null) {
-        return UserData.fromJson(jsonData);
+        return UserProfileData.fromJson(jsonData);
       }
     }
 
     return null;
   }
 
-  Future<UserData> _requestCreateUser() async {
+  Future<UserProfileData> _requestCreateUser() async {
     try {
       final response = (Config().userProfileUrl != null) ? await Network().post(Config().userProfileUrl, auth: NetworkAuth.App, timeout: 10) : null;
       if ((response != null) && (response.statusCode == 200)) {
         String responseBody = response.body;
         Map<String, dynamic> jsonData = AppJson.decode(responseBody);
-        return UserData.fromJson(jsonData);
+        return UserProfileData.fromJson(jsonData);
       } else {
         return null;
       }
@@ -229,7 +229,7 @@ class User with Service implements NotificationsListener {
 
   }
 
-  void applyUserData(UserData userData) {
+  void applyUserData(UserProfileData userData) {
     
     // 1. We might need to remove FCM token from current user
     String applyUserUuid = userData?.uuid;
@@ -270,11 +270,11 @@ class User with Service implements NotificationsListener {
     }
   }
 
-  static bool _applyFCMToken(UserData userData) {
+  static bool _applyFCMToken(UserProfileData userData) {
     return userData?.applyFCMToken(FirebaseMessaging().token) ?? false;
   }
 
-  static bool _removeFCMToken(UserData userData) {
+  static bool _removeFCMToken(UserProfileData userData) {
     return userData?.removeFCMToken(FirebaseMessaging().token) ?? false;
   }
 
