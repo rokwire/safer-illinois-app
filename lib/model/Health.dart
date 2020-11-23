@@ -927,6 +927,25 @@ class HealthUser {
     };
   }
 
+  bool operator== (o) =>
+    o is HealthUser &&
+      o.uuid == uuid &&
+      o.publicKeyString == publicKeyString &&
+      o.consent == consent &&
+      o.exposureNotification == exposureNotification &&
+      o.repost == repost &&
+      o.encryptedKey == encryptedKey &&
+      o.encryptedBlob == encryptedBlob;
+
+  int get hashCode =>
+    (uuid?.hashCode ?? 0) ^
+    (publicKeyString?.hashCode ?? 0) ^
+    (consent?.hashCode ?? 0) ^
+    (exposureNotification?.hashCode ?? 0) ^
+    (repost?.hashCode ?? 0) ^
+    (encryptedKey?.hashCode ?? 0) ^
+    (encryptedBlob?.hashCode ?? 0);
+
   Future<void> encryptBlob(HealthUserBlob blob, PublicKey publicKey) async {
     Map<String, dynamic> encrypted = await compute(_encryptBlob, {
       'blob': AppJson.encode(blob?.toJson()),
@@ -961,25 +980,6 @@ class HealthUser {
     _publicKey = value;
     publicKeyString = (value != null) ? RsaKeyHelper.encodePublicKeyToPemPKCS1(value) : null;
   }
-
-  bool operator ==(o) =>
-      o is HealthUser &&
-          o.uuid == uuid &&
-          o.publicKeyString == publicKeyString &&
-          o.consent == consent &&
-          o.exposureNotification == exposureNotification &&
-          o.repost == repost &&
-          o.encryptedKey == encryptedKey &&
-          o.encryptedBlob == encryptedBlob;
-
-  int get hashCode =>
-      (uuid?.hashCode ?? 0) ^
-      (publicKeyString?.hashCode ?? 0) ^
-      (consent?.hashCode ?? 0) ^
-      (exposureNotification?.hashCode ?? 0) ^
-      (repost?.hashCode ?? 0) ^
-      (encryptedKey?.hashCode ?? 0) ^
-      (encryptedBlob?.hashCode ?? 0);
 }
 
 ///////////////////////////////
@@ -1532,22 +1532,22 @@ class HealthCounty {
     };
   }
 
+  bool operator ==(o) =>
+    o is HealthCounty &&
+      o.id == id &&
+      o.name == name &&
+      o.state == state &&
+      o.country == country;
+
+  int get hashCode =>
+    (id?.hashCode ?? 0) ^
+    (name?.hashCode ?? 0) ^
+    (state?.hashCode ?? 0) ^
+    (country?.hashCode ?? 0);
+
   String get displayName {
     return AppString.isStringNotEmpty(state) ? "$name, $state" : name;
   }
-
-  bool operator ==(o) =>
-      o is HealthCounty &&
-          o.id == id &&
-          o.name == name &&
-          o.state == state &&
-          o.country == country;
-
-  int get hashCode =>
-      (id?.hashCode ?? 0) ^
-      (name?.hashCode ?? 0) ^
-      (state?.hashCode ?? 0) ^
-      (country?.hashCode ?? 0);
 
   static HealthCounty defaultCounty(Iterable<HealthCounty> counties) {
     if ((counties != null) && (0 < counties.length)) {
@@ -1737,6 +1737,15 @@ class HealthSymptom {
     };
   }
 
+  bool operator ==(o) =>
+    o is HealthSymptom &&
+      o.id == id &&
+      o.name == name;
+
+  int get hashCode =>
+    (id?.hashCode ?? 0) ^
+    (name?.hashCode ?? 0);
+
   static List<HealthSymptom> listFromJson(List<dynamic> json) {
     List<HealthSymptom> values;
     if (json != null) {
@@ -1794,6 +1803,21 @@ class HealthSymptomsGroup {
       'symptoms': HealthSymptom.listToJson(symptoms),
     };
   }
+
+  bool operator ==(o) =>
+    o is HealthSymptomsGroup &&
+      o.id == id &&
+      o.name == name &&
+      o.visible == visible &&
+      o.group == group &&
+      ListEquality().equals(o.symptoms, symptoms);
+
+  int get hashCode =>
+    (id?.hashCode ?? 0) ^
+    (name?.hashCode ?? 0) ^
+    (visible?.hashCode ?? 0) ^
+    (group?.hashCode ?? 0) ^
+    (symptoms?.hashCode ?? 0);
 
   static Map<String, int> getCounts(List<HealthSymptomsGroup> groups, Set<String> selected) {
     Map<String, int> counts = Map<String, int>();
@@ -1887,6 +1911,27 @@ class HealthRulesSet {
     ) : null;
   }
 
+  bool operator ==(o) =>
+    o is HealthRulesSet &&
+      o.tests == tests &&
+      o.symptoms == symptoms &&
+      o.contactTrace == contactTrace &&
+      o.actions == actions &&
+      o.defaults == defaults &&
+      DeepCollectionEquality().equals(o.statuses, statuses) &&
+      DeepCollectionEquality().equals(o.constants, constants) &&
+      DeepCollectionEquality().equals(o.strings, strings);
+
+  int get hashCode =>
+    (tests?.hashCode ?? 0) ^
+    (symptoms?.hashCode ?? 0) ^
+    (contactTrace?.hashCode ?? 0) ^
+    (actions?.hashCode ?? 0) ^
+    (defaults?.hashCode ?? 0) ^
+    (statuses?.hashCode ?? 0) ^
+    (constants?.hashCode ?? 0) ^
+    (strings?.hashCode ?? 0);
+
   int get userTestMonitorInterval {
     return constants[UserTestMonitorInterval];
   }
@@ -1929,6 +1974,13 @@ class HealthDefaultsSet {
       status: _HealthRuleStatus.fromJson(json['status']),
     ) : null;
   }
+
+  bool operator ==(o) =>
+    o is HealthDefaultsSet &&
+      o.status == status;
+
+  int get hashCode =>
+    (status?.hashCode ?? 0);
 }
 
 
@@ -1945,6 +1997,13 @@ class HealthTestRulesSet {
       rules: HealthTestRule.listFromJson(json['rules'])
     ) : null;
   }
+
+  bool operator ==(o) =>
+    o is HealthTestRulesSet &&
+      ListEquality().equals(o._rules, _rules);
+
+  int get hashCode =>
+    (_rules?.hashCode ?? 0);
 
   HealthTestRuleResult matchRuleResult({ Covid19HistoryBlob blob, HealthRulesSet rules }) {
     if ((_rules != null) && (blob != null)) {
@@ -1981,6 +2040,17 @@ class HealthTestRule {
     ) : null;
   }
 
+  bool operator ==(o) =>
+    o is HealthTestRule &&
+      o.testType == testType &&
+      o.category == category &&
+      ListEquality().equals(o.results, results);
+
+  int get hashCode =>
+    (testType?.hashCode ?? 0) ^
+    (category?.hashCode ?? 0) ^
+    (results?.hashCode ?? 0);
+
   static List<HealthTestRule> listFromJson(List<dynamic> json) {
     List<HealthTestRule> values;
     if (json != null) {
@@ -2011,6 +2081,17 @@ class HealthTestRuleResult {
       status: _HealthRuleStatus.fromJson(json['status']),
     ) : null;
   }
+
+  bool operator ==(o) =>
+    o is HealthTestRuleResult &&
+      o.testResult == testResult &&
+      o.category == category &&
+      status == status;
+
+  int get hashCode =>
+    (testResult?.hashCode ?? 0) ^
+    (category?.hashCode ?? 0) ^
+    (status?.hashCode ?? 0);
 
   static List<HealthTestRuleResult> listFromJson(List<dynamic> json) {
     List<HealthTestRuleResult> values;
@@ -2056,6 +2137,15 @@ class HealthSymptomsRulesSet {
     ) : null;
   }
 
+  bool operator ==(o) =>
+    o is HealthSymptomsRulesSet &&
+      ListEquality().equals(o._rules, _rules) &&
+      ListEquality().equals(o.groups, groups);
+
+  int get hashCode =>
+    (_rules?.hashCode ?? 0) ^
+    (groups?.hashCode ?? 0);
+
   HealthSymptomsRule matchRule({ Covid19HistoryBlob blob, HealthRulesSet rules }) {
     if ((_rules != null) && (groups != null) && (blob?.symptomsIds != null)) {
      Map<String, int> counts = HealthSymptomsGroup.getCounts(groups, blob.symptomsIds);
@@ -2084,6 +2174,15 @@ class HealthSymptomsRule {
       status: _HealthRuleStatus.fromJson(json['status']),
     ) : null;
   }
+
+  bool operator ==(o) =>
+    o is HealthSymptomsRule &&
+      MapEquality().equals(o.counts, counts) &&
+      o.status == status;
+
+  int get hashCode =>
+    (counts?.hashCode ?? 0) ^
+    (status?.hashCode ?? 0);
 
   static List<HealthSymptomsRule> listFromJson(List<dynamic> json) {
     List<HealthSymptomsRule> values;
@@ -2137,6 +2236,14 @@ class HealthContactTraceRulesSet {
     ) : null;
   }
 
+  bool operator ==(o) =>
+    o is HealthContactTraceRulesSet &&
+      ListEquality().equals(o._rules, _rules);
+
+  int get hashCode =>
+    (_rules?.hashCode ?? 0);
+
+
   HealthContactTraceRule matchRule({ Covid19HistoryBlob blob, HealthRulesSet rules }) {
     if ((_rules != null) && (blob != null)) {
       for (HealthContactTraceRule rule in _rules) {
@@ -2157,6 +2264,15 @@ class HealthContactTraceRule {
   final _HealthRuleStatus status;
 
   HealthContactTraceRule({this.duration, this.status});
+
+  bool operator ==(o) =>
+    o is HealthContactTraceRule &&
+      o.duration == duration &&
+      o.status == status;
+
+  int get hashCode =>
+    (duration?.hashCode ?? 0) ^
+    (status?.hashCode ?? 0);
 
   factory HealthContactTraceRule.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthContactTraceRule(
@@ -2196,6 +2312,13 @@ class HealthActionRulesSet {
     ) : null;
   }
 
+  bool operator ==(o) =>
+    o is HealthActionRulesSet &&
+      ListEquality().equals(o._rules, _rules);
+
+  int get hashCode =>
+    (_rules?.hashCode ?? 0);
+
   HealthActionRule matchRule({ Covid19HistoryBlob blob, HealthRulesSet rules }) {
     if (_rules != null) {
       for (HealthActionRule rule in _rules) {
@@ -2223,6 +2346,15 @@ class HealthActionRule {
       status: _HealthRuleStatus.fromJson(json['status']),
     ) : null;
   }
+
+  bool operator ==(o) =>
+    o is HealthActionRule &&
+      (o.type == type) &&
+      (o.status == status);
+
+  int get hashCode =>
+    (type?.hashCode ?? 0) ^
+    (status?.hashCode ?? 0);
 
   static List<HealthActionRule> listFromJson(List<dynamic> json) {
     List<HealthActionRule> values;
@@ -2338,6 +2470,41 @@ class HealthRuleStatus extends _HealthRuleStatus {
     ) : null;
   }
 
+  bool operator ==(o) =>
+    o is HealthRuleStatus &&
+      (o.healthStatus == healthStatus) &&
+      (o.priority == priority) &&
+      
+      (o.nextStep == nextStep) &&
+      (o.nextStepHtml == nextStepHtml) &&
+      (o.nextStepInterval == nextStepInterval) &&
+      (o.nextStepDateUtc == nextStepDateUtc) &&
+
+      (o.eventExplanation == eventExplanation) &&
+      (o.eventExplanationHtml == eventExplanationHtml) &&
+
+      (o.reason == reason) &&
+      (o.warning == warning) &&
+
+      (o.fcmTopic == fcmTopic);
+
+  int get hashCode =>
+    (healthStatus?.hashCode ?? 0) ^
+    (priority?.hashCode ?? 0) ^
+    
+    (nextStep?.hashCode ?? 0) ^
+    (nextStepHtml?.hashCode ?? 0) ^
+    (nextStepInterval?.hashCode ?? 0) ^
+    (nextStepDateUtc?.hashCode ?? 0) ^
+
+    (eventExplanation?.hashCode ?? 0) ^
+    (eventExplanationHtml?.hashCode ?? 0) ^
+
+    (reason?.hashCode ?? 0) ^
+    (warning?.hashCode ?? 0) ^
+
+    (fcmTopic?.hashCode ?? 0);
+
   @override
   HealthRuleStatus eval({ List<Covid19History> history, int historyIndex, int referenceIndex, HealthRulesSet rules }) {
     int originIndex = (nextStepInterval?.origin(rules: rules) == HealthRuleIntervalOrigin.referenceDate) ? referenceIndex : historyIndex;
@@ -2370,6 +2537,13 @@ class HealthRuleReferenceStatus extends _HealthRuleStatus {
     ) : null;
   }
 
+  bool operator ==(o) =>
+    o is HealthRuleReferenceStatus &&
+      (o.reference == reference);
+
+  int get hashCode =>
+    (reference?.hashCode ?? 0);
+
   @override
   HealthRuleStatus eval({ List<Covid19History> history, int historyIndex, int referenceIndex, HealthRulesSet rules }) {
     _HealthRuleStatus status = (rules?.statuses != null) ? rules?.statuses[reference] : null;
@@ -2396,6 +2570,19 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
       failStatus: _HealthRuleStatus.fromJson(json['fail']),
     ) : null;
   }
+
+  bool operator ==(o) =>
+    o is HealthRuleConditionalStatus &&
+      (o.condition == condition) &&
+      DeepCollectionEquality().equals(o.params, params) &&
+      (o.successStatus == successStatus) &&
+      (o.failStatus == failStatus);
+
+  int get hashCode =>
+    (condition?.hashCode ?? 0) ^
+    (params?.hashCode ?? 0) ^
+    (successStatus?.hashCode ?? 0) ^
+    (failStatus?.hashCode ?? 0);
 
   @override
   HealthRuleStatus eval({ List<Covid19History> history, int historyIndex, int referenceIndex, HealthRulesSet rules }) {
@@ -2710,6 +2897,13 @@ class HealthRuleIntervalValue extends _HealthRuleInterval {
     return (json is int) ? HealthRuleIntervalValue(value: json) : null;
   }
 
+  bool operator ==(o) =>
+    o is HealthRuleIntervalValue &&
+      (o._value == _value);
+
+  int get hashCode =>
+    (_value?.hashCode ?? 0);
+
   @override
   bool match(int value, { HealthRulesSet rules }) {
     return (_value == value);
@@ -2751,6 +2945,23 @@ class HealthRuleInterval extends _HealthRuleInterval {
       origin: _originFromJson(json['origin']),
     ) : null;
   }
+
+  bool operator ==(o) =>
+    o is HealthRuleInterval &&
+      (o._min == _min) &&
+      (o._max == _max) &&
+      (o._value == _value) &&
+      (o._scope == _scope) &&
+      (o._current == _current) &&
+      (o._origin == _origin);
+
+  int get hashCode =>
+    (_min?.hashCode ?? 0) ^
+    (_max?.hashCode ?? 0) ^
+    (_value?.hashCode ?? 0) ^
+    (_scope?.hashCode ?? 0) ^
+    (_current?.hashCode ?? 0) ^
+    (_origin?.hashCode ?? 0);
 
   @override
   bool match(int value, { HealthRulesSet rules }) {
@@ -2835,6 +3046,13 @@ class HealthRuleIntervalReference extends _HealthRuleInterval {
   factory HealthRuleIntervalReference.fromJson(dynamic json) {
     return (json is String) ? HealthRuleIntervalReference(reference: json) : null;
   }
+
+  bool operator ==(o) =>
+    o is HealthRuleIntervalReference &&
+      (o._reference == _reference);
+
+  int get hashCode =>
+    (_reference?.hashCode ?? 0);
 
   _HealthRuleInterval referenceValue({ HealthRulesSet rules }) {
     if (_referenceValue == null) {
