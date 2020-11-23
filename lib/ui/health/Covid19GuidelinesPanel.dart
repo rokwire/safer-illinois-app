@@ -79,7 +79,7 @@ class _Covid19GuidelinesPanelState extends State<Covid19GuidelinesPanel> impleme
       _loadingProgress++;
     });
   
-    Health().loadCounties().then((List<HealthCounty> counties) {
+    Health().loadCounties(guidelines: true).then((List<HealthCounty> counties) {
       if (mounted) {
         setState(() {
           _loadingProgress--;

@@ -1511,7 +1511,7 @@ class HealthCounty {
 
   HealthCounty({this.id, this.name, this.state, this.country,this.guidelines});
 
-  factory HealthCounty.fromJson(Map<String, dynamic> json) {
+  factory HealthCounty.fromJson(Map<String, dynamic> json, { bool guidelines }) {
     String name = json['name'];
     String state = json['state_province'];
     return (json != null) ? HealthCounty(
@@ -1519,17 +1519,17 @@ class HealthCounty {
       name: name,
       state: state,
       country: json['country'],
-      guidelines: HealthGuideline.fromJsonList(json['guidelines']),
+      guidelines: (guidelines == true) ? HealthGuideline.fromJsonList(json['guidelines']) : null,
     ) : null;
   }
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toJson({ bool guidelines }) {
     return {
       'id': id,
       'name': name,
       'state': state,
       'country': country,
-      'guidelines': HealthGuideline.listToJson(guidelines),
+      'guidelines': (guidelines == true) ? HealthGuideline.listToJson(this.guidelines) : null,
     };
   }
 
@@ -1560,13 +1560,13 @@ class HealthCounty {
     return countiesMap;
   }
 
-  static List<HealthCounty> listFromJson(List<dynamic> json) {
+  static List<HealthCounty> listFromJson(List<dynamic> json, { bool guidelines }) {
     List<HealthCounty> values;
     if (json != null) {
       values = [];
       for (dynamic entry in json) {
           HealthCounty value;
-          try { value = HealthCounty.fromJson((entry as Map)?.cast<String, dynamic>()); }
+          try { value = HealthCounty.fromJson((entry as Map)?.cast<String, dynamic>(), guidelines: guidelines); }
           catch(e) { print(e?.toString()); }
           values.add(value);
       }
@@ -1574,12 +1574,12 @@ class HealthCounty {
     return values;
   }
 
-  static List<dynamic> listToJson(List<HealthCounty> values) {
+  static List<dynamic> listToJson(List<HealthCounty> values, { bool guidelines }) {
     List<dynamic> json;
     if (values != null) {
       json = [];
       for (HealthCounty value in values) {
-        json.add(value?.toJson());
+        json.add(value?.toJson(guidelines : guidelines));
       }
     }
     return json;

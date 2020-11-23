@@ -488,26 +488,12 @@ class Health with Service implements NotificationsListener {
     return false;
   }
 
-  Future<List<HealthCounty>> loadCounties({String name, String state, String country}) async{
+  Future<List<HealthCounty>> loadCounties({ bool guidelines }) async{
     String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/counties" : null;
-    String params = '';
-    if (name != null) {
-      params += "${(0 < params.length) ? '&' : ''}name=$name";
-    }
-    if (state != null) {
-      params += "${(0 < params.length) ? '&' : ''}state_province=$state";
-    }
-    if (country != null) {
-      params += "${(0 < params.length) ? '&' : ''}country=$country";
-    }
-    if ((url != null) && (0 < params.length)) {
-      url += "?$params";
-    }
-
     Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
     String responseBody = (response?.statusCode == 200) ? response.body : null;
     List<dynamic> responseJson = (responseBody != null) ? AppJson.decodeList(responseBody) : null;
-    return (responseJson != null) ? HealthCounty.listFromJson(responseJson) : null;
+    return (responseJson != null) ? HealthCounty.listFromJson(responseJson, guidelines: guidelines) : null;
   }
 
   // Current County
