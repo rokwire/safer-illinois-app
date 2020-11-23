@@ -15,6 +15,7 @@
  */
 
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:illinois/model/Health.dart';
@@ -32,6 +33,8 @@ import 'package:illinois/service/Storage.dart';
 import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/utils/Crypt.dart';
 import 'package:illinois/utils/Utils.dart';
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 import "package:pointycastle/export.dart";
 
 class Health2 with Service implements NotificationsListener {
@@ -39,14 +42,20 @@ class Health2 with Service implements NotificationsListener {
   static const String notifyUserUpdated             = "edu.illinois.rokwire.health.user.updated";
   static const String notifyStatusChanged           = "edu.illinois.rokwire.health.status.changed";
   static const String notifyCountyChanged           = "edu.illinois.rokwire.health.county.changed";
+  static const String notifyRulesChanged           = "edu.illinois.rokwire.health.county.changed";
+
+  static const String _rulesFileName                = "rules.json";
 
   HealthUser _user;
   PrivateKey _userPrivateKey;
   PublicKey  _servicePublicKey;
 
-  HealthCounty _county;
   Covid19Status _status;
+  HealthRulesSet _rules;
 
+  HealthCounty _county;
+
+  Directory _appDocumentsDir;
   DateTime _pausedDateTime;
 
   // Singletone Instance
@@ -77,11 +86,16 @@ class Health2 with Service implements NotificationsListener {
 
   @override
   Future<void> initService() async {
+    _appDocumentsDir = await getApplicationDocumentsDirectory();
+
     _user = _loadUserFromStorage();
     _userPrivateKey = await _loadUserPrivateKey();
     _servicePublicKey = RsaKeyHelper.parsePublicKeyFromPem(Config().healthPublicKey);
-    _county = await _ensureCounty();
+
     _status = _loadStatusFromStorage();
+
+    _county = await _ensureCounty();
+    _rules = await _loadRulesFromCache();
 
     _refreshAll();
   }
@@ -91,8 +105,11 @@ class Health2 with Service implements NotificationsListener {
     _user = null;
     _userPrivateKey = null;
     _servicePublicKey = null;
-    _county = null;
+
     _status = null;
+
+    _county = null;
+    _rules = null;
   }
 
   @override
@@ -149,7 +166,9 @@ class Health2 with Service implements NotificationsListener {
     await Future.wait([
       _refreshUser(),
       _refreshStatus(),
+      
       _refreshCounty(),
+      _refreshRules(),
     ]);
   }
 
@@ -486,6 +505,45 @@ class Health2 with Service implements NotificationsListener {
     Storage().healthCounty = AppJson.encode(county?.toJson());
   }
 
+  // Rules
 
+  Future<void> _refreshRules() async {
+    String rulesJsonString = await _loadRulesJsonStringFromNet();
+    HealthRulesSet rules = HealthRulesSet.fromJson(AppJson.decodeMap(rulesJsonString));
+    if ((rules != null) && (rules != _rules)) {
+      _rules = rules;
+      await _saveRulesJsonStringToCache(rulesJsonString);
+      NotificationService().notify(notifyRulesChanged);
+    }
+  }
 
+  Future<String> _loadRulesJsonStringFromNet({String countyId}) async {
+//TMP: return await rootBundle.loadString('assets/health.rules.json');
+    countyId = countyId ?? _county?.id;
+    String url = ((countyId != null) && (Config().healthUrl != null)) ? "${Config().healthUrl}/covid19/crules/county/$countyId" : null;
+    String appVersion = AppVersion.majorVersion(Config().appVersion, 2);
+    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App, headers: { Network.RokwireAppVersion : appVersion }) : null;
+    return (response?.statusCode == 200) ? response.body : null;
+  }
+
+  File get _rulesCacheFile {
+    String cacheFilePath = (_appDocumentsDir != null) ? join(_appDocumentsDir.path, _rulesFileName) : null;
+    return (cacheFilePath != null) ? File(cacheFilePath) : null;
+  }
+
+  Future<HealthRulesSet> _loadRulesFromCache() async {
+    return HealthRulesSet.fromJson(AppJson.decodeMap(await _loadRulesJsonStringFromCache()));
+  }
+
+  Future<String> _loadRulesJsonStringFromCache() async {
+    File cacheFile = this._rulesCacheFile;
+    return ((cacheFile != null) && await cacheFile.exists()) ? await cacheFile.readAsString() : null;
+  }
+
+  Future<void> _saveRulesJsonStringToCache(String jsonString) async {
+    File cacheFile = this._rulesCacheFile;
+    if (cacheFile != null) {
+      await cacheFile.writeAsString(jsonString);
+    }
+  }
 }
