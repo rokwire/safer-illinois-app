@@ -425,16 +425,6 @@ class Storage with Service {
     _setStringWithName(lastHealthCovid19OsfTestDateKey, dateString);
   }
 
-  static const String lastHealthStatusEvalKey  = '_health_last_status_eval';
-
-  int get lastHealthStatusEval {
-    return _getIntWithName(lastHealthStatusEvalKey, defaultValue: null);
-  }
-
-  set lastHealthStatusEval(int value) {
-    _setIntWithName(lastHealthStatusEvalKey, value);
-  }
-
   static const String healthUserStatusKey = 'health_user_status';
 
   String get healthUserStatus {

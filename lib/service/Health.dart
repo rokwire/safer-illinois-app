@@ -786,8 +786,6 @@ class Health with Service implements NotificationsListener {
       }
     }
 
-    Storage().lastHealthStatusEval = AppDateTime.todayMidnightLocal.millisecondsSinceEpoch;
-
     return status;
   }
 
