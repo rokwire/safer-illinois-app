@@ -173,12 +173,12 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
   }
 
   void _loadCountyName(){
-    Health().loadCounties().then((List<HealthCounty> counties) {
-      LinkedHashMap<String, HealthCounty> _counties = HealthCounty.listToMap(counties);
-      if(counties != null && _counties.containsKey(Health().currentCountyId)) {
+    Health().loadCounties().then((List<HealthCounty> countiesList) {
+      LinkedHashMap<String, HealthCounty> counties = HealthCounty.listToMap(countiesList);
+      if(counties != null && counties.containsKey(Health().currentCountyId)) {
         if(mounted){
           setState((){
-            _currentCountyName = _counties[Health().currentCountyId].nameDisplayText;
+            _currentCountyName = counties[Health().currentCountyId].nameDisplayText;
           });
         }
       }

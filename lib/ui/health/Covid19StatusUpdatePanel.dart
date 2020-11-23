@@ -52,7 +52,6 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
   Color _newSatusColor;
 
   HealthRulesSet _rules;
-  LinkedHashMap<String, HealthCounty> _counties;
   String _currentCountyName;
 
   @override
@@ -92,9 +91,9 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
     _rules = ((result != null) && (0 < result.length)) ? result[0] : null;
 
     List<HealthCounty> countiesList = ((result != null) && (1 < result.length)) ? result[1] : null;
-    _counties = HealthCounty.listToMap(countiesList);
-    if(_counties != null && _counties.containsKey(Health().currentCountyId)) {
-      _currentCountyName = _counties[Health().currentCountyId].nameDisplayText;
+    LinkedHashMap<String, HealthCounty> counties = HealthCounty.listToMap(countiesList);
+    if(counties != null && counties.containsKey(Health().currentCountyId)) {
+      _currentCountyName = counties[Health().currentCountyId].nameDisplayText;
     }
   }
 
