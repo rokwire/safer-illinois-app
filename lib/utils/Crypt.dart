@@ -475,7 +475,13 @@ class RsaKeyHelper {
   ///
   /// Returns a [AsymmetricKeyPair] based on the [RSAKeyGenerator] with custom parameters,
   /// including a [SecureRandom]
+  ///
+  /// NOTE: Returns null for web apps. RSAKeyGenerator.generateKeyPair()
   static AsymmetricKeyPair<PublicKey, PrivateKey> getRsaKeyPair(SecureRandom secureRandom) {
+    //TBD: DD - web
+    if (kIsWeb) {
+      return null;
+    }
     var rsapars = new RSAKeyGeneratorParameters(BigInt.from(65537), 2048, 5);
     var params = new ParametersWithRandom(rsapars, secureRandom);
     var keyGenerator = new RSAKeyGenerator();
