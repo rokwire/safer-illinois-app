@@ -445,6 +445,16 @@ class Storage with Service {
     _setStringWithName(_healthCountyKey, value);
   }
 
+  static const String _healthBuildingAccessRulesKey = 'health_building_access_rules';
+  
+  String get healthBuildingAccessRules {
+    return _getStringWithName(_healthBuildingAccessRulesKey);
+  }
+
+  set healthBuildingAccessRules(String value) {
+    _setStringWithName(_healthBuildingAccessRulesKey, value);
+  }
+
   /////////////
   // Exposure
 

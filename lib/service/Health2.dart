@@ -16,6 +16,7 @@
 
 import 'dart:async';
 import 'dart:io';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:illinois/model/Health.dart';
@@ -39,21 +40,24 @@ import "package:pointycastle/export.dart";
 
 class Health2 with Service implements NotificationsListener {
 
-  static const String notifyUserUpdated             = "edu.illinois.rokwire.health.user.updated";
-  static const String notifyStatusChanged           = "edu.illinois.rokwire.health.status.changed";
-  static const String notifyCountyChanged           = "edu.illinois.rokwire.health.county.changed";
-  static const String notifyRulesChanged           = "edu.illinois.rokwire.health.county.changed";
+  static const String notifyUserUpdated                = "edu.illinois.rokwire.health.user.updated";
+  static const String notifyStatusChanged              = "edu.illinois.rokwire.health.status.changed";
+  static const String notifyCountyChanged              = "edu.illinois.rokwire.health.county.changed";
+  static const String notifyRulesChanged               = "edu.illinois.rokwire.health.rules.changed";
+  static const String notifyBuildingAccessRulesChanged = "edu.illinois.rokwire.health.building_access_rules.changed";
 
-  static const String _rulesFileName                = "rules.json";
+  static const String _rulesFileName                   = "rules.json";
 
   HealthUser _user;
   PrivateKey _userPrivateKey;
   PublicKey  _servicePublicKey;
 
   Covid19Status _status;
-  HealthRulesSet _rules;
-
+  
   HealthCounty _county;
+  HealthRulesSet _rules;
+  Map<String, dynamic> _buildingAccessRules;
+
 
   Directory _appDocumentsDir;
   DateTime _pausedDateTime;
@@ -96,6 +100,7 @@ class Health2 with Service implements NotificationsListener {
 
     _county = await _ensureCounty();
     _rules = await _loadRulesFromCache();
+    _buildingAccessRules = _loadBuildingAccessRulesFromStorage();
 
     _refreshAll();
   }
@@ -110,6 +115,7 @@ class Health2 with Service implements NotificationsListener {
 
     _county = null;
     _rules = null;
+    _buildingAccessRules = null;
   }
 
   @override
@@ -160,19 +166,18 @@ class Health2 with Service implements NotificationsListener {
 
   Future<void> _refreshAll() async {
 
-    // Update private key first because other services bellow depend on it
-    await _refreshUserPrivateKey();
-
     await Future.wait([
       _refreshUser(),
       _refreshStatus(),
       
       _refreshCounty(),
       _refreshRules(),
+      _refreshBuildingAccessRules(),
     ]);
   }
 
   Future<void> _refreshUserData() async {
+
     // Update private key first because other services bellow depend on it
     await _refreshUserPrivateKey();
 
@@ -545,5 +550,31 @@ class Health2 with Service implements NotificationsListener {
     if (cacheFile != null) {
       await cacheFile.writeAsString(jsonString);
     }
+  }
+
+  // Access Rules
+
+  Future<Map<String, dynamic>> _loadBuildingAccessRules({String countyId}) async {
+    countyId = countyId ?? _county?.id;
+    String url = ((countyId != null) && (Config().healthUrl != null)) ? "${Config().healthUrl}/covid19/access-rules/county/$countyId" : null;
+    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
+    String responseBody = (response?.statusCode == 200) ? response.body : null;
+    return (responseBody != null) ? AppJson.decodeMap(responseBody) : null; 
+  }
+
+  Future<void> _refreshBuildingAccessRules() async {
+    Map<String, dynamic> buildingAccessRules = await _loadBuildingAccessRules();
+    if ((buildingAccessRules != null) && !DeepCollectionEquality().equals(_buildingAccessRules, buildingAccessRules)) {
+      _saveBuildingAccessRulesToStorage(_buildingAccessRules = buildingAccessRules);
+      NotificationService().notify(notifyBuildingAccessRulesChanged);
+   }
+  }
+
+  static Map<String, dynamic> _loadBuildingAccessRulesFromStorage() {
+    return AppJson.decodeMap(Storage().healthBuildingAccessRules);
+  }
+
+  static void _saveBuildingAccessRulesToStorage(Map<String, dynamic> buildingAccessRules) {
+    Storage().healthBuildingAccessRules = AppJson.encode(buildingAccessRules);
   }
 }
