@@ -1513,12 +1513,10 @@ class HealthCounty {
   HealthCounty({this.id, this.name, this.state, this.country,this.guidelines});
 
   factory HealthCounty.fromJson(Map<String, dynamic> json, { bool guidelines }) {
-    String name = json['name'];
-    String state = json['state_province'];
     return (json != null) ? HealthCounty(
       id: json['id'],
-      name: name,
-      state: state,
+      name: json['name'],
+      state: json['state_province'],
       country: json['country'],
       guidelines: (guidelines == true) ? HealthGuideline.fromJsonList(json['guidelines']) : null,
     ) : null;
@@ -1538,6 +1536,19 @@ class HealthCounty {
     return AppString.isStringNotEmpty(state) ? "$name, $state" : name;
   }
 
+  bool operator ==(o) =>
+      o is HealthCounty &&
+          o.id == id &&
+          o.name == name &&
+          o.state == state &&
+          o.country == country;
+
+  int get hashCode =>
+      (id?.hashCode ?? 0) ^
+      (name?.hashCode ?? 0) ^
+      (state?.hashCode ?? 0) ^
+      (country?.hashCode ?? 0);
+
   static HealthCounty defaultCounty(Iterable<HealthCounty> counties) {
     if ((counties != null) && (0 < counties.length)) {
       for (HealthCounty county in counties) {
@@ -1546,6 +1557,17 @@ class HealthCounty {
         }
       }
       return counties.first;
+    }
+    return null;
+  }
+
+  static HealthCounty getCounty(Iterable<HealthCounty> counties, { String countyId }) {
+    if ((counties != null) && (0 < counties.length)) {
+      for (HealthCounty county in counties) {
+        if ((countyId != null) && (county.id == countyId)) {
+          return county;
+        }
+      }
     }
     return null;
   }

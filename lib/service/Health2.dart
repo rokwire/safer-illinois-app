@@ -38,11 +38,13 @@ class Health2 with Service implements NotificationsListener {
 
   static const String notifyUserUpdated             = "edu.illinois.rokwire.health.user.updated";
   static const String notifyStatusChanged           = "edu.illinois.rokwire.health.status.changed";
+  static const String notifyCountyChanged           = "edu.illinois.rokwire.health.county.changed";
 
   HealthUser _user;
   PrivateKey _userPrivateKey;
   PublicKey  _servicePublicKey;
 
+  HealthCounty _county;
   Covid19Status _status;
 
   DateTime _pausedDateTime;
@@ -78,9 +80,10 @@ class Health2 with Service implements NotificationsListener {
     _user = _loadUserFromStorage();
     _userPrivateKey = await _loadUserPrivateKey();
     _servicePublicKey = RsaKeyHelper.parsePublicKeyFromPem(Config().healthPublicKey);
+    _county = await _ensureCounty();
     _status = _loadStatusFromStorage();
 
-    _refresh();
+    _refreshAll();
   }
 
   @override
@@ -88,6 +91,7 @@ class Health2 with Service implements NotificationsListener {
     _user = null;
     _userPrivateKey = null;
     _servicePublicKey = null;
+    _county = null;
     _status = null;
   }
 
@@ -119,7 +123,7 @@ class Health2 with Service implements NotificationsListener {
       if (_pausedDateTime != null) {
         Duration pausedDuration = DateTime.now().difference(_pausedDateTime);
         if (Config().refreshTimeout < pausedDuration.inSeconds) {
-          _refresh();
+          _refreshAll();
         }
       }
     }
@@ -128,7 +132,7 @@ class Health2 with Service implements NotificationsListener {
   Future<void> _onUserLoginChanged() async {
 
     if (this._isAuthenticated) {
-      _refresh();
+      _refreshUserData();
     }
     else {
       _applyUser(null);
@@ -137,8 +141,19 @@ class Health2 with Service implements NotificationsListener {
     }
   }
 
-  Future<void> _refresh() async {
+  Future<void> _refreshAll() async {
 
+    // Update private key first because other services bellow depend on it
+    await _refreshUserPrivateKey();
+
+    await Future.wait([
+      _refreshUser(),
+      _refreshStatus(),
+      _refreshCounty(),
+    ]);
+  }
+
+  Future<void> _refreshUserData() async {
     // Update private key first because other services bellow depend on it
     await _refreshUserPrivateKey();
 
@@ -300,7 +315,7 @@ class Health2 with Service implements NotificationsListener {
     }
 
     if (userReset) {
-      _refresh();
+      _refreshUserData();
     }
     
     return user;
@@ -417,4 +432,60 @@ class Health2 with Service implements NotificationsListener {
   static void _saveStatusToStorage(Covid19Status status) {
     Storage().healthUserStatus = AppJson.encode(status?.toJson());
   }
+
+  // Counties
+
+  Future<List<HealthCounty>> loadCounties({ bool guidelines }) async {
+    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/counties" : null;
+    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
+    String responseBody = (response?.statusCode == 200) ? response.body : null;
+    List<dynamic> responseJson = (responseBody != null) ? AppJson.decodeList(responseBody) : null;
+    return (responseJson != null) ? HealthCounty.listFromJson(responseJson, guidelines: guidelines) : null;
+  }
+
+  Future<HealthCounty> _loadCounty({String countyId, bool guidelines }) async {
+    String url = ((countyId != null) && (Config().healthUrl != null)) ? "${Config().healthUrl}/covid19/counties/$countyId" : null;
+    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
+    String responseBody = (response?.statusCode == 200) ? response.body : null;
+    Map<String, dynamic> responseJson = (responseBody != null) ? AppJson.decodeMap(responseBody) : null;
+    return (responseJson != null) ? HealthCounty.fromJson(responseJson, guidelines: guidelines) : null;
+  }
+
+  Future<HealthCounty> _ensureCounty() async {
+    HealthCounty county = _loadCountyFromStorage();
+    if (county == null) {
+      List<HealthCounty> counties = await loadCounties();
+      county = HealthCounty.getCounty(counties, countyId: Storage().currentHealthCountyId) ??
+        HealthCounty.defaultCounty(counties);
+      _saveCountyToStorage(county);
+    }
+    return county;
+  }
+
+  Future<void> _refreshCounty() async {
+    if (_county != null) {
+      HealthCounty county = await _loadCounty(countyId: _county?.id);
+      if (county != null) {
+        _applyCounty(county);
+      }
+    }
+  }
+
+  void _applyCounty(HealthCounty county) {
+    if (_county != county) {
+      _saveCountyToStorage(_county = county);
+      NotificationService().notify(notifyCountyChanged);
+    }
+  }
+
+  static HealthCounty _loadCountyFromStorage() {
+    return HealthCounty.fromJson(AppJson.decodeMap(Storage().healthCounty));
+  }
+
+  static void _saveCountyToStorage(HealthCounty county) {
+    Storage().healthCounty = AppJson.encode(county?.toJson());
+  }
+
+
+
 }

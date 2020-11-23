@@ -445,6 +445,16 @@ class Storage with Service {
     _setStringWithName(healthUserStatusKey, value);
   }
 
+  static const String _healthCountyKey = 'health_county';
+  
+  String get healthCounty {
+    return _getStringWithName(_healthCountyKey);
+  }
+
+  set healthCounty(String value) {
+    _setStringWithName(_healthCountyKey, value);
+  }
+
   /////////////
   // Exposure
 
