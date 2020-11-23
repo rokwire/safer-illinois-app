@@ -278,14 +278,17 @@ class _Covid19OnBoardingQrCodePanelState extends State<Covid19OnBoardingQrCodePa
             textAlign: TextAlign.left,
             style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color:Styles().colors.fillColorPrimary),
           ),
-          Container(height: 18,),
-          _buildAction(
-              heading: Localization().getStringEx("panel.health.covid19.qr_code.secondary.button.scan.heading", "If you are adding a second device:"),
-              description: Localization().getStringEx("panel.health.covid19.qr_code.secondary.button.scan.description", "If you still have access to your primary device, you can directly scan the COVID-19 Encryption Key QR code from that device."),
-              title: Localization().getStringEx("panel.health.covid19.qr_code.secondary.button.scan.title", "Scan Your QR Code"),
-              iconRes: "images/fill-1.png",
-              onTap: _onScan
-          ),
+          //TBD: DD - web
+          Visibility(visible: !kIsWeb, child: Column(children: [
+            Container(height: 18,),
+            _buildAction(
+                heading: Localization().getStringEx("panel.health.covid19.qr_code.secondary.button.scan.heading", "If you are adding a second device:"),
+                description: Localization().getStringEx("panel.health.covid19.qr_code.secondary.button.scan.description", "If you still have access to your primary device, you can directly scan the COVID-19 Encryption Key QR code from that device."),
+                title: Localization().getStringEx("panel.health.covid19.qr_code.secondary.button.scan.title", "Scan Your QR Code"),
+                iconRes: "images/fill-1.png",
+                onTap: _onScan
+            )
+          ],)),
           Container(height: 12,),
           _buildAction(
               heading: Localization().getStringEx("panel.health.covid19.qr_code.secondary.button.retrieve.heading", "If you are using a replacement device:"),
