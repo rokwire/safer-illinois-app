@@ -414,7 +414,7 @@ class Covid19History {
         (this.dateUtc == event?.blob?.dateUtc) &&
         (this.blob?.actionType == event?.blob?.actionType) &&
         ((this.blob?.actionText == event?.blob?.actionText) ||
-         ((this.blob?.actionText is Map) && (event?.blob?.actionText is Map) && DeepCollectionEquality().equals(this.blob?.actionText, event?.blob?.actionText))
+         ((this.blob?.actionText is Map) && (event?.blob?.actionText is Map) && MapEquality().equals(this.blob?.actionText, event?.blob?.actionText))
         );
     }
     else {
@@ -1817,7 +1817,7 @@ class HealthSymptomsGroup {
     (name?.hashCode ?? 0) ^
     (visible?.hashCode ?? 0) ^
     (group?.hashCode ?? 0) ^
-    (symptoms?.hashCode ?? 0);
+    ListEquality().hash(symptoms);
 
   static Map<String, int> getCounts(List<HealthSymptomsGroup> groups, Set<String> selected) {
     Map<String, int> counts = Map<String, int>();
@@ -1911,16 +1911,17 @@ class HealthRulesSet {
     ) : null;
   }
 
-  bool operator ==(o) =>
-    o is HealthRulesSet &&
+  bool operator ==(o) {
+    return o is HealthRulesSet &&
       o.tests == tests &&
       o.symptoms == symptoms &&
       o.contactTrace == contactTrace &&
       o.actions == actions &&
       o.defaults == defaults &&
-      DeepCollectionEquality().equals(o.statuses, statuses) &&
-      DeepCollectionEquality().equals(o.constants, constants) &&
+      MapEquality().equals(o.statuses, statuses) &&
+      MapEquality().equals(o.constants, constants) &&
       DeepCollectionEquality().equals(o.strings, strings);
+  }
 
   int get hashCode =>
     (tests?.hashCode ?? 0) ^
@@ -1928,9 +1929,9 @@ class HealthRulesSet {
     (contactTrace?.hashCode ?? 0) ^
     (actions?.hashCode ?? 0) ^
     (defaults?.hashCode ?? 0) ^
-    (statuses?.hashCode ?? 0) ^
-    (constants?.hashCode ?? 0) ^
-    (strings?.hashCode ?? 0);
+    MapEquality().hash(statuses) ^
+    MapEquality().hash(constants) ^
+    DeepCollectionEquality().hash(strings);
 
   int get userTestMonitorInterval {
     return constants[UserTestMonitorInterval];
@@ -2003,7 +2004,7 @@ class HealthTestRulesSet {
       ListEquality().equals(o._rules, _rules);
 
   int get hashCode =>
-    (_rules?.hashCode ?? 0);
+    ListEquality().hash(_rules);
 
   HealthTestRuleResult matchRuleResult({ Covid19HistoryBlob blob, HealthRulesSet rules }) {
     if ((_rules != null) && (blob != null)) {
@@ -2049,7 +2050,7 @@ class HealthTestRule {
   int get hashCode =>
     (testType?.hashCode ?? 0) ^
     (category?.hashCode ?? 0) ^
-    (results?.hashCode ?? 0);
+    ListEquality().hash(results);
 
   static List<HealthTestRule> listFromJson(List<dynamic> json) {
     List<HealthTestRule> values;
@@ -2143,8 +2144,8 @@ class HealthSymptomsRulesSet {
       ListEquality().equals(o.groups, groups);
 
   int get hashCode =>
-    (_rules?.hashCode ?? 0) ^
-    (groups?.hashCode ?? 0);
+    ListEquality().hash(_rules) ^
+    ListEquality().hash(groups);
 
   HealthSymptomsRule matchRule({ Covid19HistoryBlob blob, HealthRulesSet rules }) {
     if ((_rules != null) && (groups != null) && (blob?.symptomsIds != null)) {
@@ -2181,7 +2182,7 @@ class HealthSymptomsRule {
       o.status == status;
 
   int get hashCode =>
-    (counts?.hashCode ?? 0) ^
+    MapEquality().hash(counts) ^
     (status?.hashCode ?? 0);
 
   static List<HealthSymptomsRule> listFromJson(List<dynamic> json) {
@@ -2241,7 +2242,7 @@ class HealthContactTraceRulesSet {
       ListEquality().equals(o._rules, _rules);
 
   int get hashCode =>
-    (_rules?.hashCode ?? 0);
+    ListEquality().hash(_rules);
 
 
   HealthContactTraceRule matchRule({ Covid19HistoryBlob blob, HealthRulesSet rules }) {
@@ -2317,7 +2318,7 @@ class HealthActionRulesSet {
       ListEquality().equals(o._rules, _rules);
 
   int get hashCode =>
-    (_rules?.hashCode ?? 0);
+    ListEquality().hash(_rules);
 
   HealthActionRule matchRule({ Covid19HistoryBlob blob, HealthRulesSet rules }) {
     if (_rules != null) {
@@ -2580,7 +2581,7 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
 
   int get hashCode =>
     (condition?.hashCode ?? 0) ^
-    (params?.hashCode ?? 0) ^
+    DeepCollectionEquality().hash(params) ^
     (successStatus?.hashCode ?? 0) ^
     (failStatus?.hashCode ?? 0);
 
