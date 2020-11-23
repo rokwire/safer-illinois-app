@@ -202,7 +202,7 @@ class _Covid19GuidelinesPanelState extends State<Covid19GuidelinesPanel> impleme
   //County
   Widget _buildCountyDropdown(){
     bool editable = _counties!=null && _counties.length>1;
-    String countyName = _selectedCounty?.nameDisplayText??"";
+    String countyName = _selectedCounty?.displayName ?? "";
     return Padding(padding: EdgeInsets.symmetric(horizontal: 32, vertical: 0),
         child: Column(crossAxisAlignment:CrossAxisAlignment.center, children: <Widget>[
           Semantics(container: true, child:
@@ -249,7 +249,7 @@ class _Covid19GuidelinesPanelState extends State<Covid19GuidelinesPanel> impleme
       for (HealthCounty county in _counties.values) {
         result.add(DropdownMenuItem<dynamic>(
           value: county.id,
-          child: Text(county.nameDisplayText),
+          child: Text(county.displayName ?? ''),
         ));
       }
     }

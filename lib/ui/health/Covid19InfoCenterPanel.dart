@@ -178,7 +178,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
       if(counties != null && counties.containsKey(Health().currentCountyId)) {
         if(mounted){
           setState((){
-            _currentCountyName = counties[Health().currentCountyId].nameDisplayText;
+            _currentCountyName = counties[Health().currentCountyId].displayName;
           });
         }
       }

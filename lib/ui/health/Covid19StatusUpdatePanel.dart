@@ -93,7 +93,7 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
     List<HealthCounty> countiesList = ((result != null) && (1 < result.length)) ? result[1] : null;
     LinkedHashMap<String, HealthCounty> counties = HealthCounty.listToMap(countiesList);
     if(counties != null && counties.containsKey(Health().currentCountyId)) {
-      _currentCountyName = counties[Health().currentCountyId].nameDisplayText;
+      _currentCountyName = counties[Health().currentCountyId].displayName;
     }
   }
 

@@ -1505,21 +1505,18 @@ class HealthTestTypeResult {
 class HealthCounty {
   String id;
   String name;
-  String nameDisplayText;
   String state;
   String country;
   List<HealthGuideline> guidelines;
 
-  HealthCounty({this.id, this.name, this.nameDisplayText, this.state, this.country,this.guidelines});
+  HealthCounty({this.id, this.name, this.state, this.country,this.guidelines});
 
   factory HealthCounty.fromJson(Map<String, dynamic> json) {
     String name = json['name'];
     String state = json['state_province'];
-    String nameDisplayText = AppString.isStringNotEmpty(state) ? "$name, $state" : name;
     return (json != null) ? HealthCounty(
       id: json['id'],
       name: name,
-      nameDisplayText: nameDisplayText,
       state: state,
       country: json['country'],
       guidelines: HealthGuideline.fromJsonList(json['guidelines']),
@@ -1534,6 +1531,10 @@ class HealthCounty {
       'country': country,
       'guidelines': HealthGuideline.listToJson(guidelines),
     };
+  }
+
+  String get displayName {
+    return AppString.isStringNotEmpty(state) ? "$name, $state" : name;
   }
 
   static HealthCounty defaultCounty(Iterable<HealthCounty> counties) {

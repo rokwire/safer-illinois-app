@@ -440,7 +440,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
                       label: Localization().getStringEx("panel.covid19_passport.button.info.title","Info "),
                       button: true,
                       excludeSemantics: true,
-                      child:  IconButton(icon: Image.asset('images/icon-info-orange.png', excludeFromSemantics: true,), onPressed: () =>  StatusInfoDialog.show(context, _selectedCounty?.nameDisplayText ?? ""), padding: EdgeInsets.all(10),)
+                      child:  IconButton(icon: Image.asset('images/icon-info-orange.png', excludeFromSemantics: true,), onPressed: () =>  StatusInfoDialog.show(context, _selectedCounty?.displayName ?? ""), padding: EdgeInsets.all(10),)
                 ))
             ],)):
           Container(
@@ -472,7 +472,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
                       icon: Icon(Icons.arrow_drop_down, color:Styles().colors.fillColorPrimary, semanticLabel: null,),
                       isExpanded: true,
                       style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.fillColorPrimary,),
-                      hint: Text(_selectedCounty?.nameDisplayText ?? Localization().getStringEx('panel.covid19_passport.label.county.empty.hint',"Select a county...",),
+                      hint: Text(_selectedCounty?.displayName ?? Localization().getStringEx('panel.covid19_passport.label.county.empty.hint',"Select a county...",),
                         style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.fillColorPrimary,),overflow: TextOverflow.ellipsis,),
                       items: _buildCountyDropdownItems(),
                       onChanged: (value) { _switchCounty(value); },
@@ -494,7 +494,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
       for (HealthCounty county in _counties.values) {
         result.add(DropdownMenuItem<dynamic>(
           value: county.id,
-          child: Text(county.nameDisplayText),
+          child: Text(county.displayName ?? ''),
         ));
       }
     }
