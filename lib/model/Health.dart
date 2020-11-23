@@ -1006,7 +1006,7 @@ class HealthUserBlob {
 ///////////////////////////////
 // HealthOSFAuth
 
-class HealthOSFAuth{
+class HealthOSFAuth {
   final String accessToken;
   final String tokenType;
   final int expiresIn;
@@ -1040,10 +1040,10 @@ class HealthOSFAuth{
 // HealthServiceProvider
 
 class HealthServiceProvider {
-  String id;
-  String name;
-  bool allowManualTest;
-  List<HealthServiceMechanism> availableMechanisms;
+  final String id;
+  final String name;
+  final bool allowManualTest;
+  final List<HealthServiceMechanism> availableMechanisms;
 
   HealthServiceProvider({this.id, this.name, this.allowManualTest, this.availableMechanisms});
 
@@ -1157,22 +1157,23 @@ List<dynamic>  healthServiceMechanismListToJson(List<HealthServiceMechanism> val
 // HealthServiceLocation
 
 class HealthServiceLocation {
-  String id;
-  String name;
-  String contact;
-  String city;
-  String address1;
-  String address2;
-  String state;
-  String country;
-  String zip;
-  String url;
-  String notes;
-  double latitude;
-  double longitude;
-  HealthLocationWaitTimeColor waitTimeColor;
-  List<String> availableTests;
-  List<HealthLocationDayOfOperation> daysOfOperation;
+  final String id;
+  final String name;
+  final String contact;
+  final String city;
+  final String address1;
+  final String address2;
+  final String state;
+  final String country;
+  final String zip;
+  final String url;
+  final String notes;
+  final double latitude;
+  final double longitude;
+  final HealthLocationWaitTimeColor waitTimeColor;
+  final List<String> availableTests;
+  final List<HealthLocationDayOfOperation> daysOfOperation;
+  
   HealthServiceLocation({this.id, this.name, this.availableTests, this.contact, this.city, this.address1, this.address2, this.state, this.country, this.zip, this.url, this.notes, this.latitude, this.longitude, this.waitTimeColor, this.daysOfOperation});
 
   factory HealthServiceLocation.fromJson(Map<String, dynamic> json) {
@@ -1388,9 +1389,9 @@ enum HealthLocationWaitTimeColor { red, yellow, green, grey }
 // HealthTestType
 
 class HealthTestType {
-  String id;
-  String name;
-  List<HealthTestTypeResult> results;
+  final String id;
+  final String name;
+  final List<HealthTestTypeResult> results;
 
   HealthTestType({this.id, this.name, this.results});
 
@@ -1440,11 +1441,11 @@ class HealthTestType {
 // HealthTestRuleResult
 
 class HealthTestTypeResult {
-  String id;
-  String name;
-  String nextStep;
-  int nextStepOffset;
-  int nextStepExpiresOffset;
+  final String id;
+  final String name;
+  final String nextStep;
+  final int nextStepOffset;
+  final int nextStepExpiresOffset;
 
   HealthTestTypeResult({this.id, this.name, this.nextStep, this.nextStepOffset,this.nextStepExpiresOffset});
 
@@ -1503,11 +1504,11 @@ class HealthTestTypeResult {
 // HealthCounty
 
 class HealthCounty {
-  String id;
-  String name;
-  String state;
-  String country;
-  List<HealthGuideline> guidelines;
+  final String id;
+  final String name;
+  final String state;
+  final String country;
+  final List<HealthGuideline> guidelines;
 
   HealthCounty({this.id, this.name, this.state, this.country,this.guidelines});
 
@@ -1591,11 +1592,11 @@ class HealthCounty {
 // HealthGuideline
 
 class HealthGuideline {
-  String id;
-  String name;
-  List<HealthGuidelineItem> items;
+  final String id;
+  final String name;
+  final List<HealthGuidelineItem> items;
 
-  HealthGuideline({this.id,this.name,this.items});
+  HealthGuideline({this.id, this.name, this.items});
 
   factory HealthGuideline.fromJson(Map<String, dynamic> json) {
     if (json == null) {
@@ -1643,11 +1644,11 @@ class HealthGuideline {
 // HealthGuidelineItem
 
 class HealthGuidelineItem {
-  String icon;
-  String description;
-  String type;
+  final String icon;
+  final String description;
+  final String type;
 
-  HealthGuidelineItem({this.icon,this.description,this.type});
+  HealthGuidelineItem({this.icon, this.description, this.type});
 
   factory HealthGuidelineItem.fromJson(Map<String, dynamic> json) {
     if (json == null) {
