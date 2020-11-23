@@ -488,7 +488,7 @@ class Health with Service implements NotificationsListener {
     return false;
   }
 
-  Future<List<HealthCounty>> loadCounties({ bool guidelines }) async{
+  Future<List<HealthCounty>> loadCounties({ bool guidelines }) async {
     String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/counties" : null;
     Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
     String responseBody = (response?.statusCode == 200) ? response.body : null;
