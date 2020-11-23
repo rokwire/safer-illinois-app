@@ -154,16 +154,16 @@ class Health2 with Service implements NotificationsListener {
     return (Auth().authToken?.idToken != null);
   }
 
-  bool get _isLoggedIn {
-    return this._isAuthenticated && (_user != null);
+  bool get _isReadAuthenticated {
+    return this._isAuthenticated && (_userPrivateKey != null);
+  }
+
+  bool get _isWriteAuthenticated {
+    return this._isAuthenticated && (_user?.publicKey != null);
   }
 
   bool get isLoggedIn {
-    return this._isLoggedIn;
-  }
-
-  bool get _hasUserKeys {
-    return this._isLoggedIn && (_user?.publicKey != null) && (_userPrivateKey != null);
+    return this._isAuthenticated && (_user != null);
   }
 
   String get _userId {
@@ -354,7 +354,7 @@ class Health2 with Service implements NotificationsListener {
   // Covid19 Status
 
   Future<Covid19Status> _loadStatus() async {
-    if (this._hasUserKeys && (Config().healthUrl != null)) {
+    if (this._isReadAuthenticated && (Config().healthUrl != null)) {
       String url = "${Config().healthUrl}/covid19/v2/app-version/2.2/statuses";
       Response response = await Network().get(url, auth: NetworkAuth.User);
       if (response?.statusCode == 200) {
@@ -365,7 +365,7 @@ class Health2 with Service implements NotificationsListener {
   }
 
   /*Future<bool> _saveStatus(Covid19Status status) async {
-    if (this._hasUserKeys && (Config().healthUrl != null)) {
+    if (this._isWriteAuthenticated && (Config().healthUrl != null)) {
       String url = "${Config().healthUrl}/covid19/v2/app-version/2.2/statuses";
       Covid19Status encryptedStatus = await status?.encrypted(_user?.publicKey);
       String post = AppJson.encode(encryptedStatus?.toJson());
