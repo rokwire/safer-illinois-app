@@ -297,13 +297,16 @@ class _Covid19OnBoardingQrCodePanelState extends State<Covid19OnBoardingQrCodePa
               iconRes: "images/group-10.png",
               onTap: _onRetrieve
           ),
-          Container(height: 12,),
-          _buildAction(
-              heading: Localization().getStringEx("panel.health.covid19.qr_code.reset.button.heading", "Reset my COVID-19 Secret QRcode:"),
-              title: Localization().getStringEx("panel.health.covid19.qr_code.reset.button.title", "Reset my COVID-19 Secret QRcode"),
-              iconRes: "images/group-10.png",
-              onTap: _onRefreshQrCodeTapped
-          ),
+          //TBD: DD - web
+          Visibility(visible: !kIsWeb, child: Column(children: [
+            Container(height: 12,),
+            _buildAction(
+                heading: Localization().getStringEx("panel.health.covid19.qr_code.reset.button.heading", "Reset my COVID-19 Secret QRcode:"),
+                title: Localization().getStringEx("panel.health.covid19.qr_code.reset.button.title", "Reset my COVID-19 Secret QRcode"),
+                iconRes: "images/group-10.png",
+                onTap: _onRefreshQrCodeTapped
+            ),
+          ],)),
           Container(height: 12,),
           Container(height: 40,)
         ],)
