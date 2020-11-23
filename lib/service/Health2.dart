@@ -158,9 +158,9 @@ class Health2 with Service implements NotificationsListener {
     return this._isAuthenticated && (_userPrivateKey != null);
   }
 
-  bool get _isWriteAuthenticated {
+  /*bool get _isWriteAuthenticated {
     return this._isAuthenticated && (_user?.publicKey != null);
-  }
+  }*/
 
   bool get isLoggedIn {
     return this._isAuthenticated && (_user != null);
