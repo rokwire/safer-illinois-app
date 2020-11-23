@@ -286,6 +286,7 @@ class NativeCommunicator with Service {
   }
 
   Future<String> getHealthRSAPrivateKey({String userId}) async {
+    //TBD: DD - web
     if (kIsWeb) {
       return null;
     }
@@ -355,6 +356,7 @@ class NativeCommunicator with Service {
   }
 
   Future<Uint8List> getBarcodeImageData(Map<String, dynamic> params) async {
+    //TBD: DD - web
     if (kIsWeb) {
       return null;
     }
