@@ -65,12 +65,12 @@ class Covid19Status {
   }
 
   bool operator ==(o) {
-    return o is Covid19Status &&
-      o.id == id &&
-      o.userId == userId &&
-      o.dateUtc == dateUtc &&
-      o.encryptedKey == encryptedKey &&
-      o.encryptedBlob == encryptedBlob;
+    return (o is Covid19Status) &&
+      (o.id == id) &&
+      (o.userId == userId) &&
+      (o.dateUtc == dateUtc) &&
+      (o.encryptedKey == encryptedKey) &&
+      (o.encryptedBlob == encryptedBlob);
   }
 
   int get hashCode =>
@@ -172,18 +172,18 @@ class Covid19StatusBlob {
   }
 
   bool operator ==(o) {
-    return o is Covid19StatusBlob &&
-      o.healthStatus == healthStatus &&
-      o.priority == priority &&
-      o.nextStep == nextStep &&
-      o.nextStepHtml == nextStepHtml &&
-      o.nextStepDateUtc == nextStepDateUtc &&
-      o.eventExplanation == eventExplanation &&
-      o.eventExplanationHtml == eventExplanationHtml &&
-      o.reason == reason &&
-      o.warning == warning &&
-      o.fcmTopicEquals(fcmTopic) &&
-      o.historyBlob == historyBlob;
+    return (o is Covid19StatusBlob) &&
+      (o.healthStatus == healthStatus) &&
+      (o.priority == priority) &&
+      (o.nextStep == nextStep) &&
+      (o.nextStepHtml == nextStepHtml) &&
+      (o.nextStepDateUtc == nextStepDateUtc) &&
+      (o.eventExplanation == eventExplanation) &&
+      (o.eventExplanationHtml == eventExplanationHtml) &&
+      (o.reason == reason) &&
+      (o.warning == warning) &&
+      DeepCollectionEquality().equals(o.fcmTopic, fcmTopic) &&
+      (o.historyBlob == historyBlob);
   }
 
   int get hashCode =>
@@ -196,18 +196,8 @@ class Covid19StatusBlob {
     (eventExplanationHtml?.hashCode ?? 0) ^
     (reason?.hashCode ?? 0) ^
     (warning?.hashCode ?? 0) ^
-    (fcmTopicHashCode ?? 0) ^
+    (DeepCollectionEquality().hash(fcmTopic) ?? 0) ^
     (historyBlob?.hashCode ?? 0);
-
-  bool fcmTopicEquals(dynamic fcmTopic) {
-    return ((this.fcmTopic is List) && (fcmTopic is List)) ?
-      ListEquality().equals(this.fcmTopic, fcmTopic) :
-      (this.fcmTopic == fcmTopic);
-  }
-
-  int get fcmTopicHashCode {
-    return (fcmTopic is List) ? ListEquality().hash(fcmTopic) : fcmTopic?.hashCode;
-  }
 
   String get displayNextStep {
     return _processMacros(nextStep);
@@ -374,6 +364,36 @@ class Covid19History {
       'encrypted_image_blob': encryptedImageBlob,
     };
   }
+
+  bool operator ==(o) {
+    return (o is Covid19History) &&
+      (o.id == id) &&
+      (o.userId == userId) &&
+      (o.dateUtc == dateUtc) &&
+      (o.type == type) &&
+
+      (o.encryptedKey == encryptedKey) &&
+      (o.encryptedBlob == encryptedBlob) &&
+      
+      (o.locationId == locationId) &&
+      (o.countyId == countyId) &&
+      (o.encryptedImageKey == encryptedImageKey) &&
+      (o.encryptedImageBlob == encryptedImageBlob);
+  }
+
+  int get hashCode =>
+    (id?.hashCode ?? 0) ^
+    (userId?.hashCode ?? 0) ^
+    (dateUtc?.hashCode ?? 0) ^
+    (type?.hashCode ?? 0) ^
+    
+    (encryptedKey?.hashCode ?? 0) ^
+    (encryptedBlob?.hashCode ?? 0) ^
+    
+    (locationId?.hashCode ?? 0) ^
+    (countyId?.hashCode ?? 0) ^
+    (encryptedImageKey?.hashCode ?? 0) ^
+    (encryptedImageBlob?.hashCode ?? 0);
 
   static Future<Covid19History> decryptedFromJson(Map<String, dynamic> json, Map<Covid19HistoryType, PrivateKey> privateKeys ) async {
     try {
@@ -647,6 +667,42 @@ class Covid19HistoryBlob {
       'action_text': actionText,
     };
   }
+
+  bool operator ==(o) {
+    return (o is Covid19HistoryBlob) &&
+      (o.provider == provider) &&
+      (o.providerId == providerId) &&
+      (o.location == location) &&
+      (o.locationId == locationId) &&
+      (o.countyId == countyId) &&
+      (o.testType == testType) &&
+      (o.testResult == testResult) &&
+
+      ListEquality().equals(o.symptoms, symptoms) &&
+
+      (o.traceDuration == traceDuration) &&
+      (o.traceTEK == traceTEK) &&
+
+      (o.actionType == actionType) &&
+      DeepCollectionEquality().equals(o.actionText, actionText);
+  }
+
+  int get hashCode =>
+    (provider?.hashCode ?? 0) ^
+    (providerId?.hashCode ?? 0) ^
+    (location?.hashCode ?? 0) ^
+    (locationId?.hashCode ?? 0) ^
+    (countyId?.hashCode ?? 0) ^
+    (testType?.hashCode ?? 0) ^
+    (testResult?.hashCode ?? 0) ^
+
+    ListEquality().hash(symptoms) ^
+
+    (traceDuration?.hashCode ?? 0) ^
+    (traceTEK?.hashCode ?? 0) ^
+
+    (actionType?.hashCode ?? 0) ^
+    (DeepCollectionEquality().hash(actionText) ?? 0);
 
   bool get isTest {
     return (providerId != null) || (locationId != null) || (testType != null) || (testResult != null);
@@ -1587,11 +1643,11 @@ class HealthCounty {
   }
 
   bool operator ==(o) =>
-    o is HealthCounty &&
-      o.id == id &&
-      o.name == name &&
-      o.state == state &&
-      o.country == country;
+    (o is HealthCounty) &&
+      (o.id == id) &&
+      (o.name == name) &&
+      (o.state == state) &&
+      (o.country == country);
 
   int get hashCode =>
     (id?.hashCode ?? 0) ^
@@ -1792,9 +1848,9 @@ class HealthSymptom {
   }
 
   bool operator ==(o) =>
-    o is HealthSymptom &&
-      o.id == id &&
-      o.name == name;
+    (o is HealthSymptom) &&
+      (o.id == id) &&
+      (o.name == name);
 
   int get hashCode =>
     (id?.hashCode ?? 0) ^
@@ -1859,11 +1915,11 @@ class HealthSymptomsGroup {
   }
 
   bool operator ==(o) =>
-    o is HealthSymptomsGroup &&
-      o.id == id &&
-      o.name == name &&
-      o.visible == visible &&
-      o.group == group &&
+    (o is HealthSymptomsGroup) &&
+      (o.id == id) &&
+      (o.name == name) &&
+      (o.visible == visible) &&
+      (o.group == group) &&
       ListEquality().equals(o.symptoms, symptoms);
 
   int get hashCode =>
@@ -1966,12 +2022,12 @@ class HealthRulesSet {
   }
 
   bool operator ==(o) {
-    return o is HealthRulesSet &&
-      o.tests == tests &&
-      o.symptoms == symptoms &&
-      o.contactTrace == contactTrace &&
-      o.actions == actions &&
-      o.defaults == defaults &&
+    return (o is HealthRulesSet) &&
+      (o.tests == tests) &&
+      (o.symptoms == symptoms) &&
+      (o.contactTrace == contactTrace) &&
+      (o.actions == actions) &&
+      (o.defaults == defaults) &&
       MapEquality().equals(o.statuses, statuses) &&
       MapEquality().equals(o.constants, constants) &&
       DeepCollectionEquality().equals(o.strings, strings);
@@ -2031,8 +2087,8 @@ class HealthDefaultsSet {
   }
 
   bool operator ==(o) =>
-    o is HealthDefaultsSet &&
-      o.status == status;
+    (o is HealthDefaultsSet) &&
+      (o.status == status);
 
   int get hashCode =>
     (status?.hashCode ?? 0);
@@ -2054,7 +2110,7 @@ class HealthTestRulesSet {
   }
 
   bool operator ==(o) =>
-    o is HealthTestRulesSet &&
+    (o is HealthTestRulesSet) &&
       ListEquality().equals(o._rules, _rules);
 
   int get hashCode =>
@@ -2096,9 +2152,9 @@ class HealthTestRule {
   }
 
   bool operator ==(o) =>
-    o is HealthTestRule &&
-      o.testType == testType &&
-      o.category == category &&
+    (o is HealthTestRule) &&
+      (o.testType == testType) &&
+      (o.category == category) &&
       ListEquality().equals(o.results, results);
 
   int get hashCode =>
@@ -2138,10 +2194,10 @@ class HealthTestRuleResult {
   }
 
   bool operator ==(o) =>
-    o is HealthTestRuleResult &&
-      o.testResult == testResult &&
-      o.category == category &&
-      status == status;
+    (o is HealthTestRuleResult) &&
+      (o.testResult == testResult) &&
+      (o.category == category) &&
+      (status == status);
 
   int get hashCode =>
     (testResult?.hashCode ?? 0) ^
@@ -2193,7 +2249,7 @@ class HealthSymptomsRulesSet {
   }
 
   bool operator ==(o) =>
-    o is HealthSymptomsRulesSet &&
+    (o is HealthSymptomsRulesSet) &&
       ListEquality().equals(o._rules, _rules) &&
       ListEquality().equals(o.groups, groups);
 
@@ -2231,9 +2287,9 @@ class HealthSymptomsRule {
   }
 
   bool operator ==(o) =>
-    o is HealthSymptomsRule &&
+    (o is HealthSymptomsRule) &&
       MapEquality().equals(o.counts, counts) &&
-      o.status == status;
+      (o.status == status);
 
   int get hashCode =>
     MapEquality().hash(counts) ^
@@ -2292,7 +2348,7 @@ class HealthContactTraceRulesSet {
   }
 
   bool operator ==(o) =>
-    o is HealthContactTraceRulesSet &&
+    (o is HealthContactTraceRulesSet) &&
       ListEquality().equals(o._rules, _rules);
 
   int get hashCode =>
@@ -2321,9 +2377,9 @@ class HealthContactTraceRule {
   HealthContactTraceRule({this.duration, this.status});
 
   bool operator ==(o) =>
-    o is HealthContactTraceRule &&
-      o.duration == duration &&
-      o.status == status;
+    (o is HealthContactTraceRule) &&
+      (o.duration == duration) &&
+      (o.status == status);
 
   int get hashCode =>
     (duration?.hashCode ?? 0) ^
@@ -2368,7 +2424,7 @@ class HealthActionRulesSet {
   }
 
   bool operator ==(o) =>
-    o is HealthActionRulesSet &&
+    (o is HealthActionRulesSet) &&
       ListEquality().equals(o._rules, _rules);
 
   int get hashCode =>
@@ -2403,7 +2459,7 @@ class HealthActionRule {
   }
 
   bool operator ==(o) =>
-    o is HealthActionRule &&
+    (o is HealthActionRule) &&
       (o.type == type) &&
       (o.status == status);
 
@@ -2526,7 +2582,7 @@ class HealthRuleStatus extends _HealthRuleStatus {
   }
 
   bool operator ==(o) =>
-    o is HealthRuleStatus &&
+    (o is HealthRuleStatus) &&
       (o.healthStatus == healthStatus) &&
       (o.priority == priority) &&
       
@@ -2593,7 +2649,7 @@ class HealthRuleReferenceStatus extends _HealthRuleStatus {
   }
 
   bool operator ==(o) =>
-    o is HealthRuleReferenceStatus &&
+    (o is HealthRuleReferenceStatus) &&
       (o.reference == reference);
 
   int get hashCode =>
@@ -2627,7 +2683,7 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
   }
 
   bool operator ==(o) =>
-    o is HealthRuleConditionalStatus &&
+    (o is HealthRuleConditionalStatus) &&
       (o.condition == condition) &&
       DeepCollectionEquality().equals(o.params, params) &&
       (o.successStatus == successStatus) &&
@@ -2953,7 +3009,7 @@ class HealthRuleIntervalValue extends _HealthRuleInterval {
   }
 
   bool operator ==(o) =>
-    o is HealthRuleIntervalValue &&
+    (o is HealthRuleIntervalValue) &&
       (o._value == _value);
 
   int get hashCode =>
@@ -3002,7 +3058,7 @@ class HealthRuleInterval extends _HealthRuleInterval {
   }
 
   bool operator ==(o) =>
-    o is HealthRuleInterval &&
+    (o is HealthRuleInterval) &&
       (o._min == _min) &&
       (o._max == _max) &&
       (o._value == _value) &&
@@ -3103,7 +3159,7 @@ class HealthRuleIntervalReference extends _HealthRuleInterval {
   }
 
   bool operator ==(o) =>
-    o is HealthRuleIntervalReference &&
+    (o is HealthRuleIntervalReference) &&
       (o._reference == _reference);
 
   int get hashCode =>
