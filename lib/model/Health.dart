@@ -64,6 +64,22 @@ class Covid19Status {
     };
   }
 
+  bool operator ==(o) {
+    return o is Covid19Status &&
+      o.id == id &&
+      o.userId == userId &&
+      o.dateUtc == dateUtc &&
+      o.encryptedKey == encryptedKey &&
+      o.encryptedBlob == encryptedBlob;
+  }
+
+  int get hashCode =>
+    (id?.hashCode ?? 0) ^
+    (userId?.hashCode ?? 0) ^
+    (dateUtc?.hashCode ?? 0) ^
+    (encryptedKey?.hashCode ?? 0) ^
+    (encryptedBlob?.hashCode ?? 0);
+
   static Future<Covid19Status> decryptedFromJson(Map<String, dynamic> json, PrivateKey privateKey) async {
     try {
       Covid19Status value = Covid19Status.fromJson(json);
@@ -153,6 +169,44 @@ class Covid19StatusBlob {
       'fcm_topic': fcmTopic,
       'history_blob': historyBlob?.toJson(),
     };
+  }
+
+  bool operator ==(o) {
+    return o is Covid19StatusBlob &&
+      o.healthStatus == healthStatus &&
+      o.priority == priority &&
+      o.nextStep == nextStep &&
+      o.nextStepHtml == nextStepHtml &&
+      o.nextStepDateUtc == nextStepDateUtc &&
+      o.eventExplanation == eventExplanation &&
+      o.eventExplanationHtml == eventExplanationHtml &&
+      o.reason == reason &&
+      o.warning == warning &&
+      o.fcmTopicEquals(fcmTopic) &&
+      o.historyBlob == historyBlob;
+  }
+
+  int get hashCode =>
+    (healthStatus?.hashCode ?? 0) ^
+    (priority?.hashCode ?? 0) ^
+    (nextStep?.hashCode ?? 0) ^
+    (nextStepHtml?.hashCode ?? 0) ^
+    (nextStepDateUtc?.hashCode ?? 0) ^
+    (eventExplanation?.hashCode ?? 0) ^
+    (eventExplanationHtml?.hashCode ?? 0) ^
+    (reason?.hashCode ?? 0) ^
+    (warning?.hashCode ?? 0) ^
+    (fcmTopicHashCode ?? 0) ^
+    (historyBlob?.hashCode ?? 0);
+
+  bool fcmTopicEquals(dynamic fcmTopic) {
+    return ((this.fcmTopic is List) && (fcmTopic is List)) ?
+      ListEquality().equals(this.fcmTopic, fcmTopic) :
+      (this.fcmTopic == fcmTopic);
+  }
+
+  int get fcmTopicHashCode {
+    return (fcmTopic is List) ? ListEquality().hash(fcmTopic) : fcmTopic?.hashCode;
   }
 
   String get displayNextStep {
