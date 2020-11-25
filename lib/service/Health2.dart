@@ -232,10 +232,20 @@ class Health2 with Service implements NotificationsListener {
   List<Covid19History> get history { return _history; }
 
   HealthCounty         get county  { return _county; }
-  set(HealthCounty county)         { _applyCounty(county); }
-
   HealthRulesSet       get rules   { return _rules; }
   Map<String, dynamic> get buildingAccessRules { return _buildingAccessRules; }
+
+  set county(HealthCounty county) {
+    _applyCounty(county);
+  }
+
+  Future<bool> clearHistory() async {
+    if (await _clearHistoryOnNet()) {
+      await _rebuildStatus();
+      return true;
+    }
+    return false;
+  }
 
   // User
 
@@ -653,6 +663,19 @@ class Health2 with Service implements NotificationsListener {
       await _clearHistoryCache();
       NotificationService().notify(notifyHistoryChanged);
     }
+  }
+
+  Future<bool> _clearHistoryOnNet() async {
+    if (this._isAuthenticated && (Config().healthUrl != null)) {
+      String url = "${Config().healthUrl}/covid19/v2/histories";
+      Response response = await Network().delete(url, auth: NetworkAuth.User);
+      if (response?.statusCode == 200) {
+        _history = <Covid19History>[];
+        await _saveHistoryJsonStringToCache(AppJson.encode(Covid19History.listToJson(_history)));
+        return true;
+      }
+    }
+    return false;
   }
 
   Future<String> _loadHistoryJsonStringFromNet() async {
