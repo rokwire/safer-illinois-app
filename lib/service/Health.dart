@@ -343,7 +343,6 @@ class Health with Service implements NotificationsListener {
       Covid19HistoryType.symptoms : _userPrivateKey,
       Covid19HistoryType.contactTrace : _userPrivateKey,
       Covid19HistoryType.action : _userPrivateKey,
-
     };
   }
 

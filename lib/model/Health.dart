@@ -501,8 +501,8 @@ class Covid19History {
     if (json != null) {
       values = [];
       for (dynamic entry in json) {
-          Covid19History value = await Covid19History.decryptedFromJson((entry as Map)?.cast<String, dynamic>(), privateKeys);
-          values.add(value);
+        Covid19History value = await Covid19History.decryptedFromJson((entry as Map)?.cast<String, dynamic>(), privateKeys);
+        values.add(value);
       }
     }
     return values;
