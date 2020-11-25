@@ -2,12 +2,13 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-//TBD: DD - web
-// import 'package:firebase_ml_vision/firebase_ml_vision.dart';
+import 'package:firebase_ml_vision/firebase_ml_vision.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/Gallery.dart';
 import 'package:illinois/service/Styles.dart';
+import 'package:illinois/utils/Utils.dart';
 import 'package:image_picker/image_picker.dart';
 
 class Covid19Utils {
@@ -60,40 +61,63 @@ class Covid19Utils {
 
   static Future<String> loadQRCodeImageFromPictures() async {
     String qrCodeString;
-    PickedFile imageFile = await ImagePicker().getImage(source: ImageSource.gallery);
-    if (imageFile != null) {
-      try {
-        //TBD: DD - web
-        // final FirebaseVisionImage visionImage = FirebaseVisionImage.fromFile(File(imageFile.path));
-        // final BarcodeDetector barcodeDetector = FirebaseVision.instance.barcodeDetector(BarcodeDetectorOptions(barcodeFormats: BarcodeFormat.qrCode));
-        // final List<Barcode> barcodes = await barcodeDetector.detectInImage(visionImage);
-        // if ((barcodes != null) && (0 < barcodes.length)) {
-        //   Barcode resultBarcode, anyBarcode;
-        //   for (Barcode barcode in barcodes) {
-        //     if (barcode.format.value == BarcodeFormat.qrCode.value) {
-        //       if (barcode.valueType == BarcodeValueType.text) {
-        //         resultBarcode = barcode;
-        //         break;
-        //       }
-        //       else if (anyBarcode == null) {
-        //         anyBarcode = barcode;
-        //       }
-        //     }
-        //   }
-        //   if (resultBarcode == null) {
-        //     resultBarcode = anyBarcode;
-        //   }
-        //   if (resultBarcode != null) {
-        //     qrCodeString = resultBarcode.rawValue;
-        //   }
-        // }
-      }
-      catch(e) {
-        print(e?.toString());
-      }
+    if (kIsWeb) {
+      //TBD: DD - web implement custom js extension/plugin/etc for loading image file and retrieving qr code value
+    } else {
+      String imageFilePath = await _getFilePathMobile();
+      qrCodeString = await _retrieveImageContentMobile(imageFilePath);
     }
-
     return qrCodeString;
   }
 
+  ///
+  /// Android and iOS only!
+  /// Select image file path.
+  ///
+  static Future<String> _getFilePathMobile() async {
+    if (kIsWeb) {
+      return null;
+    }
+    PickedFile imageFile = await ImagePicker().getImage(source: ImageSource.gallery);
+    String imageFilePath = imageFile?.path;
+    return imageFilePath;
+  }
+
+  ///
+  /// Android and iOS only!
+  /// Retrieves qr code value from selected image file path.
+  ///
+  static Future<String> _retrieveImageContentMobile(String imageFilePath) async {
+    if (kIsWeb || AppString.isStringEmpty(imageFilePath)) {
+      return null;
+    }
+    String qrCodeString;
+    try {
+      final FirebaseVisionImage visionImage = FirebaseVisionImage.fromFile(File(imageFilePath));
+      final BarcodeDetector barcodeDetector = FirebaseVision.instance.barcodeDetector(BarcodeDetectorOptions(barcodeFormats: BarcodeFormat.qrCode));
+      final List<Barcode> barcodes = await barcodeDetector.detectInImage(visionImage);
+      if ((barcodes != null) && (0 < barcodes.length)) {
+        Barcode resultBarcode, anyBarcode;
+        for (Barcode barcode in barcodes) {
+          if (barcode.format.value == BarcodeFormat.qrCode.value) {
+            if (barcode.valueType == BarcodeValueType.text) {
+              resultBarcode = barcode;
+              break;
+            } else if (anyBarcode == null) {
+              anyBarcode = barcode;
+            }
+          }
+        }
+        if (resultBarcode == null) {
+          resultBarcode = anyBarcode;
+        }
+        if (resultBarcode != null) {
+          qrCodeString = resultBarcode.rawValue;
+        }
+      }
+    } catch (e) {
+      print(e?.toString());
+    }
+    return qrCodeString;
+  }
 }

@@ -18,6 +18,7 @@ public final class GeneratedPluginRegistrant {
       de.mintware.barcode_scan.BarcodeScanPlugin.registerWith(shimPluginRegistry.registrarFor("de.mintware.barcode_scan.BarcodeScanPlugin"));
     flutterEngine.getPlugins().add(new io.flutter.plugins.connectivity.ConnectivityPlugin());
     flutterEngine.getPlugins().add(new io.flutter.plugins.deviceinfo.DeviceInfoPlugin());
+    flutterEngine.getPlugins().add(new io.flutter.plugins.firebasemlvision.FirebaseMlVisionPlugin());
     flutterEngine.getPlugins().add(new com.example.flutterimagecompress.FlutterImageCompressPlugin());
     flutterEngine.getPlugins().add(new com.dexterous.flutterlocalnotifications.FlutterLocalNotificationsPlugin());
     flutterEngine.getPlugins().add(new io.flutter.plugins.flutter_plugin_android_lifecycle.FlutterAndroidLifecyclePlugin());

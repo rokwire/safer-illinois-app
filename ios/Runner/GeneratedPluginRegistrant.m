@@ -22,6 +22,12 @@
 @import device_info;
 #endif
 
+#if __has_include(<firebase_ml_vision/FLTFirebaseMlVisionPlugin.h>)
+#import <firebase_ml_vision/FLTFirebaseMlVisionPlugin.h>
+#else
+@import firebase_ml_vision;
+#endif
+
 #if __has_include(<flutter_image_compress/FlutterImageCompressPlugin.h>)
 #import <flutter_image_compress/FlutterImageCompressPlugin.h>
 #else
@@ -118,6 +124,7 @@
   [BarcodeScanPlugin registerWithRegistrar:[registry registrarForPlugin:@"BarcodeScanPlugin"]];
   [FLTConnectivityPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTConnectivityPlugin"]];
   [FLTDeviceInfoPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTDeviceInfoPlugin"]];
+  [FLTFirebaseMlVisionPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTFirebaseMlVisionPlugin"]];
   [FlutterImageCompressPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterImageCompressPlugin"]];
   [FlutterLocalNotificationsPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterLocalNotificationsPlugin"]];
   [FluttertoastPlugin registerWithRegistrar:[registry registrarForPlugin:@"FluttertoastPlugin"]];
