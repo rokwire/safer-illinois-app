@@ -66,6 +66,8 @@ class Health2 with Service implements NotificationsListener {
   PublicKey _servicePublicKey;
   Covid19Status _previousStatus;
   List<Covid19Event> _processedEvents;
+  Future<void> _refreshFuture;
+  _RefreshOptions _refreshOptions;
   DateTime _pausedDateTime;
 
   // Singletone Instance
@@ -111,7 +113,7 @@ class Health2 with Service implements NotificationsListener {
     _rules?.userTestMonitorInterval = _userTestMonitorInterval;
     _buildingAccessRules = _loadBuildingAccessRulesFromStorage();
 
-    _refresh(county: true);
+    _refresh(_RefreshOptions.all());
   }
 
   @override
@@ -157,7 +159,7 @@ class Health2 with Service implements NotificationsListener {
       if (_pausedDateTime != null) {
         Duration pausedDuration = DateTime.now().difference(_pausedDateTime);
         if (Config().refreshTimeout < pausedDuration.inSeconds) {
-          _refresh(county: true);
+          _refresh(_RefreshOptions.all());
         }
       }
     }
@@ -167,7 +169,7 @@ class Health2 with Service implements NotificationsListener {
 
     if (this._isAuthenticated) {
       _refreshUserPrivateKey().then((_) {
-        _refresh();
+        _refresh(_RefreshOptions.fromList([_RefreshOption.user, _RefreshOption.userInterval, _RefreshOption.history]));
       });
     }
     else {
@@ -179,23 +181,44 @@ class Health2 with Service implements NotificationsListener {
     }
   }
 
-  Future<void> _refresh({bool user = true, bool county = false}) async {
+  Future<void> _refresh(_RefreshOptions options) async {
+    if (_refreshFuture != null) {
+      options = options.difference(_refreshOptions);
+      await _refreshFuture;
+    }
+
+    if (options.isNotEmpty) {
+      _refreshFuture = _refreshInternal(options);
+      await _refreshFuture;
+    }
+  }
+
+  Future<void> _refreshInternal(_RefreshOptions options) async {
+    _refreshOptions = options;
 
     await Future.wait([
-      user ? _refreshUser() : Future<void>.value(),
+      options.user ? _refreshUser() : Future<void>.value(),
       
-      user ? _refreshUserTestMonitorInterval() : Future<void>.value(),
-      user ? _refreshStatus() : Future<void>.value(),
-      user ? _refreshHistory() : Future<void>.value(),
+      options.userInterval ? _refreshUserTestMonitorInterval() : Future<void>.value(),
+      options.status ? _refreshStatus() : Future<void>.value(),
+      options.history ? _refreshHistory() : Future<void>.value(),
       
-      county ? _refreshCounty() : Future<void>.value(),
-      county ? _refreshRules() : Future<void>.value(),
-      county ? _refreshBuildingAccessRules() : Future<void>.value(),
+      options.county ? _refreshCounty() : Future<void>.value(),
+      options.rules ? _refreshRules() : Future<void>.value(),
+      options.buildingAccessRules ? _refreshBuildingAccessRules() : Future<void>.value(),
     ]);
     
-    _rules?.userTestMonitorInterval = _userTestMonitorInterval;
-    await _rebuildStatus();
-    _logProcessedEvents();
+    if (options.rules || options.userInterval) {
+      _rules?.userTestMonitorInterval = _userTestMonitorInterval;
+    }
+
+    if (options.history) {
+      await _rebuildStatus();
+      _logProcessedEvents();
+    }
+
+    _refreshOptions = null;
+    _refreshFuture = null;
   }
 
   // Health User
@@ -268,12 +291,11 @@ class Health2 with Service implements NotificationsListener {
       return null; // Load user request failed -> login failed
     }
 
-    bool userReset;
-    bool userUpdated;
+    bool userCreated, userUpdated;
     if (user == null) {
       // User had not logged in -> create new user
       user = HealthUser(uuid: UserProfile().uuid);
-      userUpdated = userReset = true;
+      userUpdated = userCreated = true;
     }
     
     // Always update user info.
@@ -289,7 +311,7 @@ class Health2 with Service implements NotificationsListener {
       }
       if (keys != null) {
         user.publicKeyString = RsaKeyHelper.encodePublicKeyToPemPKCS1(keys.publicKey);
-        userUpdated = userReset = true;
+        userUpdated = true;
       }
       else {
         return null; // unable to generate RSA key pair
@@ -349,8 +371,8 @@ class Health2 with Service implements NotificationsListener {
       }
     }
 
-    if (userReset) {
-      _refresh();
+    if (userCreated == true) {
+      _refresh(_RefreshOptions.fromList([_RefreshOption.userInterval, _RefreshOption.history]));
     }
     
     return user;
@@ -998,4 +1020,52 @@ class Health2 with Service implements NotificationsListener {
   static void _saveBuildingAccessRulesToStorage(Map<String, dynamic> buildingAccessRules) {
     Storage().healthBuildingAccessRules = AppJson.encode(buildingAccessRules);
   }
+}
+
+class _RefreshOptions {
+  final Set<_RefreshOption> options;
+
+  _RefreshOptions({Set<_RefreshOption> options}) :
+    this.options = options ?? Set<_RefreshOption>();
+
+  factory _RefreshOptions.fromList(List<_RefreshOption> list) {
+    return (list != null) ? _RefreshOptions(options: Set<_RefreshOption>.from(list)) : null;
+  }
+
+  factory _RefreshOptions.fromSet(Set<_RefreshOption> options) {
+    return (options != null) ? _RefreshOptions(options: options) : null;
+  }
+
+  factory _RefreshOptions.all() {
+    return _RefreshOptions.fromList(_RefreshOption.values);
+  }
+
+  bool get isEmpty { return options.isEmpty; }
+  bool get isNotEmpty { return options.isNotEmpty; }
+
+  bool get user { return options.contains(_RefreshOption.user); }
+
+  bool get userInterval { return options.contains(_RefreshOption.userInterval); }
+  bool get status { return options.contains(_RefreshOption.status); }
+  bool get history { return options.contains(_RefreshOption.history); }
+
+  bool get county { return options.contains(_RefreshOption.county); }
+  bool get rules { return options.contains(_RefreshOption.rules); }
+  bool get buildingAccessRules { return options.contains(_RefreshOption.buildingAccessRules); }
+
+  _RefreshOptions difference(_RefreshOptions other) {
+    return _RefreshOptions.fromSet(options?.difference(other?.options));
+  }
+}
+
+enum _RefreshOption {
+  user,
+  
+  userInterval,
+  status,
+  history,
+  
+  county,
+  rules,
+  buildingAccessRules,
 }
