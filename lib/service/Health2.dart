@@ -105,7 +105,7 @@ class Health2 with Service implements NotificationsListener {
     _rules = await _loadRulesFromCache();
     _buildingAccessRules = _loadBuildingAccessRulesFromStorage();
 
-    _refreshAll();
+    _refresh(county: true);
   }
 
   @override
@@ -150,7 +150,7 @@ class Health2 with Service implements NotificationsListener {
       if (_pausedDateTime != null) {
         Duration pausedDuration = DateTime.now().difference(_pausedDateTime);
         if (Config().refreshTimeout < pausedDuration.inSeconds) {
-          _refreshAll();
+          _refresh(county: true);
         }
       }
     }
@@ -159,7 +159,9 @@ class Health2 with Service implements NotificationsListener {
   Future<void> _onUserLoginChanged() async {
 
     if (this._isAuthenticated) {
-      _refreshUserData();
+      _refreshUserPrivateKey().then((_) {
+        _refresh();
+      });
     }
     else {
       _userPrivateKey = null;
@@ -169,28 +171,16 @@ class Health2 with Service implements NotificationsListener {
     }
   }
 
-  Future<void> _refreshAll() async {
+  Future<void> _refresh({bool user = true, bool county = false}) async {
 
     await Future.wait([
-      _refreshUser(),
-      _refreshStatus(),
-      _refreshHistory(),
+      user ? _refreshUser() : Future<void>.value(),
+      user ? _refreshStatus() : Future<void>.value(),
+      user ? _refreshHistory() : Future<void>.value(),
       
-      _refreshCounty(),
-      _refreshRules(),
-      _refreshBuildingAccessRules(),
-    ]);
-  }
-
-  Future<void> _refreshUserData() async {
-
-    // Update private key first because other services bellow depend on it
-    await _refreshUserPrivateKey();
-
-    await Future.wait([
-      _refreshUser(),
-      _refreshStatus(),
-      _refreshHistory(),
+      county ? _refreshCounty() : Future<void>.value(),
+      county ? _refreshRules() : Future<void>.value(),
+      county ? _refreshBuildingAccessRules() : Future<void>.value(),
     ]);
   }
 
@@ -346,7 +336,7 @@ class Health2 with Service implements NotificationsListener {
     }
 
     if (userReset) {
-      _refreshUserData();
+      _refresh();
     }
     
     return user;
