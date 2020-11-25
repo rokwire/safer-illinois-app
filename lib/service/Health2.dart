@@ -54,7 +54,7 @@ class Health2 with Service implements NotificationsListener {
   PrivateKey _userPrivateKey;
   int _userTestMonitorInterval;
 
-  Covid19Status _status;
+  Covid19Status _status, _previousStatus;
   List<Covid19History> _history;
   
   HealthCounty _county;
@@ -180,6 +180,7 @@ class Health2 with Service implements NotificationsListener {
 
     await Future.wait([
       user ? _refreshUser() : Future<void>.value(),
+      
       user ? _refreshUserTestMonitorInterval() : Future<void>.value(),
       user ? _refreshStatus() : Future<void>.value(),
       user ? _refreshHistory() : Future<void>.value(),
@@ -189,8 +190,8 @@ class Health2 with Service implements NotificationsListener {
       county ? _refreshBuildingAccessRules() : Future<void>.value(),
     ]);
     
-    _rules?.userTestMonitorInterval = _userTestMonitorInterval 
-    ;
+    _rules?.userTestMonitorInterval = _userTestMonitorInterval;
+    await _rebuildStatus();
   }
 
   // Health User
@@ -203,9 +204,9 @@ class Health2 with Service implements NotificationsListener {
     return this._isAuthenticated && (_userPrivateKey != null);
   }
 
-  /*bool get _isWriteAuthenticated {
+  bool get _isWriteAuthenticated {
     return this._isAuthenticated && (_user?.publicKey != null);
-  }*/
+  }
 
   bool get isLoggedIn {
     return this._isAuthenticated && (_user != null);
@@ -402,7 +403,7 @@ class Health2 with Service implements NotificationsListener {
 
   // User Status
 
-  Future<Covid19Status> _loadStatus() async {
+  Future<Covid19Status> _loadStatusFromNet() async {
     if (this._isReadAuthenticated && (Config().healthUrl != null)) {
       String url = "${Config().healthUrl}/covid19/v2/app-version/2.2/statuses";
       Response response = await Network().get(url, auth: NetworkAuth.User);
@@ -413,7 +414,7 @@ class Health2 with Service implements NotificationsListener {
     return null;
   }
 
-  /*Future<bool> _saveStatus(Covid19Status status) async {
+  Future<bool> _saveStatusToNet(Covid19Status status) async {
     if (this._isWriteAuthenticated && (Config().healthUrl != null)) {
       String url = "${Config().healthUrl}/covid19/v2/app-version/2.2/statuses";
       Covid19Status encryptedStatus = await status?.encrypted(_user?.publicKey);
@@ -424,9 +425,9 @@ class Health2 with Service implements NotificationsListener {
       }
     }
     return false;
-  }*/
+  }
 
-  /*Future<bool> _clearStatus() async {
+  /*Future<bool> _clearStatusInNet() async {
     if (this._isAuthenticated && (Config().healthUrl != null)) {
       String url = "${Config().healthUrl}/covid19/v2/app-version/2.2/statuses";
       Response response = await Network().delete(url, auth: NetworkAuth.User);
@@ -436,7 +437,7 @@ class Health2 with Service implements NotificationsListener {
   }*/
 
   Future<void> _refreshStatus () async {
-    Covid19Status status = await _loadStatus();
+    Covid19Status status = await _loadStatusFromNet();
     if (status != null) {
       _applyStatus(status);
     }
@@ -458,9 +459,114 @@ class Health2 with Service implements NotificationsListener {
         );
       }
 
+      _previousStatus = _status;
       _saveStatusToStorage(_status = status);
       NotificationService().notify(notifyStatusChanged);
     }
+  }
+
+  Future<void> _rebuildStatus() async {
+    if (this._isWriteAuthenticated && (_rules != null) && (_history != null)) {
+      Covid19Status status = _buildStatus(rules: _rules, history: _history);
+      if ((status?.blob != null) && (status?.blob != _status?.blob)) {
+        _applyStatus(status);
+      }
+    }
+  }
+
+  static Covid19Status _buildStatus({HealthRulesSet rules, List<Covid19History> history}) {
+    if ((rules == null) || (history == null)) {
+      return null;
+    }
+
+    HealthRuleStatus defaultStatus = rules?.defaults?.status?.eval(history: history, historyIndex: -1, rules: rules);
+    if (defaultStatus == null) {
+      return null;
+    }
+
+    Covid19Status status = Covid19Status(
+      dateUtc: null,
+      blob: Covid19StatusBlob(
+        healthStatus: defaultStatus.healthStatus,
+        priority: defaultStatus.priority,
+        nextStep: rules.localeString(defaultStatus.nextStep),
+        nextStepHtml: rules.localeString(defaultStatus.nextStepHtml),
+        nextStepDateUtc: null,
+        eventExplanation: rules.localeString(defaultStatus.eventExplanation),
+        eventExplanationHtml: rules.localeString(defaultStatus.eventExplanationHtml),
+        reason: rules.localeString(defaultStatus.reason),
+        warning: rules.localeString(defaultStatus.warning),
+        fcmTopic: defaultStatus.fcmTopic,
+        historyBlob: null,
+      ),
+    );
+
+    // Start from older
+    DateTime nowUtc = DateTime.now().toUtc();
+    for (int index = history.length - 1; 0 <= index; index--) {
+
+      Covid19History historyEntry = history[index];
+      if ((historyEntry.dateUtc != null) && historyEntry.dateUtc.isBefore(nowUtc)) {
+
+        HealthRuleStatus ruleStatus;
+        if (historyEntry.isTest && historyEntry.canTestUpdateStatus) {
+          if (rules.tests != null) {
+            HealthTestRuleResult testRuleResult = rules.tests?.matchRuleResult(blob: historyEntry?.blob, rules: rules);
+            ruleStatus = testRuleResult?.status?.eval(history: history, historyIndex: index, rules: rules);
+          }
+          else {
+            return null;
+          }
+        }
+        else if (historyEntry.isSymptoms) {
+          if (rules.symptoms != null) {
+            HealthSymptomsRule symptomsRule = rules.symptoms.matchRule(blob: historyEntry?.blob, rules: rules);
+            ruleStatus = symptomsRule?.status?.eval(history: history, historyIndex: index, rules: rules);
+          }
+          else {
+            return null;
+          }
+        }
+        else if (historyEntry.isContactTrace) {
+          if (rules.contactTrace != null) {
+            HealthContactTraceRule contactTraceRule = rules.contactTrace.matchRule(blob: historyEntry?.blob, rules: rules);
+            ruleStatus = contactTraceRule?.status?.eval(history: history, historyIndex: index, rules: rules);
+          }
+          else {
+            return null;
+          }
+        }
+        else if (historyEntry.isAction) {
+          if (rules.actions != null) {
+            HealthActionRule actionRule = rules.actions.matchRule(blob: historyEntry?.blob, rules: rules);
+            ruleStatus = actionRule?.status?.eval(history: history, historyIndex: index, rules: rules);
+          }
+          else {
+            return null;
+          }
+        }
+
+        if ((ruleStatus != null) && ruleStatus.canUpdateStatus(blob: status.blob)) {
+          status = Covid19Status(
+            dateUtc: historyEntry.dateUtc,
+            blob: Covid19StatusBlob(
+              healthStatus: (ruleStatus.healthStatus != null) ? ruleStatus.healthStatus : status.blob.healthStatus,
+              priority: (ruleStatus.priority != null) ? ruleStatus.priority.abs() : status.blob.priority,
+              nextStep: ((ruleStatus.nextStep != null) || (ruleStatus.nextStepHtml != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.nextStep) : status.blob.nextStep,
+              nextStepHtml: ((ruleStatus.nextStep != null) || (ruleStatus.nextStepHtml != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.nextStepHtml) : status.blob.nextStepHtml,
+              nextStepDateUtc: ((ruleStatus.nextStepInterval != null) || (ruleStatus.nextStep != null) || (ruleStatus.nextStepHtml != null) || (ruleStatus.healthStatus != null)) ? ruleStatus.nextStepDateUtc : status.blob.nextStepDateUtc,
+              eventExplanation: ((ruleStatus.eventExplanation != null) || (ruleStatus.eventExplanationHtml != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.eventExplanation) : status.blob.eventExplanation,
+              eventExplanationHtml: ((ruleStatus.eventExplanation != null) || (ruleStatus.eventExplanationHtml != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.eventExplanationHtml) : status.blob.eventExplanationHtml,
+              reason: ((ruleStatus.reason != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.reason) : status.blob.reason,
+              warning: ((ruleStatus.warning != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.warning) : status.blob.warning,
+              fcmTopic: ((ruleStatus.fcmTopic != null) || (ruleStatus.healthStatus != null)) ?  ruleStatus.fcmTopic : status.blob.fcmTopic,
+              historyBlob: historyEntry.blob,
+            ),
+          );
+        }
+      }
+    }
+    return status;
   }
 
   static Covid19Status _loadStatusFromStorage() {
