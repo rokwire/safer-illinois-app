@@ -181,6 +181,8 @@ class Health2 with Service implements NotificationsListener {
     }
   }
 
+  // Refresh
+
   Future<void> _refresh(_RefreshOptions options) async {
     if (_refreshFuture != null) {
       options = options.difference(_refreshOptions);
@@ -221,7 +223,19 @@ class Health2 with Service implements NotificationsListener {
     _refreshFuture = null;
   }
 
-  // Health User
+  // Public Accessories
+
+  HealthUser           get user    { return _user; }
+  PrivateKey           get userPrivateKey { return _userPrivateKey; }
+
+  Covid19Status        get status  { return _status; }
+  List<Covid19History> get history { return _history; }
+
+  HealthCounty         get county  { return _county; }
+  HealthRulesSet       get rules   { return _rules; }
+  Map<String, dynamic> get buildingAccessRules { return _buildingAccessRules; }
+
+  // User
 
   bool get _isAuthenticated {
     return (Auth().authToken?.idToken != null);
@@ -501,6 +515,7 @@ class Health2 with Service implements NotificationsListener {
       _saveStatusToStorage(_status = status);
       NotificationService().notify(notifyStatusChanged);
     }
+    _applyBuildingAccessForStatus(status);
   }
 
   static Covid19Status _buildStatus({HealthRulesSet rules, List<Covid19History> history}) {
@@ -1012,6 +1027,28 @@ class Health2 with Service implements NotificationsListener {
       _saveBuildingAccessRulesToStorage(_buildingAccessRules = buildingAccessRules);
       NotificationService().notify(notifyBuildingAccessRulesChanged);
    }
+  }
+
+  Future<void> _applyBuildingAccessForStatus(Covid19Status status) async {
+    if (Config().settings['covid19ReportBuildingAccess'] == true) {
+      String access = (_buildingAccessRules != null) ? _buildingAccessRules[status?.blob?.healthStatus] : null;
+      if (access != null) {
+        await _logBuildingAccess(dateUtc: DateTime.now().toUtc(), access: access);
+      }
+    }
+  }
+
+  Future<bool> _logBuildingAccess({DateTime dateUtc, String access}) async {
+    if (this._isAuthenticated && (Config().healthUrl != null)) {
+      String url = "${Config().healthUrl}/covid19/building-access";
+      String post = AppJson.encode({
+        'date': healthDateTimeToString(dateUtc),
+        'access': access
+      });
+      Response response = (url != null) ? await Network().put(url, body: post, auth: NetworkAuth.User) : null;
+      return (response?.statusCode == 200);
+    }
+    return false;
   }
 
   static Map<String, dynamic> _loadBuildingAccessRulesFromStorage() {
