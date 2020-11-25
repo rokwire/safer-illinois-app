@@ -291,11 +291,11 @@ class Health2 with Service implements NotificationsListener {
       return null; // Load user request failed -> login failed
     }
 
-    bool userCreated, userUpdated;
+    bool userUpdated, userReset;
     if (user == null) {
       // User had not logged in -> create new user
       user = HealthUser(uuid: UserProfile().uuid);
-      userUpdated = userCreated = true;
+      userUpdated = userReset = true;
     }
     
     // Always update user info.
@@ -351,6 +351,7 @@ class Health2 with Service implements NotificationsListener {
     if (keys?.privateKey != null) {
       if (await _saveUserPrivateKey(keys.privateKey)) {
         _userPrivateKey = keys.privateKey;
+        userReset = true;
       }
       else {
         return null;
@@ -371,7 +372,7 @@ class Health2 with Service implements NotificationsListener {
       }
     }
 
-    if (userCreated == true) {
+    if (userReset == true) {
       _refresh(_RefreshOptions.fromList([_RefreshOption.userInterval, _RefreshOption.history]));
     }
     
@@ -704,7 +705,7 @@ class Health2 with Service implements NotificationsListener {
 
   // User waiting on table
 
-  Future<List<Covid19Event>> loadPendingEvents({bool processed}) async {
+  Future<List<Covid19Event>> _loadPendingEvents({bool processed}) async {
     if (this._isReadAuthenticated && (Config().healthUrl != null)) {
       String url = "${Config().healthUrl}/covid19/ctests";
       String params = "";
@@ -739,7 +740,7 @@ class Health2 with Service implements NotificationsListener {
 
   Future<List<Covid19Event>> _processPendingEvents() async {
     List<Covid19Event> result;
-    List<Covid19Event> events = this._isWriteAuthenticated ? await loadPendingEvents(processed: false) : null;
+    List<Covid19Event> events = this._isWriteAuthenticated ? await _loadPendingEvents(processed: false) : null;
     if ((events != null) && (0 < events?.length)) {
       for (Covid19Event event in events) {
         if (Covid19History.listContainsEvent(_history, event)) {
