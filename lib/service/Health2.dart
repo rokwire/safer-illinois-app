@@ -25,6 +25,7 @@ import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/BluetoothServices.dart';
 import 'package:illinois/service/Config.dart';
+import 'package:illinois/service/Exposure.dart';
 import 'package:illinois/service/LocationServices.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Network.dart';
@@ -54,7 +55,7 @@ class Health2 with Service implements NotificationsListener {
   PrivateKey _userPrivateKey;
   int _userTestMonitorInterval;
 
-  Covid19Status _status, _previousStatus;
+  Covid19Status _status;
   List<Covid19History> _history;
   
   HealthCounty _county;
@@ -63,6 +64,8 @@ class Health2 with Service implements NotificationsListener {
 
   Directory _appDocumentsDir;
   PublicKey _servicePublicKey;
+  Covid19Status _previousStatus;
+  List<Covid19Event> _processedEvents;
   DateTime _pausedDateTime;
 
   // Singletone Instance
@@ -192,6 +195,7 @@ class Health2 with Service implements NotificationsListener {
     
     _rules?.userTestMonitorInterval = _userTestMonitorInterval;
     await _rebuildStatus();
+    _logProcessedEvents();
   }
 
   // Health User
@@ -582,12 +586,23 @@ class Health2 with Service implements NotificationsListener {
   // User History
 
   Future<void> _refreshHistory() async {
+    bool historyUpdated;
     String historyJsonString = await _loadHistoryJsonStringFromNet();
     List<Covid19History> history = await Covid19History.listFromJson(AppJson.decodeList(historyJsonString), _historyPrivateKeys);
     
     if ((history != null) && !ListEquality().equals(history, _history)) {
       _history = history;
       await _saveHistoryJsonStringToCache(historyJsonString);
+      historyUpdated = true;
+    }
+
+    List<Covid19Event> processedEvents = await _processPendingEvents();
+    if ((processedEvents != null) && (0 < processedEvents.length)) {
+      _applyProcessedEvents(processedEvents);
+      historyUpdated = true;
+    }
+
+    if (historyUpdated == true) {
       NotificationService().notify(notifyHistoryChanged);
     }
   }
@@ -604,6 +619,22 @@ class Health2 with Service implements NotificationsListener {
     String url = (this._isReadAuthenticated && (Config().healthUrl != null)) ? "${Config().healthUrl}/covid19/v2/histories" : null;
     Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.User) : null;
     return (response?.statusCode == 200) ? response.body : null;
+  }
+
+  Future<bool> _addCovid19History(Covid19History history) async {
+    if (this._isWriteAuthenticated && (Config().healthUrl != null)) {
+      String url = "${Config().healthUrl}/covid19/v2/histories";
+      String post = AppJson.encode(history?.toJson());
+      Response response = await Network().post(url, body: post, auth: NetworkAuth.User);
+      Covid19History historyEntry = (response?.statusCode == 200) ? await Covid19History.decryptedFromJson(AppJson.decode(response.body), _historyPrivateKeys) : null;
+      if ((_history != null) && (historyEntry != null)) {
+        _history.add(historyEntry);
+        Covid19History.sortListDescending(_history);
+        await _saveHistoryJsonStringToCache(AppJson.encode(Covid19History.listToJson(_history)));
+      }
+      return (historyEntry != null);
+    }
+    return false;
   }
 
   Map<Covid19HistoryType, PrivateKey> get _historyPrivateKeys {
@@ -647,6 +678,164 @@ class Health2 with Service implements NotificationsListener {
       }
     }
     catch (e) { print(e?.toString()); }
+  }
+
+  // User waiting on table
+
+  Future<List<Covid19Event>> loadPendingEvents({bool processed}) async {
+    if (this._isReadAuthenticated && (Config().healthUrl != null)) {
+      String url = "${Config().healthUrl}/covid19/ctests";
+      String params = "";
+      if (processed != null) {
+        if (0 < params.length) {
+          params += "&";
+        }
+        params += "processed=$processed";
+      }
+      if (0 < params.length) {
+        url += "?$params";
+      }
+      Response response = await Network().get(url, auth: NetworkAuth.User);
+      String responseString = (response?.statusCode == 200) ? response.body : null;
+      List<dynamic> responseJson = (responseString != null) ? AppJson.decodeList(responseString) : null;
+      return (responseJson != null) ? await Covid19Event.listFromJson(responseJson, _userPrivateKey) : null;
+    }
+    return null;
+  }
+
+  Future<bool> _markEventAsProcessed(Covid19Event event) async {
+    String url = (this._isAuthenticated && Config().healthUrl != null) ? "${Config().healthUrl}/covid19/ctests/${event.id}" : null;
+    String post = AppJson.encode({'processed' : true});
+    Response response = (url != null) ? await Network().put(url, body:post, auth: NetworkAuth.User) : null;
+    if (response?.statusCode == 200) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
+  Future<List<Covid19Event>> _processPendingEvents() async {
+    List<Covid19Event> result;
+    List<Covid19Event> events = this._isWriteAuthenticated ? await loadPendingEvents(processed: false) : null;
+    if ((events != null) && (0 < events?.length)) {
+      for (Covid19Event event in events) {
+        if (Covid19History.listContainsEvent(_history, event)) {
+          // mark it as processed without duplicating the histyr entry
+          await _markEventAsProcessed(event);
+        }
+        else {
+          // add history entry and mark as processed
+          if (await _applyEventInHistory(event)) {
+            await _markEventAsProcessed(event);
+            if (result == null) {
+              result = List<Covid19Event>();
+            }
+            result.add(event);
+          }
+        }
+      }
+    }
+    return result;
+  }
+
+  Future<bool> _applyEventInHistory(Covid19Event event) async {
+    if (event.isTest) {
+      return await _addCovid19History(await Covid19History.encryptedFromBlob(
+        dateUtc: event?.blob?.dateUtc,
+        type: Covid19HistoryType.test,
+        blob: Covid19HistoryBlob(
+          provider: event?.provider,
+          providerId: event?.providerId,
+          testType: event?.blob?.testType,
+          testResult: event?.blob?.testResult,
+        ),
+        publicKey: _user?.publicKey
+      ));
+    }
+    else if (event.isAction) {
+      return await _addCovid19History(await Covid19History.encryptedFromBlob(
+        dateUtc: event?.blob?.dateUtc,
+        type: Covid19HistoryType.action,
+        blob: Covid19HistoryBlob(
+          actionType: event?.blob?.actionType,
+          actionText: event?.blob?.actionText,
+        ),
+        publicKey: _user?.publicKey
+      ));
+    }
+    else {
+      return false;
+    }
+  }
+
+  void _applyProcessedEvents(List<Covid19Event> processedEvents) {
+    if ((processedEvents != null) && (0 < processedEvents.length)) {
+      if (_processedEvents != null) {
+        _processedEvents.addAll(processedEvents);
+      }
+      else {
+        _processedEvents = processedEvents;
+      }
+    }
+  }
+
+  void _logProcessedEvents() {
+    if ((_processedEvents != null) && (0 < _processedEvents.length)) {
+
+      int exposureTestReportDays = Config().settings['covid19ExposureTestReportDays'];
+      for (Covid19Event event in _processedEvents) {
+        if (event.isTest) {
+          Covid19History previousTest = Covid19History.mostRecentTest(_history, beforeDateUtc: event.blob?.dateUtc, onPosition: 2);
+          Exposure().evalTestResultExposureScoring(previousTestDateUtc: previousTest?.dateUtc).then((int score) {
+            Analytics().logHealth(
+              action: Analytics.LogHealthProviderTestProcessedAction,
+              status: _status?.blob?.healthStatus,
+              prevStatus: _previousStatus?.blob?.healthStatus,
+              attributes: {
+                Analytics.LogHealthProviderName: event.provider,
+                Analytics.LogHealthTestTypeName: event.blob?.testType,
+                Analytics.LogHealthTestResultName: event.blob?.testResult,
+                Analytics.LogHealthExposureScore: score,
+            });
+            
+            if (exposureTestReportDays != null)  {
+              DateTime maxDateUtc = event?.blob?.dateUtc;
+              DateTime minDateUtc = maxDateUtc?.subtract(Duration(days: exposureTestReportDays));
+              if ((maxDateUtc != null) && (minDateUtc != null)) {
+                Covid19History contactTrace = Covid19History.mostRecentContactTrace(_history, minDateUtc: minDateUtc, maxDateUtc: maxDateUtc);
+                if (contactTrace != null) {
+                  Analytics().logHealth(
+                    action: Analytics.LogHealthContactTraceTestAction,
+                    status: _status?.blob?.healthStatus,
+                    prevStatus: _previousStatus?.blob?.healthStatus,
+                    attributes: {
+                      Analytics.LogHealthExposureTimestampName: contactTrace.dateUtc?.toIso8601String(),
+                      Analytics.LogHealthDurationName: contactTrace.blob?.traceDuration,
+                      Analytics.LogHealthProviderName: event.provider,
+                      Analytics.LogHealthTestTypeName: event.blob?.testType,
+                      Analytics.LogHealthTestResultName: event.blob?.testResult,
+                  });
+                }
+              }
+            }
+          });
+        }
+        else if (event.isAction) {
+          Analytics().logHealth(
+            action: Analytics.LogHealthActionProcessedAction,
+            status: _status?.blob?.healthStatus,
+            prevStatus: _previousStatus?.blob?.healthStatus,
+            attributes: {
+              Analytics.LogHealthActionTypeName: event.blob?.actionType,
+              Analytics.LogHealthActionTextName: event.blob?.defaultLocaleActionText,
+          });
+        }
+      }
+      
+      // clear after logging
+      _processedEvents = null;
+    }
   }
 
   // User test monitor interval

@@ -313,7 +313,7 @@ const String kCovid19AccessDenied    = 'denied';
 ///////////////////////////////
 // Covid19History
 
-class Covid19History {
+class Covid19History implements Comparable<Covid19History> {
   final String id;
   final String userId;
   final DateTime dateUtc;
@@ -394,6 +394,16 @@ class Covid19History {
     (countyId?.hashCode ?? 0) ^
     (encryptedImageKey?.hashCode ?? 0) ^
     (encryptedImageBlob?.hashCode ?? 0);
+
+  int compareTo(Covid19History other) {
+    DateTime otherDateUtc = other?.dateUtc;
+    if (dateUtc != null) {
+      return (otherDateUtc != null) ? dateUtc.compareTo(otherDateUtc) : 1; // null is before an object
+    }
+    else {
+      return (otherDateUtc != null) ? -1 : 0;
+    }
+  }
 
   static Future<Covid19History> decryptedFromJson(Map<String, dynamic> json, Map<Covid19HistoryType, PrivateKey> privateKeys ) async {
     try {
@@ -508,7 +518,7 @@ class Covid19History {
     return values;
   }
 
-  /*static List<dynamic> listToJson(List<Covid19History> values) {
+  static List<dynamic> listToJson(List<Covid19History> values) {
     List<dynamic> json;
     if (values != null) {
       json = [];
@@ -517,7 +527,18 @@ class Covid19History {
       }
     }
     return json;
-  }*/
+  }
+
+  static void sortListDescending(List<Covid19History> values) {
+    values?.sort((Covid19History entry1, Covid19History entry2) {
+      if (entry1 != null) {
+        return entry1.compareTo(entry2) * -1;
+      }
+      else {
+        return (entry2 != null) ? 1 : 0;
+      }
+    });
+  }
 
   static Covid19History traceInList(List<Covid19History> values, { String tek }) {
     if ((values != null) && (tek != null)) {
