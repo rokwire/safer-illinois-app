@@ -214,9 +214,9 @@ class Health2 with Service implements NotificationsListener {
       _rules?.userTestMonitorInterval = _userTestMonitorInterval;
     }
 
-    if (options.history) {
+    if (options.history || options.rules || options.userInterval) {
       await _rebuildStatus();
-      _logProcessedEvents();
+      await _logProcessedEvents();
     }
 
     _refreshOptions = null;
@@ -232,6 +232,8 @@ class Health2 with Service implements NotificationsListener {
   List<Covid19History> get history { return _history; }
 
   HealthCounty         get county  { return _county; }
+  set(HealthCounty county)         { _applyCounty(county); }
+
   HealthRulesSet       get rules   { return _rules; }
   Map<String, dynamic> get buildingAccessRules { return _buildingAccessRules; }
 
@@ -818,46 +820,46 @@ class Health2 with Service implements NotificationsListener {
     }
   }
 
-  void _logProcessedEvents() {
+  Future<void> _logProcessedEvents() async {
     if ((_processedEvents != null) && (0 < _processedEvents.length)) {
 
       int exposureTestReportDays = Config().settings['covid19ExposureTestReportDays'];
       for (Covid19Event event in _processedEvents) {
         if (event.isTest) {
           Covid19History previousTest = Covid19History.mostRecentTest(_history, beforeDateUtc: event.blob?.dateUtc, onPosition: 2);
-          Exposure().evalTestResultExposureScoring(previousTestDateUtc: previousTest?.dateUtc).then((int score) {
-            Analytics().logHealth(
-              action: Analytics.LogHealthProviderTestProcessedAction,
-              status: _status?.blob?.healthStatus,
-              prevStatus: _previousStatus?.blob?.healthStatus,
-              attributes: {
-                Analytics.LogHealthProviderName: event.provider,
-                Analytics.LogHealthTestTypeName: event.blob?.testType,
-                Analytics.LogHealthTestResultName: event.blob?.testResult,
-                Analytics.LogHealthExposureScore: score,
-            });
-            
-            if (exposureTestReportDays != null)  {
-              DateTime maxDateUtc = event?.blob?.dateUtc;
-              DateTime minDateUtc = maxDateUtc?.subtract(Duration(days: exposureTestReportDays));
-              if ((maxDateUtc != null) && (minDateUtc != null)) {
-                Covid19History contactTrace = Covid19History.mostRecentContactTrace(_history, minDateUtc: minDateUtc, maxDateUtc: maxDateUtc);
-                if (contactTrace != null) {
-                  Analytics().logHealth(
-                    action: Analytics.LogHealthContactTraceTestAction,
-                    status: _status?.blob?.healthStatus,
-                    prevStatus: _previousStatus?.blob?.healthStatus,
-                    attributes: {
-                      Analytics.LogHealthExposureTimestampName: contactTrace.dateUtc?.toIso8601String(),
-                      Analytics.LogHealthDurationName: contactTrace.blob?.traceDuration,
-                      Analytics.LogHealthProviderName: event.provider,
-                      Analytics.LogHealthTestTypeName: event.blob?.testType,
-                      Analytics.LogHealthTestResultName: event.blob?.testResult,
-                  });
-                }
+          int score = await Exposure().evalTestResultExposureScoring(previousTestDateUtc: previousTest?.dateUtc);
+          
+          Analytics().logHealth(
+            action: Analytics.LogHealthProviderTestProcessedAction,
+            status: _status?.blob?.healthStatus,
+            prevStatus: _previousStatus?.blob?.healthStatus,
+            attributes: {
+              Analytics.LogHealthProviderName: event.provider,
+              Analytics.LogHealthTestTypeName: event.blob?.testType,
+              Analytics.LogHealthTestResultName: event.blob?.testResult,
+              Analytics.LogHealthExposureScore: score,
+          });
+          
+          if (exposureTestReportDays != null)  {
+            DateTime maxDateUtc = event?.blob?.dateUtc;
+            DateTime minDateUtc = maxDateUtc?.subtract(Duration(days: exposureTestReportDays));
+            if ((maxDateUtc != null) && (minDateUtc != null)) {
+              Covid19History contactTrace = Covid19History.mostRecentContactTrace(_history, minDateUtc: minDateUtc, maxDateUtc: maxDateUtc);
+              if (contactTrace != null) {
+                Analytics().logHealth(
+                  action: Analytics.LogHealthContactTraceTestAction,
+                  status: _status?.blob?.healthStatus,
+                  prevStatus: _previousStatus?.blob?.healthStatus,
+                  attributes: {
+                    Analytics.LogHealthExposureTimestampName: contactTrace.dateUtc?.toIso8601String(),
+                    Analytics.LogHealthDurationName: contactTrace.blob?.traceDuration,
+                    Analytics.LogHealthProviderName: event.provider,
+                    Analytics.LogHealthTestTypeName: event.blob?.testType,
+                    Analytics.LogHealthTestResultName: event.blob?.testResult,
+                });
               }
             }
-          });
+          }
         }
         else if (event.isAction) {
           Analytics().logHealth(
@@ -937,16 +939,22 @@ class Health2 with Service implements NotificationsListener {
   Future<void> _refreshCounty() async {
     if (_county != null) {
       HealthCounty county = await _loadCounty(countyId: _county?.id);
-      if (county != null) {
-        _applyCounty(county);
+      if ((county != null) && (_county != county)) {
+        _saveCountyToStorage(_county = county);
+        NotificationService().notify(notifyCountyChanged);
       }
     }
   }
 
-  void _applyCounty(HealthCounty county) {
-    if (_county != county) {
+  Future<void> _applyCounty(HealthCounty county) async {
+    if (_county?.id != county?.id) {
       _saveCountyToStorage(_county = county);
       NotificationService().notify(notifyCountyChanged);
+
+      await _clearRules();
+      _clearBuildingAccessRules();
+
+      _refresh(_RefreshOptions.fromList([_RefreshOption.rules, _RefreshOption.buildingAccessRules]));
     }
   }
 
@@ -968,6 +976,11 @@ class Health2 with Service implements NotificationsListener {
       await _saveRulesJsonStringToCache(rulesJsonString);
       NotificationService().notify(notifyRulesChanged);
     }
+  }
+
+  Future<void> _clearRules() async {
+    _rules = null;
+    await _clearRulesCache();
   }
 
   Future<String> _loadRulesJsonStringFromNet({String countyId}) async {
@@ -1001,15 +1014,14 @@ class Health2 with Service implements NotificationsListener {
     }
   }
 
-  //TBD: on County switch
-  /* Future<void> _clearRulesCache() async {
+  Future<void> _clearRulesCache() async {
     File cacheFile = _getRulesCacheFile();
     try {
       if (await cacheFile.exists()) {
         await cacheFile.delete();
       }
     } catch (e) { print(e?.toString()); }
-  }*/
+  }
 
   // Access Rules
 
@@ -1027,6 +1039,10 @@ class Health2 with Service implements NotificationsListener {
       _saveBuildingAccessRulesToStorage(_buildingAccessRules = buildingAccessRules);
       NotificationService().notify(notifyBuildingAccessRulesChanged);
    }
+  }
+
+  void _clearBuildingAccessRules() {
+    _saveBuildingAccessRulesToStorage(_buildingAccessRules = null);
   }
 
   Future<void> _applyBuildingAccessForStatus(Covid19Status status) async {
