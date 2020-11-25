@@ -447,6 +447,17 @@ class Health2 with Service implements NotificationsListener {
     _applyStatus(null);
   }
 
+  Future<void> _rebuildStatus() async {
+    if (this._isWriteAuthenticated && (_rules != null) && (_history != null)) {
+      Covid19Status status = _buildStatus(rules: _rules, history: _history);
+      if ((status?.blob != null) && (status?.blob != _status?.blob)) {
+        if (await _saveStatusToNet(status)) {
+          _applyStatus(status);
+        }
+      }
+    }
+  }
+
   void _applyStatus(Covid19Status status) {
     if (_status != status) {
       String oldStatusCode = _status?.blob?.healthStatus;
@@ -462,15 +473,6 @@ class Health2 with Service implements NotificationsListener {
       _previousStatus = _status;
       _saveStatusToStorage(_status = status);
       NotificationService().notify(notifyStatusChanged);
-    }
-  }
-
-  Future<void> _rebuildStatus() async {
-    if (this._isWriteAuthenticated && (_rules != null) && (_history != null)) {
-      Covid19Status status = _buildStatus(rules: _rules, history: _history);
-      if ((status?.blob != null) && (status?.blob != _status?.blob)) {
-        _applyStatus(status);
-      }
     }
   }
 
