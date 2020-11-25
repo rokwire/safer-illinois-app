@@ -52,7 +52,7 @@ class Health2 with Service implements NotificationsListener {
 
   HealthUser _user;
   PrivateKey _userPrivateKey;
-  PublicKey  _servicePublicKey;
+  int _userTestMonitorInterval;
 
   Covid19Status _status;
   List<Covid19History> _history;
@@ -62,6 +62,7 @@ class Health2 with Service implements NotificationsListener {
   Map<String, dynamic> _buildingAccessRules;
 
   Directory _appDocumentsDir;
+  PublicKey _servicePublicKey;
   DateTime _pausedDateTime;
 
   // Singletone Instance
@@ -97,12 +98,14 @@ class Health2 with Service implements NotificationsListener {
 
     _user = _loadUserFromStorage();
     _userPrivateKey = await _loadUserPrivateKey();
+    _userTestMonitorInterval = Storage().healthUserTestMonitorInterval;
 
     _status = _loadStatusFromStorage();
     _history = await _loadHistoryFromCache();
 
     _county = await _ensureCounty();
     _rules = await _loadRulesFromCache();
+    _rules?.userTestMonitorInterval = _userTestMonitorInterval;
     _buildingAccessRules = _loadBuildingAccessRulesFromStorage();
 
     _refresh(county: true);
@@ -112,6 +115,7 @@ class Health2 with Service implements NotificationsListener {
   Future<void> clearService() async {
     _user = null;
     _userPrivateKey = null;
+    _userTestMonitorInterval = null;
     _servicePublicKey = null;
 
     _status = null;
@@ -166,6 +170,7 @@ class Health2 with Service implements NotificationsListener {
     else {
       _userPrivateKey = null;
       _clearUser();
+      _clearUserTestMonitorInterval();
       _clearStatus();
       _clearHistory();
     }
@@ -175,6 +180,7 @@ class Health2 with Service implements NotificationsListener {
 
     await Future.wait([
       user ? _refreshUser() : Future<void>.value(),
+      user ? _refreshUserTestMonitorInterval() : Future<void>.value(),
       user ? _refreshStatus() : Future<void>.value(),
       user ? _refreshHistory() : Future<void>.value(),
       
@@ -182,6 +188,9 @@ class Health2 with Service implements NotificationsListener {
       county ? _refreshRules() : Future<void>.value(),
       county ? _refreshBuildingAccessRules() : Future<void>.value(),
     ]);
+    
+    _rules?.userTestMonitorInterval = _userTestMonitorInterval 
+    ;
   }
 
   // Health User
@@ -484,7 +493,7 @@ class Health2 with Service implements NotificationsListener {
   }
 
   Future<String> _loadHistoryJsonStringFromNet() async {
-    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/v2/histories" : null;
+    String url = (this._isReadAuthenticated && (Config().healthUrl != null)) ? "${Config().healthUrl}/covid19/v2/histories" : null;
     Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.User) : null;
     return (response?.statusCode == 200) ? response.body : null;
   }
@@ -531,6 +540,35 @@ class Health2 with Service implements NotificationsListener {
     }
     catch (e) { print(e?.toString()); }
   }
+
+  // User test monitor interval
+
+  Future<void> _refreshUserTestMonitorInterval() async {
+    try {
+      Storage().healthUserTestMonitorInterval = _userTestMonitorInterval = await _loadUserTestMonitorInterval();
+    }
+    catch (e) {
+      print(e?.toString());
+    }
+  }
+
+  Future<int> _loadUserTestMonitorInterval() async {
+    if (this._isAuthenticated && (Config().healthUrl != null)) {
+      String url = "${Config().healthUrl}/covid19/uin-override";
+      Response response = await Network().get(url, auth: NetworkAuth.User);
+      if (response?.statusCode == 200) {
+        Map<String, dynamic> responseJson = AppJson.decodeMap(response.body);
+        return (responseJson != null) ? responseJson['interval'] : null;
+      }
+      throw Exception("${response?.statusCode ?? '000'} ${response?.body ?? 'Unknown error occured'}");
+    }
+    throw Exception("User not logged in");
+  }
+
+  void _clearUserTestMonitorInterval() {
+    Storage().healthUserTestMonitorInterval = _userTestMonitorInterval = null;
+  }
+
 
   // Counties
 

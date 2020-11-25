@@ -2000,12 +2000,15 @@ class HealthRulesSet {
   final HealthDefaultsSet defaults;
   final Map<String, _HealthRuleStatus> statuses;
   final Map<String, dynamic> constants;
+  final Map<String, dynamic> constantOverrides;
   final Map<String, dynamic> strings;
+
 
   static const String UserTestMonitorInterval = 'UserTestMonitorInterval';
 
   HealthRulesSet({this.tests, this.symptoms, this.contactTrace, this.actions, this.defaults, this.statuses, Map<String, dynamic> constants, Map<String, dynamic> strings}) :
     this.constants = constants ?? Map<String, dynamic>(),
+    this.constantOverrides = Map<String, dynamic>(),
     this.strings = strings ?? Map<String, dynamic>();
 
   factory HealthRulesSet.fromJson(Map<String, dynamic> json) {
@@ -2044,11 +2047,15 @@ class HealthRulesSet {
     DeepCollectionEquality().hash(strings);
 
   int get userTestMonitorInterval {
-    return constants[UserTestMonitorInterval];
+    return getConstant(UserTestMonitorInterval);
   }
 
   set userTestMonitorInterval(int value) {
-    constants[UserTestMonitorInterval] = value;
+    constantOverrides[UserTestMonitorInterval] = value;
+  }
+
+  dynamic getConstant(String name) {
+    return constantOverrides[name] ?? constants[name];
   }
 
   String localeString(dynamic entry) {
@@ -3167,8 +3174,7 @@ class HealthRuleIntervalReference extends _HealthRuleInterval {
 
   _HealthRuleInterval referenceValue({ HealthRulesSet rules }) {
     if (_referenceValue == null) {
-      dynamic value = (rules?.constants != null) ? rules.constants[_reference] : null;
-      _referenceValue = _HealthRuleInterval.fromJson(value);
+      _referenceValue = _HealthRuleInterval.fromJson(rules?.getConstant(_reference));
     }
     return _referenceValue;
   }

@@ -401,16 +401,6 @@ class Storage with Service {
     _setStringWithName(lastHealthCovid19StatusKey, value);
   }
 
-  static const String healthUserKey = 'health_user';
-
-  String get healthUser {
-    return _getStringWithName(healthUserKey);
-  }
-
-  set healthUser(String value) {
-    _setStringWithName(healthUserKey, value);
-  }
-
   static const String lastHealthCovid19OsfTestDateKey = 'health_last_covid19_osf_test_date';
 
   DateTime get lastHealthCovid19OsfTestDateUtc {
@@ -425,6 +415,16 @@ class Storage with Service {
     _setStringWithName(lastHealthCovid19OsfTestDateKey, dateString);
   }
 
+  static const String healthUserKey = 'health_user';
+
+  String get healthUser {
+    return _getStringWithName(healthUserKey);
+  }
+
+  set healthUser(String value) {
+    _setStringWithName(healthUserKey, value);
+  }
+
   static const String healthUserStatusKey = 'health_user_status';
 
   String get healthUserStatus {
@@ -433,6 +433,16 @@ class Storage with Service {
 
   set healthUserStatus(String value) {
     _setStringWithName(healthUserStatusKey, value);
+  }
+
+  static const String healthUserTestMonitorIntervalKey = 'health_user_test_monitor_interval';
+
+  int get healthUserTestMonitorInterval {
+    return _getIntWithName(healthUserTestMonitorIntervalKey);
+  }
+
+  set healthUserTestMonitorInterval(int value) {
+    _setIntWithName(healthUserTestMonitorIntervalKey, value);
   }
 
   static const String _healthCountyKey = 'health_county';
