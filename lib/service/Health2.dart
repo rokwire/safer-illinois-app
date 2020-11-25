@@ -42,22 +42,24 @@ class Health2 with Service implements NotificationsListener {
 
   static const String notifyUserUpdated                = "edu.illinois.rokwire.health.user.updated";
   static const String notifyStatusChanged              = "edu.illinois.rokwire.health.status.changed";
+  static const String notifyHistoryChanged             = "edu.illinois.rokwire.health.history.changed";
   static const String notifyCountyChanged              = "edu.illinois.rokwire.health.county.changed";
   static const String notifyRulesChanged               = "edu.illinois.rokwire.health.rules.changed";
   static const String notifyBuildingAccessRulesChanged = "edu.illinois.rokwire.health.building_access_rules.changed";
 
   static const String _rulesFileName                   = "rules.json";
+  static const String _historyFileName                 = "history.json";
 
   HealthUser _user;
   PrivateKey _userPrivateKey;
   PublicKey  _servicePublicKey;
 
   Covid19Status _status;
+  List<Covid19History> _history;
   
   HealthCounty _county;
   HealthRulesSet _rules;
   Map<String, dynamic> _buildingAccessRules;
-
 
   Directory _appDocumentsDir;
   DateTime _pausedDateTime;
@@ -91,12 +93,13 @@ class Health2 with Service implements NotificationsListener {
   @override
   Future<void> initService() async {
     _appDocumentsDir = await getApplicationDocumentsDirectory();
+    _servicePublicKey = RsaKeyHelper.parsePublicKeyFromPem(Config().healthPublicKey);
 
     _user = _loadUserFromStorage();
     _userPrivateKey = await _loadUserPrivateKey();
-    _servicePublicKey = RsaKeyHelper.parsePublicKeyFromPem(Config().healthPublicKey);
 
     _status = _loadStatusFromStorage();
+    _history = await _loadHistoryFromCache();
 
     _county = await _ensureCounty();
     _rules = await _loadRulesFromCache();
@@ -112,6 +115,7 @@ class Health2 with Service implements NotificationsListener {
     _servicePublicKey = null;
 
     _status = null;
+    _history = null;
 
     _county = null;
     _rules = null;
@@ -158,9 +162,10 @@ class Health2 with Service implements NotificationsListener {
       _refreshUserData();
     }
     else {
-      _applyUser(null);
       _userPrivateKey = null;
-      _applyStatus(null);
+      _clearUser();
+      _clearStatus();
+      _clearHistory();
     }
   }
 
@@ -169,6 +174,7 @@ class Health2 with Service implements NotificationsListener {
     await Future.wait([
       _refreshUser(),
       _refreshStatus(),
+      _refreshHistory(),
       
       _refreshCounty(),
       _refreshRules(),
@@ -184,6 +190,7 @@ class Health2 with Service implements NotificationsListener {
     await Future.wait([
       _refreshUser(),
       _refreshStatus(),
+      _refreshHistory(),
     ]);
   }
 
@@ -345,9 +352,13 @@ class Health2 with Service implements NotificationsListener {
     return user;
   }
 
-  Future<void> _refreshUser () async {
+  Future<void> _refreshUser() async {
     try { _applyUser(await _loadUser()); }
     catch (e) { print(e?.toString()); }
+  }
+
+  void _clearUser() {
+    _applyUser(null);
   }
 
   void _applyUser(HealthUser user) {
@@ -390,7 +401,7 @@ class Health2 with Service implements NotificationsListener {
     return result;
   }
 
-  // Covid19 Status
+  // User Status
 
   Future<Covid19Status> _loadStatus() async {
     if (this._isReadAuthenticated && (Config().healthUrl != null)) {
@@ -432,11 +443,15 @@ class Health2 with Service implements NotificationsListener {
     }
   }
 
+  void _clearStatus () {
+    _applyStatus(null);
+  }
+
   void _applyStatus(Covid19Status status) {
     if (_status != status) {
       String oldStatusCode = _status?.blob?.healthStatus;
       String newStatusCode = status?.blob?.healthStatus;
-      if (oldStatusCode != newStatusCode) {
+      if ((oldStatusCode != null) && (newStatusCode != null) && (oldStatusCode != newStatusCode)) {
         Analytics().logHealth(
           action: Analytics.LogHealthStatusChangedAction,
           status: newStatusCode,
@@ -455,6 +470,76 @@ class Health2 with Service implements NotificationsListener {
 
   static void _saveStatusToStorage(Covid19Status status) {
     Storage().healthUserStatus = AppJson.encode(status?.toJson());
+  }
+
+  // User History
+
+  Future<void> _refreshHistory() async {
+    String historyJsonString = await _loadHistoryJsonStringFromNet();
+    List<Covid19History> history = await Covid19History.listFromJson(AppJson.decodeList(historyJsonString), _historyPrivateKeys);
+    
+    if ((history != null) && !ListEquality().equals(history, _history)) {
+      _history = history;
+      await _saveHistoryJsonStringToCache(historyJsonString);
+      NotificationService().notify(notifyHistoryChanged);
+    }
+  }
+
+  Future<void> _clearHistory() async {
+    if (_history != null) {
+      _history = null;
+      await _clearHistoryCache();
+      NotificationService().notify(notifyHistoryChanged);
+    }
+  }
+
+  Future<String> _loadHistoryJsonStringFromNet() async {
+    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/v2/histories" : null;
+    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.User) : null;
+    return (response?.statusCode == 200) ? response.body : null;
+  }
+
+  Map<Covid19HistoryType, PrivateKey> get _historyPrivateKeys {
+    return {
+      Covid19HistoryType.test : _userPrivateKey,
+      Covid19HistoryType.manualTestVerified : _userPrivateKey,
+      Covid19HistoryType.manualTestNotVerified : null, // unencrypted
+      Covid19HistoryType.symptoms : _userPrivateKey,
+      Covid19HistoryType.contactTrace : _userPrivateKey,
+      Covid19HistoryType.action : _userPrivateKey,
+    };
+  }
+
+  File _getHistoryCacheFile() {
+    String cacheFilePath = (_appDocumentsDir != null) ? join(_appDocumentsDir.path, _historyFileName) : null;
+    return (cacheFilePath != null) ? File(cacheFilePath) : null;
+  }
+
+  Future<List<Covid19History>> _loadHistoryFromCache() async {
+    return await Covid19History.listFromJson(AppJson.decodeList(await _loadHistoryJsonStringFromCache()), _historyPrivateKeys);
+  }
+
+  Future<String> _loadHistoryJsonStringFromCache() async {
+    File cacheFile = _getHistoryCacheFile();
+    try { return ((cacheFile != null) && await cacheFile.exists()) ? await cacheFile.readAsString() : null; } catch (e) { print(e?.toString()); }
+    return null;
+  }
+
+  Future<void> _saveHistoryJsonStringToCache(String jsonString) async {
+    File cacheFile = _getHistoryCacheFile();
+    if (cacheFile != null) {
+      try { await cacheFile.writeAsString(jsonString); } catch (e) { print(e?.toString()); }
+    }
+  }
+
+  Future<void> _clearHistoryCache() async {
+    File cacheFile = _getHistoryCacheFile();
+    try {
+      if ((cacheFile != null) && await cacheFile.exists()) {
+        await cacheFile.delete();
+      }
+    }
+    catch (e) { print(e?.toString()); }
   }
 
   // Counties
@@ -531,7 +616,7 @@ class Health2 with Service implements NotificationsListener {
     return (response?.statusCode == 200) ? response.body : null;
   }
 
-  File get _rulesCacheFile {
+  File _getRulesCacheFile() {
     String cacheFilePath = (_appDocumentsDir != null) ? join(_appDocumentsDir.path, _rulesFileName) : null;
     return (cacheFilePath != null) ? File(cacheFilePath) : null;
   }
@@ -541,16 +626,27 @@ class Health2 with Service implements NotificationsListener {
   }
 
   Future<String> _loadRulesJsonStringFromCache() async {
-    File cacheFile = this._rulesCacheFile;
-    return ((cacheFile != null) && await cacheFile.exists()) ? await cacheFile.readAsString() : null;
+    File cacheFile = _getRulesCacheFile();
+    try { return ((cacheFile != null) && await cacheFile.exists()) ? await cacheFile.readAsString() : null; } catch (e) { print(e?.toString()); }
+    return null;
   }
 
   Future<void> _saveRulesJsonStringToCache(String jsonString) async {
-    File cacheFile = this._rulesCacheFile;
+    File cacheFile = _getRulesCacheFile();
     if (cacheFile != null) {
-      await cacheFile.writeAsString(jsonString);
+      try { await cacheFile.writeAsString(jsonString); } catch (e) { print(e?.toString()); }
     }
   }
+
+  //TBD: on County switch
+  /* Future<void> _clearRulesCache() async {
+    File cacheFile = _getRulesCacheFile();
+    try {
+      if (await cacheFile.exists()) {
+        await cacheFile.delete();
+      }
+    } catch (e) { print(e?.toString()); }
+  }*/
 
   // Access Rules
 
