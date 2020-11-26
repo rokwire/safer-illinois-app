@@ -1298,7 +1298,7 @@ class Health2 with Service implements NotificationsListener {
 
   // Network API: HealthServiceProvider
 
-  Future<List<HealthServiceProvider>> loadHealthServiceProviders({String countyId}) async {
+  Future<List<HealthServiceProvider>> loadProviders({String countyId}) async {
     String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/providers" : null;
 
     if ((url != null) && (countyId != null)) {
@@ -1311,20 +1311,9 @@ class Health2 with Service implements NotificationsListener {
     return (responseJson != null) ? HealthServiceProvider.listFromJson(responseJson) : null;
   }
 
-  Future<Map<String, List<HealthServiceProvider>>> loadHealthServiceProvidersForCounties(Set<String> countyIds) async {
-    if ((Config().healthUrl != null) && AppCollection.isCollectionNotEmpty(countyIds)) {
-      String idsToString = countyIds.join(',');
-      String url = "${Config().healthUrl}/covid19/providers?county-ids=$idsToString";
-      Response response = await Network().get(url, auth: NetworkAuth.App);
-      String responseString = (response?.statusCode == 200) ? response.body : null;
-      return HealthServiceProvider.countyProvidersMapFromJson(AppJson.decodeMap(responseString));
-    }
-    return null;
-  }
-
   // Network API: HealthServiceLocation
 
-  Future<List<HealthServiceLocation>> loadHealthServiceLocations({String countyId, String providerId})async{
+  Future<List<HealthServiceLocation>> loadLocations({String countyId, String providerId})async{
     String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/locations" : null;
 
     if (url != null) {
@@ -1340,7 +1329,7 @@ class Health2 with Service implements NotificationsListener {
     return (responseJson != null) ? HealthServiceLocation.listFromJson(responseJson) : null;
   }
 
-  Future<HealthServiceLocation> loadHealthServiceLocation({String locationId})async{
+  Future<HealthServiceLocation> loadLocation({String locationId})async{
     String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/locations" : null;
 
     if ((url != null) && (locationId != null))

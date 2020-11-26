@@ -73,7 +73,7 @@ class _Covid19ReportTestPanelSate extends State<Covid19ReportTestPanel>{
 
   void _loadLocations(){
     _increaseProgress();
-    Health2().loadHealthServiceLocations(countyId: Health2().county?.id, providerId: widget.provider?.id).then((List<HealthServiceLocation> locations){
+    Health2().loadLocations(countyId: Health2().county?.id, providerId: widget.provider?.id).then((List<HealthServiceLocation> locations){
       setState(() {
         try {
           _locations = locations != null ? Map<String, HealthServiceLocation>.fromIterable(locations, key: ((location) => location.id)) : null;

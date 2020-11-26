@@ -671,7 +671,7 @@ class _Covid19HistoryEntryState extends State<_Covid19HistoryEntry> with SingleT
     String locationId = widget.historyEntry?.blob?.locationId;
     if(locationId!=null){
       setState(() => _isLoading = true);
-      Health2().loadHealthServiceLocation(locationId: locationId).then((location){
+      Health2().loadLocation(locationId: locationId).then((location){
         setState(() => _isLoading = false);
         if(location!=null){
           NativeCommunicator().launchMap(
