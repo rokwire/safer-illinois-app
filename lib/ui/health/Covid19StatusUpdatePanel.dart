@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-import 'dart:collection';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:illinois/model/Health.dart';
+import 'package:illinois/service/Health2.dart';
 import 'package:illinois/utils/AppDateTime.dart';
-import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/health/Covid19NextStepsPanel.dart';
@@ -39,8 +37,6 @@ class Covid19StatusUpdatePanel extends StatefulWidget {
 }
 
 class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
-  bool _loading = false;
-
   String _updateDate;
 
   String _oldStatusType;
@@ -50,9 +46,6 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
   String _newStatusType;
   String _newStatusDescription;
   Color _newSatusColor;
-
-  HealthRulesSet _rules;
-  String _currentCountyName;
 
   @override
   void initState() {
@@ -67,34 +60,7 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
     _newStatusDescription = widget?.status?.blob?.localizedHealthStatusDescription ?? '';
     _newSatusColor = Styles().colors.getHealthStatusColor(widget.status?.blob?.healthStatus) ?? Styles().colors.mediumGray;
 
-    _prepareData();
     super.initState();
-  }
-
-  void _prepareData(){
-    setState(() {
-      _loading = true;
-    });
-    _loadData().then((_) {
-      setState(() {
-        _loading = false;
-      });
-    });
-  }
-
-  Future<void> _loadData() async {
-    List<dynamic> result = await Future.wait([
-      Health().loadRules2(),
-      Health().loadCounties(),
-    ]);
-
-    _rules = ((result != null) && (0 < result.length)) ? result[0] : null;
-
-    List<HealthCounty> countiesList = ((result != null) && (1 < result.length)) ? result[1] : null;
-    LinkedHashMap<String, HealthCounty> counties = HealthCounty.listToMap(countiesList);
-    if(counties != null && counties.containsKey(Health().currentCountyId)) {
-      _currentCountyName = counties[Health().currentCountyId].displayName;
-    }
   }
 
   @override
@@ -106,7 +72,7 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
           child: Column(
             children: <Widget>[
               Expanded(
-                child:_loading? _buildLoading() : _buildContent(),
+                child: _buildContent(),
               ),
 //              _buildPageIndicator(),
               Container(
@@ -128,7 +94,7 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
   }
 
   Widget _buildContent(){
-    String county = "$_currentCountyName ${Localization().getStringEx("app.common.label.county", "County")}";
+    String county = "${Health2().county?.displayName} ${Localization().getStringEx("app.common.label.county", "County")}";
     return
       SingleChildScrollView(
       child:
@@ -150,7 +116,7 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
                   label: Localization().getStringEx("panel.health.status_update.button.info.title","Info "),
                   button: true,
                   excludeSemantics: true,
-                  child:  IconButton(icon: Image.asset('images/icon-info-orange.png', excludeFromSemantics: true,), onPressed: () =>  StatusInfoDialog.show(context, _currentCountyName), padding: EdgeInsets.all(10),)
+                  child:  IconButton(icon: Image.asset('images/icon-info-orange.png', excludeFromSemantics: true,), onPressed: () =>  StatusInfoDialog.show(context, Health2().county?.displayName), padding: EdgeInsets.all(10),)
             ))
           ],
         ),
@@ -221,7 +187,7 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
         List<HealthSymptom> symptoms = reasonHistory.symptoms;
         if (symptoms?.isNotEmpty ?? false) {
           symptoms.forEach((HealthSymptom symptom){
-            String symptomName = _rules?.localeString(symptom?.name) ?? symptom?.name;
+            String symptomName = Health2().rules?.localeString(symptom?.name) ?? symptom?.name;
             if (AppString.isStringNotEmpty(symptomName)) {
               symptomLayouts.add(Text(symptomName, style: TextStyle(color: Colors.white, fontSize: 14, fontFamily: Styles().fontFamilies.regular)));
             }
@@ -313,7 +279,7 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
     return Container();
   }
 
-  Widget _buildLoading(){
+  /*Widget _buildLoading(){
     return SingleChildScrollView(child:Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
@@ -339,5 +305,5 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
 //          )
         ])
     );
-  }
+  }*/
 }

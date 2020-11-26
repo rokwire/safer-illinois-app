@@ -20,7 +20,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:illinois/service/DeepLink.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
-import 'package:illinois/service/Health.dart';
+import 'package:illinois/service/Health2.dart';
 import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/Service.dart';
 import 'package:illinois/service/Analytics.dart';
@@ -59,7 +59,7 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
       Localization.notifyStringsUpdated,
       Organizations.notifyOrganizationChanged,
       Organizations.notifyEnvironmentChanged,
-      Health.notifyStatusUpdated,
+      Health2.notifyStatusUpdated,
       DeepLink.notifyUri,
     ]);
 
@@ -88,8 +88,8 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
     else if (name == Organizations.notifyEnvironmentChanged) {
       setState(() { });
     }
-    else if (name == Health.notifyStatusUpdated) {
-      _presentHealthStatusUpdate(param);
+    else if (name == Health2.notifyStatusUpdated) {
+      _presentHealthStatusUpdate();
     }
     else if (name == FirebaseMessaging.notifyCovid19Notification) {
       _onFirebaseCovid19Notification(param);
@@ -220,8 +220,14 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
     }
   }
 
-  void _presentHealthStatusUpdate(Map<String, dynamic> params) {
-    Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19StatusUpdatePanel(status: params['status'], previousHealthStatus: params['lastHealthStatus'],)));
+  void _presentHealthStatusUpdate() {
+    String oldStatus = Health2().previousStatus?.blob?.healthStatus;
+    String newStatus = Health2().status?.blob?.healthStatus;
+    if ((oldStatus != null) && (newStatus != null) && (oldStatus != newStatus)) {
+      Timer(Duration(milliseconds: 100), () {
+        Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19StatusUpdatePanel(status: Health2().status, previousHealthStatus: oldStatus,)));
+      });
+    }
   }
 
   void _onDeeplinkUri(Uri uri) {
