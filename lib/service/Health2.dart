@@ -246,8 +246,8 @@ class Health2 with Service implements NotificationsListener {
     return _county;
   }
 
-  set county(HealthCounty county) {
-    _applyCounty(county);
+  Future<void> setCounty(HealthCounty county) {
+    return _applyCounty(county);
   }
 
   Future<List<HealthCounty>> loadCounties({ bool guidelines }) async {
@@ -1230,6 +1230,32 @@ class Health2 with Service implements NotificationsListener {
     String responseString = (response?.statusCode == 200) ? response.body : null;
     List<dynamic> responseJson = (responseString != null) ? AppJson.decode(responseString) : null;
     return (responseJson != null) ? HealthTestType.listFromJson(responseJson) : null;
+  }
+
+  // Network API: HealthServiceProvider
+
+  Future<List<HealthServiceProvider>> loadHealthServiceProviders({String countyId}) async {
+    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/providers" : null;
+
+    if ((url != null) && (countyId != null)) {
+      url += "/county/$countyId";
+    }
+
+    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
+    String responseString = (response?.statusCode == 200) ? response.body : null;
+    List<dynamic> responseJson = (responseString != null) ? AppJson.decode(responseString) : null;
+    return (responseJson != null) ? HealthServiceProvider.listFromJson(responseJson) : null;
+  }
+
+  Future<Map<String, List<HealthServiceProvider>>> loadHealthServiceProvidersForCounties(Set<String> countyIds) async {
+    if ((Config().healthUrl != null) && AppCollection.isCollectionNotEmpty(countyIds)) {
+      String idsToString = countyIds.join(',');
+      String url = "${Config().healthUrl}/covid19/providers?county-ids=$idsToString";
+      Response response = await Network().get(url, auth: NetworkAuth.App);
+      String responseString = (response?.statusCode == 200) ? response.body : null;
+      return HealthServiceProvider.countyProvidersMapFromJson(AppJson.decodeMap(responseString));
+    }
+    return null;
   }
 }
 

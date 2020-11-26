@@ -727,7 +727,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
   void _onTapCountryGuidelines() {
     if(Connectivity().isNotOffline) {
       Analytics.instance.logSelect(target: "COVID-19 County Guidlines");
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19GuidelinesPanel(status: _status)));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19GuidelinesPanel()));
     } else{
       AppAlert.showOfflineMessage(context);
     }
@@ -736,7 +736,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
   void _onTapCareTeam() {
     if(Connectivity().isNotOffline) {
       Analytics.instance.logSelect(target: "Your Care Team");
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19CareTeamPanel(status: _status,)));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19CareTeamPanel()));
     } else{
       AppAlert.showOfflineMessage(context);
     }

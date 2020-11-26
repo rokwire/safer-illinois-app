@@ -1233,6 +1233,17 @@ class HealthServiceProvider {
     }
     return json;
   }
+
+  static Map<String, List<HealthServiceProvider>> countyProvidersMapFromJson(Map<String, dynamic> json) {
+    if (json != null) {
+      Map<String, List<HealthServiceProvider>> result = Map();
+      for (String countyId in json.keys) {
+        result[countyId] = listFromJson(json[countyId]);
+      }
+      return result;
+    }
+    return null;
+  }
 }
 
 ////////////////////////////////
@@ -1655,6 +1666,16 @@ class HealthCounty {
   final List<HealthGuideline> guidelines;
 
   HealthCounty({this.id, this.name, this.state, this.country,this.guidelines});
+
+  factory HealthCounty.fromCounty(HealthCounty county, { bool guidelines }) {
+    return (county != null) ? HealthCounty(
+      id: county.id,
+      name: county.name,
+      state: county.state,
+      country: county.country,
+      guidelines: (guidelines == true) ? county.guidelines : null,
+    ) : null;
+  }
 
   factory HealthCounty.fromJson(Map<String, dynamic> json, { bool guidelines }) {
     return (json != null) ? HealthCounty(
