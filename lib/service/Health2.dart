@@ -1204,7 +1204,7 @@ class Health2 with Service implements NotificationsListener {
       await _clearRules();
       _clearBuildingAccessRules();
 
-      _refresh(_RefreshOptions.fromList([_RefreshOption.rules, _RefreshOption.buildingAccessRules]));
+      await _refresh(_RefreshOptions.fromList([_RefreshOption.rules, _RefreshOption.buildingAccessRules]));
     }
   }
 

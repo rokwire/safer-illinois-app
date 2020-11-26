@@ -59,7 +59,6 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
     super.initState();
     NotificationService().subscribe(this, [
       Health2.notifyStatusUpdated,
-      Health2.notifyRefreshing,
     ]);
     _initData();
   }
@@ -72,8 +71,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
 
   @override
   void onNotification(String name, param) {
-    if ((name == Health2.notifyStatusUpdated) ||
-        (name == Health2.notifyRefreshing)) {
+    if (name == Health2.notifyStatusUpdated) {
       if (mounted) {
         setState(() {});
       }
@@ -181,7 +179,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
               ],
             ),
           ),
-          Visibility(visible: (_isLoading == true), child: Container(width: MediaQuery.of(context).size.width, height: MediaQuery.of(context).size.height, color: Styles().colors.fillColorPrimaryTransparent09,
+          Visibility(visible: (_loading == true), child: Container(width: MediaQuery.of(context).size.width, height: MediaQuery.of(context).size.height, color: Styles().colors.fillColorPrimaryTransparent09,
             child: Center(child: CircularProgressIndicator(),),),)
         ],
       ),
@@ -499,10 +497,6 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
         });
       }
     });
-  }
-
-  bool get _isLoading {
-    return _loading || Health2().refreshing;
   }
 
   void _onTapClose() {
