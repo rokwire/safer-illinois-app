@@ -31,7 +31,6 @@ import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/FlexUI.dart';
-import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/service/Localization.dart';
@@ -586,7 +585,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
     setState(() {
       _refreshingHealthUser = true;
     });
-    Health().loginUser(consent: consent, exposureNotification: exposureNotification).then((_) {
+    Health2().loginUser(consent: consent, exposureNotification: exposureNotification).then((_) {
       if (mounted) {
         setState(() {
           _refreshingHealthUser = false;
@@ -615,7 +614,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
     setState(() {
       _refreshingHealthUserKeys = true;
     });
-    Health().refreshRSAKeys().then((keyPair) {
+    Health2().refreshUserKeys().then((keyPair) {
       if (mounted) {
         if (keyPair != null) {
           setState(() {
@@ -922,7 +921,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
         RsaKeyHelper.verifyRsaKeyPair(PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey>(Health2().user?.publicKey, privateKey)).then((bool result) {
           if (mounted) {
             if (result == true) {
-              Health().setUserRSAPrivateKey(privateKey).then((success) {
+              Health2().setUserPrivateKey(privateKey).then((success) {
                 if (mounted) {
                   String resultMessage = success ? Localization().getStringEx(
                       'panel.settings.home.covid19.alert.qr_code.transfer.succeeded.msg', 'COVID-19 secret transferred successfully.') : Localization()
