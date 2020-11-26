@@ -19,9 +19,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
+import 'package:illinois/service/Health2.dart';
 import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/utils/AppDateTime.dart';
-import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/NotificationService.dart';
@@ -35,38 +35,26 @@ import 'package:sprintf/sprintf.dart';
 class Covid19HistoryPanel extends StatefulWidget {
   @override
   _Covid19HistoryPanelState createState() => _Covid19HistoryPanelState();
-
-  static show(BuildContext context, {Function onContinueTap}){
-    showDialog(
-        context: context,
-        builder: (_) => Material(
-          type: MaterialType.transparency,
-          child: Covid19HistoryPanel(),
-        )
-    );
-  }
 }
 
 class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements NotificationsListener {
   
-  List<Covid19History> _statusHistory = List();
-  HealthRulesSet _rules;
-  bool _isLoading = false;
+  List<Covid19History> _history = List();
+  bool _isRefreshing = false;
   bool _isDeleting = false;
   bool _isReposting = false;
-
 
   @override
   void initState() {
     super.initState();
 
     NotificationService().subscribe(this, [
-      Health.notifyUserUpdated,
-      Health.notifyHistoryUpdated,
-      Health.notifyProcessingFinished,
+      Health2.notifyUserUpdated,
+      Health2.notifyHistoryChanged,
     ]);
 
-    _loadHistory();
+    _history = Covid19History.pastList(Health2().history);
+    _refreshHistory();
   }
 
   @override
@@ -77,64 +65,43 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
 
   @override
   void onNotification(String name, param) {
-    if(name == Health.notifyUserUpdated){
+    if(name == Health2.notifyUserUpdated){
       if (mounted) {
         setState(() {});
       }
     }
-    else if (name == Health.notifyHistoryUpdated) {
+    else if (name == Health2.notifyHistoryChanged) {
       if (mounted) {
-        if (param != null) {
-          setState(() {
-            _statusHistory = param;
-            _isLoading = false;
-          });
-        }
-        else {
-          _loadHistory();
-        }
-      }
-    }
-    else if (name == Health.notifyProcessingFinished) {
-      if ((param != null) && mounted) {
         setState(() {
-          _statusHistory = param?.history;
-          _isLoading = false;
+          _history = Covid19History.pastList(Health2().history);
         });
       }
     }
   }
 
-  void _loadHistory() {
+  void _refreshHistory() {
 
-    if (_isLoading != true) {
-      setState(() { _isLoading = true; });
+    if (_isRefreshing != true) {
+      setState(() { _isRefreshing = true; });
       
-      Health().loadUpdatedHistory().then((List<Covid19History> history) {
-        Health().loadRules2().then((HealthRulesSet rules) {
-          if (mounted) {
-            setState(() {
-              if (history != null) {
-                _statusHistory = Covid19History.pastList(history);
-              }
-              if (rules != null) {
-                _rules = rules;
-              }
-              _isLoading = (Health().processing == true);
-            });
-          }
-        });
+      Health2().refresh().then((_) {
+        if (mounted) {
+          setState(() {
+            _history = Covid19History.pastList(Health2().history);
+            _isRefreshing = false;
+          });
+        }
       });
     }
   }
 
-  void _repostHistory(){
+  void _repostHistory() {
 
     if(!_isReposting) {
       setState(() {
         _isReposting = true;
       });
-      Health().repostHealthHistory().whenComplete((){
+      Health2().repostUser().whenComplete((){
         setState(() {
           _isReposting = false;
           showDialog(
@@ -165,20 +132,17 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
       backgroundColor: Styles().colors.background,
       body: Container(
 //        padding: EdgeInsets.symmetric(horizontal: 5, vertical: 75),
-        child:Container(
-         padding: EdgeInsets.symmetric(horizontal: 16),
-        color:  Styles().colors.background,
-        child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              (_isLoading == true) ?
-              Expanded(child:_buildProgress()):
-
-              Expanded(
-                child:
-                _statusHistory==null || _statusHistory.isEmpty? _buildEmpty(): _buildHistoryList()
-              )
-            ]),
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          color:  Styles().colors.background,
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+            Expanded(child:
+              Stack(children: [
+                ((_history != null) && (0 < _history.length)) ? _buildHistoryList() : _buildEmpty(),
+                Visibility(visible: (_isRefreshing == true), child: _buildProgress()),
+              ],),
+            ),
+          ]),
         )
     ));
   }
@@ -215,12 +179,12 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
         ),
         Expanded(child:
         new ListView.builder(
-        itemCount: _statusHistory.length + ((!kReleaseMode || Organizations().isDevEnvironment) ? 2 : 1),
+        itemCount: _history.length + ((!kReleaseMode || Organizations().isDevEnvironment) ? 2 : 1),
         itemBuilder: (BuildContext ctxt, int index) {
-          if (index < _statusHistory.length) {
-            return _Covid19HistoryEntry(history: _statusHistory[index], rules: _rules);
+          if (index < _history.length) {
+            return _Covid19HistoryEntry(historyEntry: _history[index]);
           }
-          else if (index == _statusHistory.length) {
+          else if (index == _history.length) {
             return _buildRepostButton();
           }
           else {
@@ -433,7 +397,7 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
       setState(() {
         _isDeleting = true;
       });
-      Health().clearUserData().then((bool result) {
+      Health2().clearHistory().then((bool result) {
         setState(() {
           _isDeleting = false;
         });
@@ -454,10 +418,9 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
 }
 
 class _Covid19HistoryEntry extends StatefulWidget{
-  final Covid19History history;
-  final HealthRulesSet rules;
+  final Covid19History historyEntry;
 
-  const _Covid19HistoryEntry({Key key, this.history, this.rules}) : super(key: key);
+  const _Covid19HistoryEntry({Key key, this.historyEntry}) : super(key: key);
 
   @override
   _Covid19HistoryEntryState createState() => _Covid19HistoryEntryState();
@@ -483,7 +446,7 @@ class _Covid19HistoryEntryState extends State<_Covid19HistoryEntry> with SingleT
     content.add(Container(height: 16,));
     content.add(_buildCommonInfo(),);
     
-    if (widget.history?.isTestVerified ?? false) {
+    if (widget.historyEntry?.isTestVerified ?? false) {
       content.addAll(<Widget>[
         _buildMoreButton(),
         _buildResult(),
@@ -504,47 +467,47 @@ class _Covid19HistoryEntryState extends State<_Covid19HistoryEntry> with SingleT
     bool isVerifiedTest = false;
     bool isTest = false;
     String dateFormat = kReleaseMode ? 'MMMM d, yyyy' : 'MMMM d, yyyy HH:mm:ss';
-    if (widget.history != null) {
-      if (widget.history.isTest) {
+    if (widget.historyEntry != null) {
+      if (widget.historyEntry.isTest) {
         isTest = true;
-        bool isManualTest = widget.history?.isManualTest ?? false;
-        isVerifiedTest = widget.history?.isTestVerified ?? false;
-        title = widget.history?.blob?.testType ?? Localization().getStringEx("app.common.label.other", "Other");
+        bool isManualTest = widget.historyEntry?.isManualTest ?? false;
+        isVerifiedTest = widget.historyEntry?.isTestVerified ?? false;
+        title = widget.historyEntry?.blob?.testType ?? Localization().getStringEx("app.common.label.other", "Other");
         details = Row(children: <Widget>[
           Image.asset(isManualTest? "images/u.png": "images/provider.png", excludeFromSemantics: true,),
           Container(width: 11,),
           Expanded(child:
             Semantics(label: Localization().getStringEx("panel.health.covid19.history.label.provider.hint", "provider: "), child:
               Text( isManualTest? Localization().getStringEx("panel.health.covid19.history.label.provider.self_reported", "Self reported"):
-                (widget.history?.blob?.provider ?? Localization().getStringEx("app.common.label.other", "Other")),
+                (widget.historyEntry?.blob?.provider ?? Localization().getStringEx("app.common.label.other", "Other")),
                  style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface,))
           ))
         ],);
       }
-      else if (widget.history.isSymptoms) {
+      else if (widget.historyEntry.isSymptoms) {
         title = Localization().getStringEx("panel.health.covid19.history.label.self_reported.title","Self Reported Symptoms");
         details =
           Row(children: <Widget>[
             Expanded(child:
               Semantics(label: Localization().getStringEx("panel.health.covid19.history.label.self_reported.symptoms","symptoms: "), child:
-               Text(widget.history.blob?.symptomsDisplayString(rules: widget.rules) ?? '', style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground,))
+               Text(widget.historyEntry.blob?.symptomsDisplayString(rules: Health2().rules) ?? '', style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground,))
               )
             )
           ],);
       }
-      else if (widget.history.isContactTrace) {
+      else if (widget.historyEntry.isContactTrace) {
         title = Localization().getStringEx("panel.health.covid19.history.label.contact_trace.title","Contact Trace");
         details =
           Row(children: <Widget>[
             Expanded(child:
               Semantics(label: Localization().getStringEx("panel.health.covid19.history.label.contact_trace.details","contact trace: "), child:
-                Text(widget.history.blob?.traceDurationDisplayString ?? '', style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground,))
+                Text(widget.historyEntry.blob?.traceDurationDisplayString ?? '', style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground,))
           ))]);
       }
-      else if (widget.history.isAction) {
+      else if (widget.historyEntry.isAction) {
         title = Localization().getStringEx("panel.health.covid19.history.label.action.title","Action Required");
         details = Semantics(label: Localization().getStringEx("panel.health.covid19.history.label.action.details","action: "), child:
-            Text(widget.history.blob?.actionDisplayString ?? '', style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground,))
+            Text(widget.historyEntry.blob?.actionDisplayString ?? '', style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground,))
           );
       }
     }
@@ -558,7 +521,7 @@ class _Covid19HistoryEntryState extends State<_Covid19HistoryEntry> with SingleT
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
            children: <Widget>[
-             Text(AppDateTime.formatDateTime(widget.history?.dateUtc?.toLocal(), format:dateFormat, locale: Localization().currentLocale?.languageCode) ?? '',style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface,)),
+             Text(AppDateTime.formatDateTime(widget.historyEntry?.dateUtc?.toLocal(), format:dateFormat, locale: Localization().currentLocale?.languageCode) ?? '',style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface,)),
              Container(height: 4,),
              Row(children: <Widget>[
               Expanded(child:
@@ -583,7 +546,7 @@ class _Covid19HistoryEntryState extends State<_Covid19HistoryEntry> with SingleT
   }
 
   Widget _buildResult(){
-    return !_expanded || widget.history?.blob?.testResult==null? Container():
+    return !_expanded || widget.historyEntry?.blob?.testResult==null? Container():
     Semantics(
         sortKey: OrdinalSortKey(3),
         container: true,
@@ -601,7 +564,7 @@ class _Covid19HistoryEntryState extends State<_Covid19HistoryEntry> with SingleT
                     style: TextStyle(color: Styles().colors.textBackground,fontSize: 14, fontFamily: Styles().fontFamilies.bold,),
                   ),
                   Expanded(child:Container()),
-                  Text(widget.history.blob?.testResult,
+                  Text(widget.historyEntry.blob?.testResult,
                     style: TextStyle(color: Styles().colors.textBackground,fontSize: 14, fontFamily: Styles().fontFamilies.regular,),
                   )
                 ],
@@ -625,8 +588,8 @@ class _Covid19HistoryEntryState extends State<_Covid19HistoryEntry> with SingleT
           child: Column(
             children: <Widget>[
               (_isLoading == true) ? Center(child: SizedBox(height: 24, width: 24, child:CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary),))):
-              widget.history?.blob?.location==null? Container():
-                _buildDetail(Localization().getStringEx("panel.health.covid19.history.label.location.title","Test Location"), widget.history?.blob?.location, onTapData: (widget.history?.blob?.location != null) ? (){ _onTapLocation(); } : null, onTapHint: "Double tap to show location"),
+              widget.historyEntry?.blob?.location==null? Container():
+                _buildDetail(Localization().getStringEx("panel.health.covid19.history.label.location.title","Test Location"), widget.historyEntry?.blob?.location, onTapData: (widget.historyEntry?.blob?.location != null) ? (){ _onTapLocation(); } : null, onTapHint: "Double tap to show location"),
 
               //_buildDetail(Localization().getStringEx("panel.health.covid19.history.label.technician_name.title","Technician Name"), widget.history?.technician),
               //_buildDetail(Localization().getStringEx("panel.health.covid19.history.label.technician_id.title","Technician ID"), widget.history?.technicianId),
@@ -704,11 +667,11 @@ class _Covid19HistoryEntryState extends State<_Covid19HistoryEntry> with SingleT
   }
 
   void _onTapLocation() {
-    Analytics().logSelect(target: widget.history?.blob?.locationId);
-    String locationId = widget.history?.blob?.locationId;
+    Analytics().logSelect(target: widget.historyEntry?.blob?.locationId);
+    String locationId = widget.historyEntry?.blob?.locationId;
     if(locationId!=null){
       setState(() => _isLoading = true);
-      Health().loadHealthServiceLocation(locationId: locationId).then((location){
+      Health2().loadHealthServiceLocation(locationId: locationId).then((location){
         setState(() => _isLoading = false);
         if(location!=null){
           NativeCommunicator().launchMap(

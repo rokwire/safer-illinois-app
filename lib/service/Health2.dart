@@ -242,6 +242,10 @@ class Health2 with Service implements NotificationsListener {
     return this.isUserLoggedIn && (_user?.exposureNotification ?? false);
   }
 
+  Future<void> refresh() async {
+    return _refresh(_RefreshOptions.fromList([_RefreshOption.userInterval, _RefreshOption.history, _RefreshOption.rules, _RefreshOption.buildingAccessRules]));
+  }
+
   HealthCounty get county {
     return _county;
   }
@@ -284,7 +288,7 @@ class Health2 with Service implements NotificationsListener {
   }
 
   Future<bool> clearHistory() async {
-    if (await _clearHistoryOnNet()) {
+    if (await _clearNetHistory()) {
       await _rebuildStatus();
       return true;
     }
@@ -317,7 +321,7 @@ class Health2 with Service implements NotificationsListener {
     }
   }
 
-  Future<HealthUser> _loadUser() async {
+  Future<HealthUser> _loadUserFromNet() async {
     if (this._isUserAuthenticated && (Config().healthUrl != null)) {
       String url =  "${Config().healthUrl}/covid19/user";
       Response response = await Network().get(url, auth: NetworkAuth.User);
@@ -330,7 +334,7 @@ class Health2 with Service implements NotificationsListener {
     throw Exception("User not logged in");
   }
 
-  Future<bool> _saveUser(HealthUser user) async {
+  Future<bool> _saveUserToNet(HealthUser user) async {
     if (this._isUserAuthenticated && (Config().healthUrl != null)) {
       String url = "${Config().healthUrl}/covid19/login";
       String post = AppJson.encode(user?.toJson());
@@ -350,7 +354,7 @@ class Health2 with Service implements NotificationsListener {
 
     HealthUser user;
     try {
-      user = await _loadUser();
+      user = await _loadUserFromNet();
     }
     catch (e) {
       print(e?.toString());
@@ -405,7 +409,7 @@ class Health2 with Service implements NotificationsListener {
 
     // Save
     if (userUpdated == true) {
-      bool userSaved = await _saveUser(user);
+      bool userSaved = await _saveUserToNet(user);
       if (userSaved) {
         _applyUser(user);
       }
@@ -445,8 +449,22 @@ class Health2 with Service implements NotificationsListener {
     return user;
   }
 
+  Future<bool> repostUser() async {
+
+    HealthUser user;
+    try { user = await _loadUserFromNet(); }
+    catch (e) { print(e?.toString()); }
+
+    if (user != null) {
+      user.repost = true;
+      return await _saveUserToNet(user);
+    }
+    
+    return false;
+  }
+
   Future<void> _refreshUser() async {
-    try { _applyUser(await _loadUser()); }
+    try { _applyUser(await _loadUserFromNet()); }
     catch (e) { print(e?.toString()); }
   }
 
@@ -705,7 +723,7 @@ class Health2 with Service implements NotificationsListener {
     }
   }
 
-  Future<bool> _clearHistoryOnNet() async {
+  Future<bool> _clearNetHistory() async {
     if (this._isUserAuthenticated && (Config().healthUrl != null)) {
       String url = "${Config().healthUrl}/covid19/v2/histories";
       Response response = await Network().delete(url, auth: NetworkAuth.User);
@@ -1257,6 +1275,37 @@ class Health2 with Service implements NotificationsListener {
     }
     return null;
   }
+
+  // Network API: HealthServiceLocation
+
+  Future<List<HealthServiceLocation>> loadHealthServiceLocations({String countyId, String providerId})async{
+    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/locations" : null;
+
+    if (url != null) {
+      if ((countyId != null))
+        url += "?county-id=$countyId";
+      if (providerId!=null)
+        url += (countyId != null ? "&" : "?") + "provider-id=$providerId";
+    }
+
+    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
+    String responseString = (response?.statusCode == 200) ? response.body : null;
+    List<dynamic> responseJson = (responseString != null) ? AppJson.decode(responseString) : null;
+    return (responseJson != null) ? HealthServiceLocation.listFromJson(responseJson) : null;
+  }
+
+  Future<HealthServiceLocation> loadHealthServiceLocation({String locationId})async{
+    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/locations" : null;
+
+    if ((url != null) && (locationId != null))
+      url += "/$locationId";
+
+    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
+    String responseString = (response?.statusCode == 200) ? response.body : null;
+    Map<String,dynamic> responseJson = (responseString != null) ? AppJson.decode(responseString) : null;
+    return (responseJson != null) ? HealthServiceLocation.fromJson(responseJson) : null;
+  }
+
 }
 
 class _RefreshOptions {
