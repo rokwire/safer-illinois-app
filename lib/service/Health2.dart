@@ -955,6 +955,69 @@ class Health2 with Service implements NotificationsListener {
     }
   }
 
+  // User OCF test
+
+  Future<int> processOsfTests({List<Covid19OSFTest> osfTests}) async {
+
+    List<HealthTestType> testTypes = await loadTestTypes();
+    Set<String> testTypeSet = testTypes != null ? testTypes.map((entry) => entry.name).toSet() : null;
+    if (osfTests != null) {
+      List<Covid19OSFTest> processed = List<Covid19OSFTest>();
+      DateTime lastOsfTestDateUtc = Storage().lastHealthCovid19OsfTestDateUtc;
+      DateTime latestOsfTestDateUtc;
+
+      for (Covid19OSFTest osfTest in osfTests) {
+        if (((testTypeSet != null) && testTypeSet.contains(osfTest.testType)) && (osfTest.dateUtc != null) && ((lastOsfTestDateUtc == null) || lastOsfTestDateUtc.isBefore(osfTest.dateUtc))) {
+          Covid19History testHistory = await _applyOsfTestHistory(osfTest);
+          if (testHistory != null) {
+            processed.add(osfTest);
+            if ((latestOsfTestDateUtc == null) || latestOsfTestDateUtc.isBefore(osfTest.dateUtc)) {
+              latestOsfTestDateUtc = osfTest.dateUtc;
+            }
+          }
+        }
+      }
+      if (latestOsfTestDateUtc != null) {
+        Storage().lastHealthCovid19OsfTestDateUtc = latestOsfTestDateUtc;
+      }
+
+      if (0 < processed.length) {
+        NotificationService().notify(notifyHistoryChanged);
+
+        Covid19Status previousStatus = _status;
+        await _rebuildStatus();
+        
+        for (Covid19OSFTest osfTest in processed) {
+          Analytics().logHealth(
+              action: Analytics.LogHealthProviderTestProcessedAction,
+              status: _status?.blob?.healthStatus,
+              prevStatus: previousStatus?.blob?.healthStatus,
+              attributes: {
+                Analytics.LogHealthProviderName: osfTest.provider,
+                Analytics.LogHealthTestTypeName: osfTest.testType,
+                Analytics.LogHealthTestResultName: osfTest.testResult,
+              });
+        }
+      }
+      return processed.length;
+    }
+    return 0;
+  }
+
+  Future<Covid19History> _applyOsfTestHistory(Covid19OSFTest test) async {
+    return await _addHistory(await Covid19History.encryptedFromBlob(
+      dateUtc: test?.dateUtc,
+      type: Covid19HistoryType.test,
+      blob: Covid19HistoryBlob(
+        provider: test?.provider,
+        providerId: test?.providerId,
+        testType: test?.testType,
+        testResult: test?.testResult,
+      ),
+      publicKey: _user?.publicKey
+    ));
+  }
+
   // User test monitor interval
 
   Future<void> _refreshUserTestMonitorInterval() async {
@@ -1150,6 +1213,23 @@ class Health2 with Service implements NotificationsListener {
 
   static void _saveBuildingAccessRulesToStorage(Map<String, dynamic> buildingAccessRules) {
     Storage().healthBuildingAccessRules = AppJson.encode(buildingAccessRules);
+  }
+
+  // Network API: HealthTestType
+
+  Future<List<HealthTestType>> loadTestTypes({List<String> typeIds})async{
+    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/test-types" : null;
+    if ((url != null) && (typeIds?.isNotEmpty ?? false)) {
+      url += "?ids=";
+      typeIds.forEach((id){
+        url += "$id,";
+      });
+      url = url.substring(0, url.length - 1);
+    }
+    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
+    String responseString = (response?.statusCode == 200) ? response.body : null;
+    List<dynamic> responseJson = (responseString != null) ? AppJson.decode(responseString) : null;
+    return (responseJson != null) ? HealthTestType.listFromJson(responseJson) : null;
   }
 }
 

@@ -22,7 +22,7 @@ import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/DeepLink.dart';
-import 'package:illinois/service/Health.dart';
+import 'package:illinois/service/Health2.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Network.dart';
 import 'package:illinois/service/NotificationService.dart';
@@ -146,7 +146,7 @@ class OSFHealth with Service implements NotificationsListener {
                 }
               }
               if(osfTests.isNotEmpty){
-                processedEntriesCount = await Health().processOsfTests(osfTests: osfTests);
+                processedEntriesCount = await Health2().processOsfTests(osfTests: osfTests);
               }
             }
           }
