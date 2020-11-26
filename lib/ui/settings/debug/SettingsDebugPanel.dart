@@ -28,13 +28,11 @@ import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/service/Storage.dart';
-import 'package:illinois/ui/health/debug/Covid19DebugActionPanel.dart';
 import 'package:illinois/ui/health/debug/Covid19DebugCreateEventPanel.dart';
 import 'package:illinois/ui/health/debug/Covid19DebugExposureLogsPanel.dart';
 import 'package:illinois/ui/health/debug/Covid19DebugExposurePanel.dart';
 import 'package:illinois/ui/health/debug/Covid19DebugKeysPanel.dart';
 import 'package:illinois/ui/health/debug/Covid19DebugSymptomsPanel.dart';
-import 'package:illinois/ui/health/debug/Covid19DebugPendingEventsPanel.dart';
 import 'package:illinois/ui/health/debug/Covid19DebugTraceContactPanel.dart';
 import 'package:illinois/ui/settings/debug/HttpProxySettingsPanel.dart';
 import 'package:illinois/ui/settings/debug/SettingsDebugMessagingPanel.dart';
@@ -205,39 +203,21 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
       Padding(
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
           child: RoundedButton(
-              label: "COVID-19 Pending Events",
+              label: "COVID-19 Create Exposure",
               backgroundColor: Styles().colors.background,
               fontSize: 16.0,
               textColor: Styles().colors.fillColorPrimary,
               borderColor: Styles().colors.fillColorPrimary,
-              onTap: _onTapCovid19PendingEvents)),
+              onTap: _onTapTraceCovid19Exposure)),
       Padding(
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
           child: RoundedButton(
-              label: "COVID-19 Trace Contact",
-              backgroundColor: Styles().colors.background,
-              fontSize: 16.0,
-              textColor: Styles().colors.fillColorPrimary,
-              borderColor: Styles().colors.fillColorPrimary,
-              onTap: _onTapTraceCovid19Contact)),
-      Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-          child: RoundedButton(
-              label: "COVID-19 Report Symptoms",
+              label: "COVID-19 Create Symptoms",
               backgroundColor: Styles().colors.background,
               fontSize: 16.0,
               textColor: Styles().colors.fillColorPrimary,
               borderColor: Styles().colors.fillColorPrimary,
               onTap: _onTapReportCovid19Symptoms)),
-      Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-          child: RoundedButton(
-              label: "COVID-19 Create Action",
-              backgroundColor: Styles().colors.background,
-              fontSize: 16.0,
-              textColor: Styles().colors.fillColorPrimary,
-              borderColor: Styles().colors.fillColorPrimary,
-              onTap: _onTapCreateCovid19Action)),
       Padding(
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
           child: RoundedButton(
@@ -394,20 +374,12 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
       Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19DebugCreateEventPanel()));
   }
 
-  void _onTapCovid19PendingEvents() {
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19DebugPendingEventsPanel()));
-  }
-
-  void _onTapTraceCovid19Contact() {
+  void _onTapTraceCovid19Exposure() {
       Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19DebugTraceContactPanel()));
   }
 
   void _onTapReportCovid19Symptoms() {
       Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19DebugSymptomsPanel()));
-  }
-
-  void _onTapCreateCovid19Action() {
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19DebugActionPanel()));
   }
 
   void _onTapCovid19Exposures() {
