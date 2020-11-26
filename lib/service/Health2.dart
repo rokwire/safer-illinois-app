@@ -193,7 +193,7 @@ class Health2 with Service implements NotificationsListener {
   }
 
   Future<void> refreshUser() async {
-    return _refresh(_RefreshOptions.fromList([_RefreshOption.user]));
+    return _refresh(_RefreshOptions.fromList([_RefreshOption.user, _RefreshOption.userPrivateKey]));
   }
 
   Future<void> _refresh(_RefreshOptions options) async {
@@ -216,6 +216,7 @@ class Health2 with Service implements NotificationsListener {
 
     await Future.wait([
       options.user ? _refreshUser() : Future<void>.value(),
+      options.userPrivateKey ? _refreshUserPrivateKey() : Future<void>.value(),
       
       options.userInterval ? _refreshUserTestMonitorInterval() : Future<void>.value(),
       options.status ? _refreshStatus() : Future<void>.value(),
@@ -1464,8 +1465,9 @@ class _RefreshOptions {
   bool get isNotEmpty { return options.isNotEmpty; }
 
   bool get user { return options.contains(_RefreshOption.user); }
-
+  bool get userPrivateKey { return options.contains(_RefreshOption.userPrivateKey); }
   bool get userInterval { return options.contains(_RefreshOption.userInterval); }
+
   bool get status { return options.contains(_RefreshOption.status); }
   bool get history { return options.contains(_RefreshOption.history); }
 
@@ -1480,8 +1482,9 @@ class _RefreshOptions {
 
 enum _RefreshOption {
   user,
-  
+  userPrivateKey,
   userInterval,
+
   status,
   history,
   
