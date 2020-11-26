@@ -47,6 +47,7 @@ class Health2 with Service implements NotificationsListener {
   static const String notifyCountyChanged              = "edu.illinois.rokwire.health.county.changed";
   static const String notifyRulesChanged               = "edu.illinois.rokwire.health.rules.changed";
   static const String notifyBuildingAccessRulesChanged = "edu.illinois.rokwire.health.building_access_rules.changed";
+  static const String notifyRefreshing                 = "edu.illinois.rokwire.health.refreshing.updated";
 
   static const String _rulesFileName                   = "rules.json";
   static const String _historyFileName                 = "history.json";
@@ -165,7 +166,7 @@ class Health2 with Service implements NotificationsListener {
     }
   }
 
-  Future<void> _onUserLoginChanged() async {
+  void _onUserLoginChanged() {
 
     if (this._isUserAuthenticated) {
       _refreshUserPrivateKey().then((_) {
@@ -184,6 +185,7 @@ class Health2 with Service implements NotificationsListener {
   // Refresh
 
   Future<void> _refresh(_RefreshOptions options) async {
+
     if (_refreshFuture != null) {
       options = options.difference(_refreshOptions);
       await _refreshFuture;
@@ -191,7 +193,9 @@ class Health2 with Service implements NotificationsListener {
 
     if (options.isNotEmpty) {
       _refreshFuture = _refreshInternal(options);
+      NotificationService().notify(notifyRefreshing);
       await _refreshFuture;
+      NotificationService().notify(notifyRefreshing);
     }
   }
 
@@ -229,10 +233,13 @@ class Health2 with Service implements NotificationsListener {
   PrivateKey           get userPrivateKey { return _userPrivateKey; }
 
   Covid19Status        get status  { return _status; }
+  Covid19Status        get previousStatus  { return _previousStatus; }
+  
   List<Covid19History> get history { return _history; }
-
   HealthRulesSet       get rules   { return _rules; }
   Map<String, dynamic> get buildingAccessRules { return _buildingAccessRules; }
+
+  bool                 get refreshing { return (_refreshFuture != null); }
 
   bool get isUserLoggedIn {
     return this._isUserAuthenticated && (_user != null);

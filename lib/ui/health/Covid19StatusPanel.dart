@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import 'dart:collection';
 import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
@@ -24,7 +23,7 @@ import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/model/UserProfile.dart';
 import 'package:illinois/service/Auth.dart';
-import 'package:illinois/service/Health.dart';
+import 'package:illinois/service/Health2.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/NotificationService.dart';
@@ -47,14 +46,11 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
   final double _headingH2 = 80;
   final double _photoSize = 240;
 
-  int _loadingProgress = 0;
-  bool _netIdStatusChecked;
-  Covid19Status _covid19Status;
-  bool _covid19Access;
+  List<HealthCounty> _counties;
   Color _colorOfTheDay;
-  LinkedHashMap<String, HealthCounty> _counties;
-
   MemoryImage _photoImage;
+  bool _netIdStatusChecked;
+  bool _loading;
 
   final SwiperController _swiperController = SwiperController();
 
@@ -62,13 +58,10 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
   void initState() {
     super.initState();
     NotificationService().subscribe(this, [
-      Health.notifyStatusAvailable,
-      Health.notifyProcessingFinished,
+      Health2.notifyStatusUpdated,
+      Health2.notifyRefreshing,
     ]);
-    _loadCounties();
-    _loadCovidStatus();
-    _loadColorOfTheDay();
-    _loadPhotoBytes();
+    _initData();
   }
 
   @override
@@ -79,100 +72,49 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
 
   @override
   void onNotification(String name, param) {
-    if (name == Health.notifyStatusAvailable) {
-      _updateCovidStatus(param);
-    }
-    else if (name == Health.notifyProcessingFinished) {
-      _updateCovidStatus(param?.status);
+    if ((name == Health2.notifyStatusUpdated) ||
+        (name == Health2.notifyRefreshing)) {
+      if (mounted) {
+        setState(() {});
+      }
     }
   }
 
-  void _loadCounties(){
-    _loadingProgress++;
-    Health().loadCounties().then((List<HealthCounty> counties) {
+  void _initData() {
+    setState(() { _loading = true; });
+
+    _loadData().then((_) {
       if (mounted) {
-        setState(() {
-          _counties = HealthCounty.listToMap(counties);
-          _loadingProgress--;
-        });
+        setState(() { _loading = false; });
         _checkNetIdStatus();
       }
     });
   }
 
-  void _loadCovidStatus() {
-    _loadingProgress++;
-    Health().currentCountyStatus.then((Covid19Status status) {
-      if (mounted) {
-        setState(() {
-          _covid19Status = status;
-          _loadingProgress--;
-        });
-        _updateCovid19Access();
-        _checkNetIdStatus();
-      }
-    });
+  Future<void> _loadData() async {
+    List<dynamic> results = await Future.wait([
+      Health2().refresh(),
+      Health2().loadCounties(),
+      _loadColorOfTheDay(),
+      _loadPhotoBytes(),
+    ]);
+
+    _counties = ((results != null) && (1 < results.length)) ? results[1]  : null;
+    _colorOfTheDay = ((results != null) && (2 < results.length)) ? results[2] : null;
+    _photoImage = ((results != null) && (3 < results.length)) ? results[3] : null;
   }
 
-  void _updateCovidStatus(Covid19Status status) {
-    if (mounted) {
-      setState(() {
-        _covid19Status = status;
-      });
-      _updateCovid19Access();
-    }
+  static Future<Color> _loadColorOfTheDay() async {
+    return await TransportationService().loadBussColor(deviceId: await NativeCommunicator().getDeviceId(), userId: UserProfile().uuid);
   }
 
-  void _updateCovid19Access() {
-    Health().isBuildingAccessGranted(_covid19Status?.blob?.healthStatus).then((bool granted) {
-      if (mounted) {
-        setState(() {
-          _covid19Access = granted;
-        });
-      }
-    });
-  }
-
-  void _loadPhotoBytes() {
-    _loadingProgress++;
-    _loadAsyncPhotoBytes().whenComplete((){
-      if (mounted) {
-        setState(() {
-          _loadingProgress--;
-        });
-        _checkNetIdStatus();
-      }
-    });
-  }
-
-  Future<void> _loadAsyncPhotoBytes() async {
+  static Future<MemoryImage> _loadPhotoBytes() async {
     Uint8List photoBytes = await Auth().photoImageBytes;
-    if(AppCollection.isCollectionNotEmpty(photoBytes)){
-      _photoImage = await compute(AppImage.memoryImageWithBytes, photoBytes);
-    }
-  }
-
-  HealthCounty get _selectedCounty {
-    return (_counties != null) ? _counties[Health().currentCountyId] : null;
-  }
-
-  void _loadColorOfTheDay() {
-    _loadingProgress++;
-    NativeCommunicator().getDeviceId().then((deviceId) {
-      TransportationService().loadBussColor(deviceId: deviceId, userId: UserProfile().uuid).then((color) {
-        if (mounted) {
-          setState(() {
-            _colorOfTheDay = color;
-            _loadingProgress--;
-          });
-          _checkNetIdStatus();
-        }
-      });
-    });
+    return AppCollection.isCollectionNotEmpty(photoBytes) ? await compute(AppImage.memoryImageWithBytes, photoBytes) : null;
   }
 
   void _checkNetIdStatus() {
-    if ((_loadingProgress == 0) && (_netIdStatusChecked != true)) {
+    if ((_loading != true) && (_netIdStatusChecked != true)) {
       _netIdStatusChecked = true;
       if (Auth().isShibbolethLoggedIn && (Auth().authCard?.photoBase64?.length ?? 0) == 0) {
         AppAlert.showDialogResult(context, Localization().getStringEx('panel.covid19_passport.message.missing_id_info', 'No Illini ID information found. You may have an expired i-card. Please contact the ID Center.'));
@@ -239,7 +181,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
               ],
             ),
           ),
-          Visibility(visible: _isLoading, child: Container(width: MediaQuery.of(context).size.width, height: MediaQuery.of(context).size.height, color: Styles().colors.fillColorPrimaryTransparent09,
+          Visibility(visible: (_isLoading == true), child: Container(width: MediaQuery.of(context).size.width, height: MediaQuery.of(context).size.height, color: Styles().colors.fillColorPrimaryTransparent09,
             child: Center(child: CircularProgressIndicator(),),),)
         ],
       ),
@@ -356,9 +298,9 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
   }
 
   Widget _buildAccesLayout() {
-    String imageAsset = (_covid19Access == true) ? 'images/group-20.png' : 'images/group-28.png';
+    String imageAsset = (Health2().buildingAccessGranted == true) ? 'images/group-20.png' : 'images/group-28.png';
     String accessText = '';
-    switch (_covid19Access) {
+    switch (Health2().buildingAccessGranted) {
       case true: accessText = Localization().getStringEx("panel.covid19_passport.label.access.granted","GRANTED"); break;
       case false: accessText = Localization().getStringEx("panel.covid19_passport.label.access.denied","DENIED"); break;
     }
@@ -380,8 +322,8 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
   }
 
   Widget _buildQrCode(){
-    String healthStatus = _covid19Status?.blob?.healthStatus;
-    String statusName = _covid19Status?.blob?.localizedHealthStatus ?? '';
+    String healthStatus = Health2().status?.blob?.healthStatus;
+    String statusName = Health2().status?.blob?.localizedHealthStatus ?? '';
     bool userHasHealthStatus = (healthStatus != null);
     Color statusColor = (userHasHealthStatus ? (Styles().colors.getHealthStatusColor(healthStatus) ?? _backgroundColor) : _backgroundColor);
     String authCardOrPhone = Auth().isShibbolethLoggedIn
@@ -440,7 +382,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
                       label: Localization().getStringEx("panel.covid19_passport.button.info.title","Info "),
                       button: true,
                       excludeSemantics: true,
-                      child:  IconButton(icon: Image.asset('images/icon-info-orange.png', excludeFromSemantics: true,), onPressed: () =>  StatusInfoDialog.show(context, _selectedCounty?.displayName ?? ""), padding: EdgeInsets.all(10),)
+                      child:  IconButton(icon: Image.asset('images/icon-info-orange.png', excludeFromSemantics: true,), onPressed: () =>  StatusInfoDialog.show(context, Health2().county?.displayName ?? ""), padding: EdgeInsets.all(10),)
                 ))
             ],)):
           Container(
@@ -472,7 +414,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
                       icon: Icon(Icons.arrow_drop_down, color:Styles().colors.fillColorPrimary, semanticLabel: null,),
                       isExpanded: true,
                       style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.fillColorPrimary,),
-                      hint: Text(_selectedCounty?.displayName ?? Localization().getStringEx('panel.covid19_passport.label.county.empty.hint',"Select a county...",),
+                      hint: Text(Health2().county?.displayName ?? Localization().getStringEx('panel.covid19_passport.label.county.empty.hint',"Select a county...",),
                         style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.fillColorPrimary,),overflow: TextOverflow.ellipsis,),
                       items: _buildCountyDropdownItems(),
                       onChanged: (value) { _switchCounty(value); },
@@ -491,9 +433,9 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
     List <DropdownMenuItem> result;
     if (_counties?.isNotEmpty ?? false) {
       result = List <DropdownMenuItem>();
-      for (HealthCounty county in _counties.values) {
+      for (HealthCounty county in _counties) {
         result.add(DropdownMenuItem<dynamic>(
-          value: county.id,
+          value: county,
           child: Text(county.displayName ?? ''),
         ));
       }
@@ -546,21 +488,21 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
     }
   }
 
-  void _switchCounty(String countyId) {
+  void _switchCounty(HealthCounty county) {
     setState(() {
-      _loadingProgress++;
+      _loading = true;
     });
-    Health().switchCounty(countyId).then((Covid19Status status) {
+    Health2().setCounty(county).then((_) {
       if (mounted) {
         setState(() {
-          _loadingProgress--;
-          if (status != null) {
-            _covid19Status = status;
-          }
+          _loading = false;
         });
-        _updateCovid19Access();
       }
     });
+  }
+
+  bool get _isLoading {
+    return _loading || Health2().refreshing;
   }
 
   void _onTapClose() {
@@ -569,10 +511,6 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
 
   Color get _backgroundColor {
     return Styles().colors.background;
-  }
-
-  bool get _isLoading {
-    return ((_loadingProgress > 0) || (Health().processing == true));
   }
 }
 
