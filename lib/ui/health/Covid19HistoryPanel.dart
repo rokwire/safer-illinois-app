@@ -65,7 +65,7 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
 
   @override
   void onNotification(String name, param) {
-    if (name == Health2.notifyUserUpdated){
+    if (name == Health2.notifyUserUpdated) {
       if (mounted) {
         setState(() {});
       }
