@@ -42,8 +42,8 @@ import "package:pointycastle/export.dart";
 class Health2 with Service implements NotificationsListener {
 
   static const String notifyUserUpdated                = "edu.illinois.rokwire.health.user.updated";
-  static const String notifyStatusChanged              = "edu.illinois.rokwire.health.status.changed";
-  static const String notifyHistoryChanged             = "edu.illinois.rokwire.health.history.changed";
+  static const String notifyStatusUpdated              = "edu.illinois.rokwire.health.status.updated";
+  static const String notifyHistoryUpdated             = "edu.illinois.rokwire.health.history.updated";
   static const String notifyCountyChanged              = "edu.illinois.rokwire.health.county.changed";
   static const String notifyRulesChanged               = "edu.illinois.rokwire.health.rules.changed";
   static const String notifyBuildingAccessRulesChanged = "edu.illinois.rokwire.health.building_access_rules.changed";
@@ -271,7 +271,7 @@ class Health2 with Service implements NotificationsListener {
       publicKey: _user?.publicKey
     ));
     if (historyEntry != null) {
-      NotificationService().notify(notifyHistoryChanged);
+      NotificationService().notify(notifyHistoryUpdated);
       await _rebuildStatus();
     }
     return historyEntry;
@@ -286,7 +286,7 @@ class Health2 with Service implements NotificationsListener {
       publicKey: _user?.publicKey
     ));
     if (historyEntry != null) {
-      NotificationService().notify(notifyHistoryChanged);
+      NotificationService().notify(notifyHistoryUpdated);
       await _rebuildStatus();
     }
     return historyEntry;
@@ -588,7 +588,7 @@ class Health2 with Service implements NotificationsListener {
 
       _previousStatus = _status;
       _saveStatusToStorage(_status = status);
-      NotificationService().notify(notifyStatusChanged);
+      NotificationService().notify(notifyStatusUpdated);
     }
     _applyBuildingAccessForStatus(status);
   }
@@ -716,7 +716,7 @@ class Health2 with Service implements NotificationsListener {
     }
 
     if (historyUpdated == true) {
-      NotificationService().notify(notifyHistoryChanged);
+      NotificationService().notify(notifyHistoryUpdated);
     }
   }
 
@@ -724,7 +724,7 @@ class Health2 with Service implements NotificationsListener {
     if (_history != null) {
       _history = null;
       await _clearHistoryCache();
-      NotificationService().notify(notifyHistoryChanged);
+      NotificationService().notify(notifyHistoryUpdated);
     }
   }
 
@@ -1005,7 +1005,7 @@ class Health2 with Service implements NotificationsListener {
       }
 
       if (0 < processed.length) {
-        NotificationService().notify(notifyHistoryChanged);
+        NotificationService().notify(notifyHistoryUpdated);
 
         Covid19Status previousStatus = _status;
         await _rebuildStatus();

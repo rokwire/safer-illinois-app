@@ -50,7 +50,7 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
 
     NotificationService().subscribe(this, [
       Health2.notifyUserUpdated,
-      Health2.notifyHistoryChanged,
+      Health2.notifyHistoryUpdated,
     ]);
 
     _history = Covid19History.pastList(Health2().history);
@@ -70,7 +70,7 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
         setState(() {});
       }
     }
-    else if (name == Health2.notifyHistoryChanged) {
+    else if (name == Health2.notifyHistoryUpdated) {
       if (mounted) {
         setState(() {
           _history = Covid19History.pastList(Health2().history);

@@ -66,9 +66,9 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
     NotificationService().subscribe(this, [
       FlexUI.notifyChanged,
       Auth.notifyLoginChanged,
-      Health2.notifyStatusChanged,
       Health2.notifyUserUpdated,
-      Health2.notifyHistoryChanged,
+      Health2.notifyStatusUpdated,
+      Health2.notifyHistoryUpdated,
     ]);
 
     _refreshStatus();
@@ -84,8 +84,8 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
   void onNotification(String name, param) {
     if ((name == Auth.notifyLoginChanged) ||
         (name == Health2.notifyUserUpdated) ||
-        (name == Health2.notifyStatusChanged) ||
-        (name == Health2.notifyHistoryChanged) ||
+        (name == Health2.notifyStatusUpdated) ||
+        (name == Health2.notifyHistoryUpdated) ||
         (name == FlexUI.notifyChanged))
     {
       if (mounted) {
