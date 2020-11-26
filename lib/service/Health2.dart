@@ -422,11 +422,13 @@ class Health2 with Service implements NotificationsListener {
 
   Future<bool> deleteUser() async {
     if (await _clearUserFromNet()) {
-      _saveUserPrivateKey(_userPrivateKey = null);
-      _clearUserTestMonitorInterval();
+      await _saveUserPrivateKey(_userPrivateKey = null);
+      await _clearHistory();
       _clearStatus();
-      _clearHistory();
+      _clearUserTestMonitorInterval();
+      return true;
     }
+    return false;
   }
 
   Future<bool> repostUser() async {

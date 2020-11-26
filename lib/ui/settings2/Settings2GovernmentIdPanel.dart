@@ -24,7 +24,7 @@ import 'package:illinois/model/UserProfile.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Exposure.dart';
-import 'package:illinois/service/Health.dart';
+import 'package:illinois/service/Health2.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Onboarding.dart';
@@ -106,7 +106,7 @@ class _Settings2GovernmentIdPanelPanelState extends State<Settings2GovernmentIdP
   Future<void> _deleteUserData() async{
     Analytics.instance.logAlert(text: "Remove My Information", selection: "Yes");
 
-    await Health().deleteUser();
+    await Health2().deleteUser();
     await Exposure().deleteUser();
     await Auth().deleteUserPiiData();
     await UserProfile().deleteProfile();

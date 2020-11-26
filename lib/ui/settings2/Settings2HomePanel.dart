@@ -23,7 +23,7 @@ import 'package:illinois/service/AppNavigation.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Connectivity.dart';
 import 'package:illinois/service/Exposure.dart';
-import 'package:illinois/service/Health.dart';
+import 'package:illinois/service/Health2.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/NotificationService.dart';
@@ -62,7 +62,7 @@ class _Settings2HomePanelState extends State<Settings2HomePanel> implements Noti
     NotificationService().subscribe(this, [
       Auth.notifyUserPiiDataChanged,
       UserProfile.notifyProfileUpdated,
-      Health.notifyUserUpdated,
+      Health2.notifyUserUpdated,
     ]);
 
     _loadHealthUser();
@@ -83,7 +83,7 @@ class _Settings2HomePanelState extends State<Settings2HomePanel> implements Noti
   Future<void> _deleteUserData() async{
     Analytics.instance.logAlert(text: "Remove My Information", selection: "Yes");
 
-    await Health().deleteUser();
+    await Health2().deleteUser();
     await Exposure().deleteUser();
     await Auth().deleteUserPiiData();
     await UserProfile().deleteProfile();
@@ -94,7 +94,7 @@ class _Settings2HomePanelState extends State<Settings2HomePanel> implements Noti
     setState(() {
       _isLoading = true;
     });
-    Health().loadUser().whenComplete((){
+    Health2().refreshUser().whenComplete((){
       setState(() {
         _isLoading = false;
       });
@@ -109,7 +109,7 @@ class _Settings2HomePanelState extends State<Settings2HomePanel> implements Noti
       _updateState();
     } else if (name == UserProfile.notifyProfileUpdated){
       _updateState();
-    } else if (name == Health.notifyUserUpdated){
+    } else if (name == Health2.notifyUserUpdated){
       _updateState();
     }
   }
@@ -189,14 +189,14 @@ class _Settings2HomePanelState extends State<Settings2HomePanel> implements Noti
                     height: null,
                     borderRadius: BorderRadius.all(Radius.circular(4)),
                     label: 'Exposure Notifications',
-                    value: (Health()?.healthUser?.exposureNotification ?? false) ? 'Enabled' : 'Disabled',
+                    value: (Health2().user?.exposureNotification ?? false) ? 'Enabled' : 'Disabled',
                     descriptionLabel: 'Learn more information about exposure notifications and manage your settings.',
                     onTap: _onExposureNotificationsTapped,
                   ),
                   Container(height: 12,),
                   CustomRibbonButton(
                     height: null,
-                    value: (Health()?.healthUser?.consent ?? false) ? 'Enabled' : 'Disabled',
+                    value: (Health2().user?.consent ?? false) ? 'Enabled' : 'Disabled',
                     borderRadius: BorderRadius.all(Radius.circular(4)),
                     label: 'Automatic Test Results',
                     descriptionLabel: 'Learn more information about automatic test results and manage your settings.',

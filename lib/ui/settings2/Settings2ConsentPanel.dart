@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:illinois/service/Analytics.dart';
-import 'package:illinois/service/Health.dart';
+import 'package:illinois/service/Health2.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
@@ -22,7 +22,7 @@ class _Settings2ConsentPanelState extends State<Settings2ConsentPanel> implement
   @override
   void initState() {
     super.initState();
-    NotificationService().subscribe(this, [Health.notifyUserUpdated]);
+    NotificationService().subscribe(this, [Health2.notifyUserUpdated]);
   }
 
   @override
@@ -73,9 +73,9 @@ class _Settings2ConsentPanelState extends State<Settings2ConsentPanel> implement
                       height: null,
                       border: Border.all(width: 1, color: Styles().colors.surfaceAccent),
                       borderRadius: BorderRadius.all(Radius.circular(4)),
-                      toggled: Health().healthUser.consent,
+                      toggled: Health2().user.consent,
                       onTap: (){
-                        if(!Health().healthUser.consent){
+                        if(!Health2().user.consent){
                           _onConsentEnabled();
                         }
                         else{
@@ -214,7 +214,7 @@ class _Settings2ConsentPanelState extends State<Settings2ConsentPanel> implement
     _setState((){
       _isDisabling = true;
     });
-    Health().loginUser(consent: false, exposureNotification: (Health()?.healthUser?.exposureNotification ?? false)).whenComplete((){
+    Health2().loginUser(consent: false).whenComplete((){
       _setState((){
         _isDisabling = false;
       });
@@ -229,7 +229,7 @@ class _Settings2ConsentPanelState extends State<Settings2ConsentPanel> implement
     setState((){
       _isEnabling = true;
     });
-    Health().loginUser(consent: true , exposureNotification: (Health()?.healthUser?.exposureNotification ?? false)).whenComplete((){
+    Health2().loginUser(consent: true).whenComplete((){
       setState((){
         _isEnabling = false;
       });
@@ -238,7 +238,7 @@ class _Settings2ConsentPanelState extends State<Settings2ConsentPanel> implement
 
   @override
   void onNotification(String name, param) {
-    if(name == Health.notifyUserUpdated){
+    if(name == Health2.notifyUserUpdated){
       setState(() {});
     }
   }
