@@ -184,6 +184,18 @@ class Health2 with Service implements NotificationsListener {
 
   // Refresh
 
+  bool get refreshing {
+    return (_refreshFuture != null);
+  }
+
+  Future<void> refreshStatus() async {
+    return _refresh(_RefreshOptions.fromList([_RefreshOption.userInterval, _RefreshOption.history, _RefreshOption.rules, _RefreshOption.buildingAccessRules]));
+  }
+
+  Future<void> refreshUser() async {
+    return _refresh(_RefreshOptions.fromList([_RefreshOption.user]));
+  }
+
   Future<void> _refresh(_RefreshOptions options) async {
 
     if (_refreshFuture != null) {
@@ -228,19 +240,7 @@ class Health2 with Service implements NotificationsListener {
   }
 
   // Public Accessories
-
-  HealthUser           get user    { return _user; }
-  PrivateKey           get userPrivateKey { return _userPrivateKey; }
-
-  Covid19Status        get status  { return _status; }
-  Covid19Status        get previousStatus  { return _previousStatus; }
   
-  List<Covid19History> get history { return _history; }
-  HealthRulesSet       get rules   { return _rules; }
-  Map<String, dynamic> get buildingAccessRules { return _buildingAccessRules; }
-
-  bool                 get refreshing { return (_refreshFuture != null); }
-
   bool get isUserLoggedIn {
     return this._isUserAuthenticated && (_user != null);
   }
@@ -249,69 +249,11 @@ class Health2 with Service implements NotificationsListener {
     return this.isUserLoggedIn && (_user?.exposureNotification ?? false);
   }
 
-  bool get buildingAccessGranted {
-    return ((_buildingAccessRules != null) && (_status?.blob?.healthStatus != null)) ?
-      (_buildingAccessRules[_status?.blob?.healthStatus] == kCovid19AccessGranted) : null;
-  }
-
-  Future<void> refreshStatus() async {
-    return _refresh(_RefreshOptions.fromList([_RefreshOption.userInterval, _RefreshOption.history, _RefreshOption.rules, _RefreshOption.buildingAccessRules]));
-  }
-
-  Future<void> refreshUser() async {
-    return _refresh(_RefreshOptions.fromList([_RefreshOption.user]));
-  }
-
-  HealthCounty get county {
-    return _county;
-  }
-
-  Future<void> setCounty(HealthCounty county) {
-    return _applyCounty(county);
-  }
-
-  Future<List<HealthCounty>> loadCounties({ bool guidelines }) async {
-    return _loadCounties(guidelines: guidelines);
-  }
-
-  Future<Covid19History> addHistory({DateTime dateUtc, Covid19HistoryType type, Covid19HistoryBlob blob}) async {
-    Covid19History historyEntry = await _addHistory(await Covid19History.encryptedFromBlob(
-      dateUtc: dateUtc,
-      type: type,
-      blob: blob,
-      publicKey: _user?.publicKey
-    ));
-    if (historyEntry != null) {
-      NotificationService().notify(notifyHistoryUpdated);
-      await _rebuildStatus();
-    }
-    return historyEntry;
-  }
-
-  Future<Covid19History> updateHistory({String id, DateTime dateUtc, Covid19HistoryType type, Covid19HistoryBlob blob}) async {
-    Covid19History historyEntry = await _updateHistory(await Covid19History.encryptedFromBlob(
-      id: id,
-      dateUtc: dateUtc,
-      type: type,
-      blob: blob,
-      publicKey: _user?.publicKey
-    ));
-    if (historyEntry != null) {
-      NotificationService().notify(notifyHistoryUpdated);
-      await _rebuildStatus();
-    }
-    return historyEntry;
-  }
-
-  Future<bool> clearHistory() async {
-    if (await _clearNetHistory()) {
-      await _rebuildStatus();
-      return true;
-    }
-    return false;
-  }
-
   // User
+
+  HealthUser get user {
+    return _user;
+  }
 
   bool get _isUserAuthenticated {
     return (Auth().authToken?.idToken != null);
@@ -505,6 +447,34 @@ class Health2 with Service implements NotificationsListener {
 
   // User RSA keys
 
+  PrivateKey get userPrivateKey {
+    return _userPrivateKey;
+  }
+  
+  Future<bool> setUserPrivateKey(PrivateKey privateKey) async {
+    if (await _saveUserPrivateKey(privateKey)) {
+      _userPrivateKey = privateKey;
+      _refresh(_RefreshOptions.fromList([_RefreshOption.history]));
+      return true;
+    }
+    return false;
+  }
+
+  Future<AsymmetricKeyPair<PublicKey, PrivateKey>> refreshUserKeys() async {
+    AsymmetricKeyPair<PublicKey, PrivateKey> keys = await RsaKeyHelper.computeRSAKeyPair(RsaKeyHelper.getSecureRandom());
+
+    HealthUser user = await loginUser(keys: keys);
+    if (user != null) {
+      // The old status and history is useless
+      await _clearNetHistory();
+      await _clearNetStatus();
+      _refresh(_RefreshOptions.fromList([_RefreshOption.history]));
+      return keys;
+    }
+
+    return null; // Failure - keep the old keys
+  }
+
   Future<void> _refreshUserPrivateKey() async {
     _userPrivateKey = await _loadUserPrivateKey();
   }
@@ -558,6 +528,14 @@ class Health2 with Service implements NotificationsListener {
 
   // Status
 
+  Covid19Status get status  {
+    return _status;
+  }
+  
+  Covid19Status get previousStatus  {
+    return _previousStatus;
+  }
+  
   Future<Covid19Status> _loadStatusFromNet() async {
     if (this._isUserReadAuthenticated && (Config().healthUrl != null)) {
       String url = "${Config().healthUrl}/covid19/v2/app-version/2.2/statuses";
@@ -582,14 +560,18 @@ class Health2 with Service implements NotificationsListener {
     return false;
   }
 
-  /*Future<bool> _clearStatusInNet() async {
+  Future<bool> _clearNetStatus() async {
     if (this._isUserAuthenticated && (Config().healthUrl != null)) {
       String url = "${Config().healthUrl}/covid19/v2/app-version/2.2/statuses";
       Response response = await Network().delete(url, auth: NetworkAuth.User);
-      return response?.statusCode == 200;
+      if (response?.statusCode == 200) {
+       _saveStatusToStorage(_status = _previousStatus = null);
+        NotificationService().notify(notifyStatusUpdated);
+        return true;
+      }
     }
     return false;
-  }*/
+  }
 
   Future<void> _refreshStatus () async {
     Covid19Status status = await _loadStatusFromNet();
@@ -736,6 +718,47 @@ class Health2 with Service implements NotificationsListener {
   }
 
   // History
+
+  List<Covid19History> get history {
+    return _history;
+  }
+
+  Future<Covid19History> addHistory({DateTime dateUtc, Covid19HistoryType type, Covid19HistoryBlob blob}) async {
+    Covid19History historyEntry = await _addHistory(await Covid19History.encryptedFromBlob(
+      dateUtc: dateUtc,
+      type: type,
+      blob: blob,
+      publicKey: _user?.publicKey
+    ));
+    if (historyEntry != null) {
+      NotificationService().notify(notifyHistoryUpdated);
+      await _rebuildStatus();
+    }
+    return historyEntry;
+  }
+
+  Future<Covid19History> updateHistory({String id, DateTime dateUtc, Covid19HistoryType type, Covid19HistoryBlob blob}) async {
+    Covid19History historyEntry = await _updateHistory(await Covid19History.encryptedFromBlob(
+      id: id,
+      dateUtc: dateUtc,
+      type: type,
+      blob: blob,
+      publicKey: _user?.publicKey
+    ));
+    if (historyEntry != null) {
+      NotificationService().notify(notifyHistoryUpdated);
+      await _rebuildStatus();
+    }
+    return historyEntry;
+  }
+
+  Future<bool> clearHistory() async {
+    if (await _clearNetHistory()) {
+      await _rebuildStatus();
+      return true;
+    }
+    return false;
+  }
 
   Future<void> _refreshHistory() async {
     bool historyUpdated;
@@ -1163,6 +1186,19 @@ class Health2 with Service implements NotificationsListener {
 
   // Counties
 
+  HealthCounty get county {
+    return _county;
+  }
+
+  Future<void> setCounty(HealthCounty county) {
+    return _applyCounty(county);
+  }
+
+  Future<List<HealthCounty>> loadCounties({ bool guidelines }) async {
+    return _loadCounties(guidelines: guidelines);
+  }
+
+
   Future<List<HealthCounty>> _loadCounties({ bool guidelines }) async {
     String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/counties" : null;
     Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
@@ -1222,6 +1258,10 @@ class Health2 with Service implements NotificationsListener {
 
   // Rules
 
+  HealthRulesSet get rules {
+    return _rules;
+  }
+
   Future<void> _refreshRules() async {
     String rulesJsonString = await _loadRulesJsonStringFromNet();
     HealthRulesSet rules = HealthRulesSet.fromJson(AppJson.decodeMap(rulesJsonString));
@@ -1277,7 +1317,16 @@ class Health2 with Service implements NotificationsListener {
     } catch (e) { print(e?.toString()); }
   }
 
-  // Access Rules
+  // Building Access Rules
+
+  Map<String, dynamic> get buildingAccessRules {
+    return _buildingAccessRules;
+  }
+
+  bool get buildingAccessGranted {
+    return ((_buildingAccessRules != null) && (_status?.blob?.healthStatus != null)) ?
+      (_buildingAccessRules[_status?.blob?.healthStatus] == kCovid19AccessGranted) : null;
+  }
 
   Future<Map<String, dynamic>> _loadBuildingAccessRules({String countyId}) async {
     countyId = countyId ?? _county?.id;

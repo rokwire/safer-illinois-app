@@ -53,6 +53,8 @@ class _Covid19TransferEncryptionKeyPanelState extends State<Covid19TransferEncry
   @override
   void initState() {
     super.initState();
+    
+    _prepairing = true;
     _userPublicKey = Health2().user?.publicKey;
     _userPrivateKey = Health2().userPrivateKey;
     _verifyHealthRSAKeys();
@@ -61,15 +63,15 @@ class _Covid19TransferEncryptionKeyPanelState extends State<Covid19TransferEncry
   void _verifyHealthRSAKeys() {
 
     if ((_userPrivateKey != null) && (_userPublicKey != null)) {
-      setState(() {
-        _prepairing = true;
-      });
       RsaKeyHelper.verifyRsaKeyPair(PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey>(_userPublicKey, _userPrivateKey)).then((bool result) {
         if (mounted) {
           _userKeysPaired = result;
           _buildHealthRSAQRCode();
         }
       });
+    }
+    else {
+      _finishPrepare();
     }
   }
 
