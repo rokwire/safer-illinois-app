@@ -189,9 +189,7 @@ class AppUrl {
 class AppWeb {
   static String host() {
     if (kIsWeb) {
-      //TBD: DD - web tmp until deployed
-      return 'https://api-dev.rokwire.illinois.edu';
-      // return html.window.location.origin;
+      return html.window.location.origin;
     } else {
       return null;
     }
