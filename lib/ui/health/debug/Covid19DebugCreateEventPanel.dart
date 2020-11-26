@@ -23,7 +23,7 @@ import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Config.dart';
-import 'package:illinois/service/Health.dart';
+import 'package:illinois/service/Health2.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Network.dart';
 import 'package:illinois/service/Storage.dart';
@@ -32,7 +32,6 @@ import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/utils/Crypt.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:illinois/service/Styles.dart';
-import "package:pointycastle/export.dart" as PointyCastle;
 
 class Covid19DebugCreateEventPanel extends StatefulWidget {
 
@@ -47,7 +46,6 @@ class _Covid19DebugCreateEventPanelState extends State<Covid19DebugCreateEventPa
   TextEditingController _blobController;
   String _headerStatus;
   
-  PointyCastle.PublicKey _rsaPublicKey;
   bool _loadingPublicKey;
   bool _refreshingPublicKey;
 
@@ -65,17 +63,16 @@ class _Covid19DebugCreateEventPanelState extends State<Covid19DebugCreateEventPa
     _selectedProviderId = Storage().lastHealthProvider?.id;
     
     _loadingPublicKey = true;
-    Health().loadRSAPublicKey().then((PointyCastle.PublicKey rsaPublicKey) {
+    Health2().refreshStatus().then((_) {
       if (mounted) {
         setState(() {
           _loadingPublicKey = false;
-          _rsaPublicKey = rsaPublicKey;
-          _headerStatus = (_rsaPublicKey != null) ? "User's public RSA key loaded." : "Failed to load user's public RSA key.";
+          _headerStatus = (Health2().user?.publicKey != null) ? "User's public RSA key loaded." : "Failed to load user's public RSA key.";
         });
       }
     });
 
-      Health().loadHealthServiceProviders().then((List<HealthServiceProvider> providers){
+      Health2().loadProviders().then((List<HealthServiceProvider> providers){
         if (mounted) {
           setState(() {
             try {
@@ -359,8 +356,8 @@ class _Covid19DebugCreateEventPanelState extends State<Covid19DebugCreateEventPa
           Row(children: <Widget>[
             Expanded(child: Container(),),
             RoundedButton(label: "Submit Event",
-              textColor: (_rsaPublicKey != null) ? Styles().colors.fillColorPrimary : Styles().colors.disabledTextColor,
-              borderColor: (_rsaPublicKey != null) ? Styles().colors.fillColorSecondary : Styles().colors.disabledTextColor,
+              textColor: (Health2().user?.publicKey != null) ? Styles().colors.fillColorPrimary : Styles().colors.disabledTextColor,
+              borderColor: (Health2().user?.publicKey != null) ? Styles().colors.fillColorSecondary : Styles().colors.disabledTextColor,
               backgroundColor: Styles().colors.white,
               fontFamily: Styles().fontFamilies.bold,
               fontSize: 16,
@@ -406,18 +403,13 @@ class _Covid19DebugCreateEventPanelState extends State<Covid19DebugCreateEventPa
     setState(() {
       _refreshingPublicKey = true;
     });
-    Health().refreshRSAKeys().then((PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey> rsaKeys) {
+    Health2().refreshUserKeys().then((_) {
       if (mounted) {
         setState(() {
           _refreshingPublicKey = false;
-          PointyCastle.PublicKey rsaPublicKey = rsaKeys?.publicKey;
-          if (rsaPublicKey != null) {
-            _rsaPublicKey = rsaPublicKey;
-            _headerStatus = Localization().getStringEx("panel.health.covid19.debug.create.label.status.refreshed","User's public RSA key refreshed.");
-          }
-          else {
-            _headerStatus = Localization().getStringEx("panel.health.covid19.debug.create.label.status.error","Failed to refresh user's public RSA key.");
-          }
+          _headerStatus = (Health2().user?.publicKey != null) ?
+            Localization().getStringEx("panel.health.covid19.debug.create.label.status.refreshed","User's public RSA key refreshed.") :
+            Localization().getStringEx("panel.health.covid19.debug.create.label.status.error","Failed to refresh user's public RSA key.");
         });
 
       }
@@ -507,9 +499,9 @@ class _Covid19DebugCreateEventPanelState extends State<Covid19DebugCreateEventPa
   Future<String> _postEvent({String blob, String providerId}) async {
     String aesKey = AESCrypt.randomKey();
     String encryptedBlob = AESCrypt.encrypt(blob, keyString: aesKey);
-    String encryptedKey = RSACrypt.encrypt(aesKey, _rsaPublicKey);
+    String encryptedKey = RSACrypt.encrypt(aesKey, Health2().user?.publicKey);
 
-    //PointyCastle.PrivateKey privateKey = await Health().loadRSAPrivateKey();
+    //PointyCastle.PrivateKey privateKey = await Health2().userPrivateKey;
     //String decryptedKey = ((privateKey != null) && (encryptedKey != null)) ? RSACrypt.decrypt(encryptedKey, privateKey) : null;
     //String decryptedBlob = ((decryptedKey != null) && (encryptedBlob != null)) ? AESCrypt.decrypt(encryptedBlob, keyString: decryptedKey) : null;
 
@@ -534,7 +526,7 @@ class _Covid19DebugCreateEventPanelState extends State<Covid19DebugCreateEventPa
   }
 
   void _onSubmit() {
-    if ((_rsaPublicKey != null) && (_submitting != true) && (_loadingPublicKey != true)) {
+    if ((Health2().user?.publicKey != null) && (_submitting != true) && (_loadingPublicKey != true)) {
       setState(() {
         _submitting = true;
       });

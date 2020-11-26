@@ -212,7 +212,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
       Padding(
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
           child: RoundedButton(
-              label: "COVID-19 Create Symptoms",
+              label: "COVID-19 Report Symptoms",
               backgroundColor: Styles().colors.background,
               fontSize: 16.0,
               textColor: Styles().colors.fillColorPrimary,
