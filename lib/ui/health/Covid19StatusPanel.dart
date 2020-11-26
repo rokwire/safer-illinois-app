@@ -91,7 +91,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
 
   Future<void> _loadData() async {
     List<dynamic> results = await Future.wait([
-      Health2().refresh(),
+      Health2().refreshStatus(),
       Health2().loadCounties(),
       _loadColorOfTheDay(),
       _loadPhotoBytes(),

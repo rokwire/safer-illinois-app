@@ -254,8 +254,12 @@ class Health2 with Service implements NotificationsListener {
       (_buildingAccessRules[_status?.blob?.healthStatus] == kCovid19AccessGranted) : null;
   }
 
-  Future<void> refresh() async {
+  Future<void> refreshStatus() async {
     return _refresh(_RefreshOptions.fromList([_RefreshOption.userInterval, _RefreshOption.history, _RefreshOption.rules, _RefreshOption.buildingAccessRules]));
+  }
+
+  Future<void> refreshUser() async {
+    return _refresh(_RefreshOptions.fromList([_RefreshOption.user]));
   }
 
   HealthCounty get county {

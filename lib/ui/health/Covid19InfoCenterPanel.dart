@@ -98,7 +98,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
     if (_isRefreshing != true) {
       setState(() { _isRefreshing = true; });
       
-      Health2().refresh().then((_) {
+      Health2().refreshStatus().then((_) {
         if (mounted) {
           setState(() {_isRefreshing = false; });
         }

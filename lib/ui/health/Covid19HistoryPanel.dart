@@ -84,7 +84,7 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
     if (_isRefreshing != true) {
       setState(() { _isRefreshing = true; });
       
-      Health2().refresh().then((_) {
+      Health2().refreshStatus().then((_) {
         if (mounted) {
           setState(() {
             _history = Covid19History.pastList(Health2().history);
