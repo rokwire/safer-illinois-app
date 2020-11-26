@@ -167,7 +167,7 @@ class Health2 with Service implements NotificationsListener {
 
   Future<void> _onUserLoginChanged() async {
 
-    if (this._isAuthenticated) {
+    if (this._isUserAuthenticated) {
       _refreshUserPrivateKey().then((_) {
         _refresh(_RefreshOptions.fromList([_RefreshOption.user, _RefreshOption.userInterval, _RefreshOption.history]));
       });
@@ -234,12 +234,12 @@ class Health2 with Service implements NotificationsListener {
   HealthRulesSet       get rules   { return _rules; }
   Map<String, dynamic> get buildingAccessRules { return _buildingAccessRules; }
 
-  bool get isLoggedIn {
-    return this._isAuthenticated && (_user != null);
+  bool get isUserLoggedIn {
+    return this._isUserAuthenticated && (_user != null);
   }
 
   bool get userExposureNotification {
-    return this.isLoggedIn && (_user?.exposureNotification ?? false);
+    return this.isUserLoggedIn && (_user?.exposureNotification ?? false);
   }
 
   HealthCounty get county {
@@ -248,6 +248,10 @@ class Health2 with Service implements NotificationsListener {
 
   set county(HealthCounty county) {
     _applyCounty(county);
+  }
+
+  Future<List<HealthCounty>> loadCounties({ bool guidelines }) async {
+    return _loadCounties(guidelines: guidelines);
   }
 
   Future<Covid19History> addHistory({DateTime dateUtc, Covid19HistoryType type, Covid19HistoryBlob blob}) async {
@@ -289,16 +293,16 @@ class Health2 with Service implements NotificationsListener {
 
   // User
 
-  bool get _isAuthenticated {
+  bool get _isUserAuthenticated {
     return (Auth().authToken?.idToken != null);
   }
 
-  bool get _isReadAuthenticated {
-    return this._isAuthenticated && (_userPrivateKey != null);
+  bool get _isUserReadAuthenticated {
+    return this._isUserAuthenticated && (_userPrivateKey != null);
   }
 
-  bool get _isWriteAuthenticated {
-    return this._isAuthenticated && (_user?.publicKey != null);
+  bool get _isUserWriteAuthenticated {
+    return this._isUserAuthenticated && (_user?.publicKey != null);
   }
 
   String get _userId {
@@ -314,7 +318,7 @@ class Health2 with Service implements NotificationsListener {
   }
 
   Future<HealthUser> _loadUser() async {
-    if (this._isAuthenticated && (Config().healthUrl != null)) {
+    if (this._isUserAuthenticated && (Config().healthUrl != null)) {
       String url =  "${Config().healthUrl}/covid19/user";
       Response response = await Network().get(url, auth: NetworkAuth.User);
       if (response?.statusCode == 200) {
@@ -327,7 +331,7 @@ class Health2 with Service implements NotificationsListener {
   }
 
   Future<bool> _saveUser(HealthUser user) async {
-    if (this._isAuthenticated && (Config().healthUrl != null)) {
+    if (this._isUserAuthenticated && (Config().healthUrl != null)) {
       String url = "${Config().healthUrl}/covid19/login";
       String post = AppJson.encode(user?.toJson());
       Response response = await Network().post(url, body: post, auth: NetworkAuth.User);
@@ -340,7 +344,7 @@ class Health2 with Service implements NotificationsListener {
 
   Future<HealthUser> loginUser({bool consent, bool exposureNotification, AsymmetricKeyPair<PublicKey, PrivateKey> keys}) async {
 
-    if (!this._isAuthenticated) {
+    if (!this._isUserAuthenticated) {
       return null;
     }
 
@@ -493,7 +497,7 @@ class Health2 with Service implements NotificationsListener {
   // User Status
 
   Future<Covid19Status> _loadStatusFromNet() async {
-    if (this._isReadAuthenticated && (Config().healthUrl != null)) {
+    if (this._isUserReadAuthenticated && (Config().healthUrl != null)) {
       String url = "${Config().healthUrl}/covid19/v2/app-version/2.2/statuses";
       Response response = await Network().get(url, auth: NetworkAuth.User);
       if (response?.statusCode == 200) {
@@ -504,7 +508,7 @@ class Health2 with Service implements NotificationsListener {
   }
 
   Future<bool> _saveStatusToNet(Covid19Status status) async {
-    if (this._isWriteAuthenticated && (Config().healthUrl != null)) {
+    if (this._isUserWriteAuthenticated && (Config().healthUrl != null)) {
       String url = "${Config().healthUrl}/covid19/v2/app-version/2.2/statuses";
       Covid19Status encryptedStatus = await status?.encrypted(_user?.publicKey);
       String post = AppJson.encode(encryptedStatus?.toJson());
@@ -517,7 +521,7 @@ class Health2 with Service implements NotificationsListener {
   }
 
   /*Future<bool> _clearStatusInNet() async {
-    if (this._isAuthenticated && (Config().healthUrl != null)) {
+    if (this._isUserAuthenticated && (Config().healthUrl != null)) {
       String url = "${Config().healthUrl}/covid19/v2/app-version/2.2/statuses";
       Response response = await Network().delete(url, auth: NetworkAuth.User);
       return response?.statusCode == 200;
@@ -537,7 +541,7 @@ class Health2 with Service implements NotificationsListener {
   }
 
   Future<void> _rebuildStatus() async {
-    if (this._isWriteAuthenticated && (_rules != null) && (_history != null)) {
+    if (this._isUserWriteAuthenticated && (_rules != null) && (_history != null)) {
       Covid19Status status = _buildStatus(rules: _rules, history: _history);
       if ((status?.blob != null) && (status?.blob != _status?.blob)) {
         if (await _saveStatusToNet(status)) {
@@ -702,7 +706,7 @@ class Health2 with Service implements NotificationsListener {
   }
 
   Future<bool> _clearHistoryOnNet() async {
-    if (this._isAuthenticated && (Config().healthUrl != null)) {
+    if (this._isUserAuthenticated && (Config().healthUrl != null)) {
       String url = "${Config().healthUrl}/covid19/v2/histories";
       Response response = await Network().delete(url, auth: NetworkAuth.User);
       if (response?.statusCode == 200) {
@@ -715,13 +719,13 @@ class Health2 with Service implements NotificationsListener {
   }
 
   Future<String> _loadHistoryJsonStringFromNet() async {
-    String url = (this._isReadAuthenticated && (Config().healthUrl != null)) ? "${Config().healthUrl}/covid19/v2/histories" : null;
+    String url = (this._isUserReadAuthenticated && (Config().healthUrl != null)) ? "${Config().healthUrl}/covid19/v2/histories" : null;
     Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.User) : null;
     return (response?.statusCode == 200) ? response.body : null;
   }
 
   Future<Covid19History> _addHistory(Covid19History history) async {
-    if (this._isWriteAuthenticated && (Config().healthUrl != null)) {
+    if (this._isUserWriteAuthenticated && (Config().healthUrl != null)) {
       String url = "${Config().healthUrl}/covid19/v2/histories";
       String post = AppJson.encode(history?.toJson());
       Response response = await Network().post(url, body: post, auth: NetworkAuth.User);
@@ -737,7 +741,7 @@ class Health2 with Service implements NotificationsListener {
   }
 
   Future<Covid19History> _updateHistory(Covid19History history) async {
-    if (this._isWriteAuthenticated && (Config().healthUrl != null)) {
+    if (this._isUserWriteAuthenticated && (Config().healthUrl != null)) {
       String url = "${Config().healthUrl}/covid19/v2/histories/${history.id}";
       String post = AppJson.encode(history?.toJson());
       Response response = await Network().put(url, body: post, auth: NetworkAuth.User);
@@ -797,7 +801,7 @@ class Health2 with Service implements NotificationsListener {
   // User waiting on table
 
   Future<List<Covid19Event>> _loadPendingEvents({bool processed}) async {
-    if (this._isReadAuthenticated && (Config().healthUrl != null)) {
+    if (this._isUserReadAuthenticated && (Config().healthUrl != null)) {
       String url = "${Config().healthUrl}/covid19/ctests";
       String params = "";
       if (processed != null) {
@@ -818,7 +822,7 @@ class Health2 with Service implements NotificationsListener {
   }
 
   Future<bool> _markEventAsProcessed(Covid19Event event) async {
-    String url = (this._isAuthenticated && Config().healthUrl != null) ? "${Config().healthUrl}/covid19/ctests/${event.id}" : null;
+    String url = (this._isUserAuthenticated && Config().healthUrl != null) ? "${Config().healthUrl}/covid19/ctests/${event.id}" : null;
     String post = AppJson.encode({'processed' : true});
     Response response = (url != null) ? await Network().put(url, body:post, auth: NetworkAuth.User) : null;
     if (response?.statusCode == 200) {
@@ -831,7 +835,7 @@ class Health2 with Service implements NotificationsListener {
 
   Future<List<Covid19Event>> _processPendingEvents() async {
     List<Covid19Event> result;
-    List<Covid19Event> events = this._isWriteAuthenticated ? await _loadPendingEvents(processed: false) : null;
+    List<Covid19Event> events = this._isUserWriteAuthenticated ? await _loadPendingEvents(processed: false) : null;
     if ((events != null) && (0 < events?.length)) {
       for (Covid19Event event in events) {
         if (Covid19History.listContainsEvent(_history, event)) {
@@ -963,7 +967,7 @@ class Health2 with Service implements NotificationsListener {
   }
 
   Future<int> _loadUserTestMonitorInterval() async {
-    if (this._isAuthenticated && (Config().healthUrl != null)) {
+    if (this._isUserAuthenticated && (Config().healthUrl != null)) {
       String url = "${Config().healthUrl}/covid19/uin-override";
       Response response = await Network().get(url, auth: NetworkAuth.User);
       if (response?.statusCode == 200) {
@@ -982,7 +986,7 @@ class Health2 with Service implements NotificationsListener {
 
   // Counties
 
-  Future<List<HealthCounty>> loadCounties({ bool guidelines }) async {
+  Future<List<HealthCounty>> _loadCounties({ bool guidelines }) async {
     String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/counties" : null;
     Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
     String responseBody = (response?.statusCode == 200) ? response.body : null;
@@ -1001,7 +1005,7 @@ class Health2 with Service implements NotificationsListener {
   Future<HealthCounty> _ensureCounty() async {
     HealthCounty county = _loadCountyFromStorage();
     if (county == null) {
-      List<HealthCounty> counties = await loadCounties();
+      List<HealthCounty> counties = await _loadCounties();
       county = HealthCounty.getCounty(counties, countyId: Storage().currentHealthCountyId) ??
         HealthCounty.defaultCounty(counties);
       _saveCountyToStorage(county);
@@ -1128,7 +1132,7 @@ class Health2 with Service implements NotificationsListener {
   }
 
   Future<bool> _logBuildingAccess({DateTime dateUtc, String access}) async {
-    if (this._isAuthenticated && (Config().healthUrl != null)) {
+    if (this._isUserAuthenticated && (Config().healthUrl != null)) {
       String url = "${Config().healthUrl}/covid19/building-access";
       String post = AppJson.encode({
         'date': healthDateTimeToString(dateUtc),
