@@ -529,8 +529,8 @@ class Covid19History implements Comparable<Covid19History> {
     return json;
   }
 
-  static void sortListDescending(List<Covid19History> values) {
-    values?.sort((Covid19History entry1, Covid19History entry2) {
+  static void sortListDescending(List<Covid19History> history) {
+    history?.sort((Covid19History entry1, Covid19History entry2) {
       if (entry1 != null) {
         return entry1.compareTo(entry2) * -1;
       }
@@ -540,21 +540,34 @@ class Covid19History implements Comparable<Covid19History> {
     });
   }
 
-  static Covid19History traceInList(List<Covid19History> values, { String tek }) {
-    if ((values != null) && (tek != null)) {
-      for (Covid19History history in values) {
-        if ((history.type == Covid19HistoryType.contactTrace) && (history.blob?.traceTEK == tek)) {
-          return history;
+  static bool updateInList(List<Covid19History> history, Covid19History entry) {
+    if ((history != null) && (entry != null)) {
+      for (int index = 0; index < history.length; index++) {
+        Covid19History historyEntry = history[index];
+        if (historyEntry?.id == entry.id) {
+          history[index] = entry;
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  static Covid19History traceInList(List<Covid19History> history, { String tek }) {
+    if ((history != null) && (tek != null)) {
+      for (Covid19History historyEntry in history) {
+        if ((historyEntry.type == Covid19HistoryType.contactTrace) && (historyEntry.blob?.traceTEK == tek)) {
+          return historyEntry;
         }
       }
     }
     return null;
   }
 
-  static bool listContainsEvent(List<Covid19History> histories, Covid19Event event) {
-    if ((histories != null) && (event != null)) {
-      for (Covid19History history in histories) {
-         if (history.matchEvent(event)) {
+  static bool listContainsEvent(List<Covid19History> history, Covid19Event event) {
+    if ((history != null) && (event != null)) {
+      for (Covid19History historyEntry in history) {
+         if (historyEntry.matchEvent(event)) {
            return true;
          }
       }
@@ -562,29 +575,29 @@ class Covid19History implements Comparable<Covid19History> {
     return false;
   }
 
-  static Covid19History mostRecent(List<Covid19History> histories) {
-    if (histories != null) {
+  static Covid19History mostRecent(List<Covid19History> history) {
+    if (history != null) {
       DateTime nowUtc = DateTime.now().toUtc();
-      for (int index = 0; index < histories.length; index++) {
-        Covid19History history = histories[index];
-        if ((history.dateUtc != null) && (history.dateUtc.isBefore(nowUtc))) {
-          return history;
+      for (int index = 0; index < history.length; index++) {
+        Covid19History historyEntry = history[index];
+        if ((historyEntry.dateUtc != null) && (historyEntry.dateUtc.isBefore(nowUtc))) {
+          return historyEntry;
         }
       }
     }
     return null;
   }
 
-  static Covid19History mostRecentTest(List<Covid19History> histories, { DateTime beforeDateUtc, int onPosition = 1 }) {
+  static Covid19History mostRecentTest(List<Covid19History> history, { DateTime beforeDateUtc, int onPosition = 1 }) {
     Covid19History result;
-    if (histories != null) {
+    if (history != null) {
       if (beforeDateUtc == null) {
         beforeDateUtc = DateTime.now().toUtc();
       }
-      for (int index = 0; (index < histories.length) && (0 < onPosition); index++) {
-        Covid19History history = histories[index];
-        if (history.isTestVerified && (history.dateUtc != null) && (history.dateUtc.isBefore(beforeDateUtc))) {
-          result = history;
+      for (int index = 0; (index < history.length) && (0 < onPosition); index++) {
+        Covid19History historyEntry = history[index];
+        if (historyEntry.isTestVerified && (historyEntry.dateUtc != null) && (historyEntry.dateUtc.isBefore(beforeDateUtc))) {
+          result = historyEntry;
           onPosition--;
         }
       }
@@ -592,29 +605,29 @@ class Covid19History implements Comparable<Covid19History> {
     return result;
   }
 
-  static List<Covid19History> pastList(List<Covid19History> histories) {
+  static List<Covid19History> pastList(List<Covid19History> history) {
     List<Covid19History> result;
-    if (histories != null) {
+    if (history != null) {
       result = List<Covid19History>();
       DateTime nowUtc = DateTime.now().toUtc();
-      for (int index = 0; index < histories.length; index++) {
-        Covid19History history =  histories[index];
-        if ((history.dateUtc != null) && (history.dateUtc.isBefore(nowUtc))) {
-          result.add(history);
+      for (int index = 0; index < history.length; index++) {
+        Covid19History historyEntry =  history[index];
+        if ((historyEntry.dateUtc != null) && (historyEntry.dateUtc.isBefore(nowUtc))) {
+          result.add(historyEntry);
         }
       }
     }
     return result;
   }
 
-  static Covid19History mostRecentContactTrace(List<Covid19History> histories, { DateTime minDateUtc, DateTime maxDateUtc }) {
-    if (histories != null) {
-      for (int index = 0; index < histories.length; index++) {
-        Covid19History history = histories[index];
-        if (history.isContactTrace &&
-            ((minDateUtc == null) || ((history.dateUtc != null) && history.dateUtc.isAfter(minDateUtc))) &&
-            ((maxDateUtc == null) || ((history.dateUtc != null) && history.dateUtc.isBefore(maxDateUtc)))) {
-          return history;
+  static Covid19History mostRecentContactTrace(List<Covid19History> history, { DateTime minDateUtc, DateTime maxDateUtc }) {
+    if (history != null) {
+      for (int index = 0; index < history.length; index++) {
+        Covid19History historyEntry = history[index];
+        if (historyEntry.isContactTrace &&
+            ((minDateUtc == null) || ((historyEntry.dateUtc != null) && historyEntry.dateUtc.isAfter(minDateUtc))) &&
+            ((maxDateUtc == null) || ((historyEntry.dateUtc != null) && historyEntry.dateUtc.isBefore(maxDateUtc)))) {
+          return historyEntry;
         }
       }
     }
