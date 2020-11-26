@@ -24,7 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/utils/AppDateTime.dart';
-import 'package:illinois/service/Health.dart';
+import 'package:illinois/service/Health2.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/PopupDialog.dart';
@@ -73,7 +73,7 @@ class _Covid19ReportTestPanelSate extends State<Covid19ReportTestPanel>{
 
   void _loadLocations(){
     _increaseProgress();
-    Health().loadHealthServiceLocations(countyId: Health().currentCountyId, providerId: widget.provider?.id).then((List<HealthServiceLocation> locations){
+    Health2().loadHealthServiceLocations(countyId: Health2().county?.id, providerId: widget.provider?.id).then((List<HealthServiceLocation> locations){
       setState(() {
         try {
           _locations = locations != null ? Map<String, HealthServiceLocation>.fromIterable(locations, key: ((location) => location.id)) : null;
@@ -88,7 +88,7 @@ class _Covid19ReportTestPanelSate extends State<Covid19ReportTestPanel>{
   void _loadTestTypes(){
     _increaseProgress();
     List<String> typesIds = _selectedLocationId!=null? _locations[_selectedLocationId]?.availableTests: null;
-    Health().loadHealthServiceTestTypes(typeIds: typesIds).then((List<HealthTestType> types){
+    Health2().loadTestTypes(typeIds: typesIds).then((List<HealthTestType> types){
       setState(() {
         _decreaseProgress();
         try{
@@ -559,7 +559,7 @@ class _Covid19ReportTestPanelSate extends State<Covid19ReportTestPanel>{
 
     DateTime dateUtc = _selectedDate.toUtc();
 
-    String countyId = _isCustomProvider ? Health().currentCountyId : null;
+    String countyId = _isCustomProvider ? Health2().county?.id : null;
 
     Covid19ManualTest test = Covid19ManualTest(
       provider:   _isCustomProvider? null: provider?.name,
@@ -573,7 +573,7 @@ class _Covid19ReportTestPanelSate extends State<Covid19ReportTestPanel>{
       image:      imageBase64,
     );
 
-    Health().processManualTest(test).then((success){
+    Health2().processManualTest(test).then((success){
       _decreaseProgress();
       if(success)
         Navigator.pop(context,"success");

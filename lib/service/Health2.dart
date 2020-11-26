@@ -517,7 +517,7 @@ class Health2 with Service implements NotificationsListener {
     return result;
   }
 
-  // User Status
+  // Status
 
   Future<Covid19Status> _loadStatusFromNet() async {
     if (this._isUserReadAuthenticated && (Config().healthUrl != null)) {
@@ -696,7 +696,7 @@ class Health2 with Service implements NotificationsListener {
     Storage().healthUserStatus = AppJson.encode(status?.toJson());
   }
 
-  // User History
+  // History
 
   Future<void> _refreshHistory() async {
     bool historyUpdated;
@@ -821,7 +821,7 @@ class Health2 with Service implements NotificationsListener {
     catch (e) { print(e?.toString()); }
   }
 
-  // User waiting on table
+  // Waiting on table
 
   Future<List<Covid19Event>> _loadPendingEvents({bool processed}) async {
     if (this._isUserReadAuthenticated && (Config().healthUrl != null)) {
@@ -978,7 +978,7 @@ class Health2 with Service implements NotificationsListener {
     }
   }
 
-  // User OCF test
+  // OCF tests
 
   Future<int> processOsfTests({List<Covid19OSFTest> osfTests}) async {
 
@@ -1038,6 +1038,47 @@ class Health2 with Service implements NotificationsListener {
         testResult: test?.testResult,
       ),
       publicKey: _user?.publicKey
+    ));
+  }
+
+  // Manual tests
+
+  Future<bool> processManualTest(Covid19ManualTest test) async {
+    if (test != null) {
+      Covid19History manualHistory = await _applyManualTestHistory(test);
+      if (manualHistory != null) {
+        Analytics().logHealth(
+          action: Analytics.LogHealthManualTestSubmittedAction,
+          attributes: {
+            Analytics.LogHealthProviderName: test.provider,
+            Analytics.LogHealthLocationName: test.location,
+            Analytics.LogHealthTestTypeName: test.testType,
+            Analytics.LogHealthTestResultName: test.testResult,
+        });
+        return true;
+      }
+    }
+    return false;
+  }
+
+  Future<Covid19History> _applyManualTestHistory(Covid19ManualTest test) async {
+    return await _addHistory(await Covid19History.encryptedFromBlob(
+      dateUtc: test?.dateUtc,
+      type: Covid19HistoryType.manualTestNotVerified,
+      blob: Covid19HistoryBlob(
+        provider: test?.provider,
+        providerId: test?.providerId,
+        location: test?.location,
+        locationId: test?.locationId,
+        countyId: test?.countyId,
+        testType: test?.testType,
+        testResult: test?.testResult,
+      ),
+      locationId: test?.locationId,
+      countyId: test?.countyId,
+      image: test?.image,
+
+      publicKey: _servicePublicKey,
     ));
   }
 
