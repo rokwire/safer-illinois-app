@@ -242,6 +242,11 @@ class Health2 with Service implements NotificationsListener {
     return this.isUserLoggedIn && (_user?.exposureNotification ?? false);
   }
 
+  bool get buildingAccessGranted {
+    return ((_buildingAccessRules != null) && (_status?.blob?.healthStatus != null)) ?
+      (_buildingAccessRules[_status?.blob?.healthStatus] == kCovid19AccessGranted) : null;
+  }
+
   Future<void> refresh() async {
     return _refresh(_RefreshOptions.fromList([_RefreshOption.userInterval, _RefreshOption.history, _RefreshOption.rules, _RefreshOption.buildingAccessRules]));
   }
