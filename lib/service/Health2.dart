@@ -524,6 +524,34 @@ class Health2 with Service implements NotificationsListener {
     return result;
   }
 
+  // User test monitor interval
+
+  Future<void> _refreshUserTestMonitorInterval() async {
+    try {
+      Storage().healthUserTestMonitorInterval = _userTestMonitorInterval = await _loadUserTestMonitorInterval();
+    }
+    catch (e) {
+      print(e?.toString());
+    }
+  }
+
+  Future<int> _loadUserTestMonitorInterval() async {
+    if (this._isUserAuthenticated && (Config().healthUrl != null)) {
+      String url = "${Config().healthUrl}/covid19/uin-override";
+      Response response = await Network().get(url, auth: NetworkAuth.User);
+      if (response?.statusCode == 200) {
+        Map<String, dynamic> responseJson = AppJson.decodeMap(response.body);
+        return (responseJson != null) ? responseJson['interval'] : null;
+      }
+      throw Exception("${response?.statusCode ?? '000'} ${response?.body ?? 'Unknown error occured'}");
+    }
+    throw Exception("User not logged in");
+  }
+
+  void _clearUserTestMonitorInterval() {
+    Storage().healthUserTestMonitorInterval = _userTestMonitorInterval = null;
+  }
+
   // Status
 
   Future<Covid19Status> _loadStatusFromNet() async {
@@ -1089,34 +1117,45 @@ class Health2 with Service implements NotificationsListener {
     ));
   }
 
-  // User test monitor interval
+  // Symptoms
 
-  Future<void> _refreshUserTestMonitorInterval() async {
-    try {
-      Storage().healthUserTestMonitorInterval = _userTestMonitorInterval = await _loadUserTestMonitorInterval();
+  Future<bool> processSymptoms({Set<String> selected, DateTime dateUtc}) async {
+    List<HealthSymptom> symptoms = HealthSymptomsGroup.getSymptoms(_rules?.symptoms?.groups, selected);
+    Covid19History history = await _applySymptomsHistory(symptoms, dateUtc: dateUtc ?? DateTime.now().toUtc());
+    if (history != null) {
+
+      Covid19Status previousStatus = _status;
+      await _rebuildStatus();
+
+      List<String> analyticsSymptoms = [];
+      symptoms?.forEach((HealthSymptom symptom) {
+        String symptomName = rules?.localeString(symptom?.name) ?? symptom?.name;
+        if (AppString.isStringNotEmpty(symptomName)) {
+          analyticsSymptoms.add(symptomName);
+        }
+      });
+      Analytics().logHealth(
+        action: Analytics.LogHealthSymptomsSubmittedAction,
+        status: previousStatus?.blob?.healthStatus,
+        prevStatus: _status?.blob?.healthStatus,
+        attributes: {
+          Analytics.LogHealthSymptomsName: analyticsSymptoms
+      });
+      return true;
     }
-    catch (e) {
-      print(e?.toString());
-    }
+    return false;
   }
 
-  Future<int> _loadUserTestMonitorInterval() async {
-    if (this._isUserAuthenticated && (Config().healthUrl != null)) {
-      String url = "${Config().healthUrl}/covid19/uin-override";
-      Response response = await Network().get(url, auth: NetworkAuth.User);
-      if (response?.statusCode == 200) {
-        Map<String, dynamic> responseJson = AppJson.decodeMap(response.body);
-        return (responseJson != null) ? responseJson['interval'] : null;
-      }
-      throw Exception("${response?.statusCode ?? '000'} ${response?.body ?? 'Unknown error occured'}");
-    }
-    throw Exception("User not logged in");
+  Future<Covid19History> _applySymptomsHistory(List<HealthSymptom> symptoms, { DateTime dateUtc }) async {
+    return await _addHistory(await Covid19History.encryptedFromBlob(
+      dateUtc: dateUtc,
+      type: Covid19HistoryType.symptoms,
+      blob: Covid19HistoryBlob(
+        symptoms: symptoms,
+      ),
+      publicKey: _user?.publicKey
+    ));
   }
-
-  void _clearUserTestMonitorInterval() {
-    Storage().healthUserTestMonitorInterval = _userTestMonitorInterval = null;
-  }
-
 
   // Counties
 
