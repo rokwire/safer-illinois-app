@@ -305,6 +305,18 @@ class Health2 with Service implements NotificationsListener {
     return false;
   }
 
+  Future<bool> _clearUserFromNet() async {
+    if (this._isUserAuthenticated && (Config().healthUrl != null)) {
+      String url = "${Config().healthUrl}/covid19/user/clear";
+      Response response = await Network().get(url, auth: NetworkAuth.User);
+      if (response?.statusCode == 200) {
+        _clearUser();
+        return true;
+      }
+    }
+    return false;
+  }
+
   Future<HealthUser> loginUser({bool consent, bool exposureNotification, AsymmetricKeyPair<PublicKey, PrivateKey> keys}) async {
 
     if (!this._isUserAuthenticated) {
@@ -406,6 +418,15 @@ class Health2 with Service implements NotificationsListener {
     }
     
     return user;
+  }
+
+  Future<bool> deleteUser() async {
+    if (await _clearUserFromNet()) {
+      _saveUserPrivateKey(_userPrivateKey = null);
+      _clearUserTestMonitorInterval();
+      _clearStatus();
+      _clearHistory();
+    }
   }
 
   Future<bool> repostUser() async {
