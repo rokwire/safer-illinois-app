@@ -237,7 +237,7 @@ class _Covid19GuidelinesPanelState extends State<Covid19GuidelinesPanel> impleme
     setState(() {
       _loading = true;
     });
-    Health2().setCounty(HealthCounty.fromCounty(_counties[countyId])).then((_) {
+    Health2().setCounty(_counties[countyId]).then((_) {
       if (mounted) {
         setState(() {
           _loading = false;

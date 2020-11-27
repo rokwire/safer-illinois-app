@@ -1215,7 +1215,7 @@ class Health2 with Service implements NotificationsListener {
   }
 
   Future<void> setCounty(HealthCounty county) {
-    return _applyCounty(county);
+    return _applyCounty(HealthCounty.fromCounty(county)); // ensure no guidelines in storage county
   }
 
   Future<List<HealthCounty>> loadCounties({ bool guidelines }) async {
