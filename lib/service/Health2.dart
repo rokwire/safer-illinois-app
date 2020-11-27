@@ -524,6 +524,10 @@ class Health2 with Service implements NotificationsListener {
 
   // User test monitor interval
 
+  int get userTestMonitorInterval {
+    return _userTestMonitorInterval;
+  }
+
   Future<void> _refreshUserTestMonitorInterval() async {
     try {
       Storage().healthUserTestMonitorInterval = _userTestMonitorInterval = await _loadUserTestMonitorInterval();
@@ -1284,6 +1288,10 @@ class Health2 with Service implements NotificationsListener {
 
   HealthRulesSet get rules {
     return _rules;
+  }
+
+  Future<Map<String, dynamic>> loadRulesJson({String countyId}) async {
+    return AppJson.decodeMap(await _loadRulesJsonStringFromNet(countyId: countyId));
   }
 
   Future<void> _refreshRules() async {

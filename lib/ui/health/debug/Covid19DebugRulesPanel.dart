@@ -16,11 +16,10 @@
 
 import 'dart:async';
 import 'dart:collection';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:illinois/model/Health.dart';
-import 'package:illinois/service/Health.dart';
+import 'package:illinois/service/Health2.dart';
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
@@ -41,13 +40,12 @@ class _Covid19DebugRulesPanelState extends State<Covid19DebugRulesPanel>{
 
   LinkedHashMap<String, HealthCounty> _counties;
   String _selectedCountyId;
-  dynamic _userTestMonitorInterval = false; 
 
   @override
   void initState() {
     super.initState();
 
-    _selectedCountyId = Health().currentCountyId;
+    _selectedCountyId = Health2().county?.id;
     _loadCounties();
   }
 
@@ -55,7 +53,7 @@ class _Covid19DebugRulesPanelState extends State<Covid19DebugRulesPanel>{
     setState(() {
       _countiesLoading = true;
     });
-    Health().loadCounties().then((List<HealthCounty> counties) {
+    Health2().loadCounties().then((List<HealthCounty> counties) {
       if (mounted) {
         setState(() {
           // apply counties
@@ -70,12 +68,12 @@ class _Covid19DebugRulesPanelState extends State<Covid19DebugRulesPanel>{
           _countiesLoading = false;
         });
 
-        _loadRules();
+        _updateRules();
       }
     });
   }
 
-  Future<void> _loadRules() async {
+  Future<void> _updateRules() async {
     
     if (_selectedCountyId != null) {
     
@@ -84,40 +82,27 @@ class _Covid19DebugRulesPanelState extends State<Covid19DebugRulesPanel>{
          _rulesValueController.text = "";
       });
 
-      List<Future<dynamic>> futures = <Future>[
-        Health().loadRules2Json(countyId: _selectedCountyId),
-      ];
+      Health2().loadRulesJson(countyId: _selectedCountyId).then((Map<String, dynamic> rules) {
+        if (mounted) {
+          if ((rules != null) && (Health2().userTestMonitorInterval != null)) {
+            dynamic constants = rules['constants'];
+            if (constants == null) {
+              rules['constants'] = constants = {};
+            }
+            if (constants is Map) {
+              constants[HealthRulesSet.UserTestMonitorInterval] = Health2().userTestMonitorInterval;
+            }
+          }
 
-      if (_userTestMonitorInterval is bool) {
-        futures.add(Health().loadUserTestMonitorInterval());
-      }
-
-      List<dynamic> results = await Future.wait(futures);
-
-      Map<String, dynamic> rules = ((results != null) && (0 < results.length)) ? results[0] : null;
-
-      if ((results != null) && (1 < results.length)) {
-        _userTestMonitorInterval = results[1];
-      }
-
-      if ((rules != null) && (_userTestMonitorInterval is int)) {
-        dynamic constants = rules['constants'];
-        if (constants == null) {
-          rules['constants'] = constants = {};
+          setState(() {
+            _rulesValueController.text = AppJson.encode(rules, prettify: true) ?? "";
+            _rulesLoading = false;
+          });
         }
-        if (constants is Map) {
-          constants[HealthRulesSet.UserTestMonitorInterval] = _userTestMonitorInterval;
-        }
-      }
-
-      if (mounted) {
-        setState(() {
-          _rulesValueController.text = AppJson.encode(rules, prettify: true) ?? "";
-          _rulesLoading = false;
-        });
-      }
+      });
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -166,7 +151,7 @@ class _Covid19DebugRulesPanelState extends State<Covid19DebugRulesPanel>{
                       items: _buildProviderDropDownItems(_counties?.values),
                       onChanged: (value) { setState(() {
                         _selectedCountyId = value?.id;
-                        _loadRules();
+                        _updateRules();
                       });}
                   ),
                 ),
