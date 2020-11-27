@@ -403,7 +403,7 @@ class _Covid19DebugCreateEventPanelState extends State<Covid19DebugCreateEventPa
     setState(() {
       _refreshingPublicKey = true;
     });
-    Health2().refreshUserKeys().then((_) {
+    Health2().resetUserKeys().then((_) {
       if (mounted) {
         setState(() {
           _refreshingPublicKey = false;

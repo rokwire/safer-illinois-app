@@ -484,7 +484,7 @@ class Health2 with Service implements NotificationsListener {
     return false;
   }
 
-  Future<AsymmetricKeyPair<PublicKey, PrivateKey>> refreshUserKeys() async {
+  Future<AsymmetricKeyPair<PublicKey, PrivateKey>> resetUserKeys() async {
     AsymmetricKeyPair<PublicKey, PrivateKey> keys = await RsaKeyHelper.computeRSAKeyPair(RsaKeyHelper.getSecureRandom());
 
     HealthUser user = await loginUser(keys: keys);

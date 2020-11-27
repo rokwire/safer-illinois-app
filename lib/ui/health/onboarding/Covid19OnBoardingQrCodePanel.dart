@@ -579,7 +579,7 @@ class _Covid19OnBoardingQrCodePanelState extends State<Covid19OnBoardingQrCodePa
       _isRefreshing = true;
     });
 
-    Health2().refreshUserKeys().then((PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey> rsaKeys) {
+    Health2().resetUserKeys().then((PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey> rsaKeys) {
       if (mounted) {
         setStateEx((){
           _isRefreshing = false;

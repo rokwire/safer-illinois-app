@@ -614,7 +614,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
     setState(() {
       _refreshingHealthUserKeys = true;
     });
-    Health2().refreshUserKeys().then((keyPair) {
+    Health2().resetUserKeys().then((keyPair) {
       if (mounted) {
         if (keyPair != null) {
           setState(() {
