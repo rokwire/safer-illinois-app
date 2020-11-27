@@ -55,12 +55,8 @@ class _Covid19OnBoardingConsentPanelState extends State<Covid19OnBoardingConsent
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
     //19.06 - 5.1 Covid setup flow consents should be off by default
-//    Health().loadUser().then((HealthUser user) {
-//      setState(() {
-//        _exposureNotification = user?.consent ?? false;
-//        _consent = user?.exposureNotification ?? false;
-//      });
-//    });
+    //_exposureNotification = Health().user?.consent ?? false;
+    //_consent = Health().user?.exposureNotification ?? false;
   }
 
   @override

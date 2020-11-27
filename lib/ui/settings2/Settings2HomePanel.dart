@@ -94,7 +94,7 @@ class _Settings2HomePanelState extends State<Settings2HomePanel> implements Noti
     setState(() {
       _isLoading = true;
     });
-    Health().loadUser().whenComplete((){
+    Health().refreshUser().whenComplete((){
       setState(() {
         _isLoading = false;
       });
@@ -189,14 +189,14 @@ class _Settings2HomePanelState extends State<Settings2HomePanel> implements Noti
                     height: null,
                     borderRadius: BorderRadius.all(Radius.circular(4)),
                     label: 'Exposure Notifications',
-                    value: (Health()?.healthUser?.exposureNotification ?? false) ? 'Enabled' : 'Disabled',
+                    value: (Health().user?.exposureNotification ?? false) ? 'Enabled' : 'Disabled',
                     descriptionLabel: 'Learn more information about exposure notifications and manage your settings.',
                     onTap: _onExposureNotificationsTapped,
                   ),
                   Container(height: 12,),
                   CustomRibbonButton(
                     height: null,
-                    value: (Health()?.healthUser?.consent ?? false) ? 'Enabled' : 'Disabled',
+                    value: (Health().user?.consent ?? false) ? 'Enabled' : 'Disabled',
                     borderRadius: BorderRadius.all(Radius.circular(4)),
                     label: 'Automatic Test Results',
                     descriptionLabel: 'Learn more information about automatic test results and manage your settings.',

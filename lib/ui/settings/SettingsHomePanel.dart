@@ -21,17 +21,16 @@ import 'package:archive/archive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/AppNavigation.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Connectivity.dart';
+import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginPhoneVerifyPanel.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/FlexUI.dart';
-import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/service/Localization.dart';
@@ -66,12 +65,9 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   static BorderRadius _allRounding = BorderRadius.all(Radius.circular(5));
   
   String _versionName = "";
-  // Covid19
-  HealthUser _healthUser;
-  bool _loadingHealthUser;
 
-  PointyCastle.PrivateKey _healthUserPrivateKey;
-  bool _loadingHealthUserPrivateKey;
+  // Covid19
+  bool _refreshingHealthUser;
 
   bool _healthUserKeysPaired;
   bool _checkingHealthUserKeysPaired;
@@ -80,17 +76,18 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
 
   @override
   void initState() {
+
     NotificationService().subscribe(this, [
-      Auth.notifyLoginSucceeded,
       Auth.notifyUserPiiDataChanged,
       UserProfile.notifyProfileUpdated,
+      Health.notifyUserUpdated,
       FirebaseMessaging.notifySettingUpdated,
       FlexUI.notifyChanged,
     ]);
-    _loadVersionInfo();
 
-    //TBD move to Health service
-    _initHealthUserData();
+    _loadVersionInfo();
+    _refreshHealthUser();
+
     super.initState();
   }
 
@@ -106,10 +103,10 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   void onNotification(String name, dynamic param) {
     if (name == Auth.notifyUserPiiDataChanged) {
       _updateState();
-    } else if (name == Auth.notifyLoginSucceeded) {
-      _loadHealthUser();
     } else if (name == UserProfile.notifyProfileUpdated){
       _updateState();
+    } else if (name == Health.notifyUserUpdated) {
+      _verifyHealthUserKeys();
     } else if (name == FirebaseMessaging.notifySettingUpdated) {
       _updateState();
     } else if (name == FlexUI.notifyChanged) {
@@ -570,79 +567,39 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
     }
   }
 
-  //TBD move to Health service
-  void _initHealthUserData(){
-    if(Auth().isLoggedIn) {
-      _loadHealthUser();
-      _loadHealthRSAPrivateKey();
-    }
-  }
-
-  void _loadHealthUser() {
+  void _refreshHealthUser() {
     setState(() {
-      _loadingHealthUser = true;
+      _refreshingHealthUser = true;
     });
-    Health().loginUser().then((HealthUser user) {
+    Health().refreshUser().then((_) {
       if (mounted) {
-        if (user != null) {
-          setState(() {
-            _healthUser = user;
-            _loadingHealthUser = false;
-          });
-          _verifyHealthRSAKeys();
-        }
-        else {
-          setState(() {
-            _loadingHealthUser = false;
-          });
-        }
+        setState(() {
+          _refreshingHealthUser = false;
+        });
+        _verifyHealthUserKeys();
       }
     });
   }
 
   void _updateHealthUser({bool consent, bool exposureNotification}){
     setState(() {
-      _loadingHealthUser = true;
+      _refreshingHealthUser = true;
     });
-    Health().loginUser(consent: consent, exposureNotification: exposureNotification).then((user) {
+    Health().loginUser(consent: consent, exposureNotification: exposureNotification).then((_) {
       if (mounted) {
-        if (user != null) {
-          setState(() {
-            _healthUser = user;
-            _loadingHealthUser = false;
-          });
-        }
-        else {
-          setState(() {
-            _loadingHealthUser = false;
-          });
-          AppToast.show("Unable to login in Health");
-        }
-      }
-    });
-  }
-
-  void _loadHealthRSAPrivateKey() {
-    setState(() {
-      _loadingHealthUserPrivateKey = true;
-    });
-    Health().loadRSAPrivateKey().then((privateKey) {
-      if (mounted) {
-        _healthUserPrivateKey = privateKey;
-        _verifyHealthRSAKeys();
         setState(() {
-          _loadingHealthUserPrivateKey = false;
+          _refreshingHealthUser = false;
         });
       }
     });
   }
 
-  void _verifyHealthRSAKeys() {
-    if ((_healthUserPrivateKey != null) && (_healthUser?.publicKey != null)) {
+  void _verifyHealthUserKeys() {
+    if ((Health().userPrivateKey != null) && (Health().user?.publicKey != null)) {
       setState(() {
         _checkingHealthUserKeysPaired = true;
       });
-      RsaKeyHelper.verifyRsaKeyPair(PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey>(_healthUser?.publicKey, _healthUserPrivateKey)).then((bool result) {
+      RsaKeyHelper.verifyRsaKeyPair(PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey>(Health().user?.publicKey, Health().userPrivateKey)).then((bool result) {
         if (mounted) {
           setState(() {
             _healthUserKeysPaired = result;
@@ -653,19 +610,17 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
     }
   }
 
-  void _refreshHealthRSAKeys() {
+  void _refreshHealthUserKeys() {
     setState(() {
       _refreshingHealthUserKeys = true;
     });
-    Health().refreshRSAKeys().then((keyPair) {
+    Health().resetUserKeys().then((keyPair) {
       if (mounted) {
         if (keyPair != null) {
           setState(() {
-            _healthUser = Health().healthUser;
-            _healthUserPrivateKey = keyPair.privateKey;
             _refreshingHealthUserKeys = false;
           });
-          _verifyHealthRSAKeys();
+          _verifyHealthUserKeys();
         }
         else {
           setState(() {
@@ -683,7 +638,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   Widget _buildCovid19Settings() {
     List<Widget> contentList = new List();
 
-    if (_loadingHealthUser == true) {
+    if (_refreshingHealthUser == true) {
       contentList.add(Container(
         padding: EdgeInsets.all(16),
         child: Center(child:
@@ -691,7 +646,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
         ,),
       ));
     }
-    else if (_healthUser == null) {
+    else if (Health().user == null) {
       contentList.add(Container(
         padding: EdgeInsets.only(left: 8),
         child: Column(
@@ -723,7 +678,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
               height: null,
               borderRadius: borderRadius,
               label: Localization().getStringEx("panel.settings.home.covid19.exposure_notifications", "Exposure Notifications"),
-              toggled: (_healthUser?.exposureNotification == true),
+              toggled: (Health().user?.exposureNotification == true),
               context: context,
               onTap: _onExposureNotifications));
         }
@@ -732,7 +687,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
               height: null,
               borderRadius: borderRadius,
               label: Localization().getStringEx("panel.settings.home.covid19.provider_test_result", "Health Provider Test Results"),
-              toggled: (_healthUser?.consent == true),
+              toggled: (Health().user?.consent == true),
               context: context,
               onTap: _onProviderTestResult));
         }
@@ -748,13 +703,13 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   }
 
   Widget _buildCovid19KeysSection() {
-    if ((_loadingHealthUserPrivateKey == true) || (_checkingHealthUserKeysPaired == true)) {
+    if ((_refreshingHealthUser == true) || (_checkingHealthUserKeysPaired == true)) {
       return Text(Localization().getStringEx('panel.settings.home.covid19.text.keys.checking', 'Checking COVID-19 keys...'), style: TextStyle(color: Styles().colors.textBackground, fontFamily: Styles().fontFamilies.regular, fontSize: 16),);
     }
     else {
       String statusText, descriptionText;
       List<Widget> buttons;
-      if (_healthUser?.publicKey == null) {
+      if (Health().user?.publicKey == null) {
         statusText = Localization().getStringEx('panel.settings.home.covid19.text.keys.missing.public', 'Missing COVID-19 public key');
         descriptionText = Localization().getStringEx('panel.settings.home.covid19.text.keys.reset', 'Reset the COVID-19 keys pair.');
         buttons =  <Widget>[
@@ -765,8 +720,8 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
           Expanded(child: _buildCovid19ResetButton()),
         ];
       }
-      else if ((_healthUserPrivateKey == null) || (_healthUserKeysPaired != true)) {
-        statusText = (_healthUserPrivateKey == null) ?
+      else if ((Health().userPrivateKey == null) || (_healthUserKeysPaired != true)) {
+        statusText = (Health().userPrivateKey == null) ?
           Localization().getStringEx('panel.settings.home.covid19.text.keys.missing.private', 'Missing COVID-19 private key') :
           Localization().getStringEx('panel.settings.home.covid19.text.keys.mismatch', 'COVID-19 keys not paired');
         descriptionText = Localization().getStringEx('panel.settings.home.covid19.text.keys.transfer_or_reset', 'Transfer the COVID-19 private key from your other phone or reset the COVID-19 keys pair.');
@@ -848,7 +803,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   void _onExposureNotifications() {
     if (Connectivity().isNotOffline) {
       Analytics.instance.logSelect(target: "Exposure Notifications");
-      bool exposureNotification = _healthUser?.exposureNotification ?? false;
+      bool exposureNotification = Health().user?.exposureNotification ?? false;
       _updateHealthUser(exposureNotification: !exposureNotification);
     } else {
       AppAlert.showOfflineMessage(context);
@@ -858,7 +813,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   void _onProviderTestResult() {
     if (Connectivity().isNotOffline) {
       Analytics.instance.logSelect(target: "Health Provider Test Results");
-      bool consent = _healthUser?.consent ?? false;
+      bool consent = Health().user?.consent ?? false;
       _updateHealthUser(consent: !consent);
     } else {
       AppAlert.showOfflineMessage(context);
@@ -868,7 +823,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   void _onTapCovid19Login() {
     if (Connectivity().isNotOffline) {
       Analytics.instance.logSelect(target: "Retry");
-      _loadHealthUser();
+      _refreshHealthUser();
     } else {
       AppAlert.showOfflineMessage(context);
     }
@@ -906,7 +861,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
             }
         ).then((result) {
           if (result == true) {
-            _refreshHealthRSAKeys();
+            _refreshHealthUserKeys();
           }
         });
       }
@@ -963,10 +918,10 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
       }
 
       if (privateKey != null) {
-        RsaKeyHelper.verifyRsaKeyPair(PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey>(_healthUser?.publicKey, privateKey)).then((bool result) {
+        RsaKeyHelper.verifyRsaKeyPair(PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey>(Health().user?.publicKey, privateKey)).then((bool result) {
           if (mounted) {
             if (result == true) {
-              Health().setUserRSAPrivateKey(privateKey).then((success) {
+              Health().setUserPrivateKey(privateKey).then((success) {
                 if (mounted) {
                   String resultMessage = success ? Localization().getStringEx(
                       'panel.settings.home.covid19.alert.qr_code.transfer.succeeded.msg', 'COVID-19 secret transferred successfully.') : Localization()
@@ -974,7 +929,6 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
                   AppAlert.showDialogResult(context, resultMessage).then((_) {
                     if (success) {
                       setState(() {
-                        _healthUserPrivateKey = privateKey;
                         _healthUserKeysPaired = true;
                       });
                     }

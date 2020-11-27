@@ -401,16 +401,6 @@ class Storage with Service {
     _setStringWithName(lastHealthCovid19StatusKey, value);
   }
 
-  static const String healthUserKey = 'health_user';
-
-  String get healthUser {
-    return _getStringWithName(healthUserKey);
-  }
-
-  set healthUser(String value) {
-    _setStringWithName(healthUserKey, value);
-  }
-
   static const String lastHealthCovid19OsfTestDateKey = 'health_last_covid19_osf_test_date';
 
   DateTime get lastHealthCovid19OsfTestDateUtc {
@@ -425,16 +415,55 @@ class Storage with Service {
     _setStringWithName(lastHealthCovid19OsfTestDateKey, dateString);
   }
 
-  static const String lastHealthStatusEvalKey  = '_health_last_status_eval';
+  static const String healthUserKey = 'health_user';
 
-  int get lastHealthStatusEval {
-    return _getIntWithName(lastHealthStatusEvalKey, defaultValue: null);
+  String get healthUser {
+    return _getStringWithName(healthUserKey);
   }
 
-  set lastHealthStatusEval(int value) {
-    _setIntWithName(lastHealthStatusEvalKey, value);
+  set healthUser(String value) {
+    _setStringWithName(healthUserKey, value);
   }
 
+  static const String healthUserStatusKey = 'health_user_status';
+
+  String get healthUserStatus {
+    return _getStringWithName(healthUserStatusKey);
+  }
+
+  set healthUserStatus(String value) {
+    _setStringWithName(healthUserStatusKey, value);
+  }
+
+  static const String healthUserTestMonitorIntervalKey = 'health_user_test_monitor_interval';
+
+  int get healthUserTestMonitorInterval {
+    return _getIntWithName(healthUserTestMonitorIntervalKey);
+  }
+
+  set healthUserTestMonitorInterval(int value) {
+    _setIntWithName(healthUserTestMonitorIntervalKey, value);
+  }
+
+  static const String _healthCountyKey = 'health_county';
+  
+  String get healthCounty {
+    return _getStringWithName(_healthCountyKey);
+  }
+
+  set healthCounty(String value) {
+    _setStringWithName(_healthCountyKey, value);
+  }
+
+  static const String _healthBuildingAccessRulesKey = 'health_building_access_rules';
+  
+  String get healthBuildingAccessRules {
+    return _getStringWithName(_healthBuildingAccessRulesKey);
+  }
+
+  set healthBuildingAccessRules(String value) {
+    _setStringWithName(_healthBuildingAccessRulesKey, value);
+  }
 
   /////////////
   // Exposure

@@ -99,7 +99,7 @@ class FirebaseMessaging with Service implements NotificationsListener {
       UserProfile.notifyProfileUpdated,
       UserProfile.notifyProfileDeleted,
       Health.notifyUserUpdated,
-      Health.notifyStatusAvailable,
+      Health.notifyStatusUpdated,
       LocalNotifications.notifySelected,
       AppLivecycle.notifyStateChanged,
     ]);
@@ -167,8 +167,8 @@ class FirebaseMessaging with Service implements NotificationsListener {
     else if (name == Health.notifyUserUpdated) {
       _updateHealthStatusSubscriptions();
     }
-    else if (name == Health.notifyStatusAvailable) {
-      _updateHealthStatusSubscriptions(status: param);
+    else if (name == Health.notifyStatusUpdated) {
+      _updateHealthStatusSubscriptions(status: Health().status);
     }
     else if (name == LocalNotifications.notifySelected) {
       _processDataMessage(AppJson.decode(param));

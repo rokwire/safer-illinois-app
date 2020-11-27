@@ -43,57 +43,39 @@ class Covid19TransferEncryptionKeyPanel extends StatefulWidget {
 
 class _Covid19TransferEncryptionKeyPanelState extends State<Covid19TransferEncryptionKeyPanel> {
 
-  PointyCastle.PublicKey _userHealthPublicKey;
-  PointyCastle.PrivateKey _userHealthPrivateKey;
-  bool _userHealthKeysLoading, _userHealthKeysPaired, _userHealthPublicKeyLoaded, _userHealthPrivateKeyLoaded;
+  PointyCastle.PublicKey _userPublicKey;
+  PointyCastle.PrivateKey _userPrivateKey;
+  bool _prepairing, _userKeysPaired;
   Uint8List _qrCodeBytes;
   bool _saving = false;
 
   @override
   void initState() {
-    _userHealthKeysLoading = true;
-    _loadHealthRSAPublicKey();
-    _loadHealthRSAPrivateKey();
     super.initState();
-  }
-
-  void _loadHealthRSAPublicKey() {
-    Health().loadRSAPublicKey().then((publicKey) {
-      if (mounted) {
-        _userHealthPublicKey = publicKey;
-        _userHealthPublicKeyLoaded = true;
-        _verifyHealthRSAKeys();
-      }
-    });
-  }
-
-  void _loadHealthRSAPrivateKey() {
-    Health().loadRSAPrivateKey().then((privateKey) {
-      if (mounted) {
-        _userHealthPrivateKey = privateKey;
-        _userHealthPrivateKeyLoaded = true;
-        _verifyHealthRSAKeys();
-      }
-    });
+    
+    _prepairing = true;
+    _userPublicKey = Health().user?.publicKey;
+    _userPrivateKey = Health().userPrivateKey;
+    _verifyHealthRSAKeys();
   }
 
   void _verifyHealthRSAKeys() {
 
-    if ((_userHealthPrivateKey != null) && (_userHealthPublicKey != null)) {
-      RsaKeyHelper.verifyRsaKeyPair(PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey>(_userHealthPublicKey, _userHealthPrivateKey)).then((bool result) {
+    if ((_userPrivateKey != null) && (_userPublicKey != null)) {
+      RsaKeyHelper.verifyRsaKeyPair(PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey>(_userPublicKey, _userPrivateKey)).then((bool result) {
         if (mounted) {
-          _userHealthKeysPaired = result;
+          _userKeysPaired = result;
           _buildHealthRSAQRCode();
         }
       });
     }
-    else if ((_userHealthPrivateKeyLoaded == true) && (_userHealthPublicKeyLoaded == true)) {
-      _finishHealthRSAKeysLoading();
+    else {
+      _finishPrepare();
     }
   }
 
   void _buildHealthRSAQRCode() {
-    Uint8List privateKeyData = (_userHealthKeysPaired && (_userHealthPrivateKey != null)) ? RsaKeyHelper.encodePrivateKeyToPEMDataPKCS1(_userHealthPrivateKey) : null;
+    Uint8List privateKeyData = (_userKeysPaired && (_userPrivateKey != null)) ? RsaKeyHelper.encodePrivateKeyToPEMDataPKCS1(_userPrivateKey) : null;
     List<int> privateKeyCompressedData = (privateKeyData != null) ? GZipEncoder().encode(privateKeyData) : null;
     String privateKeyString = (privateKeyData != null) ? base64.encode(privateKeyCompressedData) : null;
     if (privateKeyString != null) {
@@ -105,18 +87,18 @@ class _Covid19TransferEncryptionKeyPanelState extends State<Covid19TransferEncry
       }).then((Uint8List qrCodeBytes) {
         if (mounted) {
           _qrCodeBytes = qrCodeBytes;
-          _finishHealthRSAKeysLoading();
+          _finishPrepare();
         }
       });
     }
     else {
-      _finishHealthRSAKeysLoading();
+      _finishPrepare();
     }
   }
 
-  void _finishHealthRSAKeysLoading() {
+  void _finishPrepare() {
     setState(() {
-      _userHealthKeysLoading = false;
+      _prepairing = false;
     });
   }
 
@@ -139,7 +121,7 @@ class _Covid19TransferEncryptionKeyPanelState extends State<Covid19TransferEncry
       body: Column(children: <Widget>[
         Expanded(child:
           Padding(padding: EdgeInsets.all(24), child:
-            _userHealthKeysLoading ? _buildWaitingContent() : _buildPrivateKeyContent()
+            (_prepairing == true) ? _buildWaitingContent() : _buildPrivateKeyContent()
           ),
         ),
       ],),
@@ -322,10 +304,10 @@ class _Covid19TransferEncryptionKeyPanelState extends State<Covid19TransferEncry
     catch (e) { print(e?.toString()); }
     
     if (privateKey != null) {
-      RsaKeyHelper.verifyRsaKeyPair(PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey>(_userHealthPublicKey, privateKey)).then((bool result) {
+      RsaKeyHelper.verifyRsaKeyPair(PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey>(_userPublicKey, privateKey)).then((bool result) {
         if (mounted) {
           if (result == true) {
-            Health().setUserRSAPrivateKey(privateKey).then((success) {
+            Health().setUserPrivateKey(privateKey).then((success) {
               if (mounted) {
                 String resultMessage = success ?
                     Localization().getStringEx("panel.covid19.transfer.alert.qr_code.transfer.succeeded.msg", "COVID-19 secret transferred successfully.") :

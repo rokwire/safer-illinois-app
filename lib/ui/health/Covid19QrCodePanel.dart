@@ -54,7 +54,7 @@ class _Covid19QrCodePanelState extends State<Covid19QrCodePanel> {
   }
 
   Future<Uint8List> _loadQrImageBytes() async {
-    secure.PrivateKey privateKey = await Health().loadRSAPrivateKey();
+    secure.PrivateKey privateKey = Health().userPrivateKey;
     Uint8List privateKeyData = (privateKey != null) ? RsaKeyHelper.encodePrivateKeyToPEMDataPKCS1(privateKey): null;
     List<int> privateKeyCompressedData = (privateKeyData != null) ? GZipEncoder().encode(privateKeyData) : null;
     String privateKeyString = (privateKeyData != null) ? base64.encode(privateKeyCompressedData) : null;

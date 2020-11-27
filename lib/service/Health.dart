@@ -16,20 +16,17 @@
 
 import 'dart:async';
 import 'dart:io';
-
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-//TMP: import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
-import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/BluetoothServices.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Exposure.dart';
 import 'package:illinois/service/LocationServices.dart';
-import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Network.dart';
 import 'package:illinois/service/NotificationService.dart';
@@ -44,30 +41,35 @@ import "package:pointycastle/export.dart";
 
 class Health with Service implements NotificationsListener {
 
-  static const String notifyCountyChanged           = "edu.illinois.rokwire.health.county.changed";
-  static const String notifyStatusAvailable         = "edu.illinois.rokwire.health.status.available";
-  static const String notifyStatusUpdated           = "edu.illinois.rokwire.health.status.updated";
-  static const String notifyHistoryUpdated          = "edu.illinois.rokwire.health.history.updated";
-  static const String notifyUserUpdated             = "edu.illinois.rokwire.health.user.updated";
-  static const String notifyUserPrivateKeyUpdated   = "edu.illinois.rokwire.health.user.private_key.updated";
-  
-  static const String notifyProcessingFinished      = "edu.illinois.rokwire.health.processing.finished";
-  
-  static const String _historyFileName              = "history.json";
+  static const String notifyUserUpdated                = "edu.illinois.rokwire.health.user.updated";
+  static const String notifyStatusUpdated              = "edu.illinois.rokwire.health.status.updated";
+  static const String notifyHistoryUpdated             = "edu.illinois.rokwire.health.history.updated";
+  static const String notifyCountyChanged              = "edu.illinois.rokwire.health.county.changed";
+  static const String notifyRulesChanged               = "edu.illinois.rokwire.health.rules.changed";
+  static const String notifyBuildingAccessRulesChanged = "edu.illinois.rokwire.health.building_access_rules.changed";
+  static const String notifyRefreshing                 = "edu.illinois.rokwire.health.refreshing.updated";
+
+  static const String _rulesFileName                   = "rules.json";
+  static const String _historyFileName                 = "history.json";
 
   HealthUser _user;
   PrivateKey _userPrivateKey;
-  PublicKey  _servicePublicKey;
+  int _userTestMonitorInterval;
 
-  String   _currentCountyId;
+  Covid19Status _status;
+  List<Covid19History> _history;
+  
+  HealthCounty _county;
+  HealthRulesSet _rules;
+  Map<String, dynamic> _buildingAccessRules;
+
+  Directory _appDocumentsDir;
+  PublicKey _servicePublicKey;
+  Covid19Status _previousStatus;
+  List<Covid19Event> _processedEvents;
+  Future<void> _refreshFuture;
+  _RefreshOptions _refreshOptions;
   DateTime _pausedDateTime;
-
-  File     _historyCacheFile;
-  List<Covid19History> _historyCache;
-  Map<String, HealthRulesSet> _rulesCache;
-  Map<String, Map<String, dynamic>> _accessRulesCache;
-
-  bool _processing;
 
   // Singletone Instance
 
@@ -77,12 +79,7 @@ class Health with Service implements NotificationsListener {
     return _instance;
   }
 
-  Health._internal() {
-    _rulesCache = Map<String, HealthRulesSet>();
-    _accessRulesCache =  Map<String, Map<String, dynamic>>();
-  }
-
-
+  Health._internal();
 
   // Service
 
@@ -102,35 +99,37 @@ class Health with Service implements NotificationsListener {
 
   @override
   Future<void> initService() async {
-    _currentCountyId = await _loadCurrentCountyId();
-    _user = _loadUserFromStorage();
+    _appDocumentsDir = await getApplicationDocumentsDirectory();
     _servicePublicKey = RsaKeyHelper.parsePublicKeyFromPem(Config().healthPublicKey);
-    _userPrivateKey = await _rsaUserPrivateKey;
-    _historyCacheFile = await _getHistoryCacheFile();
-    _historyCache = await _loadHistoryCache();
-    _refreshUser();
-  }
 
-  @override
-  void initServiceUI() {
-    _process();
+    _user = _loadUserFromStorage();
+    _userPrivateKey = await _loadUserPrivateKey();
+    _userTestMonitorInterval = Storage().healthUserTestMonitorInterval;
+
+    _status = _loadStatusFromStorage();
+    _history = await _loadHistoryFromCache();
+
+    _county = await _ensureCounty();
+    _rules = await _loadRulesFromCache();
+    _rules?.userTestMonitorInterval = _userTestMonitorInterval;
+    _buildingAccessRules = _loadBuildingAccessRulesFromStorage();
+
+    _refresh(_RefreshOptions.all());
   }
 
   @override
   Future<void> clearService() async {
     _user = null;
     _userPrivateKey = null;
+    _userTestMonitorInterval = null;
     _servicePublicKey = null;
-    _currentCountyId = null;
 
-    AppFile.delete(_historyCacheFile);
-    _historyCacheFile = null;
-    _historyCache = null;
+    _status = null;
+    _history = null;
 
-    _rulesCache.clear();
-    _accessRulesCache.clear();
-
-    _processing = null;    
+    _county = null;
+    _rules = null;
+    _buildingAccessRules = null;
   }
 
   @override
@@ -161,9 +160,7 @@ class Health with Service implements NotificationsListener {
       if (_pausedDateTime != null) {
         Duration pausedDuration = DateTime.now().difference(_pausedDateTime);
         if (Config().refreshTimeout < pausedDuration.inSeconds) {
-          _refreshUser().then((_) {
-            _process();
-          });
+          _refresh(_RefreshOptions.all());
         }
       }
     }
@@ -171,1171 +168,104 @@ class Health with Service implements NotificationsListener {
 
   void _onUserLoginChanged() {
 
-    if (this._isAuthenticated) {
-      _refreshRSAPrivateKey().then((_) {
-        _refreshUser().then((_) {
-          _process();
-        });
+    if (this._isUserAuthenticated) {
+      _refreshUserPrivateKey().then((_) {
+        _refresh(_RefreshOptions.fromList([_RefreshOption.user, _RefreshOption.userInterval, _RefreshOption.history]));
       });
     }
     else {
-      _lastCovid19Status = null;
-      _healthUserPrivateKey = null;
-      _healthUser = null;
+      _userPrivateKey = null;
+      _clearUser();
+      _clearUserTestMonitorInterval();
+      _clearStatus();
+      _clearHistory();
+    }
+  }
 
-      _clearHistoryCache();
+  // Refresh
+
+  bool get refreshing {
+    return (_refreshFuture != null);
+  }
+
+  Future<void> refreshStatus() async {
+    return _refresh(_RefreshOptions.fromList([_RefreshOption.userInterval, _RefreshOption.history, _RefreshOption.rules, _RefreshOption.buildingAccessRules]));
+  }
+
+  Future<void> refreshUser() async {
+    return _refresh(_RefreshOptions.fromList([_RefreshOption.user, _RefreshOption.userPrivateKey]));
+  }
+
+  Future<void> _refresh(_RefreshOptions options) async {
+
+    if (_refreshFuture != null) {
+      options = options.difference(_refreshOptions);
+      await _refreshFuture;
+    }
+
+    if (options.isNotEmpty) {
+      _refreshFuture = _refreshInternal(options);
+      NotificationService().notify(notifyRefreshing);
+      await _refreshFuture;
+      NotificationService().notify(notifyRefreshing);
+    }
+  }
+
+  Future<void> _refreshInternal(_RefreshOptions options) async {
+    _refreshOptions = options;
+
+    await Future.wait([
+      options.user ? _refreshUser() : Future<void>.value(),
+      options.userPrivateKey ? _refreshUserPrivateKey() : Future<void>.value(),
       
-      NotificationService().notify(notifyStatusAvailable, null);
-      NotificationService().notify(notifyHistoryUpdated, null);
-      // NotificationService().notify(notifyUserUpdated, null); 
-      // NotificationService().notify(notifyUserPrivateKeyUpdated, null); 
-    }
-  }
-
-  // Network API: Covid19Status
-
-  Future<Covid19Status> loadCovid19Status() async {
-    return _loadCovid19Status();
-  }
-
-  Future<Covid19Status> _loadCovid19Status() async {
-    if (this._isLoggedIn && (Config().healthUrl != null)) {
-      String url = "${Config().healthUrl}/covid19/v2/app-version/2.2/statuses";
-      Response response = await Network().get(url, auth: NetworkAuth.User);
-      if (response?.statusCode == 200) {
-        Covid19Status status = await Covid19Status.decryptedFromJson(AppJson.decodeMap(response.body), _userPrivateKey);
-        _applyLastCovid19Status(status);
-        return status;
-      }
-    }
-    return null;
-  }
-
-  Future<bool> _updateCovid19Status(Covid19Status status) async {
-    if (this._isLoggedIn && (Config().healthUrl != null)) {
-      String url = "${Config().healthUrl}/covid19/v2/app-version/2.2/statuses";
-      Covid19Status encryptedStatus = await status?.encrypted(_user?.publicKey);
-      String post = AppJson.encode(encryptedStatus?.toJson());
-      Response response = await Network().put(url, body: post, auth: NetworkAuth.User);
-      if (response?.statusCode == 200) {
-        _applyLastCovid19Status(status);
-        return true;
-      }
-    }
-    return false;
-  }
-
-  Future<bool> _clearCovid19Status() async {
-    if (this._isAuthenticated && (Config().healthUrl != null)) {
-      String url = "${Config().healthUrl}/covid19/v2/app-version/2.2/statuses";
-      Response response = await Network().delete(url, auth: NetworkAuth.User);
-      return response?.statusCode == 200;
-    }
-    return false;
-  }
-
-  // Network API: Covid19History
-
-  Future<File> _getHistoryCacheFile() async {
-    Directory appDocDir = await getApplicationDocumentsDirectory();
-    String cacheFilePath = join(appDocDir.path, _historyFileName);
-    return File(cacheFilePath);
-  }
-
-  Future<List<Covid19History>> _loadHistoryCache() async {
-     if (this._isLoggedIn && (_historyCacheFile != null)) {
-      String cachedString = await _historyCacheFile.exists() ? await _historyCacheFile.readAsString() : null;
-      List<dynamic> cachedJson = (cachedString != null) ? AppJson.decodeList(cachedString) : null;
-      return (cachedJson != null) ? await Covid19History.listFromJson(cachedJson, _decryptHistoryKeys) : null;
-     }
-     return null;
-  }
-
-  Future<void> _clearHistoryCache() async {
-    _historyCache = null;
-    if (await _historyCacheFile.exists()) {
-      try { await _historyCacheFile.delete(); } catch (e) { print(e?.toString()); }
-    }
-  }
-
-  Future<List<Covid19History>> loadCovid19History({bool force}) async {
-    if (this._isLoggedIn) {
-      if ((_historyCache != null) && (force != true)) {
-        return _historyCache;
-      }
-      else {
-        String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/v2/histories" : null;
-        Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.User) : null;
-        String responseString = (response?.statusCode == 200) ? response.body : null;
-        List<dynamic> responseJson = (responseString != null) ? AppJson.decodeList(responseString) : null;
-        List<Covid19History> result = (responseJson != null) ? await Covid19History.listFromJson(responseJson, _decryptHistoryKeys) : null;
-        if (result != null) {
-          _historyCache = result;
-          try { await _historyCacheFile?.writeAsString(responseString, flush: true); } catch (e) { print(e?.toString()); }
-          return result;
-        }
-      }
-    }
-    return null;
-  }
-
-  Future<Covid19History> addCovid19History({DateTime dateUtc, Covid19HistoryType type, Covid19HistoryBlob blob}) async {
-    return this._isLoggedIn ? await _addCovid19History(await Covid19History.encryptedFromBlob(
-      dateUtc: dateUtc,
-      type: type,
-      blob: blob,
-      publicKey: _user?.publicKey
-    )) : null;
-  }
-
-  Future<Covid19History> _addCovid19History(Covid19History history) async {
-    if (this._isLoggedIn && (Config().healthUrl != null)) {
-      String url = "${Config().healthUrl}/covid19/v2/histories";
-      String post = AppJson.encode(history?.toJson());
-      Response response = await Network().post(url, body: post, auth: NetworkAuth.User);
-      if (response?.statusCode == 200) {
-        await _clearHistoryCache();
-        return await Covid19History.decryptedFromJson(AppJson.decode(response.body), _decryptHistoryKeys);
-      }
-    }
-    return null;
-  }
-
-  Future<Covid19History> updateCovid19History({String id, String userId, DateTime dateUtc, Covid19HistoryType type, Covid19HistoryBlob blob}) async {
-    return this._isLoggedIn ?  _updateCovid19History(await Covid19History.encryptedFromBlob(
-      id: id,
-      dateUtc: dateUtc,
-      type: type,
-      blob: blob,
-      publicKey: _user?.publicKey
-    )) : null;
-  }
-
-  Future<Covid19History> _updateCovid19History(Covid19History history) async {
-    if (this._isLoggedIn && (Config().healthUrl != null)) {
-      String url = "${Config().healthUrl}/covid19/v2/histories/${history.id}";
-      String post = AppJson.encode(history?.toJson());
-      Response response = await Network().put(url, body: post, auth: NetworkAuth.User);
-      if (response?.statusCode == 200) {
-        await _clearHistoryCache();
-        return await Covid19History.decryptedFromJson(AppJson.decode(response.body), _decryptHistoryKeys);
-      }
-    }
-    return null;
-  }
-
-  Future<bool> _clearCovid19History() async {
-    if (this._isAuthenticated && (Config().healthUrl != null)) {
-      String url = "${Config().healthUrl}/covid19/v2/histories";
-      Response response = await Network().delete(url, auth: NetworkAuth.User);
-      if (response?.statusCode == 200) {
-        await _clearHistoryCache();
-        return true;
-      }
-    }
-    return false;
-  }
-
-  Map<Covid19HistoryType, PrivateKey> get _decryptHistoryKeys {
-    return {
-      Covid19HistoryType.test : _userPrivateKey,
-      Covid19HistoryType.manualTestVerified : _userPrivateKey,
-      Covid19HistoryType.manualTestNotVerified : null, // _servicePrivateKey NA
-      Covid19HistoryType.symptoms : _userPrivateKey,
-      Covid19HistoryType.contactTrace : _userPrivateKey,
-      Covid19HistoryType.action : _userPrivateKey,
-
-    };
-  }
-
-  // Network API: Covid19Event
-
-  Future<List<Covid19Event>> loadCovid19Events({bool processed}) async {
-    if (this._isLoggedIn && (Config().healthUrl != null)) {
-      String url = "${Config().healthUrl}/covid19/ctests";
-      String params = "";
-      if (processed != null) {
-        if (0 < params.length) {
-          params += "&";
-        }
-        params += "processed=$processed";
-      }
-      if (0 < params.length) {
-        url += "?$params";
-      }
-      Response response = await Network().get(url, auth: NetworkAuth.User);
-      String responseString = (response?.statusCode == 200) ? response.body : null;
-      List<dynamic> responseJson = (responseString != null) ? AppJson.decodeList(responseString) : null;
-      return (responseJson != null) ? await Covid19Event.listFromJson(responseJson, _userPrivateKey) : null;
-    }
-    return null;
-  }
-
-  Future<bool> clearCovid19Tests() async {
-    if (this._isAuthenticated && (Config().healthUrl != null)) {
-      String url = "${Config().healthUrl}/covid19/ctests";
-      Response response = await Network().delete(url, auth: NetworkAuth.User);
-      return (response?.statusCode == 200);
-    }
-    return false;
-  }
-
-  // Network API: HealthServiceProvider
-
-  Future<List<HealthServiceProvider>> loadHealthServiceProviders({String countyId}) async {
-    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/providers" : null;
-
-    if ((url != null) && (countyId != null)) {
-      url += "/county/$countyId";
-    }
-
-    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
-    String responseString = (response?.statusCode == 200) ? response.body : null;
-    List<dynamic> responseJson = (responseString != null) ? AppJson.decode(responseString) : null;
-    return (responseJson != null) ? HealthServiceProvider.listFromJson(responseJson) : null;
-  }
-
-  Future<Map<String, List<HealthServiceProvider>>> loadHealthServiceProvidersForCounties(Set<String> countyIds) async {
-    if ((Config().healthUrl == null) || AppCollection.isCollectionEmpty(countyIds)) {
-      return null;
-    }
-    String idsToString = countyIds.join(',');
-    String url = "${Config().healthUrl}/covid19/providers?county-ids=$idsToString";
-    Response response = await Network().get(url, auth: NetworkAuth.App);
-    String responseString = (response?.statusCode == 200) ? response.body : null;
-    Map<String, dynamic> responseJson = AppJson.decodeMap(responseString);
-    if (responseJson == null) {
-      return null;
-    }
-    Map<String, List<HealthServiceProvider>> countyProvidersMap = Map();
-    for (String countyId in responseJson.keys) {
-      dynamic providersJson = responseJson[countyId];
-      List<HealthServiceProvider> providers = HealthServiceProvider.listFromJson(providersJson);
-      countyProvidersMap[countyId] = providers;
-    }
-    return countyProvidersMap;
-  }
-
-  // Network API: HealthServiceLocation
-
-  Future<List<HealthServiceLocation>> loadHealthServiceLocations({String countyId, String providerId})async{
-    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/locations" : null;
-
-    if (url != null) {
-      if ((countyId != null))
-        url += "?county-id=$countyId";
-      if (providerId!=null)
-        url += (countyId != null ? "&" : "?") + "provider-id=$providerId";
-    }
-
-    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
-    String responseString = (response?.statusCode == 200) ? response.body : null;
-    List<dynamic> responseJson = (responseString != null) ? AppJson.decode(responseString) : null;
-    return (responseJson != null) ? HealthServiceLocation.listFromJson(responseJson) : null;
-  }
-
-  Future<HealthServiceLocation> loadHealthServiceLocation({String locationId})async{
-    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/locations" : null;
-
-    if ((url != null) && (locationId != null))
-      url += "/$locationId";
-
-    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
-    String responseString = (response?.statusCode == 200) ? response.body : null;
-    Map<String,dynamic> responseJson = (responseString != null) ? AppJson.decode(responseString) : null;
-    return (responseJson != null) ? HealthServiceLocation.fromJson(responseJson) : null;
-  }
-
-  // Network API: HealthTestType
-
-  Future<List<HealthTestType>> loadHealthServiceTestTypes({List<String> typeIds})async{
-    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/test-types" : null;
-
-    if ((url != null) && (typeIds?.isNotEmpty ?? false)) {
-      url += "?ids=";
-      typeIds.forEach((id){
-        url += "$id,";
-      });
-      url = url.substring(0, url.length - 1);
-    }
-    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
-    String responseString = (response?.statusCode == 200) ? response.body : null;
-    List<dynamic> responseJson = (responseString != null) ? AppJson.decode(responseString) : null;
-    return (responseJson != null) ? HealthTestType.listFromJson(responseJson) : null;
-  }
-
-  // Network API: HealthCounty
-
-  Future<String> _loadCurrentCountyId() async {
-    String currentCountyId = Storage().currentHealthCountyId;
-    if (currentCountyId == null) {
-      List<HealthCounty> counties = await loadCounties();
-      currentCountyId = HealthCounty.defaultCounty(counties)?.id;
-      if (currentCountyId != null) {
-        Storage().currentHealthCountyId = currentCountyId;
-      }
-    }
-    return currentCountyId;
-  }
-
-  Future<bool> _ensureCurrentCountyId() async {
-    if (_currentCountyId == null) {
-      _currentCountyId = await _loadCurrentCountyId();
-      if (_currentCountyId != null) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  Future<List<HealthCounty>> loadCounties({String name, String state, String country}) async{
-    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/counties" : null;
-    String params = '';
-    if (name != null) {
-      params += "${(0 < params.length) ? '&' : ''}name=$name";
-    }
-    if (state != null) {
-      params += "${(0 < params.length) ? '&' : ''}state_province=$state";
-    }
-    if (country != null) {
-      params += "${(0 < params.length) ? '&' : ''}country=$country";
-    }
-    if ((url != null) && (0 < params.length)) {
-      url += "?$params";
-    }
-
-    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
-    String responseBody = (response?.statusCode == 200) ? response.body : null;
-    List<dynamic> responseJson = (responseBody != null) ? AppJson.decodeList(responseBody) : null;
-    return (responseJson != null) ? HealthCounty.listFromJson(responseJson) : null;
-  }
-
-  // Current County
-
-  String get currentCountyId {
-    return _currentCountyId;
-  }
-
-  bool get processing {
-    return _processing;
-  }
-
-  Future<_ProcessResult> _process({bool ensureStatus}) async {
+      options.userInterval ? _refreshUserTestMonitorInterval() : Future<void>.value(),
+      options.status ? _refreshStatus() : Future<void>.value(),
+      options.history ? _refreshHistory() : Future<void>.value(),
+      
+      options.county ? _refreshCounty() : Future<void>.value(),
+      options.rules ? _refreshRules() : Future<void>.value(),
+      options.buildingAccessRules ? _refreshBuildingAccessRules() : Future<void>.value(),
+    ]);
     
-    if (!this._isLoggedIn || (_processing == true)) {
-      return null;
-    }
-    _processing = true;
-
-    bool countyChanged = false, statusChanged = false, historyUpdated = false;
-
-    // 1. Ensure county
-    if (await _ensureCurrentCountyId()) {
-      countyChanged = true;
+    if (options.rules || options.userInterval) {
+      _rules?.userTestMonitorInterval = _userTestMonitorInterval;
     }
 
-    // 2. Check for pending CTests
-    List<Covid19Event> events = await _processPendingEvents();
-    if ((events != null) && (0 < events.length)) {
-      historyUpdated = true;
+    if (options.history || options.rules || options.userInterval) {
+      await _rebuildStatus();
+      await _logProcessedEvents();
     }
 
-    // 3. Load history
-    List<Covid19History> histories = await loadCovid19History(force: true);
-    
-    // 4. Rebuild status if we had been processed pending events
-    Covid19Status currentStatus;
-    String lastHealthStatus = this._lastCovid19Status;
-    String newHealthStatus = lastHealthStatus;
-    if ((histories != null) && (_currentCountyId != null)) {
-      currentStatus = await _statusForCounty(_currentCountyId, histories: histories);
-      if (currentStatus != null) {
-        if (await _updateCovid19Status(currentStatus)) {
-          statusChanged = true;
-        }
-        if (covid19HealthStatusIsValid(currentStatus?.blob?.healthStatus)) {
-          newHealthStatus = currentStatus?.blob?.healthStatus;
-        }
-      }
-    }
-    if ((currentStatus == null) && (ensureStatus == true)) {
-      currentStatus = await _loadCovid19Status();
-    }
-    
-    // 5. Log processed events
-    _logProcessedEvents(events: events, histories: histories, status: newHealthStatus, prevStatus: lastHealthStatus);
-
-    // 6. Fnish & Notify
-    _processing = null;
-    
-    _ProcessResult result = _ProcessResult(status: currentStatus, history: histories);
-    NotificationService().notify(notifyProcessingFinished, result);
-
-    if (countyChanged) {
-      NotificationService().notify(notifyCountyChanged, null);
-    }
-
-    if (statusChanged) {
-      NotificationService().notify(notifyStatusAvailable, currentStatus);
-    }
-
-    if (historyUpdated) {
-      NotificationService().notify(notifyHistoryUpdated, histories);
-    }
-
-    // 7. Check for status update
-    if ((lastHealthStatus != null) && (lastHealthStatus != newHealthStatus)) {
-      Timer(Duration(milliseconds: 100), () {
-        NotificationService().notify(notifyStatusUpdated, {
-          'lastHealthStatus': lastHealthStatus,
-          'status': currentStatus,
-        });
-      });
-    }
-
-    return result;
+    _refreshOptions = null;
+    _refreshFuture = null;
   }
 
-  Future<Covid19Status> get currentCountyStatus async {
-    _ProcessResult processResult = await _process(ensureStatus: true);
-    return processResult?.status;
-  }
-
-  Future<List<Covid19History>> loadUpdatedHistory() async {
-    _ProcessResult processResult = await _process();
-    return processResult?.history;
-  }
-
-  Future<Covid19Status> updateStatusFromHistory() async {
-    
-    if (!this._isLoggedIn) {
-      return null;
-    }
-
-    bool countyChanged = false, statusChanged = false;
-
-    // 1. Ensure county
-    if (await _ensureCurrentCountyId()) {
-      countyChanged = true;
-    }
-
-    // 2. Build the status
-    Covid19Status currentStatus;
-    String lastHealthStatus = this._lastCovid19Status;
-    String newHealthStatus = lastHealthStatus;
-    if (_currentCountyId != null) {
-      currentStatus = await _statusForCounty(_currentCountyId);
-      if (currentStatus != null) {
-        if (await _updateCovid19Status(currentStatus)) {
-          statusChanged = true;
-        }
-        if (covid19HealthStatusIsValid(currentStatus?.blob?.healthStatus)) {
-          newHealthStatus = currentStatus?.blob?.healthStatus;
-        }
-      }
-    }
-
-    // 3. Notify
-    if (countyChanged) {
-      NotificationService().notify(notifyCountyChanged, null);
-    }
-
-    if (statusChanged) {
-      NotificationService().notify(notifyStatusAvailable, currentStatus);
-    }
-
-    // 4. Check for status update
-    if ((lastHealthStatus != null)  && (lastHealthStatus != newHealthStatus)) {
-      Timer(Duration(milliseconds: 100), () {
-        NotificationService().notify(notifyStatusUpdated, {
-          'lastHealthStatus': lastHealthStatus,
-          'status': currentStatus,
-        });
-      });
-    }
-
-    return currentStatus;
-  }
-
-  Future<Covid19Status> switchCounty(String countyId) async {
-    Covid19Status status;
-    if ((countyId != null) && (_currentCountyId != countyId)) {
-      status = await _updateStatusForCounty(countyId);
-      Storage().currentHealthCountyId = _currentCountyId = countyId;
-      NotificationService().notify(notifyCountyChanged, null);
-    }
-    return status;
-  }
-
-  Future<Covid19Status> _updateStatusForCounty(String countyId) async {
-    Covid19Status status = await _statusForCounty(countyId);
-    if (status != null) {
-      if (await _updateCovid19Status(status)) {
-        NotificationService().notify(notifyStatusAvailable, status);
-        return status;
-      }
-    }
-    return null;
-  }
-
-  Future<Covid19Status> _statusForCounty(String countyId, { List<Covid19History> histories }) async {
-
-    List<Future<dynamic>> futures = <Future>[
-      _loadRules2(countyId: countyId, force: true),
-      _loadUserTestMonitorInterval()
-    ];
-    if (histories == null) {
-      futures.add(loadCovid19History(force: true));
-    }
-    List<dynamic> results = await Future.wait(futures);
-
-    HealthRulesSet rules = ((results != null) && (0 < results.length)) ? results[0] : null;
-    if (rules == null) {
-      return null;
-    }
-
-    dynamic userTestMonitorInterval = ((results != null) && (1 < results.length)) ? results[1] : false;
-    if (userTestMonitorInterval == false) {
-      return null;
-    }
-    else if (userTestMonitorInterval is int) {
-      rules.userTestMonitorInterval = userTestMonitorInterval;
-    }
-
-    if (histories == null) {
-      histories = ((results != null) && (2 < results.length)) ? results[2] : null;
-      if (histories == null) {
-        return null;
-      }
-    }
-
-    Covid19Status status;
-    HealthRuleStatus defaultStatus = rules?.defaults?.status?.eval(history: histories, historyIndex: -1, rules: rules);
-    if (defaultStatus != null) {
-      status = Covid19Status(
-        dateUtc: null,
-        blob: Covid19StatusBlob(
-          healthStatus: defaultStatus.healthStatus,
-          priority: defaultStatus.priority,
-          nextStep: rules.localeString(defaultStatus.nextStep),
-          nextStepHtml: rules.localeString(defaultStatus.nextStepHtml),
-          nextStepDateUtc: null,
-          eventExplanation: rules.localeString(defaultStatus.eventExplanation),
-          eventExplanationHtml: rules.localeString(defaultStatus.eventExplanationHtml),
-          reason: rules.localeString(defaultStatus.reason),
-          warning: rules.localeString(defaultStatus.warning),
-          fcmTopic: defaultStatus.fcmTopic,
-          historyBlob: null,
-        ),
-      );
-    }
-    else {
-      return null;
-    }
-
-    // Start from older
-    DateTime nowUtc = DateTime.now().toUtc();
-    for (int index = histories.length - 1; 0 <= index; index--) {
-
-      Covid19History history = histories[index];
-      if ((history.dateUtc != null) && history.dateUtc.isBefore(nowUtc)) {
-
-        HealthRuleStatus ruleStatus;
-        if (history.isTest && history.canTestUpdateStatus) {
-          if (rules.tests != null) {
-            HealthTestRuleResult testRuleResult = rules.tests.matchRuleResult(blob: history?.blob, rules: rules);
-            ruleStatus = testRuleResult?.status?.eval(history: histories, historyIndex: index, rules: rules);
-          }
-          else {
-            return null;
-          }
-          
-        }
-        else if (history.isSymptoms) {
-          if (rules.symptoms != null) {
-            HealthSymptomsRule symptomsRule = rules.symptoms.matchRule(blob: history?.blob, rules: rules);
-            ruleStatus = symptomsRule?.status?.eval(history: histories, historyIndex: index, rules: rules);
-          }
-          else {
-            return null;
-          }
-        }
-        else if (history.isContactTrace) {
-          if (rules.contactTrace != null) {
-            HealthContactTraceRule contactTraceRule = rules.contactTrace.matchRule(blob: history?.blob, rules: rules);
-            ruleStatus = contactTraceRule?.status?.eval(history: histories, historyIndex: index, rules: rules);
-          }
-          else {
-            return null;
-          }
-        }
-        else if (history.isAction) {
-          if (rules.actions != null) {
-            HealthActionRule actionRule = rules.actions.matchRule(blob: history?.blob, rules: rules);
-            ruleStatus = actionRule?.status?.eval(history: histories, historyIndex: index, rules: rules);
-          }
-          else {
-            return null;
-          }
-        }
-
-        if ((ruleStatus != null) && ruleStatus.canUpdateStatus(blob: status.blob)) {
-          status = Covid19Status(
-            dateUtc: history.dateUtc,
-            blob: Covid19StatusBlob(
-              healthStatus: (ruleStatus.healthStatus != null) ? ruleStatus.healthStatus : status.blob.healthStatus,
-              priority: (ruleStatus.priority != null) ? ruleStatus.priority.abs() : status.blob.priority,
-              nextStep: ((ruleStatus.nextStep != null) || (ruleStatus.nextStepHtml != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.nextStep) : status.blob.nextStep,
-              nextStepHtml: ((ruleStatus.nextStep != null) || (ruleStatus.nextStepHtml != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.nextStepHtml) : status.blob.nextStepHtml,
-              nextStepDateUtc: ((ruleStatus.nextStepInterval != null) || (ruleStatus.nextStep != null) || (ruleStatus.nextStepHtml != null) || (ruleStatus.healthStatus != null)) ? ruleStatus.nextStepDateUtc : status.blob.nextStepDateUtc,
-              eventExplanation: ((ruleStatus.eventExplanation != null) || (ruleStatus.eventExplanationHtml != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.eventExplanation) : status.blob.eventExplanation,
-              eventExplanationHtml: ((ruleStatus.eventExplanation != null) || (ruleStatus.eventExplanationHtml != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.eventExplanationHtml) : status.blob.eventExplanationHtml,
-              reason: ((ruleStatus.reason != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.reason) : status.blob.reason,
-              warning: ((ruleStatus.warning != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.warning) : status.blob.warning,
-              fcmTopic: ((ruleStatus.fcmTopic != null) || (ruleStatus.healthStatus != null)) ?  ruleStatus.fcmTopic : status.blob.fcmTopic,
-              historyBlob: history.blob,
-            ),
-          );
-        }
-      }
-    }
-
-    Storage().lastHealthStatusEval = AppDateTime.todayMidnightLocal.millisecondsSinceEpoch;
-
-    return status;
-  }
-
-  String get lastCovid19Status {
-    return (this._isLoggedIn) ? Storage().lastHealthCovid19Status : null;
-  }
-
-  String get _lastCovid19Status {
-    return Storage().lastHealthCovid19Status;
-  }
-
-  set _lastCovid19Status(String healthStatus) {
-    Storage().lastHealthCovid19Status = healthStatus;
-  }
-
-  void _applyLastCovid19Status(Covid19Status status) {
-    String oldStatus = _lastCovid19Status;
-    String newStatus = status?.blob?.healthStatus;
-    if (covid19HealthStatusIsValid(newStatus) && (oldStatus != newStatus)) {
-      _lastCovid19Status = newStatus;
-
-      Analytics().logHealth(
-        action: Analytics.LogHealthStatusChangedAction,
-        status: newStatus,
-        prevStatus: oldStatus
-      );
-
-    }
-    _applyBuildingAccessFromStatus(status: status);
-    _updateExposureReportTarget(status: status);
-  }
-
-  void _updateExposureReportTarget({Covid19Status status}) {
-    if ((status != null) && (status.blob != null) &&
-        (status.blob.healthStatus == kCovid19HealthStatusRed) &&
-        /*(status.blob.historyBlob != null) && status.blob.historyBlob.isTest && */
-        (status.dateUtc != null))
-    {
-      Exposure().reportTargetTimestamp = status.dateUtc.millisecondsSinceEpoch;
-    }
-  }
-
-  // WaitingOnTable processing
-
-  Future<List<Covid19Event>> _processPendingEvents() async {
-
-    List<Covid19Event> events = await loadCovid19Events(processed: false);
-    if (events != null) {
-      if (0 < events.length) {
-        List<Covid19History> histories = await loadCovid19History();
-        if (histories != null) {
-          List<Covid19Event> result = List<Covid19Event>();
-          for (Covid19Event event in events) {
-            if (Covid19History.listContainsEvent(histories, event)) {
-              // mark it as processed without duplicating the histyr entry
-              await _markEventAsProcessed(event);
-            }
-            else {
-              // add history entry and mark as processed
-              Covid19History eventHistory = await _applyEventHistory(event);
-              if (eventHistory != null) {
-                await _markEventAsProcessed(event);
-                result.add(event);
-              }
-            }
-          }
-          return result;
-        }
-      }
-    }
-    return null;
-  }
-
-  void  _logProcessedEvents({List<Covid19Event> events, List<Covid19History> histories, String status, String prevStatus }) {
-    if (events != null) {
-      int exposureTestReportDays = Config().settings['covid19ExposureTestReportDays'];
-      for (Covid19Event event in events) {
-        if (event.isTest) {
-          Covid19History previousTest = Covid19History.mostRecentTest(histories, beforeDateUtc: event.blob?.dateUtc, onPosition: 2);
-          Exposure().evalTestResultExposureScoring(previousTestDateUtc: previousTest?.dateUtc).then((int score) {
-            Analytics().logHealth(
-              action: Analytics.LogHealthProviderTestProcessedAction,
-              status: status,
-              prevStatus: prevStatus,
-              attributes: {
-                Analytics.LogHealthProviderName: event.provider,
-                Analytics.LogHealthTestTypeName: event.blob?.testType,
-                Analytics.LogHealthTestResultName: event.blob?.testResult,
-                Analytics.LogHealthExposureScore: score,
-            });
-            
-            if (exposureTestReportDays != null)  {
-              DateTime maxDateUtc = event?.blob?.dateUtc;
-              DateTime minDateUtc = maxDateUtc?.subtract(Duration(days: exposureTestReportDays));
-              if ((maxDateUtc != null) && (minDateUtc != null)) {
-                Covid19History contactTrace = Covid19History.mostRecentContactTrace(_historyCache, minDateUtc: minDateUtc, maxDateUtc: maxDateUtc);
-                if (contactTrace != null) {
-                  Analytics().logHealth(
-                    action: Analytics.LogHealthContactTraceTestAction,
-                    status: status,
-                    prevStatus: prevStatus,
-                    attributes: {
-                      Analytics.LogHealthExposureTimestampName: contactTrace.dateUtc?.toIso8601String(),
-                      Analytics.LogHealthDurationName: contactTrace.blob?.traceDuration,
-                      Analytics.LogHealthProviderName: event.provider,
-                      Analytics.LogHealthTestTypeName: event.blob?.testType,
-                      Analytics.LogHealthTestResultName: event.blob?.testResult,
-                  });
-                }
-              }
-            }
-          });
-        }
-        else if (event.isAction) {
-          Analytics().logHealth(
-            action: Analytics.LogHealthActionProcessedAction,
-            status: status,
-            prevStatus: prevStatus,
-            attributes: {
-              Analytics.LogHealthActionTypeName: event.blob?.actionType,
-              Analytics.LogHealthActionTextName: event.blob?.defaultLocaleActionText,
-          });
-        }
-      }
-    }
-  }
-
-  Future<int> processOsfTests({List<Covid19OSFTest> osfTests}) async {
-
-    List<HealthTestType> testTypes = await loadHealthServiceTestTypes();
-    Set<String> testTypeSet = testTypes != null ? testTypes.map((entry) => entry.name).toSet() : null;
-    if (osfTests != null) {
-      List<Covid19OSFTest> processed = List<Covid19OSFTest>();
-      DateTime lastOsfTestDateUtc = Storage().lastHealthCovid19OsfTestDateUtc;
-      DateTime latestOsfTestDateUtc;
-
-      for (Covid19OSFTest osfTest in osfTests) {
-        if ((testTypeSet != null && testTypeSet.contains(osfTest.testType)) && osfTest.dateUtc != null && (lastOsfTestDateUtc == null || lastOsfTestDateUtc.isBefore(osfTest.dateUtc))) {
-          Covid19History testHistory = await _applyOsfTestHistory(osfTest);
-          if (testHistory != null) {
-            processed.add(osfTest);
-            if ((latestOsfTestDateUtc == null) || latestOsfTestDateUtc.isBefore(osfTest.dateUtc)) {
-              latestOsfTestDateUtc = osfTest.dateUtc;
-            }
-          }
-        }
-      }
-      if (latestOsfTestDateUtc != null) {
-        Storage().lastHealthCovid19OsfTestDateUtc = latestOsfTestDateUtc;
-      }
-
-      if (0 < processed.length) {
-        NotificationService().notify(notifyHistoryUpdated, null);
-
-        String lastHealthStatus = this._lastCovid19Status;
-        String newHealthStatus = lastHealthStatus;
-        Covid19Status status = await updateStatusFromHistory();
-        if (covid19HealthStatusIsValid(status?.blob?.healthStatus)) {
-          newHealthStatus = status?.blob?.healthStatus;
-        }
-
-        for (Covid19OSFTest osfTest in processed) {
-          Analytics().logHealth(
-              action: Analytics.LogHealthProviderTestProcessedAction,
-              status: newHealthStatus,
-              prevStatus: lastHealthStatus,
-              attributes: {
-                Analytics.LogHealthProviderName: osfTest.provider,
-                Analytics.LogHealthTestTypeName: osfTest.testType,
-                Analytics.LogHealthTestResultName: osfTest.testResult,
-              });
-        }
-      }
-      return processed.length;
-    }
-    return 0;
-  }
+  // Public Accessories
   
-  Future<bool> processManualTest(Covid19ManualTest test) async {
-    if (test != null) {
-      Covid19History manualHistory = await _applyManualTestHistory(test);
-      if (manualHistory != null) {
-        Analytics().logHealth(
-          action: Analytics.LogHealthManualTestSubmittedAction,
-          attributes: {
-            Analytics.LogHealthProviderName: test.provider,
-            Analytics.LogHealthLocationName: test.location,
-            Analytics.LogHealthTestTypeName: test.testType,
-            Analytics.LogHealthTestResultName: test.testResult,
-        });
-        NotificationService().notify(notifyHistoryUpdated, null);
-        return true;
-      }
-    }
-    return false;
+  bool get isUserLoggedIn {
+    return this._isUserAuthenticated && (_user != null);
   }
 
-  Future<Covid19History> _applyEventHistory(Covid19Event event) async {
-    if (event.isTest) {
-      return await _addCovid19History(await Covid19History.encryptedFromBlob(
-        dateUtc: event?.blob?.dateUtc,
-        type: Covid19HistoryType.test,
-        blob: Covid19HistoryBlob(
-          provider: event?.provider,
-          providerId: event?.providerId,
-          testType: event?.blob?.testType,
-          testResult: event?.blob?.testResult,
-        ),
-        publicKey: _user?.publicKey
-      ));
-    }
-    else if (event.isAction) {
-      return await _addCovid19History(await Covid19History.encryptedFromBlob(
-        dateUtc: event?.blob?.dateUtc,
-        type: Covid19HistoryType.action,
-        blob: Covid19HistoryBlob(
-          actionType: event?.blob?.actionType,
-          actionText: event?.blob?.actionText,
-        ),
-        publicKey: _user?.publicKey
-      ));
-    }
-    else {
-      return null;
-    }
+  bool get userExposureNotification {
+    return this.isUserLoggedIn && (_user?.exposureNotification ?? false);
   }
 
-  Future<Covid19History> _applyOsfTestHistory(Covid19OSFTest test) async {
-    return await _addCovid19History(await Covid19History.encryptedFromBlob(
-      dateUtc: test?.dateUtc,
-      type: Covid19HistoryType.test,
-      blob: Covid19HistoryBlob(
-        provider: test?.provider,
-        providerId: test?.providerId,
-        testType: test?.testType,
-        testResult: test?.testResult,
-      ),
-      publicKey: _user?.publicKey
-    ));
+  // User
+
+  HealthUser get user {
+    return _user;
   }
 
-  Future<Covid19History> _applyManualTestHistory(Covid19ManualTest test) async {
-    return await _addCovid19History(await Covid19History.encryptedFromBlob(
-      dateUtc: test?.dateUtc,
-      type: Covid19HistoryType.manualTestNotVerified,
-      blob: Covid19HistoryBlob(
-        provider: test?.provider,
-        providerId: test?.providerId,
-        location: test?.location,
-        locationId: test?.locationId,
-        countyId: test?.countyId,
-        testType: test?.testType,
-        testResult: test?.testResult,
-      ),
-      locationId: test?.locationId,
-      countyId: test?.countyId,
-      image: test?.image,
-
-      publicKey: _servicePublicKey,
-    ));
-  }
-
-  Future<bool> _markEventAsProcessed(Covid19Event event) async {
-    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/ctests/${event.id}" : null;
-    String post = AppJson.encode({'processed' : true});
-    Response response = (url != null) ? await Network().put(url, body:post, auth: NetworkAuth.User) : null;
-    if (response?.statusCode == 200) {
-      return true;
-    }
-    else {
-      Log.e('Health Service: Unable to mark covid test as processed');
-      return false;
-    }
-  }
-
-  // Symptoms processing
-
-  Future<dynamic> processSymptoms({HealthRulesSet rules, Set<String> selected, DateTime dateUtc}) async {
-    List<HealthSymptom> symptoms = HealthSymptomsGroup.getSymptoms(rules?.symptoms?.groups, selected);
-    Covid19History history = await _applySymptomsHistory(symptoms, dateUtc: dateUtc ?? DateTime.now().toUtc());
-    if (history != null) {
-      NotificationService().notify(notifyHistoryUpdated, null);
-
-      String lastHealthStatus = this._lastCovid19Status;
-      String newHealthStatus = lastHealthStatus;
-      Covid19Status status = await updateStatusFromHistory();
-      if (covid19HealthStatusIsValid(status?.blob?.healthStatus)) {
-        newHealthStatus = status?.blob?.healthStatus;
-      }
-
-      List<String> analyticsSymptoms = [];
-      symptoms?.forEach((HealthSymptom symptom) {
-        String symptomName = rules?.localeString(symptom?.name) ?? symptom?.name;
-        if (AppString.isStringNotEmpty(symptomName)) {
-          analyticsSymptoms.add(symptomName);
-        }
-      });
-      Analytics().logHealth(
-        action: Analytics.LogHealthSymptomsSubmittedAction,
-        status: newHealthStatus,
-        prevStatus: lastHealthStatus,
-        attributes: {
-          Analytics.LogHealthSymptomsName: analyticsSymptoms
-      });
-
-      // Check for status update
-      if ((lastHealthStatus != null) && (lastHealthStatus != newHealthStatus)) {
-        return status; // Succeeded, Status updated
-      }
-      else {
-        return history; // Succeeded
-      }
-    }
-    return null; // Failed
-  }
-
-  Future<Covid19History> _applySymptomsHistory(List<HealthSymptom> symptoms, { DateTime dateUtc }) async {
-    return await _addCovid19History(await Covid19History.encryptedFromBlob(
-      dateUtc: dateUtc,
-      type: Covid19HistoryType.symptoms,
-      blob: Covid19HistoryBlob(
-        symptoms: symptoms,
-      ),
-      publicKey: _user?.publicKey
-    ));
-  }
-  
-  // Contact Trace processing
-
-  // Used only from debug panel, see Exposure.checkExposures
-  Future<bool> processContactTrace({DateTime dateUtc, int duration}) async {
-    
-    Covid19History history = await _addCovid19History(await Covid19History.encryptedFromBlob(
-      dateUtc: dateUtc,
-      type: Covid19HistoryType.contactTrace,
-      blob: Covid19HistoryBlob(
-        traceDuration: duration,
-      ),
-      publicKey: _user?.publicKey
-    ));
-
-    if (history != null) {
-      NotificationService().notify(notifyHistoryUpdated, null);
-
-      String lastHealthStatus = this._lastCovid19Status;
-      String newHealthStatus = lastHealthStatus;
-      Covid19Status status = await updateStatusFromHistory();
-      if (covid19HealthStatusIsValid(status?.blob?.healthStatus)) {
-        newHealthStatus = status?.blob?.healthStatus;
-      }
-      
-      Analytics().logHealth(
-        action: Analytics.LogHealthContactTraceProcessedAction,
-        status: newHealthStatus,
-        prevStatus: lastHealthStatus,
-        attributes: {
-          Analytics.LogHealthDurationName: duration,
-          Analytics.LogHealthExposureTimestampName: dateUtc?.toIso8601String(),
-      });
-
-      return true;
-    }
-    return false;
-  }
-
-  // Actions processing
-
-  Future<bool> processAction(Map<String, dynamic> action) async {
-   /*action = {
-      "type": "health.covid19.action",
-      "health.covid19.action.date": "2020-07-30T21:23:47Z",
-      "health.covid19.action.type": "require-test-48",
-      "health.covid19.action.text": "You must take a COVID-19 test in next 48 hours",
-    }*/
-
-    if (action != null) {
-      DateTime dateUtc = healthDateTimeFromString(AppJson.stringValue(action['health.covid19.action.date']));
-      if (dateUtc == null) {
-        dateUtc = DateTime.now().toUtc();
-      }
-      String actionType = AppJson.stringValue(action['health.covid19.action.type']);
-      dynamic actionText = action['health.covid19.action.text'];
-      
-      if ((actionType != null) || (actionText != null)) {
-        Covid19History history = await _addCovid19History(await Covid19History.encryptedFromBlob(
-          dateUtc: dateUtc,
-          type: Covid19HistoryType.action,
-          blob: Covid19HistoryBlob(
-            actionType: actionType,
-            actionText: actionText,
-          ),
-          publicKey: _user?.publicKey
-        ));
-
-        if (history != null) {
-          NotificationService().notify(notifyHistoryUpdated, null);
-
-          String lastHealthStatus = this._lastCovid19Status;
-          String newHealthStatus = lastHealthStatus;
-          Covid19Status status = await updateStatusFromHistory();
-          if (covid19HealthStatusIsValid(status?.blob?.healthStatus)) {
-            newHealthStatus = status?.blob?.healthStatus;
-          }
-          
-          Analytics().logHealth(
-            action: Analytics.LogHealthActionProcessedAction,
-            status: newHealthStatus,
-            prevStatus: lastHealthStatus,
-            attributes: {
-              Analytics.LogHealthActionTypeName: actionType,
-              Analytics.LogHealthActionTextName: actionText,
-              Analytics.LogHealthActionTimestampName: dateUtc?.toIso8601String(),
-          });
-
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  // User Test Monitor Interval
-
-  Future<dynamic> loadUserTestMonitorInterval() async {
-    return await _loadUserTestMonitorInterval();
-  }
-
-  Future<dynamic> _loadUserTestMonitorInterval() async {
-    if (this._isLoggedIn && (Config().healthUrl != null)) {
-      String url = "${Config().healthUrl}/covid19/uin-override";
-      Response response = await Network().get(url, auth: NetworkAuth.User);
-      if (response?.statusCode == 200) {
-        Map<String, dynamic> responseJson = AppJson.decodeMap(response.body);
-        return (responseJson != null) ? responseJson['interval'] : null;
-      }
-      return false;
-    }
-    return null;
-  }
-
-  // Consolidated Rules
-  Future<HealthRulesSet> loadRules2({String countyId, bool force}) async {
-    return await _loadRules2(countyId: countyId, force: force);
-  }
-
-  Future<HealthRulesSet> _loadRules2({String countyId, bool force}) async {
-    HealthRulesSet rules;
-    if (countyId == null) {
-      countyId = _currentCountyId;
-    }
-    if (countyId != null) {
-      rules = (force != true) ? _rulesCache[countyId] : null;
-      if (rules == null) {
-        Map<String, dynamic> rulesJson = await _loadRules2Json(countyId: countyId);
-        rules = (rulesJson != null) ? HealthRulesSet.fromJson(rulesJson) : null;
-        if (rules != null) {
-          _rulesCache[countyId] = rules;
-        }
-      }
-    }
-    return rules;
-  }
-
-  Future<Map<String, dynamic>> loadRules2Json({String countyId}) async {
-    return await _loadRules2Json(countyId: countyId);
-  }
-
-  Future<Map<String, dynamic>> _loadRules2Json({String countyId}) async {
-    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/crules/county/$countyId" : null;
-    String appVersion = AppVersion.majorVersion(Config().appVersion, 2);
-    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App, headers: { Network.RokwireAppVersion : appVersion }) : null;
-    String responseString = (response?.statusCode == 200) ? response.body : null;
-//TMP: String responseString = await rootBundle.loadString('assets/health.rules.json');
-    return (responseString != null) ? AppJson.decodeMap(responseString) : null;
-  }
-
-  // Building Access
-
-  Future<Map<String, dynamic>> _loadBuildingAccessRules({String countyId, bool force}) async {
-
-    Map<String, dynamic> accessRules;
-    if (countyId != null) {
-      accessRules = (force != true) ? _accessRulesCache[countyId] : null;
-      if (accessRules == null) {
-        String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/access-rules/county/$countyId" : null;
-        Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
-        String responseBody = (response?.statusCode == 200) ? response.body : null;
-        accessRules = (responseBody != null) ? AppJson.decodeMap(responseBody) : null; 
-        if (accessRules != null) {
-          _accessRulesCache[countyId] = accessRules;
-        }
-      }
-    }
-
-    return accessRules;
-  }
-
-  Future<bool> isBuildingAccessGranted(String healthStatus) async {
-    Map<String, dynamic> accessRules = await _loadBuildingAccessRules(countyId: _currentCountyId, force: true);
-    return (accessRules != null) && (accessRules[healthStatus] == kCovid19AccessGranted);
-  }
-
-  Future<void> _applyBuildingAccessFromStatus({Covid19Status status}) async {
-    if (Config().settings['covid19ReportBuildingAccess'] == true) {
-      Map<String, dynamic> accessRules = await _loadBuildingAccessRules(countyId: _currentCountyId);
-      if (accessRules != null) {
-        String access = accessRules[status?.blob?.healthStatus];
-        if (access != null) {
-          await _logBuildingAccess(dateUtc: DateTime.now().toUtc(), access: access);
-        }
-      }
-    }
-  }
-
-  Future<bool> _logBuildingAccess({DateTime dateUtc, String access}) async {
-    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/building-access" : null;
-    String post = AppJson.encode({
-      'date': healthDateTimeToString(dateUtc),
-      'access': access
-    });
-    //Log.d("$post");
-    Response response = (url != null) ? await Network().put(url, body: post, auth: NetworkAuth.User) : null;
-    return (response?.statusCode == 200);
-  }
-
-
-  // Health User
-
-  bool get _isAuthenticated {
+  bool get _isUserAuthenticated {
     return (Auth().authToken?.idToken != null);
   }
 
-  bool get _isLoggedIn {
-    return this._isAuthenticated && (_user?.publicKey != null) && (_userPrivateKey != null);
+  bool get _isUserReadAuthenticated {
+    return this._isUserAuthenticated && (_userPrivateKey != null);
+  }
+
+  bool get _isUserWriteAuthenticated {
+    return this._isUserAuthenticated && (_user?.publicKey != null);
   }
 
   String get _userId {
@@ -1350,30 +280,63 @@ class Health with Service implements NotificationsListener {
     }
   }
 
-  bool get isUserLoggedIn {
-    return this._isLoggedIn;
+  Future<HealthUser> _loadUserFromNet() async {
+    if (this._isUserAuthenticated && (Config().healthUrl != null)) {
+      String url =  "${Config().healthUrl}/covid19/user";
+      Response response = await Network().get(url, auth: NetworkAuth.User);
+      if (response?.statusCode == 200) {
+        HealthUser user = HealthUser.fromJson(AppJson.decodeMap(response.body)); // Return user or null if does not exist for sure.
+        return user;
+      }
+      throw Exception("${response?.statusCode ?? '000'} ${response?.body ?? 'Unknown error occured'}");
+    }
+    throw Exception("User not logged in");
+  }
+
+  Future<bool> _saveUserToNet(HealthUser user) async {
+    if (this._isUserAuthenticated && (Config().healthUrl != null)) {
+      String url = "${Config().healthUrl}/covid19/login";
+      String post = AppJson.encode(user?.toJson());
+      Response response = await Network().post(url, body: post, auth: NetworkAuth.User);
+      if ((response != null) && (response.statusCode == 200)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  Future<bool> _clearUserFromNet() async {
+    if (this._isUserAuthenticated && (Config().healthUrl != null)) {
+      String url = "${Config().healthUrl}/covid19/user/clear";
+      Response response = await Network().get(url, auth: NetworkAuth.User);
+      if (response?.statusCode == 200) {
+        _clearUser();
+        return true;
+      }
+    }
+    return false;
   }
 
   Future<HealthUser> loginUser({bool consent, bool exposureNotification, AsymmetricKeyPair<PublicKey, PrivateKey> keys}) async {
 
-    if (!this._isAuthenticated) {
+    if (!this._isUserAuthenticated) {
       return null;
     }
 
     HealthUser user;
     try {
-      user = await _loadUser();
+      user = await _loadUserFromNet();
     }
     catch (e) {
       print(e?.toString());
       return null; // Load user request failed -> login failed
     }
 
-    bool userUpdated;
+    bool userUpdated, userReset;
     if (user == null) {
       // User had not logged in -> create new user
       user = HealthUser(uuid: UserProfile().uuid);
-      userUpdated = true;
+      userUpdated = userReset = true;
     }
     
     // Always update user info.
@@ -1417,20 +380,27 @@ class Health with Service implements NotificationsListener {
 
     // Save
     if (userUpdated == true) {
-      bool userSaved = await _saveUser(user);
-      if (!userSaved){
+      bool userSaved = await _saveUserToNet(user);
+      if (userSaved) {
+        _applyUser(user);
+      }
+      else {
+        return null;
+      } 
+    }
+
+    if (keys?.privateKey != null) {
+      if (await _saveUserPrivateKey(keys.privateKey)) {
+        _userPrivateKey = keys.privateKey;
+        userReset = true;
+      }
+      else {
         return null;
       }
     }
 
     if (analyticsSettingsAttributes != null) {
       Analytics().logHealth( action: Analytics.LogHealthSettingChangedAction, attributes: analyticsSettingsAttributes, defaultAttributes: Analytics.DefaultAttributes);
-    }
-
-    if (keys?.privateKey != null) {
-      if (!await setUserRSAPrivateKey(keys.privateKey)) {
-        return null;
-      }
     }
 
     if (exposureNotification == true) {
@@ -1442,23 +412,105 @@ class Health with Service implements NotificationsListener {
         await BluetoothServices().requestStatus();
       }
     }
+
+    if (userReset == true) {
+      _refresh(_RefreshOptions.fromList([_RefreshOption.userInterval, _RefreshOption.history]));
+    }
     
     return user;
   }
 
-  Future<void> repostHealthHistory() async{
-    HealthUser user = await _loadUser();
-    user.repost = true;
-    await _saveUser(user);
+  Future<bool> deleteUser() async {
+    if (await _clearUserFromNet()) {
+      await _saveUserPrivateKey(_userPrivateKey = null);
+      await _clearHistory();
+      _clearStatus();
+      _clearUserTestMonitorInterval();
+      return true;
+    }
+    return false;
   }
 
-  Future<PrivateKey> loadRSAPrivateKey() async {
-    return _rsaUserPrivateKey;
+  Future<bool> repostUser() async {
+
+    HealthUser user;
+    try { user = await _loadUserFromNet(); }
+    catch (e) { print(e?.toString()); }
+
+    if (user != null) {
+      user.repost = true;
+      return await _saveUserToNet(user);
+    }
+    
+    return false;
   }
 
-  Future<bool> setUserRSAPrivateKey(PrivateKey privateKey) async {
+  Future<void> _refreshUser() async {
+    try { _applyUser(await _loadUserFromNet()); }
+    catch (e) { print(e?.toString()); }
+  }
+
+  void _clearUser() {
+    _applyUser(null);
+  }
+
+  void _applyUser(HealthUser user) {
+    if (_user != user) {
+      _saveUserToStorage(_user = user);
+      NotificationService().notify(notifyUserUpdated);
+    }
+  }
+
+  static HealthUser _loadUserFromStorage() {
+    return HealthUser.fromJson(AppJson.decodeMap(Storage().healthUser));
+  }
+
+  static void _saveUserToStorage(HealthUser user) {
+    Storage().healthUser = AppJson.encode(user?.toJson());
+  }
+
+  // User RSA keys
+
+  PrivateKey get userPrivateKey {
+    return _userPrivateKey;
+  }
+  
+  Future<bool> setUserPrivateKey(PrivateKey privateKey) async {
+    if (await _saveUserPrivateKey(privateKey)) {
+      _userPrivateKey = privateKey;
+      _refresh(_RefreshOptions.fromList([_RefreshOption.history]));
+      return true;
+    }
+    return false;
+  }
+
+  Future<AsymmetricKeyPair<PublicKey, PrivateKey>> resetUserKeys() async {
+    AsymmetricKeyPair<PublicKey, PrivateKey> keys = await RsaKeyHelper.computeRSAKeyPair(RsaKeyHelper.getSecureRandom());
+
+    HealthUser user = await loginUser(keys: keys);
+    if (user != null) {
+      // The old status and history is useless
+      await _clearNetHistory();
+      await _clearNetStatus();
+      _refresh(_RefreshOptions.fromList([_RefreshOption.history]));
+      return keys;
+    }
+
+    return null; // Failure - keep the old keys
+  }
+
+  Future<void> _refreshUserPrivateKey() async {
+    _userPrivateKey = await _loadUserPrivateKey();
+  }
+
+  Future<PrivateKey> _loadUserPrivateKey() async {
+    String privateKeyString = (_userId != null) ? await NativeCommunicator().getHealthRSAPrivateKey(userId: _userId) : null;
+    return (privateKeyString != null) ? RsaKeyHelper.parsePrivateKeyFromPem(privateKeyString) : null;
+  }
+
+  Future<bool> _saveUserPrivateKey(PrivateKey privateKey) async {
+    bool result;
     if (_userId != null) {
-      bool result;
       if (privateKey != null) {
         String privateKeyString = RsaKeyHelper.encodePrivateKeyToPemPKCS1(privateKey);
         result = await NativeCommunicator().setHealthRSAPrivateKey(userId: _userId, value: privateKeyString);
@@ -1466,170 +518,1046 @@ class Health with Service implements NotificationsListener {
       else {
         result = await NativeCommunicator().removeHealthRSAPrivateKey(userId: _userId);
       }
-      if (result == true) {
-        _healthUserPrivateKey = privateKey;
-        _process();
-        return true;
-      }
     }
-    return false;
+    return result;
   }
 
-  Future<PrivateKey> get _rsaUserPrivateKey async {
-    String privateKeyString = (_userId != null) ? await NativeCommunicator().getHealthRSAPrivateKey(userId: _userId) : null;
-    return (privateKeyString != null) ? RsaKeyHelper.parsePrivateKeyFromPem(privateKeyString) : null;
+  // User test monitor interval
+
+  int get userTestMonitorInterval {
+    return _userTestMonitorInterval;
   }
 
-  set _healthUserPrivateKey(PrivateKey value) {
-    if (_userPrivateKey != value) {
-      _userPrivateKey = value;
-      NotificationService().notify(notifyUserPrivateKeyUpdated);
-    }
-  }
-
-  Future<void> _refreshRSAPrivateKey() async {
-    _healthUserPrivateKey = await _rsaUserPrivateKey;
-  }
-
-  Future<PublicKey> loadRSAPublicKey() async {
+  Future<void> _refreshUserTestMonitorInterval() async {
     try {
-      HealthUser user = await _loadUser();
-      return user?.publicKey;
-    } catch(e){
+      Storage().healthUserTestMonitorInterval = _userTestMonitorInterval = await _loadUserTestMonitorInterval();
+    }
+    catch (e) {
       print(e?.toString());
-      return null;
     }
   }
 
-  Future<AsymmetricKeyPair<PublicKey, PrivateKey>> refreshRSAKeys() async {
-    AsymmetricKeyPair<PublicKey, PrivateKey> keys = await RsaKeyHelper.computeRSAKeyPair(RsaKeyHelper.getSecureRandom());
-
-    HealthUser user = await loginUser(keys: keys);
-    if(user != null){
-      await clearUserData(); // The old history is useless
-      return keys;
-    }
-
-    return null; // Failure - keep the old keys
-  }
-  
-  Future<HealthUser> loadUser() async {
-    try { return await _loadUser(); }
-    catch (e) { print(e?.toString()); }
-    return null;
-  }
-
-  Future<HealthUser> _loadUser() async {
-    if (this._isAuthenticated && (Config().healthUrl != null)) {
-      String url =  "${Config().healthUrl}/covid19/user";
+  Future<int> _loadUserTestMonitorInterval() async {
+    if (this._isUserAuthenticated && (Config().healthUrl != null)) {
+      String url = "${Config().healthUrl}/covid19/uin-override";
       Response response = await Network().get(url, auth: NetworkAuth.User);
       if (response?.statusCode == 200) {
-        HealthUser user = HealthUser.fromJson(AppJson.decodeMap(response.body)); // Return user or null if does not exist for sure.
-        _healthUser = user;
-        return user;
+        Map<String, dynamic> responseJson = AppJson.decodeMap(response.body);
+        return (responseJson != null) ? responseJson['interval'] : null;
       }
       throw Exception("${response?.statusCode ?? '000'} ${response?.body ?? 'Unknown error occured'}");
     }
     throw Exception("User not logged in");
   }
 
-  Future<bool> _saveUser(HealthUser user) async {
-    if (this._isAuthenticated && (Config().healthUrl != null)) {
-      String url = "${Config().healthUrl}/covid19/login";
-      String post = AppJson.encode(user?.toJson());
-      Response response = await Network().post(url, body: post, auth: NetworkAuth.User);
-      if ((response != null) && (response.statusCode == 200)) {
-        _healthUser = user;
+  void _clearUserTestMonitorInterval() {
+    Storage().healthUserTestMonitorInterval = _userTestMonitorInterval = null;
+  }
+
+  // Status
+
+  Covid19Status get status  {
+    return _status;
+  }
+  
+  Covid19Status get previousStatus  {
+    return _previousStatus;
+  }
+  
+  Future<Covid19Status> _loadStatusFromNet() async {
+    if (this._isUserReadAuthenticated && (Config().healthUrl != null)) {
+      String url = "${Config().healthUrl}/covid19/v2/app-version/2.2/statuses";
+      Response response = await Network().get(url, auth: NetworkAuth.User);
+      if (response?.statusCode == 200) {
+        return await Covid19Status.decryptedFromJson(AppJson.decodeMap(response.body), _userPrivateKey);
+      }
+    }
+    return null;
+  }
+
+  Future<bool> _saveStatusToNet(Covid19Status status) async {
+    if (this._isUserWriteAuthenticated && (Config().healthUrl != null)) {
+      String url = "${Config().healthUrl}/covid19/v2/app-version/2.2/statuses";
+      Covid19Status encryptedStatus = await status?.encrypted(_user?.publicKey);
+      String post = AppJson.encode(encryptedStatus?.toJson());
+      Response response = await Network().put(url, body: post, auth: NetworkAuth.User);
+      if (response?.statusCode == 200) {
         return true;
       }
     }
     return false;
   }
 
-  Future<bool> _clearUser() async {
-    if (this._isAuthenticated && (Config().healthUrl != null)) {
-      String url = "${Config().healthUrl}/covid19/user/clear";
-      Response response = await Network().get(url, auth: NetworkAuth.User);
-      return response?.statusCode == 200;
+  Future<bool> _clearNetStatus() async {
+    if (this._isUserAuthenticated && (Config().healthUrl != null)) {
+      String url = "${Config().healthUrl}/covid19/v2/app-version/2.2/statuses";
+      Response response = await Network().delete(url, auth: NetworkAuth.User);
+      if (response?.statusCode == 200) {
+       _saveStatusToStorage(_status = _previousStatus = null);
+        NotificationService().notify(notifyStatusUpdated);
+        return true;
+      }
     }
     return false;
   }
 
-  Future<void> _refreshUser() async {
-    try { await _loadUser(); }
+  Future<void> _refreshStatus () async {
+    Covid19Status status = await _loadStatusFromNet();
+    if (status != null) {
+      _applyStatus(status);
+    }
+  }
+
+  void _clearStatus () {
+    _applyStatus(null);
+  }
+
+  Future<void> _rebuildStatus() async {
+    if (this._isUserWriteAuthenticated && (_rules != null) && (_history != null)) {
+      Covid19Status status = _buildStatus(rules: _rules, history: _history);
+      if ((status?.blob != null) && (status?.blob != _status?.blob)) {
+        if (await _saveStatusToNet(status)) {
+          _applyStatus(status);
+        }
+      }
+    }
+  }
+
+  void _applyStatus(Covid19Status status) {
+    if (_status != status) {
+      String oldStatusCode = _status?.blob?.healthStatus;
+      String newStatusCode = status?.blob?.healthStatus;
+      if ((oldStatusCode != null) && (newStatusCode != null) && (oldStatusCode != newStatusCode)) {
+        Analytics().logHealth(
+          action: Analytics.LogHealthStatusChangedAction,
+          status: newStatusCode,
+          prevStatus: oldStatusCode
+        );
+      }
+
+      _previousStatus = _status;
+      _saveStatusToStorage(_status = status);
+      NotificationService().notify(notifyStatusUpdated);
+    }
+    _applyBuildingAccessForStatus(status);
+  }
+
+  static Covid19Status _buildStatus({HealthRulesSet rules, List<Covid19History> history}) {
+    if ((rules == null) || (history == null)) {
+      return null;
+    }
+
+    HealthRuleStatus defaultStatus = rules?.defaults?.status?.eval(history: history, historyIndex: -1, rules: rules);
+    if (defaultStatus == null) {
+      return null;
+    }
+
+    Covid19Status status = Covid19Status(
+      dateUtc: null,
+      blob: Covid19StatusBlob(
+        healthStatus: defaultStatus.healthStatus,
+        priority: defaultStatus.priority,
+        nextStep: rules.localeString(defaultStatus.nextStep),
+        nextStepHtml: rules.localeString(defaultStatus.nextStepHtml),
+        nextStepDateUtc: null,
+        eventExplanation: rules.localeString(defaultStatus.eventExplanation),
+        eventExplanationHtml: rules.localeString(defaultStatus.eventExplanationHtml),
+        reason: rules.localeString(defaultStatus.reason),
+        warning: rules.localeString(defaultStatus.warning),
+        fcmTopic: defaultStatus.fcmTopic,
+        historyBlob: null,
+      ),
+    );
+
+    // Start from older
+    DateTime nowUtc = DateTime.now().toUtc();
+    for (int index = history.length - 1; 0 <= index; index--) {
+
+      Covid19History historyEntry = history[index];
+      if ((historyEntry.dateUtc != null) && historyEntry.dateUtc.isBefore(nowUtc)) {
+
+        HealthRuleStatus ruleStatus;
+        if (historyEntry.isTest && historyEntry.canTestUpdateStatus) {
+          if (rules.tests != null) {
+            HealthTestRuleResult testRuleResult = rules.tests?.matchRuleResult(blob: historyEntry?.blob, rules: rules);
+            ruleStatus = testRuleResult?.status?.eval(history: history, historyIndex: index, rules: rules);
+          }
+          else {
+            return null;
+          }
+        }
+        else if (historyEntry.isSymptoms) {
+          if (rules.symptoms != null) {
+            HealthSymptomsRule symptomsRule = rules.symptoms.matchRule(blob: historyEntry?.blob, rules: rules);
+            ruleStatus = symptomsRule?.status?.eval(history: history, historyIndex: index, rules: rules);
+          }
+          else {
+            return null;
+          }
+        }
+        else if (historyEntry.isContactTrace) {
+          if (rules.contactTrace != null) {
+            HealthContactTraceRule contactTraceRule = rules.contactTrace.matchRule(blob: historyEntry?.blob, rules: rules);
+            ruleStatus = contactTraceRule?.status?.eval(history: history, historyIndex: index, rules: rules);
+          }
+          else {
+            return null;
+          }
+        }
+        else if (historyEntry.isAction) {
+          if (rules.actions != null) {
+            HealthActionRule actionRule = rules.actions.matchRule(blob: historyEntry?.blob, rules: rules);
+            ruleStatus = actionRule?.status?.eval(history: history, historyIndex: index, rules: rules);
+          }
+          else {
+            return null;
+          }
+        }
+
+        if ((ruleStatus != null) && ruleStatus.canUpdateStatus(blob: status.blob)) {
+          status = Covid19Status(
+            dateUtc: historyEntry.dateUtc,
+            blob: Covid19StatusBlob(
+              healthStatus: (ruleStatus.healthStatus != null) ? ruleStatus.healthStatus : status.blob.healthStatus,
+              priority: (ruleStatus.priority != null) ? ruleStatus.priority.abs() : status.blob.priority,
+              nextStep: ((ruleStatus.nextStep != null) || (ruleStatus.nextStepHtml != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.nextStep) : status.blob.nextStep,
+              nextStepHtml: ((ruleStatus.nextStep != null) || (ruleStatus.nextStepHtml != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.nextStepHtml) : status.blob.nextStepHtml,
+              nextStepDateUtc: ((ruleStatus.nextStepInterval != null) || (ruleStatus.nextStep != null) || (ruleStatus.nextStepHtml != null) || (ruleStatus.healthStatus != null)) ? ruleStatus.nextStepDateUtc : status.blob.nextStepDateUtc,
+              eventExplanation: ((ruleStatus.eventExplanation != null) || (ruleStatus.eventExplanationHtml != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.eventExplanation) : status.blob.eventExplanation,
+              eventExplanationHtml: ((ruleStatus.eventExplanation != null) || (ruleStatus.eventExplanationHtml != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.eventExplanationHtml) : status.blob.eventExplanationHtml,
+              reason: ((ruleStatus.reason != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.reason) : status.blob.reason,
+              warning: ((ruleStatus.warning != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.warning) : status.blob.warning,
+              fcmTopic: ((ruleStatus.fcmTopic != null) || (ruleStatus.healthStatus != null)) ?  ruleStatus.fcmTopic : status.blob.fcmTopic,
+              historyBlob: historyEntry.blob,
+            ),
+          );
+        }
+      }
+    }
+    return status;
+  }
+
+  static Covid19Status _loadStatusFromStorage() {
+    return Covid19Status.fromJson(AppJson.decodeMap(Storage().healthUserStatus));
+  }
+
+  static void _saveStatusToStorage(Covid19Status status) {
+    Storage().healthUserStatus = AppJson.encode(status?.toJson());
+  }
+
+  // History
+
+  List<Covid19History> get history {
+    return _history;
+  }
+
+  Future<Covid19History> addHistory({DateTime dateUtc, Covid19HistoryType type, Covid19HistoryBlob blob}) async {
+    Covid19History historyEntry = await _addHistory(await Covid19History.encryptedFromBlob(
+      dateUtc: dateUtc,
+      type: type,
+      blob: blob,
+      publicKey: _user?.publicKey
+    ));
+    if (historyEntry != null) {
+      NotificationService().notify(notifyHistoryUpdated);
+      await _rebuildStatus();
+    }
+    return historyEntry;
+  }
+
+  Future<Covid19History> updateHistory({String id, DateTime dateUtc, Covid19HistoryType type, Covid19HistoryBlob blob}) async {
+    Covid19History historyEntry = await _updateHistory(await Covid19History.encryptedFromBlob(
+      id: id,
+      dateUtc: dateUtc,
+      type: type,
+      blob: blob,
+      publicKey: _user?.publicKey
+    ));
+    if (historyEntry != null) {
+      NotificationService().notify(notifyHistoryUpdated);
+      await _rebuildStatus();
+    }
+    return historyEntry;
+  }
+
+  Future<bool> clearHistory() async {
+    if (await _clearNetHistory()) {
+      await _rebuildStatus();
+      return true;
+    }
+    return false;
+  }
+
+  Future<void> _refreshHistory() async {
+    bool historyUpdated;
+    String historyJsonString = await _loadHistoryJsonStringFromNet();
+    List<Covid19History> history = await Covid19History.listFromJson(AppJson.decodeList(historyJsonString), _historyPrivateKeys);
+    
+    if ((history != null) && !ListEquality().equals(history, _history)) {
+      _history = history;
+      await _saveHistoryJsonStringToCache(historyJsonString);
+      historyUpdated = true;
+    }
+
+    List<Covid19Event> processedEvents = await _processPendingEvents();
+    if ((processedEvents != null) && (0 < processedEvents.length)) {
+      _applyProcessedEvents(processedEvents);
+      historyUpdated = true;
+    }
+
+    if (historyUpdated == true) {
+      NotificationService().notify(notifyHistoryUpdated);
+    }
+  }
+
+  Future<void> _clearHistory() async {
+    if (_history != null) {
+      _history = null;
+      await _clearHistoryCache();
+      NotificationService().notify(notifyHistoryUpdated);
+    }
+  }
+
+  Future<bool> _clearNetHistory() async {
+    if (this._isUserAuthenticated && (Config().healthUrl != null)) {
+      String url = "${Config().healthUrl}/covid19/v2/histories";
+      Response response = await Network().delete(url, auth: NetworkAuth.User);
+      if (response?.statusCode == 200) {
+        _history = <Covid19History>[];
+        await _saveHistoryJsonStringToCache(AppJson.encode(Covid19History.listToJson(_history)));
+        return true;
+      }
+    }
+    return false;
+  }
+
+  Future<String> _loadHistoryJsonStringFromNet() async {
+    String url = (this._isUserReadAuthenticated && (Config().healthUrl != null)) ? "${Config().healthUrl}/covid19/v2/histories" : null;
+    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.User) : null;
+    return (response?.statusCode == 200) ? response.body : null;
+  }
+
+  Future<Covid19History> _addHistory(Covid19History history) async {
+    if (this._isUserWriteAuthenticated && (Config().healthUrl != null)) {
+      String url = "${Config().healthUrl}/covid19/v2/histories";
+      String post = AppJson.encode(history?.toJson());
+      Response response = await Network().post(url, body: post, auth: NetworkAuth.User);
+      Covid19History historyEntry = (response?.statusCode == 200) ? await Covid19History.decryptedFromJson(AppJson.decode(response.body), _historyPrivateKeys) : null;
+      if ((_history != null) && (historyEntry != null)) {
+        _history.add(historyEntry);
+        Covid19History.sortListDescending(_history);
+        await _saveHistoryJsonStringToCache(AppJson.encode(Covid19History.listToJson(_history)));
+      }
+      return historyEntry;
+    }
+    return null;
+  }
+
+  Future<Covid19History> _updateHistory(Covid19History history) async {
+    if (this._isUserWriteAuthenticated && (Config().healthUrl != null)) {
+      String url = "${Config().healthUrl}/covid19/v2/histories/${history.id}";
+      String post = AppJson.encode(history?.toJson());
+      Response response = await Network().put(url, body: post, auth: NetworkAuth.User);
+      Covid19History historyEntry = (response?.statusCode == 200) ? await Covid19History.decryptedFromJson(AppJson.decode(response.body), _historyPrivateKeys) : null;
+      if ((_history != null) && (historyEntry != null) && Covid19History.updateInList(_history, historyEntry)) {
+        Covid19History.sortListDescending(_history);
+        await _saveHistoryJsonStringToCache(AppJson.encode(Covid19History.listToJson(_history)));
+      }
+      return historyEntry;
+    }
+    return null;
+  }
+
+  Map<Covid19HistoryType, PrivateKey> get _historyPrivateKeys {
+    return {
+      Covid19HistoryType.test : _userPrivateKey,
+      Covid19HistoryType.manualTestVerified : _userPrivateKey,
+      Covid19HistoryType.manualTestNotVerified : null, // unencrypted
+      Covid19HistoryType.symptoms : _userPrivateKey,
+      Covid19HistoryType.contactTrace : _userPrivateKey,
+      Covid19HistoryType.action : _userPrivateKey,
+    };
+  }
+
+  File _getHistoryCacheFile() {
+    String cacheFilePath = (_appDocumentsDir != null) ? join(_appDocumentsDir.path, _historyFileName) : null;
+    return (cacheFilePath != null) ? File(cacheFilePath) : null;
+  }
+
+  Future<List<Covid19History>> _loadHistoryFromCache() async {
+    return await Covid19History.listFromJson(AppJson.decodeList(await _loadHistoryJsonStringFromCache()), _historyPrivateKeys);
+  }
+
+  Future<String> _loadHistoryJsonStringFromCache() async {
+    File cacheFile = _getHistoryCacheFile();
+    try { return ((cacheFile != null) && await cacheFile.exists()) ? await cacheFile.readAsString() : null; } catch (e) { print(e?.toString()); }
+    return null;
+  }
+
+  Future<void> _saveHistoryJsonStringToCache(String jsonString) async {
+    File cacheFile = _getHistoryCacheFile();
+    if (cacheFile != null) {
+      try { await cacheFile.writeAsString(jsonString); } catch (e) { print(e?.toString()); }
+    }
+  }
+
+  Future<void> _clearHistoryCache() async {
+    File cacheFile = _getHistoryCacheFile();
+    try {
+      if ((cacheFile != null) && await cacheFile.exists()) {
+        await cacheFile.delete();
+      }
+    }
     catch (e) { print(e?.toString()); }
   }
 
-  set _healthUser(HealthUser user) {
-    if (_user != user) {
-      _saveUserToStorage(_user = HealthUser.fromUser(user));
-      NotificationService().notify(notifyUserUpdated, null);
-    }
-  }
+  // Waiting on table
 
-  static HealthUser _loadUserFromStorage() {
-    return HealthUser.fromJson(AppJson.decode(Storage().healthUser));
-  }
-
-  static void _saveUserToStorage(HealthUser user) {
-    Storage().healthUser = AppJson.encode(user?.toJson());
-  }
-
-  HealthUser get healthUser {
-    return this._isLoggedIn ? _user : null;
-  }
-
-  bool get userExposureNotification {
-    return this._isLoggedIn ? ( _user?.exposureNotification ?? false) : false;
-  }
-
-  bool get userConsent {
-    return this._isLoggedIn ? (_user?.consent ?? false) : false;
-  }
-
-  PublicKey get userPublicKey {
-    return this._isLoggedIn ? _user?.publicKey : null;
-  }
-
-  Future<bool> deleteUser() async {
-    if (await _clearUser()) {
-      NativeCommunicator().removeHealthRSAPrivateKey(userId: _userId);
-
-      await _clearHistoryCache();
-
-      Storage().currentHealthCountyId = _currentCountyId = null;
-      Storage().lastHealthProvider = null;
-      Storage().lastHealthCovid19Status = null;
-      Storage().lastHealthCovid19OsfTestDateUtc = null;
-      _healthUserPrivateKey = null;
-      _healthUser = null;
-
-      NotificationService().notify(notifyCountyChanged, null);
-      NotificationService().notify(notifyStatusAvailable, null);
-      NotificationService().notify(notifyHistoryUpdated, null);
-      NotificationService().notify(notifyUserUpdated, null);
-
-      return true;
-    }
-    return false;
-  }
-
-  Future<bool> clearUserData() async {
-    if (await _clearCovid19History()) {
-      Covid19Status status = await updateStatusFromHistory();
-      // Notify after status update, loadUpdatedHistory can triger anoher status rebuild
-      NotificationService().notify(notifyHistoryUpdated, null);
-      if (status == null) {
-        _clearCovid19Status();
+  Future<List<Covid19Event>> _loadPendingEvents({bool processed}) async {
+    if (this._isUserReadAuthenticated && (Config().healthUrl != null)) {
+      String url = "${Config().healthUrl}/covid19/ctests";
+      String params = "";
+      if (processed != null) {
+        if (0 < params.length) {
+          params += "&";
+        }
+        params += "processed=$processed";
       }
+      if (0 < params.length) {
+        url += "?$params";
+      }
+      Response response = await Network().get(url, auth: NetworkAuth.User);
+      String responseString = (response?.statusCode == 200) ? response.body : null;
+      List<dynamic> responseJson = (responseString != null) ? AppJson.decodeList(responseString) : null;
+      return (responseJson != null) ? await Covid19Event.listFromJson(responseJson, _userPrivateKey) : null;
+    }
+    return null;
+  }
+
+  Future<bool> _markEventAsProcessed(Covid19Event event) async {
+    String url = (this._isUserAuthenticated && Config().healthUrl != null) ? "${Config().healthUrl}/covid19/ctests/${event.id}" : null;
+    String post = AppJson.encode({'processed' : true});
+    Response response = (url != null) ? await Network().put(url, body:post, auth: NetworkAuth.User) : null;
+    if (response?.statusCode == 200) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
+  Future<List<Covid19Event>> _processPendingEvents() async {
+    List<Covid19Event> result;
+    List<Covid19Event> events = this._isUserWriteAuthenticated ? await _loadPendingEvents(processed: false) : null;
+    if ((events != null) && (0 < events?.length)) {
+      for (Covid19Event event in events) {
+        if (Covid19History.listContainsEvent(_history, event)) {
+          // mark it as processed without duplicating the histyr entry
+          await _markEventAsProcessed(event);
+        }
+        else {
+          // add history entry and mark as processed
+          if (await _applyEventInHistory(event)) {
+            await _markEventAsProcessed(event);
+            if (result == null) {
+              result = List<Covid19Event>();
+            }
+            result.add(event);
+          }
+        }
+      }
+    }
+    return result;
+  }
+
+  Future<bool> _applyEventInHistory(Covid19Event event) async {
+    Covid19History historyEntry;
+    if (event.isTest) {
+      historyEntry = await _addHistory(await Covid19History.encryptedFromBlob(
+        dateUtc: event?.blob?.dateUtc,
+        type: Covid19HistoryType.test,
+        blob: Covid19HistoryBlob(
+          provider: event?.provider,
+          providerId: event?.providerId,
+          testType: event?.blob?.testType,
+          testResult: event?.blob?.testResult,
+        ),
+        publicKey: _user?.publicKey
+      ));
+    }
+    else if (event.isAction) {
+      historyEntry = await _addHistory(await Covid19History.encryptedFromBlob(
+        dateUtc: event?.blob?.dateUtc,
+        type: Covid19HistoryType.action,
+        blob: Covid19HistoryBlob(
+          actionType: event?.blob?.actionType,
+          actionText: event?.blob?.actionText,
+        ),
+        publicKey: _user?.publicKey
+      ));
+    }
+    return (historyEntry != null);
+  }
+
+  void _applyProcessedEvents(List<Covid19Event> processedEvents) {
+    if ((processedEvents != null) && (0 < processedEvents.length)) {
+      if (_processedEvents != null) {
+        _processedEvents.addAll(processedEvents);
+      }
+      else {
+        _processedEvents = processedEvents;
+      }
+    }
+  }
+
+  Future<void> _logProcessedEvents() async {
+    if ((_processedEvents != null) && (0 < _processedEvents.length)) {
+
+      int exposureTestReportDays = Config().settings['covid19ExposureTestReportDays'];
+      for (Covid19Event event in _processedEvents) {
+        if (event.isTest) {
+          Covid19History previousTest = Covid19History.mostRecentTest(_history, beforeDateUtc: event.blob?.dateUtc, onPosition: 2);
+          int score = await Exposure().evalTestResultExposureScoring(previousTestDateUtc: previousTest?.dateUtc);
+          
+          Analytics().logHealth(
+            action: Analytics.LogHealthProviderTestProcessedAction,
+            status: _status?.blob?.healthStatus,
+            prevStatus: _previousStatus?.blob?.healthStatus,
+            attributes: {
+              Analytics.LogHealthProviderName: event.provider,
+              Analytics.LogHealthTestTypeName: event.blob?.testType,
+              Analytics.LogHealthTestResultName: event.blob?.testResult,
+              Analytics.LogHealthExposureScore: score,
+          });
+          
+          if (exposureTestReportDays != null)  {
+            DateTime maxDateUtc = event?.blob?.dateUtc;
+            DateTime minDateUtc = maxDateUtc?.subtract(Duration(days: exposureTestReportDays));
+            if ((maxDateUtc != null) && (minDateUtc != null)) {
+              Covid19History contactTrace = Covid19History.mostRecentContactTrace(_history, minDateUtc: minDateUtc, maxDateUtc: maxDateUtc);
+              if (contactTrace != null) {
+                Analytics().logHealth(
+                  action: Analytics.LogHealthContactTraceTestAction,
+                  status: _status?.blob?.healthStatus,
+                  prevStatus: _previousStatus?.blob?.healthStatus,
+                  attributes: {
+                    Analytics.LogHealthExposureTimestampName: contactTrace.dateUtc?.toIso8601String(),
+                    Analytics.LogHealthDurationName: contactTrace.blob?.traceDuration,
+                    Analytics.LogHealthProviderName: event.provider,
+                    Analytics.LogHealthTestTypeName: event.blob?.testType,
+                    Analytics.LogHealthTestResultName: event.blob?.testResult,
+                });
+              }
+            }
+          }
+        }
+        else if (event.isAction) {
+          Analytics().logHealth(
+            action: Analytics.LogHealthActionProcessedAction,
+            status: _status?.blob?.healthStatus,
+            prevStatus: _previousStatus?.blob?.healthStatus,
+            attributes: {
+              Analytics.LogHealthActionTypeName: event.blob?.actionType,
+              Analytics.LogHealthActionTextName: event.blob?.defaultLocaleActionText,
+          });
+        }
+      }
+      
+      // clear after logging
+      _processedEvents = null;
+    }
+  }
+
+  // OCF tests
+
+  Future<int> processOsfTests({List<Covid19OSFTest> osfTests}) async {
+
+    List<HealthTestType> testTypes = await loadTestTypes();
+    Set<String> testTypeSet = testTypes != null ? testTypes.map((entry) => entry.name).toSet() : null;
+    if (osfTests != null) {
+      List<Covid19OSFTest> processed = List<Covid19OSFTest>();
+      DateTime lastOsfTestDateUtc = Storage().lastHealthCovid19OsfTestDateUtc;
+      DateTime latestOsfTestDateUtc;
+
+      for (Covid19OSFTest osfTest in osfTests) {
+        if (((testTypeSet != null) && testTypeSet.contains(osfTest.testType)) && (osfTest.dateUtc != null) && ((lastOsfTestDateUtc == null) || lastOsfTestDateUtc.isBefore(osfTest.dateUtc))) {
+          Covid19History testHistory = await _applyOsfTestHistory(osfTest);
+          if (testHistory != null) {
+            processed.add(osfTest);
+            if ((latestOsfTestDateUtc == null) || latestOsfTestDateUtc.isBefore(osfTest.dateUtc)) {
+              latestOsfTestDateUtc = osfTest.dateUtc;
+            }
+          }
+        }
+      }
+      if (latestOsfTestDateUtc != null) {
+        Storage().lastHealthCovid19OsfTestDateUtc = latestOsfTestDateUtc;
+      }
+
+      if (0 < processed.length) {
+        NotificationService().notify(notifyHistoryUpdated);
+
+        Covid19Status previousStatus = _status;
+        await _rebuildStatus();
+        
+        for (Covid19OSFTest osfTest in processed) {
+          Analytics().logHealth(
+              action: Analytics.LogHealthProviderTestProcessedAction,
+              status: _status?.blob?.healthStatus,
+              prevStatus: previousStatus?.blob?.healthStatus,
+              attributes: {
+                Analytics.LogHealthProviderName: osfTest.provider,
+                Analytics.LogHealthTestTypeName: osfTest.testType,
+                Analytics.LogHealthTestResultName: osfTest.testResult,
+              });
+        }
+      }
+      return processed.length;
+    }
+    return 0;
+  }
+
+  Future<Covid19History> _applyOsfTestHistory(Covid19OSFTest test) async {
+    return await _addHistory(await Covid19History.encryptedFromBlob(
+      dateUtc: test?.dateUtc,
+      type: Covid19HistoryType.test,
+      blob: Covid19HistoryBlob(
+        provider: test?.provider,
+        providerId: test?.providerId,
+        testType: test?.testType,
+        testResult: test?.testResult,
+      ),
+      publicKey: _user?.publicKey
+    ));
+  }
+
+  // Manual tests
+
+  Future<bool> processManualTest(Covid19ManualTest test) async {
+    if (test != null) {
+      Covid19History manualHistory = await _addHistory(await Covid19History.encryptedFromBlob(
+        dateUtc: test?.dateUtc,
+        type: Covid19HistoryType.manualTestNotVerified,
+        blob: Covid19HistoryBlob(
+          provider: test?.provider,
+          providerId: test?.providerId,
+          location: test?.location,
+          locationId: test?.locationId,
+          countyId: test?.countyId,
+          testType: test?.testType,
+          testResult: test?.testResult,
+        ),
+        locationId: test?.locationId,
+        countyId: test?.countyId,
+        image: test?.image,
+
+        publicKey: _servicePublicKey,
+      ));
+
+      if (manualHistory != null) {
+        NotificationService().notify(notifyHistoryUpdated);
+  
+        Covid19Status previousStatus = _status;
+        await _rebuildStatus();
+  
+        Analytics().logHealth(
+          action: Analytics.LogHealthManualTestSubmittedAction,
+          status: _status?.blob?.healthStatus,
+          prevStatus: previousStatus?.blob?.healthStatus,
+          attributes: {
+            Analytics.LogHealthProviderName: test.provider,
+            Analytics.LogHealthLocationName: test.location,
+            Analytics.LogHealthTestTypeName: test.testType,
+            Analytics.LogHealthTestResultName: test.testResult,
+        });
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // Symptoms
+
+  Future<bool> processSymptoms({Set<String> selected, DateTime dateUtc}) async {
+    List<HealthSymptom> symptoms = HealthSymptomsGroup.getSymptoms(_rules?.symptoms?.groups, selected);
+
+    Covid19History history = await _addHistory(await Covid19History.encryptedFromBlob(
+      dateUtc: dateUtc ?? DateTime.now().toUtc(),
+      type: Covid19HistoryType.symptoms,
+      blob: Covid19HistoryBlob(
+        symptoms: symptoms,
+      ),
+      publicKey: _user?.publicKey
+    ));
+
+    if (history != null) {
+      NotificationService().notify(notifyHistoryUpdated);
+
+      Covid19Status previousStatus = _status;
+      await _rebuildStatus();
+
+      List<String> analyticsSymptoms = [];
+      symptoms?.forEach((HealthSymptom symptom) {
+        String symptomName = rules?.localeString(symptom?.name) ?? symptom?.name;
+        if (AppString.isStringNotEmpty(symptomName)) {
+          analyticsSymptoms.add(symptomName);
+        }
+      });
+      Analytics().logHealth(
+        action: Analytics.LogHealthSymptomsSubmittedAction,
+        status: previousStatus?.blob?.healthStatus,
+        prevStatus: _status?.blob?.healthStatus,
+        attributes: {
+          Analytics.LogHealthSymptomsName: analyticsSymptoms
+      });
+
       return true;
     }
     return false;
+  }
+
+  // Contact Trace
+
+  // Used only from debug panel, see Exposure.checkExposures
+  Future<bool> processContactTrace({DateTime dateUtc, int duration}) async {
+    
+    Covid19History history = await _addHistory(await Covid19History.encryptedFromBlob(
+      dateUtc: dateUtc ?? DateTime.now().toUtc(),
+      type: Covid19HistoryType.contactTrace,
+      blob: Covid19HistoryBlob(
+        traceDuration: duration,
+      ),
+      publicKey: _user?.publicKey
+    ));
+
+    if (history != null) {
+      NotificationService().notify(notifyHistoryUpdated, null);
+
+      Covid19Status previousStatus = _status;
+      await _rebuildStatus();
+
+      Analytics().logHealth(
+        action: Analytics.LogHealthContactTraceProcessedAction,
+        status: previousStatus?.blob?.healthStatus,
+        prevStatus: _status?.blob?.healthStatus,
+        attributes: {
+          Analytics.LogHealthDurationName: duration,
+          Analytics.LogHealthExposureTimestampName: dateUtc?.toIso8601String(),
+      });
+
+      return true;
+    }
+    return false;
+  }
+
+  // Counties
+
+  HealthCounty get county {
+    return _county;
+  }
+
+  Future<void> setCounty(HealthCounty county) {
+    return _applyCounty(HealthCounty.fromCounty(county)); // ensure no guidelines in storage county
+  }
+
+  Future<List<HealthCounty>> loadCounties({ bool guidelines }) async {
+    return _loadCounties(guidelines: guidelines);
+  }
+
+
+  Future<List<HealthCounty>> _loadCounties({ bool guidelines }) async {
+    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/counties" : null;
+    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
+    String responseBody = (response?.statusCode == 200) ? response.body : null;
+    List<dynamic> responseJson = (responseBody != null) ? AppJson.decodeList(responseBody) : null;
+    return (responseJson != null) ? HealthCounty.listFromJson(responseJson, guidelines: guidelines) : null;
+  }
+
+  Future<HealthCounty> _loadCounty({String countyId, bool guidelines }) async {
+    String url = ((countyId != null) && (Config().healthUrl != null)) ? "${Config().healthUrl}/covid19/counties/$countyId" : null;
+    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
+    String responseBody = (response?.statusCode == 200) ? response.body : null;
+    Map<String, dynamic> responseJson = (responseBody != null) ? AppJson.decodeMap(responseBody) : null;
+    return (responseJson != null) ? HealthCounty.fromJson(responseJson, guidelines: guidelines) : null;
+  }
+
+  Future<HealthCounty> _ensureCounty() async {
+    HealthCounty county = _loadCountyFromStorage();
+    if (county == null) {
+      List<HealthCounty> counties = await _loadCounties();
+      county = HealthCounty.getCounty(counties, countyId: Storage().currentHealthCountyId) ??
+        HealthCounty.defaultCounty(counties);
+      _saveCountyToStorage(county);
+    }
+    return county;
+  }
+
+  Future<void> _refreshCounty() async {
+    if (_county != null) {
+      HealthCounty county = await _loadCounty(countyId: _county?.id);
+      if ((county != null) && (_county != county)) {
+        _saveCountyToStorage(_county = county);
+        NotificationService().notify(notifyCountyChanged);
+      }
+    }
+  }
+
+  Future<void> _applyCounty(HealthCounty county) async {
+    if (_county?.id != county?.id) {
+      _saveCountyToStorage(_county = county);
+      NotificationService().notify(notifyCountyChanged);
+
+      await _clearRules();
+      _clearBuildingAccessRules();
+
+      await _refresh(_RefreshOptions.fromList([_RefreshOption.rules, _RefreshOption.buildingAccessRules]));
+    }
+  }
+
+  static HealthCounty _loadCountyFromStorage() {
+    return HealthCounty.fromJson(AppJson.decodeMap(Storage().healthCounty));
+  }
+
+  static void _saveCountyToStorage(HealthCounty county) {
+    Storage().healthCounty = AppJson.encode(county?.toJson());
+  }
+
+  // Rules
+
+  HealthRulesSet get rules {
+    return _rules;
+  }
+
+  Future<Map<String, dynamic>> loadRulesJson({String countyId}) async {
+    return AppJson.decodeMap(await _loadRulesJsonStringFromNet(countyId: countyId));
+  }
+
+  Future<void> _refreshRules() async {
+    String rulesJsonString = await _loadRulesJsonStringFromNet();
+    HealthRulesSet rules = HealthRulesSet.fromJson(AppJson.decodeMap(rulesJsonString));
+    if ((rules != null) && (rules != _rules)) {
+      _rules = rules;
+      await _saveRulesJsonStringToCache(rulesJsonString);
+      NotificationService().notify(notifyRulesChanged);
+    }
+  }
+
+  Future<void> _clearRules() async {
+    _rules = null;
+    await _clearRulesCache();
+  }
+
+  Future<String> _loadRulesJsonStringFromNet({String countyId}) async {
+//TMP: return await rootBundle.loadString('assets/health.rules.json');
+    countyId = countyId ?? _county?.id;
+    String url = ((countyId != null) && (Config().healthUrl != null)) ? "${Config().healthUrl}/covid19/crules/county/$countyId" : null;
+    String appVersion = AppVersion.majorVersion(Config().appVersion, 2);
+    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App, headers: { Network.RokwireAppVersion : appVersion }) : null;
+    return (response?.statusCode == 200) ? response.body : null;
+  }
+
+  File _getRulesCacheFile() {
+    String cacheFilePath = (_appDocumentsDir != null) ? join(_appDocumentsDir.path, _rulesFileName) : null;
+    return (cacheFilePath != null) ? File(cacheFilePath) : null;
+  }
+
+  Future<HealthRulesSet> _loadRulesFromCache() async {
+    return HealthRulesSet.fromJson(AppJson.decodeMap(await _loadRulesJsonStringFromCache()));
+  }
+
+  Future<String> _loadRulesJsonStringFromCache() async {
+    File cacheFile = _getRulesCacheFile();
+    try { return ((cacheFile != null) && await cacheFile.exists()) ? await cacheFile.readAsString() : null; } catch (e) { print(e?.toString()); }
+    return null;
+  }
+
+  Future<void> _saveRulesJsonStringToCache(String jsonString) async {
+    File cacheFile = _getRulesCacheFile();
+    if (cacheFile != null) {
+      try { await cacheFile.writeAsString(jsonString); } catch (e) { print(e?.toString()); }
+    }
+  }
+
+  Future<void> _clearRulesCache() async {
+    File cacheFile = _getRulesCacheFile();
+    try {
+      if (await cacheFile.exists()) {
+        await cacheFile.delete();
+      }
+    } catch (e) { print(e?.toString()); }
+  }
+
+  // Building Access Rules
+
+  Map<String, dynamic> get buildingAccessRules {
+    return _buildingAccessRules;
+  }
+
+  bool get buildingAccessGranted {
+    return ((_buildingAccessRules != null) && (_status?.blob?.healthStatus != null)) ?
+      (_buildingAccessRules[_status?.blob?.healthStatus] == kCovid19AccessGranted) : null;
+  }
+
+  Future<Map<String, dynamic>> _loadBuildingAccessRules({String countyId}) async {
+    countyId = countyId ?? _county?.id;
+    String url = ((countyId != null) && (Config().healthUrl != null)) ? "${Config().healthUrl}/covid19/access-rules/county/$countyId" : null;
+    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
+    String responseBody = (response?.statusCode == 200) ? response.body : null;
+    return (responseBody != null) ? AppJson.decodeMap(responseBody) : null; 
+  }
+
+  Future<void> _refreshBuildingAccessRules() async {
+    Map<String, dynamic> buildingAccessRules = await _loadBuildingAccessRules();
+    if ((buildingAccessRules != null) && !DeepCollectionEquality().equals(_buildingAccessRules, buildingAccessRules)) {
+      _saveBuildingAccessRulesToStorage(_buildingAccessRules = buildingAccessRules);
+      NotificationService().notify(notifyBuildingAccessRulesChanged);
+   }
+  }
+
+  void _clearBuildingAccessRules() {
+    _saveBuildingAccessRulesToStorage(_buildingAccessRules = null);
+  }
+
+  Future<void> _applyBuildingAccessForStatus(Covid19Status status) async {
+    if (Config().settings['covid19ReportBuildingAccess'] == true) {
+      String access = (_buildingAccessRules != null) ? _buildingAccessRules[status?.blob?.healthStatus] : null;
+      if (access != null) {
+        await _logBuildingAccess(dateUtc: DateTime.now().toUtc(), access: access);
+      }
+    }
+  }
+
+  Future<bool> _logBuildingAccess({DateTime dateUtc, String access}) async {
+    if (this._isUserAuthenticated && (Config().healthUrl != null)) {
+      String url = "${Config().healthUrl}/covid19/building-access";
+      String post = AppJson.encode({
+        'date': healthDateTimeToString(dateUtc),
+        'access': access
+      });
+      Response response = (url != null) ? await Network().put(url, body: post, auth: NetworkAuth.User) : null;
+      return (response?.statusCode == 200);
+    }
+    return false;
+  }
+
+  static Map<String, dynamic> _loadBuildingAccessRulesFromStorage() {
+    return AppJson.decodeMap(Storage().healthBuildingAccessRules);
+  }
+
+  static void _saveBuildingAccessRulesToStorage(Map<String, dynamic> buildingAccessRules) {
+    Storage().healthBuildingAccessRules = AppJson.encode(buildingAccessRules);
+  }
+
+  // Network API: HealthTestType
+
+  Future<List<HealthTestType>> loadTestTypes({List<String> typeIds})async{
+    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/test-types" : null;
+    if ((url != null) && (typeIds?.isNotEmpty ?? false)) {
+      url += "?ids=";
+      typeIds.forEach((id){
+        url += "$id,";
+      });
+      url = url.substring(0, url.length - 1);
+    }
+    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
+    String responseString = (response?.statusCode == 200) ? response.body : null;
+    List<dynamic> responseJson = (responseString != null) ? AppJson.decode(responseString) : null;
+    return (responseJson != null) ? HealthTestType.listFromJson(responseJson) : null;
+  }
+
+  // Network API: HealthServiceProvider
+
+  Future<List<HealthServiceProvider>> loadProviders({String countyId}) async {
+    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/providers" : null;
+
+    if ((url != null) && (countyId != null)) {
+      url += "/county/$countyId";
+    }
+
+    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
+    String responseString = (response?.statusCode == 200) ? response.body : null;
+    List<dynamic> responseJson = (responseString != null) ? AppJson.decode(responseString) : null;
+    return (responseJson != null) ? HealthServiceProvider.listFromJson(responseJson) : null;
+  }
+
+  // Network API: HealthServiceLocation
+
+  Future<List<HealthServiceLocation>> loadLocations({String countyId, String providerId})async{
+    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/locations" : null;
+
+    if (url != null) {
+      if ((countyId != null))
+        url += "?county-id=$countyId";
+      if (providerId!=null)
+        url += (countyId != null ? "&" : "?") + "provider-id=$providerId";
+    }
+
+    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
+    String responseString = (response?.statusCode == 200) ? response.body : null;
+    List<dynamic> responseJson = (responseString != null) ? AppJson.decode(responseString) : null;
+    return (responseJson != null) ? HealthServiceLocation.listFromJson(responseJson) : null;
+  }
+
+  Future<HealthServiceLocation> loadLocation({String locationId})async{
+    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/locations" : null;
+
+    if ((url != null) && (locationId != null))
+      url += "/$locationId";
+
+    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
+    String responseString = (response?.statusCode == 200) ? response.body : null;
+    Map<String,dynamic> responseJson = (responseString != null) ? AppJson.decode(responseString) : null;
+    return (responseJson != null) ? HealthServiceLocation.fromJson(responseJson) : null;
+  }
+
+}
+
+class _RefreshOptions {
+  final Set<_RefreshOption> options;
+
+  _RefreshOptions({Set<_RefreshOption> options}) :
+    this.options = options ?? Set<_RefreshOption>();
+
+  factory _RefreshOptions.fromList(List<_RefreshOption> list) {
+    return (list != null) ? _RefreshOptions(options: Set<_RefreshOption>.from(list)) : null;
+  }
+
+  factory _RefreshOptions.fromSet(Set<_RefreshOption> options) {
+    return (options != null) ? _RefreshOptions(options: options) : null;
+  }
+
+  factory _RefreshOptions.all() {
+    return _RefreshOptions.fromList(_RefreshOption.values);
+  }
+
+  bool get isEmpty { return options.isEmpty; }
+  bool get isNotEmpty { return options.isNotEmpty; }
+
+  bool get user { return options.contains(_RefreshOption.user); }
+  bool get userPrivateKey { return options.contains(_RefreshOption.userPrivateKey); }
+  bool get userInterval { return options.contains(_RefreshOption.userInterval); }
+
+  bool get status { return options.contains(_RefreshOption.status); }
+  bool get history { return options.contains(_RefreshOption.history); }
+
+  bool get county { return options.contains(_RefreshOption.county); }
+  bool get rules { return options.contains(_RefreshOption.rules); }
+  bool get buildingAccessRules { return options.contains(_RefreshOption.buildingAccessRules); }
+
+  _RefreshOptions difference(_RefreshOptions other) {
+    return _RefreshOptions.fromSet(options?.difference(other?.options));
   }
 }
-    
-class _ProcessResult {
-  final Covid19Status status;
-  final List<Covid19History> history;
-  _ProcessResult({this.status, this.history});
+
+enum _RefreshOption {
+  user,
+  userPrivateKey,
+  userInterval,
+
+  status,
+  history,
+  
+  county,
+  rules,
+  buildingAccessRules,
 }

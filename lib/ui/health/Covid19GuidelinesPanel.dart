@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
@@ -27,9 +28,8 @@ import 'package:illinois/service/Styles.dart';
 import 'package:sprintf/sprintf.dart';
 
 class Covid19GuidelinesPanel extends StatefulWidget {
-  final Covid19Status status;
 
-  Covid19GuidelinesPanel({Key key, this.status}) : super(key: key);
+  Covid19GuidelinesPanel({Key key}) : super(key: key);
 
   @override
   _Covid19GuidelinesPanelState createState() => _Covid19GuidelinesPanelState();
@@ -37,15 +37,11 @@ class Covid19GuidelinesPanel extends StatefulWidget {
 
 class _Covid19GuidelinesPanelState extends State<Covid19GuidelinesPanel> implements NotificationsListener {
   
-  Covid19Status _covid19Status;
-  List<HealthGuidelineItem> _statusGuidelines;
-
-
   LinkedHashMap<String, HealthCounty> _counties;
-
+  List<HealthGuidelineItem> _statusGuidelines;
   Map<String, dynamic> _guidelineImages;
 
-  int _loadingProgress = 0;
+  bool _loading = false;
 
   @override
   void initState() {
@@ -57,15 +53,7 @@ class _Covid19GuidelinesPanelState extends State<Covid19GuidelinesPanel> impleme
     
     _guidelineImages  = Assets()['covid19_guidelines.icons'];
     
-    _loadCovidCounties();
-    
-    if (widget.status != null) {
-      _covid19Status = widget.status;
-      _statusGuidelines = _loadGuidelines();
-    }
-    else {
-      _loadCovid19Status();
-    }
+    _loadCounties();
   }
 
   @override
@@ -74,44 +62,23 @@ class _Covid19GuidelinesPanelState extends State<Covid19GuidelinesPanel> impleme
     super.dispose();
   }
 
-  void _loadCovidCounties(){
+  void _loadCounties(){
     setState(() {
-      _loadingProgress++;
+      _loading = true;
     });
   
-    Health().loadCounties().then((List<HealthCounty> counties) {
+    Health().loadCounties(guidelines: true).then((List<HealthCounty> counties) {
       if (mounted) {
         setState(() {
-          _loadingProgress--;
+          _loading = false;
           _counties = HealthCounty.listToMap(counties);
-          if (_loadingProgress == 0) {
-            _statusGuidelines = _loadGuidelines();
-          }
+          _statusGuidelines = _buildGuidelines();
         });
       }
     });
   }
 
-  void _loadCovid19Status() {
-
-    setState(() {
-      _loadingProgress++;
-    });
-
-    Health().loadCovid19Status().then((Covid19Status status) {
-      if (mounted) {
-        setState(() {
-          _loadingProgress--;
-          _covid19Status = status;
-          if (_loadingProgress == 0) {
-            _statusGuidelines = _loadGuidelines();
-          }
-        });
-      }
-    });
-  }
-
-  List<HealthGuidelineItem> _loadGuidelines() {
+  List<HealthGuidelineItem> _buildGuidelines() {
     HealthGuideline statusGuideline;
     String statusName = this._currentHealthStatus;
     List<HealthGuideline> guidelines = _selectedCounty?.guidelines;
@@ -129,7 +96,7 @@ class _Covid19GuidelinesPanelState extends State<Covid19GuidelinesPanel> impleme
   }
 
   String get _currentHealthStatus {
-    return _covid19Status?.blob?.healthStatus?.toLowerCase();
+    return Health().status?.blob?.healthStatus?.toLowerCase();
   }
 
   @override
@@ -144,7 +111,7 @@ class _Covid19GuidelinesPanelState extends State<Covid19GuidelinesPanel> impleme
           style: TextStyle(color: Colors.white, fontSize: 16, fontFamily: Styles().fontFamilies.extraBold),
         ),
       ),
-      body: ((0 < _loadingProgress)
+      body: ((_loading == true)
           ? Align(alignment: Alignment.center, child: CircularProgressIndicator(),)
           : SingleChildScrollView(
               child: Padding(
@@ -165,7 +132,7 @@ class _Covid19GuidelinesPanelState extends State<Covid19GuidelinesPanel> impleme
                     padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
                     child: Text(
                       sprintf(Localization().getStringEx('panel.covid19_guidelines.status.title', 'These are based on your %s status in the following county:'),
-                          [_covid19Status?.blob?.localizedHealthStatus??"unknown"]),
+                          [Health().status?.blob?.localizedHealthStatus ?? "unknown"]),
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Styles().colors.textSurface, fontSize: 16, fontFamily: Styles().fontFamilies.regular),
                     ),
@@ -202,7 +169,7 @@ class _Covid19GuidelinesPanelState extends State<Covid19GuidelinesPanel> impleme
   //County
   Widget _buildCountyDropdown(){
     bool editable = _counties!=null && _counties.length>1;
-    String countyName = _selectedCounty?.nameDisplayText??"";
+    String countyName = _selectedCounty?.displayName ?? "";
     return Padding(padding: EdgeInsets.symmetric(horizontal: 32, vertical: 0),
         child: Column(crossAxisAlignment:CrossAxisAlignment.center, children: <Widget>[
           Semantics(container: true, child:
@@ -249,7 +216,7 @@ class _Covid19GuidelinesPanelState extends State<Covid19GuidelinesPanel> impleme
       for (HealthCounty county in _counties.values) {
         result.add(DropdownMenuItem<dynamic>(
           value: county.id,
-          child: Text(county.nameDisplayText),
+          child: Text(county.displayName ?? ''),
         ));
       }
     }
@@ -263,24 +230,18 @@ class _Covid19GuidelinesPanelState extends State<Covid19GuidelinesPanel> impleme
   }
 
   HealthCounty get _selectedCounty {
-    if(Health().currentCountyId==null && (_counties?.length==1??false)){ // if only one county
-      return _counties[0];
-    }
-    return (_counties != null) ? _counties[Health().currentCountyId] : null;
+    return ((_counties != null) && (0 < _counties.length)) ? (_counties[Health().county?.id] ?? _counties.values.first) : null;
   }
 
   void _switchCounty(String countyId) {
     setState(() {
-      _loadingProgress++;
+      _loading = true;
     });
-    Health().switchCounty(countyId).then((Covid19Status status) {
+    Health().setCounty(_counties[countyId]).then((_) {
       if (mounted) {
         setState(() {
-          _loadingProgress--;
-          if(status!=null) {
-            _covid19Status = status;
-          }
-          _statusGuidelines = _loadGuidelines();
+          _loading = false;
+          _statusGuidelines = _buildGuidelines();
         });
       }
     });
@@ -291,7 +252,7 @@ class _Covid19GuidelinesPanelState extends State<Covid19GuidelinesPanel> impleme
     if (name == Assets.notifyChanged) {
       if (mounted) {
         setState(() {
-          _statusGuidelines = _loadGuidelines();
+          _statusGuidelines = _buildGuidelines();
         });
       }
     }

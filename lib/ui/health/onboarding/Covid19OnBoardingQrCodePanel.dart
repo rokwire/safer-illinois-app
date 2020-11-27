@@ -55,9 +55,9 @@ class Covid19OnBoardingQrCodePanel extends StatefulWidget with OnboardingPanel {
 class _Covid19OnBoardingQrCodePanelState extends State<Covid19OnBoardingQrCodePanel> {
 
 
-  PointyCastle.PublicKey _userHealthPublicKey;
-  PointyCastle.PrivateKey _userHealthPrivateKey;
-  bool _userHealthKeysLoading, _userHealthKeysPaired, _userHealthPublicKeyLoaded, _userHealthPrivateKeyLoaded;
+  PointyCastle.PublicKey _userPublicKey;
+  PointyCastle.PrivateKey _userPrivateKey;
+  bool _prepairing, _userKeysPaired;
   Uint8List _qrCodeBytes;
   bool _saving = false;
 
@@ -65,10 +65,12 @@ class _Covid19OnBoardingQrCodePanelState extends State<Covid19OnBoardingQrCodePa
 
   @override
   void initState() {
-    _userHealthKeysLoading = true;
-    _loadHealthRSAPublicKey();
-    _loadHealthRSAPrivateKey();
     super.initState();
+    
+    _prepairing = true;
+    _userPublicKey = Health().user?.publicKey;
+    _userPrivateKey = Health().userPrivateKey;
+    _verifyHealthRSAKeys();
   }
 
   @override
@@ -76,43 +78,23 @@ class _Covid19OnBoardingQrCodePanelState extends State<Covid19OnBoardingQrCodePa
     super.dispose();
   }
 
-  void _loadHealthRSAPublicKey() {
-    Health().loadRSAPublicKey().then((publicKey) {
-      if (mounted) {
-        _userHealthPublicKey = publicKey;
-        _userHealthPublicKeyLoaded = true;
-        _verifyHealthRSAKeys();
-      }
-    });
-  }
-
-  void _loadHealthRSAPrivateKey() {
-    Health().loadRSAPrivateKey().then((privateKey) {
-      if (mounted) {
-        _userHealthPrivateKey = privateKey;
-        _userHealthPrivateKeyLoaded = true;
-        _verifyHealthRSAKeys();
-      }
-    });
-  }
-
   void _verifyHealthRSAKeys() {
 
-    if ((_userHealthPrivateKey != null) && (_userHealthPublicKey != null)) {
-      RsaKeyHelper.verifyRsaKeyPair(PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey>(_userHealthPublicKey, _userHealthPrivateKey)).then((bool result) {
+    if ((_userPrivateKey != null) && (_userPublicKey != null)) {
+      RsaKeyHelper.verifyRsaKeyPair(PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey>(_userPublicKey, _userPrivateKey)).then((bool result) {
         if (mounted) {
-          _userHealthKeysPaired = result;
+          _userKeysPaired = result;
           _buildHealthRSAQRCode();
         }
       });
     }
-    else if ((_userHealthPrivateKeyLoaded == true) && (_userHealthPublicKeyLoaded == true)) {
-      _finishHealthRSAKeysLoading();
+    else {
+      _finishPrepare();
     }
   }
 
   void _buildHealthRSAQRCode() {
-    Uint8List privateKeyData = (_userHealthKeysPaired && (_userHealthPrivateKey != null)) ? RsaKeyHelper.encodePrivateKeyToPEMDataPKCS1(_userHealthPrivateKey) : null;
+    Uint8List privateKeyData = (_userKeysPaired && (_userPrivateKey != null)) ? RsaKeyHelper.encodePrivateKeyToPEMDataPKCS1(_userPrivateKey) : null;
     List<int> privateKeyCompressedData = (privateKeyData != null) ? GZipEncoder().encode(privateKeyData) : null;
     String privateKeyString = (privateKeyData != null) ? base64.encode(privateKeyCompressedData) : null;
     if (privateKeyString != null) {
@@ -124,18 +106,18 @@ class _Covid19OnBoardingQrCodePanelState extends State<Covid19OnBoardingQrCodePa
       }).then((Uint8List qrCodeBytes) {
         if (mounted) {
           _qrCodeBytes = qrCodeBytes;
-          _finishHealthRSAKeysLoading();
+          _finishPrepare();
         }
       });
     }
     else {
-      _finishHealthRSAKeysLoading();
+      _finishPrepare();
     }
   }
 
-  void _finishHealthRSAKeysLoading() {
+  void _finishPrepare() {
     setState(() {
-      _userHealthKeysLoading = false;
+      _prepairing = false;
     });
   }
 
@@ -185,11 +167,11 @@ class _Covid19OnBoardingQrCodePanelState extends State<Covid19OnBoardingQrCodePa
                   ),
                   Expanded( child:
                     Padding(padding: EdgeInsets.symmetric(horizontal: 24),
-                      child: (_userHealthKeysLoading == true) ? _buildWatingContent() : _buildPrivateKeyContent()
+                      child: (_prepairing == true) ? _buildWatingContent() : _buildPrivateKeyContent()
                     )),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 16),
-                      child: Visibility(visible: (_userHealthKeysLoading != true),
+                      child: Visibility(visible: (_prepairing != true),
                         child: ScalableRoundedButton(
                           label: _getContinueButtonTitle,
                           hint: Localization().getStringEx("panel.health.covid19.qr_code.button.continue.hint", ""),
@@ -564,10 +546,10 @@ class _Covid19OnBoardingQrCodePanelState extends State<Covid19OnBoardingQrCodePa
     catch (e) { print(e?.toString()); }
     
     if (privateKey != null) {
-      RsaKeyHelper.verifyRsaKeyPair(PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey>(_userHealthPublicKey, privateKey)).then((bool result) {
+      RsaKeyHelper.verifyRsaKeyPair(PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey>(_userPublicKey, privateKey)).then((bool result) {
         if (mounted) {
           if (result == true) {
-            Health().setUserRSAPrivateKey(privateKey).then((success) {
+            Health().setUserPrivateKey(privateKey).then((success) {
               if (mounted) {
                 String resultMessage = success ?
                     Localization().getStringEx("panel.health.covid19.qr_code.alert.qr_code.transfer.succeeded.msg", "COVID-19 secret transferred successfully.") :
@@ -597,7 +579,7 @@ class _Covid19OnBoardingQrCodePanelState extends State<Covid19OnBoardingQrCodePa
       _isRefreshing = true;
     });
 
-    Health().refreshRSAKeys().then((PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey> rsaKeys) {
+    Health().resetUserKeys().then((PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey> rsaKeys) {
       if (mounted) {
         setStateEx((){
           _isRefreshing = false;
@@ -606,13 +588,12 @@ class _Covid19OnBoardingQrCodePanelState extends State<Covid19OnBoardingQrCodePa
         if(rsaKeys != null) {
           Navigator.pop(context);
 
-          _userHealthPrivateKey = rsaKeys.privateKey;
-          _userHealthPublicKey = rsaKeys.publicKey;
-          _userHealthPrivateKeyLoaded = _userHealthPublicKeyLoaded = true;
+          _userPrivateKey = rsaKeys.privateKey;
+          _userPublicKey = rsaKeys.publicKey;
 
           _verifyHealthRSAKeys();
         }
-        else{
+        else {
           AppAlert.showDialogResult(context, Localization().getStringEx("panel.health.covid19.debug.keys.label.error.refres.title","Refresh Failed"));
         }
       }
@@ -624,7 +605,7 @@ class _Covid19OnBoardingQrCodePanelState extends State<Covid19OnBoardingQrCodePa
   }
 
   String get _getContinueButtonTitle {
-    if (_userHealthKeysLoading == true) {
+    if (_prepairing == true) {
       return '';
     }
     else if (_qrCodeBytes != null) {

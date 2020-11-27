@@ -89,7 +89,7 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
       setState(() { });
     }
     else if (name == Health.notifyStatusUpdated) {
-      _presentHealthStatusUpdate(param);
+      _presentHealthStatusUpdate();
     }
     else if (name == FirebaseMessaging.notifyCovid19Notification) {
       _onFirebaseCovid19Notification(param);
@@ -220,8 +220,14 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
     }
   }
 
-  void _presentHealthStatusUpdate(Map<String, dynamic> params) {
-    Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19StatusUpdatePanel(status: params['status'], previousHealthStatus: params['lastHealthStatus'],)));
+  void _presentHealthStatusUpdate() {
+    String oldStatus = Health().previousStatus?.blob?.healthStatus;
+    String newStatus = Health().status?.blob?.healthStatus;
+    if ((oldStatus != null) && (newStatus != null) && (oldStatus != newStatus)) {
+      Timer(Duration(milliseconds: 100), () {
+        Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19StatusUpdatePanel(status: Health().status, previousHealthStatus: oldStatus,)));
+      });
+    }
   }
 
   void _onDeeplinkUri(Uri uri) {

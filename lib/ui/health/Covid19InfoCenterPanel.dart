@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import 'dart:collection';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -24,10 +23,10 @@ import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/FlexUI.dart';
+import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/Connectivity.dart';
-import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Styles.dart';
@@ -59,12 +58,7 @@ class Covid19InfoCenterPanel extends StatefulWidget {
 
 class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> implements NotificationsListener {
 
-  Covid19Status _status;
-  bool _covid19Access = false;
-  bool _loadingStatus;
-  Covid19History _lastHistory;
-  String _currentCountyName;
-  HealthRulesSet _rules;
+  bool _isRefreshing;
 
   @override
   void initState() {
@@ -72,14 +66,12 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
     NotificationService().subscribe(this, [
       FlexUI.notifyChanged,
       Auth.notifyLoginChanged,
-      Health.notifyStatusAvailable,
-      Health.notifyProcessingFinished,
       Health.notifyUserUpdated,
+      Health.notifyStatusUpdated,
       Health.notifyHistoryUpdated,
     ]);
 
-    _loadStatus();
-    _loadCountyName();
+    _refreshStatus();
   }
 
   @override
@@ -90,109 +82,28 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
 
   @override
   void onNotification(String name, param) {
-    if(name == Auth.notifyLoginChanged){
-      if(mounted) {
-        _updateState();
-      }
-    }
-    else if (name == Health.notifyStatusAvailable) {
-      _updateStatus(param);
-    }
-    else if (name == Health.notifyProcessingFinished) {
-      _updateStatus(param?.status);
-    }
-    else if (name == Health.notifyUserUpdated) {
-      if (mounted && (_status?.blob == null)) {
-        _loadStatus();
-      }
-    } else if (name == Health.notifyHistoryUpdated) {
+    if ((name == Auth.notifyLoginChanged) ||
+        (name == Health.notifyUserUpdated) ||
+        (name == Health.notifyStatusUpdated) ||
+        (name == Health.notifyHistoryUpdated) ||
+        (name == FlexUI.notifyChanged))
+    {
       if (mounted) {
-        if (param != null) {
-          setState(() {
-            _lastHistory = Covid19History.mostRecent(param);
-          });
-        }
-        else {
-          _loadHistory();
-        }
+        setState(() {});
       }
-    } else if(name == FlexUI.notifyChanged){
-      setState(() {});
     }
   }
 
-  void _loadStatus() {
-    setState(() {
-      _loadingStatus = true;
-    });
-    Health().currentCountyStatus.then((Covid19Status status) {
-      _updateStatus(status);
-    });
-  }
-
-  void _updateStatus(Covid19Status status) {
-    if (mounted) {
-      setState(() {
-        _status = status;
-        _loadingStatus = (Health().processing == true);
-        if (Health().processing != true) {
-          _loadRules();
-          _loadHistory();
-          _updateCovid19Access();
+  void _refreshStatus() {
+    if (_isRefreshing != true) {
+      setState(() { _isRefreshing = true; });
+      
+      Health().refreshStatus().then((_) {
+        if (mounted) {
+          setState(() {_isRefreshing = false; });
         }
       });
     }
-  }
-
-  void _updateState(){
-    if(!Health().isUserLoggedIn){
-      setState(() {
-        _status = null;
-      });
-    }
-  }
-
-  void _loadRules() {
-    Health().loadRules2().then((HealthRulesSet rules) {
-      if (mounted) {
-        setState(() {
-          _rules = rules;
-        });
-      }
-    });
-  }
-
-  void _loadHistory(){
-    Health().loadCovid19History().then((List<Covid19History> history) {
-      if (mounted) {
-        setState(() {
-          _lastHistory = Covid19History.mostRecent(history);
-        });
-      }
-    });
-  }
-
-  void _loadCountyName(){
-    Health().loadCounties().then((List<HealthCounty> counties) {
-      LinkedHashMap<String, HealthCounty> _counties = HealthCounty.listToMap(counties);
-      if(counties != null && _counties.containsKey(Health().currentCountyId)) {
-        if(mounted){
-          setState((){
-            _currentCountyName = _counties[Health().currentCountyId].nameDisplayText;
-          });
-        }
-      }
-    });
-  }
-
-  void _updateCovid19Access() {
-    Health().isBuildingAccessGranted(_status?.blob?.healthStatus).then((bool granted) {
-      if (mounted) {
-        setState(() {
-          _covid19Access = granted;
-        });
-      }
-    });
   }
 
   @override
@@ -309,17 +220,18 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
   }
 
   Widget _buildMostRecentEvent(){
-    if(_lastHistory?.blob == null) {
+  Covid19History lastHistory = Covid19History.mostRecent(Health().history);
+    if(lastHistory?.blob == null) {
       return null;
     }
     String headingText = Localization().getStringEx("panel.covid19home.label.most_recent_event.title", "MOST RECENT EVENT");
-    String dateText = AppDateTime.formatDateTime(_lastHistory?.dateUtc?.toLocal(), format:"MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode) ?? '';
-    String eventExplanationText = _status?.blob?.displayEventExplanation;
-    String eventExplanationHtml = _status?.blob?.displayEventExplanationHtml;
+    String dateText = AppDateTime.formatDateTime(lastHistory?.dateUtc?.toLocal(), format:"MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode) ?? '';
+    String eventExplanationText = Health().status?.blob?.displayEventExplanation;
+    String eventExplanationHtml = Health().status?.blob?.displayEventExplanationHtml;
     String historyTitle = "", info = "";
-    Covid19HistoryBlob blob = _lastHistory.blob;
+    Covid19HistoryBlob blob = lastHistory.blob;
     if(blob.isTest){
-      bool isManualTest = _lastHistory.isManualTest ?? false;
+      bool isManualTest = lastHistory.isManualTest ?? false;
       historyTitle = blob?.testType ?? Localization().getStringEx("app.common.label.other", "Other");
       info = isManualTest? Localization().getStringEx("panel.covid19home.label.provider.self_reported", "Self reported"):
             (blob?.provider ?? Localization().getStringEx("app.common.label.other", "Other"));
@@ -331,7 +243,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
       info = blob.traceDurationDisplayString;
     } else if(blob.isSymptoms){
       historyTitle = Localization().getStringEx("panel.covid19home.label.reported_symptoms.title", "Self Reported Symptoms");
-      info = blob.symptomsDisplayString(rules: _rules);
+      info = blob.symptomsDisplayString(rules: Health().rules);
     }
 
     List <Widget> content = <Widget>[
@@ -382,14 +294,14 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
       decoration: BoxDecoration(color: Styles().colors.surface, borderRadius: BorderRadius.all(Radius.circular(4)), boxShadow: [BoxShadow(color: Styles().colors.blackTransparent018, spreadRadius: 2.0, blurRadius: 6.0, offset: Offset(2, 2))] ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
         Stack(children: <Widget>[
-          Visibility(visible: (_loadingStatus != true),
+          Visibility(visible: true,
             child: Padding(padding: EdgeInsets.symmetric(horizontal: 16),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: content,),
             ),
           ),
-          Visibility(visible: (_loadingStatus == true),
+          Visibility(visible: (_isRefreshing == true),
             child: Container(
-              height: 60,
+              height: 80,
               child: Align(alignment: Alignment.center,
                 child: SizedBox(height: 24, width: 24,
                     child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary), )
@@ -417,12 +329,12 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
   }
 
   Widget _buildNextStepSection() {
-    String nextStepText = _status?.blob?.displayNextStep;
-    String nextStepHtml = _status?.blob?.displayNextStepHtml;
-    String warningTitle = _status?.blob?.displayWarning;
+    String nextStepText = Health().status?.blob?.displayNextStep;
+    String nextStepHtml = Health().status?.blob?.displayNextStepHtml;
+    String warningTitle = Health().status?.blob?.displayWarning;
     bool hasNextStep = AppString.isStringNotEmpty(nextStepText) || AppString.isStringNotEmpty(nextStepHtml) || AppString.isStringNotEmpty(warningTitle);
     String headingText = hasNextStep ? Localization().getStringEx("panel.covid19home.label.next_step.title", "NEXT STEP") : '';
-    String headingDate = (hasNextStep && (_status?.blob?.nextStepDateUtc != null)) ? AppDateTime.formatDateTime(_status.blob.nextStepDateUtc.toLocal(), format: "MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode) : '';
+    String headingDate = (hasNextStep && (Health().status?.blob?.nextStepDateUtc != null)) ? AppDateTime.formatDateTime(Health().status.blob.nextStepDateUtc.toLocal(), format: "MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode) : '';
 
     List<Widget> content = <Widget>[
       Row(children: <Widget>[
@@ -462,14 +374,14 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
       decoration: BoxDecoration(color: Styles().colors.surface, borderRadius: BorderRadius.all(Radius.circular(4)), boxShadow: [BoxShadow(color: Styles().colors.blackTransparent018, spreadRadius: 2.0, blurRadius: 6.0, offset: Offset(2, 2))] ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
         Stack(children: <Widget>[
-          Visibility(visible: (_loadingStatus != true),
+          Visibility(visible: true,
             child: Padding(padding: EdgeInsets.symmetric(horizontal: 16),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: content),
             ),
           ),
-          Visibility(visible: (_loadingStatus == true),
+          Visibility(visible: (_isRefreshing == true),
             child: Container(
-              height: 60,
+              height: 80,
               child: Align(alignment: Alignment.center,
                 child: SizedBox(height: 24, width: 24,
                     child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary), )
@@ -544,15 +456,15 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
   }
 
   Widget _buildStatusSection() {
-    String statusName = _status?.blob?.localizedHealthStatus;
-    Color statusColor = Styles().colors.getHealthStatusColor(_status?.blob?.healthStatus) ?? Styles().colors.textSurface;
+    String statusName = Health().status?.blob?.localizedHealthStatus;
+    Color statusColor = Styles().colors.getHealthStatusColor(Health().status?.blob?.healthStatus) ?? Styles().colors.textSurface;
     bool hasStatusCard  = Health().isUserLoggedIn;
     return Semantics(container: true, child: Container(
       padding: EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(color: Styles().colors.surface, borderRadius: BorderRadius.all(Radius.circular(4)), boxShadow: [BoxShadow(color: Styles().colors.blackTransparent018, spreadRadius: 2.0, blurRadius: 6.0, offset: Offset(2, 2))] ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
         Stack(children: <Widget>[
-          Visibility(visible: (_loadingStatus != true),
+          Visibility(visible: true,
             child: Padding(padding: EdgeInsets.symmetric(horizontal: 16),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
                 Row(children: <Widget>[
@@ -565,14 +477,14 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
                       label: Localization().getStringEx("panel.covid19home.button.info.title","Info "),
                       button: true,
                       excludeSemantics: true,
-                      child:  IconButton(icon: Image.asset('images/icon-info-orange.png'), onPressed: () =>  StatusInfoDialog.show(context, _currentCountyName), padding: EdgeInsets.all(10),)
+                      child:  IconButton(icon: Image.asset('images/icon-info-orange.png'), onPressed: () =>  StatusInfoDialog.show(context, Health().county?.displayName ?? ''), padding: EdgeInsets.all(10),)
                   ))
                 ],),
                 Container(height: 6,),
                 Row(
                   children: <Widget>[
-                    Visibility(visible:AppString.isStringNotEmpty(statusName), child: Image.asset('images/icon-member.png', color: statusColor,),),
-                    Visibility(visible:AppString.isStringNotEmpty(statusName), child: Container(width: 4,),),
+                    Visibility(visible: AppString.isStringNotEmpty(statusName), child: Image.asset('images/icon-member.png', color: statusColor,),),
+                    Visibility(visible: AppString.isStringNotEmpty(statusName), child: Container(width: 4,),),
                     Expanded(child:
                       Text(AppString.isStringNotEmpty(statusName) ? statusName : Localization().getStringEx('panel.covid19home.label.status.na', 'Not Available'), style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Styles().colors.textSurface),),
                     )
@@ -582,18 +494,18 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
                 Row(
                   children: <Widget>[
                     Expanded(child:
-                    Text(AppString.isStringNotEmpty(_accessStatusText) ? _accessStatusText : Localization().getStringEx('panel.covid19home.label.status.na', 'Not Available'), style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Styles().colors.textSurface),),
+                    Text(_accessStatusText, style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Styles().colors.textSurface),),
                     )
                   ],
                 ),
               ],),
             ),
           ),
-          Visibility(visible: (_loadingStatus == true),
+          Visibility(visible: (_isRefreshing == true),
             child: Container(
-              height: 16,
+              height: 42,
               child: Align(alignment: Alignment.center,
-                child: SizedBox(height: 16, width: 16,
+                child: SizedBox(height: 24, width: 24,
                     child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary), )
                 ),
               ),
@@ -727,7 +639,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
   void _onTapCountryGuidelines() {
     if(Connectivity().isNotOffline) {
       Analytics.instance.logSelect(target: "COVID-19 County Guidlines");
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19GuidelinesPanel(status: _status)));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19GuidelinesPanel()));
     } else{
       AppAlert.showOfflineMessage(context);
     }
@@ -736,7 +648,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
   void _onTapCareTeam() {
     if(Connectivity().isNotOffline) {
       Analytics.instance.logSelect(target: "Your Care Team");
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19CareTeamPanel(status: _status,)));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19CareTeamPanel()));
     } else{
       AppAlert.showOfflineMessage(context);
     }
@@ -810,9 +722,17 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
     }
   }
 
-  String get _accessStatusText{
-    return (_covid19Access? Localization().getStringEx("panel.covid19home.label.access.granted","Building access granted"):
-                            Localization().getStringEx("panel.covid19home.label.access.denied","Building access denied"));
+  String get _accessStatusText {
+    bool access = Health().buildingAccessGranted;
+    if (access == true) {
+      return Localization().getStringEx("panel.covid19home.label.access.granted", "Building access granted");
+    }
+    else if (access == false) {
+      return Localization().getStringEx("panel.covid19home.label.access.denied", "Building access denied");
+    }
+    else {
+      return Localization().getStringEx('panel.covid19home.label.status.na', 'Not Available');
+    }
   }
 }
 

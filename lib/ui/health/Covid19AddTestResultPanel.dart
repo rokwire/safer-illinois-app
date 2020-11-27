@@ -103,7 +103,7 @@ class _Covid19AddTestResultPanelState extends State<Covid19AddTestResultPanel> i
 
   void _loadProviders() {
     _loading = true;
-    Health().loadHealthServiceProviders().then((List<HealthServiceProvider> providers){
+    Health().loadProviders().then((List<HealthServiceProvider> providers){
       _providerItems = List<ProviderDropDownItem>();
       if(providers?.isNotEmpty?? false) {
         _providerItems.addAll(providers?.map((HealthServiceProvider provider) {

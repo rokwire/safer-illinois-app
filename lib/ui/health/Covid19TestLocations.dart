@@ -53,7 +53,7 @@ class _Covid19TestLocationsPanelState extends State<Covid19TestLocationsPanel>{
     _loadLocationsServicesData();
     _loadCounties();
 
-    if (Health().currentCountyId != null) {
+    if (Health().county?.id != null) {
       _loadProviders();
     } else {
       _loadLocations(); //load all by default
@@ -64,7 +64,7 @@ class _Covid19TestLocationsPanelState extends State<Covid19TestLocationsPanel>{
 
   _loadLocations(){
   _isLoading = true;
-  Health().loadHealthServiceLocations(countyId: Health().currentCountyId, providerId: _selectedProviderItem?.providerId).then((List<HealthServiceLocation> locations){
+  Health().loadLocations(countyId: Health().county?.id, providerId: _selectedProviderItem?.providerId).then((List<HealthServiceLocation> locations){
     setState(() {
       try {
         _locations = locations;
@@ -147,9 +147,9 @@ class _Covid19TestLocationsPanelState extends State<Covid19TestLocationsPanel>{
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Container(height: 8,),
-          _dropDownMenu("Select County…",_counties!=null? _counties[Health().currentCountyId]: null, _counties?.values,
+          _dropDownMenu("Select County…",_counties!=null? _counties[Health().county?.id]: null, _counties?.values,
               onChanged: (HealthCounty selectedValue) {
-                Health().switchCounty(selectedValue.id);
+                Health().setCounty(selectedValue);
                 //_selectedCountyId = Storage().currentHealthCountyId = selectedValue.id;
                 _loadProviders();
               },
@@ -291,7 +291,7 @@ class _Covid19TestLocationsPanelState extends State<Covid19TestLocationsPanel>{
 
   void _loadProviders(){
     setState(()=> _isLoading = true);
-    Health().loadHealthServiceProviders().then((List<HealthServiceProvider> providers){
+    Health().loadProviders().then((List<HealthServiceProvider> providers){
         _isLoading = false;
         _providerItems = List<ProviderDropDownItem>();
         ProviderDropDownItem allProvidersItem = ProviderDropDownItem(type: ProviderDropDownItemType.all, provider: null);

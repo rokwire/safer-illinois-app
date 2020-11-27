@@ -26,7 +26,6 @@ import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
-import 'package:illinois/service/Storage.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/PopupDialog.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
@@ -74,7 +73,7 @@ class _Covid19ReportTestPanelSate extends State<Covid19ReportTestPanel>{
 
   void _loadLocations(){
     _increaseProgress();
-    Health().loadHealthServiceLocations(countyId: Health().currentCountyId, providerId: widget.provider?.id).then((List<HealthServiceLocation> locations){
+    Health().loadLocations(countyId: Health().county?.id, providerId: widget.provider?.id).then((List<HealthServiceLocation> locations){
       setState(() {
         try {
           _locations = locations != null ? Map<String, HealthServiceLocation>.fromIterable(locations, key: ((location) => location.id)) : null;
@@ -89,7 +88,7 @@ class _Covid19ReportTestPanelSate extends State<Covid19ReportTestPanel>{
   void _loadTestTypes(){
     _increaseProgress();
     List<String> typesIds = _selectedLocationId!=null? _locations[_selectedLocationId]?.availableTests: null;
-    Health().loadHealthServiceTestTypes(typeIds: typesIds).then((List<HealthTestType> types){
+    Health().loadTestTypes(typeIds: typesIds).then((List<HealthTestType> types){
       setState(() {
         _decreaseProgress();
         try{
@@ -560,15 +559,7 @@ class _Covid19ReportTestPanelSate extends State<Covid19ReportTestPanel>{
 
     DateTime dateUtc = _selectedDate.toUtc();
 
-    // Ensure county if provider is 'Other'
-    String countyId;
-    if (_isCustomProvider) {
-      countyId = Storage().currentHealthCountyId;
-      if (AppString.isStringEmpty(countyId)) {
-        List<HealthCounty> counties = await Health().loadCounties();
-        countyId = HealthCounty.defaultCounty(counties)?.id;
-      }
-    }
+    String countyId = _isCustomProvider ? Health().county?.id : null;
 
     Covid19ManualTest test = Covid19ManualTest(
       provider:   _isCustomProvider? null: provider?.name,
