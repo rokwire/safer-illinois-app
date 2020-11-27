@@ -1182,7 +1182,7 @@ class Health with Service implements NotificationsListener {
     List<HealthSymptom> symptoms = HealthSymptomsGroup.getSymptoms(_rules?.symptoms?.groups, selected);
 
     Covid19History history = await _addHistory(await Covid19History.encryptedFromBlob(
-      dateUtc: dateUtc,
+      dateUtc: dateUtc ?? DateTime.now().toUtc(),
       type: Covid19HistoryType.symptoms,
       blob: Covid19HistoryBlob(
         symptoms: symptoms,
@@ -1222,7 +1222,7 @@ class Health with Service implements NotificationsListener {
   Future<bool> processContactTrace({DateTime dateUtc, int duration}) async {
     
     Covid19History history = await _addHistory(await Covid19History.encryptedFromBlob(
-      dateUtc: dateUtc,
+      dateUtc: dateUtc ?? DateTime.now().toUtc(),
       type: Covid19HistoryType.contactTrace,
       blob: Covid19HistoryBlob(
         traceDuration: duration,
