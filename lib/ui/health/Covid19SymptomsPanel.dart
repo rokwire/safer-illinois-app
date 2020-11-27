@@ -51,16 +51,16 @@ class _Covid19SymptomsPanelState extends State<Covid19SymptomsPanel> implements 
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    NotificationService().unsubscribe(this);
+  }
+
+  @override
   void onNotification(String name, param) {
     if (name == Health.notifyStatusUpdated){
       _onStatusChanged();
     }
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    NotificationService().unsubscribe(this);
   }
 
   @override
