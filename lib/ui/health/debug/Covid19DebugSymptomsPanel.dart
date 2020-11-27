@@ -17,6 +17,7 @@
 import 'package:flutter/material.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
+import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
@@ -33,22 +34,35 @@ class Covid19DebugSymptomsPanel extends StatefulWidget {
   _Covid19DebugSymptomsPanelState createState() => _Covid19DebugSymptomsPanelState();
 }
 
-class _Covid19DebugSymptomsPanelState extends State<Covid19DebugSymptomsPanel> {
+class _Covid19DebugSymptomsPanelState extends State<Covid19DebugSymptomsPanel> implements NotificationsListener {
 
   DateTime _selectedDate;
   Map<String, String> _symptomsToGroup;
   Set<String> _selectedSymptoms = Set<String>();
-  bool _submittingSymptoms;
+  bool _submittingSymptoms, _dismissed;
 
   @override
   void initState() {
     super.initState();
+    
+    NotificationService().subscribe(this, [
+      Health.notifyStatusUpdated,
+    ]);
+
     _symptomsToGroup = _buildSymptomsToGroups(Health().rules?.symptoms?.groups);
   }
 
   @override
   void dispose() {
     super.dispose();
+    NotificationService().unsubscribe(this);
+  }
+
+  @override
+  void onNotification(String name, param) {
+    if (name == Health.notifyStatusUpdated){
+      _onStatusChanged();
+    }
   }
 
   @override
@@ -297,6 +311,18 @@ class _Covid19DebugSymptomsPanelState extends State<Covid19DebugSymptomsPanel> {
     });
   }
 
+  void _onStatusChanged() {
+    // Got status update notification while submitting symptoms
+    if (mounted && (_submittingSymptoms == true)) {
+      String oldStatus = Health().previousStatus?.blob?.healthStatus;
+      String newStatus = Health().status?.blob?.healthStatus;
+      if ((oldStatus != null) && (newStatus != null) && (oldStatus != newStatus)) {
+        _dismissed = true;
+        Navigator.of(context).pop(); // pop immidiately as status update panel will be pushed.
+      }
+    }
+  }
+
   void _onSubmit() {
     Analytics.instance.logSelect(target: "Submit");
 
@@ -317,21 +343,18 @@ class _Covid19DebugSymptomsPanelState extends State<Covid19DebugSymptomsPanel> {
       _submittingSymptoms = true;
     });
 
-    Health().processSymptoms(selected: _selectedSymptoms, dateUtc: _selectedDate?.toUtc()).then((dynamic result) {
-      if (mounted) {
+    Health().processSymptoms(selected: _selectedSymptoms, dateUtc: _selectedDate?.toUtc()).then((bool result) {
+      if (mounted && (_dismissed != true)) {
         setState(() {
           _submittingSymptoms = false;
         });
-        if (result == null) {
-          AppAlert.showDialogResult(context, Localization().getStringEx("panel.health.symptoms.label.error.submit", "Failed to submit symptoms."));
-        }
-        else if (result is Covid19History) {
+        if (result == true) {
           AppAlert.showDialogResult(context,Localization().getStringEx("panel.health.symptoms.label.success.submit.message", "Your symptoms have been processed.")).then((_){
             Navigator.of(context).pop();
           });
         }
-        else if (result is Covid19Status) {
-          Navigator.of(context).pop(); // pop immidiately as status update panel will be pushed.
+        else {
+          AppAlert.showDialogResult(context, Localization().getStringEx("panel.health.symptoms.label.error.submit", "Failed to submit symptoms."));
         }
       }
     });
