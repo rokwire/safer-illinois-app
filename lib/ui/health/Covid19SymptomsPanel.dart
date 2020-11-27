@@ -279,12 +279,12 @@ class _Covid19SymptomsPanelState extends State<Covid19SymptomsPanel> implements 
           _submittingSymptoms = false;
         });
         if (result == true) {
-          AppAlert.showDialogResult(context, Localization().getStringEx("panel.health.symptoms.label.error.submit", "Failed to submit symptoms."));
-        }
-        else {
           AppAlert.showDialogResult(context,Localization().getStringEx("panel.health.symptoms.label.success.submit.message", "Your symptoms have been processed.")).then((_){
             Navigator.of(context).pop();
           });
+        }
+        else {
+          AppAlert.showDialogResult(context, Localization().getStringEx("panel.health.symptoms.label.error.submit", "Failed to submit symptoms."));
         }
       }
     });
