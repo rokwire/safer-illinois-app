@@ -78,9 +78,9 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   void initState() {
 
     NotificationService().subscribe(this, [
-      Auth.notifyLoginSucceeded,
       Auth.notifyUserPiiDataChanged,
       UserProfile.notifyProfileUpdated,
+      Health.notifyUserUpdated,
       FirebaseMessaging.notifySettingUpdated,
       FlexUI.notifyChanged,
     ]);
@@ -103,10 +103,10 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   void onNotification(String name, dynamic param) {
     if (name == Auth.notifyUserPiiDataChanged) {
       _updateState();
-    } else if (name == Health.notifyUserUpdated) {
-      _verifyHealthUserKeys();
     } else if (name == UserProfile.notifyProfileUpdated){
       _updateState();
+    } else if (name == Health.notifyUserUpdated) {
+      _verifyHealthUserKeys();
     } else if (name == FirebaseMessaging.notifySettingUpdated) {
       _updateState();
     } else if (name == FlexUI.notifyChanged) {
