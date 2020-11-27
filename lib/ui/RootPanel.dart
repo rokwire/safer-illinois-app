@@ -20,7 +20,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:illinois/service/DeepLink.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
-import 'package:illinois/service/Health2.dart';
+import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/Service.dart';
 import 'package:illinois/service/Analytics.dart';
@@ -59,7 +59,7 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
       Localization.notifyStringsUpdated,
       Organizations.notifyOrganizationChanged,
       Organizations.notifyEnvironmentChanged,
-      Health2.notifyStatusUpdated,
+      Health.notifyStatusUpdated,
       DeepLink.notifyUri,
     ]);
 
@@ -88,7 +88,7 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
     else if (name == Organizations.notifyEnvironmentChanged) {
       setState(() { });
     }
-    else if (name == Health2.notifyStatusUpdated) {
+    else if (name == Health.notifyStatusUpdated) {
       _presentHealthStatusUpdate();
     }
     else if (name == FirebaseMessaging.notifyCovid19Notification) {
@@ -221,11 +221,11 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
   }
 
   void _presentHealthStatusUpdate() {
-    String oldStatus = Health2().previousStatus?.blob?.healthStatus;
-    String newStatus = Health2().status?.blob?.healthStatus;
+    String oldStatus = Health().previousStatus?.blob?.healthStatus;
+    String newStatus = Health().status?.blob?.healthStatus;
     if ((oldStatus != null) && (newStatus != null) && (oldStatus != newStatus)) {
       Timer(Duration(milliseconds: 100), () {
-        Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19StatusUpdatePanel(status: Health2().status, previousHealthStatus: oldStatus,)));
+        Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19StatusUpdatePanel(status: Health().status, previousHealthStatus: oldStatus,)));
       });
     }
   }

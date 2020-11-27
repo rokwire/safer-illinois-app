@@ -23,7 +23,7 @@ import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Config.dart';
-import 'package:illinois/service/Health2.dart';
+import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Network.dart';
 import 'package:illinois/service/Storage.dart';
@@ -63,16 +63,16 @@ class _Covid19DebugCreateEventPanelState extends State<Covid19DebugCreateEventPa
     _selectedProviderId = Storage().lastHealthProvider?.id;
     
     _loadingPublicKey = true;
-    Health2().refreshStatus().then((_) {
+    Health().refreshStatus().then((_) {
       if (mounted) {
         setState(() {
           _loadingPublicKey = false;
-          _headerStatus = (Health2().user?.publicKey != null) ? "User's public RSA key loaded." : "Failed to load user's public RSA key.";
+          _headerStatus = (Health().user?.publicKey != null) ? "User's public RSA key loaded." : "Failed to load user's public RSA key.";
         });
       }
     });
 
-      Health2().loadProviders().then((List<HealthServiceProvider> providers){
+      Health().loadProviders().then((List<HealthServiceProvider> providers){
         if (mounted) {
           setState(() {
             try {
@@ -356,8 +356,8 @@ class _Covid19DebugCreateEventPanelState extends State<Covid19DebugCreateEventPa
           Row(children: <Widget>[
             Expanded(child: Container(),),
             RoundedButton(label: "Submit Event",
-              textColor: (Health2().user?.publicKey != null) ? Styles().colors.fillColorPrimary : Styles().colors.disabledTextColor,
-              borderColor: (Health2().user?.publicKey != null) ? Styles().colors.fillColorSecondary : Styles().colors.disabledTextColor,
+              textColor: (Health().user?.publicKey != null) ? Styles().colors.fillColorPrimary : Styles().colors.disabledTextColor,
+              borderColor: (Health().user?.publicKey != null) ? Styles().colors.fillColorSecondary : Styles().colors.disabledTextColor,
               backgroundColor: Styles().colors.white,
               fontFamily: Styles().fontFamilies.bold,
               fontSize: 16,
@@ -403,11 +403,11 @@ class _Covid19DebugCreateEventPanelState extends State<Covid19DebugCreateEventPa
     setState(() {
       _refreshingPublicKey = true;
     });
-    Health2().resetUserKeys().then((_) {
+    Health().resetUserKeys().then((_) {
       if (mounted) {
         setState(() {
           _refreshingPublicKey = false;
-          _headerStatus = (Health2().user?.publicKey != null) ?
+          _headerStatus = (Health().user?.publicKey != null) ?
             Localization().getStringEx("panel.health.covid19.debug.create.label.status.refreshed","User's public RSA key refreshed.") :
             Localization().getStringEx("panel.health.covid19.debug.create.label.status.error","Failed to refresh user's public RSA key.");
         });
@@ -499,9 +499,9 @@ class _Covid19DebugCreateEventPanelState extends State<Covid19DebugCreateEventPa
   Future<String> _postEvent({String blob, String providerId}) async {
     String aesKey = AESCrypt.randomKey();
     String encryptedBlob = AESCrypt.encrypt(blob, keyString: aesKey);
-    String encryptedKey = RSACrypt.encrypt(aesKey, Health2().user?.publicKey);
+    String encryptedKey = RSACrypt.encrypt(aesKey, Health().user?.publicKey);
 
-    //PointyCastle.PrivateKey privateKey = await Health2().userPrivateKey;
+    //PointyCastle.PrivateKey privateKey = await Health().userPrivateKey;
     //String decryptedKey = ((privateKey != null) && (encryptedKey != null)) ? RSACrypt.decrypt(encryptedKey, privateKey) : null;
     //String decryptedBlob = ((decryptedKey != null) && (encryptedBlob != null)) ? AESCrypt.decrypt(encryptedBlob, keyString: decryptedKey) : null;
 
@@ -526,7 +526,7 @@ class _Covid19DebugCreateEventPanelState extends State<Covid19DebugCreateEventPa
   }
 
   void _onSubmit() {
-    if ((Health2().user?.publicKey != null) && (_submitting != true) && (_loadingPublicKey != true)) {
+    if ((Health().user?.publicKey != null) && (_submitting != true) && (_loadingPublicKey != true)) {
       setState(() {
         _submitting = true;
       });

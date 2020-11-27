@@ -17,7 +17,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:illinois/model/Health.dart';
-import 'package:illinois/service/Health2.dart';
+import 'package:illinois/service/Health.dart';
 import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Styles.dart';
@@ -94,7 +94,7 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
   }
 
   Widget _buildContent(){
-    String county = "${Health2().county?.displayName} ${Localization().getStringEx("app.common.label.county", "County")}";
+    String county = "${Health().county?.displayName} ${Localization().getStringEx("app.common.label.county", "County")}";
     return
       SingleChildScrollView(
       child:
@@ -116,7 +116,7 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
                   label: Localization().getStringEx("panel.health.status_update.button.info.title","Info "),
                   button: true,
                   excludeSemantics: true,
-                  child:  IconButton(icon: Image.asset('images/icon-info-orange.png', excludeFromSemantics: true,), onPressed: () =>  StatusInfoDialog.show(context, Health2().county?.displayName), padding: EdgeInsets.all(10),)
+                  child:  IconButton(icon: Image.asset('images/icon-info-orange.png', excludeFromSemantics: true,), onPressed: () =>  StatusInfoDialog.show(context, Health().county?.displayName), padding: EdgeInsets.all(10),)
             ))
           ],
         ),
@@ -187,7 +187,7 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
         List<HealthSymptom> symptoms = reasonHistory.symptoms;
         if (symptoms?.isNotEmpty ?? false) {
           symptoms.forEach((HealthSymptom symptom){
-            String symptomName = Health2().rules?.localeString(symptom?.name) ?? symptom?.name;
+            String symptomName = Health().rules?.localeString(symptom?.name) ?? symptom?.name;
             if (AppString.isStringNotEmpty(symptomName)) {
               symptomLayouts.add(Text(symptomName, style: TextStyle(color: Colors.white, fontSize: 14, fontFamily: Styles().fontFamilies.regular)));
             }

@@ -22,7 +22,7 @@ import 'package:illinois/utils/Utils.dart';
 import 'package:location/location.dart' as Core;
 import 'package:flutter/material.dart';
 import 'package:illinois/model/Health.dart';
-import 'package:illinois/service/Health2.dart';
+import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Storage.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
@@ -53,7 +53,7 @@ class _Covid19TestLocationsPanelState extends State<Covid19TestLocationsPanel>{
     _loadLocationsServicesData();
     _loadCounties();
 
-    if (Health2().county?.id != null) {
+    if (Health().county?.id != null) {
       _loadProviders();
     } else {
       _loadLocations(); //load all by default
@@ -64,7 +64,7 @@ class _Covid19TestLocationsPanelState extends State<Covid19TestLocationsPanel>{
 
   _loadLocations(){
   _isLoading = true;
-  Health2().loadLocations(countyId: Health2().county?.id, providerId: _selectedProviderItem?.providerId).then((List<HealthServiceLocation> locations){
+  Health().loadLocations(countyId: Health().county?.id, providerId: _selectedProviderItem?.providerId).then((List<HealthServiceLocation> locations){
     setState(() {
       try {
         _locations = locations;
@@ -147,9 +147,9 @@ class _Covid19TestLocationsPanelState extends State<Covid19TestLocationsPanel>{
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Container(height: 8,),
-          _dropDownMenu("Select County…",_counties!=null? _counties[Health2().county?.id]: null, _counties?.values,
+          _dropDownMenu("Select County…",_counties!=null? _counties[Health().county?.id]: null, _counties?.values,
               onChanged: (HealthCounty selectedValue) {
-                Health2().setCounty(selectedValue);
+                Health().setCounty(selectedValue);
                 //_selectedCountyId = Storage().currentHealthCountyId = selectedValue.id;
                 _loadProviders();
               },
@@ -278,7 +278,7 @@ class _Covid19TestLocationsPanelState extends State<Covid19TestLocationsPanel>{
   //loading
   void _loadCounties(){
     setState(()=> _isLoading = true);
-    Health2().loadCounties().then((List<HealthCounty> counties) {
+    Health().loadCounties().then((List<HealthCounty> counties) {
       if (counties != null) {
         _counties = LinkedHashMap<String, HealthCounty>();
         for (HealthCounty county in counties) {
@@ -291,7 +291,7 @@ class _Covid19TestLocationsPanelState extends State<Covid19TestLocationsPanel>{
 
   void _loadProviders(){
     setState(()=> _isLoading = true);
-    Health2().loadProviders().then((List<HealthServiceProvider> providers){
+    Health().loadProviders().then((List<HealthServiceProvider> providers){
         _isLoading = false;
         _providerItems = List<ProviderDropDownItem>();
         ProviderDropDownItem allProvidersItem = ProviderDropDownItem(type: ProviderDropDownItemType.all, provider: null);

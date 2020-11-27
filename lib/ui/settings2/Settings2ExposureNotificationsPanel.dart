@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:illinois/service/Analytics.dart';
-import 'package:illinois/service/Health2.dart';
+import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Styles.dart';
@@ -23,7 +23,7 @@ class _Settings2ExposureNotificationsPanelState extends State<Settings2ExposureN
   @override
   void initState() {
     super.initState();
-    NotificationService().subscribe(this, [Health2.notifyUserUpdated]);
+    NotificationService().subscribe(this, [Health.notifyUserUpdated]);
   }
 
   @override
@@ -74,9 +74,9 @@ class _Settings2ExposureNotificationsPanelState extends State<Settings2ExposureN
                       height: null,
                       border: Border.all(width: 1, color: Styles().colors.surfaceAccent),
                       borderRadius: BorderRadius.all(Radius.circular(4)),
-                      toggled: Health2().user.exposureNotification,
+                      toggled: Health().user.exposureNotification,
                       onTap: (){
-                        if(!Health2().user.exposureNotification){
+                        if(!Health().user.exposureNotification){
                           _onConsentEnabled();
                         }
                         else{
@@ -215,7 +215,7 @@ class _Settings2ExposureNotificationsPanelState extends State<Settings2ExposureN
     _setState((){
       _isDisabling = true;
     });
-    Health2().loginUser(exposureNotification: false).whenComplete((){
+    Health().loginUser(exposureNotification: false).whenComplete((){
       _setState((){
         _isDisabling = false;
       });
@@ -230,7 +230,7 @@ class _Settings2ExposureNotificationsPanelState extends State<Settings2ExposureN
     setState((){
       _isEnabling = true;
     });
-    Health2().loginUser(exposureNotification: true).whenComplete((){
+    Health().loginUser(exposureNotification: true).whenComplete((){
       setState((){
         _isEnabling = false;
       });
@@ -239,7 +239,7 @@ class _Settings2ExposureNotificationsPanelState extends State<Settings2ExposureN
 
   @override
   void onNotification(String name, param) {
-    if(name == Health2.notifyUserUpdated){
+    if(name == Health.notifyUserUpdated){
       setState(() {
 
       });

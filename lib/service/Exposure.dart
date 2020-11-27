@@ -25,7 +25,7 @@ import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/BluetoothServices.dart';
 import 'package:illinois/service/Config.dart';
-import 'package:illinois/service/Health2.dart';
+import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/Network.dart';
 import 'package:illinois/service/NotificationService.dart';
@@ -151,7 +151,7 @@ class Exposure with Service implements NotificationsListener {
       BluetoothServices.notifyStatusChanged,
       Config.notifyConfigChanged,
       AppLivecycle.notifyStateChanged,
-      Health2.notifyUserUpdated,
+      Health.notifyUserUpdated,
       Auth.notifyLoggedOut,
     ]);
   }
@@ -205,7 +205,7 @@ class Exposure with Service implements NotificationsListener {
 
   @override
   Set<Service> get serviceDependsOn {
-    return Set.from([Storage(), Config(), Health2()]);
+    return Set.from([Storage(), Config(), Health()]);
   }
 
   // NotificationsListener
@@ -219,7 +219,7 @@ class Exposure with Service implements NotificationsListener {
         _updateExposureMinDuration();
         checkReport();
       }
-      else if (name == Health2.notifyUserUpdated) {
+      else if (name == Health.notifyUserUpdated) {
         _updatePlugin();
         _updateExposuresMonitor();
         checkReport();        
@@ -260,7 +260,7 @@ class Exposure with Service implements NotificationsListener {
 
   bool get _serviceEnabled {
     return  (Config().settings['covid19ExposureMonitorEnabled'] == true) &&
-      (Health2().userExposureNotification == true);
+      (Health().userExposureNotification == true);
   }
 
   bool get _pluginEnabled {
@@ -712,14 +712,14 @@ class Exposure with Service implements NotificationsListener {
       if (_reportTargetTimestamp == null) {
         return 0;
       }
-      else if ((Health2().status?.blob?.healthStatus != kCovid19HealthStatusRed) && (_lastReportTimestamp != null) && (_reportTargetTimestamp < _lastReportTimestamp)) {
+      else if ((Health().status?.blob?.healthStatus != kCovid19HealthStatusRed) && (_lastReportTimestamp != null) && (_reportTargetTimestamp < _lastReportTimestamp)) {
         Storage().exposureReportTargetTimestamp = _reportTargetTimestamp = null;
         await _expireTEK(); 
         return 0;
       }
     }
     else {
-      if (Health2().status?.blob?.healthStatus != kCovid19HealthStatusRed) {
+      if (Health().status?.blob?.healthStatus != kCovid19HealthStatusRed) {
         return 0;
       }
     }
@@ -731,8 +731,8 @@ class Exposure with Service implements NotificationsListener {
     Log.d('Exposure: Checking local TEKs to report...');
     _checkingReport = true;
 
-    List<Covid19History> history = Health2().history;
-    HealthRulesSet rules = Health2().rules;
+    List<Covid19History> history = Health().history;
+    HealthRulesSet rules = Health().rules;
     Set<String> negativeTestCategories = _negativeTestCategories;
 
     int minTimestamp, maxTimestamp, currentTimestamp = _currentTimestamp;
@@ -933,8 +933,8 @@ class Exposure with Service implements NotificationsListener {
 
     Analytics().logHealth(action: Analytics.LogHealthCheckExposuresAction);
 
-    List<Covid19History> history = Health2().history;
-    Covid19Status lastHealthStatus = Health2().status;
+    List<Covid19History> history = Health().history;
+    Covid19Status lastHealthStatus = Health().status;
     Covid19History lastTest = Covid19History.mostRecentTest(history);
     DateTime lastTestDateUtc = lastTest?.dateUtc;
     int scoringDayThreshold = _evalScoringDayThreshold(lastTestDateUtc: lastTestDateUtc);
@@ -996,7 +996,7 @@ class Exposure with Service implements NotificationsListener {
               exposureDuration += historyEntry.blob?.traceDuration;
             }
 
-            result = await Health2().updateHistory(
+            result = await Health().updateHistory(
               id: historyEntry.id,
               dateUtc: exposureDateUtc,
               type: Covid19HistoryType.contactTrace,
@@ -1006,7 +1006,7 @@ class Exposure with Service implements NotificationsListener {
               ));
           }
           else {
-            result = await Health2().addHistory(
+            result = await Health().addHistory(
               dateUtc: exposureDateUtc,
               type: Covid19HistoryType.contactTrace,
               blob: Covid19HistoryBlob(
@@ -1030,7 +1030,7 @@ class Exposure with Service implements NotificationsListener {
       for (Covid19History result in results) {
         Analytics().logHealth(
           action: Analytics.LogHealthContactTraceProcessedAction,
-          status: Health2().status?.blob?.healthStatus,
+          status: Health().status?.blob?.healthStatus,
           prevStatus: lastHealthStatus?.blob?.healthStatus,
           attributes: {
             Analytics.LogHealthDurationName: result.blob.traceDuration,
@@ -1126,7 +1126,7 @@ class Exposure with Service implements NotificationsListener {
     }
     else if (exposures.isEmpty || reportedTEKs.isEmpty) {
       // no ContactWithPositive or PassedExposureScoring
-      return _buildTestResultExposureScoring(hasExposureNotificationsEnabled: Health2().userExposureNotification);
+      return _buildTestResultExposureScoring(hasExposureNotificationsEnabled: Health().userExposureNotification);
     }
 
     bool hasContactWithPositive, hasPassedExposureScoring;
@@ -1153,7 +1153,7 @@ class Exposure with Service implements NotificationsListener {
     return _buildTestResultExposureScoring(
       hasContactWithPositive: hasContactWithPositive,
       hasPassedExposureScoring: hasPassedExposureScoring,
-      hasExposureNotificationsEnabled: Health2().userExposureNotification);
+      hasExposureNotificationsEnabled: Health().userExposureNotification);
   }
 
   static int _buildTestResultExposureScoring({bool hasContactWithPositive, bool hasPassedExposureScoring, bool hasExposureNotificationsEnabled}) {

@@ -19,7 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Exposure.dart';
-import 'package:illinois/service/Health2.dart';
+import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
@@ -43,7 +43,7 @@ class _SettingsPersonalInfoPanelState extends State<SettingsPersonalInfoPanel> {
   Future<void> _deleteUserData() async{
     Analytics.instance.logAlert(text: "Remove My Information", selection: "Yes");
 
-    await Health2().deleteUser();
+    await Health().deleteUser();
     await Exposure().deleteUser();
     await Auth().deleteUserPiiData();
     await UserProfile().deleteProfile();

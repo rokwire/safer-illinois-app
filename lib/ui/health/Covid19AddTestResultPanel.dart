@@ -18,7 +18,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
-import 'package:illinois/service/Health2.dart';
+import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/OSFHealth.dart';
@@ -103,7 +103,7 @@ class _Covid19AddTestResultPanelState extends State<Covid19AddTestResultPanel> i
 
   void _loadProviders() {
     _loading = true;
-    Health2().loadProviders().then((List<HealthServiceProvider> providers){
+    Health().loadProviders().then((List<HealthServiceProvider> providers){
       _providerItems = List<ProviderDropDownItem>();
       if(providers?.isNotEmpty?? false) {
         _providerItems.addAll(providers?.map((HealthServiceProvider provider) {

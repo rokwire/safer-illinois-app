@@ -18,7 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/utils/AppDateTime.dart';
-import 'package:illinois/service/Health2.dart';
+import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/onboarding/OnboardingBackButton.dart';
@@ -43,7 +43,7 @@ class _Covid19DebugSymptomsPanelState extends State<Covid19DebugSymptomsPanel> {
   @override
   void initState() {
     super.initState();
-    _symptomsToGroup = _buildSymptomsToGroups(Health2().rules?.symptoms?.groups);
+    _symptomsToGroup = _buildSymptomsToGroups(Health().rules?.symptoms?.groups);
   }
 
   @override
@@ -95,12 +95,12 @@ class _Covid19DebugSymptomsPanelState extends State<Covid19DebugSymptomsPanel> {
     List<Widget> result = <Widget>[];
     result.add(_buildDatePicker());
     
-    if (Health2().rules?.symptoms?.groups != null) {
+    if (Health().rules?.symptoms?.groups != null) {
       result.add(Padding(padding: EdgeInsets.only(bottom: 4),
         child: Text("Symptoms", style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.fillColorPrimary),),
       ),);
       
-      for (HealthSymptomsGroup group in Health2().rules?.symptoms?.groups) {
+      for (HealthSymptomsGroup group in Health().rules?.symptoms?.groups) {
         if ((group.symptoms != null) && (group.visible != false)) {
           for (HealthSymptom symptom in group.symptoms) {
             result.add(_buildSymptom(symptom));
@@ -135,7 +135,7 @@ class _Covid19DebugSymptomsPanelState extends State<Covid19DebugSymptomsPanel> {
   Widget _buildSymptom(HealthSymptom symptom) {
     bool _selected = _selectedSymptoms.contains(symptom.id);
     String imageName = _selected ? 'images/icon-selected-checkbox.png' : 'images/icon-deselected-checkbox.png';
-    String symptomName = (Health2().rules?.localeString(symptom?.name) ?? symptom?.name) ?? '';
+    String symptomName = (Health().rules?.localeString(symptom?.name) ?? symptom?.name) ?? '';
     return Semantics(
       label: symptomName,
       value: (_selected?Localization().getStringEx("toggle_button.status.checked", "checked",) :
@@ -241,7 +241,7 @@ class _Covid19DebugSymptomsPanelState extends State<Covid19DebugSymptomsPanel> {
   int get _symptomsCount {
     int count = 0;
     if (_symptomsToGroup != null) {
-      for (HealthSymptomsGroup group in Health2().rules?.symptoms?.groups) {
+      for (HealthSymptomsGroup group in Health().rules?.symptoms?.groups) {
         count += (group.symptoms?.length ?? 0);
       }
     }
@@ -292,7 +292,7 @@ class _Covid19DebugSymptomsPanelState extends State<Covid19DebugSymptomsPanel> {
 
         _selectedSymptoms.add(symptom.id);
       }
-      String symptomName = (Health2().rules?.localeString(symptom?.name) ?? symptom?.name) ?? '';
+      String symptomName = (Health().rules?.localeString(symptom?.name) ?? symptom?.name) ?? '';
       AppSemantics.announceCheckBoxStateChange(context, _selectedSymptoms?.contains(symptom.id), symptomName);
     });
   }
@@ -317,7 +317,7 @@ class _Covid19DebugSymptomsPanelState extends State<Covid19DebugSymptomsPanel> {
       _submittingSymptoms = true;
     });
 
-    Health2().processSymptoms(selected: _selectedSymptoms, dateUtc: _selectedDate?.toUtc()).then((dynamic result) {
+    Health().processSymptoms(selected: _selectedSymptoms, dateUtc: _selectedDate?.toUtc()).then((dynamic result) {
       if (mounted) {
         setState(() {
           _submittingSymptoms = false;

@@ -23,7 +23,7 @@ import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/model/UserProfile.dart';
 import 'package:illinois/service/Auth.dart';
-import 'package:illinois/service/Health2.dart';
+import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/NotificationService.dart';
@@ -58,7 +58,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
   void initState() {
     super.initState();
     NotificationService().subscribe(this, [
-      Health2.notifyStatusUpdated,
+      Health.notifyStatusUpdated,
     ]);
     _initData();
   }
@@ -71,7 +71,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
 
   @override
   void onNotification(String name, param) {
-    if (name == Health2.notifyStatusUpdated) {
+    if (name == Health.notifyStatusUpdated) {
       if (mounted) {
         setState(() {});
       }
@@ -91,8 +91,8 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
 
   Future<void> _loadData() async {
     List<dynamic> results = await Future.wait([
-      Health2().refreshStatus(),
-      Health2().loadCounties(),
+      Health().refreshStatus(),
+      Health().loadCounties(),
       _loadColorOfTheDay(),
       _loadPhotoBytes(),
     ]);
@@ -296,9 +296,9 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
   }
 
   Widget _buildAccesLayout() {
-    String imageAsset = (Health2().buildingAccessGranted == true) ? 'images/group-20.png' : 'images/group-28.png';
+    String imageAsset = (Health().buildingAccessGranted == true) ? 'images/group-20.png' : 'images/group-28.png';
     String accessText = '';
-    switch (Health2().buildingAccessGranted) {
+    switch (Health().buildingAccessGranted) {
       case true: accessText = Localization().getStringEx("panel.covid19_passport.label.access.granted","GRANTED"); break;
       case false: accessText = Localization().getStringEx("panel.covid19_passport.label.access.denied","DENIED"); break;
     }
@@ -320,8 +320,8 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
   }
 
   Widget _buildQrCode(){
-    String healthStatus = Health2().status?.blob?.healthStatus;
-    String statusName = Health2().status?.blob?.localizedHealthStatus ?? '';
+    String healthStatus = Health().status?.blob?.healthStatus;
+    String statusName = Health().status?.blob?.localizedHealthStatus ?? '';
     bool userHasHealthStatus = (healthStatus != null);
     Color statusColor = (userHasHealthStatus ? (Styles().colors.getHealthStatusColor(healthStatus) ?? _backgroundColor) : _backgroundColor);
     String authCardOrPhone = Auth().isShibbolethLoggedIn
@@ -380,7 +380,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
                       label: Localization().getStringEx("panel.covid19_passport.button.info.title","Info "),
                       button: true,
                       excludeSemantics: true,
-                      child:  IconButton(icon: Image.asset('images/icon-info-orange.png', excludeFromSemantics: true,), onPressed: () =>  StatusInfoDialog.show(context, Health2().county?.displayName ?? ""), padding: EdgeInsets.all(10),)
+                      child:  IconButton(icon: Image.asset('images/icon-info-orange.png', excludeFromSemantics: true,), onPressed: () =>  StatusInfoDialog.show(context, Health().county?.displayName ?? ""), padding: EdgeInsets.all(10),)
                 ))
             ],)):
           Container(
@@ -412,7 +412,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
                       icon: Icon(Icons.arrow_drop_down, color:Styles().colors.fillColorPrimary, semanticLabel: null,),
                       isExpanded: true,
                       style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.fillColorPrimary,),
-                      hint: Text(Health2().county?.displayName ?? Localization().getStringEx('panel.covid19_passport.label.county.empty.hint',"Select a county...",),
+                      hint: Text(Health().county?.displayName ?? Localization().getStringEx('panel.covid19_passport.label.county.empty.hint',"Select a county...",),
                         style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.fillColorPrimary,),overflow: TextOverflow.ellipsis,),
                       items: _buildCountyDropdownItems(),
                       onChanged: (value) { _switchCounty(value); },
@@ -490,7 +490,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
     setState(() {
       _loading = true;
     });
-    Health2().setCounty(county).then((_) {
+    Health().setCounty(county).then((_) {
       if (mounted) {
         setState(() {
           _loading = false;

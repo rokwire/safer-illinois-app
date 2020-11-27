@@ -20,7 +20,7 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Assets.dart';
-import 'package:illinois/service/Health2.dart';
+import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
@@ -67,7 +67,7 @@ class _Covid19GuidelinesPanelState extends State<Covid19GuidelinesPanel> impleme
       _loading = true;
     });
   
-    Health2().loadCounties(guidelines: true).then((List<HealthCounty> counties) {
+    Health().loadCounties(guidelines: true).then((List<HealthCounty> counties) {
       if (mounted) {
         setState(() {
           _loading = false;
@@ -96,7 +96,7 @@ class _Covid19GuidelinesPanelState extends State<Covid19GuidelinesPanel> impleme
   }
 
   String get _currentHealthStatus {
-    return Health2().status?.blob?.healthStatus?.toLowerCase();
+    return Health().status?.blob?.healthStatus?.toLowerCase();
   }
 
   @override
@@ -132,7 +132,7 @@ class _Covid19GuidelinesPanelState extends State<Covid19GuidelinesPanel> impleme
                     padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
                     child: Text(
                       sprintf(Localization().getStringEx('panel.covid19_guidelines.status.title', 'These are based on your %s status in the following county:'),
-                          [Health2().status?.blob?.localizedHealthStatus ?? "unknown"]),
+                          [Health().status?.blob?.localizedHealthStatus ?? "unknown"]),
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Styles().colors.textSurface, fontSize: 16, fontFamily: Styles().fontFamilies.regular),
                     ),
@@ -230,14 +230,14 @@ class _Covid19GuidelinesPanelState extends State<Covid19GuidelinesPanel> impleme
   }
 
   HealthCounty get _selectedCounty {
-    return ((_counties != null) && (0 < _counties.length)) ? (_counties[Health2().county?.id] ?? _counties.values.first) : null;
+    return ((_counties != null) && (0 < _counties.length)) ? (_counties[Health().county?.id] ?? _counties.values.first) : null;
   }
 
   void _switchCounty(String countyId) {
     setState(() {
       _loading = true;
     });
-    Health2().setCounty(_counties[countyId]).then((_) {
+    Health().setCounty(_counties[countyId]).then((_) {
       if (mounted) {
         setState(() {
           _loading = false;

@@ -39,7 +39,7 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import "package:pointycastle/export.dart";
 
-class Health2 with Service implements NotificationsListener {
+class Health with Service implements NotificationsListener {
 
   static const String notifyUserUpdated                = "edu.illinois.rokwire.health.user.updated";
   static const String notifyStatusUpdated              = "edu.illinois.rokwire.health.status.updated";
@@ -73,13 +73,13 @@ class Health2 with Service implements NotificationsListener {
 
   // Singletone Instance
 
-  static final Health2 _instance = Health2._internal();
+  static final Health _instance = Health._internal();
 
-  factory Health2() {
+  factory Health() {
     return _instance;
   }
 
-  Health2._internal();
+  Health._internal();
 
   // Service
 

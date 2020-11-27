@@ -23,7 +23,7 @@ import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/FlexUI.dart';
-import 'package:illinois/service/Health2.dart';
+import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/Connectivity.dart';
@@ -66,9 +66,9 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
     NotificationService().subscribe(this, [
       FlexUI.notifyChanged,
       Auth.notifyLoginChanged,
-      Health2.notifyUserUpdated,
-      Health2.notifyStatusUpdated,
-      Health2.notifyHistoryUpdated,
+      Health.notifyUserUpdated,
+      Health.notifyStatusUpdated,
+      Health.notifyHistoryUpdated,
     ]);
 
     _refreshStatus();
@@ -83,9 +83,9 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
   @override
   void onNotification(String name, param) {
     if ((name == Auth.notifyLoginChanged) ||
-        (name == Health2.notifyUserUpdated) ||
-        (name == Health2.notifyStatusUpdated) ||
-        (name == Health2.notifyHistoryUpdated) ||
+        (name == Health.notifyUserUpdated) ||
+        (name == Health.notifyStatusUpdated) ||
+        (name == Health.notifyHistoryUpdated) ||
         (name == FlexUI.notifyChanged))
     {
       if (mounted) {
@@ -98,7 +98,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
     if (_isRefreshing != true) {
       setState(() { _isRefreshing = true; });
       
-      Health2().refreshStatus().then((_) {
+      Health().refreshStatus().then((_) {
         if (mounted) {
           setState(() {_isRefreshing = false; });
         }
@@ -220,14 +220,14 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
   }
 
   Widget _buildMostRecentEvent(){
-  Covid19History lastHistory = Covid19History.mostRecent(Health2().history);
+  Covid19History lastHistory = Covid19History.mostRecent(Health().history);
     if(lastHistory?.blob == null) {
       return null;
     }
     String headingText = Localization().getStringEx("panel.covid19home.label.most_recent_event.title", "MOST RECENT EVENT");
     String dateText = AppDateTime.formatDateTime(lastHistory?.dateUtc?.toLocal(), format:"MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode) ?? '';
-    String eventExplanationText = Health2().status?.blob?.displayEventExplanation;
-    String eventExplanationHtml = Health2().status?.blob?.displayEventExplanationHtml;
+    String eventExplanationText = Health().status?.blob?.displayEventExplanation;
+    String eventExplanationHtml = Health().status?.blob?.displayEventExplanationHtml;
     String historyTitle = "", info = "";
     Covid19HistoryBlob blob = lastHistory.blob;
     if(blob.isTest){
@@ -243,7 +243,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
       info = blob.traceDurationDisplayString;
     } else if(blob.isSymptoms){
       historyTitle = Localization().getStringEx("panel.covid19home.label.reported_symptoms.title", "Self Reported Symptoms");
-      info = blob.symptomsDisplayString(rules: Health2().rules);
+      info = blob.symptomsDisplayString(rules: Health().rules);
     }
 
     List <Widget> content = <Widget>[
@@ -329,12 +329,12 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
   }
 
   Widget _buildNextStepSection() {
-    String nextStepText = Health2().status?.blob?.displayNextStep;
-    String nextStepHtml = Health2().status?.blob?.displayNextStepHtml;
-    String warningTitle = Health2().status?.blob?.displayWarning;
+    String nextStepText = Health().status?.blob?.displayNextStep;
+    String nextStepHtml = Health().status?.blob?.displayNextStepHtml;
+    String warningTitle = Health().status?.blob?.displayWarning;
     bool hasNextStep = AppString.isStringNotEmpty(nextStepText) || AppString.isStringNotEmpty(nextStepHtml) || AppString.isStringNotEmpty(warningTitle);
     String headingText = hasNextStep ? Localization().getStringEx("panel.covid19home.label.next_step.title", "NEXT STEP") : '';
-    String headingDate = (hasNextStep && (Health2().status?.blob?.nextStepDateUtc != null)) ? AppDateTime.formatDateTime(Health2().status.blob.nextStepDateUtc.toLocal(), format: "MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode) : '';
+    String headingDate = (hasNextStep && (Health().status?.blob?.nextStepDateUtc != null)) ? AppDateTime.formatDateTime(Health().status.blob.nextStepDateUtc.toLocal(), format: "MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode) : '';
 
     List<Widget> content = <Widget>[
       Row(children: <Widget>[
@@ -456,9 +456,9 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
   }
 
   Widget _buildStatusSection() {
-    String statusName = Health2().status?.blob?.localizedHealthStatus;
-    Color statusColor = Styles().colors.getHealthStatusColor(Health2().status?.blob?.healthStatus) ?? Styles().colors.textSurface;
-    bool hasStatusCard  = Health2().isUserLoggedIn;
+    String statusName = Health().status?.blob?.localizedHealthStatus;
+    Color statusColor = Styles().colors.getHealthStatusColor(Health().status?.blob?.healthStatus) ?? Styles().colors.textSurface;
+    bool hasStatusCard  = Health().isUserLoggedIn;
     return Semantics(container: true, child: Container(
       padding: EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(color: Styles().colors.surface, borderRadius: BorderRadius.all(Radius.circular(4)), boxShadow: [BoxShadow(color: Styles().colors.blackTransparent018, spreadRadius: 2.0, blurRadius: 6.0, offset: Offset(2, 2))] ),
@@ -477,7 +477,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
                       label: Localization().getStringEx("panel.covid19home.button.info.title","Info "),
                       button: true,
                       excludeSemantics: true,
-                      child:  IconButton(icon: Image.asset('images/icon-info-orange.png'), onPressed: () =>  StatusInfoDialog.show(context, Health2().county?.displayName ?? ''), padding: EdgeInsets.all(10),)
+                      child:  IconButton(icon: Image.asset('images/icon-info-orange.png'), onPressed: () =>  StatusInfoDialog.show(context, Health().county?.displayName ?? ''), padding: EdgeInsets.all(10),)
                   ))
                 ],),
                 Container(height: 6,),
@@ -723,7 +723,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
   }
 
   String get _accessStatusText {
-    bool access = Health2().buildingAccessGranted;
+    bool access = Health().buildingAccessGranted;
     if (access == true) {
       return Localization().getStringEx("panel.covid19home.label.access.granted", "Building access granted");
     }

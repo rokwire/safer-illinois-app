@@ -22,7 +22,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:illinois/service/Analytics.dart';
-import 'package:illinois/service/Health2.dart';
+import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Styles.dart';
@@ -54,7 +54,7 @@ class _Covid19QrCodePanelState extends State<Covid19QrCodePanel> {
   }
 
   Future<Uint8List> _loadQrImageBytes() async {
-    secure.PrivateKey privateKey = Health2().userPrivateKey;
+    secure.PrivateKey privateKey = Health().userPrivateKey;
     Uint8List privateKeyData = (privateKey != null) ? RsaKeyHelper.encodePrivateKeyToPEMDataPKCS1(privateKey): null;
     List<int> privateKeyCompressedData = (privateKeyData != null) ? GZipEncoder().encode(privateKeyData) : null;
     String privateKeyString = (privateKeyData != null) ? base64.encode(privateKeyCompressedData) : null;

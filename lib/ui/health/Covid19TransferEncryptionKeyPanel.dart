@@ -23,7 +23,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:illinois/service/Analytics.dart';
-import 'package:illinois/service/Health2.dart';
+import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Styles.dart';
@@ -54,8 +54,8 @@ class _Covid19TransferEncryptionKeyPanelState extends State<Covid19TransferEncry
     super.initState();
     
     _prepairing = true;
-    _userPublicKey = Health2().user?.publicKey;
-    _userPrivateKey = Health2().userPrivateKey;
+    _userPublicKey = Health().user?.publicKey;
+    _userPrivateKey = Health().userPrivateKey;
     _verifyHealthRSAKeys();
   }
 
@@ -307,7 +307,7 @@ class _Covid19TransferEncryptionKeyPanelState extends State<Covid19TransferEncry
       RsaKeyHelper.verifyRsaKeyPair(PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey>(_userPublicKey, privateKey)).then((bool result) {
         if (mounted) {
           if (result == true) {
-            Health2().setUserPrivateKey(privateKey).then((success) {
+            Health().setUserPrivateKey(privateKey).then((success) {
               if (mounted) {
                 String resultMessage = success ?
                     Localization().getStringEx("panel.covid19.transfer.alert.qr_code.transfer.succeeded.msg", "COVID-19 secret transferred successfully.") :

@@ -19,7 +19,7 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:illinois/model/Health.dart';
-import 'package:illinois/service/Health2.dart';
+import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
@@ -45,7 +45,7 @@ class _Covid19DebugRulesPanelState extends State<Covid19DebugRulesPanel>{
   void initState() {
     super.initState();
 
-    _selectedCountyId = Health2().county?.id;
+    _selectedCountyId = Health().county?.id;
     _loadCounties();
   }
 
@@ -53,7 +53,7 @@ class _Covid19DebugRulesPanelState extends State<Covid19DebugRulesPanel>{
     setState(() {
       _countiesLoading = true;
     });
-    Health2().loadCounties().then((List<HealthCounty> counties) {
+    Health().loadCounties().then((List<HealthCounty> counties) {
       if (mounted) {
         setState(() {
           // apply counties
@@ -82,15 +82,15 @@ class _Covid19DebugRulesPanelState extends State<Covid19DebugRulesPanel>{
          _rulesValueController.text = "";
       });
 
-      Health2().loadRulesJson(countyId: _selectedCountyId).then((Map<String, dynamic> rules) {
+      Health().loadRulesJson(countyId: _selectedCountyId).then((Map<String, dynamic> rules) {
         if (mounted) {
-          if ((rules != null) && (Health2().userTestMonitorInterval != null)) {
+          if ((rules != null) && (Health().userTestMonitorInterval != null)) {
             dynamic constants = rules['constants'];
             if (constants == null) {
               rules['constants'] = constants = {};
             }
             if (constants is Map) {
-              constants[HealthRulesSet.UserTestMonitorInterval] = Health2().userTestMonitorInterval;
+              constants[HealthRulesSet.UserTestMonitorInterval] = Health().userTestMonitorInterval;
             }
           }
 

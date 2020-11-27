@@ -19,7 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Auth.dart';
-import 'package:illinois/service/Health2.dart';
+import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Styles.dart';
@@ -55,8 +55,8 @@ class _Covid19OnBoardingConsentPanelState extends State<Covid19OnBoardingConsent
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
     //19.06 - 5.1 Covid setup flow consents should be off by default
-    //_exposureNotification = Health2().user?.consent ?? false;
-    //_consent = Health2().user?.exposureNotification ?? false;
+    //_exposureNotification = Health().user?.consent ?? false;
+    //_consent = Health().user?.exposureNotification ?? false;
   }
 
   @override
@@ -229,7 +229,7 @@ class _Covid19OnBoardingConsentPanelState extends State<Covid19OnBoardingConsent
     setState(() {
       _loading = true;
     });
-    Health2().loginUser(consent: _consent, exposureNotification: _exposureNotification).then((user) {
+    Health().loginUser(consent: _consent, exposureNotification: _exposureNotification).then((user) {
       if (mounted) {
         setState(() {
           _loading = false;

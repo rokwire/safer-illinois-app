@@ -21,7 +21,7 @@ import 'package:archive/archive.dart';
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/material.dart';
 import 'package:illinois/service/Analytics.dart';
-import 'package:illinois/service/Health2.dart';
+import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Styles.dart';
@@ -64,13 +64,13 @@ class _Covid19DebugKeysPanelState extends State<Covid19DebugKeysPanel> {
     _rsaPublicKeyController = TextEditingController();
     _rsaPrivateKeyController = TextEditingController();
 
-    Health2().refreshUser().then((_) {
+    Health().refreshUser().then((_) {
       if (mounted) {
         setState(() {
-          _rsaPublicKey = Health2().user.publicKey;
+          _rsaPublicKey = Health().user.publicKey;
           _rsaPublicKeyController.text = (_rsaPublicKey != null) ? RsaKeyHelper.encodePublicKeyToPemPKCS1(_rsaPublicKey) : "- NA -";
 
-          _rsaPrivateKey = Health2().userPrivateKey;
+          _rsaPrivateKey = Health().userPrivateKey;
           _rsaPrivateKeyController.text = (_rsaPrivateKey != null) ? RsaKeyHelper.encodePrivateKeyToPemPKCS1(_rsaPrivateKey) : "- NA -";
 
           _rsaKeysStatus = _buildRSAKeysStatus();
@@ -358,7 +358,7 @@ class _Covid19DebugKeysPanelState extends State<Covid19DebugKeysPanel> {
       _refreshingRSAKeys = true;
     });
     
-    Health2().resetUserKeys().then((PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey> rsaKeys) {
+    Health().resetUserKeys().then((PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey> rsaKeys) {
       if (mounted) {
         setState(() {
           _refreshingRSAKeys = false;
@@ -380,7 +380,7 @@ class _Covid19DebugKeysPanelState extends State<Covid19DebugKeysPanel> {
   }
 
   void _onClearPrivateRSAKey() {
-    Health2().setUserPrivateKey(null).then((bool result){
+    Health().setUserPrivateKey(null).then((bool result){
       if (mounted) {
         if (result) {
           setState(() {
@@ -454,7 +454,7 @@ class _Covid19DebugKeysPanelState extends State<Covid19DebugKeysPanel> {
       RsaKeyHelper.verifyRsaKeyPair(PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey>(_rsaPublicKey, privateKey)).then((bool result) {
         if (mounted) {
           if (result == true) {
-            Health2().setUserPrivateKey(privateKey).then((success) {
+            Health().setUserPrivateKey(privateKey).then((success) {
               if (mounted) {
                 if (success) {
                   _rsaPrivateKey = privateKey;

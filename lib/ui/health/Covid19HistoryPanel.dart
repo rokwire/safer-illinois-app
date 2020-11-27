@@ -19,7 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
-import 'package:illinois/service/Health2.dart';
+import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/Localization.dart';
@@ -49,11 +49,11 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
     super.initState();
 
     NotificationService().subscribe(this, [
-      Health2.notifyUserUpdated,
-      Health2.notifyHistoryUpdated,
+      Health.notifyUserUpdated,
+      Health.notifyHistoryUpdated,
     ]);
 
-    _history = Covid19History.pastList(Health2().history);
+    _history = Covid19History.pastList(Health().history);
     _refreshHistory();
   }
 
@@ -65,15 +65,15 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
 
   @override
   void onNotification(String name, param) {
-    if (name == Health2.notifyUserUpdated) {
+    if (name == Health.notifyUserUpdated) {
       if (mounted) {
         setState(() {});
       }
     }
-    else if (name == Health2.notifyHistoryUpdated) {
+    else if (name == Health.notifyHistoryUpdated) {
       if (mounted) {
         setState(() {
-          _history = Covid19History.pastList(Health2().history);
+          _history = Covid19History.pastList(Health().history);
         });
       }
     }
@@ -84,10 +84,10 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
     if (_isRefreshing != true) {
       setState(() { _isRefreshing = true; });
       
-      Health2().refreshStatus().then((_) {
+      Health().refreshStatus().then((_) {
         if (mounted) {
           setState(() {
-            _history = Covid19History.pastList(Health2().history);
+            _history = Covid19History.pastList(Health().history);
             _isRefreshing = false;
           });
         }
@@ -101,7 +101,7 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
       setState(() {
         _isReposting = true;
       });
-      Health2().repostUser().whenComplete((){
+      Health().repostUser().whenComplete((){
         setState(() {
           _isReposting = false;
           showDialog(
@@ -397,7 +397,7 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
       setState(() {
         _isDeleting = true;
       });
-      Health2().clearHistory().then((bool result) {
+      Health().clearHistory().then((bool result) {
         setState(() {
           _isDeleting = false;
         });
@@ -490,7 +490,7 @@ class _Covid19HistoryEntryState extends State<_Covid19HistoryEntry> with SingleT
           Row(children: <Widget>[
             Expanded(child:
               Semantics(label: Localization().getStringEx("panel.health.covid19.history.label.self_reported.symptoms","symptoms: "), child:
-               Text(widget.historyEntry.blob?.symptomsDisplayString(rules: Health2().rules) ?? '', style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground,))
+               Text(widget.historyEntry.blob?.symptomsDisplayString(rules: Health().rules) ?? '', style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground,))
               )
             )
           ],);
@@ -671,7 +671,7 @@ class _Covid19HistoryEntryState extends State<_Covid19HistoryEntry> with SingleT
     String locationId = widget.historyEntry?.blob?.locationId;
     if(locationId!=null){
       setState(() => _isLoading = true);
-      Health2().loadLocation(locationId: locationId).then((location){
+      Health().loadLocation(locationId: locationId).then((location){
         setState(() => _isLoading = false);
         if(location!=null){
           NativeCommunicator().launchMap(

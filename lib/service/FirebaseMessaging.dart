@@ -25,7 +25,7 @@ import 'package:illinois/model/Health.dart';
 import 'package:illinois/model/UserProfile.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/FirebaseService.dart';
-import 'package:illinois/service/Health2.dart';
+import 'package:illinois/service/Health.dart';
 
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Config.dart';
@@ -98,8 +98,8 @@ class FirebaseMessaging with Service implements NotificationsListener {
       UserProfile.notifyRolesUpdated,
       UserProfile.notifyProfileUpdated,
       UserProfile.notifyProfileDeleted,
-      Health2.notifyUserUpdated,
-      Health2.notifyStatusUpdated,
+      Health.notifyUserUpdated,
+      Health.notifyStatusUpdated,
       LocalNotifications.notifySelected,
       AppLivecycle.notifyStateChanged,
     ]);
@@ -164,11 +164,11 @@ class FirebaseMessaging with Service implements NotificationsListener {
     else if (name == UserProfile.notifyProfileDeleted) {
       _updateSubscriptions();
     }
-    else if (name == Health2.notifyUserUpdated) {
+    else if (name == Health.notifyUserUpdated) {
       _updateHealthStatusSubscriptions();
     }
-    else if (name == Health2.notifyStatusUpdated) {
-      _updateHealthStatusSubscriptions(status: Health2().status);
+    else if (name == Health.notifyStatusUpdated) {
+      _updateHealthStatusSubscriptions(status: Health().status);
     }
     else if (name == LocalNotifications.notifySelected) {
       _processDataMessage(AppJson.decode(param));
@@ -489,7 +489,7 @@ class FirebaseMessaging with Service implements NotificationsListener {
   }
 
   void _processHealthStatusSubscriptions({ Covid19Status status, Set<String> subscribedTopics}) {
-    if (!Health2().isUserLoggedIn) {
+    if (!Health().isUserLoggedIn) {
       _processHealthStatusTopicsSubscriptions(statusTopics: null, subscribedTopics: subscribedTopics);
     }
     else if (status != null) {
