@@ -21,7 +21,7 @@ import 'package:archive/archive.dart';
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/material.dart';
 import 'package:illinois/service/Analytics.dart';
-import 'package:illinois/service/Health.dart';
+import 'package:illinois/service/Health2.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Styles.dart';
@@ -62,24 +62,19 @@ class _Covid19DebugKeysPanelState extends State<Covid19DebugKeysPanel> {
   void initState() {
 
     _rsaPublicKeyController = TextEditingController();
-    Health().loadRSAPublicKey().then((PointyCastle.PublicKey rsaPublicKey) {
-      if (mounted) {
-        setState(() {
-          _rsaPublicKey = rsaPublicKey;
-          _rsaPublicKeyController.text = (_rsaPublicKey != null) ? RsaKeyHelper.encodePublicKeyToPemPKCS1(_rsaPublicKey) : "- NA -";
-        });
-        _updateRsaKeysStatus();
-      }
-    });
-
     _rsaPrivateKeyController = TextEditingController();
-    Health().loadRSAPrivateKey().then((PointyCastle.PrivateKey rsaPrivateKey) {
+
+    Health2().refreshUser().then((_) {
       if (mounted) {
         setState(() {
-          _rsaPrivateKey = rsaPrivateKey;
+          _rsaPublicKey = Health2().user.publicKey;
+          _rsaPublicKeyController.text = (_rsaPublicKey != null) ? RsaKeyHelper.encodePublicKeyToPemPKCS1(_rsaPublicKey) : "- NA -";
+
+          _rsaPrivateKey = Health2().userPrivateKey;
           _rsaPrivateKeyController.text = (_rsaPrivateKey != null) ? RsaKeyHelper.encodePrivateKeyToPemPKCS1(_rsaPrivateKey) : "- NA -";
+
+          _rsaKeysStatus = _buildRSAKeysStatus();
         });
-        _updateRsaKeysStatus();
       }
     });
 
@@ -330,7 +325,7 @@ class _Covid19DebugKeysPanelState extends State<Covid19DebugKeysPanel> {
     ],);
   }
 
-  void _updateRsaKeysStatus() {
+  String _buildRSAKeysStatus() {
     String status;
     if ((_rsaPublicKey != null) && (_rsaPrivateKey != null)) {
       RsaKeyHelper.verifyRsaKeyPair(PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey>(_rsaPublicKey, _rsaPrivateKey)).then((bool result) {
@@ -345,21 +340,16 @@ class _Covid19DebugKeysPanelState extends State<Covid19DebugKeysPanel> {
         }
       });
     }
-    else if ((_rsaPublicKey == null) && (_rsaPrivateKey == null)) {
-      status = 'NA';
-    }
     else if ((_rsaPublicKey != null) && (_rsaPrivateKey == null)) {
       status = 'Missing private key';
     }
     else if ((_rsaPublicKey == null) && (_rsaPrivateKey != null)) {
       status = 'Missing public key';
     }
-
-    if (mounted && (status != null) && (_rsaKeysStatus != status)) {
-      setState(() {
-        _rsaKeysStatus = status;
-      });
+    else {
+      status = 'NA';
     }
+    return status;
   }
 
   void _onRefreshRSAKeys() {
@@ -368,7 +358,7 @@ class _Covid19DebugKeysPanelState extends State<Covid19DebugKeysPanel> {
       _refreshingRSAKeys = true;
     });
     
-    Health().refreshRSAKeys().then((PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey> rsaKeys) {
+    Health2().resetUserKeys().then((PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey> rsaKeys) {
       if (mounted) {
         setState(() {
           _refreshingRSAKeys = false;
@@ -379,26 +369,25 @@ class _Covid19DebugKeysPanelState extends State<Covid19DebugKeysPanel> {
             _rsaPrivateKey = rsaKeys.privateKey;
             _rsaPrivateKeyController.text = (_rsaPrivateKey != null) ? RsaKeyHelper.encodePrivateKeyToPemPKCS1(_rsaPrivateKey) : "- NA -";
 
-            _updateRsaKeysStatus();
+            _rsaKeysStatus = _buildRSAKeysStatus();
           }
           else {
             AppAlert.showDialogResult(context, Localization().getStringEx("panel.health.covid19.debug.keys.label.error.refres.title","Refresh Failed"));
           }
         });
-
       }
     });
   }
 
   void _onClearPrivateRSAKey() {
-    Health().setUserRSAPrivateKey(null).then((bool result){
+    Health2().setUserPrivateKey(null).then((bool result){
       if (mounted) {
         if (result) {
           setState(() {
             _rsaPrivateKey = null;
             _rsaPrivateKeyController.text = "- NA -";
+            _rsaKeysStatus = _buildRSAKeysStatus();
           });
-          _updateRsaKeysStatus();
         }
         else {
           AppAlert.showDialogResult(context, "Clear Failed");
@@ -465,12 +454,12 @@ class _Covid19DebugKeysPanelState extends State<Covid19DebugKeysPanel> {
       RsaKeyHelper.verifyRsaKeyPair(PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey>(_rsaPublicKey, privateKey)).then((bool result) {
         if (mounted) {
           if (result == true) {
-            Health().setUserRSAPrivateKey(privateKey).then((success) {
+            Health2().setUserPrivateKey(privateKey).then((success) {
               if (mounted) {
                 if (success) {
                   _rsaPrivateKey = privateKey;
                   _rsaPrivateKeyController.text = (_rsaPrivateKey != null) ? RsaKeyHelper.encodePrivateKeyToPemPKCS1(_rsaPrivateKey) : "- NA -";
-                  _updateRsaKeysStatus();
+                  _rsaKeysStatus = _buildRSAKeysStatus();
                 }
                 else {
                   AppAlert.showDialogResult(context, "Failed to transfer COVID-19 secret.");
