@@ -41,7 +41,7 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import "package:pointycastle/export.dart";
 
-class Health with Service implements NotificationsListener {
+class Health0 with Service implements NotificationsListener {
 
   static const String notifyCountyChanged           = "edu.illinois.rokwire.health.county.changed";
   static const String notifyStatusAvailable         = "edu.illinois.rokwire.health.status.available";
@@ -70,13 +70,13 @@ class Health with Service implements NotificationsListener {
 
   // Singletone Instance
 
-  static final Health _instance = Health._internal();
+  static final Health0 _instance = Health0._internal();
 
-  factory Health() {
+  factory Health0() {
     return _instance;
   }
 
-  Health._internal() {
+  Health0._internal() {
     _rulesCache = Map<String, HealthRulesSet>();
     _accessRulesCache =  Map<String, Map<String, dynamic>>();
   }

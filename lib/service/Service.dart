@@ -28,7 +28,6 @@ import 'package:illinois/service/DeepLink.dart';
 import 'package:illinois/service/Exposure.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/FlexUI.dart';
-import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Health2.dart';
 import 'package:illinois/service/HttpProxy.dart';
 import 'package:illinois/service/Localization.dart';
@@ -102,7 +101,6 @@ class Services {
     UserProfile(),
     Analytics(),
     FirebaseMessaging(),
-    Health(),
     Health2(),
     Exposure(),
     OSFHealth(),
