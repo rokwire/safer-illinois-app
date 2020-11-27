@@ -1135,10 +1135,35 @@ class Health2 with Service implements NotificationsListener {
 
   Future<bool> processManualTest(Covid19ManualTest test) async {
     if (test != null) {
-      Covid19History manualHistory = await _applyManualTestHistory(test);
+      Covid19History manualHistory = await _addHistory(await Covid19History.encryptedFromBlob(
+        dateUtc: test?.dateUtc,
+        type: Covid19HistoryType.manualTestNotVerified,
+        blob: Covid19HistoryBlob(
+          provider: test?.provider,
+          providerId: test?.providerId,
+          location: test?.location,
+          locationId: test?.locationId,
+          countyId: test?.countyId,
+          testType: test?.testType,
+          testResult: test?.testResult,
+        ),
+        locationId: test?.locationId,
+        countyId: test?.countyId,
+        image: test?.image,
+
+        publicKey: _servicePublicKey,
+      ));
+
       if (manualHistory != null) {
+        NotificationService().notify(notifyHistoryUpdated);
+  
+        Covid19Status previousStatus = _status;
+        await _rebuildStatus();
+  
         Analytics().logHealth(
           action: Analytics.LogHealthManualTestSubmittedAction,
+          status: _status?.blob?.healthStatus,
+          prevStatus: previousStatus?.blob?.healthStatus,
           attributes: {
             Analytics.LogHealthProviderName: test.provider,
             Analytics.LogHealthLocationName: test.location,
@@ -1151,33 +1176,22 @@ class Health2 with Service implements NotificationsListener {
     return false;
   }
 
-  Future<Covid19History> _applyManualTestHistory(Covid19ManualTest test) async {
-    return await _addHistory(await Covid19History.encryptedFromBlob(
-      dateUtc: test?.dateUtc,
-      type: Covid19HistoryType.manualTestNotVerified,
-      blob: Covid19HistoryBlob(
-        provider: test?.provider,
-        providerId: test?.providerId,
-        location: test?.location,
-        locationId: test?.locationId,
-        countyId: test?.countyId,
-        testType: test?.testType,
-        testResult: test?.testResult,
-      ),
-      locationId: test?.locationId,
-      countyId: test?.countyId,
-      image: test?.image,
-
-      publicKey: _servicePublicKey,
-    ));
-  }
-
   // Symptoms
 
   Future<bool> processSymptoms({Set<String> selected, DateTime dateUtc}) async {
     List<HealthSymptom> symptoms = HealthSymptomsGroup.getSymptoms(_rules?.symptoms?.groups, selected);
-    Covid19History history = await _applySymptomsHistory(symptoms, dateUtc: dateUtc ?? DateTime.now().toUtc());
+
+    Covid19History history = await _addHistory(await Covid19History.encryptedFromBlob(
+      dateUtc: dateUtc,
+      type: Covid19HistoryType.symptoms,
+      blob: Covid19HistoryBlob(
+        symptoms: symptoms,
+      ),
+      publicKey: _user?.publicKey
+    ));
+
     if (history != null) {
+      NotificationService().notify(notifyHistoryUpdated);
 
       Covid19Status previousStatus = _status;
       await _rebuildStatus();
@@ -1196,20 +1210,44 @@ class Health2 with Service implements NotificationsListener {
         attributes: {
           Analytics.LogHealthSymptomsName: analyticsSymptoms
       });
+
       return true;
     }
     return false;
   }
 
-  Future<Covid19History> _applySymptomsHistory(List<HealthSymptom> symptoms, { DateTime dateUtc }) async {
-    return await _addHistory(await Covid19History.encryptedFromBlob(
+  // Contact Trace
+
+  // Used only from debug panel, see Exposure.checkExposures
+  Future<bool> processContactTrace({DateTime dateUtc, int duration}) async {
+    
+    Covid19History history = await _addHistory(await Covid19History.encryptedFromBlob(
       dateUtc: dateUtc,
-      type: Covid19HistoryType.symptoms,
+      type: Covid19HistoryType.contactTrace,
       blob: Covid19HistoryBlob(
-        symptoms: symptoms,
+        traceDuration: duration,
       ),
       publicKey: _user?.publicKey
     ));
+
+    if (history != null) {
+      NotificationService().notify(notifyHistoryUpdated, null);
+
+      Covid19Status previousStatus = _status;
+      await _rebuildStatus();
+
+      Analytics().logHealth(
+        action: Analytics.LogHealthContactTraceProcessedAction,
+        status: previousStatus?.blob?.healthStatus,
+        prevStatus: _status?.blob?.healthStatus,
+        attributes: {
+          Analytics.LogHealthDurationName: duration,
+          Analytics.LogHealthExposureTimestampName: dateUtc?.toIso8601String(),
+      });
+
+      return true;
+    }
+    return false;
   }
 
   // Counties

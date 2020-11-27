@@ -17,7 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:illinois/utils/AppDateTime.dart';
-import 'package:illinois/service/Health.dart';
+import 'package:illinois/service/Health2.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
@@ -227,7 +227,7 @@ class _Covid19DebugTraceContactPanelState extends State<Covid19DebugTraceContact
       setState(() {
         _submitting = true;
       });
-      Health().processContactTrace(dateUtc: dateUtc, duration: duration * 60 * 1000 /* in milliseconds */).then((bool result) {
+      Health2().processContactTrace(dateUtc: dateUtc, duration: duration * 60 * 1000 /* in milliseconds */).then((bool result) {
         if (mounted) {
           setState(() {
             _submitting = false;
