@@ -29,7 +29,7 @@ import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/ui/health/Covid19HistoryPanel.dart';
 import 'package:illinois/ui/health/HealthHomePanel.dart';
 import 'package:illinois/ui/health/HealthStatusPanel.dart';
-import 'package:illinois/ui/health/Covid19StatusUpdatePanel.dart';
+import 'package:illinois/ui/health/HealthStatusUpdatePanel.dart';
 import 'package:illinois/ui/widgets/PopupDialog.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/service/Styles.dart';
@@ -225,7 +225,7 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
     String newStatus = Health().status?.blob?.status;
     if ((oldStatus != null) && (newStatus != null) && (oldStatus != newStatus)) {
       Timer(Duration(milliseconds: 100), () {
-        Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19StatusUpdatePanel(status: Health().status, previousHealthStatus: oldStatus,)));
+        Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthStatusUpdatePanel(status: Health().status, previousHealthStatus: oldStatus,)));
       });
     }
   }

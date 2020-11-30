@@ -26,17 +26,17 @@ import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/ui/widgets/StatusInfoDialog.dart';
 import 'package:illinois/utils/Utils.dart';
 
-class Covid19StatusUpdatePanel extends StatefulWidget {
+class HealthStatusUpdatePanel extends StatefulWidget {
   final HealthStatus status;
   final String previousHealthStatus;
 
-  Covid19StatusUpdatePanel({this.status, this.previousHealthStatus} );
+  HealthStatusUpdatePanel({this.status, this.previousHealthStatus} );
 
   @override
-  _Covid19StatusUpdatePanelState createState() => _Covid19StatusUpdatePanelState();
+  _HealthStatusUpdatePanelState createState() => _HealthStatusUpdatePanelState();
 }
 
-class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
+class _HealthStatusUpdatePanelState extends State<HealthStatusUpdatePanel> {
   String _updateDate;
 
   String _oldStatusType;
