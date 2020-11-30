@@ -29,15 +29,15 @@ import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/utils/Utils.dart';
 
-class Covid19AddTestResultPanel extends StatefulWidget {
+class HealthAddTestResultPanel extends StatefulWidget {
 
-  Covid19AddTestResultPanel();
+  HealthAddTestResultPanel();
 
   @override
-  _Covid19AddTestResultPanelState createState() => _Covid19AddTestResultPanelState();
+  _HealthAddTestResultPanelState createState() => _HealthAddTestResultPanelState();
 }
 
-class _Covid19AddTestResultPanelState extends State<Covid19AddTestResultPanel> implements NotificationsListener {
+class _HealthAddTestResultPanelState extends State<HealthAddTestResultPanel> implements NotificationsListener {
 
   bool __loading = false;
   bool get _loading => __loading;
