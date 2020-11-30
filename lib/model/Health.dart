@@ -479,7 +479,7 @@ class Covid19History implements Comparable<Covid19History> {
     }
   }
 
-  bool matchEvent(Covid19Event event) {
+  bool matchPendingEvent(HealthPendingEvent event) {
     if (event.isTest) {
       return this.isTest &&
         (this.dateUtc == event?.blob?.dateUtc) &&
@@ -559,10 +559,10 @@ class Covid19History implements Comparable<Covid19History> {
     return null;
   }
 
-  static bool listContainsEvent(List<Covid19History> history, Covid19Event event) {
+  static bool listContainsEvent(List<Covid19History> history, HealthPendingEvent event) {
     if ((history != null) && (event != null)) {
       for (Covid19History historyEntry in history) {
-         if (historyEntry.matchEvent(event)) {
+         if (historyEntry.matchPendingEvent(event)) {
            return true;
          }
       }
@@ -851,9 +851,9 @@ String covid19HistoryTypeToString(Covid19HistoryType value) {
 }
 
 ///////////////////////////////
-// Covid19Event
+// HealthPendingEvent
 
-class Covid19Event {
+class HealthPendingEvent {
   final String   id;
   final String   provider;
   final String   providerId;
@@ -864,12 +864,12 @@ class Covid19Event {
   final DateTime dateCreated;
   final DateTime dateUpdated;
 
-  Covid19EventBlob blob;
+  HealthPendingEventBlob blob;
 
-  Covid19Event({this.id, this.provider, this.providerId, this.userId, this.encryptedKey, this.encryptedBlob, this.processed, this.dateCreated, this.dateUpdated});
+  HealthPendingEvent({this.id, this.provider, this.providerId, this.userId, this.encryptedKey, this.encryptedBlob, this.processed, this.dateCreated, this.dateUpdated});
 
-  factory Covid19Event.fromJson(Map<String, dynamic> json) {
-    return (json != null) ? Covid19Event(
+  factory HealthPendingEvent.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthPendingEvent(
       id:            AppJson.stringValue(json['id']),
       provider:      AppJson.stringValue(json['provider']),
       providerId:    AppJson.stringValue(json['provider_id']),
@@ -896,16 +896,16 @@ class Covid19Event {
     return json;
   }
 
-  static Future<Covid19Event> decryptedFromJson(Map<String, dynamic> json, PrivateKey privateKey) async {
+  static Future<HealthPendingEvent> decryptedFromJson(Map<String, dynamic> json, PrivateKey privateKey) async {
     try {
-      Covid19Event value = Covid19Event.fromJson(json);
+      HealthPendingEvent value = HealthPendingEvent.fromJson(json);
       if ((value != null) && (value.encryptedKey != null) && (value.encryptedBlob != null) && (privateKey != null)) {
         String blobString = await compute(_decryptBlob, {
           'encryptedKey': value.encryptedKey,
           'encryptedBlob': value.encryptedBlob,
           'privateKey': privateKey
         });
-        value.blob = Covid19EventBlob.fromJson(AppJson.decodeMap(blobString));
+        value.blob = HealthPendingEventBlob.fromJson(AppJson.decodeMap(blobString));
       }
       return value;
     }
@@ -913,12 +913,12 @@ class Covid19Event {
     return null;
   }
 
-  static Future<List<Covid19Event>> listFromJson(List<dynamic> json, PrivateKey privateKey) async {
-    List<Covid19Event> values;
+  static Future<List<HealthPendingEvent>> listFromJson(List<dynamic> json, PrivateKey privateKey) async {
+    List<HealthPendingEvent> values;
     if (json != null) {
       values = [];
       for (dynamic entry in json) {
-          Covid19Event value = await Covid19Event.decryptedFromJson(entry, privateKey);
+          HealthPendingEvent value = await HealthPendingEvent.decryptedFromJson(entry, privateKey);
           values.add(value);
       }
     }
@@ -935,9 +935,9 @@ class Covid19Event {
 }
 
 ///////////////////////////////
-// Covid19EventBlob
+// HealthPendingEventBlob
 
-class Covid19EventBlob {
+class HealthPendingEventBlob {
   final DateTime dateUtc;
 
   final String   testType;
@@ -946,10 +946,10 @@ class Covid19EventBlob {
   final String   actionType;
   final dynamic  actionText;
 
-  Covid19EventBlob({this.dateUtc, this.testType, this.testResult, this.actionType, this.actionText});
+  HealthPendingEventBlob({this.dateUtc, this.testType, this.testResult, this.actionType, this.actionText});
 
-  factory Covid19EventBlob.fromJson(Map<String, dynamic> json) {
-    return (json != null) ? Covid19EventBlob(
+  factory HealthPendingEventBlob.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthPendingEventBlob(
       dateUtc:       healthDateTimeFromString(AppJson.stringValue(json['Date'])),
       testType:      AppJson.stringValue(json['TestName']),
       testResult:    AppJson.stringValue(json['Result']),

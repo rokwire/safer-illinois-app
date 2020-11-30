@@ -66,7 +66,7 @@ class Health with Service implements NotificationsListener {
   Directory _appDocumentsDir;
   PublicKey _servicePublicKey;
   HealthStatus _previousStatus;
-  List<Covid19Event> _processedEvents;
+  List<HealthPendingEvent> _processedEvents;
   Future<void> _refreshFuture;
   _RefreshOptions _refreshOptions;
   DateTime _pausedDateTime;
@@ -799,7 +799,7 @@ class Health with Service implements NotificationsListener {
       historyUpdated = true;
     }
 
-    List<Covid19Event> processedEvents = await _processPendingEvents();
+    List<HealthPendingEvent> processedEvents = await _processPendingEvents();
     if ((processedEvents != null) && (0 < processedEvents.length)) {
       _applyProcessedEvents(processedEvents);
       historyUpdated = true;
@@ -913,7 +913,7 @@ class Health with Service implements NotificationsListener {
 
   // Waiting on table
 
-  Future<List<Covid19Event>> _loadPendingEvents({bool processed}) async {
+  Future<List<HealthPendingEvent>> _loadPendingEvents({bool processed}) async {
     if (this._isUserReadAuthenticated && (Config().healthUrl != null)) {
       String url = "${Config().healthUrl}/covid19/ctests";
       String params = "";
@@ -929,12 +929,12 @@ class Health with Service implements NotificationsListener {
       Response response = await Network().get(url, auth: NetworkAuth.User);
       String responseString = (response?.statusCode == 200) ? response.body : null;
       List<dynamic> responseJson = (responseString != null) ? AppJson.decodeList(responseString) : null;
-      return (responseJson != null) ? await Covid19Event.listFromJson(responseJson, _userPrivateKey) : null;
+      return (responseJson != null) ? await HealthPendingEvent.listFromJson(responseJson, _userPrivateKey) : null;
     }
     return null;
   }
 
-  Future<bool> _markEventAsProcessed(Covid19Event event) async {
+  Future<bool> _markPendingEventAsProcessed(HealthPendingEvent event) async {
     String url = (this._isUserAuthenticated && Config().healthUrl != null) ? "${Config().healthUrl}/covid19/ctests/${event.id}" : null;
     String post = AppJson.encode({'processed' : true});
     Response response = (url != null) ? await Network().put(url, body:post, auth: NetworkAuth.User) : null;
@@ -946,21 +946,21 @@ class Health with Service implements NotificationsListener {
     }
   }
 
-  Future<List<Covid19Event>> _processPendingEvents() async {
-    List<Covid19Event> result;
-    List<Covid19Event> events = this._isUserWriteAuthenticated ? await _loadPendingEvents(processed: false) : null;
+  Future<List<HealthPendingEvent>> _processPendingEvents() async {
+    List<HealthPendingEvent> result;
+    List<HealthPendingEvent> events = this._isUserWriteAuthenticated ? await _loadPendingEvents(processed: false) : null;
     if ((events != null) && (0 < events?.length)) {
-      for (Covid19Event event in events) {
+      for (HealthPendingEvent event in events) {
         if (Covid19History.listContainsEvent(_history, event)) {
           // mark it as processed without duplicating the histyr entry
-          await _markEventAsProcessed(event);
+          await _markPendingEventAsProcessed(event);
         }
         else {
           // add history entry and mark as processed
-          if (await _applyEventInHistory(event)) {
-            await _markEventAsProcessed(event);
+          if (await _applyPendingEventInHistory(event)) {
+            await _markPendingEventAsProcessed(event);
             if (result == null) {
-              result = List<Covid19Event>();
+              result = List<HealthPendingEvent>();
             }
             result.add(event);
           }
@@ -970,7 +970,7 @@ class Health with Service implements NotificationsListener {
     return result;
   }
 
-  Future<bool> _applyEventInHistory(Covid19Event event) async {
+  Future<bool> _applyPendingEventInHistory(HealthPendingEvent event) async {
     Covid19History historyEntry;
     if (event.isTest) {
       historyEntry = await _addHistory(await Covid19History.encryptedFromBlob(
@@ -999,7 +999,7 @@ class Health with Service implements NotificationsListener {
     return (historyEntry != null);
   }
 
-  void _applyProcessedEvents(List<Covid19Event> processedEvents) {
+  void _applyProcessedEvents(List<HealthPendingEvent> processedEvents) {
     if ((processedEvents != null) && (0 < processedEvents.length)) {
       if (_processedEvents != null) {
         _processedEvents.addAll(processedEvents);
@@ -1014,7 +1014,7 @@ class Health with Service implements NotificationsListener {
     if ((_processedEvents != null) && (0 < _processedEvents.length)) {
 
       int exposureTestReportDays = Config().settings['covid19ExposureTestReportDays'];
-      for (Covid19Event event in _processedEvents) {
+      for (HealthPendingEvent event in _processedEvents) {
         if (event.isTest) {
           Covid19History previousTest = Covid19History.mostRecentTest(_history, beforeDateUtc: event.blob?.dateUtc, onPosition: 2);
           int score = await Exposure().evalTestResultExposureScoring(previousTestDateUtc: previousTest?.dateUtc);

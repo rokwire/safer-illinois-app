@@ -199,7 +199,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
               fontSize: 16.0,
               textColor: Styles().colors.fillColorPrimary,
               borderColor: Styles().colors.fillColorPrimary,
-              onTap: _onTapCreateCovid19Event)),
+              onTap: _onTapCreateEvent)),
       Padding(
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
           child: RoundedButton(
@@ -370,7 +370,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
       Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19DebugKeysPanel()));
   }
 
-  void _onTapCreateCovid19Event() {
+  void _onTapCreateEvent() {
       Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19DebugCreateEventPanel()));
   }
 
