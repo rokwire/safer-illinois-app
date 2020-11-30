@@ -27,15 +27,15 @@ import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:sprintf/sprintf.dart';
 
-class Covid19GuidelinesPanel extends StatefulWidget {
+class HealthGuidelinesPanel extends StatefulWidget {
 
-  Covid19GuidelinesPanel({Key key}) : super(key: key);
+  HealthGuidelinesPanel({Key key}) : super(key: key);
 
   @override
-  _Covid19GuidelinesPanelState createState() => _Covid19GuidelinesPanelState();
+  _HealthGuidelinesPanelState createState() => _HealthGuidelinesPanelState();
 }
 
-class _Covid19GuidelinesPanelState extends State<Covid19GuidelinesPanel> implements NotificationsListener {
+class _HealthGuidelinesPanelState extends State<HealthGuidelinesPanel> implements NotificationsListener {
   
   LinkedHashMap<String, HealthCounty> _counties;
   List<HealthGuidelineItem> _statusGuidelines;

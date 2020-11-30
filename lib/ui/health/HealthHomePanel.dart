@@ -33,7 +33,7 @@ import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/WebPanel.dart';
 import 'package:illinois/ui/health/HealthAddTestResultPanel.dart';
 import 'package:illinois/ui/health/HealthCareTeamPanel.dart';
-import 'package:illinois/ui/health/Covid19GuidelinesPanel.dart';
+import 'package:illinois/ui/health/HealthGuidelinesPanel.dart';
 import 'package:illinois/ui/health/HealthStatusPanel.dart';
 import 'package:illinois/ui/health/HealthSymptomsPanel.dart';
 import 'package:illinois/ui/health/Covid19TestLocations.dart';
@@ -639,7 +639,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
   void _onTapCountryGuidelines() {
     if(Connectivity().isNotOffline) {
       Analytics.instance.logSelect(target: "COVID-19 County Guidlines");
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19GuidelinesPanel()));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthGuidelinesPanel()));
     } else{
       AppAlert.showOfflineMessage(context);
     }
