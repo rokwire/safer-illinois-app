@@ -995,16 +995,16 @@ class HealthPendingEventBlob {
 
 
 ///////////////////////////////
-// Covid19OSFTest
+// HealthOSFTest
 
-class Covid19OSFTest {
+class HealthOSFTest {
   final String provider;
   final String providerId;
   final String testType;
   final String testResult;
   final DateTime dateUtc;
 
-  Covid19OSFTest({this.provider, this.providerId,  this.testType, this.testResult, this.dateUtc,});
+  HealthOSFTest({this.provider, this.providerId,  this.testType, this.testResult, this.dateUtc,});
 }
 
 
