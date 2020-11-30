@@ -26,10 +26,10 @@ import 'package:illinois/service/Service.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/NotificationService.dart';
-import 'package:illinois/ui/health/Covid19HistoryPanel.dart';
-import 'package:illinois/ui/health/Covid19InfoCenterPanel.dart';
-import 'package:illinois/ui/health/Covid19StatusPanel.dart';
-import 'package:illinois/ui/health/Covid19StatusUpdatePanel.dart';
+import 'package:illinois/ui/health/HealthHistoryPanel.dart';
+import 'package:illinois/ui/health/HealthHomePanel.dart';
+import 'package:illinois/ui/health/HealthStatusPanel.dart';
+import 'package:illinois/ui/health/HealthStatusUpdatePanel.dart';
 import 'package:illinois/ui/widgets/PopupDialog.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/service/Styles.dart';
@@ -104,7 +104,7 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
     Analytics().accessibilityState = MediaQuery.of(context).accessibleNavigation;
 
     return WillPopScope(
-        child: Covid19InfoCenterPanel(),
+        child: HealthHomePanel(),
         onWillPop: _onWillPop);
   }
 
@@ -214,18 +214,18 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
 
     String notificationType = AppJson.stringValue(notification['health.covid19.notification.type']);
     if (notificationType == 'process-pending-tests') {
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19HistoryPanel()));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthHistoryPanel()));
     } else if(notificationType == 'status-changed'){
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19StatusPanel()));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthStatusPanel()));
     }
   }
 
   void _presentHealthStatusUpdate() {
-    String oldStatus = Health().previousStatus?.blob?.healthStatus;
-    String newStatus = Health().status?.blob?.healthStatus;
+    String oldStatus = Health().previousStatus?.blob?.status;
+    String newStatus = Health().status?.blob?.status;
     if ((oldStatus != null) && (newStatus != null) && (oldStatus != newStatus)) {
       Timer(Duration(milliseconds: 100), () {
-        Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19StatusUpdatePanel(status: Health().status, previousHealthStatus: oldStatus,)));
+        Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthStatusUpdatePanel(status: Health().status, previousHealthStatus: oldStatus,)));
       });
     }
   }
@@ -241,7 +241,7 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
           (healthStatusUri.authority == uri.authority) &&
           (healthStatusUri.path == uri.path))
       {
-        Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19StatusPanel()));
+        Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthStatusPanel()));
       }
     }
   }

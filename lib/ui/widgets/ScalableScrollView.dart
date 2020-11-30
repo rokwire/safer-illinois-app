@@ -15,7 +15,7 @@
  */
 
 import 'package:flutter/cupertino.dart';
-import 'package:illinois/ui/health/onboarding/Covid19OnBoardingConsentPanel.dart';
+import 'package:illinois/ui/onboarding/OnboardingHealthConsentPanel.dart';
 
 class ScalableScrollView extends StatefulWidget{
   final Widget bottomNotScrollableWidget;

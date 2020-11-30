@@ -458,7 +458,7 @@ class FirebaseMessaging with Service implements NotificationsListener {
     }
   }
 
-  void _updateHealthStatusSubscriptions({ Covid19Status status}) {
+  void _updateHealthStatusSubscriptions({ HealthStatus status}) {
     if (hasToken) {
       _processHealthStatusSubscriptions(status: status, subscribedTopics: Storage().firebaseSubscriptionTopis);
     }
@@ -488,7 +488,7 @@ class FirebaseMessaging with Service implements NotificationsListener {
     }
   }
 
-  void _processHealthStatusSubscriptions({ Covid19Status status, Set<String> subscribedTopics}) {
+  void _processHealthStatusSubscriptions({ HealthStatus status, Set<String> subscribedTopics}) {
     if (!Health().isUserLoggedIn) {
       _processHealthStatusTopicsSubscriptions(statusTopics: null, subscribedTopics: subscribedTopics);
     }

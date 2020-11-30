@@ -30,14 +30,14 @@ import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/service/UserProfile.dart';
-import 'package:illinois/ui/health/Covid19HistoryPanel.dart';
-import 'package:illinois/ui/health/Covid19TransferEncryptionKeyPanel.dart';
-import 'package:illinois/ui/health/onboarding/Covid19OnBoardingResidentInfoPanel.dart';
+import 'package:illinois/ui/health/HealthHistoryPanel.dart';
+import 'package:illinois/ui/settings2/Settings2TransferEncryptionKeyPanel.dart';
+import 'package:illinois/ui/onboarding/OnboardingResidentInfoPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginPhoneVerifyPanel.dart';
 import 'package:illinois/ui/settings2/Settings2ConsentPanel.dart';
 import 'package:illinois/ui/settings2/Settings2GovernmentIdPanel.dart';
 import 'package:illinois/ui/settings2/Settings2ExposureNotificationsPanel.dart';
-import 'package:illinois/ui/settings/debug/SettingsDebugPanel.dart';
+import 'package:illinois/ui/settings/debug/SettingsDebugHomePanel.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/RibbonButton.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
@@ -552,7 +552,7 @@ class _Settings2HomePanelState extends State<Settings2HomePanel> implements Noti
     }
     else {
       Navigator.push(context, CupertinoPageRoute(
-          builder: (context) => Covid19OnBoardingResidentInfoPanel(
+          builder: (context) => OnboardingResidentInfoPanel(
             onSucceed: (Map<String,dynamic> data){
               Navigator.pushReplacement(context, CupertinoPageRoute(builder: (context) => Settings2GovernmentIdPanel(initialData: data,)));
             },
@@ -596,12 +596,12 @@ class _Settings2HomePanelState extends State<Settings2HomePanel> implements Noti
 
   void _onEventHistoryTapped(){
     Analytics.instance.logSelect(target: "COVID-19 Test History");
-    Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19HistoryPanel()));
+    Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthHistoryPanel()));
   }
 
   void _onTransferKeyTapped() {
     Analytics.instance.logSelect(target: "Transfer Your COVID-19 Encryption Key");
-    Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19TransferEncryptionKeyPanel()));
+    Navigator.push(context, CupertinoPageRoute(builder: (context) => Settings2TransferEncryptionKeyPanel()));
   }
 
   void _onExposureNotificationsTapped(){
@@ -820,7 +820,7 @@ class _DebugContainerState extends State<_DebugContainer> {
   void _onEnterPin(String pin){
     if (this.pinOfTheDay == pin) {
       Navigator.pop(context);
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsDebugPanel()));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsDebugHomePanel()));
     } else {
       AppToast.show("Invalid pin");
     }

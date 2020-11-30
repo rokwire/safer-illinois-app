@@ -32,20 +32,20 @@ import "package:pointycastle/export.dart";
 
 
 ////////////////////////////////
-// Covid19Status
+// HealthStatus
 
-class Covid19Status {
+class HealthStatus {
   final String id;
   final String userId;
   final DateTime dateUtc;
   final String encryptedKey;
   final String encryptedBlob;
-  Covid19StatusBlob blob;
+  HealthStatusBlob blob;
 
-  Covid19Status({this.id, this.userId, this.dateUtc, this.encryptedKey, this.encryptedBlob, this.blob});
+  HealthStatus({this.id, this.userId, this.dateUtc, this.encryptedKey, this.encryptedBlob, this.blob});
 
-  factory Covid19Status.fromJson(Map<String, dynamic> json) {
-    return (json != null) ? Covid19Status(
+  factory HealthStatus.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthStatus(
       id: json['id'],
       userId: json['user_id'],
       dateUtc: healthDateTimeFromString(json['date']),
@@ -65,7 +65,7 @@ class Covid19Status {
   }
 
   bool operator ==(o) {
-    return (o is Covid19Status) &&
+    return (o is HealthStatus) &&
       (o.id == id) &&
       (o.userId == userId) &&
       (o.dateUtc == dateUtc) &&
@@ -80,16 +80,16 @@ class Covid19Status {
     (encryptedKey?.hashCode ?? 0) ^
     (encryptedBlob?.hashCode ?? 0);
 
-  static Future<Covid19Status> decryptedFromJson(Map<String, dynamic> json, PrivateKey privateKey) async {
+  static Future<HealthStatus> decryptedFromJson(Map<String, dynamic> json, PrivateKey privateKey) async {
     try {
-      Covid19Status value = Covid19Status.fromJson(json);
+      HealthStatus value = HealthStatus.fromJson(json);
       if ((value != null) && (value.encryptedKey != null) && (value.encryptedBlob != null) && (privateKey != null)) {
         String blobString = await compute(_decryptBlob, {
           'encryptedKey': value.encryptedKey,
           'encryptedBlob': value.encryptedBlob,
           'privateKey': privateKey
         });
-        value.blob = Covid19StatusBlob.fromJson(AppJson.decodeMap(blobString));
+        value.blob = HealthStatusBlob.fromJson(AppJson.decodeMap(blobString));
       }
       return value;
     }
@@ -97,12 +97,12 @@ class Covid19Status {
     return null;
   }
 
-  Future<Covid19Status> encrypted(PublicKey publicKey) async {
+  Future<HealthStatus> encrypted(PublicKey publicKey) async {
     Map<String, dynamic> encrypted = await compute(_encryptBlob, {
       'blob': AppJson.encode(blob?.toJson()),
       'publicKey': publicKey
     });
-    return Covid19Status(
+    return HealthStatus(
       id: id,
       userId: userId,
       dateUtc: dateUtc,
@@ -113,11 +113,11 @@ class Covid19Status {
 }
 
 ///////////////////////////////
-// Covid19StatusBlob
+// HealthStatusBlob
 
-class Covid19StatusBlob {
+class HealthStatusBlob {
 
-  final String healthStatus;
+  final String status;
   final int priority;
 
   final String nextStep;
@@ -132,16 +132,16 @@ class Covid19StatusBlob {
 
   final dynamic fcmTopic;
 
-  final Covid19HistoryBlob historyBlob;
+  final HealthHistoryBlob historyBlob;
 
   static const String _nextStepDateMacro = '{next_step_date}';
   static const String _nextStepDateFormat = 'EEEE, MMM d';
 
-  Covid19StatusBlob({this.healthStatus, this.priority, this.nextStep, this.nextStepHtml, this.nextStepDateUtc, this.eventExplanation, this.eventExplanationHtml, this.reason, this.warning, this.fcmTopic, this.historyBlob});
+  HealthStatusBlob({this.status, this.priority, this.nextStep, this.nextStepHtml, this.nextStepDateUtc, this.eventExplanation, this.eventExplanationHtml, this.reason, this.warning, this.fcmTopic, this.historyBlob});
 
-  factory Covid19StatusBlob.fromJson(Map<String, dynamic> json) {
-    return (json != null) ? Covid19StatusBlob(
-      healthStatus: json['health_status'],
+  factory HealthStatusBlob.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthStatusBlob(
+      status: json['health_status'],
       priority: json['priority'],
       nextStep: json['next_step'],
       nextStepHtml: json['next_step_html'],
@@ -151,13 +151,13 @@ class Covid19StatusBlob {
       reason: json['reason'],
       warning: json['warning'],
       fcmTopic: json['fcm_topic'],
-      historyBlob: Covid19HistoryBlob.fromJson(json['history_blob']),
+      historyBlob: HealthHistoryBlob.fromJson(json['history_blob']),
     ) : null;
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'health_status': healthStatus,
+      'health_status': status,
       'priority': priority,
       'next_step': nextStep,
       'next_step_html': nextStepHtml,
@@ -172,8 +172,8 @@ class Covid19StatusBlob {
   }
 
   bool operator ==(o) {
-    return (o is Covid19StatusBlob) &&
-      (o.healthStatus == healthStatus) &&
+    return (o is HealthStatusBlob) &&
+      (o.status == status) &&
       (o.priority == priority) &&
       (o.nextStep == nextStep) &&
       (o.nextStepHtml == nextStepHtml) &&
@@ -187,7 +187,7 @@ class Covid19StatusBlob {
   }
 
   int get hashCode =>
-    (healthStatus?.hashCode ?? 0) ^
+    (status?.hashCode ?? 0) ^
     (priority?.hashCode ?? 0) ^
     (nextStep?.hashCode ?? 0) ^
     (nextStepHtml?.hashCode ?? 0) ^
@@ -264,15 +264,15 @@ class Covid19StatusBlob {
   }
 
   String get localizedHealthStatus {
-    return localizedHealthStatusFromKey(healthStatus);
+    return localizedHealthStatusFromKey(status);
   }
 
   String get localizedHealthStatusType {
-    return localizedHealthStatusTypeFromKey(healthStatus);
+    return localizedHealthStatusTypeFromKey(status);
   }
 
   String get localizedHealthStatusDescription {
-    return localizedHealthStatusDescriptionFromKey(healthStatus);
+    return localizedHealthStatusDescriptionFromKey(status);
   }
 
   static String localizedHealthStatusFromKey(String key) {
@@ -291,33 +291,28 @@ class Covid19StatusBlob {
 }
 
 ///////////////////////////////
-// Covid19HealthStatus
+// HealthStatus
 
-const String kCovid19HealthStatusRed       = 'red';
-const String kCovid19HealthStatusOrange    = 'orange';
-const String kCovid19HealthStatusYellow    = 'yellow';
-const String kCovid19HealthStatusGreen     = 'green';
-const String kCovid19HealthStatusUnchanged = 'no change';
-
-bool covid19HealthStatusIsValid(String status) {
-  return (status != null) && (status != kCovid19HealthStatusUnchanged);
-}
+const String kHealthStatusRed       = 'red';
+const String kHealthStatusOrange    = 'orange';
+const String kHealthStatusYellow    = 'yellow';
+const String kHealthStatusGreen     = 'green';
 
 ////////////////////////////////
-// Covid19Access
+// Building Access
 
-const String kCovid19AccessGranted   = 'granted';
-const String kCovid19AccessDenied    = 'denied';
+const String kBuildingAccessGranted   = 'granted';
+const String kBuildingAccessDenied    = 'denied';
 
 
 ///////////////////////////////
-// Covid19History
+// HealthHistory
 
-class Covid19History implements Comparable<Covid19History> {
+class HealthHistory implements Comparable<HealthHistory> {
   final String id;
   final String userId;
   final DateTime dateUtc;
-  final Covid19HistoryType type;
+  final HealthHistoryType type;
 
   final String encryptedKey;
   final String encryptedBlob;
@@ -327,16 +322,16 @@ class Covid19History implements Comparable<Covid19History> {
   final String encryptedImageKey;
   final String encryptedImageBlob;
 
-  Covid19HistoryBlob blob;
+  HealthHistoryBlob blob;
 
-  Covid19History({this.id, this.userId, this.dateUtc, this.type, this.encryptedKey, this.encryptedBlob, this.locationId, this.countyId, this.encryptedImageKey, this.encryptedImageBlob });
+  HealthHistory({this.id, this.userId, this.dateUtc, this.type, this.encryptedKey, this.encryptedBlob, this.locationId, this.countyId, this.encryptedImageKey, this.encryptedImageBlob });
 
-  factory Covid19History.fromJson(Map<String, dynamic> json) {
-    return (json != null) ? Covid19History(
+  factory HealthHistory.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthHistory(
       id: json['id'],
       userId: json['user_id'],
       dateUtc: healthDateTimeFromString(json['date']),
-      type: covid19HistoryTypeFromString(json['type']),
+      type: healthHistoryTypeFromString(json['type']),
 
       encryptedKey: json['encrypted_key'],
       encryptedBlob: json['encrypted_blob'],
@@ -353,7 +348,7 @@ class Covid19History implements Comparable<Covid19History> {
       'id': id,
       'user_id': userId,
       'date': healthDateTimeToString(dateUtc),
-      'type': covid19HistoryTypeToString(type),
+      'type': healthHistoryTypeToString(type),
 
       'encrypted_key': encryptedKey,
       'encrypted_blob': encryptedBlob,
@@ -366,7 +361,7 @@ class Covid19History implements Comparable<Covid19History> {
   }
 
   bool operator ==(o) {
-    return (o is Covid19History) &&
+    return (o is HealthHistory) &&
       (o.id == id) &&
       (o.userId == userId) &&
       (o.dateUtc == dateUtc) &&
@@ -395,7 +390,7 @@ class Covid19History implements Comparable<Covid19History> {
     (encryptedImageKey?.hashCode ?? 0) ^
     (encryptedImageBlob?.hashCode ?? 0);
 
-  int compareTo(Covid19History other) {
+  int compareTo(HealthHistory other) {
     DateTime otherDateUtc = other?.dateUtc;
     if (dateUtc != null) {
       return (otherDateUtc != null) ? dateUtc.compareTo(otherDateUtc) : 1; // null is before an object
@@ -405,9 +400,9 @@ class Covid19History implements Comparable<Covid19History> {
     }
   }
 
-  static Future<Covid19History> decryptedFromJson(Map<String, dynamic> json, Map<Covid19HistoryType, PrivateKey> privateKeys ) async {
+  static Future<HealthHistory> decryptedFromJson(Map<String, dynamic> json, Map<HealthHistoryType, PrivateKey> privateKeys ) async {
     try {
-      Covid19History value = Covid19History.fromJson(json);
+      HealthHistory value = HealthHistory.fromJson(json);
       PrivateKey privateKey = privateKeys[value.type];
       if ((value != null) && (value.encryptedKey != null) && (value.encryptedBlob != null) && (privateKey != null)) {
         String blobString = await compute(_decryptBlob, {
@@ -415,7 +410,7 @@ class Covid19History implements Comparable<Covid19History> {
           'encryptedBlob': value.encryptedBlob,
           'privateKey': privateKey
         });
-        value.blob = Covid19HistoryBlob.fromJson(AppJson.decodeMap(blobString));
+        value.blob = HealthHistoryBlob.fromJson(AppJson.decodeMap(blobString));
       }
       return value;
     }
@@ -423,7 +418,7 @@ class Covid19History implements Comparable<Covid19History> {
     return null;
   }
 
-  static Future<Covid19History> encryptedFromBlob({String id, String userId, DateTime dateUtc, Covid19HistoryType type, Covid19HistoryBlob blob, String locationId, String countyId, String image, PublicKey publicKey}) async {
+  static Future<HealthHistory> encryptedFromBlob({String id, String userId, DateTime dateUtc, HealthHistoryType type, HealthHistoryBlob blob, String locationId, String countyId, String image, PublicKey publicKey}) async {
     Map<String, dynamic> encrypted = await compute(_encryptBlob, {
       'blob': AppJson.encode(blob?.toJson()),
       'publicKey': publicKey
@@ -432,7 +427,7 @@ class Covid19History implements Comparable<Covid19History> {
       'blob': image,
       'publicKey': publicKey
     }) : null;
-    return Covid19History(
+    return HealthHistory(
       id: id,
       userId: userId,
       dateUtc: dateUtc,
@@ -447,31 +442,31 @@ class Covid19History implements Comparable<Covid19History> {
   }
 
   bool get isTest {
-    return (type == Covid19HistoryType.test) || (type == Covid19HistoryType.manualTestNotVerified) || (type == Covid19HistoryType.manualTestVerified);
+    return (type == HealthHistoryType.test) || (type == HealthHistoryType.manualTestNotVerified) || (type == HealthHistoryType.manualTestVerified);
   }
 
   bool get isManualTest {
-    return (type == Covid19HistoryType.manualTestNotVerified) || (type == Covid19HistoryType.manualTestVerified);
+    return (type == HealthHistoryType.manualTestNotVerified) || (type == HealthHistoryType.manualTestVerified);
   }
 
   bool get isTestVerified {
-    return (type == Covid19HistoryType.test) || (type == Covid19HistoryType.manualTestVerified);
+    return (type == HealthHistoryType.test) || (type == HealthHistoryType.manualTestVerified);
   }
 
   bool get canTestUpdateStatus {
-    return (type == Covid19HistoryType.test) || (type == Covid19HistoryType.manualTestVerified);
+    return (type == HealthHistoryType.test) || (type == HealthHistoryType.manualTestVerified);
   }
 
   bool get isSymptoms {
-    return (type == Covid19HistoryType.symptoms);
+    return (type == HealthHistoryType.symptoms);
   }
 
   bool get isContactTrace {
-    return (type == Covid19HistoryType.contactTrace);
+    return (type == HealthHistoryType.contactTrace);
   }
 
   bool get isAction {
-    return (type == Covid19HistoryType.action);
+    return (type == HealthHistoryType.action);
   }
 
   DateTime get dateMidnightLocal {
@@ -484,7 +479,7 @@ class Covid19History implements Comparable<Covid19History> {
     }
   }
 
-  bool matchEvent(Covid19Event event) {
+  bool matchPendingEvent(HealthPendingEvent event) {
     if (event.isTest) {
       return this.isTest &&
         (this.dateUtc == event?.blob?.dateUtc) &&
@@ -506,31 +501,31 @@ class Covid19History implements Comparable<Covid19History> {
     }
   }
 
-  static Future<List<Covid19History>> listFromJson(List<dynamic> json, Map<Covid19HistoryType, PrivateKey> privateKeys) async {
-    List<Covid19History> values;
+  static Future<List<HealthHistory>> listFromJson(List<dynamic> json, Map<HealthHistoryType, PrivateKey> privateKeys) async {
+    List<HealthHistory> values;
     if (json != null) {
       values = [];
       for (dynamic entry in json) {
-        Covid19History value = await Covid19History.decryptedFromJson((entry as Map)?.cast<String, dynamic>(), privateKeys);
+        HealthHistory value = await HealthHistory.decryptedFromJson((entry as Map)?.cast<String, dynamic>(), privateKeys);
         values.add(value);
       }
     }
     return values;
   }
 
-  static List<dynamic> listToJson(List<Covid19History> values) {
+  static List<dynamic> listToJson(List<HealthHistory> values) {
     List<dynamic> json;
     if (values != null) {
       json = [];
-      for (Covid19History value in values) {
+      for (HealthHistory value in values) {
         json.add(value?.toJson());
       }
     }
     return json;
   }
 
-  static void sortListDescending(List<Covid19History> history) {
-    history?.sort((Covid19History entry1, Covid19History entry2) {
+  static void sortListDescending(List<HealthHistory> history) {
+    history?.sort((HealthHistory entry1, HealthHistory entry2) {
       if (entry1 != null) {
         return entry1.compareTo(entry2) * -1;
       }
@@ -540,10 +535,10 @@ class Covid19History implements Comparable<Covid19History> {
     });
   }
 
-  static bool updateInList(List<Covid19History> history, Covid19History entry) {
+  static bool updateInList(List<HealthHistory> history, HealthHistory entry) {
     if ((history != null) && (entry != null)) {
       for (int index = 0; index < history.length; index++) {
-        Covid19History historyEntry = history[index];
+        HealthHistory historyEntry = history[index];
         if (historyEntry?.id == entry.id) {
           history[index] = entry;
           return true;
@@ -553,10 +548,10 @@ class Covid19History implements Comparable<Covid19History> {
     return false;
   }
 
-  static Covid19History traceInList(List<Covid19History> history, { String tek }) {
+  static HealthHistory traceInList(List<HealthHistory> history, { String tek }) {
     if ((history != null) && (tek != null)) {
-      for (Covid19History historyEntry in history) {
-        if ((historyEntry.type == Covid19HistoryType.contactTrace) && (historyEntry.blob?.traceTEK == tek)) {
+      for (HealthHistory historyEntry in history) {
+        if ((historyEntry.type == HealthHistoryType.contactTrace) && (historyEntry.blob?.traceTEK == tek)) {
           return historyEntry;
         }
       }
@@ -564,10 +559,10 @@ class Covid19History implements Comparable<Covid19History> {
     return null;
   }
 
-  static bool listContainsEvent(List<Covid19History> history, Covid19Event event) {
+  static bool listContainsEvent(List<HealthHistory> history, HealthPendingEvent event) {
     if ((history != null) && (event != null)) {
-      for (Covid19History historyEntry in history) {
-         if (historyEntry.matchEvent(event)) {
+      for (HealthHistory historyEntry in history) {
+         if (historyEntry.matchPendingEvent(event)) {
            return true;
          }
       }
@@ -575,11 +570,11 @@ class Covid19History implements Comparable<Covid19History> {
     return false;
   }
 
-  static Covid19History mostRecent(List<Covid19History> history) {
+  static HealthHistory mostRecent(List<HealthHistory> history) {
     if (history != null) {
       DateTime nowUtc = DateTime.now().toUtc();
       for (int index = 0; index < history.length; index++) {
-        Covid19History historyEntry = history[index];
+        HealthHistory historyEntry = history[index];
         if ((historyEntry.dateUtc != null) && (historyEntry.dateUtc.isBefore(nowUtc))) {
           return historyEntry;
         }
@@ -588,14 +583,14 @@ class Covid19History implements Comparable<Covid19History> {
     return null;
   }
 
-  static Covid19History mostRecentTest(List<Covid19History> history, { DateTime beforeDateUtc, int onPosition = 1 }) {
-    Covid19History result;
+  static HealthHistory mostRecentTest(List<HealthHistory> history, { DateTime beforeDateUtc, int onPosition = 1 }) {
+    HealthHistory result;
     if (history != null) {
       if (beforeDateUtc == null) {
         beforeDateUtc = DateTime.now().toUtc();
       }
       for (int index = 0; (index < history.length) && (0 < onPosition); index++) {
-        Covid19History historyEntry = history[index];
+        HealthHistory historyEntry = history[index];
         if (historyEntry.isTestVerified && (historyEntry.dateUtc != null) && (historyEntry.dateUtc.isBefore(beforeDateUtc))) {
           result = historyEntry;
           onPosition--;
@@ -605,13 +600,13 @@ class Covid19History implements Comparable<Covid19History> {
     return result;
   }
 
-  static List<Covid19History> pastList(List<Covid19History> history) {
-    List<Covid19History> result;
+  static List<HealthHistory> pastList(List<HealthHistory> history) {
+    List<HealthHistory> result;
     if (history != null) {
-      result = List<Covid19History>();
+      result = List<HealthHistory>();
       DateTime nowUtc = DateTime.now().toUtc();
       for (int index = 0; index < history.length; index++) {
-        Covid19History historyEntry =  history[index];
+        HealthHistory historyEntry =  history[index];
         if ((historyEntry.dateUtc != null) && (historyEntry.dateUtc.isBefore(nowUtc))) {
           result.add(historyEntry);
         }
@@ -620,10 +615,10 @@ class Covid19History implements Comparable<Covid19History> {
     return result;
   }
 
-  static Covid19History mostRecentContactTrace(List<Covid19History> history, { DateTime minDateUtc, DateTime maxDateUtc }) {
+  static HealthHistory mostRecentContactTrace(List<HealthHistory> history, { DateTime minDateUtc, DateTime maxDateUtc }) {
     if (history != null) {
       for (int index = 0; index < history.length; index++) {
-        Covid19History historyEntry = history[index];
+        HealthHistory historyEntry = history[index];
         if (historyEntry.isContactTrace &&
             ((minDateUtc == null) || ((historyEntry.dateUtc != null) && historyEntry.dateUtc.isAfter(minDateUtc))) &&
             ((maxDateUtc == null) || ((historyEntry.dateUtc != null) && historyEntry.dateUtc.isBefore(maxDateUtc)))) {
@@ -636,9 +631,9 @@ class Covid19History implements Comparable<Covid19History> {
 }
 
 ////////////////////////////////
-// Covid19HistoryBlob
+// HealthHistoryBlob
 
-class Covid19HistoryBlob {
+class HealthHistoryBlob {
   final String provider;
   final String providerId;
   final String location;
@@ -655,15 +650,15 @@ class Covid19HistoryBlob {
   final String actionType;
   final dynamic actionText;
 
-  Covid19HistoryBlob({
+  HealthHistoryBlob({
     this.provider, this.providerId, this.location, this.locationId, this.countyId, this.testType, this.testResult,
     this.symptoms,
     this.traceDuration, this.traceTEK,
     this.actionType, this.actionText,
   });
 
-  factory Covid19HistoryBlob.fromJson(Map<String, dynamic> json) {
-    return (json != null) ? Covid19HistoryBlob(
+  factory HealthHistoryBlob.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthHistoryBlob(
       provider: json['provider'],
       providerId: json['provider_id'],
       location: json['location'],
@@ -703,7 +698,7 @@ class Covid19HistoryBlob {
   }
 
   bool operator ==(o) {
-    return (o is Covid19HistoryBlob) &&
+    return (o is HealthHistoryBlob) &&
       (o.provider == provider) &&
       (o.providerId == providerId) &&
       (o.location == location) &&
@@ -815,50 +810,50 @@ class Covid19HistoryBlob {
 }
 
 ////////////////////////////////
-// Covid19HistoryType
+// HealthHistoryType
 
-enum Covid19HistoryType { test, manualTestVerified, manualTestNotVerified, symptoms, contactTrace, action }
+enum HealthHistoryType { test, manualTestVerified, manualTestNotVerified, symptoms, contactTrace, action }
 
-Covid19HistoryType covid19HistoryTypeFromString(String value) {
+HealthHistoryType healthHistoryTypeFromString(String value) {
   if (value == 'received_test') {
-    return Covid19HistoryType.test;
+    return HealthHistoryType.test;
   }
   else if (value == 'verified_manual_test') {
-    return Covid19HistoryType.manualTestVerified;
+    return HealthHistoryType.manualTestVerified;
   }
   else if (value == 'unverified_manual_test') {
-    return Covid19HistoryType.manualTestNotVerified;
+    return HealthHistoryType.manualTestNotVerified;
   }
   else if (value == 'symptoms') {
-    return Covid19HistoryType.symptoms;
+    return HealthHistoryType.symptoms;
   }
   else if (value == 'trace') {
-    return Covid19HistoryType.contactTrace;
+    return HealthHistoryType.contactTrace;
   }
   else if (value == 'action') {
-    return Covid19HistoryType.action;
+    return HealthHistoryType.action;
   }
   else {
     return null;
   }
 }
 
-String covid19HistoryTypeToString(Covid19HistoryType value) {
+String healthHistoryTypeToString(HealthHistoryType value) {
   switch (value) {
-    case Covid19HistoryType.test: return 'received_test';
-    case Covid19HistoryType.manualTestVerified: return 'verified_manual_test';
-    case Covid19HistoryType.manualTestNotVerified: return 'unverified_manual_test';
-    case Covid19HistoryType.symptoms: return 'symptoms';
-    case Covid19HistoryType.contactTrace: return 'trace';
-    case Covid19HistoryType.action: return 'action';
+    case HealthHistoryType.test: return 'received_test';
+    case HealthHistoryType.manualTestVerified: return 'verified_manual_test';
+    case HealthHistoryType.manualTestNotVerified: return 'unverified_manual_test';
+    case HealthHistoryType.symptoms: return 'symptoms';
+    case HealthHistoryType.contactTrace: return 'trace';
+    case HealthHistoryType.action: return 'action';
   }
   return null;
 }
 
 ///////////////////////////////
-// Covid19Event
+// HealthPendingEvent
 
-class Covid19Event {
+class HealthPendingEvent {
   final String   id;
   final String   provider;
   final String   providerId;
@@ -869,12 +864,12 @@ class Covid19Event {
   final DateTime dateCreated;
   final DateTime dateUpdated;
 
-  Covid19EventBlob blob;
+  HealthPendingEventBlob blob;
 
-  Covid19Event({this.id, this.provider, this.providerId, this.userId, this.encryptedKey, this.encryptedBlob, this.processed, this.dateCreated, this.dateUpdated});
+  HealthPendingEvent({this.id, this.provider, this.providerId, this.userId, this.encryptedKey, this.encryptedBlob, this.processed, this.dateCreated, this.dateUpdated});
 
-  factory Covid19Event.fromJson(Map<String, dynamic> json) {
-    return (json != null) ? Covid19Event(
+  factory HealthPendingEvent.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthPendingEvent(
       id:            AppJson.stringValue(json['id']),
       provider:      AppJson.stringValue(json['provider']),
       providerId:    AppJson.stringValue(json['provider_id']),
@@ -901,16 +896,16 @@ class Covid19Event {
     return json;
   }
 
-  static Future<Covid19Event> decryptedFromJson(Map<String, dynamic> json, PrivateKey privateKey) async {
+  static Future<HealthPendingEvent> decryptedFromJson(Map<String, dynamic> json, PrivateKey privateKey) async {
     try {
-      Covid19Event value = Covid19Event.fromJson(json);
+      HealthPendingEvent value = HealthPendingEvent.fromJson(json);
       if ((value != null) && (value.encryptedKey != null) && (value.encryptedBlob != null) && (privateKey != null)) {
         String blobString = await compute(_decryptBlob, {
           'encryptedKey': value.encryptedKey,
           'encryptedBlob': value.encryptedBlob,
           'privateKey': privateKey
         });
-        value.blob = Covid19EventBlob.fromJson(AppJson.decodeMap(blobString));
+        value.blob = HealthPendingEventBlob.fromJson(AppJson.decodeMap(blobString));
       }
       return value;
     }
@@ -918,12 +913,12 @@ class Covid19Event {
     return null;
   }
 
-  static Future<List<Covid19Event>> listFromJson(List<dynamic> json, PrivateKey privateKey) async {
-    List<Covid19Event> values;
+  static Future<List<HealthPendingEvent>> listFromJson(List<dynamic> json, PrivateKey privateKey) async {
+    List<HealthPendingEvent> values;
     if (json != null) {
       values = [];
       for (dynamic entry in json) {
-          Covid19Event value = await Covid19Event.decryptedFromJson(entry, privateKey);
+          HealthPendingEvent value = await HealthPendingEvent.decryptedFromJson(entry, privateKey);
           values.add(value);
       }
     }
@@ -940,9 +935,9 @@ class Covid19Event {
 }
 
 ///////////////////////////////
-// Covid19EventBlob
+// HealthPendingEventBlob
 
-class Covid19EventBlob {
+class HealthPendingEventBlob {
   final DateTime dateUtc;
 
   final String   testType;
@@ -951,10 +946,10 @@ class Covid19EventBlob {
   final String   actionType;
   final dynamic  actionText;
 
-  Covid19EventBlob({this.dateUtc, this.testType, this.testResult, this.actionType, this.actionText});
+  HealthPendingEventBlob({this.dateUtc, this.testType, this.testResult, this.actionType, this.actionText});
 
-  factory Covid19EventBlob.fromJson(Map<String, dynamic> json) {
-    return (json != null) ? Covid19EventBlob(
+  factory HealthPendingEventBlob.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthPendingEventBlob(
       dateUtc:       healthDateTimeFromString(AppJson.stringValue(json['Date'])),
       testType:      AppJson.stringValue(json['TestName']),
       testResult:    AppJson.stringValue(json['Result']),
@@ -1000,23 +995,23 @@ class Covid19EventBlob {
 
 
 ///////////////////////////////
-// Covid19OSFTest
+// HealthOSFTest
 
-class Covid19OSFTest {
+class HealthOSFTest {
   final String provider;
   final String providerId;
   final String testType;
   final String testResult;
   final DateTime dateUtc;
 
-  Covid19OSFTest({this.provider, this.providerId,  this.testType, this.testResult, this.dateUtc,});
+  HealthOSFTest({this.provider, this.providerId,  this.testType, this.testResult, this.dateUtc,});
 }
 
 
 ///////////////////////////////
-// Covid19ManualTest
+// HealthManualTest
 
-class Covid19ManualTest {
+class HealthManualTest {
   final String provider;
   final String providerId;
   final String location;
@@ -1027,7 +1022,7 @@ class Covid19ManualTest {
   final DateTime dateUtc;
   final String image;
 
-  Covid19ManualTest({this.provider, this.providerId, this.location, this.locationId, this.countyId, this.testType, this.testResult, this.dateUtc, this.image});
+  HealthManualTest({this.provider, this.providerId, this.location, this.locationId, this.countyId, this.testType, this.testResult, this.dateUtc, this.image});
 }
 
 ///////////////////////////////
@@ -2178,7 +2173,7 @@ class HealthTestRulesSet {
   int get hashCode =>
     ListEquality().hash(_rules);
 
-  HealthTestRuleResult matchRuleResult({ Covid19HistoryBlob blob, HealthRulesSet rules }) {
+  HealthTestRuleResult matchRuleResult({ HealthHistoryBlob blob, HealthRulesSet rules }) {
     if ((_rules != null) && (blob != null)) {
       for (HealthTestRule rule in _rules) {
         if ((rule?.testType != null) && (rule?.testType?.toLowerCase() == blob?.testType?.toLowerCase()) && (rule.results != null)) {
@@ -2278,7 +2273,7 @@ class HealthTestRuleResult {
     return values;
   }
 
-  static HealthTestRuleResult matchRuleResult(List<HealthTestRuleResult> results, { Covid19HistoryBlob blob }) {
+  static HealthTestRuleResult matchRuleResult(List<HealthTestRuleResult> results, { HealthHistoryBlob blob }) {
     if (results != null) {
       for (HealthTestRuleResult result in results) {
         if (result._matchBlob(blob)) {
@@ -2289,7 +2284,7 @@ class HealthTestRuleResult {
     return null;
   }
 
-  bool _matchBlob(Covid19HistoryBlob blob) {
+  bool _matchBlob(HealthHistoryBlob blob) {
     return ((testResult != null) && (testResult.toLowerCase() == blob?.testResult?.toLowerCase()));
   }
 }
@@ -2319,7 +2314,7 @@ class HealthSymptomsRulesSet {
     ListEquality().hash(_rules) ^
     ListEquality().hash(groups);
 
-  HealthSymptomsRule matchRule({ Covid19HistoryBlob blob, HealthRulesSet rules }) {
+  HealthSymptomsRule matchRule({ HealthHistoryBlob blob, HealthRulesSet rules }) {
     if ((_rules != null) && (groups != null) && (blob?.symptomsIds != null)) {
      Map<String, int> counts = HealthSymptomsGroup.getCounts(groups, blob.symptomsIds);
       for (HealthSymptomsRule rule in _rules) {
@@ -2417,7 +2412,7 @@ class HealthContactTraceRulesSet {
     ListEquality().hash(_rules);
 
 
-  HealthContactTraceRule matchRule({ Covid19HistoryBlob blob, HealthRulesSet rules }) {
+  HealthContactTraceRule matchRule({ HealthHistoryBlob blob, HealthRulesSet rules }) {
     if ((_rules != null) && (blob != null)) {
       for (HealthContactTraceRule rule in _rules) {
         if (rule._matchBlob(blob, rules: rules)) {
@@ -2466,7 +2461,7 @@ class HealthContactTraceRule {
     return values;
   }
 
-  bool _matchBlob(Covid19HistoryBlob blob, { HealthRulesSet rules }) {
+  bool _matchBlob(HealthHistoryBlob blob, { HealthRulesSet rules }) {
     return (duration != null) && duration.match(blob?.traceDurationInMinutes, rules: rules);
   }
 }
@@ -2492,7 +2487,7 @@ class HealthActionRulesSet {
   int get hashCode =>
     ListEquality().hash(_rules);
 
-  HealthActionRule matchRule({ Covid19HistoryBlob blob, HealthRulesSet rules }) {
+  HealthActionRule matchRule({ HealthHistoryBlob blob, HealthRulesSet rules }) {
     if (_rules != null) {
       for (HealthActionRule rule in _rules) {
         if (rule._matchBlob(blob, rules: rules)) {
@@ -2541,7 +2536,7 @@ class HealthActionRule {
     return values;
   }
 
-  bool _matchBlob(Covid19HistoryBlob blob, {HealthRulesSet rules}) {
+  bool _matchBlob(HealthHistoryBlob blob, {HealthRulesSet rules}) {
     return (type != null) && (type.toLowerCase() == blob?.actionType?.toLowerCase());
   }
 }
@@ -2582,7 +2577,7 @@ abstract class _HealthRuleStatus {
     return result;
   }
 
-  HealthRuleStatus eval({ List<Covid19History> history, int historyIndex, int referenceIndex, HealthRulesSet rules });
+  HealthRuleStatus eval({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules });
 }
 
 ///////////////////////////////
@@ -2590,7 +2585,7 @@ abstract class _HealthRuleStatus {
 
 class HealthRuleStatus extends _HealthRuleStatus {
 
-  final String healthStatus;
+  final String status;
   final int priority;
 
   final dynamic nextStep;
@@ -2606,14 +2601,14 @@ class HealthRuleStatus extends _HealthRuleStatus {
 
   final dynamic fcmTopic;
 
-  HealthRuleStatus({this.healthStatus, this.priority,
+  HealthRuleStatus({this.status, this.priority,
     this.nextStep, this.nextStepHtml, this.nextStepInterval, this.nextStepDateUtc,
     this.eventExplanation, this.eventExplanationHtml,
     this.reason, this.warning, this.fcmTopic });
 
   factory HealthRuleStatus.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthRuleStatus(
-      healthStatus:         json['health_status'],
+      status:               json['health_status'],
       priority:             json['priority'],
       nextStep:             json['next_step'],
       nextStepHtml:         json['next_step_html'],
@@ -2629,7 +2624,7 @@ class HealthRuleStatus extends _HealthRuleStatus {
   factory HealthRuleStatus.fromStatus(HealthRuleStatus status, { DateTime nextStepDateUtc, }) {
     
     return (status != null) ? HealthRuleStatus(
-      healthStatus:         status.healthStatus,
+      status:               status.status,
       priority:             status.priority,
       nextStep:             status.nextStep,
       nextStepHtml:         status.nextStepHtml,
@@ -2645,7 +2640,7 @@ class HealthRuleStatus extends _HealthRuleStatus {
 
   bool operator ==(o) =>
     (o is HealthRuleStatus) &&
-      (o.healthStatus == healthStatus) &&
+      (o.status == status) &&
       (o.priority == priority) &&
       
       (o.nextStep == nextStep) &&
@@ -2662,7 +2657,7 @@ class HealthRuleStatus extends _HealthRuleStatus {
       (o.fcmTopic == fcmTopic);
 
   int get hashCode =>
-    (healthStatus?.hashCode ?? 0) ^
+    (status?.hashCode ?? 0) ^
     (priority?.hashCode ?? 0) ^
     
     (nextStep?.hashCode ?? 0) ^
@@ -2679,9 +2674,9 @@ class HealthRuleStatus extends _HealthRuleStatus {
     (fcmTopic?.hashCode ?? 0);
 
   @override
-  HealthRuleStatus eval({ List<Covid19History> history, int historyIndex, int referenceIndex, HealthRulesSet rules }) {
+  HealthRuleStatus eval({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules }) {
     int originIndex = (nextStepInterval?.origin(rules: rules) == HealthRuleIntervalOrigin.referenceDate) ? referenceIndex : historyIndex;
-    Covid19History originEntry = ((history != null) && (originIndex != null) && (0 <= originIndex) && (originIndex < history.length)) ? history[originIndex] : null;
+    HealthHistory originEntry = ((history != null) && (originIndex != null) && (0 <= originIndex) && (originIndex < history.length)) ? history[originIndex] : null;
     DateTime originDateUtc = originEntry?.dateUtc;
     int numberOfDays = nextStepInterval?.value(rules: rules);
 
@@ -2690,7 +2685,7 @@ class HealthRuleStatus extends _HealthRuleStatus {
     ) ;
   }
 
-  bool canUpdateStatus({Covid19StatusBlob blob}) {
+  bool canUpdateStatus({HealthStatusBlob blob}) {
     int blobStatusPriority = blob?.priority ?? 0;
     int newStatusPriority = this.priority ?? 0;
     return (newStatusPriority < 0) || (blobStatusPriority <= newStatusPriority);
@@ -2718,7 +2713,7 @@ class HealthRuleReferenceStatus extends _HealthRuleStatus {
     (reference?.hashCode ?? 0);
 
   @override
-  HealthRuleStatus eval({ List<Covid19History> history, int historyIndex, int referenceIndex, HealthRulesSet rules }) {
+  HealthRuleStatus eval({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules }) {
     _HealthRuleStatus status = (rules?.statuses != null) ? rules?.statuses[reference] : null;
     return status?.eval(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules);
   }
@@ -2758,7 +2753,7 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
     (failStatus?.hashCode ?? 0);
 
   @override
-  HealthRuleStatus eval({ List<Covid19History> history, int historyIndex, int referenceIndex, HealthRulesSet rules }) {
+  HealthRuleStatus eval({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules }) {
     dynamic result;
     if (condition == 'require-test') {
       // (index >= 0) / -1 / null
@@ -2798,7 +2793,7 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
     return status?.eval(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules);
   }
 
-  dynamic _evalRequireTest({ List<Covid19History> history, int historyIndex, int referenceIndex, HealthRulesSet rules }) {
+  dynamic _evalRequireTest({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules }) {
     
     _HealthRuleInterval interval = _HealthRuleInterval.fromJson(params['interval']);
     if (interval == null) {
@@ -2806,7 +2801,7 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
     }
 
     int originIndex = (interval.origin(rules: rules) == HealthRuleIntervalOrigin.referenceDate) ? referenceIndex : historyIndex;
-    Covid19History originEntry = ((history != null) && (originIndex != null) && (0 <= originIndex) && (originIndex < history.length)) ? history[originIndex] : null;
+    HealthHistory originEntry = ((history != null) && (originIndex != null) && (0 <= originIndex) && (originIndex < history.length)) ? history[originIndex] : null;
     DateTime originDateMidnightLocal = originEntry?.dateMidnightLocal;
     if (originDateMidnightLocal == null) {
       return null;
@@ -2848,7 +2843,7 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
     return -1;
   }
 
-  static bool _evalRequireTestEntryFulfills(Covid19History entry, { DateTime originDateMidnightLocal,  _HealthRuleInterval interval, HealthRulesSet rules, dynamic category }) {
+  static bool _evalRequireTestEntryFulfills(HealthHistory entry, { DateTime originDateMidnightLocal,  _HealthRuleInterval interval, HealthRulesSet rules, dynamic category }) {
     if (entry.isTest && entry.canTestUpdateStatus) {
       DateTime entryDateMidnightLocal = entry.dateMidnightLocal;
       final difference = entryDateMidnightLocal.difference(originDateMidnightLocal).inDays;
@@ -2870,14 +2865,14 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
     return false;
   }
 
-  dynamic _evalRequireSymptoms({ List<Covid19History> history, int historyIndex, int referenceIndex, HealthRulesSet rules }) {
+  dynamic _evalRequireSymptoms({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules }) {
     _HealthRuleInterval interval = _HealthRuleInterval.fromJson(params['interval']);
     if (interval == null) {
       return null;
     }
 
     int originIndex = (interval.origin(rules: rules) == HealthRuleIntervalOrigin.referenceDate) ? referenceIndex : historyIndex;
-    Covid19History originEntry = ((history != null) && (originIndex != null) && (0 <= originIndex) && (originIndex < history.length)) ? history[originIndex] : null;
+    HealthHistory originEntry = ((history != null) && (originIndex != null) && (0 <= originIndex) && (originIndex < history.length)) ? history[originIndex] : null;
     DateTime originDateMidnightLocal = originEntry?.dateMidnightLocal;
     if (originDateMidnightLocal == null) {
       return null;
@@ -2914,7 +2909,7 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
     return -1;
   }
 
-  static bool _evalRequireSymptomsEntryFulfills(Covid19History entry, { DateTime originDateMidnightLocal,  _HealthRuleInterval interval, HealthRulesSet rules }) {
+  static bool _evalRequireSymptomsEntryFulfills(HealthHistory entry, { DateTime originDateMidnightLocal,  _HealthRuleInterval interval, HealthRulesSet rules }) {
     if (entry.isSymptoms) {
       DateTime entryDateMidnightLocal = entry.dateMidnightLocal;
       final difference = entryDateMidnightLocal.difference(originDateMidnightLocal).inDays;
@@ -2925,14 +2920,14 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
     return false;
   }
 
-  dynamic _evalTimeout({ List<Covid19History> history, int historyIndex, int referenceIndex, HealthRulesSet rules }) {
+  dynamic _evalTimeout({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules }) {
     _HealthRuleInterval interval = _HealthRuleInterval.fromJson(params['interval']);
     if (interval == null) {
       return null;
     }
 
     int originIndex = (interval.origin(rules: rules) == HealthRuleIntervalOrigin.referenceDate) ? referenceIndex : historyIndex;
-    Covid19History originEntry = ((history != null) && (originIndex != null) && (0 <= originIndex) && (originIndex < history.length)) ? history[originIndex] : null;
+    HealthHistory originEntry = ((history != null) && (originIndex != null) && (0 <= originIndex) && (originIndex < history.length)) ? history[originIndex] : null;
     DateTime originDateMidnightLocal = originEntry?.dateMidnightLocal;
     if (originDateMidnightLocal == null) {
       return null;
