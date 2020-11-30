@@ -23,7 +23,6 @@ import 'package:http/http.dart' as Http;
 import 'package:collection/collection.dart';
 import 'package:illinois/model/UserProfile.dart';
 import 'package:illinois/service/AppLivecycle.dart';
-import 'package:illinois/service/Assets.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Health.dart';
@@ -312,10 +311,6 @@ class FlexUI with Service implements NotificationsListener {
   }
 
   static bool _localeIsEntryAvailable(String entry, { String group, Map<String, dynamic> rules }) {
-
-    if (rules == null) {
-      rules = Assets()['flex_ui.rules'];
-    }
 
     String pathEntry = (group != null) ? '$group.$entry' : null;
 

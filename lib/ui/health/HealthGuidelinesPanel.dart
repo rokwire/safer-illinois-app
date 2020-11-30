@@ -19,10 +19,8 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:illinois/model/Health.dart';
-import 'package:illinois/service/Assets.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
-import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:sprintf/sprintf.dart';
@@ -35,11 +33,16 @@ class HealthGuidelinesPanel extends StatefulWidget {
   _HealthGuidelinesPanelState createState() => _HealthGuidelinesPanelState();
 }
 
-class _HealthGuidelinesPanelState extends State<HealthGuidelinesPanel> implements NotificationsListener {
+class _HealthGuidelinesPanelState extends State<HealthGuidelinesPanel> {
   
   LinkedHashMap<String, HealthCounty> _counties;
   List<HealthGuidelineItem> _statusGuidelines;
-  Map<String, dynamic> _guidelineImages;
+  static const Map<String, dynamic> _guidelineImages = {
+    "home": "images/icon-stay-at-home.png",
+    "separate": "images/icon-separate-people.png",
+    "distance": "images/icon-social-distance.png",
+    "mask": "images/icon-face-mask.png"
+  };
 
   bool _loading = false;
 
@@ -47,18 +50,11 @@ class _HealthGuidelinesPanelState extends State<HealthGuidelinesPanel> implement
   void initState() {
     super.initState();
     
-    NotificationService().subscribe(this, [
-      Assets.notifyChanged
-    ]);
-    
-    _guidelineImages  = Assets()['covid19_guidelines.icons'];
-    
     _loadCounties();
   }
 
   @override
   void dispose() {
-    NotificationService().unsubscribe(this);
     super.dispose();
   }
 
@@ -148,11 +144,11 @@ class _HealthGuidelinesPanelState extends State<HealthGuidelinesPanel> implement
                         HealthGuidelineItem guideline = _statusGuidelines[index];
                         String guidelineImage = _getGuidelineItemImageRes(guideline);
                         return Container(
-                          padding: EdgeInsets.only(left: 24, right: 5),
+                          padding: EdgeInsets.all(10),
                           color: Styles().colors.white,
 //                          height: 104,
                           child: Center(child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: <Widget>[
-                            Padding(padding: EdgeInsets.only(right: 24), child:guidelineImage!=null? Image.asset(guidelineImage, excludeFromSemantics: true,) : Container(width: 72,),),
+                            Padding(padding: EdgeInsets.only(right: 10), child:guidelineImage!=null? Image.asset(guidelineImage, excludeFromSemantics: true,) : Container(width: 72,),),
                             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
                               Text(guideline.description ?? '', style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 16, fontFamily: Styles().fontFamilies.regular),), //TBD : Localization
                               Text(guideline.type ?? '', style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 16, fontFamily: Styles().fontFamilies.extraBold),), //TBD : Localization
@@ -225,8 +221,7 @@ class _HealthGuidelinesPanelState extends State<HealthGuidelinesPanel> implement
 
   //Guidelines Image res mapping
   String _getGuidelineItemImageRes(HealthGuidelineItem guideline){
-    String iconRes = _guidelineImages[guideline.icon];
-    return iconRes!=null?"images/$iconRes" : null;
+    return _guidelineImages[guideline.icon];
   }
 
   HealthCounty get _selectedCounty {
@@ -245,17 +240,6 @@ class _HealthGuidelinesPanelState extends State<HealthGuidelinesPanel> implement
         });
       }
     });
-  }
-
-  @override
-  void onNotification(String name, param) {
-    if (name == Assets.notifyChanged) {
-      if (mounted) {
-        setState(() {
-          _statusGuidelines = _buildGuidelines();
-        });
-      }
-    }
   }
 }
 
