@@ -35,7 +35,7 @@ import 'package:illinois/ui/health/HealthAddTestResultPanel.dart';
 import 'package:illinois/ui/health/HealthCareTeamPanel.dart';
 import 'package:illinois/ui/health/HealthGuidelinesPanel.dart';
 import 'package:illinois/ui/health/HealthStatusPanel.dart';
-import 'package:illinois/ui/health/HealthSymptomsPanel.dart';
+import 'package:illinois/ui/health/HealthSymptomsReportPanel.dart';
 import 'package:illinois/ui/health/Covid19TestLocations.dart';
 import 'package:illinois/ui/health/HealthHistoryPanel.dart';
 import 'package:illinois/ui/health/Covid19WellnessCenter.dart';
@@ -693,7 +693,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
   void _onTapSymptomCheckIn() {
     if(Connectivity().isNotOffline) {
       Analytics.instance.logSelect(target: "Symptom Check-in");
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthSymptomsPanel()));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthSymptomsReportPanel()));
     } else{
       AppAlert.showOfflineMessage(context);
     }
