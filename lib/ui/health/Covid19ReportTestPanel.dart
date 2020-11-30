@@ -561,7 +561,7 @@ class _Covid19ReportTestPanelSate extends State<Covid19ReportTestPanel>{
 
     String countyId = _isCustomProvider ? Health().county?.id : null;
 
-    Covid19ManualTest test = Covid19ManualTest(
+    HealthManualTest test = HealthManualTest(
       provider:   _isCustomProvider? null: provider?.name,
       providerId: _isCustomProvider? null: provider?.id,
       location:   _isCustomProvider? null: location?.name,

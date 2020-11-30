@@ -1009,9 +1009,9 @@ class HealthOSFTest {
 
 
 ///////////////////////////////
-// Covid19ManualTest
+// HealthManualTest
 
-class Covid19ManualTest {
+class HealthManualTest {
   final String provider;
   final String providerId;
   final String location;
@@ -1022,7 +1022,7 @@ class Covid19ManualTest {
   final DateTime dateUtc;
   final String image;
 
-  Covid19ManualTest({this.provider, this.providerId, this.location, this.locationId, this.countyId, this.testType, this.testResult, this.dateUtc, this.image});
+  HealthManualTest({this.provider, this.providerId, this.location, this.locationId, this.countyId, this.testType, this.testResult, this.dateUtc, this.image});
 }
 
 ///////////////////////////////

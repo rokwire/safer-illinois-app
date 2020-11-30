@@ -1133,7 +1133,7 @@ class Health with Service implements NotificationsListener {
 
   // Manual tests
 
-  Future<bool> processManualTest(Covid19ManualTest test) async {
+  Future<bool> processManualTest(HealthManualTest test) async {
     if (test != null) {
       HealthHistory manualHistory = await _addHistory(await HealthHistory.encryptedFromBlob(
         dateUtc: test?.dateUtc,
