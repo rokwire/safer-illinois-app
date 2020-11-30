@@ -220,7 +220,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
   }
 
   Widget _buildMostRecentEvent(){
-  Covid19History lastHistory = Covid19History.mostRecent(Health().history);
+  HealthHistory lastHistory = HealthHistory.mostRecent(Health().history);
     if(lastHistory?.blob == null) {
       return null;
     }
@@ -229,7 +229,7 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
     String eventExplanationText = Health().status?.blob?.displayEventExplanation;
     String eventExplanationHtml = Health().status?.blob?.displayEventExplanationHtml;
     String historyTitle = "", info = "";
-    Covid19HistoryBlob blob = lastHistory.blob;
+    HealthHistoryBlob blob = lastHistory.blob;
     if(blob.isTest){
       bool isManualTest = lastHistory.isManualTest ?? false;
       historyTitle = blob?.testType ?? Localization().getStringEx("app.common.label.other", "Other");

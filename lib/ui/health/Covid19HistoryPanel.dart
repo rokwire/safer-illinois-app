@@ -39,7 +39,7 @@ class Covid19HistoryPanel extends StatefulWidget {
 
 class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements NotificationsListener {
   
-  List<Covid19History> _history = List();
+  List<HealthHistory> _history = List();
   bool _isRefreshing = false;
   bool _isDeleting = false;
   bool _isReposting = false;
@@ -53,7 +53,7 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
       Health.notifyHistoryUpdated,
     ]);
 
-    _history = Covid19History.pastList(Health().history);
+    _history = HealthHistory.pastList(Health().history);
     _refreshHistory();
   }
 
@@ -73,7 +73,7 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
     else if (name == Health.notifyHistoryUpdated) {
       if (mounted) {
         setState(() {
-          _history = Covid19History.pastList(Health().history);
+          _history = HealthHistory.pastList(Health().history);
         });
       }
     }
@@ -87,7 +87,7 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
       Health().refreshStatus().then((_) {
         if (mounted) {
           setState(() {
-            _history = Covid19History.pastList(Health().history);
+            _history = HealthHistory.pastList(Health().history);
             _isRefreshing = false;
           });
         }
@@ -418,7 +418,7 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
 }
 
 class _Covid19HistoryEntry extends StatefulWidget{
-  final Covid19History historyEntry;
+  final HealthHistory historyEntry;
 
   const _Covid19HistoryEntry({Key key, this.historyEntry}) : super(key: key);
 

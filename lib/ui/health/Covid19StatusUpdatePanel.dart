@@ -162,7 +162,7 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
     String date = AppDateTime.formatDateTime(widget.status?.dateUtc?.toLocal(), format: "MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode);
     String reasonStatusText = widget.status?.blob?.displayReason;
 
-    Covid19HistoryBlob reasonHistory = widget.status?.blob?.historyBlob;
+    HealthHistoryBlob reasonHistory = widget.status?.blob?.historyBlob;
     String reasonHistoryName;
     Widget reasonHistoryDetail;
     if (reasonHistory != null) {
