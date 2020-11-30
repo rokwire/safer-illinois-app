@@ -28,7 +28,7 @@ import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/ui/health/Covid19HistoryPanel.dart';
 import 'package:illinois/ui/health/HealthHomePanel.dart';
-import 'package:illinois/ui/health/Covid19StatusPanel.dart';
+import 'package:illinois/ui/health/HealthStatusPanel.dart';
 import 'package:illinois/ui/health/Covid19StatusUpdatePanel.dart';
 import 'package:illinois/ui/widgets/PopupDialog.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
@@ -216,7 +216,7 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
     if (notificationType == 'process-pending-tests') {
       Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19HistoryPanel()));
     } else if(notificationType == 'status-changed'){
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19StatusPanel()));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthStatusPanel()));
     }
   }
 
@@ -241,7 +241,7 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
           (healthStatusUri.authority == uri.authority) &&
           (healthStatusUri.path == uri.path))
       {
-        Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19StatusPanel()));
+        Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthStatusPanel()));
       }
     }
   }

@@ -35,13 +35,13 @@ import 'package:illinois/utils/Utils.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-class Covid19StatusPanel extends StatefulWidget {
+class HealthStatusPanel extends StatefulWidget {
 
   @override
-  _Covid19StatusPanelState createState() => _Covid19StatusPanelState();
+  _HealthStatusPanelState createState() => _HealthStatusPanelState();
 }
 
-class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements NotificationsListener {
+class _HealthStatusPanelState extends State<HealthStatusPanel> implements NotificationsListener {
   final double _headingH1 = 130;
   final double _headingH2 = 80;
   final double _photoSize = 240;
