@@ -27,7 +27,7 @@ import 'package:illinois/utils/Utils.dart';
 import 'package:url_launcher/url_launcher.dart' as url_launcher;
 
 class Covid19CareTeamPanel extends StatefulWidget {
-  final Covid19Status status;
+  final HealthStatus status;
 
   Covid19CareTeamPanel({Key key, this.status}) : super(key: key);
 

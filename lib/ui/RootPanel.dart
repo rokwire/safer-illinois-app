@@ -221,8 +221,8 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
   }
 
   void _presentHealthStatusUpdate() {
-    String oldStatus = Health().previousStatus?.blob?.healthStatus;
-    String newStatus = Health().status?.blob?.healthStatus;
+    String oldStatus = Health().previousStatus?.blob?.status;
+    String newStatus = Health().status?.blob?.status;
     if ((oldStatus != null) && (newStatus != null) && (oldStatus != newStatus)) {
       Timer(Duration(milliseconds: 100), () {
         Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19StatusUpdatePanel(status: Health().status, previousHealthStatus: oldStatus,)));

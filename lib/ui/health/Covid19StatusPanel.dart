@@ -320,10 +320,10 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
   }
 
   Widget _buildQrCode(){
-    String healthStatus = Health().status?.blob?.healthStatus;
+    String status = Health().status?.blob?.status;
     String statusName = Health().status?.blob?.localizedHealthStatus ?? '';
-    bool userHasHealthStatus = (healthStatus != null);
-    Color statusColor = (userHasHealthStatus ? (Styles().colors.getHealthStatusColor(healthStatus) ?? _backgroundColor) : _backgroundColor);
+    bool userHasHealthStatus = (status != null);
+    Color statusColor = (userHasHealthStatus ? (Styles().colors.getHealthStatusColor(status) ?? _backgroundColor) : _backgroundColor);
     String authCardOrPhone = Auth().isShibbolethLoggedIn
         ? Auth().authCard?.magTrack2 ?? ""
         : (Auth().isPhoneLoggedIn

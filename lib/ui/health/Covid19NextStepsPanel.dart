@@ -29,7 +29,7 @@ import 'package:illinois/utils/Utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Covid19NextStepsPanel extends StatefulWidget {
-  final Covid19Status status;
+  final HealthStatus status;
 
   Covid19NextStepsPanel({this.status} );
 

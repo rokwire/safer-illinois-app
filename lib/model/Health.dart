@@ -32,20 +32,20 @@ import "package:pointycastle/export.dart";
 
 
 ////////////////////////////////
-// Covid19Status
+// HealthStatus
 
-class Covid19Status {
+class HealthStatus {
   final String id;
   final String userId;
   final DateTime dateUtc;
   final String encryptedKey;
   final String encryptedBlob;
-  Covid19StatusBlob blob;
+  HealthStatusBlob blob;
 
-  Covid19Status({this.id, this.userId, this.dateUtc, this.encryptedKey, this.encryptedBlob, this.blob});
+  HealthStatus({this.id, this.userId, this.dateUtc, this.encryptedKey, this.encryptedBlob, this.blob});
 
-  factory Covid19Status.fromJson(Map<String, dynamic> json) {
-    return (json != null) ? Covid19Status(
+  factory HealthStatus.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthStatus(
       id: json['id'],
       userId: json['user_id'],
       dateUtc: healthDateTimeFromString(json['date']),
@@ -65,7 +65,7 @@ class Covid19Status {
   }
 
   bool operator ==(o) {
-    return (o is Covid19Status) &&
+    return (o is HealthStatus) &&
       (o.id == id) &&
       (o.userId == userId) &&
       (o.dateUtc == dateUtc) &&
@@ -80,16 +80,16 @@ class Covid19Status {
     (encryptedKey?.hashCode ?? 0) ^
     (encryptedBlob?.hashCode ?? 0);
 
-  static Future<Covid19Status> decryptedFromJson(Map<String, dynamic> json, PrivateKey privateKey) async {
+  static Future<HealthStatus> decryptedFromJson(Map<String, dynamic> json, PrivateKey privateKey) async {
     try {
-      Covid19Status value = Covid19Status.fromJson(json);
+      HealthStatus value = HealthStatus.fromJson(json);
       if ((value != null) && (value.encryptedKey != null) && (value.encryptedBlob != null) && (privateKey != null)) {
         String blobString = await compute(_decryptBlob, {
           'encryptedKey': value.encryptedKey,
           'encryptedBlob': value.encryptedBlob,
           'privateKey': privateKey
         });
-        value.blob = Covid19StatusBlob.fromJson(AppJson.decodeMap(blobString));
+        value.blob = HealthStatusBlob.fromJson(AppJson.decodeMap(blobString));
       }
       return value;
     }
@@ -97,12 +97,12 @@ class Covid19Status {
     return null;
   }
 
-  Future<Covid19Status> encrypted(PublicKey publicKey) async {
+  Future<HealthStatus> encrypted(PublicKey publicKey) async {
     Map<String, dynamic> encrypted = await compute(_encryptBlob, {
       'blob': AppJson.encode(blob?.toJson()),
       'publicKey': publicKey
     });
-    return Covid19Status(
+    return HealthStatus(
       id: id,
       userId: userId,
       dateUtc: dateUtc,
@@ -113,11 +113,11 @@ class Covid19Status {
 }
 
 ///////////////////////////////
-// Covid19StatusBlob
+// HealthStatusBlob
 
-class Covid19StatusBlob {
+class HealthStatusBlob {
 
-  final String healthStatus;
+  final String status;
   final int priority;
 
   final String nextStep;
@@ -137,11 +137,11 @@ class Covid19StatusBlob {
   static const String _nextStepDateMacro = '{next_step_date}';
   static const String _nextStepDateFormat = 'EEEE, MMM d';
 
-  Covid19StatusBlob({this.healthStatus, this.priority, this.nextStep, this.nextStepHtml, this.nextStepDateUtc, this.eventExplanation, this.eventExplanationHtml, this.reason, this.warning, this.fcmTopic, this.historyBlob});
+  HealthStatusBlob({this.status, this.priority, this.nextStep, this.nextStepHtml, this.nextStepDateUtc, this.eventExplanation, this.eventExplanationHtml, this.reason, this.warning, this.fcmTopic, this.historyBlob});
 
-  factory Covid19StatusBlob.fromJson(Map<String, dynamic> json) {
-    return (json != null) ? Covid19StatusBlob(
-      healthStatus: json['health_status'],
+  factory HealthStatusBlob.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthStatusBlob(
+      status: json['health_status'],
       priority: json['priority'],
       nextStep: json['next_step'],
       nextStepHtml: json['next_step_html'],
@@ -157,7 +157,7 @@ class Covid19StatusBlob {
 
   Map<String, dynamic> toJson() {
     return {
-      'health_status': healthStatus,
+      'health_status': status,
       'priority': priority,
       'next_step': nextStep,
       'next_step_html': nextStepHtml,
@@ -172,8 +172,8 @@ class Covid19StatusBlob {
   }
 
   bool operator ==(o) {
-    return (o is Covid19StatusBlob) &&
-      (o.healthStatus == healthStatus) &&
+    return (o is HealthStatusBlob) &&
+      (o.status == status) &&
       (o.priority == priority) &&
       (o.nextStep == nextStep) &&
       (o.nextStepHtml == nextStepHtml) &&
@@ -187,7 +187,7 @@ class Covid19StatusBlob {
   }
 
   int get hashCode =>
-    (healthStatus?.hashCode ?? 0) ^
+    (status?.hashCode ?? 0) ^
     (priority?.hashCode ?? 0) ^
     (nextStep?.hashCode ?? 0) ^
     (nextStepHtml?.hashCode ?? 0) ^
@@ -264,15 +264,15 @@ class Covid19StatusBlob {
   }
 
   String get localizedHealthStatus {
-    return localizedHealthStatusFromKey(healthStatus);
+    return localizedHealthStatusFromKey(status);
   }
 
   String get localizedHealthStatusType {
-    return localizedHealthStatusTypeFromKey(healthStatus);
+    return localizedHealthStatusTypeFromKey(status);
   }
 
   String get localizedHealthStatusDescription {
-    return localizedHealthStatusDescriptionFromKey(healthStatus);
+    return localizedHealthStatusDescriptionFromKey(status);
   }
 
   static String localizedHealthStatusFromKey(String key) {
@@ -291,17 +291,12 @@ class Covid19StatusBlob {
 }
 
 ///////////////////////////////
-// Covid19HealthStatus
+// HealthStatus
 
-const String kCovid19HealthStatusRed       = 'red';
-const String kCovid19HealthStatusOrange    = 'orange';
-const String kCovid19HealthStatusYellow    = 'yellow';
-const String kCovid19HealthStatusGreen     = 'green';
-const String kCovid19HealthStatusUnchanged = 'no change';
-
-bool covid19HealthStatusIsValid(String status) {
-  return (status != null) && (status != kCovid19HealthStatusUnchanged);
-}
+const String kHealthStatusRed       = 'red';
+const String kHealthStatusOrange    = 'orange';
+const String kHealthStatusYellow    = 'yellow';
+const String kHealthStatusGreen     = 'green';
 
 ////////////////////////////////
 // Covid19Access
@@ -2590,7 +2585,7 @@ abstract class _HealthRuleStatus {
 
 class HealthRuleStatus extends _HealthRuleStatus {
 
-  final String healthStatus;
+  final String status;
   final int priority;
 
   final dynamic nextStep;
@@ -2606,14 +2601,14 @@ class HealthRuleStatus extends _HealthRuleStatus {
 
   final dynamic fcmTopic;
 
-  HealthRuleStatus({this.healthStatus, this.priority,
+  HealthRuleStatus({this.status, this.priority,
     this.nextStep, this.nextStepHtml, this.nextStepInterval, this.nextStepDateUtc,
     this.eventExplanation, this.eventExplanationHtml,
     this.reason, this.warning, this.fcmTopic });
 
   factory HealthRuleStatus.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthRuleStatus(
-      healthStatus:         json['health_status'],
+      status:               json['health_status'],
       priority:             json['priority'],
       nextStep:             json['next_step'],
       nextStepHtml:         json['next_step_html'],
@@ -2629,7 +2624,7 @@ class HealthRuleStatus extends _HealthRuleStatus {
   factory HealthRuleStatus.fromStatus(HealthRuleStatus status, { DateTime nextStepDateUtc, }) {
     
     return (status != null) ? HealthRuleStatus(
-      healthStatus:         status.healthStatus,
+      status:               status.status,
       priority:             status.priority,
       nextStep:             status.nextStep,
       nextStepHtml:         status.nextStepHtml,
@@ -2645,7 +2640,7 @@ class HealthRuleStatus extends _HealthRuleStatus {
 
   bool operator ==(o) =>
     (o is HealthRuleStatus) &&
-      (o.healthStatus == healthStatus) &&
+      (o.status == status) &&
       (o.priority == priority) &&
       
       (o.nextStep == nextStep) &&
@@ -2662,7 +2657,7 @@ class HealthRuleStatus extends _HealthRuleStatus {
       (o.fcmTopic == fcmTopic);
 
   int get hashCode =>
-    (healthStatus?.hashCode ?? 0) ^
+    (status?.hashCode ?? 0) ^
     (priority?.hashCode ?? 0) ^
     
     (nextStep?.hashCode ?? 0) ^
@@ -2690,7 +2685,7 @@ class HealthRuleStatus extends _HealthRuleStatus {
     ) ;
   }
 
-  bool canUpdateStatus({Covid19StatusBlob blob}) {
+  bool canUpdateStatus({HealthStatusBlob blob}) {
     int blobStatusPriority = blob?.priority ?? 0;
     int newStatusPriority = this.priority ?? 0;
     return (newStatusPriority < 0) || (blobStatusPriority <= newStatusPriority);

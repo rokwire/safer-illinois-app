@@ -27,7 +27,7 @@ import 'package:illinois/ui/widgets/StatusInfoDialog.dart';
 import 'package:illinois/utils/Utils.dart';
 
 class Covid19StatusUpdatePanel extends StatefulWidget {
-  final Covid19Status status;
+  final HealthStatus status;
   final String previousHealthStatus;
 
   Covid19StatusUpdatePanel({this.status, this.previousHealthStatus} );
@@ -52,13 +52,13 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
     //_updateStatus();
     _updateDate = (widget.status?.dateUtc != null) ? AppDateTime.formatDateTime(widget.status.dateUtc?.toLocal(), format:"MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode) : '';
 
-    _oldStatusType = Covid19StatusBlob.localizedHealthStatusTypeFromKey(widget.previousHealthStatus) ?? '';
-    _oldStatusDescription = Covid19StatusBlob.localizedHealthStatusDescriptionFromKey(widget.previousHealthStatus) ?? '';
+    _oldStatusType = HealthStatusBlob.localizedHealthStatusTypeFromKey(widget.previousHealthStatus) ?? '';
+    _oldStatusDescription = HealthStatusBlob.localizedHealthStatusDescriptionFromKey(widget.previousHealthStatus) ?? '';
     _oldSatusColor = Styles().colors.getHealthStatusColor(widget.previousHealthStatus) ?? Styles().colors.mediumGray;
 
     _newStatusType = widget?.status?.blob?.localizedHealthStatusType ?? '';
     _newStatusDescription = widget?.status?.blob?.localizedHealthStatusDescription ?? '';
-    _newSatusColor = Styles().colors.getHealthStatusColor(widget.status?.blob?.healthStatus) ?? Styles().colors.mediumGray;
+    _newSatusColor = Styles().colors.getHealthStatusColor(widget.status?.blob?.status) ?? Styles().colors.mediumGray;
 
     super.initState();
   }

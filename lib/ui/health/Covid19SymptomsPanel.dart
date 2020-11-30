@@ -248,8 +248,8 @@ class _Covid19SymptomsPanelState extends State<Covid19SymptomsPanel> implements 
   void _onStatusChanged() {
     // Got status update notification while submitting symptoms
     if (mounted && (_submittingSymptoms == true)) {
-      String oldStatus = Health().previousStatus?.blob?.healthStatus;
-      String newStatus = Health().status?.blob?.healthStatus;
+      String oldStatus = Health().previousStatus?.blob?.status;
+      String newStatus = Health().status?.blob?.status;
       if ((oldStatus != null) && (newStatus != null) && (oldStatus != newStatus)) {
         _dismissed = true;
         Navigator.of(context).pop(); // pop immidiately as status update panel will be pushed.

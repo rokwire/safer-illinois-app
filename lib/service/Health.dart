@@ -56,7 +56,7 @@ class Health with Service implements NotificationsListener {
   PrivateKey _userPrivateKey;
   int _userTestMonitorInterval;
 
-  Covid19Status _status;
+  HealthStatus _status;
   List<Covid19History> _history;
   
   HealthCounty _county;
@@ -65,7 +65,7 @@ class Health with Service implements NotificationsListener {
 
   Directory _appDocumentsDir;
   PublicKey _servicePublicKey;
-  Covid19Status _previousStatus;
+  HealthStatus _previousStatus;
   List<Covid19Event> _processedEvents;
   Future<void> _refreshFuture;
   _RefreshOptions _refreshOptions;
@@ -556,29 +556,29 @@ class Health with Service implements NotificationsListener {
 
   // Status
 
-  Covid19Status get status  {
+  HealthStatus get status  {
     return _status;
   }
   
-  Covid19Status get previousStatus  {
+  HealthStatus get previousStatus  {
     return _previousStatus;
   }
   
-  Future<Covid19Status> _loadStatusFromNet() async {
+  Future<HealthStatus> _loadStatusFromNet() async {
     if (this._isUserReadAuthenticated && (Config().healthUrl != null)) {
       String url = "${Config().healthUrl}/covid19/v2/app-version/2.2/statuses";
       Response response = await Network().get(url, auth: NetworkAuth.User);
       if (response?.statusCode == 200) {
-        return await Covid19Status.decryptedFromJson(AppJson.decodeMap(response.body), _userPrivateKey);
+        return await HealthStatus.decryptedFromJson(AppJson.decodeMap(response.body), _userPrivateKey);
       }
     }
     return null;
   }
 
-  Future<bool> _saveStatusToNet(Covid19Status status) async {
+  Future<bool> _saveStatusToNet(HealthStatus status) async {
     if (this._isUserWriteAuthenticated && (Config().healthUrl != null)) {
       String url = "${Config().healthUrl}/covid19/v2/app-version/2.2/statuses";
-      Covid19Status encryptedStatus = await status?.encrypted(_user?.publicKey);
+      HealthStatus encryptedStatus = await status?.encrypted(_user?.publicKey);
       String post = AppJson.encode(encryptedStatus?.toJson());
       Response response = await Network().put(url, body: post, auth: NetworkAuth.User);
       if (response?.statusCode == 200) {
@@ -602,7 +602,7 @@ class Health with Service implements NotificationsListener {
   }
 
   Future<void> _refreshStatus () async {
-    Covid19Status status = await _loadStatusFromNet();
+    HealthStatus status = await _loadStatusFromNet();
     if (status != null) {
       _applyStatus(status);
     }
@@ -614,7 +614,7 @@ class Health with Service implements NotificationsListener {
 
   Future<void> _rebuildStatus() async {
     if (this._isUserWriteAuthenticated && (_rules != null) && (_history != null)) {
-      Covid19Status status = _buildStatus(rules: _rules, history: _history);
+      HealthStatus status = _buildStatus(rules: _rules, history: _history);
       if ((status?.blob != null) && (status?.blob != _status?.blob)) {
         if (await _saveStatusToNet(status)) {
           _applyStatus(status);
@@ -623,15 +623,15 @@ class Health with Service implements NotificationsListener {
     }
   }
 
-  void _applyStatus(Covid19Status status) {
+  void _applyStatus(HealthStatus status) {
     if (_status != status) {
-      String oldStatusCode = _status?.blob?.healthStatus;
-      String newStatusCode = status?.blob?.healthStatus;
-      if ((oldStatusCode != null) && (newStatusCode != null) && (oldStatusCode != newStatusCode)) {
+      String oldStatus = _status?.blob?.status;
+      String newStatus = status?.blob?.status;
+      if ((oldStatus != null) && (newStatus != null) && (oldStatus != newStatus)) {
         Analytics().logHealth(
           action: Analytics.LogHealthStatusChangedAction,
-          status: newStatusCode,
-          prevStatus: oldStatusCode
+          status: newStatus,
+          prevStatus: oldStatus
         );
       }
 
@@ -642,7 +642,7 @@ class Health with Service implements NotificationsListener {
     _applyBuildingAccessForStatus(status);
   }
 
-  static Covid19Status _buildStatus({HealthRulesSet rules, List<Covid19History> history}) {
+  static HealthStatus _buildStatus({HealthRulesSet rules, List<Covid19History> history}) {
     if ((rules == null) || (history == null)) {
       return null;
     }
@@ -652,10 +652,10 @@ class Health with Service implements NotificationsListener {
       return null;
     }
 
-    Covid19Status status = Covid19Status(
+    HealthStatus status = HealthStatus(
       dateUtc: null,
-      blob: Covid19StatusBlob(
-        healthStatus: defaultStatus.healthStatus,
+      blob: HealthStatusBlob(
+        status: defaultStatus.status,
         priority: defaultStatus.priority,
         nextStep: rules.localeString(defaultStatus.nextStep),
         nextStepHtml: rules.localeString(defaultStatus.nextStepHtml),
@@ -715,19 +715,19 @@ class Health with Service implements NotificationsListener {
         }
 
         if ((ruleStatus != null) && ruleStatus.canUpdateStatus(blob: status.blob)) {
-          status = Covid19Status(
+          status = HealthStatus(
             dateUtc: historyEntry.dateUtc,
-            blob: Covid19StatusBlob(
-              healthStatus: (ruleStatus.healthStatus != null) ? ruleStatus.healthStatus : status.blob.healthStatus,
+            blob: HealthStatusBlob(
+              status: (ruleStatus.status != null) ? ruleStatus.status : status.blob.status,
               priority: (ruleStatus.priority != null) ? ruleStatus.priority.abs() : status.blob.priority,
-              nextStep: ((ruleStatus.nextStep != null) || (ruleStatus.nextStepHtml != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.nextStep) : status.blob.nextStep,
-              nextStepHtml: ((ruleStatus.nextStep != null) || (ruleStatus.nextStepHtml != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.nextStepHtml) : status.blob.nextStepHtml,
-              nextStepDateUtc: ((ruleStatus.nextStepInterval != null) || (ruleStatus.nextStep != null) || (ruleStatus.nextStepHtml != null) || (ruleStatus.healthStatus != null)) ? ruleStatus.nextStepDateUtc : status.blob.nextStepDateUtc,
-              eventExplanation: ((ruleStatus.eventExplanation != null) || (ruleStatus.eventExplanationHtml != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.eventExplanation) : status.blob.eventExplanation,
-              eventExplanationHtml: ((ruleStatus.eventExplanation != null) || (ruleStatus.eventExplanationHtml != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.eventExplanationHtml) : status.blob.eventExplanationHtml,
-              reason: ((ruleStatus.reason != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.reason) : status.blob.reason,
-              warning: ((ruleStatus.warning != null) || (ruleStatus.healthStatus != null)) ? rules.localeString(ruleStatus.warning) : status.blob.warning,
-              fcmTopic: ((ruleStatus.fcmTopic != null) || (ruleStatus.healthStatus != null)) ?  ruleStatus.fcmTopic : status.blob.fcmTopic,
+              nextStep: ((ruleStatus.nextStep != null) || (ruleStatus.nextStepHtml != null) || (ruleStatus.status != null)) ? rules.localeString(ruleStatus.nextStep) : status.blob.nextStep,
+              nextStepHtml: ((ruleStatus.nextStep != null) || (ruleStatus.nextStepHtml != null) || (ruleStatus.status != null)) ? rules.localeString(ruleStatus.nextStepHtml) : status.blob.nextStepHtml,
+              nextStepDateUtc: ((ruleStatus.nextStepInterval != null) || (ruleStatus.nextStep != null) || (ruleStatus.nextStepHtml != null) || (ruleStatus.status != null)) ? ruleStatus.nextStepDateUtc : status.blob.nextStepDateUtc,
+              eventExplanation: ((ruleStatus.eventExplanation != null) || (ruleStatus.eventExplanationHtml != null) || (ruleStatus.status != null)) ? rules.localeString(ruleStatus.eventExplanation) : status.blob.eventExplanation,
+              eventExplanationHtml: ((ruleStatus.eventExplanation != null) || (ruleStatus.eventExplanationHtml != null) || (ruleStatus.status != null)) ? rules.localeString(ruleStatus.eventExplanationHtml) : status.blob.eventExplanationHtml,
+              reason: ((ruleStatus.reason != null) || (ruleStatus.status != null)) ? rules.localeString(ruleStatus.reason) : status.blob.reason,
+              warning: ((ruleStatus.warning != null) || (ruleStatus.status != null)) ? rules.localeString(ruleStatus.warning) : status.blob.warning,
+              fcmTopic: ((ruleStatus.fcmTopic != null) || (ruleStatus.status != null)) ?  ruleStatus.fcmTopic : status.blob.fcmTopic,
               historyBlob: historyEntry.blob,
             ),
           );
@@ -737,11 +737,11 @@ class Health with Service implements NotificationsListener {
     return status;
   }
 
-  static Covid19Status _loadStatusFromStorage() {
-    return Covid19Status.fromJson(AppJson.decodeMap(Storage().healthUserStatus));
+  static HealthStatus _loadStatusFromStorage() {
+    return HealthStatus.fromJson(AppJson.decodeMap(Storage().healthUserStatus));
   }
 
-  static void _saveStatusToStorage(Covid19Status status) {
+  static void _saveStatusToStorage(HealthStatus status) {
     Storage().healthUserStatus = AppJson.encode(status?.toJson());
   }
 
@@ -1021,8 +1021,8 @@ class Health with Service implements NotificationsListener {
           
           Analytics().logHealth(
             action: Analytics.LogHealthProviderTestProcessedAction,
-            status: _status?.blob?.healthStatus,
-            prevStatus: _previousStatus?.blob?.healthStatus,
+            status: _status?.blob?.status,
+            prevStatus: _previousStatus?.blob?.status,
             attributes: {
               Analytics.LogHealthProviderName: event.provider,
               Analytics.LogHealthTestTypeName: event.blob?.testType,
@@ -1038,8 +1038,8 @@ class Health with Service implements NotificationsListener {
               if (contactTrace != null) {
                 Analytics().logHealth(
                   action: Analytics.LogHealthContactTraceTestAction,
-                  status: _status?.blob?.healthStatus,
-                  prevStatus: _previousStatus?.blob?.healthStatus,
+                  status: _status?.blob?.status,
+                  prevStatus: _previousStatus?.blob?.status,
                   attributes: {
                     Analytics.LogHealthExposureTimestampName: contactTrace.dateUtc?.toIso8601String(),
                     Analytics.LogHealthDurationName: contactTrace.blob?.traceDuration,
@@ -1054,8 +1054,8 @@ class Health with Service implements NotificationsListener {
         else if (event.isAction) {
           Analytics().logHealth(
             action: Analytics.LogHealthActionProcessedAction,
-            status: _status?.blob?.healthStatus,
-            prevStatus: _previousStatus?.blob?.healthStatus,
+            status: _status?.blob?.status,
+            prevStatus: _previousStatus?.blob?.status,
             attributes: {
               Analytics.LogHealthActionTypeName: event.blob?.actionType,
               Analytics.LogHealthActionTextName: event.blob?.defaultLocaleActionText,
@@ -1097,14 +1097,14 @@ class Health with Service implements NotificationsListener {
       if (0 < processed.length) {
         NotificationService().notify(notifyHistoryUpdated);
 
-        Covid19Status previousStatus = _status;
+        HealthStatus previousStatus = _status;
         await _rebuildStatus();
         
         for (Covid19OSFTest osfTest in processed) {
           Analytics().logHealth(
               action: Analytics.LogHealthProviderTestProcessedAction,
-              status: _status?.blob?.healthStatus,
-              prevStatus: previousStatus?.blob?.healthStatus,
+              status: _status?.blob?.status,
+              prevStatus: previousStatus?.blob?.status,
               attributes: {
                 Analytics.LogHealthProviderName: osfTest.provider,
                 Analytics.LogHealthTestTypeName: osfTest.testType,
@@ -1157,13 +1157,13 @@ class Health with Service implements NotificationsListener {
       if (manualHistory != null) {
         NotificationService().notify(notifyHistoryUpdated);
   
-        Covid19Status previousStatus = _status;
+        HealthStatus previousStatus = _status;
         await _rebuildStatus();
   
         Analytics().logHealth(
           action: Analytics.LogHealthManualTestSubmittedAction,
-          status: _status?.blob?.healthStatus,
-          prevStatus: previousStatus?.blob?.healthStatus,
+          status: _status?.blob?.status,
+          prevStatus: previousStatus?.blob?.status,
           attributes: {
             Analytics.LogHealthProviderName: test.provider,
             Analytics.LogHealthLocationName: test.location,
@@ -1193,7 +1193,7 @@ class Health with Service implements NotificationsListener {
     if (history != null) {
       NotificationService().notify(notifyHistoryUpdated);
 
-      Covid19Status previousStatus = _status;
+      HealthStatus previousStatus = _status;
       await _rebuildStatus();
 
       List<String> analyticsSymptoms = [];
@@ -1205,8 +1205,8 @@ class Health with Service implements NotificationsListener {
       });
       Analytics().logHealth(
         action: Analytics.LogHealthSymptomsSubmittedAction,
-        status: previousStatus?.blob?.healthStatus,
-        prevStatus: _status?.blob?.healthStatus,
+        status: previousStatus?.blob?.status,
+        prevStatus: _status?.blob?.status,
         attributes: {
           Analytics.LogHealthSymptomsName: analyticsSymptoms
       });
@@ -1233,13 +1233,13 @@ class Health with Service implements NotificationsListener {
     if (history != null) {
       NotificationService().notify(notifyHistoryUpdated, null);
 
-      Covid19Status previousStatus = _status;
+      HealthStatus previousStatus = _status;
       await _rebuildStatus();
 
       Analytics().logHealth(
         action: Analytics.LogHealthContactTraceProcessedAction,
-        status: previousStatus?.blob?.healthStatus,
-        prevStatus: _status?.blob?.healthStatus,
+        status: previousStatus?.blob?.status,
+        prevStatus: _status?.blob?.status,
         attributes: {
           Analytics.LogHealthDurationName: duration,
           Analytics.LogHealthExposureTimestampName: dateUtc?.toIso8601String(),
@@ -1394,8 +1394,8 @@ class Health with Service implements NotificationsListener {
   }
 
   bool get buildingAccessGranted {
-    return ((_buildingAccessRules != null) && (_status?.blob?.healthStatus != null)) ?
-      (_buildingAccessRules[_status?.blob?.healthStatus] == kCovid19AccessGranted) : null;
+    return ((_buildingAccessRules != null) && (_status?.blob?.status != null)) ?
+      (_buildingAccessRules[_status?.blob?.status] == kCovid19AccessGranted) : null;
   }
 
   Future<Map<String, dynamic>> _loadBuildingAccessRules({String countyId}) async {
@@ -1418,9 +1418,9 @@ class Health with Service implements NotificationsListener {
     _saveBuildingAccessRulesToStorage(_buildingAccessRules = null);
   }
 
-  Future<void> _applyBuildingAccessForStatus(Covid19Status status) async {
+  Future<void> _applyBuildingAccessForStatus(HealthStatus status) async {
     if (Config().settings['covid19ReportBuildingAccess'] == true) {
-      String access = (_buildingAccessRules != null) ? _buildingAccessRules[status?.blob?.healthStatus] : null;
+      String access = (_buildingAccessRules != null) ? _buildingAccessRules[status?.blob?.status] : null;
       if (access != null) {
         await _logBuildingAccess(dateUtc: DateTime.now().toUtc(), access: access);
       }

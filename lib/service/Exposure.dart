@@ -712,14 +712,14 @@ class Exposure with Service implements NotificationsListener {
       if (_reportTargetTimestamp == null) {
         return 0;
       }
-      else if ((Health().status?.blob?.healthStatus != kCovid19HealthStatusRed) && (_lastReportTimestamp != null) && (_reportTargetTimestamp < _lastReportTimestamp)) {
+      else if ((Health().status?.blob?.status != kHealthStatusRed) && (_lastReportTimestamp != null) && (_reportTargetTimestamp < _lastReportTimestamp)) {
         Storage().exposureReportTargetTimestamp = _reportTargetTimestamp = null;
         await _expireTEK(); 
         return 0;
       }
     }
     else {
-      if (Health().status?.blob?.healthStatus != kCovid19HealthStatusRed) {
+      if (Health().status?.blob?.status != kHealthStatusRed) {
         return 0;
       }
     }
@@ -934,7 +934,7 @@ class Exposure with Service implements NotificationsListener {
     Analytics().logHealth(action: Analytics.LogHealthCheckExposuresAction);
 
     List<Covid19History> history = Health().history;
-    Covid19Status lastHealthStatus = Health().status;
+    HealthStatus lastHealthStatus = Health().status;
     Covid19History lastTest = Covid19History.mostRecentTest(history);
     DateTime lastTestDateUtc = lastTest?.dateUtc;
     int scoringDayThreshold = _evalScoringDayThreshold(lastTestDateUtc: lastTestDateUtc);
@@ -1030,8 +1030,8 @@ class Exposure with Service implements NotificationsListener {
       for (Covid19History result in results) {
         Analytics().logHealth(
           action: Analytics.LogHealthContactTraceProcessedAction,
-          status: Health().status?.blob?.healthStatus,
-          prevStatus: lastHealthStatus?.blob?.healthStatus,
+          status: Health().status?.blob?.status,
+          prevStatus: lastHealthStatus?.blob?.status,
           attributes: {
             Analytics.LogHealthDurationName: result.blob.traceDuration,
             Analytics.LogHealthExposureTimestampName: result.dateUtc?.toIso8601String(),
