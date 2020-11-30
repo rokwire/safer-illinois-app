@@ -34,7 +34,7 @@ import 'package:illinois/ui/health/debug/Covid19DebugExposurePanel.dart';
 import 'package:illinois/ui/health/debug/Covid19DebugKeysPanel.dart';
 import 'package:illinois/ui/health/debug/Covid19DebugSymptomsPanel.dart';
 import 'package:illinois/ui/health/debug/Covid19DebugTraceContactPanel.dart';
-import 'package:illinois/ui/settings/debug/HttpProxySettingsPanel.dart';
+import 'package:illinois/ui/settings/debug/SettingsDebugHttpProxyPanel.dart';
 import 'package:illinois/ui/settings/debug/SettingsDebugMessagingPanel.dart';
 import 'package:illinois/ui/health/debug/Covid19DebugRulesPanel.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
@@ -593,7 +593,7 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
 
   void _onTapHttpProxy() {
     if(Organizations().isDevEnvironment) {
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => HttpProxySettingsPanel()));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsDebugHttpProxyPanel()));
     }
   }
 }
