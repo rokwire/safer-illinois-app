@@ -110,7 +110,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Styles().colors.background,
-      appBar: _Covid19HomeHeaderBar(context: context,),
+      appBar: _HealthHomeHeaderBar(context: context,),
       body: SingleChildScrollView(
         child: SafeArea(
           child: _buildMainContent(),
@@ -736,7 +736,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
   }
 }
 
-class _Covid19HomeHeaderBar extends AppBar {
+class _HealthHomeHeaderBar extends AppBar {
   final BuildContext context;
   final Widget titleWidget;
   final bool searchVisible;
@@ -756,7 +756,7 @@ class _Covid19HomeHeaderBar extends AppBar {
     }
   }
 
-  _Covid19HomeHeaderBar({@required this.context, this.titleWidget, this.searchVisible = false,
+  _HealthHomeHeaderBar({@required this.context, this.titleWidget, this.searchVisible = false,
     this.rightButtonVisible = false, this.rightButtonText, this.onRightButtonTap})
       : super(
       backgroundColor: Styles().colors.fillColorPrimaryVariant,
