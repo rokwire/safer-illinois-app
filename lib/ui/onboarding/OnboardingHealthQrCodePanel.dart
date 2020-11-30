@@ -37,14 +37,14 @@ import 'package:illinois/utils/Utils.dart';
 import 'package:pointycastle/export.dart' as PointyCastle;
 
 
-class Covid19OnBoardingQrCodePanel extends StatefulWidget with OnboardingPanel {
+class OnboardingHealthQrCodePanel extends StatefulWidget with OnboardingPanel {
 
   final Map<String, dynamic> onboardingContext;
 
-  Covid19OnBoardingQrCodePanel({this.onboardingContext});
+  OnboardingHealthQrCodePanel({this.onboardingContext});
 
   @override
-  _Covid19OnBoardingQrCodePanelState createState() => _Covid19OnBoardingQrCodePanelState();
+  _OnboardingHealthQrCodePanelState createState() => _OnboardingHealthQrCodePanelState();
 
   @override
   bool get onboardingCanDisplay {
@@ -52,7 +52,7 @@ class Covid19OnBoardingQrCodePanel extends StatefulWidget with OnboardingPanel {
   }
 }
 
-class _Covid19OnBoardingQrCodePanelState extends State<Covid19OnBoardingQrCodePanel> {
+class _OnboardingHealthQrCodePanelState extends State<OnboardingHealthQrCodePanel> {
 
 
   PointyCastle.PublicKey _userPublicKey;

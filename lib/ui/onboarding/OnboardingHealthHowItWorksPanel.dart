@@ -24,11 +24,11 @@ import 'package:illinois/ui/onboarding/OnboardingBackButton.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/ui/widgets/TrianglePainter.dart';
 
-class Covid19OnBoardingHowItWorks extends StatelessWidget with OnboardingPanel {
+class OnboardingHealthHowItWorksPanel extends StatelessWidget with OnboardingPanel {
 
   final Map<String, dynamic> onboardingContext;
 
-  Covid19OnBoardingHowItWorks({this.onboardingContext});
+  OnboardingHealthHowItWorksPanel({this.onboardingContext});
 
   @override
   Widget build(BuildContext context) {

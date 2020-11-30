@@ -18,10 +18,10 @@ import 'package:flutter/material.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Styles.dart';
 
-class Covid19OnBoardingIndicator extends StatelessWidget {
+class OnboardingHealthProgress extends StatelessWidget {
   final double progress;
 
-  Covid19OnBoardingIndicator({@required this.progress});
+  OnboardingHealthProgress({@required this.progress});
 
   @override
   Widget build(BuildContext context) {

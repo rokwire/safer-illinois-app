@@ -29,20 +29,20 @@ import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/ui/widgets/TrianglePainter.dart';
 import 'package:illinois/utils/Utils.dart';
 
-class Covid19OnBoardingConsentPanel extends StatefulWidget with OnboardingPanel {
+class OnboardingHealthConsentPanel extends StatefulWidget with OnboardingPanel {
 
   final Map<String, dynamic> onboardingContext;
 
-  Covid19OnBoardingConsentPanel({this.onboardingContext});
+  OnboardingHealthConsentPanel({this.onboardingContext});
 
   @override
   State<StatefulWidget> createState() {
-    return _Covid19OnBoardingConsentPanelState();
+    return _OnboardingHealthConsentPanelState();
   }
 
 }
 
-class _Covid19OnBoardingConsentPanelState extends State<Covid19OnBoardingConsentPanel>{
+class _OnboardingHealthConsentPanelState extends State<OnboardingHealthConsentPanel>{
   bool _loading = false;
   bool _exposureNotification = false;
   bool _consent = true;

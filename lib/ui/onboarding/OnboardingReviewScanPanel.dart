@@ -28,18 +28,18 @@ import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/service/UserProfile.dart';
-import 'package:illinois/ui/health/onboarding/Covid19OnBoardingIndicator.dart';
+import 'package:illinois/ui/onboarding/OnboardingHealthProgress.dart';
 import 'package:illinois/ui/onboarding/OnboardingBackButton.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/utils/Utils.dart';
 
-class Covid19OnBoardingReviewScanPanel extends StatefulWidget with OnboardingPanel {
+class OnboardingReviewScanPanel extends StatefulWidget with OnboardingPanel {
 
   final Map<String, dynamic> onboardingContext;
 
-  Covid19OnBoardingReviewScanPanel({this.onboardingContext});
+  OnboardingReviewScanPanel({this.onboardingContext});
 
-  _Covid19OnBoardingReviewScanPanelState createState() => _Covid19OnBoardingReviewScanPanelState();
+  _OnboardingReviewScanPanelState createState() => _OnboardingReviewScanPanelState();
 
   @override
   bool get onboardingCanDisplay {
@@ -47,7 +47,7 @@ class Covid19OnBoardingReviewScanPanel extends StatefulWidget with OnboardingPan
   }
 }
 
-class _Covid19OnBoardingReviewScanPanelState extends State<Covid19OnBoardingReviewScanPanel> {
+class _OnboardingReviewScanPanelState extends State<OnboardingReviewScanPanel> {
 
   static const String kFirstNameFieldName   = 'firstName';
   static const String kMiddleNameFieldName  = 'middleName';
@@ -102,7 +102,7 @@ class _Covid19OnBoardingReviewScanPanelState extends State<Covid19OnBoardingRevi
       backgroundColor: Styles().colors.background,
       body: SafeArea(child: Column(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
         Container(color: Styles().colors.white, child: Stack(children: <Widget>[
-          Covid19OnBoardingIndicator(progress: 0.75,),
+          OnboardingHealthProgress(progress: 0.75,),
           Align(alignment: Alignment.topLeft,
             child: OnboardingBackButton(image: 'images/chevron-left-blue.png', padding: EdgeInsets.only(top: 16, right: 20, bottom: 20), onTap: () => _goBack()),
           ),

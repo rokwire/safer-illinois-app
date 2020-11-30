@@ -25,11 +25,11 @@ import 'package:illinois/ui/onboarding/OnboardingBackButton.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/ui/widgets/ScalableScrollView.dart';
 
-class Covid19OnBoardingFinalPanel extends StatelessWidget with OnboardingPanel {
+class OnboardingHealthFinalPanel extends StatelessWidget with OnboardingPanel {
 
   final Map<String, dynamic> onboardingContext;
 
-  Covid19OnBoardingFinalPanel({this.onboardingContext});
+  OnboardingHealthFinalPanel({this.onboardingContext});
 
   @override
   Widget build(BuildContext context) {

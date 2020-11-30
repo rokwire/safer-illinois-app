@@ -32,7 +32,7 @@ import 'package:illinois/service/Styles.dart';
 import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/ui/health/HealthHistoryPanel.dart';
 import 'package:illinois/ui/settings2/Settings2TransferEncryptionKeyPanel.dart';
-import 'package:illinois/ui/health/onboarding/Covid19OnBoardingResidentInfoPanel.dart';
+import 'package:illinois/ui/onboarding/OnboardingResidentInfoPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginPhoneVerifyPanel.dart';
 import 'package:illinois/ui/settings2/Settings2ConsentPanel.dart';
 import 'package:illinois/ui/settings2/Settings2GovernmentIdPanel.dart';
@@ -552,7 +552,7 @@ class _Settings2HomePanelState extends State<Settings2HomePanel> implements Noti
     }
     else {
       Navigator.push(context, CupertinoPageRoute(
-          builder: (context) => Covid19OnBoardingResidentInfoPanel(
+          builder: (context) => OnboardingResidentInfoPanel(
             onSucceed: (Map<String,dynamic> data){
               Navigator.pushReplacement(context, CupertinoPageRoute(builder: (context) => Settings2GovernmentIdPanel(initialData: data,)));
             },
