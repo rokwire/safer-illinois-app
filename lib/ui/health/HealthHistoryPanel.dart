@@ -32,12 +32,12 @@ import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:sprintf/sprintf.dart';
 
-class Covid19HistoryPanel extends StatefulWidget {
+class HealthHistoryPanel extends StatefulWidget {
   @override
-  _Covid19HistoryPanelState createState() => _Covid19HistoryPanelState();
+  _HealthHistoryPanelState createState() => _HealthHistoryPanelState();
 }
 
-class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements NotificationsListener {
+class _HealthHistoryPanelState extends State<HealthHistoryPanel> implements NotificationsListener {
   
   List<HealthHistory> _history = List();
   bool _isRefreshing = false;
@@ -182,7 +182,7 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
         itemCount: _history.length + ((!kReleaseMode || Organizations().isDevEnvironment) ? 2 : 1),
         itemBuilder: (BuildContext ctxt, int index) {
           if (index < _history.length) {
-            return _Covid19HistoryEntry(historyEntry: _history[index]);
+            return _HealthHistoryEntry(historyEntry: _history[index]);
           }
           else if (index == _history.length) {
             return _buildRepostButton();
@@ -417,17 +417,17 @@ class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements No
   }
 }
 
-class _Covid19HistoryEntry extends StatefulWidget{
+class _HealthHistoryEntry extends StatefulWidget{
   final HealthHistory historyEntry;
 
-  const _Covid19HistoryEntry({Key key, this.historyEntry}) : super(key: key);
+  const _HealthHistoryEntry({Key key, this.historyEntry}) : super(key: key);
 
   @override
-  _Covid19HistoryEntryState createState() => _Covid19HistoryEntryState();
+  _HealthHistoryEntryState createState() => _HealthHistoryEntryState();
 
 }
 
-class _Covid19HistoryEntryState extends State<_Covid19HistoryEntry> with SingleTickerProviderStateMixin{
+class _HealthHistoryEntryState extends State<_HealthHistoryEntry> with SingleTickerProviderStateMixin{
   bool _expanded = false;
   AnimationController _controller;
 

@@ -37,7 +37,7 @@ import 'package:illinois/ui/health/Covid19GuidelinesPanel.dart';
 import 'package:illinois/ui/health/HealthStatusPanel.dart';
 import 'package:illinois/ui/health/HealthSymptomsPanel.dart';
 import 'package:illinois/ui/health/Covid19TestLocations.dart';
-import 'package:illinois/ui/health/Covid19HistoryPanel.dart';
+import 'package:illinois/ui/health/HealthHistoryPanel.dart';
 import 'package:illinois/ui/health/Covid19WellnessCenter.dart';
 import 'package:illinois/ui/settings/SettingsHomePanel.dart';
 import 'package:illinois/ui/widgets/LinkTileButton.dart';
@@ -666,7 +666,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
   void _onTapTestHistory(){
     if(Connectivity().isNotOffline) {
       Analytics.instance.logSelect(target: "COVID-19 Test History");
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19HistoryPanel()));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthHistoryPanel()));
     } else{
       AppAlert.showOfflineMessage(context);
     }

@@ -26,7 +26,7 @@ import 'package:illinois/service/Service.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/NotificationService.dart';
-import 'package:illinois/ui/health/Covid19HistoryPanel.dart';
+import 'package:illinois/ui/health/HealthHistoryPanel.dart';
 import 'package:illinois/ui/health/HealthHomePanel.dart';
 import 'package:illinois/ui/health/HealthStatusPanel.dart';
 import 'package:illinois/ui/health/HealthStatusUpdatePanel.dart';
@@ -214,7 +214,7 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
 
     String notificationType = AppJson.stringValue(notification['health.covid19.notification.type']);
     if (notificationType == 'process-pending-tests') {
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19HistoryPanel()));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthHistoryPanel()));
     } else if(notificationType == 'status-changed'){
       Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthStatusPanel()));
     }

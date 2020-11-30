@@ -30,7 +30,7 @@ import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/service/UserProfile.dart';
-import 'package:illinois/ui/health/Covid19HistoryPanel.dart';
+import 'package:illinois/ui/health/HealthHistoryPanel.dart';
 import 'package:illinois/ui/health/Covid19TransferEncryptionKeyPanel.dart';
 import 'package:illinois/ui/health/onboarding/Covid19OnBoardingResidentInfoPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginPhoneVerifyPanel.dart';
@@ -596,7 +596,7 @@ class _Settings2HomePanelState extends State<Settings2HomePanel> implements Noti
 
   void _onEventHistoryTapped(){
     Analytics.instance.logSelect(target: "COVID-19 Test History");
-    Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19HistoryPanel()));
+    Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthHistoryPanel()));
   }
 
   void _onTransferKeyTapped() {
