@@ -29,11 +29,11 @@ import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/service/LocationServices.dart';
 
-class Covid19TestLocationsPanel extends StatefulWidget {
-  _Covid19TestLocationsPanelState createState() => _Covid19TestLocationsPanelState();
+class HealthTestLocationsPanel extends StatefulWidget {
+  _HealthTestLocationsPanelState createState() => _HealthTestLocationsPanelState();
 }
 
-class _Covid19TestLocationsPanelState extends State<Covid19TestLocationsPanel>{
+class _HealthTestLocationsPanelState extends State<HealthTestLocationsPanel>{
 
   LinkedHashMap<String,HealthCounty> _counties;
   List<ProviderDropDownItem> _providerItems;

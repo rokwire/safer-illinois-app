@@ -23,7 +23,7 @@ import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/WebPanel.dart';
 import 'package:illinois/ui/health/HealthCareTeamPanel.dart';
-import 'package:illinois/ui/health/Covid19TestLocations.dart';
+import 'package:illinois/ui/health/HealthTestLocationsPanel.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -123,7 +123,7 @@ class _HealthNextStepsPanelState extends State<HealthNextStepsPanel> {
 
   void _onTapContinue(){
     if(_nextStepRequiresTest) {
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19TestLocationsPanel())).then((dynamic) {
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthTestLocationsPanel())).then((dynamic) {
         Navigator.pop(context);
       });
     }
