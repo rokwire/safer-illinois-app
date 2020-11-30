@@ -24,15 +24,15 @@ import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/utils/Utils.dart';
 
-class Covid19DebugTraceContactPanel extends StatefulWidget {
+class SettingsDebugContactTraceReportPanel extends StatefulWidget {
 
-  Covid19DebugTraceContactPanel();
+  SettingsDebugContactTraceReportPanel();
 
   @override
-  _Covid19DebugTraceContactPanelState createState() => _Covid19DebugTraceContactPanelState();
+  _SettingsDebugContactTraceReportPanelState createState() => _SettingsDebugContactTraceReportPanelState();
 }
 
-class _Covid19DebugTraceContactPanelState extends State<Covid19DebugTraceContactPanel> {
+class _SettingsDebugContactTraceReportPanelState extends State<SettingsDebugContactTraceReportPanel> {
   static const double kFieldWidth = 142;
 
   DateTime _selectedDate;

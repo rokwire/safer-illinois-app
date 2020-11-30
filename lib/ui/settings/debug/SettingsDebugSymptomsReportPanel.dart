@@ -26,15 +26,15 @@ import 'package:illinois/ui/onboarding/OnboardingBackButton.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/utils/Utils.dart';
 
-class Covid19DebugSymptomsPanel extends StatefulWidget {
+class SettingsDebugSymptomsReportPanel extends StatefulWidget {
 
-  Covid19DebugSymptomsPanel({Key key}) : super(key: key);
+  SettingsDebugSymptomsReportPanel({Key key}) : super(key: key);
 
   @override
-  _Covid19DebugSymptomsPanelState createState() => _Covid19DebugSymptomsPanelState();
+  _SettingsDebugSymptomsReportPanelState createState() => _SettingsDebugSymptomsReportPanelState();
 }
 
-class _Covid19DebugSymptomsPanelState extends State<Covid19DebugSymptomsPanel> implements NotificationsListener {
+class _SettingsDebugSymptomsReportPanelState extends State<SettingsDebugSymptomsReportPanel> implements NotificationsListener {
 
   DateTime _selectedDate;
   Map<String, String> _symptomsToGroup;

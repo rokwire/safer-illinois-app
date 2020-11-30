@@ -33,15 +33,15 @@ import 'package:illinois/utils/Crypt.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:illinois/service/Styles.dart';
 
-class Covid19DebugCreateEventPanel extends StatefulWidget {
+class SettingsDebugCreateEventPanel extends StatefulWidget {
 
-  Covid19DebugCreateEventPanel();
+  SettingsDebugCreateEventPanel();
 
   @override
-  _Covid19DebugCreateEventPanelState createState() => _Covid19DebugCreateEventPanelState();
+  _SettingsDebugCreateEventPanelState createState() => _SettingsDebugCreateEventPanelState();
 }
 
-class _Covid19DebugCreateEventPanelState extends State<Covid19DebugCreateEventPanel> {
+class _SettingsDebugCreateEventPanelState extends State<SettingsDebugCreateEventPanel> {
 
   TextEditingController _blobController;
   String _headerStatus;

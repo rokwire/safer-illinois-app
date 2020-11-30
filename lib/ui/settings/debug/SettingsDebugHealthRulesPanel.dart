@@ -25,13 +25,13 @@ import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/utils/Utils.dart';
 
-class Covid19DebugRulesPanel extends StatefulWidget{
-  Covid19DebugRulesPanel();
+class SettingsDebugHealthRulesPanel extends StatefulWidget{
+  SettingsDebugHealthRulesPanel();
 
-  _Covid19DebugRulesPanelState createState() => _Covid19DebugRulesPanelState();
+  _SettingsDebugHealthRulesPanelState createState() => _SettingsDebugHealthRulesPanelState();
 }
 
-class _Covid19DebugRulesPanelState extends State<Covid19DebugRulesPanel>{
+class _SettingsDebugHealthRulesPanelState extends State<SettingsDebugHealthRulesPanel>{
 
   bool _countiesLoading = false;
   bool _rulesLoading = false;

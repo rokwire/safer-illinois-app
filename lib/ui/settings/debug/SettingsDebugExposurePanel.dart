@@ -26,15 +26,15 @@ import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/utils/Utils.dart';
 
-class Covid19DebugExposurePanel extends StatefulWidget {
+class SettingsDebugExposurePanel extends StatefulWidget {
 
-  Covid19DebugExposurePanel();
+  SettingsDebugExposurePanel();
 
   @override
-  _Covid19DebugExposurePanelState createState() => _Covid19DebugExposurePanelState();
+  _SettingsDebugExposurePanelState createState() => _SettingsDebugExposurePanelState();
 }
 
-class _Covid19DebugExposurePanelState extends State<Covid19DebugExposurePanel> implements NotificationsListener {
+class _SettingsDebugExposurePanelState extends State<SettingsDebugExposurePanel> implements NotificationsListener {
 
   TextEditingController _minDurationSettingController;
   FocusNode             _minDurationSettingFocusNode;

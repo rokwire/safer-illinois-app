@@ -28,27 +28,27 @@ import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/service/Storage.dart';
-import 'package:illinois/ui/health/debug/Covid19DebugCreateEventPanel.dart';
-import 'package:illinois/ui/health/debug/Covid19DebugExposureLogsPanel.dart';
-import 'package:illinois/ui/health/debug/Covid19DebugExposurePanel.dart';
-import 'package:illinois/ui/health/debug/Covid19DebugKeysPanel.dart';
-import 'package:illinois/ui/health/debug/Covid19DebugSymptomsPanel.dart';
-import 'package:illinois/ui/health/debug/Covid19DebugTraceContactPanel.dart';
+import 'package:illinois/ui/settings/debug/SettingsDebugCreateEventPanel.dart';
+import 'package:illinois/ui/settings/debug/SettingsDebugExposureLogsPanel.dart';
+import 'package:illinois/ui/settings/debug/SettingsDebugExposurePanel.dart';
+import 'package:illinois/ui/settings/debug/SettingsDebugHealthKeysPanel.dart';
+import 'package:illinois/ui/settings/debug/SettingsDebugSymptomsReportPanel.dart';
+import 'package:illinois/ui/settings/debug/SettingsDebugContactTraceReportPanel.dart';
 import 'package:illinois/ui/settings/debug/SettingsDebugHttpProxyPanel.dart';
 import 'package:illinois/ui/settings/debug/SettingsDebugMessagingPanel.dart';
-import 'package:illinois/ui/health/debug/Covid19DebugRulesPanel.dart';
+import 'package:illinois/ui/settings/debug/SettingsDebugHealthRulesPanel.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 
 import 'package:illinois/utils/Utils.dart';
 import 'package:illinois/service/Styles.dart';
 
-class SettingsDebugPanel extends StatefulWidget {
+class SettingsDebugHomePanel extends StatefulWidget {
   @override
-  _SettingsDebugPanelState createState() => _SettingsDebugPanelState();
+  _SettingsDebugHomePanelState createState() => _SettingsDebugHomePanelState();
 }
 
-class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements NotificationsListener {
+class _SettingsDebugHomePanelState extends State<SettingsDebugHomePanel> implements NotificationsListener {
 
   List<Organization> _organizations;
   Organization _organization;
@@ -367,31 +367,31 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
   }
 
   void _onTapCovid19Keys() {
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19DebugKeysPanel()));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsDebugHealthKeysPanel()));
   }
 
   void _onTapCreateEvent() {
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19DebugCreateEventPanel()));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsDebugCreateEventPanel()));
   }
 
   void _onTapTraceCovid19Exposure() {
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19DebugTraceContactPanel()));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsDebugContactTraceReportPanel()));
   }
 
   void _onTapReportCovid19Symptoms() {
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19DebugSymptomsPanel()));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsDebugSymptomsReportPanel()));
   }
 
   void _onTapCovid19Exposures() {
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19DebugExposurePanel()));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsDebugExposurePanel()));
   }
 
   void _onTapCovid19ExposureLogs() {
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19DebugExposureLogsPanel()));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsDebugExposureLogsPanel()));
   }
 
   void _onTapCovid19Rules(){
-    Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19DebugRulesPanel()));
+    Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsDebugHealthRulesPanel()));
   }
 
   void _onTapCovid19TestCrash(){
