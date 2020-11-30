@@ -48,15 +48,15 @@ import 'package:illinois/ui/widgets/StatusInfoDialog.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class Covid19InfoCenterPanel extends StatefulWidget {
+class HealthHomePanel extends StatefulWidget {
 
-  Covid19InfoCenterPanel({Key key}) : super(key: key);
+  HealthHomePanel({Key key}) : super(key: key);
 
   @override
-  _Covid19InfoCenterPanelState createState() => _Covid19InfoCenterPanelState();
+  _HealthHomePanelState createState() => _HealthHomePanelState();
 }
 
-class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> implements NotificationsListener {
+class _HealthHomePanelState extends State<HealthHomePanel> implements NotificationsListener {
 
   bool _isRefreshing;
 
