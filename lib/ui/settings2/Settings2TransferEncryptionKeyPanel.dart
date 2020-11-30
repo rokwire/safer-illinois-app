@@ -34,14 +34,14 @@ import 'package:illinois/utils/Crypt.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:pointycastle/export.dart' as PointyCastle;
 
-class Covid19TransferEncryptionKeyPanel extends StatefulWidget {
+class Settings2TransferEncryptionKeyPanel extends StatefulWidget {
 
-  const Covid19TransferEncryptionKeyPanel({Key key}) : super(key: key);
+  const Settings2TransferEncryptionKeyPanel({Key key}) : super(key: key);
   @override
-  _Covid19TransferEncryptionKeyPanelState createState() => _Covid19TransferEncryptionKeyPanelState();
+  _Settings2TransferEncryptionKeyPanelState createState() => _Settings2TransferEncryptionKeyPanelState();
 }
 
-class _Covid19TransferEncryptionKeyPanelState extends State<Covid19TransferEncryptionKeyPanel> {
+class _Settings2TransferEncryptionKeyPanelState extends State<Settings2TransferEncryptionKeyPanel> {
 
   PointyCastle.PublicKey _userPublicKey;
   PointyCastle.PrivateKey _userPrivateKey;

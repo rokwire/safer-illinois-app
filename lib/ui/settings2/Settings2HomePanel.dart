@@ -31,7 +31,7 @@ import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/ui/health/HealthHistoryPanel.dart';
-import 'package:illinois/ui/health/Covid19TransferEncryptionKeyPanel.dart';
+import 'package:illinois/ui/settings2/Settings2TransferEncryptionKeyPanel.dart';
 import 'package:illinois/ui/health/onboarding/Covid19OnBoardingResidentInfoPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginPhoneVerifyPanel.dart';
 import 'package:illinois/ui/settings2/Settings2ConsentPanel.dart';
@@ -601,7 +601,7 @@ class _Settings2HomePanelState extends State<Settings2HomePanel> implements Noti
 
   void _onTransferKeyTapped() {
     Analytics.instance.logSelect(target: "Transfer Your COVID-19 Encryption Key");
-    Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19TransferEncryptionKeyPanel()));
+    Navigator.push(context, CupertinoPageRoute(builder: (context) => Settings2TransferEncryptionKeyPanel()));
   }
 
   void _onExposureNotificationsTapped(){
