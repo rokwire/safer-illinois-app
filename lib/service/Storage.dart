@@ -401,18 +401,18 @@ class Storage with Service {
     _setStringWithName(lastHealthCovid19StatusKey, value);
   }
 
-  static const String lastHealthCovid19OsfTestDateKey = 'health_last_covid19_osf_test_date';
+  static const String lastHealthOsfTestDateKey = 'health_last_covid19_osf_test_date';
 
-  DateTime get lastHealthCovid19OsfTestDateUtc {
-    String dateString = _getStringWithName(lastHealthCovid19OsfTestDateKey);
+  DateTime get lastHealthOsfTestDateUtc {
+    String dateString = _getStringWithName(lastHealthOsfTestDateKey);
     try { return (dateString != null) ? DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dateString) : null; }
     catch (e) { print(e?.toString()); }
     return null;
   }
 
-  set lastHealthCovid19OsfTestDateUtc(DateTime value) {
+  set lastHealthOsfTestDateUtc(DateTime value) {
     String dateString = (value != null) ? DateFormat('yyyy-MM-ddTHH:mm:ss').format(value) : null;
-    _setStringWithName(lastHealthCovid19OsfTestDateKey, dateString);
+    _setStringWithName(lastHealthOsfTestDateKey, dateString);
   }
 
   static const String healthUserKey = 'health_user';

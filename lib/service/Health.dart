@@ -1070,16 +1070,16 @@ class Health with Service implements NotificationsListener {
 
   // OCF tests
 
-  Future<int> processOsfTests({List<Covid19OSFTest> osfTests}) async {
+  Future<int> processOsfTests({List<HealthOSFTest> osfTests}) async {
 
     List<HealthTestType> testTypes = await loadTestTypes();
     Set<String> testTypeSet = testTypes != null ? testTypes.map((entry) => entry.name).toSet() : null;
     if (osfTests != null) {
-      List<Covid19OSFTest> processed = List<Covid19OSFTest>();
-      DateTime lastOsfTestDateUtc = Storage().lastHealthCovid19OsfTestDateUtc;
+      List<HealthOSFTest> processed = List<HealthOSFTest>();
+      DateTime lastOsfTestDateUtc = Storage().lastHealthOsfTestDateUtc;
       DateTime latestOsfTestDateUtc;
 
-      for (Covid19OSFTest osfTest in osfTests) {
+      for (HealthOSFTest osfTest in osfTests) {
         if (((testTypeSet != null) && testTypeSet.contains(osfTest.testType)) && (osfTest.dateUtc != null) && ((lastOsfTestDateUtc == null) || lastOsfTestDateUtc.isBefore(osfTest.dateUtc))) {
           HealthHistory testHistory = await _applyOsfTestHistory(osfTest);
           if (testHistory != null) {
@@ -1091,7 +1091,7 @@ class Health with Service implements NotificationsListener {
         }
       }
       if (latestOsfTestDateUtc != null) {
-        Storage().lastHealthCovid19OsfTestDateUtc = latestOsfTestDateUtc;
+        Storage().lastHealthOsfTestDateUtc = latestOsfTestDateUtc;
       }
 
       if (0 < processed.length) {
@@ -1100,7 +1100,7 @@ class Health with Service implements NotificationsListener {
         HealthStatus previousStatus = _status;
         await _rebuildStatus();
         
-        for (Covid19OSFTest osfTest in processed) {
+        for (HealthOSFTest osfTest in processed) {
           Analytics().logHealth(
               action: Analytics.LogHealthProviderTestProcessedAction,
               status: _status?.blob?.status,
@@ -1117,7 +1117,7 @@ class Health with Service implements NotificationsListener {
     return 0;
   }
 
-  Future<HealthHistory> _applyOsfTestHistory(Covid19OSFTest test) async {
+  Future<HealthHistory> _applyOsfTestHistory(HealthOSFTest test) async {
     return await _addHistory(await HealthHistory.encryptedFromBlob(
       dateUtc: test?.dateUtc,
       type: HealthHistoryType.test,
