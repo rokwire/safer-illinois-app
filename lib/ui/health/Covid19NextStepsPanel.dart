@@ -22,7 +22,7 @@ import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/WebPanel.dart';
-import 'package:illinois/ui/health/Covid19CareTeamPanel.dart';
+import 'package:illinois/ui/health/HealthCareTeamPanel.dart';
 import 'package:illinois/ui/health/Covid19TestLocations.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/utils/Utils.dart';
@@ -128,7 +128,7 @@ class _Covid19NextStepsPanelState extends State<Covid19NextStepsPanel> {
       });
     }
     else {
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19CareTeamPanel())).then((dynamic) {
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthCareTeamPanel())).then((dynamic) {
         Navigator.pop(context);
       });
     }

@@ -32,7 +32,7 @@ import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/WebPanel.dart';
 import 'package:illinois/ui/health/HealthAddTestResultPanel.dart';
-import 'package:illinois/ui/health/Covid19CareTeamPanel.dart';
+import 'package:illinois/ui/health/HealthCareTeamPanel.dart';
 import 'package:illinois/ui/health/Covid19GuidelinesPanel.dart';
 import 'package:illinois/ui/health/HealthStatusPanel.dart';
 import 'package:illinois/ui/health/HealthSymptomsPanel.dart';
@@ -648,7 +648,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
   void _onTapCareTeam() {
     if(Connectivity().isNotOffline) {
       Analytics.instance.logSelect(target: "Your Care Team");
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19CareTeamPanel()));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthCareTeamPanel()));
     } else{
       AppAlert.showOfflineMessage(context);
     }

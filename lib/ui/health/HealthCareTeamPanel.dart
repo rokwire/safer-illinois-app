@@ -26,18 +26,18 @@ import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:url_launcher/url_launcher.dart' as url_launcher;
 
-class Covid19CareTeamPanel extends StatefulWidget {
+class HealthCareTeamPanel extends StatefulWidget {
   final HealthStatus status;
 
-  Covid19CareTeamPanel({Key key, this.status}) : super(key: key);
+  HealthCareTeamPanel({Key key, this.status}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
-    return _Covid19CareTeamPanelState();
+    return _HealthCareTeamPanelState();
   }
 }
 
-class _Covid19CareTeamPanelState extends State<Covid19CareTeamPanel> with TickerProviderStateMixin{
+class _HealthCareTeamPanelState extends State<HealthCareTeamPanel> with TickerProviderStateMixin{
   List<AnimationController> _animationControllers = List();
   //bool _moreInfoExpanded = false;
 
