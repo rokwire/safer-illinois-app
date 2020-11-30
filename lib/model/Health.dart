@@ -299,10 +299,10 @@ const String kHealthStatusYellow    = 'yellow';
 const String kHealthStatusGreen     = 'green';
 
 ////////////////////////////////
-// Covid19Access
+// Building Access
 
-const String kCovid19AccessGranted   = 'granted';
-const String kCovid19AccessDenied    = 'denied';
+const String kBuildingAccessGranted   = 'granted';
+const String kBuildingAccessDenied    = 'denied';
 
 
 ///////////////////////////////

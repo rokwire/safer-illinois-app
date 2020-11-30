@@ -1395,7 +1395,7 @@ class Health with Service implements NotificationsListener {
 
   bool get buildingAccessGranted {
     return ((_buildingAccessRules != null) && (_status?.blob?.status != null)) ?
-      (_buildingAccessRules[_status?.blob?.status] == kCovid19AccessGranted) : null;
+      (_buildingAccessRules[_status?.blob?.status] == kBuildingAccessGranted) : null;
   }
 
   Future<Map<String, dynamic>> _loadBuildingAccessRules({String countyId}) async {
