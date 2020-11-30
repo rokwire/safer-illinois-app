@@ -28,16 +28,16 @@ import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class Covid19NextStepsPanel extends StatefulWidget {
+class HealthNextStepsPanel extends StatefulWidget {
   final HealthStatus status;
 
-  Covid19NextStepsPanel({this.status} );
+  HealthNextStepsPanel({this.status} );
 
   @override
-  _Covid19NextStepsPanelState createState() => _Covid19NextStepsPanelState();
+  _HealthNextStepsPanelState createState() => _HealthNextStepsPanelState();
 }
 
-class _Covid19NextStepsPanelState extends State<Covid19NextStepsPanel> {
+class _HealthNextStepsPanelState extends State<HealthNextStepsPanel> {
 
   @override
   void initState() {

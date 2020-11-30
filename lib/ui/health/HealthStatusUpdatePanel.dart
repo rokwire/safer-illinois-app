@@ -21,7 +21,7 @@ import 'package:illinois/service/Health.dart';
 import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Styles.dart';
-import 'package:illinois/ui/health/Covid19NextStepsPanel.dart';
+import 'package:illinois/ui/health/HealthNextStepsPanel.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/ui/widgets/StatusInfoDialog.dart';
 import 'package:illinois/utils/Utils.dart';
@@ -83,7 +83,7 @@ class _HealthStatusUpdatePanelState extends State<HealthStatusUpdatePanel> {
                   borderColor: Styles().colors.fillColorSecondary,
                   textColor: Styles().colors.white,
                   onTap:(){
-                    Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19NextStepsPanel(status: widget.status,))).then((dynamic){Navigator.pop(context);});
+                    Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthNextStepsPanel(status: widget.status,))).then((dynamic){Navigator.pop(context);});
                   },
                 ),
               )
