@@ -33,14 +33,14 @@ import 'package:illinois/utils/Crypt.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:pointycastle/export.dart' as secure;
 
-class Covid19QrCodePanel extends StatefulWidget {
+class SettingsQrCodePanel extends StatefulWidget {
 
-  const Covid19QrCodePanel({Key key}) : super(key: key);
+  const SettingsQrCodePanel({Key key}) : super(key: key);
   @override
-  _Covid19QrCodePanelState createState() => _Covid19QrCodePanelState();
+  _SettingsQrCodePanelState createState() => _SettingsQrCodePanelState();
 }
 
-class _Covid19QrCodePanelState extends State<Covid19QrCodePanel> {
+class _SettingsQrCodePanelState extends State<SettingsQrCodePanel> {
   Uint8List _qrCodeBytes;
 
   @override

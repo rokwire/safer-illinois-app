@@ -38,7 +38,7 @@ import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/ui/WebPanel.dart';
-import 'package:illinois/ui/health/Covid19QrCodePanel.dart';
+import 'package:illinois/ui/settings/SettingsQrCodePanel.dart';
 import 'package:illinois/ui/settings/SettingsRolesPanel.dart';
 import 'package:illinois/ui/settings/SettingsPersonalInfoPanel.dart';
 import 'package:illinois/ui/settings/debug/SettingsDebugPanel.dart';
@@ -873,7 +873,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   void _onTapShowCovid19QrCode() {
     if (Connectivity().isNotOffline) {
       Analytics.instance.logSelect(target: "Show COVID-19 Secret QRcode");
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19QrCodePanel()));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsQrCodePanel()));
     }
   }
 
