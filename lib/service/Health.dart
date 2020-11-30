@@ -635,7 +635,7 @@ class Health with Service implements NotificationsListener {
         );
       }
 
-      _previousStatus = _status;
+      _previousStatus = (status != null) ? _status : null;
       _saveStatusToStorage(_status = status);
       NotificationService().notify(notifyStatusUpdated);
     }
