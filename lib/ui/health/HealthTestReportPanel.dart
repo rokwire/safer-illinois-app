@@ -35,15 +35,15 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path_provider/path_provider.dart';
 
-class Covid19ReportTestPanel extends StatefulWidget {
+class HealthTestReportPanel extends StatefulWidget {
   final HealthServiceProvider provider;
-  Covid19ReportTestPanel({this.provider});
+  HealthTestReportPanel({this.provider});
 
   @override
-  _Covid19ReportTestPanelSate createState() => _Covid19ReportTestPanelSate();
+  _HealthTestReportPanelState createState() => _HealthTestReportPanelState();
 }
 
-class _Covid19ReportTestPanelSate extends State<Covid19ReportTestPanel>{
+class _HealthTestReportPanelState extends State<HealthTestReportPanel>{
 
   int _loadingProgress = 0;
 

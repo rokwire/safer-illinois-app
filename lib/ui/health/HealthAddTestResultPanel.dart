@@ -24,7 +24,7 @@ import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/OSFHealth.dart';
 import 'package:illinois/service/Storage.dart';
 import 'package:illinois/service/Styles.dart';
-import 'package:illinois/ui/health/Covid19ReportTestPanel.dart';
+import 'package:illinois/ui/health/HealthTestReportPanel.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/utils/Utils.dart';
@@ -299,7 +299,7 @@ class _HealthAddTestResultPanelState extends State<HealthAddTestResultPanel> imp
 
   void _onTapEnterManualTest() {
     Analytics.instance.logSelect(target: "Manually Enter");
-    Navigator.push(context, CupertinoPageRoute(builder: (context)=>Covid19ReportTestPanel(provider: _selectedProviderItem.item,))).then((success){
+    Navigator.push(context, CupertinoPageRoute(builder: (context)=>HealthTestReportPanel(provider: _selectedProviderItem.item,))).then((success){
       if(success!= null)
         Navigator.pop(context);
     });
