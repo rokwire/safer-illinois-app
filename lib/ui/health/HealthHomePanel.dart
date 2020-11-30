@@ -38,7 +38,7 @@ import 'package:illinois/ui/health/HealthStatusPanel.dart';
 import 'package:illinois/ui/health/HealthSymptomsReportPanel.dart';
 import 'package:illinois/ui/health/HealthTestLocationsPanel.dart';
 import 'package:illinois/ui/health/HealthHistoryPanel.dart';
-import 'package:illinois/ui/health/Covid19WellnessCenter.dart';
+import 'package:illinois/ui/health/HealthWellnessCenterPanel.dart';
 import 'package:illinois/ui/settings/SettingsHomePanel.dart';
 import 'package:illinois/ui/widgets/LinkTileButton.dart';
 import 'package:illinois/ui/widgets/RibbonButton.dart';
@@ -702,7 +702,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
   void _onTapCovidWellnessCenter(){
     if(Connectivity().isNotOffline) {
       Analytics.instance.logSelect(target: "Wellness Center");
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19WellnessCenter()));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthWellnessCenterPanel()));
     } else{
       AppAlert.showOfflineMessage(context);
     }

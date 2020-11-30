@@ -6,7 +6,7 @@ import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class Covid19WellnessCenter extends StatelessWidget{
+class HealthWellnessCenterPanel extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
