@@ -316,8 +316,8 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   }
 
   void _onConnectNetIdClicked() {
+    Analytics.instance.logSelect(target: "Connect netId");
     if (Connectivity().isNotOffline) {
-      Analytics.instance.logSelect(target: "Connect netId");
       Auth().authenticateWithShibboleth();
     } else {
       AppAlert.showOfflineMessage(context);

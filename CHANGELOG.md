@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Changed
 - Update user PII data from authentication/roster data [#432](https://github.com/rokwire/safer-illinois-app/issues/432).
+- Added login widget in Home panel when user is not connected [#434](https://github.com/rokwire/safer-illinois-app/issues/434).
 
 ## [2.10.0] - 2020-11-30
 ### Fixed
