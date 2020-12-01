@@ -280,6 +280,28 @@ class Health with Service implements NotificationsListener {
     }
   }
 
+  String get _userInfo {
+    String userName;
+    if (AppString.isStringNotEmpty(userName = Auth().fullUserName)) {
+      return userName;
+    }
+    else if (AppString.isStringNotEmpty(userName = Auth().authUser?.uin)) {
+      return userName;
+    }
+    else if (AppString.isStringNotEmpty(userName = Auth().authUser?.email)) {
+      return userName;
+    }
+    else if (AppString.isStringNotEmpty(userName = Auth().authUser?.phone)) {
+      return userName;
+    }
+    else if (AppString.isStringNotEmpty(userName = Auth().phoneToken?.phone)) {
+      return userName;
+    }
+    else {
+      return null;
+    }
+  }
+
   Future<HealthUser> _loadUserFromNet() async {
     if (this._isUserAuthenticated && (Config().healthUrl != null)) {
       String url =  "${Config().healthUrl}/covid19/user";
@@ -340,8 +362,7 @@ class Health with Service implements NotificationsListener {
     }
     
     // Always update user info.
-    String userInfo = AppString.isStringNotEmpty(Auth().authUser?.fullName) ? Auth().authUser.fullName : Auth().phoneToken?.phone;
-    await user.encryptBlob(HealthUserBlob(info: userInfo), _servicePublicKey);
+    await user.encryptBlob(HealthUserBlob(info: _userInfo), _servicePublicKey);
     // update user info only if we have something to set
     // userUpdated = true;
 

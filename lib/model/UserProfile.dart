@@ -349,13 +349,15 @@ class UserPiiData {
       (rawUuidList?.hashCode ?? 0);
 
   String get fullName {
-    String fullName = '';
+    String fullName;
     for (String name in [firstName, middleName, lastName]) {
       if ((name != null) && (0 < name.length)) {
-        if (0 < fullName.length) {
-          fullName += ' ';
+        if (fullName == null) {
+          fullName = '$name';
         }
-        fullName += name;
+        else {
+          fullName += ' $name';
+        }
       }
     }
     return fullName;
@@ -395,18 +397,43 @@ class UserPiiData {
     if (AppString.isStringNotEmpty(authUser?.lastName) && (lastName != authUser.lastName)) {
       lastName = authUser.lastName; updated = true;
     }
-    
+
     if (AppString.isStringNotEmpty(authUser?.uin) && (uin != authUser.uin)) {
       uin = authUser.uin; updated = true;
-    }
-    
-    if (AppString.isStringNotEmpty(authUser?.userName) && (netId != authUser.userName)) {
-      netId = authUser.userName; updated = true;
     }
 
     if (AppString.isStringNotEmpty(authUser?.email) && (email != authUser.email)) {
       email = authUser.email; updated = true;
     }
+
+    if (AppString.isStringNotEmpty(authUser?.netId) && (netId != authUser.netId)) {
+      netId = authUser.netId; updated = true;
+    }
+    
+    if (AppString.isStringNotEmpty(authUser?.phone) && (phone != authUser.phone)) {
+      phone = authUser.phone; updated = true;
+    }
+
+    if (authUser is PhoneAuthUser) {
+
+      int authBirthYear = authUser.birthDate?.year;
+      if ((authBirthYear != null) && (authBirthYear != birthYear)) {
+        birthYear = authBirthYear; updated = true;
+      }
+
+      if (AppString.isStringNotEmpty(authUser?.address1) && (address != authUser.address1)) {
+        address = authUser.address1; updated = true;
+      }
+
+      if (AppString.isStringNotEmpty(authUser?.state) && (state != authUser.state)) {
+        state = authUser.state; updated = true;
+      }
+
+      if (AppString.isStringNotEmpty(authUser?.zip) && (zip != authUser.zip)) {
+        zip = authUser.zip; updated = true;
+      }
+    }
+
 
     return updated;
   }

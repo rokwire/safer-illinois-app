@@ -17,6 +17,7 @@
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:illinois/service/Localization.dart';
+import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/utils/Utils.dart';
 
 abstract class AuthToken {
@@ -118,60 +119,202 @@ class PhoneToken with AuthToken {
       idToken.hashCode;
 }
 
-class AuthUser {
+abstract class AuthUser {
+  
+  String get uin => null;
+  String get netId => null;
+  String get email => null;
+  String get phone => null;
 
-  String fullName;
-  String firstName;
-  String middleName;
-  String lastName;
-  String userName;
-  String uin;
-  String sub;
-  String email;
-  Set<String> userGroupMembership;
+  String get firstName => null;
+  String get middleName => null;
+  String get lastName => null;
+  String get fullName => null;
+
+  Set<String> get groupMembership => null;
 
   static const analyticsUin = 'UINxxxxxx';
   static const analyticsFirstName = 'FirstNameXXXXXX';
   static const analyticsLastName = 'LastNameXXXXXX';
 
-  AuthUser({this.fullName, this.firstName, this.middleName, this.lastName,
-    this.userName, this.uin, this.sub, this.email, this.userGroupMembership});
-
   factory AuthUser.fromJson(Map<String, dynamic> json) {
-    return (json != null) ? AuthUser(
-        fullName: json['name'],
-        firstName: json['given_name'],
-        middleName: json['middle_name'],
-        lastName: json['family_name'],
-        userName: json['preferred_username'],
+    if (json != null) {
+      if (json.containsKey('phone')) {
+       return PhoneAuthUser.fromJson(json);
+      }
+      else {
+       return ShibbolethAuthUser.fromJson(json);
+      }
+    }
+    else {
+      return null;
+    }
+  }
+
+  Map<String, dynamic> toJson();
+}
+
+class ShibbolethAuthUser with AuthUser {
+
+  final String uin;
+  final String sub;
+  final String email;
+  final String netId;
+
+  final String firstName;
+  final String middleName;
+  final String lastName;
+  final String _fullName;
+
+  final Set<String> groupMembership;
+
+  ShibbolethAuthUser({String fullName, this.firstName, this.middleName, this.lastName,
+    this.netId, this.uin, this.sub, this.email, this.groupMembership}) :
+    _fullName = fullName;
+
+  factory ShibbolethAuthUser.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? ShibbolethAuthUser(
         uin: json['uiucedu_uin'],
         sub: json['sub'],
         email: json['email'],
-        userGroupMembership: (json['uiucedu_is_member_of'] != null) ? Set.from(json['uiucedu_is_member_of']) : null,
+        netId: json['preferred_username'],
+
+        firstName: json['given_name'],
+        middleName: json['middle_name'],
+        lastName: json['family_name'],
+        fullName: json['name'],
+
+        groupMembership: (json['uiucedu_is_member_of'] != null) ? Set.from(json['uiucedu_is_member_of']) : null,
     ) : null;
   }
 
-  factory AuthUser.fromRosterJson(Map<String, dynamic> json) {
-    return (json != null) ? AuthUser(
-      firstName: json['first_name'],
-      middleName: json['middle_name'],
-      lastName: json['last_name'],
-      uin: json['uin']
-    ) : null;
-  }
-
-  toJson() {
+  Map<String, dynamic> toJson() {
     return {
-      "name": fullName,
-      "given_name": firstName,
-      "middle_name": middleName,
-      "family_name": lastName,
-      "preferred_username": userName,
       "uiucedu_uin": uin,
       "sub": sub,
       "email": email,
-      "uiucedu_is_member_of": userGroupMembership?.toList()
+      "preferred_username": netId,
+
+      "given_name": firstName,
+      "middle_name": middleName,
+      "family_name": lastName,
+      "name": _fullName,
+
+      "uiucedu_is_member_of": groupMembership?.toList()
     };
+  }
+
+  String get fullName {
+    if (AppString.isStringNotEmpty(_fullName)) {
+      return _fullName;
+    }
+    else {
+      String fullName;
+      for (String name in [firstName, middleName, lastName]) {
+        if ((name != null) && (0 < name.length)) {
+          if (fullName == null) {
+            fullName = '$name';
+          }
+          else {
+            fullName += ' $name';
+          }
+        }
+      }
+      return fullName;
+    }
+  }
+}
+
+class PhoneAuthUser with AuthUser {
+  final String uin;
+  final String email;
+  final String phone;
+
+  final String firstName;
+  final String middleName;
+  final String lastName;
+
+  final String gender;
+  final String birthDateString;
+  final String badgeType;
+
+  final String address1;
+  final String address2;
+  final String address3;
+  final String city;
+  final String state;
+  final String zip;
+
+  PhoneAuthUser({this.uin, this.email, this.phone,
+    this.firstName, this.middleName, this.lastName,
+    this.gender, this.birthDateString, this.badgeType,
+    this.address1, this.address2, this.address3,
+    this.city, this.state, this.zip
+  });
+
+  factory PhoneAuthUser.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? PhoneAuthUser(
+        uin: json['uin'],
+        email: json['email'],
+        phone: json['phone'],
+
+        firstName: json['first_name'],
+        middleName: json['middle_name'],
+        lastName: json['last_name'],
+        
+        gender: json['gender'],
+        birthDateString: json['birth_date'],
+        badgeType: json['badge_type'],
+
+        address1: json['address1'],
+        address2: json['address2'],
+        address3: json['address3'],
+        city: json['city'],
+        state: json['state'],
+        zip: json['zip'],
+    ) : null;
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+        'uin': uin,
+        'email': email,
+        'phone': phone,
+
+        'first_name': firstName,
+        'middle_name': middleName,
+        'last_name': lastName,
+        
+        'gender': gender,
+        'birth_date': birthDateString,
+        'badge_type': badgeType,
+
+        'address1': address1,
+        'address2': address2,
+        'address3': address3,
+        'city': city,
+        'state': state,
+        'zip': zip,
+    };
+  }
+
+  String get fullName {
+    String fullName;
+    for (String name in [firstName, middleName, lastName]) {
+      if ((name != null) && (0 < name.length)) {
+        if (fullName == null) {
+          fullName = '$name';
+        }
+        else {
+          fullName += ' $name';
+        }
+      }
+    }
+    return fullName;
+  }
+
+  DateTime get birthDate {
+    return AppDateTime.parseDateTime(birthDateString, format: "MM/dd/yy");
   }
 }
 
