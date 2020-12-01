@@ -139,51 +139,28 @@ class AuthUser {
 
   factory AuthUser.fromJson(Map<String, dynamic> json) {
     return (json != null) ? AuthUser(
-        fullName: AppString.isStringNotEmpty(json["name"]) ? json["name"] : "",
-        firstName: AppString.isStringNotEmpty(json["given_name"]) ? json["given_name"] : "",
-        middleName: AppString.isStringNotEmpty(json["middle_name"]) ? json["middle_name"] : "",
-        lastName: AppString.isStringNotEmpty(json["family_name"]) ? json["family_name"] : "",
-        userName: AppString.isStringNotEmpty(json["preferred_username"]) ? json["preferred_username"] : "",
-        uin: AppString.isStringNotEmpty(json["uiucedu_uin"]) ? json["uiucedu_uin"] : "",
-        sub: AppString.isStringNotEmpty(json["sub"]) ? json["sub"] : "",
-        email: AppString.isStringNotEmpty(json["email"]) ? json["email"] : "",
-        userGroupMembership: AppCollection.isCollectionNotEmpty(json['uiucedu_is_member_of']) ? Set.from(json['uiucedu_is_member_of']) : null,
+        fullName: json['name'],
+        firstName: json['given_name'],
+        middleName: json['middle_name'],
+        lastName: json['family_name'],
+        userName: json['preferred_username'],
+        uin: json['uiucedu_uin'],
+        sub: json['sub'],
+        email: json['email'],
+        userGroupMembership: (json['uiucedu_is_member_of'] != null) ? Set.from(json['uiucedu_is_member_of']) : null,
     ) : null;
   }
 
   factory AuthUser.fromRosterJson(Map<String, dynamic> json) {
-    if(json != null) {
-      String firstName = AppString.isStringNotEmpty(json["first_name"]) ? json["first_name"] : "";
-      String middleName = AppString.isStringNotEmpty(json["middle_name"]) ? json["middle_name"] : "";
-      String lastName = AppString.isStringNotEmpty(json["last_name"]) ? json["last_name"] : "";
-      String uin = AppString.isStringNotEmpty(json["uin"]) ? json["uin"] : "";
-
-      String fullName = "";
-      List<String> fullNameList = [firstName, middleName, lastName];
-      fullNameList.forEach((name) {
-        if (AppString.isStringNotEmpty(name)) {
-          if (fullName.isNotEmpty) {
-            fullName += " ";
-          }
-          fullName += name;
-        }
-      });
-
-      return AppString.isStringNotEmpty(uin) ? AuthUser(
-          firstName: firstName,
-          middleName: middleName,
-          lastName: lastName,
-          fullName: fullName,
-          uin: uin
-      ) : null;
-    }
-    return null;
+    return (json != null) ? AuthUser(
+      firstName: json['first_name'],
+      middleName: json['middle_name'],
+      lastName: json['last_name'],
+      uin: json['uin']
+    ) : null;
   }
 
   toJson() {
-    List<dynamic> userGroupsToJson = (userGroupMembership != null) ?
-    userGroupMembership.toList() : null;
-
     return {
       "name": fullName,
       "given_name": firstName,
@@ -193,7 +170,7 @@ class AuthUser {
       "uiucedu_uin": uin,
       "sub": sub,
       "email": email,
-      "uiucedu_is_member_of": userGroupsToJson
+      "uiucedu_is_member_of": userGroupMembership?.toList()
     };
   }
 }
