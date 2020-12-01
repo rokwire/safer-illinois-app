@@ -21,6 +21,7 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html/style.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
+import 'package:illinois/service/AppNavigation.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/FlexUI.dart';
 import 'package:illinois/service/Health.dart';
@@ -831,7 +832,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
   }
 
   void _onTapConnectNetIdClicked() {
-    Analytics.instance.logSelect(target: "Phone Verification");
+    Analytics.instance.logSelect(target: "Connect netId");
     if (Connectivity().isNotOffline) {
       Auth().authenticateWithShibboleth();
     } else {
@@ -842,10 +843,14 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
   void _onTapConnectPhoneClicked() {
     Analytics.instance.logSelect(target: "Phone Verification");
     if (Connectivity().isNotOffline) {
-      Navigator.push(context, CupertinoPageRoute(settings: RouteSettings(), builder: (context) => OnboardingLoginPhoneVerifyPanel(onFinish: _didPhoneVer,)));
+      Navigator.push(context, CupertinoPageRoute(settings: RouteSettings(name: 'Phone Verification'), builder: (context) => OnboardingLoginPhoneVerifyPanel(onFinish: _didConnectPhone,)));
     } else {
       AppAlert.showOfflineMessage(context, Localization().getStringEx('panel.settings.label.offline.phone_ver', 'Verify Your Phone Number is not available while offline.'));
     }
+  }
+
+  void _didConnectPhone(_) {
+    Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
   String get _accessStatusText {
