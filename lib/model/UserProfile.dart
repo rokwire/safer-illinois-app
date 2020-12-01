@@ -397,8 +397,8 @@ class UserPiiData {
     if(AppString.isStringEmpty(uin) && AppString.isStringNotEmpty(authUser?.uin) ){
       uin = authUser.uin; updated = true;
     }
-    if(AppString.isStringEmpty(netId) && AppString.isStringNotEmpty(authUser?.username) ){
-      netId = authUser.username; updated = true;
+    if(AppString.isStringEmpty(netId) && AppString.isStringNotEmpty(authUser?.userName) ){
+      netId = authUser.userName; updated = true;
     }
     if(AppString.isStringEmpty(email) && AppString.isStringNotEmpty(authUser?.email) ){
       email = authUser.email; updated = true;

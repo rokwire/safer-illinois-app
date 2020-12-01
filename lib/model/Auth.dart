@@ -124,7 +124,7 @@ class AuthUser {
   String firstName;
   String middleName;
   String lastName;
-  String username;
+  String userName;
   String uin;
   String sub;
   String email;
@@ -135,25 +135,19 @@ class AuthUser {
   static const analyticsLastName = 'LastNameXXXXXX';
 
   AuthUser({this.fullName, this.firstName, this.middleName, this.lastName,
-    this.username, this.uin, this.sub, this.email, this.userGroupMembership});
+    this.userName, this.uin, this.sub, this.email, this.userGroupMembership});
 
   factory AuthUser.fromJson(Map<String, dynamic> json) {
-    dynamic groupMembershipJson = json != null
-        ? json['uiucedu_is_member_of']
-        : null;
-    Set<String> userGroupMembership = groupMembershipJson != null ? Set.from(
-        groupMembershipJson) : null;
-
     return (json != null) ? AuthUser(
         fullName: AppString.isStringNotEmpty(json["name"]) ? json["name"] : "",
         firstName: AppString.isStringNotEmpty(json["given_name"]) ? json["given_name"] : "",
         middleName: AppString.isStringNotEmpty(json["middle_name"]) ? json["middle_name"] : "",
         lastName: AppString.isStringNotEmpty(json["family_name"]) ? json["family_name"] : "",
-        username: AppString.isStringNotEmpty(json["preferred_username"]) ? json["preferred_username"] : "",
+        userName: AppString.isStringNotEmpty(json["preferred_username"]) ? json["preferred_username"] : "",
         uin: AppString.isStringNotEmpty(json["uiucedu_uin"]) ? json["uiucedu_uin"] : "",
         sub: AppString.isStringNotEmpty(json["sub"]) ? json["sub"] : "",
         email: AppString.isStringNotEmpty(json["email"]) ? json["email"] : "",
-        userGroupMembership: userGroupMembership
+        userGroupMembership: AppCollection.isCollectionNotEmpty(json['uiucedu_is_member_of']) ? Set.from(json['uiucedu_is_member_of']) : null,
     ) : null;
   }
 
@@ -195,7 +189,7 @@ class AuthUser {
       "given_name": firstName,
       "middle_name": middleName,
       "family_name": lastName,
-      "preferred_username": username,
+      "preferred_username": userName,
       "uiucedu_uin": uin,
       "sub": sub,
       "email": email,
