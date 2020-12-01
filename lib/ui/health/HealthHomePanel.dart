@@ -25,6 +25,7 @@ import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/FlexUI.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Organizations.dart';
+import 'package:illinois/ui/onboarding/OnboardingLoginPhoneVerifyPanel.dart';
 import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/Connectivity.dart';
 import 'package:illinois/service/Localization.dart';
@@ -124,7 +125,9 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
 
     List<dynamic> codes = FlexUI()['info_center'] ?? [];
     for (String code in codes) {
-      if (code == 'stay_healthy') {
+      if (code == 'connect') {
+        contentList.add(_buildConnectPrimarySection());
+      } else if (code == 'stay_healthy') {
         contentList.add(_buildNextStepPrimarySection());
       } else if (code == 'your_health') {
         contentList.add(_buildHealthPrimarySection());
@@ -132,6 +135,111 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
     }
 
     return Column(children: contentList,);
+  }
+
+  Widget _buildConnectPrimarySection() {
+    List<Widget> contentList = [];
+
+    List<dynamic> codes = FlexUI()['info_center.connect'] ?? [];
+    for (String code in codes) {
+      if (code == 'netid') {
+        contentList.add(_buildConnectNetIdSection());
+      } else if (code == 'phone') {
+        contentList.add(_buildConnectPhoneSection());
+      }
+    }
+
+    if (AppCollection.isCollectionNotEmpty(contentList)){
+      List<Widget> content = <Widget>[];
+      for (Widget entry in contentList) {
+        if (entry != null) {
+          if (content.isNotEmpty) {
+            content.add(Container(height: 10,),);
+          }
+          content.add(entry);
+        }
+      }
+
+      if (content.isNotEmpty) {
+        content.add(Container(height: 20,),);
+      }
+
+      return SectionTitlePrimary(
+        title: Localization().getStringEx("panel.settings.home.connect.not_logged_in.title", "Connect to Illinois"),
+        iconPath: 'images/icon-member.png',
+        children: content,);
+    }
+    else{
+      return Container();
+    }
+  }
+
+  Widget _buildConnectNetIdSection() {
+    return Semantics(container: true, child: Container(
+      padding: EdgeInsets.symmetric(vertical: 16),
+      decoration: BoxDecoration(color: Styles().colors.surface, borderRadius: BorderRadius.all(Radius.circular(4)), boxShadow: [BoxShadow(color: Styles().colors.blackTransparent018, spreadRadius: 2.0, blurRadius: 6.0, offset: Offset(2, 2))] ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+        Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: 
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+            Padding(padding: EdgeInsets.zero, child:
+              RichText(textScaleFactor: MediaQuery.textScaleFactorOf(context), text:
+                TextSpan(style: TextStyle(color: Styles().colors.textBackground, fontFamily: Styles().fontFamilies.regular, fontSize: 16), children: <TextSpan>[
+                  TextSpan(text: Localization().getStringEx("panel.settings.home.connect.not_logged_in.netid.description.part_1", "Are you a ")),
+                  TextSpan(text: Localization().getStringEx("panel.settings.home.connect.not_logged_in.netid.description.part_2", "student"), style: TextStyle(color: Styles().colors.fillColorPrimary, fontFamily: Styles().fontFamilies.bold)),
+                  TextSpan(text: Localization().getStringEx("panel.settings.home.connect.not_logged_in.netid.description.part_3", " or ")),
+                  TextSpan(text: Localization().getStringEx("panel.settings.home.connect.not_logged_in.netid.description.part_4", "faculty member"), style: TextStyle(color: Styles().colors.fillColorPrimary, fontFamily: Styles().fontFamilies.bold)),
+                  TextSpan(text: Localization().getStringEx("panel.settings.home.connect.not_logged_in.netid.description.part_5", "? Log in with your NetID."))
+                ],),
+            )),
+            Container(margin: EdgeInsets.only(top: 14, bottom: 14), height: 1, color: Styles().colors.fillColorPrimaryTransparent015,),
+            Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: 
+              Semantics(explicitChildNodes: true, child: ScalableRoundedButton(
+                label: Localization().getStringEx("panel.settings.home.connect.not_logged_in.netid.title", "Connect your NetID"),
+                hint: '',
+                borderColor: Styles().colors.fillColorSecondary,
+                backgroundColor: Styles().colors.surface,
+                textColor: Styles().colors.fillColorPrimary,
+                onTap: ()=> _onTapConnectNetIdClicked(),
+              )),
+            ),
+          ]),
+        ),
+      ],),
+    ));
+  }
+
+  Widget _buildConnectPhoneSection() {
+    return Semantics(container: true, child: Container(
+      padding: EdgeInsets.symmetric(vertical: 16),
+      decoration: BoxDecoration(color: Styles().colors.surface, borderRadius: BorderRadius.all(Radius.circular(4)), boxShadow: [BoxShadow(color: Styles().colors.blackTransparent018, spreadRadius: 2.0, blurRadius: 6.0, offset: Offset(2, 2))] ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+        Padding(padding: EdgeInsets.symmetric(horizontal: 16),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+            Padding(padding: EdgeInsets.zero, child:
+              RichText(textScaleFactor: MediaQuery.textScaleFactorOf(context), text:
+                TextSpan(style: TextStyle(color: Styles().colors.textBackground, fontFamily: Styles().fontFamilies.regular, fontSize: 16), children: <TextSpan>[
+                  TextSpan(text: Localization().getStringEx("panel.settings.home.connect.not_logged_in.phone.description.part_1", "Don't have a NetID? "), style: TextStyle(color: Styles().colors.fillColorPrimary, fontFamily: Styles().fontFamilies.bold)),
+                  TextSpan( text: Localization().getStringEx("panel.settings.home.connect.not_logged_in.phone.description.part_2", "Verify your phone number.")),
+                ],),
+              )),
+
+              Container(margin: EdgeInsets.only(top: 14, bottom: 14), height: 1, color: Styles().colors.fillColorPrimaryTransparent015,),
+
+              Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: 
+                Semantics(explicitChildNodes: true, child: ScalableRoundedButton(
+                  label: Localization().getStringEx("panel.settings.home.connect.not_logged_in.phone.title", "Verify Your Phone Number"),
+                  hint: '',
+                  borderColor: Styles().colors.fillColorSecondary,
+                  backgroundColor: Styles().colors.surface,
+                  textColor: Styles().colors.fillColorPrimary,
+                  onTap: ()=> _onTapConnectPhoneClicked(),
+                )),
+              ),
+
+          ]),
+        ),
+      ],),
+    ));
   }
 
   Widget _buildNextStepPrimarySection() {
@@ -150,7 +258,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
       }
     }
 
-    if(AppCollection.isCollectionNotEmpty(contentList)){
+    if (AppCollection.isCollectionNotEmpty(contentList)){
       List<Widget> content = <Widget>[];
       for (Widget entry in contentList) {
         if (entry != null) {
@@ -719,6 +827,24 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
       }
     } else {
       AppAlert.showOfflineMessage(context);
+    }
+  }
+
+  void _onTapConnectNetIdClicked() {
+    Analytics.instance.logSelect(target: "Phone Verification");
+    if (Connectivity().isNotOffline) {
+      Auth().authenticateWithShibboleth();
+    } else {
+      AppAlert.showOfflineMessage(context);
+    }
+  }
+
+  void _onTapConnectPhoneClicked() {
+    Analytics.instance.logSelect(target: "Phone Verification");
+    if (Connectivity().isNotOffline) {
+      Navigator.push(context, CupertinoPageRoute(settings: RouteSettings(), builder: (context) => OnboardingLoginPhoneVerifyPanel(onFinish: _didPhoneVer,)));
+    } else {
+      AppAlert.showOfflineMessage(context, Localization().getStringEx('panel.settings.label.offline.phone_ver', 'Verify Your Phone Number is not available while offline.'));
     }
   }
 
