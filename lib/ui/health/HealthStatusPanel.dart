@@ -187,14 +187,12 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
   }
 
   Widget _userDetails() {
-    String userFullName = AppString.getDefaultEmptyString(value: Auth()?.userPiiData?.fullName);
-
     return SingleChildScrollView(scrollDirection: Axis.vertical, child:
     Column(crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         _userAvatar(),
         Padding(padding: EdgeInsets.only(top: 8, bottom: 1), child: Text(
-          userFullName,
+          Auth().fullUserName ?? '',
           textAlign: TextAlign.center,
           style: TextStyle(fontFamily: Styles().fontFamilies.extraBold, fontSize: 24, color: Styles().colors.fillColorPrimary),
         ),),
@@ -324,16 +322,23 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
     String statusName = Health().status?.blob?.localizedHealthStatus ?? '';
     bool userHasHealthStatus = (status != null);
     Color statusColor = (userHasHealthStatus ? (Styles().colors.getHealthStatusColor(status) ?? _backgroundColor) : _backgroundColor);
-    String authCardOrPhone = Auth().isShibbolethLoggedIn
-        ? Auth().authCard?.magTrack2 ?? ""
-        : (Auth().isPhoneLoggedIn
-            ? (AppString.isStringNotEmpty(Auth().authUser?.uin) ? "xxxx${Auth().authUser?.uin}xxx=xxxxxxxxxxx" : Auth().userPiiData?.phone)
-        : "");
+    String authCardOrPhone;
+    if (Auth().isShibbolethLoggedIn) {
+      authCardOrPhone = Auth().authCard?.magTrack2 ?? "";
+    }
+    else if (Auth().isPhoneLoggedIn) {
+      if (AppString.isStringNotEmpty(Auth().authUser?.uin)) {
+        authCardOrPhone = "xxxx${Auth().authUser?.uin}xxx=xxxxxxxxxxx";
+      }
+      else {
+        authCardOrPhone = Auth().phoneToken?.phone;
+      }
+    }
+    else {
+      authCardOrPhone = "";
+    }
 
-
-    String textAuthCardOrPhone = Auth().isShibbolethLoggedIn
-        ? ""
-        : (Auth().isPhoneLoggedIn ? Auth().userPiiData?.phone : "");
+    String textAuthCardOrPhone = Auth().phoneToken?.phone;
     String noStatusDescription = (_counties?.isNotEmpty ?? false) ? 
       Localization().getStringEx('panel.covid19_passport.label.status.empty', "No available status for this County") :
       Localization().getStringEx('panel.covid19_passport.label.counties.empty', "No counties available");

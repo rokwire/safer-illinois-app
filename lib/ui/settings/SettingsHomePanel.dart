@@ -217,7 +217,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   }
 
   Widget _buildUserInfo() {
-    String fullName = Auth()?.userPiiData?.fullName ?? "";
+    String fullName = Auth().fullUserName ?? '';
     bool hasFullName =  AppString.isStringNotEmpty(fullName);
     String welcomeMessage = AppString.isStringNotEmpty(fullName)
         ? _greeting + ","
@@ -414,7 +414,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
                     Text(Localization().getStringEx("panel.settings.home.net_id.message", "Connected as "),
                         style: TextStyle(color: Styles().colors.textBackground, fontFamily: Styles().fontFamilies.regular, fontSize: 16)),
-                    Text(Auth().userPiiData?.fullName ?? "",
+                    Text(Auth().fullUserName ?? '',
                         style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 20)),
                   ])))));
       }
@@ -442,7 +442,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   List<Widget> _buildConnectedPhoneLayout() {
     List<Widget> contentList = List();
 
-    String fullName = Auth()?.userPiiData?.fullName ?? "";
+    String fullName = Auth().fullUserName ?? '';
     bool hasFullName = AppString.isStringNotEmpty(fullName);
 
     List<dynamic> codes = FlexUI()['settings.connected.phone'] ?? [];
