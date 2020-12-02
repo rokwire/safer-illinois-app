@@ -370,6 +370,7 @@ class Storage with Service {
   /////////////
   // Health
 
+  // Obsolete
   static const String _currentHealthCountyIdKey = 'health_current_county_id';
   
   String get currentHealthCountyId {
@@ -391,20 +392,20 @@ class Storage with Service {
     _sharedPreferences.setString(_lastHealthProviderKey, value!=null? json.encode(value.toJson()) :value);
   }
 
-  static const String lastHealthCovid19StatusKey = 'health_last_covid19_status';
+  static const String _lastHealthCovid19StatusKey = 'health_last_covid19_status';
 
   String get lastHealthCovid19Status {
-    return _getStringWithName(lastHealthCovid19StatusKey);
+    return _getStringWithName(_lastHealthCovid19StatusKey);
   }
 
   set lastHealthCovid19Status(String value) {
-    _setStringWithName(lastHealthCovid19StatusKey, value);
+    _setStringWithName(_lastHealthCovid19StatusKey, value);
   }
 
-  static const String lastHealthOsfTestDateKey = 'health_last_covid19_osf_test_date';
+  static const String _lastHealthOsfTestDateKey = 'health_last_covid19_osf_test_date';
 
   DateTime get lastHealthOsfTestDateUtc {
-    String dateString = _getStringWithName(lastHealthOsfTestDateKey);
+    String dateString = _getStringWithName(_lastHealthOsfTestDateKey);
     try { return (dateString != null) ? DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dateString) : null; }
     catch (e) { print(e?.toString()); }
     return null;
@@ -412,37 +413,37 @@ class Storage with Service {
 
   set lastHealthOsfTestDateUtc(DateTime value) {
     String dateString = (value != null) ? DateFormat('yyyy-MM-ddTHH:mm:ss').format(value) : null;
-    _setStringWithName(lastHealthOsfTestDateKey, dateString);
+    _setStringWithName(_lastHealthOsfTestDateKey, dateString);
   }
 
-  static const String healthUserKey = 'health_user';
+  static const String _healthUserKey = 'health_user';
 
   String get healthUser {
-    return _getStringWithName(healthUserKey);
+    return _getStringWithName(_healthUserKey);
   }
 
   set healthUser(String value) {
-    _setStringWithName(healthUserKey, value);
+    _setStringWithName(_healthUserKey, value);
   }
 
-  static const String healthUserStatusKey = 'health_user_status';
+  static const String _healthUserStatusKey = 'health_user_status';
 
   String get healthUserStatus {
-    return _getStringWithName(healthUserStatusKey);
+    return _getStringWithName(_healthUserStatusKey);
   }
 
   set healthUserStatus(String value) {
-    _setStringWithName(healthUserStatusKey, value);
+    _setStringWithName(_healthUserStatusKey, value);
   }
 
-  static const String healthUserTestMonitorIntervalKey = 'health_user_test_monitor_interval';
+  static const String _healthUserTestMonitorIntervalKey = 'health_user_test_monitor_interval';
 
   int get healthUserTestMonitorInterval {
-    return _getIntWithName(healthUserTestMonitorIntervalKey);
+    return _getIntWithName(_healthUserTestMonitorIntervalKey);
   }
 
   set healthUserTestMonitorInterval(int value) {
-    _setIntWithName(healthUserTestMonitorIntervalKey, value);
+    _setIntWithName(_healthUserTestMonitorIntervalKey, value);
   }
 
   static const String _healthCountyKey = 'health_county';
