@@ -440,7 +440,7 @@ class Health with Service implements NotificationsListener {
     }
 
     if (userReset == true) {
-      _refresh(_RefreshOptions.fromList([_RefreshOption.userInterval, _RefreshOption.history]));
+      await _refresh(_RefreshOptions.fromList([_RefreshOption.userInterval, _RefreshOption.history]));
     }
     
     return user;
@@ -559,21 +559,27 @@ class Health with Service implements NotificationsListener {
     return userAccount?.accountId;
   }
 
-  set userAccountId(String accountId) {
+  Future<void> setUserAccountId(String accountId) {
     if ((accountId != null) && (accountId == _user?.defaultAccount?.accountId)) {
       accountId = null;
     }
-    _applyUserAccount(accountId);
+    return _applyUserAccount(accountId);
   }
 
   bool get userMultipleAccounts {
     return 1 < (_user?.accountsMap?.length ?? 0);
   }
 
-  void _applyUserAccount(String accountId) {
+  Future<void> _applyUserAccount(String accountId) async {
     if (_userAccountId != accountId) {
       Storage().healthUserAccountId = _userAccountId = accountId;
       NotificationService().notify(notifyUserAccountCanged);
+
+      _clearUserTestMonitorInterval();
+      _clearStatus();
+      await _clearHistory();
+
+      await _refresh(_RefreshOptions.fromList([_RefreshOption.userInterval, _RefreshOption.history]));
     }
   }
 

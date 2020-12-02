@@ -70,6 +70,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
       Health.notifyUserUpdated,
       Health.notifyStatusUpdated,
       Health.notifyHistoryUpdated,
+      Health.notifyUserAccountCanged,
     ]);
 
     _refreshStatus();
@@ -87,6 +88,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
         (name == Health.notifyUserUpdated) ||
         (name == Health.notifyStatusUpdated) ||
         (name == Health.notifyHistoryUpdated) ||
+        (name == Health.notifyUserAccountCanged) ||
         (name == FlexUI.notifyChanged))
     {
       if (mounted) {
@@ -801,7 +803,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
   }
 
   void _onUserAccountChnaged(HealthUserAccount account) {
-    Health().userAccountId = account.accountId;
+    Health().setUserAccountId(account.accountId);
   }
 
   void _onTapCountryGuidelines() {
