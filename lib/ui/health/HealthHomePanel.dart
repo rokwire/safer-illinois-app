@@ -60,6 +60,7 @@ class HealthHomePanel extends StatefulWidget {
 class _HealthHomePanelState extends State<HealthHomePanel> implements NotificationsListener {
 
   bool _isRefreshing;
+  bool _isSwitchingUserAccount;
 
   @override
   void initState() {
@@ -759,18 +760,32 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
           ),
         ),
 
-        Container(decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4), boxShadow: [BoxShadow(color: Color.fromRGBO(19, 41, 75, 0.3), spreadRadius: 2.0, blurRadius: 8.0, offset: Offset(0, 2))],), child: 
-          Padding(padding: EdgeInsets.only(left: 12, right: 16), child: 
-            DropdownButtonHideUnderline(child: DropdownButton(
-              icon: Image.asset('images/icon-down-orange.png'),
-              isExpanded: true,
-              style: regularStyle,
-              hint: _userAccountsDropDownItem(Health().userAccount) ?? Text('Select an account', style: hintStyle,),
-              items: _buildUserAccountsDropDownItems(),
-              onChanged: _onUserAccountChnaged,
-            )),
+        Stack(children: [
+          Container(decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4), boxShadow: [BoxShadow(color: Color.fromRGBO(19, 41, 75, 0.3), spreadRadius: 2.0, blurRadius: 8.0, offset: Offset(0, 2))],), child: 
+            Padding(padding: EdgeInsets.only(left: 12, right: 16), child: 
+              DropdownButtonHideUnderline(child: DropdownButton(
+                icon: Image.asset('images/icon-down-orange.png'),
+                isExpanded: true,
+                style: regularStyle,
+                hint: _userAccountsDropDownItem(Health().userAccount) ?? Text('Select an account', style: hintStyle,),
+                items: _buildUserAccountsDropDownItems(),
+                onChanged: _onUserAccountChnaged,
+              )),
+            ),
           ),
-        ),
+
+          Visibility(visible: (_isSwitchingUserAccount == true), child:
+            Container(height: 48, child: 
+              Align(alignment: Alignment.center, child: 
+                SizedBox(height: 24, width: 24, child: 
+                  CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary), )
+                ),
+              ),
+            ),
+          ),
+
+        ],),
+
       ],),
     ));
     
@@ -812,7 +827,17 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
   }
 
   void _onUserAccountChnaged(HealthUserAccount account) {
-    Health().setUserAccountId(account.accountId);
+    setState(() {
+      _isSwitchingUserAccount = true;
+    });
+    
+    Health().setUserAccountId(account.accountId).then((_){
+      if (mounted) {
+        setState(() {
+          _isSwitchingUserAccount = false;
+        });
+      }
+    });
   }
 
   void _onTapCountryGuidelines() {
