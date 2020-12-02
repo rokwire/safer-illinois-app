@@ -1295,6 +1295,16 @@ class HealthUserAccount {
           values.add(value);
       }
     }
+
+    // TMP:
+    if (!kReleaseMode && ((values?.length ?? 0) == 0)) {
+      values = [
+        HealthUserAccount(accountId: "1", externalId: "655618818", isDefault: true,  isActive: true, email: "email1@server.com", phone: "+000000000001", firstName: "Misho", lastName: "Varbanov", birthDateString: "01/01/70", gender: "M",),
+        HealthUserAccount(accountId: "2", externalId: "655618818", isDefault: false, isActive: true, email: "email2@server.com", phone: "+000000000002", firstName: "Mihail", lastName: "Varbanov", birthDateString: "01/01/70", gender: "M",),
+        HealthUserAccount(accountId: "3", externalId: "655618818", isDefault: false, isActive: true, email: "email3@server.com", phone: "+000000000003", firstName: "Quetzal", lastName: "Coatl", birthDateString: "01/01/70", gender: "M",),
+      ];
+    }
+
     return values;
   }
 
@@ -1314,7 +1324,7 @@ class HealthUserAccount {
     if (values != null) {
       map = <String, HealthUserAccount>{};
       for (HealthUserAccount account in values) {
-        if (account.accountId != null) {
+        if ((account.accountId != null) && (account.isActive != false)) {
           map[account.accountId] = account;
         }
       }
@@ -1325,7 +1335,7 @@ class HealthUserAccount {
   static HealthUserAccount defaultInList(List<HealthUserAccount> values) {
     if (values != null) {
       for (HealthUserAccount account in values) {
-        if (account.isDefault == true) {
+        if ((account.isDefault == true) && (account.isActive != false)) {
           return account;
         }
       }

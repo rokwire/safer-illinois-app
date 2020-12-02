@@ -551,9 +551,12 @@ class Health with Service implements NotificationsListener {
 
   // User Accounts
 
+  HealthUserAccount get userAccount {
+    return _user?.account(accountId: _userAccountId) ?? _user?.defaultAccount;
+  }
+
   String get userAccountId {
-    HealthUserAccount account = _user?.account(accountId: _userAccountId) ?? _user?.defaultAccount;
-    return account?.accountId;
+    return userAccount?.accountId;
   }
 
   set userAccountId(String accountId) {
@@ -561,6 +564,10 @@ class Health with Service implements NotificationsListener {
       accountId = null;
     }
     _applyUserAccount(accountId);
+  }
+
+  bool get userMultipleAccounts {
+    return 1 < (_user?.accountsMap?.length ?? 0);
   }
 
   void _applyUserAccount(String accountId) {

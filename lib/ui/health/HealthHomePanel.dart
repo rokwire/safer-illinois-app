@@ -298,6 +298,8 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
         contentList.add(_buildCovidWellnessCenter());
       } else if (code == 'find_test_location') {
         contentList.add(_buildFindTestLocationsButton());
+      } else if (code == 'switch_account') {
+        contentList.add(_buildSwitchAccount());
       }
 
     }
@@ -742,6 +744,64 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
         onTap: ()=>_onTapFindLocations(),
       ),
     );
+  }
+
+  Widget _buildSwitchAccount() {
+    String selectedAccount = Health().userAccount?.fullName;
+    TextStyle regularStyle = TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 16, fontFamily: Styles().fontFamilies.bold);
+    TextStyle hintStyle = TextStyle(color: Styles().colors.mediumGray, fontSize: 16, fontFamily: Styles().fontFamilies.regular);
+    return Semantics(container: true, child: Container(
+      //padding: EdgeInsets.symmetric(vertical: 16),
+      //decoration: BoxDecoration(color: Styles().colors.surface, borderRadius: BorderRadius.all(Radius.circular(4)), boxShadow: [BoxShadow(color: Styles().colors.blackTransparent018, spreadRadius: 2.0, blurRadius: 6.0, offset: Offset(2, 2))] ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+        Padding(padding: EdgeInsets.symmetric(vertical: 8), child:
+          Text("Switch Account",
+            style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 20),
+          ),
+        ),
+
+
+        Container(decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4), boxShadow: [BoxShadow(color: Color.fromRGBO(19, 41, 75, 0.3), spreadRadius: 2.0, blurRadius: 8.0, offset: Offset(0, 2))],), child: 
+          Padding(padding: EdgeInsets.only(left: 12, right: 16), child: 
+            DropdownButtonHideUnderline(child: DropdownButton(
+              icon: Image.asset('images/icon-down-orange.png'),
+              isExpanded: true,
+              style: regularStyle,
+              hint: (selectedAccount != null) ? Text(selectedAccount, style: regularStyle,) : Text('Select an account', style: hintStyle,),
+              items: _buildUserAccountsDropDownItems(),
+              onChanged: _onUserAccountChnaged,
+            )),
+          ),
+        ),
+      ],),
+    ));
+    
+  }
+
+  List<DropdownMenuItem<HealthUserAccount>> _buildUserAccountsDropDownItems() {
+    List<DropdownMenuItem<HealthUserAccount>> items;
+    if (Health().user?.accounts != null) {
+      for (HealthUserAccount account in Health().user.accounts) {
+        if (account.isActive) {
+          if (items == null) {
+            items = items = List<DropdownMenuItem<HealthUserAccount>>();
+          }
+          List<Widget> titleList = <Widget>[Text(account.fullName)];
+          if (account.isDefault) {
+            titleList.add(Text(' (default)', style: TextStyle(color: Styles().colors.mediumGray, fontSize: 16, fontFamily: Styles().fontFamilies.regular)));
+          }
+          items.add(DropdownMenuItem<HealthUserAccount>(
+            value: account, child: Wrap(children: titleList,) 
+          ));
+        }
+      }
+    }
+
+    return items;
+  }
+
+  void _onUserAccountChnaged(HealthUserAccount account) {
+    Health().userAccountId = account.accountId;
   }
 
   void _onTapCountryGuidelines() {
