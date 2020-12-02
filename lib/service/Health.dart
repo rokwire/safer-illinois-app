@@ -661,8 +661,17 @@ class Health with Service implements NotificationsListener {
       NotificationService().notify(notifyStatusUpdated);
     }
     _applyBuildingAccessForStatus(status);
+    _updateExposureReportTarget(status);
   }
 
+  void _updateExposureReportTarget(HealthStatus status) {
+    if ((status?.blob?.status == kHealthStatusRed) &&
+        /*status?.blob?.historyBlob?.isTest && */
+        (status?.dateUtc != null))
+    {
+      Exposure().reportTargetTimestamp = status.dateUtc.millisecondsSinceEpoch;
+    }
+  }
   static HealthStatus _buildStatus({HealthRulesSet rules, List<HealthHistory> history}) {
     if ((rules == null) || (history == null)) {
       return null;
