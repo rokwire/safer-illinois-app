@@ -18,7 +18,7 @@ class Covid19Utils {
     if (qrCodeBytes != null) {
       try {
 
-        /*final recorder = new ui.PictureRecorder();
+        final recorder = new ui.PictureRecorder();
         Canvas canvas = new Canvas(recorder, new Rect.fromPoints(new Offset(0.0, 0.0), new Offset(1024.0, 1180.0)));
         final fillPaint = new Paint()
           ..color = Colors.white
@@ -47,12 +47,12 @@ class Covid19Utils {
         Uint8List newQrBytes = Uint8List(pngBytes.lengthInBytes);
         for (int i = 0; i < pngBytes.lengthInBytes; i++) {
           newQrBytes[i] = pngBytes.getUint8(i);
-        }*/
+        }
 
         String dateTimeStr = AppDateTime.formatDateTime(DateTime.now(), format: "MMMM dd, yyyy, HH:mm:ss a");
         String fileName = "Illinois COVID-19 Code $dateTimeStr";
 
-        return await Gallery().storeImage(imageBytes: qrCodeBytes, name: fileName);
+        return await Gallery().storeImage(imageBytes: newQrBytes, name: fileName);
       }
       catch(e){
       }
