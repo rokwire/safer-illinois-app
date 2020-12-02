@@ -1039,8 +1039,13 @@ class HealthUser {
   String encryptedKey;
   String encryptedBlob;
 
+  HealthUserAccount defaultAccount;
+  Map<String, HealthUserAccount> accountsMap;
+
   HealthUser({this.uuid, this.publicKeyString, PublicKey publicKey, this.consent, this.exposureNotification, this.repost, this.accounts, this.encryptedKey, this.encryptedBlob}) {
     _publicKey = publicKey;
+    accountsMap = HealthUserAccount.mapFromList(accounts);
+    defaultAccount = HealthUserAccount.defaultInList(accounts);
   }
 
   factory HealthUser.fromJson(Map<String, dynamic> json) {
@@ -1099,7 +1104,6 @@ class HealthUser {
     encryptedBlob = encrypted['encryptedBlob'];
   }
 
-
   factory HealthUser.fromUser(HealthUser user) {
     return (user != null) ? HealthUser(
       uuid: user.uuid,
@@ -1108,6 +1112,7 @@ class HealthUser {
       consent: user.consent,
       exposureNotification: user.exposureNotification,
       repost: user.repost,
+      accounts: user.accounts,
       encryptedKey: user.encryptedKey,
       encryptedBlob: user.encryptedBlob,
     ) : null;
@@ -1123,6 +1128,10 @@ class HealthUser {
   set publicKey(PublicKey value) {
     _publicKey = value;
     publicKeyString = (value != null) ? RsaKeyHelper.encodePublicKeyToPemPKCS1(value) : null;
+  }
+
+  HealthUserAccount account({String accountId}) {
+    return ((accountsMap != null) && (accountId != null)) ? accountsMap[accountId] : null;
   }
 }
 
@@ -1298,6 +1307,30 @@ class HealthUserAccount {
       }
     }
     return json;
+  }
+
+  static Map<String, HealthUserAccount> mapFromList(List<HealthUserAccount> values) {
+    Map<String, HealthUserAccount> map;
+    if (values != null) {
+      map = <String, HealthUserAccount>{};
+      for (HealthUserAccount account in values) {
+        if (account.accountId != null) {
+          map[account.accountId] = account;
+        }
+      }
+    }
+    return map;
+  }
+
+  static HealthUserAccount defaultInList(List<HealthUserAccount> values) {
+    if (values != null) {
+      for (HealthUserAccount account in values) {
+        if (account.isDefault == true) {
+          return account;
+        }
+      }
+    }
+    return null;
   }
 }
 

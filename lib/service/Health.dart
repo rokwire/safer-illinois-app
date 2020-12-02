@@ -44,6 +44,7 @@ class Health with Service implements NotificationsListener {
   static const String notifyUserUpdated                = "edu.illinois.rokwire.health.user.updated";
   static const String notifyStatusUpdated              = "edu.illinois.rokwire.health.status.updated";
   static const String notifyHistoryUpdated             = "edu.illinois.rokwire.health.history.updated";
+  static const String notifyUserAccountCanged          = "edu.illinois.rokwire.health.user.account.changed";
   static const String notifyCountyChanged              = "edu.illinois.rokwire.health.county.changed";
   static const String notifyRulesChanged               = "edu.illinois.rokwire.health.rules.changed";
   static const String notifyBuildingAccessRulesChanged = "edu.illinois.rokwire.health.building_access_rules.changed";
@@ -54,6 +55,7 @@ class Health with Service implements NotificationsListener {
 
   HealthUser _user;
   PrivateKey _userPrivateKey;
+  String _userAccountId;
   int _userTestMonitorInterval;
 
   HealthStatus _status;
@@ -104,6 +106,7 @@ class Health with Service implements NotificationsListener {
 
     _user = _loadUserFromStorage();
     _userPrivateKey = await _loadUserPrivateKey();
+    _userAccountId = Storage().healthUserAccountId;
     _userTestMonitorInterval = Storage().healthUserTestMonitorInterval;
 
     _status = _loadStatusFromStorage();
@@ -121,6 +124,7 @@ class Health with Service implements NotificationsListener {
   Future<void> clearService() async {
     _user = null;
     _userPrivateKey = null;
+    _userAccountId = null;
     _userTestMonitorInterval = null;
     _servicePublicKey = null;
 
@@ -176,6 +180,7 @@ class Health with Service implements NotificationsListener {
     else {
       _userPrivateKey = null;
       _clearUser();
+      _clearUserAccountId();
       _clearUserTestMonitorInterval();
       _clearStatus();
       _clearHistory();
@@ -446,6 +451,7 @@ class Health with Service implements NotificationsListener {
       await _saveUserPrivateKey(_userPrivateKey = null);
       await _clearHistory();
       _clearStatus();
+      _clearUserAccountId();
       _clearUserTestMonitorInterval();
       return true;
     }
@@ -541,6 +547,31 @@ class Health with Service implements NotificationsListener {
       }
     }
     return result;
+  }
+
+  // User Accounts
+
+  String get userAccountId {
+    HealthUserAccount account = _user?.account(accountId: _userAccountId) ?? _user?.defaultAccount;
+    return account?.accountId;
+  }
+
+  set userAccountId(String accountId) {
+    if ((accountId != null) && (accountId == _user?.defaultAccount?.accountId)) {
+      accountId = null;
+    }
+    _applyUserAccount(accountId);
+  }
+
+  void _applyUserAccount(String accountId) {
+    if (_userAccountId != accountId) {
+      Storage().healthUserAccountId = _userAccountId = accountId;
+      NotificationService().notify(notifyUserAccountCanged);
+    }
+  }
+
+  void _clearUserAccountId() {
+    _applyUserAccount(null);
   }
 
   // User test monitor interval
