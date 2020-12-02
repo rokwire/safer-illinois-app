@@ -349,18 +349,7 @@ class UserPiiData {
       (rawUuidList?.hashCode ?? 0);
 
   String get fullName {
-    String fullName;
-    for (String name in [firstName, middleName, lastName]) {
-      if ((name != null) && (0 < name.length)) {
-        if (fullName == null) {
-          fullName = '$name';
-        }
-        else {
-          fullName += ' $name';
-        }
-      }
-    }
-    return fullName;
+    return AppString.fullName([firstName, middleName, lastName]);
   }
 
   String get uuid {

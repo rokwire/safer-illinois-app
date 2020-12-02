@@ -205,23 +205,7 @@ class ShibbolethAuthUser with AuthUser {
   }
 
   String get fullName {
-    if (AppString.isStringNotEmpty(_fullName)) {
-      return _fullName;
-    }
-    else {
-      String fullName;
-      for (String name in [firstName, middleName, lastName]) {
-        if ((name != null) && (0 < name.length)) {
-          if (fullName == null) {
-            fullName = '$name';
-          }
-          else {
-            fullName += ' $name';
-          }
-        }
-      }
-      return fullName;
-    }
+    return AppString.isStringNotEmpty(_fullName) ? _fullName : AppString.fullName([firstName, middleName, lastName]);
   }
 }
 
@@ -299,18 +283,7 @@ class PhoneAuthUser with AuthUser {
   }
 
   String get fullName {
-    String fullName;
-    for (String name in [firstName, middleName, lastName]) {
-      if ((name != null) && (0 < name.length)) {
-        if (fullName == null) {
-          fullName = '$name';
-        }
-        else {
-          fullName += ' $name';
-        }
-      }
-    }
-    return fullName;
+    return AppString.fullName([firstName, middleName, lastName]);
   }
 
   DateTime get birthDate {
