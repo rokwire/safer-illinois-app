@@ -2,26 +2,24 @@ function openFileDialog() {
     var input = document.createElement('input');
     input.type = 'file';
     input.onchange = event => {
-        onFileSelected(event);
+        scanImageFile(event);
     }
     input.click();
 }
 
-function onFileSelected(event) {
+async function scanImageFile(event) {
     // getting a hold of the file reference
-    var file = event.target.files[0];
+    var imageFile = event.target.files[0];
 
-    // Scan Image file
-    scanImageFile(file);
-}
-
-function scanImageFile(imageFile) {
+    // Scan the file
     QrScanner.WORKER_PATH = 'qr/qr-scanner-worker.min.js';
-    QrScanner.scanImage(imageFile)
-        .then(result => onImageScan(result))
-        .catch(error => onImageScan(error || 'No QR code found.'));
-}
-
-function onImageScan(result) {
-    alert(result)
+    var result;
+    try {
+        result = await QrScanner.scanImage(imageFile);
+    }
+    catch(err) {
+        console.log('Failed to scan qr code image. Reason:');
+        console.log(err);
+    }
+    return result;
 }
