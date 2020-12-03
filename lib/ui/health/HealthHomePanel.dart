@@ -60,7 +60,6 @@ class HealthHomePanel extends StatefulWidget {
 class _HealthHomePanelState extends State<HealthHomePanel> implements NotificationsListener {
 
   bool _isRefreshing;
-  bool _isSwitchingUserAccount;
 
   @override
   void initState() {
@@ -772,7 +771,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
             ),
           ),
 
-          Visibility(visible: (_isSwitchingUserAccount == true), child:
+          Visibility(visible: (_isRefreshing == true), child:
             Container(height: 48, child: 
               Align(alignment: Alignment.center, child: 
                 SizedBox(height: 24, width: 24, child: 
@@ -831,15 +830,10 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
   }
 
   void _onUserAccountChnaged(HealthUserAccount account) {
-    setState(() {
-      _isSwitchingUserAccount = true;
-    });
-    
+    setState(() { _isRefreshing = true; });
     Health().setUserAccountId(account.accountId).then((_){
       if (mounted) {
-        setState(() {
-          _isSwitchingUserAccount = false;
-        });
+        setState(() { _isRefreshing = false; });
       }
     });
   }
