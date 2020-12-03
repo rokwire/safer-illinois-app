@@ -71,6 +71,7 @@ class Health with Service implements NotificationsListener {
   List<HealthPendingEvent> _processedEvents;
   Future<void> _refreshFuture;
   _RefreshOptions _refreshOptions;
+  Set<String> _pendingNotifications;
   DateTime _pausedDateTime;
 
   // Singletone Instance
@@ -203,21 +204,22 @@ class Health with Service implements NotificationsListener {
 
   Future<void> _refresh(_RefreshOptions options) async {
 
-    if (_refreshFuture != null) {
+    if (_refreshOptions != null) {
       options = options.difference(_refreshOptions);
+    }
+
+    if (_refreshFuture != null) {
       await _refreshFuture;
     }
 
     if (options.isNotEmpty) {
-      _refreshFuture = _refreshInternal(options);
-      NotificationService().notify(notifyRefreshing);
-      await _refreshFuture;
-      NotificationService().notify(notifyRefreshing);
+      await (_refreshFuture = _refreshInternal(options));
     }
   }
 
   Future<void> _refreshInternal(_RefreshOptions options) async {
     _refreshOptions = options;
+    NotificationService().notify(notifyRefreshing);
 
     await Future.wait([
       options.user ? _refreshUser() : Future<void>.value(),
@@ -243,6 +245,37 @@ class Health with Service implements NotificationsListener {
 
     _refreshOptions = null;
     _refreshFuture = null;
+    NotificationService().notify(notifyRefreshing);
+  }
+
+  // Notifications
+
+  void _beginNotificationsCache() {
+    if (_pendingNotifications == null) {
+      _pendingNotifications = Set<String>();
+    }
+  }
+
+  void _endNotificationsCache() {
+    if (_pendingNotifications != null) {
+      Set<String> pendingNotifications = _pendingNotifications;
+      _pendingNotifications = null;
+
+      for (String notification in pendingNotifications) {
+        NotificationService().notify(notification);
+      }
+    }
+  }
+
+  void _notify(String notification) {
+    if (notification != null) {
+      if (_pendingNotifications != null) {
+        _pendingNotifications.add(notification);
+      }
+      else {
+        NotificationService().notify(notification);
+      }
+    }
   }
 
   // Public Accessories
@@ -484,7 +517,7 @@ class Health with Service implements NotificationsListener {
   void _applyUser(HealthUser user) {
     if (_user != user) {
       _saveUserToStorage(_user = user);
-      NotificationService().notify(notifyUserUpdated);
+      _notify(notifyUserUpdated);
     }
   }
 
@@ -517,9 +550,11 @@ class Health with Service implements NotificationsListener {
     HealthUser user = await loginUser(keys: keys);
     if (user != null) {
       // The old status and history is useless
+      _beginNotificationsCache();
       await _clearNetHistory();
       await _clearNetStatus();
       _refresh(_RefreshOptions.fromList([_RefreshOption.history]));
+      _endNotificationsCache();
       return keys;
     }
 
@@ -573,13 +608,14 @@ class Health with Service implements NotificationsListener {
   Future<void> _applyUserAccount(String accountId) async {
     if (_userAccountId != accountId) {
       Storage().healthUserAccountId = _userAccountId = accountId;
-      NotificationService().notify(notifyUserAccountCanged);
+      _notify(notifyUserAccountCanged);
 
-      _clearUserTestMonitorInterval();
+      _beginNotificationsCache();
       _clearStatus();
+      _clearUserTestMonitorInterval();
       await _clearHistory();
-
       await _refresh(_RefreshOptions.fromList([_RefreshOption.userInterval, _RefreshOption.history]));
+      _endNotificationsCache();
     }
   }
 
@@ -659,7 +695,7 @@ class Health with Service implements NotificationsListener {
       Response response = await Network().delete(url, auth: NetworkAuth.HealthUserAccount);
       if (response?.statusCode == 200) {
        _saveStatusToStorage(_status = _previousStatus = null);
-        NotificationService().notify(notifyStatusUpdated);
+        _notify(notifyStatusUpdated);
         return true;
       }
     }
@@ -702,7 +738,7 @@ class Health with Service implements NotificationsListener {
 
       _previousStatus = (status != null) ? _status : null;
       _saveStatusToStorage(_status = status);
-      NotificationService().notify(notifyStatusUpdated);
+      _notify(notifyStatusUpdated);
     }
     _applyBuildingAccessForStatus(status);
     _updateExposureReportTarget(status);
@@ -833,7 +869,7 @@ class Health with Service implements NotificationsListener {
       publicKey: _user?.publicKey
     ));
     if (historyEntry != null) {
-      NotificationService().notify(notifyHistoryUpdated);
+      _notify(notifyHistoryUpdated);
       await _rebuildStatus();
     }
     return historyEntry;
@@ -848,7 +884,7 @@ class Health with Service implements NotificationsListener {
       publicKey: _user?.publicKey
     ));
     if (historyEntry != null) {
-      NotificationService().notify(notifyHistoryUpdated);
+      _notify(notifyHistoryUpdated);
       await _rebuildStatus();
     }
     return historyEntry;
@@ -880,7 +916,7 @@ class Health with Service implements NotificationsListener {
     }
 
     if (historyUpdated == true) {
-      NotificationService().notify(notifyHistoryUpdated);
+      _notify(notifyHistoryUpdated);
     }
   }
 
@@ -888,7 +924,7 @@ class Health with Service implements NotificationsListener {
     if (_history != null) {
       _history = null;
       await _clearHistoryCache();
-      NotificationService().notify(notifyHistoryUpdated);
+      _notify(notifyHistoryUpdated);
     }
   }
 
@@ -1169,7 +1205,7 @@ class Health with Service implements NotificationsListener {
       }
 
       if (0 < processed.length) {
-        NotificationService().notify(notifyHistoryUpdated);
+        _notify(notifyHistoryUpdated);
 
         HealthStatus previousStatus = _status;
         await _rebuildStatus();
@@ -1229,7 +1265,7 @@ class Health with Service implements NotificationsListener {
       ));
 
       if (manualHistory != null) {
-        NotificationService().notify(notifyHistoryUpdated);
+        _notify(notifyHistoryUpdated);
   
         HealthStatus previousStatus = _status;
         await _rebuildStatus();
@@ -1265,7 +1301,7 @@ class Health with Service implements NotificationsListener {
     ));
 
     if (history != null) {
-      NotificationService().notify(notifyHistoryUpdated);
+      _notify(notifyHistoryUpdated);
 
       HealthStatus previousStatus = _status;
       await _rebuildStatus();
@@ -1305,7 +1341,7 @@ class Health with Service implements NotificationsListener {
     ));
 
     if (history != null) {
-      NotificationService().notify(notifyHistoryUpdated, null);
+      _notify(notifyHistoryUpdated);
 
       HealthStatus previousStatus = _status;
       await _rebuildStatus();
@@ -1371,7 +1407,7 @@ class Health with Service implements NotificationsListener {
       HealthCounty county = await _loadCounty(countyId: _county?.id);
       if ((county != null) && (_county != county)) {
         _saveCountyToStorage(_county = county);
-        NotificationService().notify(notifyCountyChanged);
+        _notify(notifyCountyChanged);
       }
     }
   }
@@ -1379,12 +1415,13 @@ class Health with Service implements NotificationsListener {
   Future<void> _applyCounty(HealthCounty county) async {
     if (_county?.id != county?.id) {
       _saveCountyToStorage(_county = county);
-      NotificationService().notify(notifyCountyChanged);
+      _notify(notifyCountyChanged);
 
+      _beginNotificationsCache();
       await _clearRules();
       _clearBuildingAccessRules();
-
       await _refresh(_RefreshOptions.fromList([_RefreshOption.rules, _RefreshOption.buildingAccessRules]));
+      _endNotificationsCache();
     }
   }
 
@@ -1412,7 +1449,7 @@ class Health with Service implements NotificationsListener {
     if ((rules != null) && (rules != _rules)) {
       _rules = rules;
       await _saveRulesJsonStringToCache(rulesJsonString);
-      NotificationService().notify(notifyRulesChanged);
+      _notify(notifyRulesChanged);
     }
   }
 
@@ -1484,7 +1521,7 @@ class Health with Service implements NotificationsListener {
     Map<String, dynamic> buildingAccessRules = await _loadBuildingAccessRules();
     if ((buildingAccessRules != null) && !DeepCollectionEquality().equals(_buildingAccessRules, buildingAccessRules)) {
       _saveBuildingAccessRulesToStorage(_buildingAccessRules = buildingAccessRules);
-      NotificationService().notify(notifyBuildingAccessRulesChanged);
+      _notify(notifyBuildingAccessRulesChanged);
    }
   }
 
