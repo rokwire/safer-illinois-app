@@ -70,6 +70,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
       Health.notifyUserUpdated,
       Health.notifyStatusUpdated,
       Health.notifyHistoryUpdated,
+      Health.notifyUserAccountCanged,
     ]);
 
     _refreshStatus();
@@ -87,6 +88,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
         (name == Health.notifyUserUpdated) ||
         (name == Health.notifyStatusUpdated) ||
         (name == Health.notifyHistoryUpdated) ||
+        (name == Health.notifyUserAccountCanged) ||
         (name == FlexUI.notifyChanged))
     {
       if (mounted) {
@@ -298,6 +300,8 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
         contentList.add(_buildCovidWellnessCenter());
       } else if (code == 'find_test_location') {
         contentList.add(_buildFindTestLocationsButton());
+      } else if (code == 'switch_account') {
+        contentList.add(_buildSwitchAccount());
       }
 
     }
@@ -742,6 +746,100 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
         onTap: ()=>_onTapFindLocations(),
       ),
     );
+  }
+
+  Widget _buildSwitchAccount() {
+    return Semantics(container: true, child: Container(
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+        Padding(padding: EdgeInsets.symmetric(vertical: 8), child:
+          Text(Localization().getStringEx("panel.covid19home.switch_account.heading.title", "Switch Account"),
+            style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 20),
+          ),
+        ),
+
+        Stack(children: [
+          Container(decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4), boxShadow: [BoxShadow(color: Color.fromRGBO(19, 41, 75, 0.3), spreadRadius: 2.0, blurRadius: 8.0, offset: Offset(0, 2))],), child: 
+            Padding(padding: EdgeInsets.only(left: 12, right: 16), child: 
+              DropdownButtonHideUnderline(child: DropdownButton(
+                icon: Image.asset('images/icon-down-orange.png'),
+                isExpanded: true,
+                style: _userAccountRegularTextStyle,
+                hint: _userAccountsDropDownItem(Health().userAccount) ?? Text(Localization().getStringEx("panel.covid19home.switch_account.dropdown.hint", "Select an account"), style: _userAccountHintTextStyle,),
+                items: _buildUserAccountsDropDownItems(),
+                onChanged: _onUserAccountChnaged,
+              )),
+            ),
+          ),
+
+          Visibility(visible: (_isRefreshing == true), child:
+            Container(height: 48, child: 
+              Align(alignment: Alignment.center, child: 
+                SizedBox(height: 24, width: 24, child: 
+                  CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary), )
+                ),
+              ),
+            ),
+          ),
+
+        ],),
+
+      ],),
+    ));
+    
+  }
+
+  List<DropdownMenuItem<HealthUserAccount>> _buildUserAccountsDropDownItems() {
+    List<DropdownMenuItem<HealthUserAccount>> items;
+    if (Health().user?.accounts != null) {
+      for (HealthUserAccount account in Health().user.accounts) {
+        if (account.isActive) {
+          if (items == null) {
+            items = items = List<DropdownMenuItem<HealthUserAccount>>();
+          }
+          items.add(DropdownMenuItem<HealthUserAccount>(
+            value: account, child: _userAccountsDropDownItem(account)
+          ));
+        }
+      }
+    }
+
+    return items;
+  }
+
+  Widget _userAccountsDropDownItem(HealthUserAccount account) {
+    if (account != null) {
+      String accountName = AppString.firstNotEmpty([
+        account.fullName, account.email, account.phone, account.externalId, account.accountId
+      ]) ?? '';
+      
+      if (account.isDefault) {
+        return Wrap(children: <Widget>[
+          Text(accountName, style: _userAccountRegularTextStyle),
+          Text(Localization().getStringEx("panel.covid19home.switch_account.default.suffix", " (default)"), style: _userAccountHintTextStyle),
+        ],);
+      }
+      else {
+        return Text(accountName, style: _userAccountRegularTextStyle);
+      }
+    }
+    return null;
+  }
+
+  TextStyle get _userAccountRegularTextStyle {
+    return TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 16, fontFamily: Styles().fontFamilies.bold);
+  }
+
+  TextStyle get _userAccountHintTextStyle {
+    return TextStyle(color: Styles().colors.mediumGray, fontSize: 16, fontFamily: Styles().fontFamilies.regular);
+  }
+
+  void _onUserAccountChnaged(HealthUserAccount account) {
+    setState(() { _isRefreshing = true; });
+    Health().setUserAccountId(account.accountId).then((_){
+      if (mounted) {
+        setState(() { _isRefreshing = false; });
+      }
+    });
   }
 
   void _onTapCountryGuidelines() {

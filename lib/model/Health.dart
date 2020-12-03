@@ -1035,11 +1035,17 @@ class HealthUser {
   bool consent;
   bool exposureNotification;
   bool repost;
+  List<HealthUserAccount> accounts;
   String encryptedKey;
   String encryptedBlob;
 
-  HealthUser({this.uuid, this.publicKeyString, PublicKey publicKey, this.consent, this.exposureNotification, this.repost, this.encryptedKey, this.encryptedBlob}) {
+  HealthUserAccount defaultAccount;
+  Map<String, HealthUserAccount> accountsMap;
+
+  HealthUser({this.uuid, this.publicKeyString, PublicKey publicKey, this.consent, this.exposureNotification, this.repost, this.accounts, this.encryptedKey, this.encryptedBlob}) {
     _publicKey = publicKey;
+    accountsMap = HealthUserAccount.mapFromList(accounts);
+    defaultAccount = HealthUserAccount.defaultInList(accounts);
   }
 
   factory HealthUser.fromJson(Map<String, dynamic> json) {
@@ -1049,6 +1055,7 @@ class HealthUser {
       consent: json['consent'],
       exposureNotification: json['exposure_notification'],
       repost: json['re_post'],
+      accounts: HealthUserAccount.listFromJson(json['accounts']),
       encryptedKey: json['encrypted_key'],
       encryptedBlob: json['encrypted_blob'],
     ) : null;
@@ -1061,18 +1068,20 @@ class HealthUser {
       'consent': consent,
       'exposure_notification': exposureNotification,
       're_post': repost,
+      'accounts': HealthUserAccount.listToJson(accounts),
       'encrypted_key': encryptedKey,
       'encrypted_blob': encryptedBlob,
     };
   }
 
-  bool operator== (o) =>
+  bool operator == (o) =>
     o is HealthUser &&
       o.uuid == uuid &&
       o.publicKeyString == publicKeyString &&
       o.consent == consent &&
       o.exposureNotification == exposureNotification &&
       o.repost == repost &&
+      ListEquality().equals(o.accounts, accounts) &&
       o.encryptedKey == encryptedKey &&
       o.encryptedBlob == encryptedBlob;
 
@@ -1082,6 +1091,7 @@ class HealthUser {
     (consent?.hashCode ?? 0) ^
     (exposureNotification?.hashCode ?? 0) ^
     (repost?.hashCode ?? 0) ^
+    ListEquality().hash(accounts) ^
     (encryptedKey?.hashCode ?? 0) ^
     (encryptedBlob?.hashCode ?? 0);
 
@@ -1094,7 +1104,6 @@ class HealthUser {
     encryptedBlob = encrypted['encryptedBlob'];
   }
 
-
   factory HealthUser.fromUser(HealthUser user) {
     return (user != null) ? HealthUser(
       uuid: user.uuid,
@@ -1103,6 +1112,7 @@ class HealthUser {
       consent: user.consent,
       exposureNotification: user.exposureNotification,
       repost: user.repost,
+      accounts: user.accounts,
       encryptedKey: user.encryptedKey,
       encryptedBlob: user.encryptedBlob,
     ) : null;
@@ -1118,6 +1128,10 @@ class HealthUser {
   set publicKey(PublicKey value) {
     _publicKey = value;
     publicKeyString = (value != null) ? RsaKeyHelper.encodePublicKeyToPemPKCS1(value) : null;
+  }
+
+  HealthUserAccount account({String accountId}) {
+    return ((accountsMap != null) && (accountId != null)) ? accountsMap[accountId] : null;
   }
 }
 
@@ -1139,6 +1153,194 @@ class HealthUserBlob {
     return {
       'info': info
     };
+  }
+}
+
+///////////////////////////////
+// HealthUserAccount
+
+class HealthUserAccount {
+  final String accountId;
+  final String externalId;
+  final bool isDefault;
+  final bool isActive;
+
+  final String email;
+  final String phone;
+  final String firstName;
+  final String middleName;
+  final String lastName;
+  final String birthDateString;
+  final String gender;
+
+  final String address1;
+  final String address2;
+  final String address3;
+  final String city;
+  final String state;
+  final String zip;
+
+  HealthUserAccount({this.accountId, this.externalId, this.isDefault, this.isActive,
+    this.email, this.phone, this.firstName, this.middleName, this.lastName, this.birthDateString, this.gender,
+    this.address1, this.address2, this.address3, this.city, this.state, this.zip
+  });
+
+  factory HealthUserAccount.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthUserAccount(
+      accountId: json['id'],
+      externalId: json['external_id'],
+      isDefault: json['default'],
+      isActive: json['active'],
+
+      email: json['email'],
+      phone: json['phone'],
+      firstName: json['first_name'],
+      middleName: json['middle_name'],
+      lastName: json['last_name'],
+      birthDateString: json['birth_date'],
+      gender: json['gender'],
+
+      address1: json['address1'],
+      address2: json['address2'],
+      address3: json['address3'],
+      city: json['city'],
+      state: json['state'],
+      zip: json['zip'],
+    ) : null;
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': accountId,
+      'external_id': externalId,
+      'default': isDefault,
+      'active': isActive,
+
+      'email': email,
+      'phone': phone,
+      'first_name': firstName,
+      'middle_name': middleName,
+      'last_name': lastName,
+      'birth_date': birthDateString,
+      'gender': gender,
+
+      'address1': address1,
+      'address2': address2,
+      'address3': address3,
+      'city': city,
+      'state': state,
+      'zip': zip,
+    };
+  }
+
+  bool operator == (o) =>
+    o is HealthUserAccount &&
+      o.accountId == accountId &&
+      o.externalId == externalId &&
+      o.isDefault == isDefault &&
+      o.isActive == isActive &&
+      
+      o.email == email &&
+      o.phone == phone &&
+      o.firstName == firstName &&
+      o.middleName == middleName &&
+      o.lastName == lastName &&
+      o.birthDateString == birthDateString &&
+      o.gender == gender &&
+
+      o.address1 == address1 &&
+      o.address2 == address2 &&
+      o.address3 == address3 &&
+      o.city == city &&
+      o.state == state &&
+      o.zip == zip;
+
+  int get hashCode =>
+    (accountId?.hashCode ?? 0) ^
+    (externalId?.hashCode ?? 0) ^
+    (isDefault?.hashCode ?? 0) ^
+    (isActive?.hashCode ?? 0) ^
+
+    (email?.hashCode ?? 0) ^
+    (phone?.hashCode ?? 0) ^
+    (firstName?.hashCode ?? 0) ^
+    (middleName?.hashCode ?? 0) ^
+    (lastName?.hashCode ?? 0) ^
+    (birthDateString?.hashCode ?? 0) ^
+    (gender?.hashCode ?? 0) ^
+
+    (address1?.hashCode ?? 0) ^
+    (address2?.hashCode ?? 0) ^
+    (address2?.hashCode ?? 0) ^
+    (city?.hashCode ?? 0) ^
+    (state?.hashCode ?? 0) ^
+    (zip?.hashCode ?? 0);
+
+  String get fullName {
+    return AppString.fullName([firstName, middleName, lastName]);
+  }
+
+  DateTime get birthDate {
+    return AppDateTime.parseDateTime(birthDateString, format: "MM/dd/yy");
+  }
+
+  static List<HealthUserAccount> listFromJson(List<dynamic> json) {
+    List<HealthUserAccount> values;
+    if (json != null) {
+      values = [];
+      for (dynamic entry in json) {
+          HealthUserAccount value;
+          try { value = HealthUserAccount.fromJson((entry as Map)?.cast<String, dynamic>()); }
+          catch(e) { print(e?.toString()); }
+          values.add(value);
+      }
+    }
+
+    // TMP:
+    /*if (!kReleaseMode && ((values?.length ?? 0) == 0)) {
+      values = [
+        HealthUserAccount(accountId: "1", externalId: "655618818", isDefault: true,  isActive: true, email: "email1@server.com", phone: "+000000000001", firstName: "Misho", lastName: "Varbanov", birthDateString: "01/01/70", gender: "M",),
+        HealthUserAccount(accountId: "2", externalId: "655618818", isDefault: false, isActive: true, email: "email2@server.com", phone: "+000000000002", firstName: "Mihail", lastName: "Varbanov", birthDateString: "01/01/70", gender: "M",),
+        HealthUserAccount(accountId: "3", externalId: "655618818", isDefault: false, isActive: true, email: "email3@server.com", phone: "+000000000003", firstName: "Quetzal", lastName: "Coatl", birthDateString: "01/01/70", gender: "M",),
+      ];
+    }*/
+
+    return values;
+  }
+
+  static List<dynamic> listToJson(List<HealthUserAccount> values) {
+    List<dynamic> json;
+    if (values != null) {
+      json = [];
+      for (HealthUserAccount value in values) {
+        json.add(value?.toJson());
+      }
+    }
+    return json;
+  }
+
+  static Map<String, HealthUserAccount> mapFromList(List<HealthUserAccount> values) {
+    Map<String, HealthUserAccount> map;
+    if (values != null) {
+      map = <String, HealthUserAccount>{};
+      for (HealthUserAccount account in values) {
+        if ((account.accountId != null) && (account.isActive != false)) {
+          map[account.accountId] = account;
+        }
+      }
+    }
+    return map;
+  }
+
+  static HealthUserAccount defaultInList(List<HealthUserAccount> values) {
+    if (values != null) {
+      for (HealthUserAccount account in values) {
+        if ((account.isDefault == true) && (account.isActive != false)) {
+          return account;
+        }
+      }
+    }
+    return null;
   }
 }
 

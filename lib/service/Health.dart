@@ -44,6 +44,7 @@ class Health with Service implements NotificationsListener {
   static const String notifyUserUpdated                = "edu.illinois.rokwire.health.user.updated";
   static const String notifyStatusUpdated              = "edu.illinois.rokwire.health.status.updated";
   static const String notifyHistoryUpdated             = "edu.illinois.rokwire.health.history.updated";
+  static const String notifyUserAccountCanged          = "edu.illinois.rokwire.health.user.account.changed";
   static const String notifyCountyChanged              = "edu.illinois.rokwire.health.county.changed";
   static const String notifyRulesChanged               = "edu.illinois.rokwire.health.rules.changed";
   static const String notifyBuildingAccessRulesChanged = "edu.illinois.rokwire.health.building_access_rules.changed";
@@ -54,6 +55,7 @@ class Health with Service implements NotificationsListener {
 
   HealthUser _user;
   PrivateKey _userPrivateKey;
+  String _userAccountId;
   int _userTestMonitorInterval;
 
   HealthStatus _status;
@@ -69,6 +71,7 @@ class Health with Service implements NotificationsListener {
   List<HealthPendingEvent> _processedEvents;
   Future<void> _refreshFuture;
   _RefreshOptions _refreshOptions;
+  Set<String> _pendingNotifications;
   DateTime _pausedDateTime;
 
   // Singletone Instance
@@ -104,6 +107,7 @@ class Health with Service implements NotificationsListener {
 
     _user = _loadUserFromStorage();
     _userPrivateKey = await _loadUserPrivateKey();
+    _userAccountId = Storage().healthUserAccountId;
     _userTestMonitorInterval = Storage().healthUserTestMonitorInterval;
 
     _status = _loadStatusFromStorage();
@@ -121,6 +125,7 @@ class Health with Service implements NotificationsListener {
   Future<void> clearService() async {
     _user = null;
     _userPrivateKey = null;
+    _userAccountId = null;
     _userTestMonitorInterval = null;
     _servicePublicKey = null;
 
@@ -176,6 +181,7 @@ class Health with Service implements NotificationsListener {
     else {
       _userPrivateKey = null;
       _clearUser();
+      _clearUserAccountId();
       _clearUserTestMonitorInterval();
       _clearStatus();
       _clearHistory();
@@ -198,21 +204,22 @@ class Health with Service implements NotificationsListener {
 
   Future<void> _refresh(_RefreshOptions options) async {
 
-    if (_refreshFuture != null) {
+    if (_refreshOptions != null) {
       options = options.difference(_refreshOptions);
+    }
+
+    if (_refreshFuture != null) {
       await _refreshFuture;
     }
 
     if (options.isNotEmpty) {
-      _refreshFuture = _refreshInternal(options);
-      NotificationService().notify(notifyRefreshing);
-      await _refreshFuture;
-      NotificationService().notify(notifyRefreshing);
+      await (_refreshFuture = _refreshInternal(options));
     }
   }
 
   Future<void> _refreshInternal(_RefreshOptions options) async {
     _refreshOptions = options;
+    NotificationService().notify(notifyRefreshing);
 
     await Future.wait([
       options.user ? _refreshUser() : Future<void>.value(),
@@ -238,6 +245,37 @@ class Health with Service implements NotificationsListener {
 
     _refreshOptions = null;
     _refreshFuture = null;
+    NotificationService().notify(notifyRefreshing);
+  }
+
+  // Notifications
+
+  void _beginNotificationsCache() {
+    if (_pendingNotifications == null) {
+      _pendingNotifications = Set<String>();
+    }
+  }
+
+  void _endNotificationsCache() {
+    if (_pendingNotifications != null) {
+      Set<String> pendingNotifications = _pendingNotifications;
+      _pendingNotifications = null;
+
+      for (String notification in pendingNotifications) {
+        NotificationService().notify(notification);
+      }
+    }
+  }
+
+  void _notify(String notification) {
+    if (notification != null) {
+      if (_pendingNotifications != null) {
+        _pendingNotifications.add(notification);
+      }
+      else {
+        NotificationService().notify(notification);
+      }
+    }
   }
 
   // Public Accessories
@@ -435,7 +473,7 @@ class Health with Service implements NotificationsListener {
     }
 
     if (userReset == true) {
-      _refresh(_RefreshOptions.fromList([_RefreshOption.userInterval, _RefreshOption.history]));
+      await _refresh(_RefreshOptions.fromList([_RefreshOption.userInterval, _RefreshOption.history]));
     }
     
     return user;
@@ -446,6 +484,7 @@ class Health with Service implements NotificationsListener {
       await _saveUserPrivateKey(_userPrivateKey = null);
       await _clearHistory();
       _clearStatus();
+      _clearUserAccountId();
       _clearUserTestMonitorInterval();
       return true;
     }
@@ -478,7 +517,7 @@ class Health with Service implements NotificationsListener {
   void _applyUser(HealthUser user) {
     if (_user != user) {
       _saveUserToStorage(_user = user);
-      NotificationService().notify(notifyUserUpdated);
+      _notify(notifyUserUpdated);
     }
   }
 
@@ -511,9 +550,11 @@ class Health with Service implements NotificationsListener {
     HealthUser user = await loginUser(keys: keys);
     if (user != null) {
       // The old status and history is useless
+      _beginNotificationsCache();
       await _clearNetHistory();
       await _clearNetStatus();
       _refresh(_RefreshOptions.fromList([_RefreshOption.history]));
+      _endNotificationsCache();
       return keys;
     }
 
@@ -543,6 +584,45 @@ class Health with Service implements NotificationsListener {
     return result;
   }
 
+  // User Accounts
+
+  HealthUserAccount get userAccount {
+    return _user?.account(accountId: _userAccountId) ?? _user?.defaultAccount;
+  }
+
+  String get userAccountId {
+    return userAccount?.accountId;
+  }
+
+  Future<void> setUserAccountId(String accountId) {
+    if ((accountId != null) && (accountId == _user?.defaultAccount?.accountId)) {
+      accountId = null;
+    }
+    return _applyUserAccount(accountId);
+  }
+
+  bool get userMultipleAccounts {
+    return 1 < (_user?.accountsMap?.length ?? 0);
+  }
+
+  Future<void> _applyUserAccount(String accountId) async {
+    if (_userAccountId != accountId) {
+      Storage().healthUserAccountId = _userAccountId = accountId;
+      _notify(notifyUserAccountCanged);
+
+      _beginNotificationsCache();
+      _clearStatus();
+      _clearUserTestMonitorInterval();
+      await _clearHistory();
+      await _refresh(_RefreshOptions.fromList([_RefreshOption.userInterval, _RefreshOption.history]));
+      _endNotificationsCache();
+    }
+  }
+
+  void _clearUserAccountId() {
+    _applyUserAccount(null);
+  }
+
   // User test monitor interval
 
   int get userTestMonitorInterval {
@@ -561,7 +641,7 @@ class Health with Service implements NotificationsListener {
   Future<int> _loadUserTestMonitorInterval() async {
     if (this._isUserAuthenticated && (Config().healthUrl != null)) {
       String url = "${Config().healthUrl}/covid19/uin-override";
-      Response response = await Network().get(url, auth: NetworkAuth.User);
+      Response response = await Network().get(url, auth: NetworkAuth.HealthUserAccount);
       if (response?.statusCode == 200) {
         Map<String, dynamic> responseJson = AppJson.decodeMap(response.body);
         return (responseJson != null) ? responseJson['interval'] : null;
@@ -588,7 +668,7 @@ class Health with Service implements NotificationsListener {
   Future<HealthStatus> _loadStatusFromNet() async {
     if (this._isUserReadAuthenticated && (Config().healthUrl != null)) {
       String url = "${Config().healthUrl}/covid19/v2/app-version/2.2/statuses";
-      Response response = await Network().get(url, auth: NetworkAuth.User);
+      Response response = await Network().get(url, auth: NetworkAuth.HealthUserAccount);
       if (response?.statusCode == 200) {
         return await HealthStatus.decryptedFromJson(AppJson.decodeMap(response.body), _userPrivateKey);
       }
@@ -601,7 +681,7 @@ class Health with Service implements NotificationsListener {
       String url = "${Config().healthUrl}/covid19/v2/app-version/2.2/statuses";
       HealthStatus encryptedStatus = await status?.encrypted(_user?.publicKey);
       String post = AppJson.encode(encryptedStatus?.toJson());
-      Response response = await Network().put(url, body: post, auth: NetworkAuth.User);
+      Response response = await Network().put(url, body: post, auth: NetworkAuth.HealthUserAccount);
       if (response?.statusCode == 200) {
         return true;
       }
@@ -612,10 +692,10 @@ class Health with Service implements NotificationsListener {
   Future<bool> _clearNetStatus() async {
     if (this._isUserAuthenticated && (Config().healthUrl != null)) {
       String url = "${Config().healthUrl}/covid19/v2/app-version/2.2/statuses";
-      Response response = await Network().delete(url, auth: NetworkAuth.User);
+      Response response = await Network().delete(url, auth: NetworkAuth.HealthUserAccount);
       if (response?.statusCode == 200) {
        _saveStatusToStorage(_status = _previousStatus = null);
-        NotificationService().notify(notifyStatusUpdated);
+        _notify(notifyStatusUpdated);
         return true;
       }
     }
@@ -658,7 +738,7 @@ class Health with Service implements NotificationsListener {
 
       _previousStatus = (status != null) ? _status : null;
       _saveStatusToStorage(_status = status);
-      NotificationService().notify(notifyStatusUpdated);
+      _notify(notifyStatusUpdated);
     }
     _applyBuildingAccessForStatus(status);
     _updateExposureReportTarget(status);
@@ -789,7 +869,7 @@ class Health with Service implements NotificationsListener {
       publicKey: _user?.publicKey
     ));
     if (historyEntry != null) {
-      NotificationService().notify(notifyHistoryUpdated);
+      _notify(notifyHistoryUpdated);
       await _rebuildStatus();
     }
     return historyEntry;
@@ -804,7 +884,7 @@ class Health with Service implements NotificationsListener {
       publicKey: _user?.publicKey
     ));
     if (historyEntry != null) {
-      NotificationService().notify(notifyHistoryUpdated);
+      _notify(notifyHistoryUpdated);
       await _rebuildStatus();
     }
     return historyEntry;
@@ -836,7 +916,7 @@ class Health with Service implements NotificationsListener {
     }
 
     if (historyUpdated == true) {
-      NotificationService().notify(notifyHistoryUpdated);
+      _notify(notifyHistoryUpdated);
     }
   }
 
@@ -844,14 +924,14 @@ class Health with Service implements NotificationsListener {
     if (_history != null) {
       _history = null;
       await _clearHistoryCache();
-      NotificationService().notify(notifyHistoryUpdated);
+      _notify(notifyHistoryUpdated);
     }
   }
 
   Future<bool> _clearNetHistory() async {
     if (this._isUserAuthenticated && (Config().healthUrl != null)) {
       String url = "${Config().healthUrl}/covid19/v2/histories";
-      Response response = await Network().delete(url, auth: NetworkAuth.User);
+      Response response = await Network().delete(url, auth: NetworkAuth.HealthUserAccount);
       if (response?.statusCode == 200) {
         _history = <HealthHistory>[];
         await _saveHistoryJsonStringToCache(AppJson.encode(HealthHistory.listToJson(_history)));
@@ -863,7 +943,7 @@ class Health with Service implements NotificationsListener {
 
   Future<String> _loadHistoryJsonStringFromNet() async {
     String url = (this._isUserReadAuthenticated && (Config().healthUrl != null)) ? "${Config().healthUrl}/covid19/v2/histories" : null;
-    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.User) : null;
+    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.HealthUserAccount) : null;
     return (response?.statusCode == 200) ? response.body : null;
   }
 
@@ -871,7 +951,7 @@ class Health with Service implements NotificationsListener {
     if (this._isUserWriteAuthenticated && (Config().healthUrl != null)) {
       String url = "${Config().healthUrl}/covid19/v2/histories";
       String post = AppJson.encode(history?.toJson());
-      Response response = await Network().post(url, body: post, auth: NetworkAuth.User);
+      Response response = await Network().post(url, body: post, auth: NetworkAuth.HealthUserAccount);
       HealthHistory historyEntry = (response?.statusCode == 200) ? await HealthHistory.decryptedFromJson(AppJson.decode(response.body), _historyPrivateKeys) : null;
       if ((_history != null) && (historyEntry != null)) {
         _history.add(historyEntry);
@@ -887,7 +967,7 @@ class Health with Service implements NotificationsListener {
     if (this._isUserWriteAuthenticated && (Config().healthUrl != null)) {
       String url = "${Config().healthUrl}/covid19/v2/histories/${history.id}";
       String post = AppJson.encode(history?.toJson());
-      Response response = await Network().put(url, body: post, auth: NetworkAuth.User);
+      Response response = await Network().put(url, body: post, auth: NetworkAuth.HealthUserAccount);
       HealthHistory historyEntry = (response?.statusCode == 200) ? await HealthHistory.decryptedFromJson(AppJson.decode(response.body), _historyPrivateKeys) : null;
       if ((_history != null) && (historyEntry != null) && HealthHistory.updateInList(_history, historyEntry)) {
         HealthHistory.sortListDescending(_history);
@@ -956,7 +1036,7 @@ class Health with Service implements NotificationsListener {
       if (0 < params.length) {
         url += "?$params";
       }
-      Response response = await Network().get(url, auth: NetworkAuth.User);
+      Response response = await Network().get(url, auth: NetworkAuth.HealthUserAccount);
       String responseString = (response?.statusCode == 200) ? response.body : null;
       List<dynamic> responseJson = (responseString != null) ? AppJson.decodeList(responseString) : null;
       return (responseJson != null) ? await HealthPendingEvent.listFromJson(responseJson, _userPrivateKey) : null;
@@ -967,7 +1047,7 @@ class Health with Service implements NotificationsListener {
   Future<bool> _markPendingEventAsProcessed(HealthPendingEvent event) async {
     String url = (this._isUserAuthenticated && Config().healthUrl != null) ? "${Config().healthUrl}/covid19/ctests/${event.id}" : null;
     String post = AppJson.encode({'processed' : true});
-    Response response = (url != null) ? await Network().put(url, body:post, auth: NetworkAuth.User) : null;
+    Response response = (url != null) ? await Network().put(url, body:post, auth: NetworkAuth.HealthUserAccount) : null;
     if (response?.statusCode == 200) {
       return true;
     }
@@ -1125,7 +1205,7 @@ class Health with Service implements NotificationsListener {
       }
 
       if (0 < processed.length) {
-        NotificationService().notify(notifyHistoryUpdated);
+        _notify(notifyHistoryUpdated);
 
         HealthStatus previousStatus = _status;
         await _rebuildStatus();
@@ -1185,7 +1265,7 @@ class Health with Service implements NotificationsListener {
       ));
 
       if (manualHistory != null) {
-        NotificationService().notify(notifyHistoryUpdated);
+        _notify(notifyHistoryUpdated);
   
         HealthStatus previousStatus = _status;
         await _rebuildStatus();
@@ -1221,7 +1301,7 @@ class Health with Service implements NotificationsListener {
     ));
 
     if (history != null) {
-      NotificationService().notify(notifyHistoryUpdated);
+      _notify(notifyHistoryUpdated);
 
       HealthStatus previousStatus = _status;
       await _rebuildStatus();
@@ -1261,7 +1341,7 @@ class Health with Service implements NotificationsListener {
     ));
 
     if (history != null) {
-      NotificationService().notify(notifyHistoryUpdated, null);
+      _notify(notifyHistoryUpdated);
 
       HealthStatus previousStatus = _status;
       await _rebuildStatus();
@@ -1327,7 +1407,7 @@ class Health with Service implements NotificationsListener {
       HealthCounty county = await _loadCounty(countyId: _county?.id);
       if ((county != null) && (_county != county)) {
         _saveCountyToStorage(_county = county);
-        NotificationService().notify(notifyCountyChanged);
+        _notify(notifyCountyChanged);
       }
     }
   }
@@ -1335,12 +1415,13 @@ class Health with Service implements NotificationsListener {
   Future<void> _applyCounty(HealthCounty county) async {
     if (_county?.id != county?.id) {
       _saveCountyToStorage(_county = county);
-      NotificationService().notify(notifyCountyChanged);
+      _notify(notifyCountyChanged);
 
+      _beginNotificationsCache();
       await _clearRules();
       _clearBuildingAccessRules();
-
       await _refresh(_RefreshOptions.fromList([_RefreshOption.rules, _RefreshOption.buildingAccessRules]));
+      _endNotificationsCache();
     }
   }
 
@@ -1368,7 +1449,7 @@ class Health with Service implements NotificationsListener {
     if ((rules != null) && (rules != _rules)) {
       _rules = rules;
       await _saveRulesJsonStringToCache(rulesJsonString);
-      NotificationService().notify(notifyRulesChanged);
+      _notify(notifyRulesChanged);
     }
   }
 
@@ -1440,7 +1521,7 @@ class Health with Service implements NotificationsListener {
     Map<String, dynamic> buildingAccessRules = await _loadBuildingAccessRules();
     if ((buildingAccessRules != null) && !DeepCollectionEquality().equals(_buildingAccessRules, buildingAccessRules)) {
       _saveBuildingAccessRulesToStorage(_buildingAccessRules = buildingAccessRules);
-      NotificationService().notify(notifyBuildingAccessRulesChanged);
+      _notify(notifyBuildingAccessRulesChanged);
    }
   }
 
@@ -1464,7 +1545,7 @@ class Health with Service implements NotificationsListener {
         'date': healthDateTimeToString(dateUtc),
         'access': access
       });
-      Response response = (url != null) ? await Network().put(url, body: post, auth: NetworkAuth.User) : null;
+      Response response = (url != null) ? await Network().put(url, body: post, auth: NetworkAuth.HealthUserAccount) : null;
       return (response?.statusCode == 200);
     }
     return false;
