@@ -36,18 +36,18 @@ import "package:pointycastle/export.dart";
 
 class HealthStatus {
   final String id;
-  final String userId;
+  final String accountId;
   final DateTime dateUtc;
   final String encryptedKey;
   final String encryptedBlob;
   HealthStatusBlob blob;
 
-  HealthStatus({this.id, this.userId, this.dateUtc, this.encryptedKey, this.encryptedBlob, this.blob});
+  HealthStatus({this.id, this.accountId, this.dateUtc, this.encryptedKey, this.encryptedBlob, this.blob});
 
   factory HealthStatus.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthStatus(
       id: json['id'],
-      userId: json['user_id'],
+      accountId: json['account_id'],
       dateUtc: healthDateTimeFromString(json['date']),
       encryptedKey: json['encrypted_key'],
       encryptedBlob: json['encrypted_blob'],
@@ -57,7 +57,7 @@ class HealthStatus {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'user_id': userId,
+      'account_id': accountId,
       'date': healthDateTimeToString(dateUtc),
       'encrypted_key': encryptedKey,
       'encrypted_blob': encryptedBlob,
@@ -67,7 +67,7 @@ class HealthStatus {
   bool operator ==(o) {
     return (o is HealthStatus) &&
       (o.id == id) &&
-      (o.userId == userId) &&
+      (o.accountId == accountId) &&
       (o.dateUtc == dateUtc) &&
       (o.encryptedKey == encryptedKey) &&
       (o.encryptedBlob == encryptedBlob);
@@ -75,7 +75,7 @@ class HealthStatus {
 
   int get hashCode =>
     (id?.hashCode ?? 0) ^
-    (userId?.hashCode ?? 0) ^
+    (accountId?.hashCode ?? 0) ^
     (dateUtc?.hashCode ?? 0) ^
     (encryptedKey?.hashCode ?? 0) ^
     (encryptedBlob?.hashCode ?? 0);
@@ -104,7 +104,7 @@ class HealthStatus {
     });
     return HealthStatus(
       id: id,
-      userId: userId,
+      accountId: accountId,
       dateUtc: dateUtc,
       encryptedKey: encrypted['encryptedKey'],
       encryptedBlob: encrypted['encryptedBlob'],
@@ -310,7 +310,7 @@ const String kBuildingAccessDenied    = 'denied';
 
 class HealthHistory implements Comparable<HealthHistory> {
   final String id;
-  final String userId;
+  final String accountId;
   final DateTime dateUtc;
   final HealthHistoryType type;
 
@@ -324,12 +324,12 @@ class HealthHistory implements Comparable<HealthHistory> {
 
   HealthHistoryBlob blob;
 
-  HealthHistory({this.id, this.userId, this.dateUtc, this.type, this.encryptedKey, this.encryptedBlob, this.locationId, this.countyId, this.encryptedImageKey, this.encryptedImageBlob });
+  HealthHistory({this.id, this.accountId, this.dateUtc, this.type, this.encryptedKey, this.encryptedBlob, this.locationId, this.countyId, this.encryptedImageKey, this.encryptedImageBlob });
 
   factory HealthHistory.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthHistory(
       id: json['id'],
-      userId: json['user_id'],
+      accountId: json['account_id'],
       dateUtc: healthDateTimeFromString(json['date']),
       type: healthHistoryTypeFromString(json['type']),
 
@@ -346,7 +346,7 @@ class HealthHistory implements Comparable<HealthHistory> {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'user_id': userId,
+      'account_id': accountId,
       'date': healthDateTimeToString(dateUtc),
       'type': healthHistoryTypeToString(type),
 
@@ -363,7 +363,7 @@ class HealthHistory implements Comparable<HealthHistory> {
   bool operator ==(o) {
     return (o is HealthHistory) &&
       (o.id == id) &&
-      (o.userId == userId) &&
+      (o.accountId == accountId) &&
       (o.dateUtc == dateUtc) &&
       (o.type == type) &&
 
@@ -378,7 +378,7 @@ class HealthHistory implements Comparable<HealthHistory> {
 
   int get hashCode =>
     (id?.hashCode ?? 0) ^
-    (userId?.hashCode ?? 0) ^
+    (accountId?.hashCode ?? 0) ^
     (dateUtc?.hashCode ?? 0) ^
     (type?.hashCode ?? 0) ^
     
@@ -418,7 +418,7 @@ class HealthHistory implements Comparable<HealthHistory> {
     return null;
   }
 
-  static Future<HealthHistory> encryptedFromBlob({String id, String userId, DateTime dateUtc, HealthHistoryType type, HealthHistoryBlob blob, String locationId, String countyId, String image, PublicKey publicKey}) async {
+  static Future<HealthHistory> encryptedFromBlob({String id, String accountId, DateTime dateUtc, HealthHistoryType type, HealthHistoryBlob blob, String locationId, String countyId, String image, PublicKey publicKey}) async {
     Map<String, dynamic> encrypted = await compute(_encryptBlob, {
       'blob': AppJson.encode(blob?.toJson()),
       'publicKey': publicKey
@@ -429,7 +429,7 @@ class HealthHistory implements Comparable<HealthHistory> {
     }) : null;
     return HealthHistory(
       id: id,
-      userId: userId,
+      accountId: accountId,
       dateUtc: dateUtc,
       type: type,
       encryptedKey: encrypted['encryptedKey'],
@@ -857,7 +857,7 @@ class HealthPendingEvent {
   final String   id;
   final String   provider;
   final String   providerId;
-  final String   userId;
+  final String   accountId;
   final String   encryptedKey;
   final String   encryptedBlob;
   final bool     processed;
@@ -866,14 +866,14 @@ class HealthPendingEvent {
 
   HealthPendingEventBlob blob;
 
-  HealthPendingEvent({this.id, this.provider, this.providerId, this.userId, this.encryptedKey, this.encryptedBlob, this.processed, this.dateCreated, this.dateUpdated});
+  HealthPendingEvent({this.id, this.provider, this.providerId, this.accountId, this.encryptedKey, this.encryptedBlob, this.processed, this.dateCreated, this.dateUpdated});
 
   factory HealthPendingEvent.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthPendingEvent(
       id:            AppJson.stringValue(json['id']),
       provider:      AppJson.stringValue(json['provider']),
       providerId:    AppJson.stringValue(json['provider_id']),
-      userId:        AppJson.stringValue(json['user_id']),
+      accountId:     AppJson.stringValue(json['account_id']),
       encryptedKey:  AppJson.stringValue(json['encrypted_key']),
       encryptedBlob: AppJson.stringValue(json['encrypted_blob']),
       processed:     AppJson.boolValue(json['processed']),
@@ -887,7 +887,7 @@ class HealthPendingEvent {
     json['id']              = id;
     json['provider']        = provider;
     json['provider_id']     = providerId;
-    json['user_id']         = userId;
+    json['account_id']         = accountId;
     json['encrypted_key']   = encryptedKey;
     json['encrypted_blob']  = encryptedBlob;
     json['processed']       = processed;
