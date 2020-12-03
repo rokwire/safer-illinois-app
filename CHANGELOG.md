@@ -5,10 +5,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## [2.10.1] - 2020-12-01
+### Changed
+- Update user PII data from authentication/roster data [#432](https://github.com/rokwire/safer-illinois-app/issues/432).
+- Added login widget in Home panel when user is not connected [#434](https://github.com/rokwire/safer-illinois-app/issues/434).
+
+## [2.10.0] - 2020-11-30
 ### Fixed
 - Fix FirebaseCrashlytics [#428](https://github.com/rokwire/safer-illinois-app/issues/428).
-- Removed unused images from application project [#419](https://github.com/rokwire/safer-illinois-app/issues/419).
 - CareTeamPanel fix semantics pronauncement for Mental Health button [#422](https://github.com/rokwire/safer-illinois-app/issues/422)
+
+### Deleted
+- Removed unused images from application project [#419](https://github.com/rokwire/safer-illinois-app/issues/419).
+
+### Changed
+- Health service reworked to permanantly cache all data necessary for status build.
+- Use better naming in internal classes.
 
 ## [2.9.4] - 2020-11-18
 ### Fixed

@@ -348,18 +348,8 @@ class UserPiiData {
 
       (rawUuidList?.hashCode ?? 0);
 
-  String get fullName{
-    String fullName = '';
-    if ((firstName != null) && (0 < firstName.length)) {
-      fullName += "${(0 < fullName.length) ? ' ' : ''}$firstName";
-    }
-    if ((middleName != null) && (0 < middleName.length)) {
-      fullName += "${(0 < fullName.length) ? ' ' : ''}$middleName";
-    }
-    if ((lastName != null) && (0 < lastName.length)) {
-      fullName += "${(0 < fullName.length) ? ' ' : ''}$lastName";
-    }
-    return fullName;
+  String get fullName {
+    return AppString.fullName([firstName, middleName, lastName]);
   }
 
   String get uuid {
@@ -385,24 +375,54 @@ class UserPiiData {
   bool updateFromAuthUser(AuthUser authUser) {
     bool updated = false;
 
-    if(AppString.isStringEmpty(firstName) && AppString.isStringNotEmpty(authUser?.firstName) ){
+    if (AppString.isStringNotEmpty(authUser?.firstName) && (firstName != authUser.firstName)) {
       firstName = authUser.firstName; updated = true;
     }
-    if(AppString.isStringEmpty(middleName) && AppString.isStringNotEmpty(authUser?.middleName) ){
+    
+    if (AppString.isStringNotEmpty(authUser?.middleName) && (middleName != authUser.middleName)) {
       middleName = authUser.middleName; updated = true;
     }
-    if(AppString.isStringEmpty(lastName) && AppString.isStringNotEmpty(authUser?.lastName) ){
+    
+    if (AppString.isStringNotEmpty(authUser?.lastName) && (lastName != authUser.lastName)) {
       lastName = authUser.lastName; updated = true;
     }
-    if(AppString.isStringEmpty(uin) && AppString.isStringNotEmpty(authUser?.uin) ){
+
+    if (AppString.isStringNotEmpty(authUser?.uin) && (uin != authUser.uin)) {
       uin = authUser.uin; updated = true;
     }
-    if(AppString.isStringEmpty(netId) && AppString.isStringNotEmpty(authUser?.username) ){
-      netId = authUser.username; updated = true;
-    }
-    if(AppString.isStringEmpty(email) && AppString.isStringNotEmpty(authUser?.email) ){
+
+    if (AppString.isStringNotEmpty(authUser?.email) && (email != authUser.email)) {
       email = authUser.email; updated = true;
     }
+
+    if (AppString.isStringNotEmpty(authUser?.netId) && (netId != authUser.netId)) {
+      netId = authUser.netId; updated = true;
+    }
+    
+    if (AppString.isStringNotEmpty(authUser?.phone) && (phone != authUser.phone)) {
+      phone = authUser.phone; updated = true;
+    }
+
+    if (authUser is PhoneAuthUser) {
+
+      int authBirthYear = authUser.birthDate?.year;
+      if ((authBirthYear != null) && (authBirthYear != birthYear)) {
+        birthYear = authBirthYear; updated = true;
+      }
+
+      if (AppString.isStringNotEmpty(authUser?.address1) && (address != authUser.address1)) {
+        address = authUser.address1; updated = true;
+      }
+
+      if (AppString.isStringNotEmpty(authUser?.state) && (state != authUser.state)) {
+        state = authUser.state; updated = true;
+      }
+
+      if (AppString.isStringNotEmpty(authUser?.zip) && (zip != authUser.zip)) {
+        zip = authUser.zip; updated = true;
+      }
+    }
+
 
     return updated;
   }

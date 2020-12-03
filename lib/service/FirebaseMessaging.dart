@@ -168,8 +168,8 @@ class FirebaseMessaging with Service implements NotificationsListener {
     // else if (name == Health.notifyUserUpdated) {
     //   _updateHealthStatusSubscriptions();
     // }
-    // else if (name == Health.notifyStatusAvailable) {
-    //   _updateHealthStatusSubscriptions(status: param);
+    // else if (name == Health.notifyStatusUpdated) {
+    //   _updateHealthStatusSubscriptions(status: Health().status);
     // }
     // else if (name == LocalNotifications.notifySelected) {
     //   _processDataMessage(AppJson.decode(param));
@@ -459,7 +459,7 @@ class FirebaseMessaging with Service implements NotificationsListener {
     }
   }
 
-  void _updateHealthStatusSubscriptions({ Covid19Status status}) {
+  void _updateHealthStatusSubscriptions({ HealthStatus status}) {
     if (hasToken) {
       _processHealthStatusSubscriptions(status: status, subscribedTopics: Storage().firebaseSubscriptionTopis);
     }
@@ -489,7 +489,7 @@ class FirebaseMessaging with Service implements NotificationsListener {
     }
   }
 
-  void _processHealthStatusSubscriptions({ Covid19Status status, Set<String> subscribedTopics}) {
+  void _processHealthStatusSubscriptions({ HealthStatus status, Set<String> subscribedTopics}) {
     if (!Health().isUserLoggedIn) {
       _processHealthStatusTopicsSubscriptions(statusTopics: null, subscribedTopics: subscribedTopics);
     }

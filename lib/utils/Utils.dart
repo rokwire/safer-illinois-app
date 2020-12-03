@@ -83,6 +83,23 @@ class AppString {
       return "${value[0].toUpperCase()}${value.substring(1).toLowerCase()}";
     }
   }
+
+  static String fullName(List<String> names) {
+    String fullName;
+    if (names != null) {
+      for (String name in names) {
+        if ((name != null) && (0 < name.length)) {
+          if (fullName == null) {
+            fullName = '$name';
+          }
+          else {
+            fullName += ' $name';
+          }
+        }
+      }
+    }
+    return fullName;
+  }
 }
 
 class AppCollection {

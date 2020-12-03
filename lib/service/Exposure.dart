@@ -152,7 +152,6 @@ class Exposure with Service implements NotificationsListener {
       Config.notifyConfigChanged,
       AppLivecycle.notifyStateChanged,
       Health.notifyUserUpdated,
-      Health.notifyUserPrivateKeyUpdated,
       Auth.notifyLoggedOut,
     ]);
   }
@@ -220,7 +219,7 @@ class Exposure with Service implements NotificationsListener {
         _updateExposureMinDuration();
         checkReport();
       }
-      else if (name == Health.notifyUserUpdated || name == Health.notifyUserPrivateKeyUpdated) {
+      else if (name == Health.notifyUserUpdated) {
         _updatePlugin();
         _updateExposuresMonitor();
         checkReport();        
@@ -713,14 +712,14 @@ class Exposure with Service implements NotificationsListener {
       if (_reportTargetTimestamp == null) {
         return 0;
       }
-      else if ((Health().lastCovid19Status != kCovid19HealthStatusRed) && (_lastReportTimestamp != null) && (_reportTargetTimestamp < _lastReportTimestamp)) {
+      else if ((Health().status?.blob?.status != kHealthStatusRed) && (_lastReportTimestamp != null) && (_reportTargetTimestamp < _lastReportTimestamp)) {
         Storage().exposureReportTargetTimestamp = _reportTargetTimestamp = null;
         await _expireTEK(); 
         return 0;
       }
     }
     else {
-      if (Health().lastCovid19Status != kCovid19HealthStatusRed) {
+      if (Health().status?.blob?.status != kHealthStatusRed) {
         return 0;
       }
     }
@@ -732,15 +731,15 @@ class Exposure with Service implements NotificationsListener {
     Log.d('Exposure: Checking local TEKs to report...');
     _checkingReport = true;
 
-    List<Covid19History> histories = await Health().loadCovid19History();
-    HealthRulesSet rules = await Health().loadRules2();
+    List<HealthHistory> history = Health().history;
+    HealthRulesSet rules = Health().rules;
     Set<String> negativeTestCategories = _negativeTestCategories;
 
     int minTimestamp, maxTimestamp, currentTimestamp = _currentTimestamp;
     if (activeInterval != null) {
 
       minTimestamp = getThresholdTimestamp(origin: _reportTargetTimestamp); // two weeks before the target;
-      int recentTestTimestamp = _findMostRecentNegativeTestTimestamp(histories: histories, rules: rules, negativeTestCategories: negativeTestCategories, minTimestamp: minTimestamp, maxTimestamp: _reportTargetTimestamp);
+      int recentTestTimestamp = _findMostRecentNegativeTestTimestamp(history: history, rules: rules, negativeTestCategories: negativeTestCategories, minTimestamp: minTimestamp, maxTimestamp: _reportTargetTimestamp);
       if ((recentTestTimestamp != null) && (minTimestamp < recentTestTimestamp)) {
         minTimestamp = recentTestTimestamp; // not earlier than the last negative test result
       }
@@ -749,7 +748,7 @@ class Exposure with Service implements NotificationsListener {
       }
       
       maxTimestamp = _reportTargetTimestamp + activeInterval;
-      int earlyTestTimestamp = _findEarlierNegativeTestTimestamp(histories: histories, rules: rules, negativeTestCategories: negativeTestCategories, minTimestamp: _reportTargetTimestamp, maxTimestamp: maxTimestamp);
+      int earlyTestTimestamp = _findEarlierNegativeTestTimestamp(history: history, rules: rules, negativeTestCategories: negativeTestCategories, minTimestamp: _reportTargetTimestamp, maxTimestamp: maxTimestamp);
       if ((earlyTestTimestamp != null) && (earlyTestTimestamp < maxTimestamp)) {
         maxTimestamp = earlyTestTimestamp;
       }
@@ -759,7 +758,7 @@ class Exposure with Service implements NotificationsListener {
     }
     else {
       minTimestamp = getThresholdTimestamp(origin: currentTimestamp);
-      int recentTestTimestamp = _findMostRecentNegativeTestTimestamp(histories: histories, rules: rules, negativeTestCategories: negativeTestCategories, minTimestamp: minTimestamp, maxTimestamp: currentTimestamp);
+      int recentTestTimestamp = _findMostRecentNegativeTestTimestamp(history: history, rules: rules, negativeTestCategories: negativeTestCategories, minTimestamp: minTimestamp, maxTimestamp: currentTimestamp);
       if ((recentTestTimestamp != null) && (minTimestamp < recentTestTimestamp)) {
         minTimestamp = recentTestTimestamp; // not earlier than the last negative test result
       }
@@ -802,12 +801,12 @@ class Exposure with Service implements NotificationsListener {
     return result;
   }
 
-  int _findMostRecentNegativeTestTimestamp({List<Covid19History> histories, HealthRulesSet rules, Set<String> negativeTestCategories, int minTimestamp, int maxTimestamp}) {
-    if ((histories != null) && (rules != null) && (negativeTestCategories != null)) {
+  int _findMostRecentNegativeTestTimestamp({List<HealthHistory> history, HealthRulesSet rules, Set<String> negativeTestCategories, int minTimestamp, int maxTimestamp}) {
+    if ((history != null) && (rules != null) && (negativeTestCategories != null)) {
       // start from newest
-      for (int index = 0; index < histories.length; index++) {
-        Covid19History history = histories[index];
-        int historyTimestamp = (history.dateUtc != null) ? history.dateUtc.millisecondsSinceEpoch : null;
+      for (int index = 0; index < history.length; index++) {
+        HealthHistory historyEntry = history[index];
+        int historyTimestamp = (historyEntry.dateUtc != null) ? historyEntry.dateUtc.millisecondsSinceEpoch : null;
         if (historyTimestamp != null) {
           if ((maxTimestamp != null) && (maxTimestamp < historyTimestamp)) {
             continue;
@@ -815,7 +814,7 @@ class Exposure with Service implements NotificationsListener {
           if ((minTimestamp != null) && (historyTimestamp < minTimestamp)) {
             break;
           }
-          HealthTestRuleResult testRuleResult = history.isTestVerified ? rules.tests.matchRuleResult(blob: history?.blob) : null;
+          HealthTestRuleResult testRuleResult = historyEntry.isTestVerified ? rules.tests.matchRuleResult(blob: historyEntry?.blob) : null;
           if ((testRuleResult?.category != null) && negativeTestCategories.contains(testRuleResult.category)) {
             return historyTimestamp;
           }
@@ -825,12 +824,12 @@ class Exposure with Service implements NotificationsListener {
     return null;
   }
 
-  int _findEarlierNegativeTestTimestamp({List<Covid19History> histories, HealthRulesSet rules, Set<String> negativeTestCategories, int minTimestamp, int maxTimestamp}) {
-    if ((histories != null) && (rules != null) && (negativeTestCategories != null)) {
+  int _findEarlierNegativeTestTimestamp({List<HealthHistory> history, HealthRulesSet rules, Set<String> negativeTestCategories, int minTimestamp, int maxTimestamp}) {
+    if ((history != null) && (rules != null) && (negativeTestCategories != null)) {
       // start from oldest
-      for (int index = histories.length - 1; 0 <= index; index--) {
-        Covid19History history = histories[index];
-        int historyTimestamp = (history.dateUtc != null) ? history.dateUtc.millisecondsSinceEpoch : null;
+      for (int index = history.length - 1; 0 <= index; index--) {
+        HealthHistory historyEntry = history[index];
+        int historyTimestamp = (historyEntry.dateUtc != null) ? historyEntry.dateUtc.millisecondsSinceEpoch : null;
         if (historyTimestamp != null) {
           if ((minTimestamp != null) && (historyTimestamp < minTimestamp)) {
             continue;
@@ -838,7 +837,7 @@ class Exposure with Service implements NotificationsListener {
           if ((maxTimestamp != null) && (maxTimestamp < historyTimestamp)) {
             break;
           }
-          HealthTestRuleResult testRuleResult = history.isTestVerified ? rules.tests.matchRuleResult(blob: history?.blob) : null;
+          HealthTestRuleResult testRuleResult = historyEntry.isTestVerified ? rules.tests.matchRuleResult(blob: historyEntry?.blob) : null;
           if ((testRuleResult?.category != null) && negativeTestCategories.contains(testRuleResult.category)) {
             return historyTimestamp;
           }
@@ -934,13 +933,14 @@ class Exposure with Service implements NotificationsListener {
 
     Analytics().logHealth(action: Analytics.LogHealthCheckExposuresAction);
 
-    List<Covid19History> histories = await Health().loadCovid19History();
-    Covid19History lastTest = Covid19History.mostRecentTest(histories);
+    List<HealthHistory> history = Health().history;
+    HealthStatus lastHealthStatus = Health().status;
+    HealthHistory lastTest = HealthHistory.mostRecentTest(history);
     DateTime lastTestDateUtc = lastTest?.dateUtc;
     int scoringDayThreshold = _evalScoringDayThreshold(lastTestDateUtc: lastTestDateUtc);
 
     int detected = 0;
-    List<Covid19History> results;
+    List<HealthHistory> results;
     
     // Map<int, int> scoringExposures = new Map<int, int>;
     // key = time interval, value = number of rpis in that time interval
@@ -985,31 +985,31 @@ class Exposure with Service implements NotificationsListener {
         }
 
         if ((exposureDateUtc != null) && (_exposureMinDuration <= exposureDuration)) {
-          Covid19History result;  
+          HealthHistory result;  
 
-          Covid19History history = Covid19History.traceInList(histories, tek: tek.tek);
-          if (history != null) {
-            if ((history.dateUtc != null) && history.dateUtc.isBefore(exposureDateUtc)) {
-              exposureDateUtc = history.dateUtc;
+          HealthHistory historyEntry = HealthHistory.traceInList(history, tek: tek.tek);
+          if (historyEntry != null) {
+            if ((historyEntry.dateUtc != null) && historyEntry.dateUtc.isBefore(exposureDateUtc)) {
+              exposureDateUtc = historyEntry.dateUtc;
             }
-            if (history.blob?.traceDuration != null) {
-              exposureDuration += history.blob?.traceDuration;
+            if (historyEntry.blob?.traceDuration != null) {
+              exposureDuration += historyEntry.blob?.traceDuration;
             }
 
-            result = await Health().updateCovid19History(
-              id: history.id,
+            result = await Health().updateHistory(
+              id: historyEntry.id,
               dateUtc: exposureDateUtc,
-              type: Covid19HistoryType.contactTrace,
-              blob: Covid19HistoryBlob(
+              type: HealthHistoryType.contactTrace,
+              blob: HealthHistoryBlob(
                 traceDuration: exposureDuration,
                 traceTEK: tek.tek
               ));
           }
           else {
-            result = await Health().addCovid19History(
+            result = await Health().addHistory(
               dateUtc: exposureDateUtc,
-              type: Covid19HistoryType.contactTrace,
-              blob: Covid19HistoryBlob(
+              type: HealthHistoryType.contactTrace,
+              blob: HealthHistoryBlob(
                 traceDuration: exposureDuration,
                 traceTEK: tek.tek
               ));
@@ -1018,7 +1018,7 @@ class Exposure with Service implements NotificationsListener {
           if (result != null) {
             _markLocalExposureProcessed(detectedExposures);
             if (results == null) {
-              results = List<Covid19History>();
+              results = List<HealthHistory>();
             }
             results.add(result);
           }
@@ -1027,20 +1027,11 @@ class Exposure with Service implements NotificationsListener {
     }
 
     if (results != null) {
-      NotificationService().notify(Health.notifyHistoryUpdated, null);
-
-      String lastHealthStatus = Health().lastCovid19Status;
-      String newHealthStatus = lastHealthStatus;
-      Covid19Status status = await Health().updateStatusFromHistory();
-      if (covid19HealthStatusIsValid(status?.blob?.healthStatus)) {
-        newHealthStatus = status?.blob?.healthStatus;
-      }
-
-      for (Covid19History result in results) {
+      for (HealthHistory result in results) {
         Analytics().logHealth(
           action: Analytics.LogHealthContactTraceProcessedAction,
-          status: newHealthStatus,
-          prevStatus: lastHealthStatus,
+          status: Health().status?.blob?.status,
+          prevStatus: lastHealthStatus?.blob?.status,
           attributes: {
             Analytics.LogHealthDurationName: result.blob.traceDuration,
             Analytics.LogHealthExposureTimestampName: result.dateUtc?.toIso8601String(),

@@ -114,7 +114,7 @@ class OSFHealth with Service implements NotificationsListener {
             if (observationResponse?.statusCode == 200) {
               String observationBody = (observationResponse?.statusCode == 200) ? observationResponse.body : null;
               print(observationBody);
-              List<Covid19OSFTest> osfTests = List<Covid19OSFTest>();
+              List<HealthOSFTest> osfTests = List<HealthOSFTest>();
               Map<String, dynamic> observJson = (observationBody != null) ? AppJson.decode(observationBody) : null;
               if(observJson != null){
                 List<dynamic> resultsList = observJson["entry"];
@@ -132,7 +132,7 @@ class OSFHealth with Service implements NotificationsListener {
                         try {
                           dateUtc = DateFormat("yyyy-MM-ddTHH:mm:ssZ").parse(dateStr, true);
                         } catch(e){ print(e); }
-                        osfTests.add(Covid19OSFTest(
+                        osfTests.add(HealthOSFTest(
                             dateUtc: dateUtc,
                             provider: Storage().lastHealthProvider?.name,
                             providerId: Storage().lastHealthProvider?.id,
