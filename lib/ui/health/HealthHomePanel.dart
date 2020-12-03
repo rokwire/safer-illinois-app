@@ -808,14 +808,18 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
 
   Widget _userAccountsDropDownItem(HealthUserAccount account) {
     if (account != null) {
+      String accountName = AppString.firstNotEmpty([
+        account.fullName, account.email, account.phone, account.externalId, account.accountId
+      ]) ?? '';
+      
       if (account.isDefault) {
         return Wrap(children: <Widget>[
-          Text(account.fullName, style: _userAccountRegularTextStyle),
+          Text(accountName, style: _userAccountRegularTextStyle),
           Text(Localization().getStringEx("panel.covid19home.switch_account.default.suffix", " (default)"), style: _userAccountHintTextStyle),
         ],);
       }
       else {
-        return Text(account.fullName, style: _userAccountRegularTextStyle);
+        return Text(accountName, style: _userAccountRegularTextStyle);
       }
     }
     return null;
