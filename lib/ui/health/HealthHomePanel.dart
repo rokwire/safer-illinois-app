@@ -750,8 +750,6 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
   }
 
   Widget _buildSwitchAccount() {
-    TextStyle regularStyle = TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 16, fontFamily: Styles().fontFamilies.bold);
-    TextStyle hintStyle = TextStyle(color: Styles().colors.mediumGray, fontSize: 16, fontFamily: Styles().fontFamilies.regular);
     return Semantics(container: true, child: Container(
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
         Padding(padding: EdgeInsets.symmetric(vertical: 8), child:
@@ -766,8 +764,8 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
               DropdownButtonHideUnderline(child: DropdownButton(
                 icon: Image.asset('images/icon-down-orange.png'),
                 isExpanded: true,
-                style: regularStyle,
-                hint: _userAccountsDropDownItem(Health().userAccount) ?? Text('Select an account', style: hintStyle,),
+                style: _userAccountRegularTextStyle,
+                hint: _userAccountsDropDownItem(Health().userAccount) ?? Text('Select an account', style: _userAccountHintTextStyle,),
                 items: _buildUserAccountsDropDownItems(),
                 onChanged: _onUserAccountChnaged,
               )),
@@ -811,19 +809,25 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
 
   Widget _userAccountsDropDownItem(HealthUserAccount account) {
     if (account != null) {
-      TextStyle regularStyle = TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 16, fontFamily: Styles().fontFamilies.bold);
-      TextStyle hintStyle = TextStyle(color: Styles().colors.mediumGray, fontSize: 16, fontFamily: Styles().fontFamilies.regular);
       if (account.isDefault) {
         return Wrap(children: <Widget>[
-          Text(account.fullName, style: regularStyle),
-          Text(' (default)', style: hintStyle),
+          Text(account.fullName, style: _userAccountRegularTextStyle),
+          Text(' (default)', style: _userAccountHintTextStyle),
         ],);
       }
       else {
-        return Text(account.fullName, style: regularStyle);
+        return Text(account.fullName, style: _userAccountRegularTextStyle);
       }
     }
     return null;
+  }
+
+  TextStyle get _userAccountRegularTextStyle {
+    return TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 16, fontFamily: Styles().fontFamilies.bold);
+  }
+
+  TextStyle get _userAccountHintTextStyle {
+    return TextStyle(color: Styles().colors.mediumGray, fontSize: 16, fontFamily: Styles().fontFamilies.regular);
   }
 
   void _onUserAccountChnaged(HealthUserAccount account) {
