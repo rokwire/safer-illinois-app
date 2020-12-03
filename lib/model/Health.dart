@@ -1297,13 +1297,13 @@ class HealthUserAccount {
     }
 
     // TMP:
-    if (!kReleaseMode && ((values?.length ?? 0) == 0)) {
+    /*if (!kReleaseMode && ((values?.length ?? 0) == 0)) {
       values = [
         HealthUserAccount(accountId: "1", externalId: "655618818", isDefault: true,  isActive: true, email: "email1@server.com", phone: "+000000000001", firstName: "Misho", lastName: "Varbanov", birthDateString: "01/01/70", gender: "M",),
         HealthUserAccount(accountId: "2", externalId: "655618818", isDefault: false, isActive: true, email: "email2@server.com", phone: "+000000000002", firstName: "Mihail", lastName: "Varbanov", birthDateString: "01/01/70", gender: "M",),
         HealthUserAccount(accountId: "3", externalId: "655618818", isDefault: false, isActive: true, email: "email3@server.com", phone: "+000000000003", firstName: "Quetzal", lastName: "Coatl", birthDateString: "01/01/70", gender: "M",),
       ];
-    }
+    }*/
 
     return values;
   }
