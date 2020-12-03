@@ -324,6 +324,9 @@
 	"panel.covid19home.button.info.title": "Información ",
 	"panel.covid19home.label.access.granted": "Acceso al edificio concedido",
 	"panel.covid19home.label.access.denied": "Acceso al edificio denegado",
+	"panel.covid19home.switch_account.heading.title": "Cambiar cuenta",
+	"panel.covid19home.switch_account.dropdown.hint": "Seleccionar una cuenta",
+	"panel.covid19home.switch_account.default.suffix": " (defecto)",
 
 	"panel.covid19_test_locations.header.title": "Lugares de prueba",
 	"panel.covid19_test_locations.label.contact.title": "Contacto",

@@ -324,6 +324,9 @@
 	"panel.covid19home.button.info.title": "信息 ",
 	"panel.covid19home.label.access.granted": "授予建築物訪問權限",
 	"panel.covid19home.label.access.denied": "拒絕建築物訪問",
+	"panel.covid19home.switch_account.heading.title": "切換帳戶",
+	"panel.covid19home.switch_account.dropdown.hint": "選擇一個帳號",
+	"panel.covid19home.switch_account.default.suffix": " （默認）",
 
 	"panel.covid19_test_locations.header.title": "测试位置",
 	"panel.covid19_test_locations.label.contact.title": "联系人",

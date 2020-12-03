@@ -753,7 +753,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
     return Semantics(container: true, child: Container(
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
         Padding(padding: EdgeInsets.symmetric(vertical: 8), child:
-          Text("Switch Account",
+          Text(Localization().getStringEx("panel.covid19home.switch_account.heading.title", "Switch Account"),
             style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 20),
           ),
         ),
@@ -765,7 +765,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
                 icon: Image.asset('images/icon-down-orange.png'),
                 isExpanded: true,
                 style: _userAccountRegularTextStyle,
-                hint: _userAccountsDropDownItem(Health().userAccount) ?? Text('Select an account', style: _userAccountHintTextStyle,),
+                hint: _userAccountsDropDownItem(Health().userAccount) ?? Text(Localization().getStringEx("panel.covid19home.switch_account.dropdown.hint", "Select an account"), style: _userAccountHintTextStyle,),
                 items: _buildUserAccountsDropDownItems(),
                 onChanged: _onUserAccountChnaged,
               )),
@@ -812,7 +812,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
       if (account.isDefault) {
         return Wrap(children: <Widget>[
           Text(account.fullName, style: _userAccountRegularTextStyle),
-          Text(' (default)', style: _userAccountHintTextStyle),
+          Text(Localization().getStringEx("panel.covid19home.switch_account.default.suffix", " (default)"), style: _userAccountHintTextStyle),
         ],);
       }
       else {
