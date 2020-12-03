@@ -17,6 +17,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:illinois/model/Health.dart';
@@ -99,7 +100,7 @@ class Health with Service implements NotificationsListener {
 
   @override
   Future<void> initService() async {
-    _appDocumentsDir = await getApplicationDocumentsDirectory();
+    _appDocumentsDir = (kIsWeb) ? null : (await getApplicationDocumentsDirectory());
     _servicePublicKey = RsaKeyHelper.parsePublicKeyFromPem(Config().healthPublicKey);
 
     _user = _loadUserFromStorage();
