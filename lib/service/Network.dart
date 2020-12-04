@@ -24,6 +24,7 @@ import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Connectivity.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Config.dart';
+import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/utils/Utils.dart';
 
@@ -32,12 +33,14 @@ import 'FirebaseCrashlytics.dart';
 enum NetworkAuth {
   App,
   User,
+  HealthUserAccount
 }
 
 class Network  {
 
   static const String RokwireApiKey = 'ROKWIRE-API-KEY';
   static const String RokwireHSApiKey = 'ROKWIRE-HS-API-KEY';
+  static const String RokwireAccountId = 'ROKWIRE-ACC-ID';
   static const String RokwireAppId = 'APP';
   static const String RokwireAppVersion = 'V';
 
@@ -322,7 +325,8 @@ class Network  {
         headers[RokwireApiKey] = rokwireApiKey;
       }
     }
-    else if (auth == NetworkAuth.User) {
+    
+    if ((auth == NetworkAuth.User) || (auth == NetworkAuth.HealthUserAccount)) {
       String idToken = Auth().userSignToken?.idToken;
       String tokenType = Auth().userSignToken?.tokenType ?? 'Bearer';
       if ((idToken != null) && idToken.isNotEmpty) {
@@ -330,6 +334,16 @@ class Network  {
           headers = new Map();
         }
         headers[HttpHeaders.authorizationHeader] = "$tokenType $idToken";
+      }
+    }
+    
+    if (auth == NetworkAuth.HealthUserAccount) {
+      String rokwireAccountId = Health().userAccountId;
+      if ((rokwireAccountId != null) && rokwireAccountId.isNotEmpty) {
+        if (headers == null) {
+          headers = new Map();
+        }
+        headers[RokwireAccountId] = rokwireAccountId;
       }
     }
 

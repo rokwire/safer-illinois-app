@@ -478,6 +478,16 @@ class Storage with Service {
     _setIntWithName(_healthUserTestMonitorIntervalKey, value);
   }
 
+  static const String _healthUserAccountIdKey = 'health_user_account_id';
+
+  String get healthUserAccountId {
+    return _getStringWithName(_healthUserAccountIdKey);
+  }
+
+  set healthUserAccountId(String value) {
+    _setStringWithName(_healthUserAccountIdKey, value);
+  }
+
   static const String _healthCountyKey = 'health_county';
   
   String get healthCounty {

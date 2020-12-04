@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.10.2] - 2020-01-03
+### Added
+- Added user subaccounts feature [#437](https://github.com/rokwire/safer-illinois-app/issues/437).
+
 ## [2.10.1] - 2020-12-01
 ### Changed
 - Update user PII data from authentication/roster data [#432](https://github.com/rokwire/safer-illinois-app/issues/432).

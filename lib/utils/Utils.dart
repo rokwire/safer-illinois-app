@@ -100,6 +100,17 @@ class AppString {
     }
     return fullName;
   }
+
+  static String firstNotEmpty(List<String> values) {
+    if (values != null) {
+      for (String value in values) {
+        if ((value != null) && (0 < value.length)) {
+          return value;
+        }
+      }
+    }
+    return null;
+  }
 }
 
 class AppCollection {
