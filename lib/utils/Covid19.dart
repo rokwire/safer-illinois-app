@@ -64,7 +64,6 @@ class Covid19Utils {
     String qrCodeString;
     if (kIsWeb) {
       qrCodeString = await getQrCodeValue();
-      print(qrCodeString);
     } else {
       String imageFilePath = await _getFilePathMobile();
       qrCodeString = await _retrieveImageContentMobile(imageFilePath);

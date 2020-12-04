@@ -10,7 +10,5 @@ external dynamic readQrCodeImage();
 @JS()
 Future<String> getQrCodeValue() async {
   String qrCode = await promiseToFuture(readQrCodeImage());
-  print('flutter qr code:');
-  print(qrCode);
   return qrCode;
 }
