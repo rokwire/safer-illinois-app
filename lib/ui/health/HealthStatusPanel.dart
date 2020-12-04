@@ -91,7 +91,7 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
 
   Future<void> _loadData() async {
     List<dynamic> results = await Future.wait([
-      Health().refreshStatus(),
+      Health().refreshStatusAndUser(),
       Health().loadCounties(),
       _loadColorOfTheDay(),
       _loadPhotoBytes(),

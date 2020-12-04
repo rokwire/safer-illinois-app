@@ -73,7 +73,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
       Health.notifyUserAccountCanged,
     ]);
 
-    _refreshStatus();
+    _refresh();
   }
 
   @override
@@ -97,13 +97,13 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
     }
   }
 
-  void _refreshStatus() {
+  void _refresh() {
     if (_isRefreshing != true) {
       setState(() { _isRefreshing = true; });
       
-      Health().refreshStatus().then((_) {
+      Health().refreshStatusAndUser().then((_) {
         if (mounted) {
-          setState(() {_isRefreshing = false; });
+          setState(() { _isRefreshing = false; });
         }
       });
     }
