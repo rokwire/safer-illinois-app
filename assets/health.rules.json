@@ -764,7 +764,7 @@
 			"symptoms.nausea-or-vomiting": "Nausea or vomiting",
 			"symptoms.diarrhea":"Diarrhea"
 		},
-		"es": {
+		"es": { MAKR ANY UPDATES TO SPANISH HERE
 			"default.step": "Realice una prueba de saliva SHIELD cuando regrese al campus.",
 			"positive.step.html": "<h3>Se le ha puesto en aislamiento obligatorio.</h3><ul><h6><li>Quedarse en casa. No vaya al trabajo, la escuela o áreas públicas.</li></h6><h6><li>Sepárate de las demás en tu casa.</li></h6><h6><li>Comuníquese con el Distrito de Salud Pública de Champaign-Urbana inmediatamente al <a href='mailto:coronavirus@c-uphd.org'>coronavirus@c-uphd.org</a></li></h6><h6><li>Más información: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Cuarentena y aislamiento</a></li></h6></ul>",
 			"positive-ip.step.html": "<h6>Continúe aislándose y McKinley o Public Health se comunicarán con usted en las próximas 24 horas. Llame a la línea McKinley Dial-A-Nurse si tiene preguntas al <a href='tel:+1-217-333-2700'>217-333-2700</a>.</h6><br><br><h6>Un pequeño porcentaje de personas puede seguir contagiado después de un período de aislamiento de 10 días. Por lo general, un breve período de 3 días es todo lo que se requiere antes de que su examen muestre un nivel seguro para que pueda acceder a todas las actividades del campus durante los próximos 60 días. Su aplicación Safer Illinois permanecerá en ESTADO DENEGADO hasta que CUPHD y McKinley lo den a conocer después de la revisión de su caso.</h6>",
@@ -853,6 +853,22 @@
 			"symptoms.congestion-or-runny-nose": "充血或流鼻涕",
 			"symptoms.nausea-or-vomiting": "噁心或嘔吐",
 			"symptoms.diarrhea":"腹瀉"
-		}
+		},
+		"ar: {
+			INSERT ARABIC HERE
+		
+		},
+		"po: {
+			INSERT PORTUGUESE HERE
+		
+		},
+		"ja: {
+			INSERT JAPANESE HERE
+		
+		},
+		"ru: {
+			INSERT RUSSIAN HERE
+		
+		},
 	}
 }
