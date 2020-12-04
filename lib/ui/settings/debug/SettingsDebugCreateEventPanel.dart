@@ -500,15 +500,17 @@ class _SettingsDebugCreateEventPanelState extends State<SettingsDebugCreateEvent
     String aesKey = AESCrypt.randomKey();
     String encryptedBlob = AESCrypt.encrypt(blob, keyString: aesKey);
     String encryptedKey = RSACrypt.encrypt(aesKey, Health().user?.publicKey);
+    String userUin = (Health().userAccount?.isDefault != false) ? Auth().authUser?.uin : Health().userAccount.externalId;
 
     //PointyCastle.PrivateKey privateKey = await Health().userPrivateKey;
     //String decryptedKey = ((privateKey != null) && (encryptedKey != null)) ? RSACrypt.decrypt(encryptedKey, privateKey) : null;
     //String decryptedBlob = ((decryptedKey != null) && (encryptedBlob != null)) ? AESCrypt.decrypt(encryptedBlob, keyString: decryptedKey) : null;
 
+
     String url = "${Config().healthUrl}/covid19/ctests";
     String post = AppJson.encode({
       'provider_id': providerId,
-      'uin': Auth().authUser?.uin,
+      'uin': userUin,
       'encrypted_key': encryptedKey,
       'encrypted_blob': encryptedBlob
     });
