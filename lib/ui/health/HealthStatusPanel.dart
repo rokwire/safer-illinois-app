@@ -21,7 +21,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:illinois/model/Health.dart';
-import 'package:illinois/model/UserProfile.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
@@ -190,9 +189,9 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
     return SingleChildScrollView(scrollDirection: Axis.vertical, child:
     Column(crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        _userAvatar(),
+        _userAvatarWidget(),
         Padding(padding: EdgeInsets.only(top: 8, bottom: 1), child: Text(
-          Auth().fullUserName ?? '',
+          AppString.getDefaultEmptyString(value: _userNameString),
           textAlign: TextAlign.center,
           style: TextStyle(fontFamily: Styles().fontFamilies.extraBold, fontSize: 24, color: Styles().colors.fillColorPrimary),
         ),),
@@ -322,82 +321,52 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
     String statusName = Health().status?.blob?.localizedHealthStatus ?? '';
     bool userHasHealthStatus = (status != null);
     Color statusColor = (userHasHealthStatus ? (Styles().colors.getHealthStatusColor(status) ?? _backgroundColor) : _backgroundColor);
-    String authCardOrPhone;
-    if (Auth().isShibbolethLoggedIn) {
-      authCardOrPhone = Auth().authCard?.magTrack2 ?? "";
-    }
-    else if (Auth().isPhoneLoggedIn) {
-      if (AppString.isStringNotEmpty(Auth().authUser?.uin)) {
-        authCardOrPhone = "xxxx${Auth().authUser?.uin}xxx=xxxxxxxxxxx";
-      }
-      else {
-        authCardOrPhone = Auth().phoneToken?.phone;
-      }
-    }
-    else {
-      authCardOrPhone = "";
-    }
-
-    String textAuthCardOrPhone = Auth().phoneToken?.phone;
+    String authCardOrPhone = this._userQRCodeContent;
+    String textAuthCardOrPhone = this._userQRCodeDescr;
     String noStatusDescription = (_counties?.isNotEmpty ?? false) ? 
       Localization().getStringEx('panel.covid19_passport.label.status.empty', "No available status for this County") :
       Localization().getStringEx('panel.covid19_passport.label.counties.empty', "No counties available");
-    String qrCodeImageData = AppString.getDefaultEmptyString(value: authCardOrPhone, defaultValue: UserProfile().uuid);
+
     return Semantics(
       label: Localization().getStringEx("panel.covid19_passport.label.page_2", "Page 2"),
       explicitChildNodes: true,
       child: SingleChildScrollView(child:Column(children: <Widget>[
-        Visibility(
-          visible: userHasHealthStatus,
-          child: Container(
-            width: 176,
-            height: 176,
-            padding: EdgeInsets.all(13),
-            decoration: BoxDecoration(
-                color: statusColor, borderRadius: BorderRadius.circular(4)),
-            child: Container(decoration: BoxDecoration(
-                color: Styles().colors.white, borderRadius: BorderRadius.circular(4)), child: Column(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-              Visibility(visible: AppString.isStringNotEmpty(qrCodeImageData), child: QrImage(
-                data: AppString.getDefaultEmptyString(value: qrCodeImageData),
-                version: QrVersions.auto,
-                size: MediaQuery.of(context).size.width / 4 + 10,
-                padding: EdgeInsets.all(5),),),
-              Visibility(visible: AppString.isStringNotEmpty(textAuthCardOrPhone), child: Padding(padding: EdgeInsets.only(top: 5),
-                child: Text(
-                  AppString.getDefaultEmptyString(value: textAuthCardOrPhone),
-                  style: TextStyle(color: Colors.black, fontSize: 12, fontFamily: Styles().fontFamilies.regular),),),),
-            ],),),),),
-        userHasHealthStatus ?
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child:
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Expanded(child:
-                  Text(statusName, style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Styles().colors.textSurface),maxLines: 1, overflow: TextOverflow.ellipsis,),
+        Visibility(visible: userHasHealthStatus, child:
+          Container(width: 176, height: 176, padding: EdgeInsets.all(13), decoration: BoxDecoration(color: statusColor, borderRadius: BorderRadius.circular(4)), child:
+            Container(decoration: BoxDecoration(color: Styles().colors.white, borderRadius: BorderRadius.circular(4)), child:
+              Column(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+                Visibility(visible: AppString.isStringNotEmpty(authCardOrPhone), child:
+                  QrImage(data: AppString.getDefaultEmptyString(value: authCardOrPhone), version: QrVersions.auto, size: MediaQuery.of(context).size.width / 4 + 10, padding: EdgeInsets.all(5),),),
+                Visibility(visible: AppString.isStringNotEmpty(textAuthCardOrPhone), child:
+                  Padding(padding: EdgeInsets.only(top: 5), child: 
+                    Text(AppString.getDefaultEmptyString(value: textAuthCardOrPhone), style: TextStyle(color: Colors.black, fontSize: 12, fontFamily: Styles().fontFamilies.regular),),
+                  ),
                 ),
-                Container(width: 6,),
-                Semantics(
-                  explicitChildNodes: true,
-                  child: Semantics(
-                      label: Localization().getStringEx("panel.covid19_passport.button.info.title","Info "),
-                      button: true,
-                      excludeSemantics: true,
-                      child:  IconButton(icon: Image.asset('images/icon-info-orange.png', excludeFromSemantics: true,), onPressed: () =>  StatusInfoDialog.show(context, Health().county?.displayName ?? ""), padding: EdgeInsets.all(10),)
-                ))
-            ],)):
-          Container(
-            padding: EdgeInsets.only(bottom: 8),
-            child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-            Expanded(
-            child: Text(noStatusDescription, style:TextStyle(color: Colors.black, fontSize: 18, fontFamily: Styles().fontFamilies.regular)),
-          )])
+              ],),
+            ),
           ),
-
+        ),
+        userHasHealthStatus ?
+          Padding(padding: const EdgeInsets.only(bottom: 16), child:
+            Row(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.center, children: <Widget>[
+              Expanded(child:
+                Text(statusName, style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Styles().colors.textSurface),maxLines: 1, overflow: TextOverflow.ellipsis,),
+              ),
+              Container(width: 6,),
+              Semantics( explicitChildNodes: true, child: 
+                Semantics(label: Localization().getStringEx("panel.covid19_passport.button.info.title","Info "), button: true, excludeSemantics: true, child:  
+                  IconButton(icon: Image.asset('images/icon-info-orange.png', excludeFromSemantics: true,), onPressed: () =>  StatusInfoDialog.show(context, Health().county?.displayName ?? ""), padding: EdgeInsets.all(10),)
+                )
+              )
+            ],)
+          ):
+          Container(padding: EdgeInsets.only(bottom: 8), child:
+             Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+              Expanded(child: 
+                Text(noStatusDescription, style:TextStyle(color: Colors.black, fontSize: 18, fontFamily: Styles().fontFamilies.regular)),
+              ),
+            ]),
+          ),
       ],)),
     );
   }
@@ -446,31 +415,89 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
     return result;
   }
 
-  String get _userRoleString { // Simplified - show resident for the rest of the situations
-    String roleDisplayString = Auth()?.authCard?.roleDisplayString;
-    if(Auth().isShibbolethLoggedIn && AppString.isStringNotEmpty(roleDisplayString)){
-      return roleDisplayString;
-    }
-    else if(Auth().isPhoneLoggedIn && UserProfile().roles.contains(UserRole.nonUniversityMember)){
-      return Localization().getStringEx("panel.covid19_passport.label.capitol_staff", "Non University Member");
-    }
-    return Localization().getStringEx('panel.covid19_passport.label.resident', 'Resident');
+  bool get _isDefaultUserAccount {
+    return (Health().userAccount?.isDefault != false);
   }
 
-  Widget _userAvatar() {
+  String get _userNameString {
+    String userNameString = _isDefaultUserAccount ? Auth().fullUserName : null;
+    return ((userNameString != null) && (0 < userNameString.length)) ? userNameString : Health().userAccount?.fullName;
+  }
+
+  String get _userRoleString {
+    String userRoleString = (_isDefaultUserAccount && Auth().isShibbolethLoggedIn) ? Auth().authCard?.roleDisplayString : null;
+    return ((userRoleString != null) && (0 < userRoleString.length)) ? userRoleString : Localization().getStringEx("panel.covid19_passport.label.capitol_staff", "Non University Member");
+//  return Localization().getStringEx('panel.covid19_passport.label.resident', 'Resident');
+  }
+
+  MemoryImage get _userPhotoImage {
+    return _isDefaultUserAccount ? _photoImage : null;
+  }
+
+  String get _userQRCodeContent {
+    String qrCodeContent;
+    if (_isDefaultUserAccount) {
+      if (Auth().isShibbolethLoggedIn) {
+        qrCodeContent = Auth().authCard?.magTrack2;
+      }
+      else if (Auth().isPhoneLoggedIn) {
+        if (AppString.isStringNotEmpty(Auth().authUser?.uin)) {
+          qrCodeContent = "xxxx${Auth().authUser.uin}xxx=xxxxxxxxxxx";
+        }
+        else {
+          qrCodeContent = Auth().phoneToken?.phone;
+        }
+      }
+    }
+    else {
+      if (AppString.isStringNotEmpty(Health().userAccount?.externalId)) {
+        qrCodeContent = "xxxx${Health().userAccount.externalId}xxx=xxxxxxxxxxx";
+      }
+    }
+    return ((qrCodeContent != null) && (0 < qrCodeContent.length)) ? qrCodeContent : UserProfile().uuid;
+  }
+
+  String get _userQRCodeDescr {
+    if (_isDefaultUserAccount) {
+      if (Auth().isShibbolethLoggedIn) {
+        return null;
+      }
+      else if (Auth().isPhoneLoggedIn) {
+        if (AppString.isStringNotEmpty(Auth().authUser?.uin)) {
+          return Auth().authUser?.uin;
+        }
+        else {
+          return Auth().phoneToken?.phone;
+        }
+      }
+      else {
+        return null;
+      }
+    }
+    else {
+      if (AppString.isStringNotEmpty(Health().userAccount?.externalId)) {
+        return Health().userAccount.externalId;
+      }
+      else {
+        return null;
+      }
+    }
+  }
+
+  Widget _userAvatarWidget() {
     return Padding(
       padding: EdgeInsets.only(top: _headingH1 + (_headingH2 - _photoSize) / 2),
       child: _RotatingBorder(
           activeColor: _colorOfTheDay ?? Colors.transparent,
           child: Padding(
               padding: EdgeInsets.all(16),
-              child: _userPhotoImage()
+              child: _userPhotoImageWidget()
           )),
     );
   }
 
-  Widget _userPhotoImage() {
-    if (_photoImage != null) {
+  Widget _userPhotoImageWidget() {
+    if (_userPhotoImage != null) {
       return Container(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
@@ -478,7 +505,7 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
             image: DecorationImage(
               fit: BoxFit.cover,
               alignment: Alignment.center,
-              image: _photoImage,
+              image: _userPhotoImage,
             ),
           ));
     } else {
