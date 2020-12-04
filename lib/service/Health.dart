@@ -199,6 +199,10 @@ class Health with Service implements NotificationsListener {
     return _refresh(_RefreshOptions.fromList([_RefreshOption.userInterval, _RefreshOption.history, _RefreshOption.rules, _RefreshOption.buildingAccessRules]));
   }
 
+  Future<void> refreshStatusAndUser() async {
+    return _refresh(_RefreshOptions.fromList([_RefreshOption.user, _RefreshOption.userInterval, _RefreshOption.history, _RefreshOption.rules, _RefreshOption.buildingAccessRules]));
+  }
+
   Future<void> refreshUser() async {
     return _refresh(_RefreshOptions.fromList([_RefreshOption.user, _RefreshOption.userPrivateKey]));
   }

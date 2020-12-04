@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.10.3] - 2020-01-04
+### Fixed
+- Fixed user details in Status panel when subaccount is selected. [#442](https://github.com/rokwire/safer-illinois-app/issues/442).
+
 ## [2.10.2] - 2020-01-03
 ### Added
 - Added user subaccounts feature [#437](https://github.com/rokwire/safer-illinois-app/issues/437).
