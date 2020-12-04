@@ -63,7 +63,7 @@ class _SettingsDebugCreateEventPanelState extends State<SettingsDebugCreateEvent
     _selectedProviderId = Storage().lastHealthProvider?.id;
     
     _loadingPublicKey = true;
-    Health().refreshStatus().then((_) {
+    Health().refreshUser().then((_) {
       if (mounted) {
         setState(() {
           _loadingPublicKey = false;
