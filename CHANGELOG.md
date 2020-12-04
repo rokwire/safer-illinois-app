@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.10.3] - 2020-01-04
 ### Fixed
+- Pass the right user UIN when creating debug events. [#441](https://github.com/rokwire/safer-illinois-app/issues/441).
 - Fixed user details in Status panel when subaccount is selected. [#442](https://github.com/rokwire/safer-illinois-app/issues/442).
 
 ## [2.10.2] - 2020-01-03
