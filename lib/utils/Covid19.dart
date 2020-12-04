@@ -10,7 +10,7 @@ import 'package:illinois/service/Gallery.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:universal_html/js.dart' as js;
+import 'package:illinois/web/js_controller.dart';
 
 class Covid19Utils {
 
@@ -63,8 +63,8 @@ class Covid19Utils {
   static Future<String> loadQRCodeImageFromPictures() async {
     String qrCodeString;
     if (kIsWeb) {
-      //TBD: Async web
-      js.context.callMethod('openFileDialog', null);
+      qrCodeString = await getQrCodeValue();
+      print(qrCodeString);
     } else {
       String imageFilePath = await _getFilePathMobile();
       qrCodeString = await _retrieveImageContentMobile(imageFilePath);
