@@ -859,7 +859,30 @@
 		
 		},
 		"pt: {
-			INSERT PORTUGUESE HERE
+			 "default.step": "Faça um teste de saliva SHIELD quando você voltar ao campus.",
+  			 "positive.step.html": "<h3>Você está em isolamento obrigatório.</h3><ul><h6><li>Fique em casa. Não vai ao trabalho, às aulas ou a áreas públicas.</li></h6><h6><li>Isole-se de outros em casa.</li></h6><h6><li>Entre em contato imediatamente com o Champaign-Urbana Public Health District a <a href='mailto:coronavirus@c-uphd.org'>coronavirus@c-uphd.org</a></li></h6><h6><li>Mais informações: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Quarantine and Isolation</a></li></h6></ul>",
+  			 "positive-ip.step.html": "<h6>Queira manter-se isolado e alguém de McKinley ou Public Health entrará em contato com você nas próximas 24 horas. Ligue para o número McKinley Dial-A-Nurse se você tiver perguntas a <a href='tel:+1-217-333-2700'>217-333-2700</a>.</h6><br><br><h6>Um pequeno percentual de pessoas pode continuar contagioso depois de um período de isolamento de 10 dias.  Normalmente, um breve período de 3 dias é necessário para o seu teste mostrar um nível seguro para que você receba acesso a todas as atividades do campus pelos próximos 60 dias. O seu Safer Illinois App manterá a SITUAÇÃO NEGADA até que você tenha alta do CUPHD e McKinley pendente a avaliação do seu caso.</h6>",
+  			 "positive-ip.explanation": "O seu teste de saliva mostra que o VIRUS FOI DETECTADO no seu POSITIVO REPETIDO, possivelmente num NÍVEL INFECCIOSO. É possível que você tenha que ficar um período mais longo em isolamento.",
+  			 "positive-nip.step.html": "<h6>Não é preciso isolar-se e não é preciso fazer um teste no campus por um período de 60 dias a menos que seja instruído de outra maneira por um profissional de saúde autorizado. O seu Safer Illinois App é programado para permitir seu acesso durante este período. Entre em contato com <a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a> se você tiver perguntas ou precisar de ajuda.</h6>",
+  			 "positive-nip.explanation": "O seu teste de saliva mostra que o VIRUS FOI DETECTADO no seu POSITIVO REPETIDO, num NÍVEL NÃO INFECCIOSO.",
+  			 "test.monitor.step": "Controlar os seus resultados de teste",
+  			 "test.now.step": "Fazer um teste agora.",
+  			 "test.now.reason": "A sua situação foi alterada para Laranja porque o seu teste anterior venceu.",
+  			 "test.another.asap.step": "Fazer outro teste o mais rápido possível",
+  			 "test.another.now.step": "Fazer outro teste agora.",
+  			 "test.after.step": "Fazer o seu segundo teste depois do {data_de próximo_passo}",
+  			 "test.after.reason": "A sua situação foi alterada para Laranja porque é preciso fazer outro teste.",
+  			 "test.required.reason": "A sua situação foi alterada para Laranja porque é preciso fazer um teste.",
+  			 "test.resume.step": "Volte a fazer o teste nos dias que lhe foram designados.",
+  			 "test.future.warning": "Você receberá uma situação de laranja/acesso negado se não tiver um teste negativo até o {data_de próximo_passo}.",
+  			 "test.past.reason": "A sua situação foi alterada para Laranja porque o seu teste anterior venceu.",
+  			 "test.multiple.step": "É preciso fazer dois testes separados por 3 dias com resultados negativos para receber uma situação amarela.",
+  			 "symptoms.step": "Fazer um teste por COVID-19 agora.",
+  			 "symptoms.reason": "A sua situação foi alterada para Laranja porque você relatou sintomas que são características do vírus.",
+  			 "exposure.step.html": "<h3>É provável que você tem sido exposto a uma pessoa infetada por COVID-19.</h3><ul><h6><li>É preciso isolar-se imediatamente.</li></h6><h6><li>Fique em casa. Não vai ao trabalho, às aulas ou a áreas públicas.</li></h6><h6><li>Isole-se dos outros em casa.</li></h6><h6><li>Entre em contato com <a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a> para aconselhamento.</li></h6><h6><li>Faça um teste {data_de próximo_passo} para ver se você contraiu a doença.</li></h6><h6><li>Mais informações: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Quarantine and Isolation</a></li></h6></ul>",
+  			 "exposure.reason": "A sua situação foi alterada para Laranja porque você recebeu um aviso de exposição.",
+  			 "quarantine-on.step": "Fique em casa e evite contatos.",
+  			 "quarantine-on.reason": "A sua situação foi alterada para Laranja porque o Departamento de Saúde Pública o colocou em Quarentena."
 		
 		},
 		"jp: {
