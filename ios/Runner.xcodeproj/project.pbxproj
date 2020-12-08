@@ -44,6 +44,8 @@
 		26A170EC22DDFB6500299773 /* button-icon-nav-prev.png in Resources */ = {isa = PBXBuildFile; fileRef = 26A170E922DDFB6500299773 /* button-icon-nav-prev.png */; };
 		26A170ED22DDFB6500299773 /* button-icon-nav-clear.png in Resources */ = {isa = PBXBuildFile; fileRef = 26A170EA22DDFB6500299773 /* button-icon-nav-clear.png */; };
 		26B3403A2331195C0031CF70 /* UILabel+InaMeasure.m in Sources */ = {isa = PBXBuildFile; fileRef = 26B340392331195C0031CF70 /* UILabel+InaMeasure.m */; };
+		26BF10AF257F8EA800171227 /* MapDirections2Controller.m in Sources */ = {isa = PBXBuildFile; fileRef = 26BF10AE257F8EA800171227 /* MapDirections2Controller.m */; };
+		26BF10B2257F923E00171227 /* MapRoute.m in Sources */ = {isa = PBXBuildFile; fileRef = 26BF10B1257F923E00171227 /* MapRoute.m */; };
 		26C07E2E247677A600E28D43 /* ExposurePlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 26C07E2D247677A600E28D43 /* ExposurePlugin.m */; };
 		26C90CED2361CF480092E07F /* NSDictionary+InaPathKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 26C90CEC2361CF480092E07F /* NSDictionary+InaPathKey.m */; };
 		26C90CF02361D13E0092E07F /* NSDictionary+UIUCConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 26C90CEE2361D13E0092E07F /* NSDictionary+UIUCConfig.m */; };
@@ -134,6 +136,10 @@
 		26B34034233112320031CF70 /* FlutterCompletion.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FlutterCompletion.h; sourceTree = "<group>"; };
 		26B340382331195C0031CF70 /* UILabel+InaMeasure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UILabel+InaMeasure.h"; sourceTree = "<group>"; };
 		26B340392331195C0031CF70 /* UILabel+InaMeasure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UILabel+InaMeasure.m"; sourceTree = "<group>"; };
+		26BF10AD257F8EA800171227 /* MapDirections2Controller.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapDirections2Controller.h; sourceTree = "<group>"; };
+		26BF10AE257F8EA800171227 /* MapDirections2Controller.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MapDirections2Controller.m; sourceTree = "<group>"; };
+		26BF10B0257F923E00171227 /* MapRoute.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapRoute.h; sourceTree = "<group>"; };
+		26BF10B1257F923E00171227 /* MapRoute.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MapRoute.m; sourceTree = "<group>"; };
 		26C07E2C247677A600E28D43 /* ExposurePlugin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ExposurePlugin.h; sourceTree = "<group>"; };
 		26C07E2D247677A600E28D43 /* ExposurePlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ExposurePlugin.m; sourceTree = "<group>"; };
 		26C90CEB2361CF480092E07F /* NSDictionary+InaPathKey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+InaPathKey.h"; sourceTree = "<group>"; };
@@ -338,6 +344,10 @@
 				266FA50223E0388B00F800F5 /* MapController.m */,
 				269F83FA22D77E5500CC11A4 /* MapDirectionsController.h */,
 				269F83FB22D77E5500CC11A4 /* MapDirectionsController.m */,
+				26BF10AD257F8EA800171227 /* MapDirections2Controller.h */,
+				26BF10AE257F8EA800171227 /* MapDirections2Controller.m */,
+				26BF10B0257F923E00171227 /* MapRoute.h */,
+				26BF10B1257F923E00171227 /* MapRoute.m */,
 				2696997E22C3A14A00B3290E /* MapView.h */,
 				2696997F22C3A14A00B3290E /* MapView.m */,
 				2626D94C22DCB80000F6BC2F /* MapMarkerView.h */,
@@ -692,6 +702,7 @@
 				268F310022E5E7BF00547FE1 /* NSUserDefaults+InaUtils.m in Sources */,
 				26C90CF02361D13E0092E07F /* NSDictionary+UIUCConfig.m in Sources */,
 				269F83F222D744E200CC11A4 /* CGGeometry+InaUtils.m in Sources */,
+				26BF10AF257F8EA800171227 /* MapDirections2Controller.m in Sources */,
 				B6EA372423A7EF76001D78A5 /* Bluetooth+InaUtils.m in Sources */,
 				269F83FC22D77E5500CC11A4 /* MapDirectionsController.m in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
@@ -699,6 +710,7 @@
 				2696995D22C38B4000B3290E /* AppKeys.m in Sources */,
 				268F647A22DF050400A85AFD /* CLLocationCoordinate2D+InaUtils.m in Sources */,
 				2626D94E22DCB80000F6BC2F /* MapMarkerView.m in Sources */,
+				26BF10B2257F923E00171227 /* MapRoute.m in Sources */,
 				269F83EE22D73EB400CC11A4 /* NSDate+UIUCUtils.m in Sources */,
 				B681B2B923DEFD9E00093A67 /* NSData+InaHex.m in Sources */,
 				26FA06BE22CCA9B5003B78E4 /* NSDictionary+InaTypedValue.m in Sources */,
