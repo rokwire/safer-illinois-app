@@ -323,6 +323,12 @@ static float const kDefaultZoom = 17;
 			endLocationMarker.map = _mapView;
 		}
 
+		// camera position
+		if ((_currentLocation != nil) && (_targetLocation != nil)) {
+			GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithCoordinate:_currentLocation.coordinate coordinate:_targetLocation.coordinate];
+			_mapView.camera = [_mapView cameraForBounds:bounds insets:UIEdgeInsetsMake(48, 48, 48, 48)];
+		}
+
 		[self updateNav];
 	}
 }
