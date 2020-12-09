@@ -213,11 +213,17 @@ static float const kDefaultZoom = 17;
 		[self buildNavControls];
 		
 		if (_route != nil) {
+			_navStatus = NavStatus_Start;
+			_navStepIndex = -1;
 			[self initRoutePreview];
 		}
 		else {
+			_navStatus = NavStatus_Unknown;
+			_navStepIndex = -1;
 			[self initLocationPreview];
 		}
+
+		[self updateNav];
 	}
 	return true;
 }
@@ -273,37 +279,102 @@ static float const kDefaultZoom = 17;
 	}
 }
 
+- (void)initRoute {
+	if (_navStatus == NavStatus_Progress) {
+		[self initRouteStep];
+	}
+	else {
+		[self initRoutePreview];
+	}
+}
+
 - (void)initRoutePreview {
 
 	if ((_route != nil) && (0 < _mapView.frame.size.width) && (0 < _mapView.frame.size.height)) {
 		[_mapView clear];
 		
 		// add overview polyline
-		GMSMutablePath *path = [GMSMutablePath path];
-		for (MapLocation *location in _route.overviewPolyline)
-			[path addCoordinate:location.coordinate];
-		
-		GMSPolyline *polyline = [GMSPolyline polylineWithPath:path];
-		polyline.strokeColor = [UIColor colorWithRed:0.20 green:0.20 blue:1.0 alpha:1.0];
-		polyline.strokeWidth = 5.0f;
-		polyline.map = _mapView;
+		if (_route.overviewPolyline != nil) {
+			GMSMutablePath *path = [GMSMutablePath path];
+			for (MapLocation *location in _route.overviewPolyline)
+				[path addCoordinate:location.coordinate];
+			
+			GMSPolyline *polyline = [GMSPolyline polylineWithPath:path];
+			polyline.strokeColor = [UIColor colorWithRed:0.17 green:0.60 blue:0.94 alpha:1.0];
+			polyline.strokeWidth = 5.0f;
+			polyline.map = _mapView;
+		}
 		
 		// add start location marker
-		GMSMarker *startLocationMarker = [GMSMarker markerWithPosition:_route.legs.firstObject.startLocation.coordinate];
-		startLocationMarker.title = _route.legs.firstObject.startAddress;
-		startLocationMarker.map = _mapView;
+		MapLeg *firstLeg = _route.legs.firstObject;
+		if (firstLeg.startLocation != nil) {
+			GMSMarker *startLocationMarker = [GMSMarker markerWithPosition:firstLeg.startLocation.coordinate];
+			startLocationMarker.title = firstLeg.startAddress;
+			startLocationMarker.icon = [UIImage imageNamed:@"maps-icon-marker-origin.png"];
+			startLocationMarker.groundAnchor = CGPointMake(0.5, 0.5);
+			startLocationMarker.map = _mapView;
+		}
 		
 		// add end location marker
-		GMSMarker *endLocationMarker = [GMSMarker markerWithPosition:_route.legs.lastObject.endLocation.coordinate];
-		endLocationMarker.title = _route.legs.lastObject.endAddress;
-		endLocationMarker.map = _mapView;
+		MapLeg *lastLeg = _route.legs.lastObject;
+		if (lastLeg.endLocation != nil) {
+			GMSMarker *endLocationMarker = [GMSMarker markerWithPosition:lastLeg.endLocation.coordinate];
+			endLocationMarker.title = lastLeg.endAddress;
+			endLocationMarker.icon = [UIImage imageNamed:@"maps-icon-marker-origin.png"];
+			endLocationMarker.groundAnchor = CGPointMake(0.5, 0.5);
+			endLocationMarker.map = _mapView;
+		}
 		
 		// camera position
-		GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithCoordinate:_route.bounds.northeast.coordinate coordinate:_route.bounds.southwest.coordinate];
-		_mapView.camera = [_mapView cameraForBounds:bounds insets:UIEdgeInsetsMake(48, 48, 48, 48)];
+		if (_route.bounds != nil) {
+			GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithCoordinate:_route.bounds.northeast.coordinate coordinate:_route.bounds.southwest.coordinate];
+			GMSCameraPosition *camera = [_mapView cameraForBounds:bounds insets:UIEdgeInsetsMake(64, 48, 64, 48)];
+			[_mapView animateToCameraPosition:camera];
+		}
+	}
+}
+
+- (void)initRouteStep {
+
+	if ((_route != nil) && (0 < _mapView.frame.size.width) && (0 < _mapView.frame.size.height)) {
+		[_mapView clear];
 		
-		_navStatus = NavStatus_Start;
-		[self updateNav];
+		MapStep *routeStep = ((0 <= _navStepIndex) && (_navStepIndex < _route.steps.count)) ? [_route.steps objectAtIndex:_navStepIndex] : nil;
+		
+		// add overview polyline
+		if (routeStep.polyline != nil) {
+			GMSMutablePath *path = [GMSMutablePath path];
+			for (MapLocation *location in routeStep.polyline)
+				[path addCoordinate:location.coordinate];
+			
+			GMSPolyline *polyline = [GMSPolyline polylineWithPath:path];
+			polyline.strokeColor = [UIColor colorWithRed:0.17 green:0.60 blue:0.94 alpha:1.0];
+			polyline.strokeWidth = 5.0f;
+			polyline.map = _mapView;
+		}
+		
+		// add start location marker
+		if (routeStep.startLocation != nil) {
+			GMSMarker *startLocationMarker = [GMSMarker markerWithPosition:routeStep.startLocation.coordinate];
+			startLocationMarker.icon = [UIImage imageNamed:@"maps-icon-marker-origin.png"];
+			startLocationMarker.groundAnchor = CGPointMake(0.5, 0.5);
+			startLocationMarker.map = _mapView;
+		}
+		
+		// add end location marker
+		if (routeStep.endLocation != nil) {
+			GMSMarker *endLocationMarker = [GMSMarker markerWithPosition:routeStep.endLocation.coordinate];
+			endLocationMarker.icon = [UIImage imageNamed:@"maps-icon-marker-origin.png"];
+			endLocationMarker.groundAnchor = CGPointMake(0.5, 0.5);
+			endLocationMarker.map = _mapView;
+		}
+		
+		// camera position
+		if ((routeStep.startLocation != nil) && (routeStep.endLocation != nil)) {
+			GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithCoordinate:routeStep.startLocation.coordinate coordinate:routeStep.endLocation.coordinate];
+			GMSCameraPosition *camera = [_mapView cameraForBounds:bounds insets:UIEdgeInsetsMake(64, 48, 64, 48)];
+			[_mapView animateToCameraPosition:camera];
+		}
 	}
 }
 
@@ -314,12 +385,16 @@ static float const kDefaultZoom = 17;
 		// add start location marker
 		if (_currentLocation != nil) {
 			GMSMarker *startLocationMarker = [GMSMarker markerWithPosition:_currentLocation.coordinate];
+			startLocationMarker.icon = [UIImage imageNamed:@"maps-icon-marker-origin.png"];
+			startLocationMarker.groundAnchor = CGPointMake(0.5, 0.5);
 			startLocationMarker.map = _mapView;
 		}
 		
 		// add end location marker
 		if (_targetLocation != nil) {
 			GMSMarker *endLocationMarker = [GMSMarker markerWithPosition:_targetLocation.coordinate];
+			endLocationMarker.icon = [UIImage imageNamed:@"maps-icon-marker-origin.png"];
+			endLocationMarker.groundAnchor = CGPointMake(0.5, 0.5);
 			endLocationMarker.map = _mapView;
 		}
 
@@ -328,8 +403,6 @@ static float const kDefaultZoom = 17;
 			GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithCoordinate:_currentLocation.coordinate coordinate:_targetLocation.coordinate];
 			_mapView.camera = [_mapView cameraForBounds:bounds insets:UIEdgeInsetsMake(48, 48, 48, 48)];
 		}
-
-		[self updateNav];
 	}
 }
 
@@ -373,6 +446,9 @@ static float const kDefaultZoom = 17;
 		[self setStepHtml:[NSString stringWithFormat:@"<b>%@</b>", NSLocalizedString(@"FINISH", nil)]];
 		_navPrevButton.enabled = true;
 		_navNextButton.enabled = false;
+	}
+	else {
+		_navStepLabel.text = nil;
 	}
 }
 
@@ -435,6 +511,7 @@ static float const kDefaultZoom = 17;
 			[self requestRouteWithCompletionHandler:^(MapRoute *route) {
 				weakSelf.route = route;
 				weakSelf.routeStatus = RouteStatus_Finished;
+				weakSelf.navStatus = (route != nil) ? NavStatus_Start : NavStatus_Unknown;
 				[weakSelf clearActiviyStatus];
 				if (weakSelf.mapView != nil) {
 					[self initialUpdateMap];
@@ -442,6 +519,7 @@ static float const kDefaultZoom = 17;
 				else {
 					[weakSelf buildContent];
 				}
+				[self updateNav];
 			}];
 		}
 		return true;
@@ -557,6 +635,7 @@ static float const kDefaultZoom = 17;
 		_route = nil;
 		_routeStatus = RouteStatus_Unknown;
 		_navStatus = NavStatus_Unknown;
+		_navStepIndex = -1;
 		_navAutoUpdate = false;
 		[_mapView clear];
 		
@@ -568,6 +647,7 @@ static float const kDefaultZoom = 17;
 	_route = nil;
 	_routeStatus = RouteStatus_Unknown;
 	_navStatus = NavStatus_Unknown;
+	_navStepIndex = -1;
 	_navAutoUpdate = false;
 	[_mapView clear];
 	
@@ -586,68 +666,46 @@ static float const kDefaultZoom = 17;
 }
 
 - (void)didNavPrev {
-/*if (_navStatus == NavStatus_Start) {
+	if (_navStatus == NavStatus_Start) {
 	}
 	else if (_navStatus == NavStatus_Progress) {
-		NSInteger legIndex = _mpDirectionsRenderer.routeLegIndex;
-		NSInteger stepIndex = _mpDirectionsRenderer.routeStepIndex;
-		
-		if (0 < stepIndex) {
-			_mpDirectionsRenderer.routeStepIndex = --stepIndex;
-		}
-		else if (0 < legIndex) {
-			_mpDirectionsRenderer.routeLegIndex = --legIndex;
-			MPRouteLeg *leg = [_mpDirectionsRenderer.route.legs objectAtIndex:legIndex];
-			_mpDirectionsRenderer.routeStepIndex = leg.steps.count - 1;
+		if (0 < _navStepIndex) {
+			_navStepIndex -= 1;
 		}
 		else {
 			_navStatus = NavStatus_Start;
-			_mpDirectionsRenderer.routeLegIndex = _mpDirectionsRenderer.routeStepIndex = -1;
+			_navStepIndex = -1;
 		}
 	}
 	else if (_navStatus == NavStatus_Finished) {
 		_navStatus = NavStatus_Progress;
-		
-		_mpDirectionsRenderer.routeLegIndex = _mpDirectionsRenderer.route.legs.count - 1;
-
-		MPRouteLeg *leg = _mpDirectionsRenderer.route.legs.lastObject;
-		_mpDirectionsRenderer.routeStepIndex = leg.steps.count - 1;
+		_navStepIndex = _route.steps.count - 1;
+		[self initRouteStep];
 	}
 	
-	[self updateNavAutoUpdate];
-	[self updateNav];*/
+	[self initRoute];
+	[self updateNav];
 }
 
 - (void)didNavNext {
-/*if (_navStatus == NavStatus_Start) {
+	if (_navStatus == NavStatus_Start) {
 		_navStatus = NavStatus_Progress;
-		_mpDirectionsRenderer.routeLegIndex = _mpDirectionsRenderer.routeStepIndex = 0;
-		[self notifyRouteStart];
+		_navStepIndex = 0;
 	}
 	else if (_navStatus == NavStatus_Progress) {
-		NSInteger legIndex = _mpDirectionsRenderer.routeLegIndex;
-		NSInteger stepIndex = _mpDirectionsRenderer.routeStepIndex;
-
-		MPRouteLeg *leg = ((0 <= legIndex) && (legIndex < _mpDirectionsRenderer.route.legs.count)) ? [_mpDirectionsRenderer.route.legs objectAtIndex:legIndex] : nil;
-		
-		if ((stepIndex + 1) < leg.steps.count) {
-			_mpDirectionsRenderer.routeStepIndex = ++stepIndex;
-		}
-		else if ((legIndex + 1) < _mpDirectionsRenderer.route.legs.count) {
-			_mpDirectionsRenderer.routeLegIndex = ++legIndex;
-			_mpDirectionsRenderer.routeStepIndex = 0;
+		if ((_navStepIndex + 1) < _route.steps.count) {
+			_navStepIndex++;
 		}
 		else {
 			_navStatus = NavStatus_Finished;
-			_mpDirectionsRenderer.routeLegIndex = _mpDirectionsRenderer.routeStepIndex = -1;
-			[self notifyRouteFinish];
+			_navStepIndex = -1;
 		}
 	}
 	else if (_navStatus == NavStatus_Finished) {
 	}
 
-	[self updateNavAutoUpdate];
-	[self updateNav];*/
+	[self initRoute];
+	[self updateNav];
 }
 
 #pragma mark CLLocationManagerDelegate
