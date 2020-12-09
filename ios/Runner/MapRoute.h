@@ -27,6 +27,8 @@
 @property (nonatomic) NSString* copyrights;
 @property (nonatomic) NSString* summary;
 @property (nonatomic) NSArray<MapLeg*>* legs;
+@property (nonatomic, readonly) NSArray<MapStep*>* steps;
+@property (nonatomic) NSArray<MapLocation*>* overviewPolyline;
 
 + (instancetype)createFromJson:(NSDictionary*)json;
 + (NSArray<MapRoute*>*)createListFromJson:(NSArray*)json;
@@ -46,6 +48,7 @@
 
 + (instancetype)createFromJson:(NSDictionary*)json;
 + (NSArray<MapLeg*>*)createListFromJson:(NSArray*)json;
++ (NSArray<MapStep*>*)stepsFromList:(NSArray<MapLeg*>*)legs;
 @end
 
 @interface MapStep : NSObject
@@ -73,7 +76,11 @@
 @interface MapLocation : NSObject
 @property (nonatomic) CLLocationDegrees latitude;
 @property (nonatomic) CLLocationDegrees longitude;
+@property (nonatomic, readonly) CLLocationCoordinate2D coordinate;
+
 + (instancetype)createFromJson:(NSDictionary*)json;
+
++ (NSArray<MapLocation*>*)createListFromPolylineJson:(NSDictionary*)json;
 + (NSArray<MapLocation*>*)createListFromEncodedPointsString:(NSString*)points;
 @end
 

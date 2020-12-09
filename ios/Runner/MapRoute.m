@@ -22,12 +22,15 @@
 #import "NSDictionary+InaTypedValue.h"
 
 @implementation MapRoute
+
 - (instancetype)initWithJson:(NSDictionary*)json {
 	if (self = [super init]) {
 		_bounds = [MapBounds createFromJson:[json inaDictForKey:@"bounds"]];
 		_copyrights = [json inaStringForKey:@"copyrights"];
 		_summary = [json inaStringForKey:@"summary"];
 		_legs = [MapLeg createListFromJson:[json inaArrayForKey:@"legs"]];
+		_steps = [MapLeg stepsFromList:_legs];
+		_overviewPolyline = [MapLocation createListFromPolylineJson:[json inaDictForKey:@"overview_polyline"]];
 	}
 	return self;
 }
@@ -87,6 +90,16 @@
 	return result;
 }
 
++ (NSArray<MapStep*>*)stepsFromList:(NSArray<MapLeg*>*)legs {
+	NSMutableArray<MapStep*>* steps = (legs != nil) ? [[NSMutableArray alloc] init] : nil;
+	for (MapLeg *leg in legs) {
+		for (MapStep *step in leg.steps) {
+			[steps addObject:step];
+		}
+	}
+	return steps;
+}
+
 @end
 
 @implementation MapStep
@@ -99,7 +112,7 @@
 		_htmlInstructions = [json inaStringForKey:@"html_instructions"];
 		_maneuver = [json inaStringForKey:@"maneuver"];
 		_travelMode = [json inaStringForKey:@"travel_mode"];
-		_polyline = [MapLocation createListFromEncodedPointsString:[[json inaDictForKey:@"polyline"] inaStringForKey:@"points"]];
+		_polyline = [MapLocation createListFromPolylineJson:[json inaDictForKey:@"polyline"]];
 
 		_startLocation = [MapLocation createFromJson:[json inaDictForKey:@"start_location"]];
 		_endLocation = [MapLocation createFromJson:[json inaDictForKey:@"end_location"]];
@@ -160,8 +173,17 @@
 	return self;
 }
 
+- (CLLocationCoordinate2D)coordinate {
+	return CLLocationCoordinate2DMake(_latitude, _longitude);
+}
+
 + (instancetype)createFromJson:(NSDictionary*)json {
 	return (json != nil) ? [[self alloc] initWithJson:json] : nil;
+}
+
++ (NSArray<MapLocation*>*)createListFromPolylineJson:(NSDictionary*)json {
+	NSString *points = [json inaStringForKey:@"points"];
+	return ((points != nil) && (0 < points.length)) ? [self createListFromEncodedPointsString:points] : nil;
 }
 
 + (NSArray<MapLocation*>*)createListFromEncodedPointsString:(NSString*)points {
@@ -174,7 +196,7 @@
 	int                     res    = 0;
 	int                     shift  = 0;
 
-	NSMutableArray<MapLocation*>* result = nil;
+	NSMutableArray<MapLocation*>* result = [[NSMutableArray alloc] init];
 	
 	while (idx < length) {
 		res   = 1;
@@ -199,9 +221,6 @@
 		
 		lng += ((res & 1) ? ~(res >> 1) : (res >> 1));
 		
-		if (result == nil) {
-			result = [[NSMutableArray alloc] init];
-		}
 		MapLocation *location = [[MapLocation alloc] initWithLatitude:(lat * 1e-5) longitude:(lng * 1e-5)];
 		[result addObject:location];
 	}

@@ -27,25 +27,60 @@
 #import "UILabel+InaMeasure.h"
 #import "NSDictionary+InaTypedValue.h"
 #import "NSDictionary+UIUCConfig.h"
+#import "NSUserDefaults+InaUtils.h"
+#import "UIColor+InaParse.h"
+#import "InaSymbols.h"
+
+typedef NS_ENUM(NSInteger, NavStatus) {
+	NavStatus_Unknown,
+	NavStatus_Start,
+	NavStatus_Progress,
+	NavStatus_Finished,
+};
+
+typedef NS_ENUM(NSInteger, RouteStatus) {
+	RouteStatus_Unknown,
+	RouteStatus_Progress,
+	RouteStatus_Finished,
+};
+
+static NSString* const kTravelModes[] = { @"walking", @"bicycling", @"driving", @"transit" };
+static NSString* const kTravelModeKey = @"mapDirections.travelMode";
+static float const kDefaultZoom = 17;
 
 @interface MapDirections2Controller()<GMSMapViewDelegate, CLLocationManagerDelegate>
 
-@property (nonatomic, strong) UIActivityIndicatorView* activityIndicator;
-@property (nonatomic, strong) UILabel* activityStatus;
-@property (nonatomic, strong) UILabel* contentStatus;
+@property (nonatomic) UIActivityIndicatorView* activityIndicator;
+@property (nonatomic) UILabel* activityStatus;
+@property (nonatomic) UILabel* contentStatus;
 
-@property (nonatomic, strong) CLLocationManager* locationManager;
-@property (nonatomic)         bool requestingAuthorization;
+@property (nonatomic) GMSMapView *mapView;
 
-@property (nonatomic, strong) CLLocation* currentLocation;
-@property (nonatomic, strong) NSError* currentLocationError;
-@property (nonatomic)         bool requestingCurrentLocation;
+@property (nonatomic) UISegmentedControl* navTravelModesCtrl;
+@property (nonatomic) UIButton* navRefreshButton;
+@property (nonatomic) UIButton* navAutoUpdateButton;
+@property (nonatomic) UIButton* navPrevButton;
+@property (nonatomic) UIButton* navNextButton;
+@property (nonatomic) UILabel* navStepLabel;
 
-@property (nonatomic, strong) CLLocation* targetLocation;
 
-@property (nonatomic, strong) MapRoute* route;
-@property (nonatomic, strong) NSError* routeError;
-@property (nonatomic)         bool requestingRoute;
+@property (nonatomic) CLLocation* targetLocation;
+@property (nonatomic) NSNumber *targetZoom;
+
+@property (nonatomic) CLLocationManager* locationManager;
+@property (nonatomic) bool requestingAuthorization;
+
+@property (nonatomic) CLLocation* currentLocation;
+@property (nonatomic) NSError* currentLocationError;
+@property (nonatomic) bool requestingCurrentLocation;
+
+@property (nonatomic) MapRoute* route;
+@property (nonatomic) RouteStatus routeStatus;
+
+@property (nonatomic) bool firstLocationUpdate;
+@property (nonatomic) NavStatus navStatus;
+@property (nonatomic) NavStatus navAutoUpdate;
+@property (nonatomic) NSInteger navStepIndex;
 
 @end
 
@@ -91,7 +126,6 @@
 	_activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
 	_activityIndicator.color = [UIColor blackColor];
 	[self.view addSubview:_activityIndicator];
-
 }
 
 - (void)viewDidLoad {
@@ -102,6 +136,10 @@
 - (void)viewDidLayoutSubviews {
 	[super viewDidLayoutSubviews];
 	[self layoutSubViews];
+	if (!_firstLocationUpdate && (0 < _mapView.frame.size.width) && (0 < _mapView.frame.size.height)) {
+		[self initialUpdateMap];
+		_firstLocationUpdate = true;
+	}
 }
 
 - (void)layoutSubViews {
@@ -121,19 +159,214 @@
 
 	CGSize statusTxtSize = [_contentStatus inaTextSizeForBoundWidth:contentInnerW];
 	_contentStatus.frame = CGRectMake(contentGutter.width, (contentSize.height - statusTxtSize.height) / 2, contentInnerW, statusTxtSize.height);
+
+	_mapView.frame = CGRectMake(0, 0, contentSize.width, contentSize.height);
+
+	CGFloat navBtnSize = 42;
+	CGFloat navX = 0, navY, navW = contentSize.width;
+	navX += navBtnSize / 2; navW = MAX(navW - navBtnSize, 0);
+	
+	navY = navBtnSize / 2;
+	_navRefreshButton.frame = CGRectMake(navX, navY, navBtnSize, navBtnSize);
+	
+	CGFloat navAutoUpdateX = navX + 3 * navBtnSize / 2;
+	_navAutoUpdateButton.frame = CGRectMake(navAutoUpdateX, navY, navBtnSize, navBtnSize);
+	
+	CGFloat navTravelModeBtnSize = 36;
+	CGSize navTravelModesSize = CGSizeMake(navTravelModeBtnSize * _navTravelModesCtrl.numberOfSegments * 3 / 2, navTravelModeBtnSize);
+	_navTravelModesCtrl.frame = CGRectMake(contentSize.width - navTravelModesSize.width - 4, navY + (navBtnSize - navTravelModeBtnSize) / 2, navTravelModesSize.width, navTravelModesSize.height);
+	
+	navY = contentSize.height - 2 * navBtnSize;
+	_navPrevButton.frame = CGRectMake(navX, navY, navBtnSize, navBtnSize);
+	_navNextButton.frame = CGRectMake(navX + navW - navBtnSize, navY, navBtnSize, navBtnSize);
+
+	navX += navBtnSize; navW = MAX(navW - 2 * navBtnSize, 0);
+	_navStepLabel.frame = CGRectMake(navX, navY - navBtnSize / 2, navW, 2 * navBtnSize);
 }
 
 - (void)buildContent {
 	[self ensureTargetLocation] ||
 	[self ensureLocationServices] ||
 	[self ensureCurrentLocation] ||
-	[self ensureRoute];
-	
-	if (_route != nil) {
-		[self buildContentStatus:@"TBD: route"];
+	[self ensureRoute] ||
+	[self ensureMapView];
+}
+
+- (bool)ensureMapView {
+	if (_mapView == nil) {
+		GMSCameraPosition *camera = nil;
+		if (_route != nil)  {
+			camera = [GMSCameraPosition cameraWithTarget:_route.legs.firstObject.startLocation.coordinate zoom:kDefaultZoom];
+		}
+		else if (_targetLocation != nil) {
+			camera = [GMSCameraPosition cameraWithTarget:_targetLocation.coordinate zoom:((_targetZoom != nil) ? _targetZoom.floatValue : kDefaultZoom)];
+		}
+		else {
+			[self buildContentStatus:@"Internal Error Occured"];
+			return true;
+		}
+
+		_mapView = [GMSMapView mapWithFrame:CGRectZero camera:camera];
+		_mapView.delegate = self;
+		[self.view insertSubview:_mapView atIndex:0];
+		
+		[self buildNavControls];
+		
+		if (_route != nil) {
+			[self initRoutePreview];
+		}
+		else {
+			[self initLocationPreview];
+		}
 	}
-	else if (_targetLocation != nil) {
-		[self buildContentStatus:@"TBD: map"];
+	return true;
+}
+
+- (void)buildNavControls {
+	_navTravelModesCtrl = [[UISegmentedControl alloc] initWithFrame:CGRectZero];
+	_navTravelModesCtrl.tintColor = [UIColor inaColorWithHex:@"#606060"];
+	[_navTravelModesCtrl addTarget:self action:@selector(didNavTravelMode) forControlEvents:UIControlEventValueChanged];
+	NSInteger selectedTravelModeIndex = [self buildTravelModeSegments];
+	[_navTravelModesCtrl setSelectedSegmentIndex:selectedTravelModeIndex];
+	[_mapView addSubview:_navTravelModesCtrl];
+
+	_navRefreshButton = [[UIButton alloc] initWithFrame:CGRectZero];
+	[_navRefreshButton setExclusiveTouch:YES];
+	[_navRefreshButton setImage:[UIImage imageNamed:@"button-icon-nav-refresh"] forState:UIControlStateNormal];
+	[_navRefreshButton addTarget:self action:@selector(didNavRefresh) forControlEvents:UIControlEventTouchUpInside];
+	[_mapView addSubview:_navRefreshButton];
+	
+	_navAutoUpdateButton = [[UIButton alloc] initWithFrame:CGRectZero];
+	[_navAutoUpdateButton setExclusiveTouch:YES];
+	[_navAutoUpdateButton setImage:[UIImage imageNamed:@"button-icon-nav-location"] forState:UIControlStateNormal];
+	[_navAutoUpdateButton addTarget:self action:@selector(didNavAutoUpdate) forControlEvents:UIControlEventTouchUpInside];
+	[_mapView addSubview:_navAutoUpdateButton];
+
+	_navPrevButton = [[UIButton alloc] initWithFrame:CGRectZero];
+	[_navPrevButton setExclusiveTouch:YES];
+	[_navPrevButton setImage:[UIImage imageNamed:@"button-icon-nav-prev"] forState:UIControlStateNormal];
+	[_navPrevButton addTarget:self action:@selector(didNavPrev) forControlEvents:UIControlEventTouchUpInside];
+	[_mapView addSubview:_navPrevButton];
+
+	_navNextButton = [[UIButton alloc] initWithFrame:CGRectZero];
+	[_navNextButton setExclusiveTouch:YES];
+	[_navNextButton setImage:[UIImage imageNamed:@"button-icon-nav-next"] forState:UIControlStateNormal];
+	[_navNextButton addTarget:self action:@selector(didNavNext) forControlEvents:UIControlEventTouchUpInside];
+	[_mapView addSubview:_navNextButton];
+
+	_navStepLabel = [[UILabel alloc] initWithFrame:CGRectZero];
+	_navStepLabel.font = [UIFont systemFontOfSize:18];
+	_navStepLabel.numberOfLines = 2;
+	_navStepLabel.textAlignment = NSTextAlignmentCenter;
+	_navStepLabel.textColor = [UIColor blackColor];
+	_navStepLabel.shadowColor = [UIColor colorWithWhite:1 alpha:0.5];
+	_navStepLabel.shadowOffset = CGSizeMake(2, 2);
+	[_mapView addSubview:_navStepLabel];
+}
+
+- (void)initialUpdateMap {
+	if (_route != nil) {
+		[self initRoutePreview];
+	}
+	else {
+		[self initLocationPreview];
+	}
+}
+
+- (void)initRoutePreview {
+
+	if ((_route != nil) && (0 < _mapView.frame.size.width) && (0 < _mapView.frame.size.height)) {
+		[_mapView clear];
+		
+		// add overview polyline
+		GMSMutablePath *path = [GMSMutablePath path];
+		for (MapLocation *location in _route.overviewPolyline)
+			[path addCoordinate:location.coordinate];
+		
+		GMSPolyline *polyline = [GMSPolyline polylineWithPath:path];
+		polyline.strokeColor = [UIColor colorWithRed:0.20 green:0.20 blue:1.0 alpha:1.0];
+		polyline.strokeWidth = 5.0f;
+		polyline.map = _mapView;
+		
+		// add start location marker
+		GMSMarker *startLocationMarker = [GMSMarker markerWithPosition:_route.legs.firstObject.startLocation.coordinate];
+		startLocationMarker.title = _route.legs.firstObject.startAddress;
+		startLocationMarker.map = _mapView;
+		
+		// add end location marker
+		GMSMarker *endLocationMarker = [GMSMarker markerWithPosition:_route.legs.lastObject.endLocation.coordinate];
+		endLocationMarker.title = _route.legs.lastObject.endAddress;
+		endLocationMarker.map = _mapView;
+		
+		// camera position
+		GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithCoordinate:_route.bounds.northeast.coordinate coordinate:_route.bounds.southwest.coordinate];
+		_mapView.camera = [_mapView cameraForBounds:bounds insets:UIEdgeInsetsMake(48, 48, 48, 48)];
+		
+		_navStatus = NavStatus_Start;
+		[self updateNav];
+	}
+}
+
+- (void)initLocationPreview {
+	if ((0 < _mapView.frame.size.width) && (0 < _mapView.frame.size.height)) {
+		[_mapView clear];
+
+		// add start location marker
+		if (_currentLocation != nil) {
+			GMSMarker *startLocationMarker = [GMSMarker markerWithPosition:_currentLocation.coordinate];
+			startLocationMarker.map = _mapView;
+		}
+		
+		// add end location marker
+		if (_targetLocation != nil) {
+			GMSMarker *endLocationMarker = [GMSMarker markerWithPosition:_targetLocation.coordinate];
+			endLocationMarker.map = _mapView;
+		}
+
+		[self updateNav];
+	}
+}
+
+
+- (void)initMapMarkers {
+	NSArray *markers = [_parameters inaArrayForKey:@"markers"];
+	for (NSDictionary *markerJson in markers) {
+		if ([markerJson isKindOfClass:[NSDictionary class]]) {
+			GMSMarker *marker = [[GMSMarker alloc] init];
+			CLLocationDegrees markerLatitude = [markerJson inaDoubleForKey:@"latitude"];
+			CLLocationDegrees markerLongitude = [markerJson inaDoubleForKey:@"longitude"];
+			marker.position = CLLocationCoordinate2DMake(markerLatitude, markerLongitude);
+			marker.title = [markerJson inaStringForKey:@"name"];
+			marker.snippet = [markerJson inaStringForKey:@"description"];
+			marker.map = _mapView;
+		}
+	}
+}
+
+- (void)updateNav {
+	_navRefreshButton.hidden = NO;
+	_navRefreshButton.enabled = (_routeStatus == RouteStatus_Finished);
+
+	_navTravelModesCtrl.hidden = (_navStatus != NavStatus_Unknown) && (_navStatus != NavStatus_Start);
+	_navTravelModesCtrl.enabled = (_routeStatus == RouteStatus_Finished);
+
+	_navAutoUpdateButton.hidden = (_navStatus != NavStatus_Progress) || _navAutoUpdate;
+	_navPrevButton.hidden = _navNextButton.hidden = _navStepLabel.hidden = (_navStatus == NavStatus_Unknown);
+
+	if (_navStatus == NavStatus_Start) {
+		[self setStepHtml:[NSString stringWithFormat:@"<b>%@</b>", NSLocalizedString(@"START", nil)]];
+		_navPrevButton.enabled = false;
+		_navNextButton.enabled = true;
+	}
+	else if (_navStatus == NavStatus_Progress) {
+		MapStep *step = ((0 <= _navStepIndex) && (_navStepIndex < _route.steps.count)) ? [_route.steps objectAtIndex:_navStepIndex] : nil;
+		[self setStepHtml:step.htmlInstructions];
+		_navPrevButton.enabled = _navNextButton.enabled = true;
+	}
+	else if (_navStatus == NavStatus_Finished) {
+		[self setStepHtml:[NSString stringWithFormat:@"<b>%@</b>", NSLocalizedString(@"FINISH", nil)]];
+		_navPrevButton.enabled = true;
+		_navNextButton.enabled = false;
 	}
 }
 
@@ -142,8 +375,10 @@
 		NSDictionary *target = [_parameters inaDictForKey:@"target"];
 		NSNumber *latitude = [target inaNumberForKey:@"latitude"];
 		NSNumber *longitude = [target inaNumberForKey:@"longitude"];
+		NSNumber *zoom = [target inaNumberForKey:@"zoom"];
 		if ((latitude != nil) && (longitude != nil)) {
 			_targetLocation = [[CLLocation alloc] initWithLatitude:latitude.doubleValue longitude:longitude.doubleValue];
+			_targetZoom = zoom;
 		}
 		else {
 			[self buildContentStatus:@"Missing target location"];
@@ -181,20 +416,26 @@
 }
 
 - (bool)ensureRoute {
-	if ((_route == nil) &&
-	    (_routeError == nil) &&
+	if ((_routeStatus != RouteStatus_Finished) &&
 	    (_targetLocation != nil) &&
 	    (_currentLocation != nil)) {
 	    
-		if (!_requestingRoute) {
-			_requestingRoute = true;
+		if (_routeStatus != RouteStatus_Progress) {
+			_routeStatus = RouteStatus_Progress;
 			[self buildActivityStatus:@"Building route"];
+			[self updateNav];
+
 			__weak typeof(self) weakSelf = self;
-			[self requestRouteWithCompletionHandler:^(MapRoute *route, NSError *error) {
+			[self requestRouteWithCompletionHandler:^(MapRoute *route) {
 				weakSelf.route = route;
-				weakSelf.routeError = error;
-				weakSelf.requestingRoute = false;
-				[weakSelf buildContent];
+				weakSelf.routeStatus = RouteStatus_Finished;
+				[weakSelf clearActiviyStatus];
+				if (weakSelf.mapView != nil) {
+					[self initialUpdateMap];
+				}
+				else {
+					[weakSelf buildContent];
+				}
 			}];
 		}
 		return true;
@@ -202,8 +443,8 @@
 	return false;
 }
 
-- (void)requestRouteWithCompletionHandler:(void (^)(MapRoute* route, NSError* error))completionHandler {
-	NSString *travelMode = @"driving";
+- (void)requestRouteWithCompletionHandler:(void (^)(MapRoute* route))completionHandler {
+	NSString *travelMode = [[NSUserDefaults standardUserDefaults] inaStringForKey:kTravelModeKey defaults:kTravelModes[0]];
 	NSString *languageCode = @"en";
 	NSString *apiKey = [AppDelegate.sharedInstance.keys uiucConfigStringForPathKey:@"google.maps.api_key"];
 	NSString *urlString = [NSString stringWithFormat:@"https://maps.googleapis.com/maps/api/directions/json?origin=%.6f,%.6f&destination=%.6f,%.6f&sensor=true&alternatives=false&mode=%@&language=%@&units=imperial&key=%@",
@@ -223,14 +464,11 @@
 					route = [MapRoute createFromJson:routeJson];
 				}
 			}
-			if (route == nil) {
-				error = [NSError errorWithDomain:@"edu.illinois.covid" code:0 userInfo:@{ NSLocalizedDescriptionKey : @"Unexpected route JSON response" }];
-			}
 		}
 		
 		dispatch_async(dispatch_get_main_queue(), ^{
 			if (completionHandler != nil) {
-				completionHandler(route, error);
+				completionHandler(route);
 			}
 		});
 	}] resume];
@@ -248,6 +486,162 @@
 	_activityStatus.text = status;
 	[_activityIndicator startAnimating];
 	[self.view setNeedsLayout];
+}
+
+- (void)clearActiviyStatus {
+	_activityStatus.text = nil;
+	[_activityIndicator stopAnimating];
+	[self.view setNeedsLayout];
+}
+
+- (void)setStepHtml:(NSString*)htmlContent {
+
+	NSString *html = [NSString stringWithFormat:@"<html>\
+		<head><style>body{ font-family: Helvetica; font-weight: regular; font-size: 18px; color:#000000 } </style></head>\
+		<body><center>%@</center></body>\
+	</html>", htmlContent];
+
+	_navStepLabel.attributedText = [[NSAttributedString alloc]
+		initWithData:[html dataUsingEncoding:NSUTF8StringEncoding]
+		options:@{
+			NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType,
+			NSCharacterEncodingDocumentAttribute: @(NSUTF8StringEncoding)
+		}
+		documentAttributes:nil
+		error:nil
+	];
+}
+
+- (NSInteger)buildTravelModeSegments {
+	NSInteger selectedTravelModeIndex = 0;
+	NSString *selectedTravelMode = [[NSUserDefaults standardUserDefaults] inaStringForKey:kTravelModeKey defaults:kTravelModes[0]];
+	for (NSInteger index = 0; index < _countof(kTravelModes); index++) {
+		UIImage *segmentImage = nil;
+		NSString *travelMode = kTravelModes[index];
+		if ([travelMode isEqualToString:@"walking"]) {
+			segmentImage = [UIImage imageNamed:@"travel-mode-walk"];
+		}
+		else if ([travelMode isEqualToString:@"bicycling"]) {
+			segmentImage = [UIImage imageNamed:@"travel-mode-bicycle"];
+		}
+		else if ([travelMode isEqualToString:@"driving"]) {
+			segmentImage = [UIImage imageNamed:@"travel-mode-drive"];
+		}
+		else if ([travelMode isEqualToString:@"transit"]) {
+			segmentImage = [UIImage imageNamed:@"travel-mode-transit"];
+		}
+		else {
+			segmentImage = [UIImage imageNamed:@"travel-mode-unknown"];
+		}
+		[_navTravelModesCtrl insertSegmentWithImage:segmentImage atIndex:index animated:NO];
+		if ([travelMode isEqualToString:selectedTravelMode]) {
+			selectedTravelModeIndex = index;
+		}
+	}
+	return selectedTravelModeIndex;
+}
+
+- (void)didNavTravelMode {
+
+	if ((0 <= _navTravelModesCtrl.selectedSegmentIndex) && (_navTravelModesCtrl.selectedSegmentIndex < _countof(kTravelModes))) {
+
+		NSString *travelMode = kTravelModes[_navTravelModesCtrl.selectedSegmentIndex];
+		[[NSUserDefaults standardUserDefaults] setObject:travelMode forKey:kTravelModeKey];
+
+		_route = nil;
+		_routeStatus = RouteStatus_Unknown;
+		_navStatus = NavStatus_Unknown;
+		_navAutoUpdate = false;
+		[_mapView clear];
+		
+		[self ensureRoute];
+	}
+}
+
+- (void)didNavRefresh {
+	_route = nil;
+	_routeStatus = RouteStatus_Unknown;
+	_navStatus = NavStatus_Unknown;
+	_navAutoUpdate = false;
+	[_mapView clear];
+	
+	[self ensureRoute];
+}
+
+- (void)didNavAutoUpdate {
+/*if (_navStatus == NavStatus_Progress) {
+		MPRouteSegmentPath segmentPath = [self findNearestRouteSegmentByCurrentLocation];
+		if ([_route isValidSegmentPath:segmentPath]) {
+			_mpDirectionsRenderer.routeLegIndex = segmentPath.legIndex;
+			_mpDirectionsRenderer.routeStepIndex = segmentPath.stepIndex;
+			_navAutoUpdate = true;
+		}
+	}*/
+}
+
+- (void)didNavPrev {
+/*if (_navStatus == NavStatus_Start) {
+	}
+	else if (_navStatus == NavStatus_Progress) {
+		NSInteger legIndex = _mpDirectionsRenderer.routeLegIndex;
+		NSInteger stepIndex = _mpDirectionsRenderer.routeStepIndex;
+		
+		if (0 < stepIndex) {
+			_mpDirectionsRenderer.routeStepIndex = --stepIndex;
+		}
+		else if (0 < legIndex) {
+			_mpDirectionsRenderer.routeLegIndex = --legIndex;
+			MPRouteLeg *leg = [_mpDirectionsRenderer.route.legs objectAtIndex:legIndex];
+			_mpDirectionsRenderer.routeStepIndex = leg.steps.count - 1;
+		}
+		else {
+			_navStatus = NavStatus_Start;
+			_mpDirectionsRenderer.routeLegIndex = _mpDirectionsRenderer.routeStepIndex = -1;
+		}
+	}
+	else if (_navStatus == NavStatus_Finished) {
+		_navStatus = NavStatus_Progress;
+		
+		_mpDirectionsRenderer.routeLegIndex = _mpDirectionsRenderer.route.legs.count - 1;
+
+		MPRouteLeg *leg = _mpDirectionsRenderer.route.legs.lastObject;
+		_mpDirectionsRenderer.routeStepIndex = leg.steps.count - 1;
+	}
+	
+	[self updateNavAutoUpdate];
+	[self updateNav];*/
+}
+
+- (void)didNavNext {
+/*if (_navStatus == NavStatus_Start) {
+		_navStatus = NavStatus_Progress;
+		_mpDirectionsRenderer.routeLegIndex = _mpDirectionsRenderer.routeStepIndex = 0;
+		[self notifyRouteStart];
+	}
+	else if (_navStatus == NavStatus_Progress) {
+		NSInteger legIndex = _mpDirectionsRenderer.routeLegIndex;
+		NSInteger stepIndex = _mpDirectionsRenderer.routeStepIndex;
+
+		MPRouteLeg *leg = ((0 <= legIndex) && (legIndex < _mpDirectionsRenderer.route.legs.count)) ? [_mpDirectionsRenderer.route.legs objectAtIndex:legIndex] : nil;
+		
+		if ((stepIndex + 1) < leg.steps.count) {
+			_mpDirectionsRenderer.routeStepIndex = ++stepIndex;
+		}
+		else if ((legIndex + 1) < _mpDirectionsRenderer.route.legs.count) {
+			_mpDirectionsRenderer.routeLegIndex = ++legIndex;
+			_mpDirectionsRenderer.routeStepIndex = 0;
+		}
+		else {
+			_navStatus = NavStatus_Finished;
+			_mpDirectionsRenderer.routeLegIndex = _mpDirectionsRenderer.routeStepIndex = -1;
+			[self notifyRouteFinish];
+		}
+	}
+	else if (_navStatus == NavStatus_Finished) {
+	}
+
+	[self updateNavAutoUpdate];
+	[self updateNav];*/
 }
 
 #pragma mark CLLocationManagerDelegate
@@ -273,6 +667,11 @@
 	_requestingCurrentLocation = false;
 	
 	[self buildContent];
+}
+
+#pragma mark GMSMapViewDelegate
+
+- (void)mapView:(GMSMapView *)mapView idleAtCameraPosition:(GMSCameraPosition *)position {
 }
 
 @end
