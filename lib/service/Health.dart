@@ -576,7 +576,7 @@ class Health with Service implements NotificationsListener {
   }
 
   Future<bool> _saveUserPrivateKey(PrivateKey privateKey) async {
-    bool result;
+    bool result = false;
     if (_userId != null) {
       if (privateKey != null) {
         String privateKeyString = RsaKeyHelper.encodePrivateKeyToPemPKCS1(privateKey);
