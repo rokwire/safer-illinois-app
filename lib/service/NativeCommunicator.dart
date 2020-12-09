@@ -304,8 +304,9 @@ class NativeCommunicator with Service {
   }
 
   Future<bool> setHealthRSAPrivateKey({String userId, String value}) async {
+    //TBD: DD - web - return true by default. To be cleared what would be the behaviour of the web app with private key storage
     if (kIsWeb) {
-      return false;
+      return true;
     }
     bool result;
     try {
