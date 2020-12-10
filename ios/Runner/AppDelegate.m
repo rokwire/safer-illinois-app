@@ -106,9 +106,6 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 //	Initialize Google Maps SDK
 //	[GMSServices provideAPIKey:kGoogleAPIKey];
 
-//	Initialize Maps Indoors SDK
-//	[MapsIndoors provideAPIKey:kMapsIndoorsAPIKey googleAPIKey:kGoogleAPIKey];
-
 //	Initialize MicroBlink SDK
 //	[MBMicroblinkSDK.sharedInstance setLicenseKey:kMicroBlinkLicenseKey];
 
