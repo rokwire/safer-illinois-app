@@ -243,51 +243,29 @@ class Storage with Service {
   static const String authTokenKey  = '_auth_token';
 
   AuthToken get authToken {
-    if (kIsWeb) {
-      return null;
-    } else {
-      try {
-        String jsonString = _getStringWithName(authTokenKey);
-        dynamic jsonData = AppJson.decode(jsonString);
-        return (jsonData != null) ? AuthToken.fromJson(jsonData) : null;
-      } on Exception catch (e) {
-        print(e.toString());
-      }
-      return null;
+    try {
+      String jsonString = _getStringWithName(authTokenKey);
+      dynamic jsonData = AppJson.decode(jsonString);
+      return (jsonData != null) ? AuthToken.fromJson(jsonData) : null;
+    } on Exception catch (e) {
+      print(e.toString());
     }
+    return null;
   }
 
   set authToken(AuthToken value) {
-    if (kIsWeb) {
-      return;
-    } else {
-      _setStringWithName(authTokenKey, value != null ? json.encode(value.toJson()) : null);
-    }
+    _setStringWithName(authTokenKey, value != null ? json.encode(value.toJson()) : null);
   }
 
   static const String authUserKey  = '_auth_info';
 
   AuthUser get authUser {
-    if (kIsWeb) {
-      String ai = _getCookie("rwa-ai-data");
-      if (ai == null || ai.isEmpty) {
-        return null;
-      }
-
-      String decoded = utf8.decode(base64.decode(ai));
-      AuthUser authInfo = AuthUser.fromJson(AppJson.decode(decoded));
-      return authInfo;
-    } else {
-      final String authUserToString = _getStringWithName(authUserKey);
-      AuthUser authUser = AuthUser.fromJson(AppJson.decode(authUserToString));
-      return authUser;
-    }
+    final String authUserToString = _getStringWithName(authUserKey);
+    AuthUser authUser = AuthUser.fromJson(AppJson.decode(authUserToString));
+    return authUser;
   }
 
   set authUser(AuthUser value) {
-    if (kIsWeb) {
-      return;
-    }
     _setStringWithName(authUserKey, value != null ? json.encode(value.toJson()) : null);
   }
 
@@ -585,27 +563,5 @@ class Storage with Service {
 
   set testEncryptionString(String value) {
     _setEncryptedStringWithName(_testEncryptionStringKey, value);
-  }
-
-  /////////////
-  // Web
-
-  String _getCookie(String name) {
-    String cookie = html.window.document.cookie;
-    if (cookie == null || cookie.isEmpty || cookie.trim().isEmpty) {
-      return null;
-    }
-    List<String> cookies = cookie.split("; ");
-    if (cookies == null || cookies.isEmpty) {
-      return null;
-    }
-
-    for (var current in cookies) {
-      if (current.startsWith(name)) {
-        String value = current.substring(name.length + 1); //"name=...
-        return value;
-      }
-    }
-    return null;
   }
 }
