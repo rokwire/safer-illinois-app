@@ -22,12 +22,12 @@ import 'package:illinois/service/Localization.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/service/Styles.dart';
 
-class SettingsDebugMessagingPanel extends StatefulWidget {
+class DebugFirebaseMessagingPanel extends StatefulWidget {
   @override
-  _SettingsDebugMessagingPanelState createState() => _SettingsDebugMessagingPanelState();
+  _DebugFirebaseMessagingPanelState createState() => _DebugFirebaseMessagingPanelState();
 }
 
-class _SettingsDebugMessagingPanelState extends State<SettingsDebugMessagingPanel> {
+class _DebugFirebaseMessagingPanelState extends State<DebugFirebaseMessagingPanel> {
   var _topic = "event_reminders";
 
   DropdownButton _itemDown() => DropdownButton<String>(

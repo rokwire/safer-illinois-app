@@ -33,15 +33,15 @@ import 'package:illinois/utils/Crypt.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:illinois/service/Styles.dart';
 
-class SettingsDebugCreateEventPanel extends StatefulWidget {
+class DebugCreateEventPanel extends StatefulWidget {
 
-  SettingsDebugCreateEventPanel();
+  DebugCreateEventPanel();
 
   @override
-  _SettingsDebugCreateEventPanelState createState() => _SettingsDebugCreateEventPanelState();
+  _DebugCreateEventPanelState createState() => _DebugCreateEventPanelState();
 }
 
-class _SettingsDebugCreateEventPanelState extends State<SettingsDebugCreateEventPanel> {
+class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
 
   TextEditingController _blobController;
   String _headerStatus;
