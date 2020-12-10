@@ -28,27 +28,27 @@ import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/service/Storage.dart';
-import 'package:illinois/ui/settings/debug/SettingsDebugCreateEventPanel.dart';
-import 'package:illinois/ui/settings/debug/SettingsDebugExposureLogsPanel.dart';
-import 'package:illinois/ui/settings/debug/SettingsDebugExposurePanel.dart';
-import 'package:illinois/ui/settings/debug/SettingsDebugHealthKeysPanel.dart';
-import 'package:illinois/ui/settings/debug/SettingsDebugSymptomsReportPanel.dart';
-import 'package:illinois/ui/settings/debug/SettingsDebugContactTraceReportPanel.dart';
-import 'package:illinois/ui/settings/debug/SettingsDebugHttpProxyPanel.dart';
-import 'package:illinois/ui/settings/debug/SettingsDebugMessagingPanel.dart';
-import 'package:illinois/ui/settings/debug/SettingsDebugHealthRulesPanel.dart';
+import 'package:illinois/ui/debug/DebugCreateEventPanel.dart';
+import 'package:illinois/ui/debug/DebugExposureLogsPanel.dart';
+import 'package:illinois/ui/debug/DebugExposurePanel.dart';
+import 'package:illinois/ui/debug/DebugHealthKeysPanel.dart';
+import 'package:illinois/ui/debug/DebugSymptomsReportPanel.dart';
+import 'package:illinois/ui/debug/DebugContactTraceReportPanel.dart';
+import 'package:illinois/ui/debug/DebugHttpProxyPanel.dart';
+import 'package:illinois/ui/debug/DebugFirebaseMessagingPanel.dart';
+import 'package:illinois/ui/debug/DebugHealthRulesPanel.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 
 import 'package:illinois/utils/Utils.dart';
 import 'package:illinois/service/Styles.dart';
 
-class SettingsDebugHomePanel extends StatefulWidget {
+class DebugHomePanel extends StatefulWidget {
   @override
-  _SettingsDebugHomePanelState createState() => _SettingsDebugHomePanelState();
+  _DebugHomePanelState createState() => _DebugHomePanelState();
 }
 
-class _SettingsDebugHomePanelState extends State<SettingsDebugHomePanel> implements NotificationsListener {
+class _DebugHomePanelState extends State<DebugHomePanel> implements NotificationsListener {
 
   List<Organization> _organizations;
   Organization _organization;
@@ -297,7 +297,7 @@ class _SettingsDebugHomePanelState extends State<SettingsDebugHomePanel> impleme
 
   Function _onMessagingClicked() {
     return () {
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsDebugMessagingPanel()));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => DebugFirebaseMessagingPanel()));
     };
   }
 
@@ -367,31 +367,31 @@ class _SettingsDebugHomePanelState extends State<SettingsDebugHomePanel> impleme
   }
 
   void _onTapCovid19Keys() {
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsDebugHealthKeysPanel()));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => DebugHealthKeysPanel()));
   }
 
   void _onTapCreateEvent() {
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsDebugCreateEventPanel()));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => DebugCreateEventPanel()));
   }
 
   void _onTapTraceCovid19Exposure() {
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsDebugContactTraceReportPanel()));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => DebugContactTraceReportPanel()));
   }
 
   void _onTapReportCovid19Symptoms() {
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsDebugSymptomsReportPanel()));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => DebugSymptomsReportPanel()));
   }
 
   void _onTapCovid19Exposures() {
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsDebugExposurePanel()));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => DebugExposurePanel()));
   }
 
   void _onTapCovid19ExposureLogs() {
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsDebugExposureLogsPanel()));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => DebugExposureLogsPanel()));
   }
 
   void _onTapCovid19Rules(){
-    Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsDebugHealthRulesPanel()));
+    Navigator.push(context, CupertinoPageRoute(builder: (context) => DebugHealthRulesPanel()));
   }
 
   void _onTapCovid19TestCrash(){
@@ -593,7 +593,7 @@ class _SettingsDebugHomePanelState extends State<SettingsDebugHomePanel> impleme
 
   void _onTapHttpProxy() {
     if(Organizations().isDevEnvironment) {
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsDebugHttpProxyPanel()));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => DebugHttpProxyPanel()));
     }
   }
 }

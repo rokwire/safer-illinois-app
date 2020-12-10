@@ -32,15 +32,15 @@ import 'package:illinois/utils/Crypt.dart';
 import 'package:illinois/utils/Utils.dart';
 import "package:pointycastle/export.dart" as PointyCastle;
 
-class SettingsDebugHealthKeysPanel extends StatefulWidget {
+class DebugHealthKeysPanel extends StatefulWidget {
 
-  SettingsDebugHealthKeysPanel();
+  DebugHealthKeysPanel();
 
   @override
-  _SettingsDebugHealthKeysPanelState createState() => _SettingsDebugHealthKeysPanelState();
+  _DebugHealthKeysPanelState createState() => _DebugHealthKeysPanelState();
 }
 
-class _SettingsDebugHealthKeysPanelState extends State<SettingsDebugHealthKeysPanel> {
+class _DebugHealthKeysPanelState extends State<DebugHealthKeysPanel> {
 
   TextEditingController _rsaPublicKeyController;
   PointyCastle.PublicKey _rsaPublicKey;
