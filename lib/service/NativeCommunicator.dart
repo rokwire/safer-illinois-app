@@ -70,30 +70,7 @@ class NativeCommunicator with Service {
     }
   }
 
-  Future<void> launchExploreMapDirections({dynamic target}) async {
-    dynamic jsonData;
-    try {
-      if (target != null) {
-        if (target is List) {
-          jsonData = List<dynamic>();
-          for (dynamic entry in target) {
-            jsonData.add(entry.toJson());
-          }
-        }
-        else {
-          jsonData = target.toJson();
-        }
-      }
-    } on PlatformException catch (e) {
-      print(e.message);
-    }
-    
-    if (jsonData != null) {
-      await launchMapDirections(jsonData: jsonData);
-    }
-  }
-
-  Future<void> launchMapDirections({dynamic jsonData}) async {
+  Future<void> launchMapDirections({dynamic target}) async {
     try {
       String lastPageName = Analytics().currentPageName;
       Map<String, dynamic> lastPageAttributes = Analytics().currentPageAttributes;
@@ -101,7 +78,7 @@ class NativeCommunicator with Service {
       Analytics().logMapShow();
       
       await _platformChannel.invokeMethod('directions', {
-        'explore': jsonData,
+        'target': target,
       });
 
       Analytics().logMapHide();

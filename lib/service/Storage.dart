@@ -126,6 +126,25 @@ class Storage with Service {
     return _sharedPreferences.get(name);
   }
 
+  void operator []=(String name, dynamic value) {
+    if (value is String) {
+      _sharedPreferences.setString(name, value);
+    }
+    else if (value is int) {
+      _sharedPreferences.setInt(name, value);
+    }
+    else if (value is double) {
+      _sharedPreferences.setDouble(name, value);
+    }
+    else if (value is bool) {
+      _sharedPreferences.setBool(name, value);
+    }
+    else if (value is List) {
+      _sharedPreferences.setStringList(name, value.cast<String>());
+    }
+}
+
+
   // Notifications
 
   bool getNotifySetting(String name) {
