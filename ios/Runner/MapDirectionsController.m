@@ -1,4 +1,4 @@
-////  MapDirections2Controller.m
+////  MapDirectionsController.m
 //  Runner
 //
 //  Created by Mihail Varbanov on 12/8/20.
@@ -17,7 +17,7 @@
 // limitations under the License.
 //
 
-#import "MapDirections2Controller.h"
+#import "MapDirectionsController.h"
 #import "AppDelegate.h"
 #import "MapRoute.h"
 
@@ -50,7 +50,7 @@ static NSString* const kTravelModeKey = @"mapDirections.travelMode";
 static float const kDefaultZoom = 17;
 static float const kCurrentLocationUpdateThreshold = 10; // in meters
 
-@interface MapDirections2Controller()<GMSMapViewDelegate, CLLocationManagerDelegate>
+@interface MapDirectionsController()<GMSMapViewDelegate, CLLocationManagerDelegate>
 
 @property (nonatomic) UIActivityIndicatorView* activityIndicator;
 @property (nonatomic) UILabel* activityStatus;
@@ -91,7 +91,7 @@ static float const kCurrentLocationUpdateThreshold = 10; // in meters
 
 @end
 
-@implementation MapDirections2Controller
+@implementation MapDirectionsController
 
 - (instancetype)init {
 	if (self = [super init]) {

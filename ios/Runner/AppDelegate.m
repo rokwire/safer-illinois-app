@@ -23,8 +23,7 @@
 #import "AppKeys.h"
 #import "MapView.h"
 #import "MapController.h"
-#import "_MapDirectionsController.h"
-#import "MapDirections2Controller.h"
+#import "MapDirectionsController.h"
 #import "ExposurePlugin.h"
 #import "GalleryPlugin.h"
 
@@ -320,10 +319,7 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 }
 
 - (void)handleMapWithParameters:(NSDictionary*)parameters result:(FlutterResult)result {
-	/*MapController *mapController = [[MapController alloc] initWithParameters:parameters completionHandler:^(id returnValue) {
-		result(returnValue);
-	}];*/
-	MapDirections2Controller *mapController = [[MapDirections2Controller alloc] initWithParameters:parameters completionHandler:^(id returnValue) {
+	MapController *mapController = [[MapController alloc] initWithParameters:parameters completionHandler:^(id returnValue) {
 		result(returnValue);
 	}];
 	[self.navigationViewController pushViewController:mapController animated:YES];

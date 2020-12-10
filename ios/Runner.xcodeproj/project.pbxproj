@@ -46,7 +46,7 @@
 		26B3403A2331195C0031CF70 /* UILabel+InaMeasure.m in Sources */ = {isa = PBXBuildFile; fileRef = 26B340392331195C0031CF70 /* UILabel+InaMeasure.m */; };
 		26B462C1258126BB0035CA6D /* maps-icon-marker-my-location@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 26B462BF258126BA0035CA6D /* maps-icon-marker-my-location@3x.png */; };
 		26B462C2258126BB0035CA6D /* maps-icon-marker-origin-large@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 26B462C0258126BB0035CA6D /* maps-icon-marker-origin-large@2x.png */; };
-		26BF10AF257F8EA800171227 /* MapDirections2Controller.m in Sources */ = {isa = PBXBuildFile; fileRef = 26BF10AE257F8EA800171227 /* MapDirections2Controller.m */; };
+		26BF10AF257F8EA800171227 /* MapDirectionsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 26BF10AE257F8EA800171227 /* MapDirectionsController.m */; };
 		26BF10B2257F923E00171227 /* MapRoute.m in Sources */ = {isa = PBXBuildFile; fileRef = 26BF10B1257F923E00171227 /* MapRoute.m */; };
 		26C07E2E247677A600E28D43 /* ExposurePlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 26C07E2D247677A600E28D43 /* ExposurePlugin.m */; };
 		26C90CED2361CF480092E07F /* NSDictionary+InaPathKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 26C90CEC2361CF480092E07F /* NSDictionary+InaPathKey.m */; };
@@ -141,8 +141,8 @@
 		26B340392331195C0031CF70 /* UILabel+InaMeasure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UILabel+InaMeasure.m"; sourceTree = "<group>"; };
 		26B462BF258126BA0035CA6D /* maps-icon-marker-my-location@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "maps-icon-marker-my-location@3x.png"; sourceTree = "<group>"; };
 		26B462C0258126BB0035CA6D /* maps-icon-marker-origin-large@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "maps-icon-marker-origin-large@2x.png"; sourceTree = "<group>"; };
-		26BF10AD257F8EA800171227 /* MapDirections2Controller.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapDirections2Controller.h; sourceTree = "<group>"; };
-		26BF10AE257F8EA800171227 /* MapDirections2Controller.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MapDirections2Controller.m; sourceTree = "<group>"; };
+		26BF10AD257F8EA800171227 /* MapDirectionsController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapDirectionsController.h; sourceTree = "<group>"; };
+		26BF10AE257F8EA800171227 /* MapDirectionsController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MapDirectionsController.m; sourceTree = "<group>"; };
 		26BF10B0257F923E00171227 /* MapRoute.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapRoute.h; sourceTree = "<group>"; };
 		26BF10B1257F923E00171227 /* MapRoute.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MapRoute.m; sourceTree = "<group>"; };
 		26C07E2C247677A600E28D43 /* ExposurePlugin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ExposurePlugin.h; sourceTree = "<group>"; };
@@ -352,8 +352,8 @@
 				266FA50223E0388B00F800F5 /* MapController.m */,
 				269F83FA22D77E5500CC11A4 /* _MapDirectionsController.h */,
 				269F83FB22D77E5500CC11A4 /* _MapDirectionsController.m */,
-				26BF10AD257F8EA800171227 /* MapDirections2Controller.h */,
-				26BF10AE257F8EA800171227 /* MapDirections2Controller.m */,
+				26BF10AD257F8EA800171227 /* MapDirectionsController.h */,
+				26BF10AE257F8EA800171227 /* MapDirectionsController.m */,
 				26BF10B0257F923E00171227 /* MapRoute.h */,
 				26BF10B1257F923E00171227 /* MapRoute.m */,
 				2696997E22C3A14A00B3290E /* MapView.h */,
@@ -713,7 +713,7 @@
 				268F310022E5E7BF00547FE1 /* NSUserDefaults+InaUtils.m in Sources */,
 				26C90CF02361D13E0092E07F /* NSDictionary+UIUCConfig.m in Sources */,
 				269F83F222D744E200CC11A4 /* CGGeometry+InaUtils.m in Sources */,
-				26BF10AF257F8EA800171227 /* MapDirections2Controller.m in Sources */,
+				26BF10AF257F8EA800171227 /* MapDirectionsController.m in Sources */,
 				B6EA372423A7EF76001D78A5 /* Bluetooth+InaUtils.m in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
 				268F647D22DF09D900A85AFD /* NSArray+InaTypedValue.m in Sources */,

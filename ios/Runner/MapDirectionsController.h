@@ -1,4 +1,4 @@
-////  MapDirections2Controller.h
+////  MapDirectionsController.h
 //  Runner
 //
 //  Created by Mihail Varbanov on 12/8/20.
@@ -20,7 +20,7 @@
 #import <UIKit/UIKit.h>
 #import "FlutterCompletion.h"
 
-@interface MapDirections2Controller : UIViewController<FlutterCompletionHandler>
+@interface MapDirectionsController : UIViewController<FlutterCompletionHandler>
 @property (nonatomic, strong) NSDictionary*         parameters;
 @property (nonatomic, strong) FlutterCompletion     completionHandler;
 
