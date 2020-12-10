@@ -54,7 +54,7 @@ class _DebugDirectionsPanelState extends State<DebugDirectionsPanel> {
                 TextField(controller: _latitudeController, focusNode: _latitudeFocusNode,
                   autofocus: false,
                   cursorColor: Styles().colors.textBackground,
-                  keyboardType: TextInputType.text,
+                  keyboardType: TextInputType.numberWithOptions(signed: true, decimal: true),
                   style: TextStyle(fontSize: 16, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground),
                   decoration: InputDecoration(
                     labelText: "Latitude",
@@ -68,7 +68,7 @@ class _DebugDirectionsPanelState extends State<DebugDirectionsPanel> {
                 child: TextField(controller: _longitudeController, focusNode: _longitudeFocusNode,
                   autofocus: false,
                   cursorColor: Styles().colors.textBackground,
-                  keyboardType: TextInputType.text,
+                  keyboardType: TextInputType.numberWithOptions(signed: true, decimal: true),
                   style: TextStyle(fontSize: 16, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground),
                   decoration: InputDecoration(
                     labelText: "Longitude",
