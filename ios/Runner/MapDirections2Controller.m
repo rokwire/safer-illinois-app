@@ -29,6 +29,7 @@
 #import "NSDictionary+UIUCConfig.h"
 #import "NSUserDefaults+InaUtils.h"
 #import "UIColor+InaParse.h"
+#import "CLLocationCoordinate2D+InaUtils.h"
 #import "InaSymbols.h"
 
 typedef NS_ENUM(NSInteger, NavStatus) {
@@ -47,6 +48,7 @@ typedef NS_ENUM(NSInteger, RouteStatus) {
 static NSString* const kTravelModes[] = { @"walking", @"bicycling", @"driving", @"transit" };
 static NSString* const kTravelModeKey = @"mapDirections.travelMode";
 static float const kDefaultZoom = 17;
+static float const kCurrentLocationUpdateThreshold = 10; // in meters
 
 @interface MapDirections2Controller()<GMSMapViewDelegate, CLLocationManagerDelegate>
 
@@ -80,6 +82,7 @@ static float const kDefaultZoom = 17;
 @property (nonatomic) GMSPolyline* stepPolyline;
 @property (nonatomic) GMSMarker* stepStartMarker;
 @property (nonatomic) GMSMarker* stepEndMarker;
+@property (nonatomic) GMSMarker* currentLocationMarker;
 
 @property (nonatomic) bool firstLocationUpdate;
 @property (nonatomic) NavStatus navStatus;
@@ -134,7 +137,7 @@ static float const kDefaultZoom = 17;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [self buildContent];
+    [self buildInitialContent];
 }
 
 - (void)viewDidLayoutSubviews {
@@ -188,7 +191,7 @@ static float const kDefaultZoom = 17;
 	_navStepLabel.frame = CGRectMake(navX, navY - navBtnSize / 2, navW, 2 * navBtnSize);
 }
 
-- (void)buildContent {
+- (void)buildInitialContent {
 	[self ensureTargetLocation] ||
 	[self ensureLocationServices] ||
 	[self ensureCurrentLocation] ||
@@ -394,15 +397,7 @@ static float const kDefaultZoom = 17;
 	if ((0 < _mapView.frame.size.width) && (0 < _mapView.frame.size.height)) {
 		[self clearMap];
 
-		// add start location marker
-		if (_currentLocation != nil) {
-			GMSMarker *startLocationMarker = [GMSMarker markerWithPosition:_currentLocation.coordinate];
-			startLocationMarker.icon = [UIImage imageNamed:@"maps-icon-marker-origin.png"];
-			startLocationMarker.groundAnchor = CGPointMake(0.5, 0.5);
-			startLocationMarker.map = _mapView;
-		}
-		
-		// add end location marker
+		// add target location marker
 		if (_targetLocation != nil) {
 			GMSMarker *endLocationMarker = [GMSMarker markerWithPosition:_targetLocation.coordinate];
 			endLocationMarker.icon = [UIImage imageNamed:@"maps-icon-marker-origin.png"];
@@ -411,9 +406,16 @@ static float const kDefaultZoom = 17;
 		}
 
 		// camera position
-		if ((_currentLocation != nil) && (_targetLocation != nil)) {
-			GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithCoordinate:_currentLocation.coordinate coordinate:_targetLocation.coordinate];
-			_mapView.camera = [_mapView cameraForBounds:bounds insets:UIEdgeInsetsMake(48, 48, 48, 48)];
+		if (_targetLocation != nil) {
+			GMSCameraPosition *camera = nil;
+			if (_currentLocation != nil) {
+				GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithCoordinate:_currentLocation.coordinate coordinate:_targetLocation.coordinate];
+				camera = [_mapView cameraForBounds:bounds insets:UIEdgeInsetsMake(96, 48, 96, 48)];
+			}
+			else {
+				camera = [GMSCameraPosition cameraWithTarget:_targetLocation.coordinate zoom:((_targetZoom != nil) ? _targetZoom.floatValue : kDefaultZoom)];
+			}
+			[_mapView animateToCameraPosition:camera];
 		}
 	}
 }
@@ -424,6 +426,26 @@ static float const kDefaultZoom = 17;
 	_stepPolyline = nil;
 	_stepStartMarker = nil;
 	_stepEndMarker = nil;
+	_currentLocationMarker = nil;
+	[self updateCurrentLocationMarker];
+}
+
+- (void)updateCurrentLocationMarker {
+	if ((_currentLocation != nil) && (_mapView != nil)) {
+		if (_currentLocationMarker != nil) {
+			if (CLLocationCoordinate2DInaDistance(_currentLocationMarker.position, _currentLocation.coordinate) < kCurrentLocationUpdateThreshold) {
+				return;
+			}
+			else {
+				_currentLocationMarker.map = nil;
+			}
+		}
+		_currentLocationMarker = [GMSMarker markerWithPosition:_currentLocation.coordinate];
+		_currentLocationMarker.icon = [UIImage imageNamed:@"maps-icon-marker-my-location.png"];
+		_currentLocationMarker.groundAnchor = CGPointMake(0.5, 0.5);
+		_currentLocationMarker.zIndex = 1;
+		_currentLocationMarker.map = _mapView;
+	}
 }
 
 - (void)initMapMarkers {
@@ -445,7 +467,7 @@ static float const kDefaultZoom = 17;
 	_navRefreshButton.hidden = NO;
 	_navRefreshButton.enabled = (_routeStatus == RouteStatus_Finished);
 
-	_navTravelModesCtrl.hidden = (_navStatus != NavStatus_Unknown) && (_navStatus != NavStatus_Start);
+	_navTravelModesCtrl.hidden = (_navStatus == NavStatus_Progress);
 	_navTravelModesCtrl.enabled = (_routeStatus == RouteStatus_Finished);
 
 	_navAutoUpdateButton.hidden = (_navStatus != NavStatus_Progress) || _navAutoUpdate;
@@ -509,7 +531,7 @@ static float const kDefaultZoom = 17;
 		if (!_requestingCurrentLocation) {
 			_requestingCurrentLocation = true;
 			[self buildActivityStatus:@"Requesting location"];
-			[_locationManager requestLocation];
+			[_locationManager startUpdatingLocation];
 		}
 		return true;
 	}
@@ -517,11 +539,12 @@ static float const kDefaultZoom = 17;
 }
 
 - (bool)ensureRoute {
-	if ((_routeStatus != RouteStatus_Finished) &&
-	    (_targetLocation != nil) &&
-	    (_currentLocation != nil)) {
+	if ((_routeStatus != RouteStatus_Finished) && (_targetLocation != nil)) {
 	    
-		if (_routeStatus != RouteStatus_Progress) {
+		if (_routeStatus == RouteStatus_Progress) {
+			return true;
+		}
+		else if (_currentLocation != nil) {
 			_routeStatus = RouteStatus_Progress;
 			[self buildActivityStatus:@"Building route"];
 			[self updateNav];
@@ -536,12 +559,12 @@ static float const kDefaultZoom = 17;
 					[self initialUpdateMap];
 				}
 				else {
-					[weakSelf buildContent];
+					[weakSelf buildInitialContent];
 				}
 				[self updateNav];
 			}];
+			return true;
 		}
-		return true;
 	}
 	return false;
 }
@@ -730,26 +753,33 @@ static float const kDefaultZoom = 17;
 #pragma mark CLLocationManagerDelegate
 
 - (void)locationManager:(CLLocationManager*)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
-	_requestingAuthorization = false;
-	[self buildContent];
+	if (_requestingAuthorization) {
+		_requestingAuthorization = false;
+		[self buildInitialContent];
+	}
 }
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
 	CLLocation* location = [locations lastObject];
-
+	
 	_currentLocation = location;
 	_currentLocationError = nil;
-	_requestingCurrentLocation = false;
-	
-	[self buildContent];
+	[self updateCurrentLocationMarker];
+
+	if (_requestingCurrentLocation) {
+		_requestingCurrentLocation = false;
+		[self buildInitialContent];
+	}
 }
 
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
-	_currentLocation = nil;
+	//_currentLocation = nil;
 	_currentLocationError = error;
-	_requestingCurrentLocation = false;
 	
-	[self buildContent];
+	if (_requestingCurrentLocation) {
+		_requestingCurrentLocation = false;
+		[self buildInitialContent];
+	}
 }
 
 #pragma mark GMSMapViewDelegate
