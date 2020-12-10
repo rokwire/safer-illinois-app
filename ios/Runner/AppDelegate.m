@@ -23,7 +23,7 @@
 #import "AppKeys.h"
 #import "MapView.h"
 #import "MapController.h"
-#import "MapDirectionsController.h"
+#import "_MapDirectionsController.h"
 #import "MapDirections2Controller.h"
 #import "ExposurePlugin.h"
 #import "GalleryPlugin.h"
