@@ -400,7 +400,7 @@ static float const kCurrentLocationUpdateThreshold = 10; // in meters
 		// add target location marker
 		if (_targetLocation != nil) {
 			GMSMarker *endLocationMarker = [GMSMarker markerWithPosition:_targetLocation.coordinate];
-			endLocationMarker.icon = [UIImage imageNamed:@"maps-icon-marker-origin.png"];
+			endLocationMarker.icon = [UIImage imageNamed:@"maps-icon-marker-origin-small.png"];
 			endLocationMarker.groundAnchor = CGPointMake(0.5, 0.5);
 			endLocationMarker.map = _mapView;
 		}
@@ -464,11 +464,11 @@ static float const kCurrentLocationUpdateThreshold = 10; // in meters
 }
 
 - (void)updateNav {
-	_navRefreshButton.hidden = NO;
-	_navRefreshButton.enabled = (_routeStatus == RouteStatus_Finished);
+	_navRefreshButton.hidden = (_currentLocation == nil) || (_targetLocation == nil);
+	_navRefreshButton.enabled = (_routeStatus != RouteStatus_Progress);
 
-	_navTravelModesCtrl.hidden = (_navStatus == NavStatus_Progress);
-	_navTravelModesCtrl.enabled = (_routeStatus == RouteStatus_Finished);
+	_navTravelModesCtrl.hidden = (_currentLocation == nil) || (_targetLocation == nil) || (_navStatus == NavStatus_Progress);
+	_navTravelModesCtrl.enabled = (_routeStatus != RouteStatus_Progress);
 
 	_navAutoUpdateButton.hidden = (_navStatus != NavStatus_Progress) || _navAutoUpdate;
 	_navPrevButton.hidden = _navNextButton.hidden = _navStepLabel.hidden = (_navStatus == NavStatus_Unknown);
@@ -565,6 +565,9 @@ static float const kCurrentLocationUpdateThreshold = 10; // in meters
 			}];
 			return true;
 		}
+	}
+	if (_mapView != nil) {
+		[self initialUpdateMap];
 	}
 	return false;
 }
