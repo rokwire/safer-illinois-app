@@ -77,6 +77,10 @@ static float const kDefaultZoom = 17;
 @property (nonatomic) MapRoute* route;
 @property (nonatomic) RouteStatus routeStatus;
 
+@property (nonatomic) GMSPolyline* stepPolyline;
+@property (nonatomic) GMSMarker* stepStartMarker;
+@property (nonatomic) GMSMarker* stepEndMarker;
+
 @property (nonatomic) bool firstLocationUpdate;
 @property (nonatomic) NavStatus navStatus;
 @property (nonatomic) NavStatus navAutoUpdate;
@@ -291,7 +295,7 @@ static float const kDefaultZoom = 17;
 - (void)initRoutePreview {
 
 	if ((_route != nil) && (0 < _mapView.frame.size.width) && (0 < _mapView.frame.size.height)) {
-		[_mapView clear];
+		[self clearMap];
 		
 		// add overview polyline
 		if (_route.overviewPolyline != nil) {
@@ -301,7 +305,7 @@ static float const kDefaultZoom = 17;
 			
 			GMSPolyline *polyline = [GMSPolyline polylineWithPath:path];
 			polyline.strokeColor = [UIColor colorWithRed:0.17 green:0.60 blue:0.94 alpha:1.0];
-			polyline.strokeWidth = 5.0f;
+			polyline.strokeWidth = 2.0f;
 			polyline.map = _mapView;
 		}
 		
@@ -310,7 +314,7 @@ static float const kDefaultZoom = 17;
 		if (firstLeg.startLocation != nil) {
 			GMSMarker *startLocationMarker = [GMSMarker markerWithPosition:firstLeg.startLocation.coordinate];
 			startLocationMarker.title = firstLeg.startAddress;
-			startLocationMarker.icon = [UIImage imageNamed:@"maps-icon-marker-origin.png"];
+			startLocationMarker.icon = [UIImage imageNamed:@"maps-icon-marker-origin-small.png"];
 			startLocationMarker.groundAnchor = CGPointMake(0.5, 0.5);
 			startLocationMarker.map = _mapView;
 		}
@@ -320,7 +324,7 @@ static float const kDefaultZoom = 17;
 		if (lastLeg.endLocation != nil) {
 			GMSMarker *endLocationMarker = [GMSMarker markerWithPosition:lastLeg.endLocation.coordinate];
 			endLocationMarker.title = lastLeg.endAddress;
-			endLocationMarker.icon = [UIImage imageNamed:@"maps-icon-marker-origin.png"];
+			endLocationMarker.icon = [UIImage imageNamed:@"maps-icon-marker-origin-small.png"];
 			endLocationMarker.groundAnchor = CGPointMake(0.5, 0.5);
 			endLocationMarker.map = _mapView;
 		}
@@ -337,42 +341,50 @@ static float const kDefaultZoom = 17;
 - (void)initRouteStep {
 
 	if ((_route != nil) && (0 < _mapView.frame.size.width) && (0 < _mapView.frame.size.height)) {
-		[_mapView clear];
 		
 		MapStep *routeStep = ((0 <= _navStepIndex) && (_navStepIndex < _route.steps.count)) ? [_route.steps objectAtIndex:_navStepIndex] : nil;
 		
-		// add overview polyline
+		// add step polyline
+		if (_stepPolyline.map != nil) {
+			_stepPolyline.map = nil;
+		}
 		if (routeStep.polyline != nil) {
 			GMSMutablePath *path = [GMSMutablePath path];
 			for (MapLocation *location in routeStep.polyline)
 				[path addCoordinate:location.coordinate];
 			
-			GMSPolyline *polyline = [GMSPolyline polylineWithPath:path];
-			polyline.strokeColor = [UIColor colorWithRed:0.17 green:0.60 blue:0.94 alpha:1.0];
-			polyline.strokeWidth = 5.0f;
-			polyline.map = _mapView;
+			_stepPolyline = [GMSPolyline polylineWithPath:path];
+			_stepPolyline.strokeColor = [UIColor colorWithRed:0.17 green:0.60 blue:0.94 alpha:1.0];
+			_stepPolyline.strokeWidth = 5.0f;
+			_stepPolyline.map = _mapView;
 		}
 		
 		// add start location marker
+		if (_stepStartMarker.map != nil) {
+			_stepStartMarker.map = nil;
+		}
 		if (routeStep.startLocation != nil) {
-			GMSMarker *startLocationMarker = [GMSMarker markerWithPosition:routeStep.startLocation.coordinate];
-			startLocationMarker.icon = [UIImage imageNamed:@"maps-icon-marker-origin.png"];
-			startLocationMarker.groundAnchor = CGPointMake(0.5, 0.5);
-			startLocationMarker.map = _mapView;
+			_stepStartMarker = [GMSMarker markerWithPosition:routeStep.startLocation.coordinate];
+			_stepStartMarker.icon = [UIImage imageNamed:@"maps-icon-marker-origin-large.png"];
+			_stepStartMarker.groundAnchor = CGPointMake(0.5, 0.5);
+			_stepStartMarker.map = _mapView;
 		}
 		
 		// add end location marker
+		if (_stepEndMarker.map != nil) {
+			_stepEndMarker.map = nil;
+		}
 		if (routeStep.endLocation != nil) {
-			GMSMarker *endLocationMarker = [GMSMarker markerWithPosition:routeStep.endLocation.coordinate];
-			endLocationMarker.icon = [UIImage imageNamed:@"maps-icon-marker-origin.png"];
-			endLocationMarker.groundAnchor = CGPointMake(0.5, 0.5);
-			endLocationMarker.map = _mapView;
+			_stepEndMarker = [GMSMarker markerWithPosition:routeStep.endLocation.coordinate];
+			_stepEndMarker.icon = [UIImage imageNamed:@"maps-icon-marker-origin-large.png"];
+			_stepEndMarker.groundAnchor = CGPointMake(0.5, 0.5);
+			_stepEndMarker.map = _mapView;
 		}
 		
 		// camera position
 		if ((routeStep.startLocation != nil) && (routeStep.endLocation != nil)) {
 			GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithCoordinate:routeStep.startLocation.coordinate coordinate:routeStep.endLocation.coordinate];
-			GMSCameraPosition *camera = [_mapView cameraForBounds:bounds insets:UIEdgeInsetsMake(64, 48, 64, 48)];
+			GMSCameraPosition *camera = [_mapView cameraForBounds:bounds insets:UIEdgeInsetsMake(96, 48, 96, 48)];
 			[_mapView animateToCameraPosition:camera];
 		}
 	}
@@ -380,7 +392,7 @@ static float const kDefaultZoom = 17;
 
 - (void)initLocationPreview {
 	if ((0 < _mapView.frame.size.width) && (0 < _mapView.frame.size.height)) {
-		[_mapView clear];
+		[self clearMap];
 
 		// add start location marker
 		if (_currentLocation != nil) {
@@ -406,6 +418,13 @@ static float const kDefaultZoom = 17;
 	}
 }
 
+- (void)clearMap {
+	[_mapView clear];
+	
+	_stepPolyline = nil;
+	_stepStartMarker = nil;
+	_stepEndMarker = nil;
+}
 
 - (void)initMapMarkers {
 	NSArray *markers = [_parameters inaArrayForKey:@"markers"];
@@ -637,7 +656,7 @@ static float const kDefaultZoom = 17;
 		_navStatus = NavStatus_Unknown;
 		_navStepIndex = -1;
 		_navAutoUpdate = false;
-		[_mapView clear];
+		[self clearMap];
 		
 		[self ensureRoute];
 	}
@@ -649,7 +668,7 @@ static float const kDefaultZoom = 17;
 	_navStatus = NavStatus_Unknown;
 	_navStepIndex = -1;
 	_navAutoUpdate = false;
-	[_mapView clear];
+	[self clearMap];
 	
 	[self ensureRoute];
 }
