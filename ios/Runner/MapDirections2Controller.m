@@ -603,6 +603,45 @@ static float const kCurrentLocationUpdateThreshold = 10; // in meters
 	}] resume];
 }
 
+- (NSInteger)stepIndexFromCurrentLocation {
+	NSInteger minStepIndex = -1;
+	double minStepDistance = DBL_MAX;
+	if ((_currentLocation != nil) && (_route != nil)) {
+		for (NSInteger index = 0; index < _route.steps.count; index++ ) {
+			MapStep *step = [_route.steps objectAtIndex:index];
+			if ((step.startLocation != nil) && (step.endLocation != nil)) {
+				double distance =
+					CLLocationCoordinate2DInaDistance(step.startLocation.coordinate, _currentLocation.coordinate) +
+					CLLocationCoordinate2DInaDistance(_currentLocation.coordinate, step.endLocation.coordinate) -
+					CLLocationCoordinate2DInaDistance(step.startLocation.coordinate, step.endLocation.coordinate);
+				if (distance < minStepDistance) {
+					minStepIndex = index;
+					minStepDistance = distance;
+				}
+			}
+		}
+	}
+	return minStepIndex;
+}
+
+- (void)updateNavByCurrentLocation {
+	if ((_route != nil) && (_currentLocation != nil) && (_navStatus == NavStatus_Progress) && _navAutoUpdate) {
+		NSInteger stepIndex = [self stepIndexFromCurrentLocation];
+		if ((0 <= stepIndex) && (stepIndex != _navStepIndex)) {
+			_navStepIndex = stepIndex;
+			[self initRouteStep];
+			[self updateNav];
+		}
+	}
+}
+
+- (void)turnOffAutoUpdateIfNeeded {
+	if ((_route != nil) && (_currentLocation != nil) && _navAutoUpdate &&
+	    ((_navStatus != NavStatus_Progress) || (_navStepIndex != [self stepIndexFromCurrentLocation]))) {
+		_navAutoUpdate = false;
+	}
+}
+
 - (void)buildContentStatus:(NSString*)status {
 	_contentStatus.text = status;
 	_activityStatus.text = nil;
@@ -700,14 +739,15 @@ static float const kCurrentLocationUpdateThreshold = 10; // in meters
 }
 
 - (void)didNavAutoUpdate {
-/*if (_navStatus == NavStatus_Progress) {
-		MPRouteSegmentPath segmentPath = [self findNearestRouteSegmentByCurrentLocation];
-		if ([_route isValidSegmentPath:segmentPath]) {
-			_mpDirectionsRenderer.routeLegIndex = segmentPath.legIndex;
-			_mpDirectionsRenderer.routeStepIndex = segmentPath.stepIndex;
+	if (_navStatus == NavStatus_Progress) {
+		NSInteger stepIndex = [self stepIndexFromCurrentLocation];
+		if (0 <= stepIndex) {
+			_navStepIndex = stepIndex;
 			_navAutoUpdate = true;
+			[self initRouteStep];
+			[self updateNav];
 		}
-	}*/
+	}
 }
 
 - (void)didNavPrev {
@@ -725,9 +765,9 @@ static float const kCurrentLocationUpdateThreshold = 10; // in meters
 	else if (_navStatus == NavStatus_Finished) {
 		_navStatus = NavStatus_Progress;
 		_navStepIndex = _route.steps.count - 1;
-		[self initRouteStep];
 	}
 	
+	[self turnOffAutoUpdateIfNeeded];
 	[self initRoute];
 	[self updateNav];
 }
@@ -749,6 +789,7 @@ static float const kCurrentLocationUpdateThreshold = 10; // in meters
 	else if (_navStatus == NavStatus_Finished) {
 	}
 
+	[self turnOffAutoUpdateIfNeeded];
 	[self initRoute];
 	[self updateNav];
 }
@@ -768,6 +809,7 @@ static float const kCurrentLocationUpdateThreshold = 10; // in meters
 	_currentLocation = location;
 	_currentLocationError = nil;
 	[self updateCurrentLocationMarker];
+	[self updateNavByCurrentLocation];
 
 	if (_requestingCurrentLocation) {
 		_requestingCurrentLocation = false;
