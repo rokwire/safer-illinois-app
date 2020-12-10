@@ -29,6 +29,8 @@
 @property (nonatomic) NSArray<MapLeg*>* legs;
 @property (nonatomic, readonly) NSArray<MapStep*>* steps;
 @property (nonatomic) NSArray<MapLocation*>* overviewPolyline;
+@property (nonatomic, readonly) MapValue* distance;
+@property (nonatomic, readonly) MapValue* duration;
 
 + (instancetype)createFromJson:(NSDictionary*)json;
 + (NSArray<MapRoute*>*)createListFromJson:(NSArray*)json;
@@ -87,5 +89,6 @@
 @interface MapValue : NSObject
 @property (nonatomic) NSString* text;
 @property (nonatomic) NSInteger value;
+- (instancetype)initWithValue:(NSInteger)value text:(NSString*)text;
 + (instancetype)createFromJson:(NSDictionary*)json;
 @end

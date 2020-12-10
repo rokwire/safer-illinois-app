@@ -35,6 +35,52 @@
 	return self;
 }
 
+- (MapValue*)distance {
+	if (_legs.count <= 1) {
+		return _legs.firstObject.distance;
+	}
+	else {
+		NSInteger totalMeters = 0;
+		for (MapLeg *leg in _legs) {
+			totalMeters += leg.distance.value;
+		}
+		
+		double totalMiles = fabs((double)totalMeters) / 1609.344;
+		NSString *text = [NSString stringWithFormat:@"%.*f %@", (totalMiles < 10.0) ? 1 : 0, totalMiles, (totalMiles != 1.0) ? @"mi" : @"mi"];
+		return [[MapValue alloc] initWithValue:totalMeters text:text];
+	}
+}
+
+- (MapValue*)duration {
+	if (_legs.count <= 1) {
+		return _legs.firstObject.duration;
+	}
+	else {
+		NSInteger totalSeconds = 0;
+		for (MapLeg *leg in _legs) {
+			totalSeconds += leg.duration.value;
+		}
+		
+		NSInteger totalMinutes = totalSeconds / 60;
+		NSInteger totalHours = totalMinutes / 60;
+
+		NSInteger minutes = totalMinutes % 60;
+	
+		NSString *text = nil;
+		if (totalHours < 1) {
+			text = [NSString stringWithFormat:@"%lu min", minutes];
+		}
+		else if (totalHours < 24) {
+			text = [NSString stringWithFormat:@"%lu h %02lu min", totalHours, minutes];
+		}
+		else {
+			text = [NSString stringWithFormat:@"%lu h", totalHours];
+		}
+
+		return [[MapValue alloc] initWithValue:totalSeconds text:text];
+	}
+}
+
 + (instancetype)createFromJson:(NSDictionary*)json {
 	return (json != nil) ? [[self alloc] initWithJson:json] : nil;
 }
@@ -232,10 +278,19 @@
 
 @implementation MapValue
 
+
 - (instancetype)initWithJson:(NSDictionary*)json {
 	if (self = [super init]) {
 		_text = [json inaStringForKey:@"text"];
 		_value = [json inaIntegerForKey:@"value"];
+	}
+	return self;
+}
+
+- (instancetype)initWithValue:(NSInteger)value text:(NSString*)text {
+	if (self = [super init]) {
+		_text = text;
+		_value = value;
 	}
 	return self;
 }

@@ -474,7 +474,8 @@ static float const kCurrentLocationUpdateThreshold = 10; // in meters
 	_navPrevButton.hidden = _navNextButton.hidden = _navStepLabel.hidden = (_navStatus == NavStatus_Unknown);
 
 	if (_navStatus == NavStatus_Start) {
-		[self setStepHtml:[NSString stringWithFormat:@"<b>%@</b>", NSLocalizedString(@"START", nil)]];
+		[self setStepHtml:[NSString stringWithFormat:@"<b>%@</b><br>(%@, %@)",
+			NSLocalizedString(@"START", nil), _route.distance.text, _route.duration.text]];
 		_navPrevButton.enabled = false;
 		_navNextButton.enabled = true;
 	}
