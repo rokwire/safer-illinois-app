@@ -621,7 +621,7 @@ NSInteger travelModeIndex(NSString* value);
 
 - (void)requestRouteWithCompletionHandler:(void (^)(MapRoute* route))completionHandler {
 	NSString *travelMode = (0 <= _travelMode) && (_travelMode < _countof(kTravelModes)) ? kTravelModes[_travelMode] : kTravelModes[0];
-	NSString *languageCode = @"en";
+	NSString *languageCode = NSLocale.preferredLanguages.firstObject ?: @"en";
 	NSString *apiKey = [AppDelegate.sharedInstance.keys uiucConfigStringForPathKey:@"google.maps.api_key"];
 	NSString *urlString = [NSString stringWithFormat:@"https://maps.googleapis.com/maps/api/directions/json?origin=%.6f,%.6f&destination=%.6f,%.6f&sensor=true&alternatives=false&mode=%@&language=%@&units=imperial&key=%@",
 		_currentLocation.coordinate.latitude, _currentLocation.coordinate.longitude,
