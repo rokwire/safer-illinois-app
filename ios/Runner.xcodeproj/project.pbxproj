@@ -130,8 +130,6 @@
 		269F83ED22D73EB400CC11A4 /* NSDate+UIUCUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDate+UIUCUtils.h"; sourceTree = "<group>"; };
 		269F83F022D744E200CC11A4 /* CGGeometry+InaUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CGGeometry+InaUtils.h"; sourceTree = "<group>"; };
 		269F83F122D744E200CC11A4 /* CGGeometry+InaUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "CGGeometry+InaUtils.m"; sourceTree = "<group>"; };
-		269F83FA22D77E5500CC11A4 /* _MapDirectionsController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = _MapDirectionsController.h; sourceTree = "<group>"; };
-		269F83FB22D77E5500CC11A4 /* _MapDirectionsController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = _MapDirectionsController.m; sourceTree = "<group>"; };
 		26A170E822DDFB6500299773 /* button-icon-nav-next.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-icon-nav-next.png"; sourceTree = "<group>"; };
 		26A170E922DDFB6500299773 /* button-icon-nav-prev.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-icon-nav-prev.png"; sourceTree = "<group>"; };
 		26A170EA22DDFB6500299773 /* button-icon-nav-clear.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-icon-nav-clear.png"; sourceTree = "<group>"; };
@@ -350,8 +348,6 @@
 				2696995922C38B4000B3290E /* AppKeys.m */,
 				266FA50123E0388B00F800F5 /* MapController.h */,
 				266FA50223E0388B00F800F5 /* MapController.m */,
-				269F83FA22D77E5500CC11A4 /* _MapDirectionsController.h */,
-				269F83FB22D77E5500CC11A4 /* _MapDirectionsController.m */,
 				26BF10AD257F8EA800171227 /* MapDirectionsController.h */,
 				26BF10AE257F8EA800171227 /* MapDirectionsController.m */,
 				26BF10B0257F923E00171227 /* MapRoute.h */,
