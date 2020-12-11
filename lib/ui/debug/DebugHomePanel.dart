@@ -29,6 +29,7 @@ import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/service/Storage.dart';
 import 'package:illinois/ui/debug/DebugCreateEventPanel.dart';
+import 'package:illinois/ui/debug/DebugDirectionsPanel.dart';
 import 'package:illinois/ui/debug/DebugExposureLogsPanel.dart';
 import 'package:illinois/ui/debug/DebugExposurePanel.dart';
 import 'package:illinois/ui/debug/DebugHealthKeysPanel.dart';
@@ -143,24 +144,30 @@ class _DebugHomePanelState extends State<DebugHomePanel> implements Notification
       Padding(
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
           child: RoundedButton(
+              label: "User Info",
+              backgroundColor: Styles().colors.background,
+              fontSize: 16.0,
+              textColor: Styles().colors.fillColorPrimary,
+              borderColor: Styles().colors.fillColorPrimary,
+              onTap: _onUserProfileInfoClicked(context))),
+      Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+          child: RoundedButton(
               label: "Messaging",
               backgroundColor: Styles().colors.background,
               fontSize: 16.0,
               textColor: Styles().colors.fillColorPrimary,
               borderColor: Styles().colors.fillColorPrimary,
               onTap: _onMessagingClicked())),
-      Visibility(
-        visible: true,
-        child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-            child: RoundedButton(
-                label: "User Profile Info",
-                backgroundColor: Styles().colors.background,
-                fontSize: 16.0,
-                textColor: Styles().colors.fillColorPrimary,
-                borderColor: Styles().colors.fillColorPrimary,
-                onTap: _onUserProfileInfoClicked(context))),
-      ),
+      Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+          child: RoundedButton(
+              label: "Directions",
+              backgroundColor: Styles().colors.background,
+              fontSize: 16.0,
+              textColor: Styles().colors.fillColorPrimary,
+              borderColor: Styles().colors.fillColorPrimary,
+              onTap: _onTapDirections)),
       Visibility(
         visible: Organizations().isDevEnvironment,
         child: Padding(
@@ -173,6 +180,15 @@ class _DebugHomePanelState extends State<DebugHomePanel> implements Notification
                 borderColor: Styles().colors.fillColorPrimary,
                 onTap: _onTapHttpProxy)),
       ),
+      Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+          child: RoundedButton(
+              label: "Test Crash",
+              backgroundColor: Styles().colors.background,
+              fontSize: 16.0,
+              textColor: Styles().colors.fillColorPrimary,
+              borderColor: Styles().colors.fillColorPrimary,
+              onTap: _onTapTestCrash)),
       Padding(
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
           child: RoundedButton(
@@ -236,15 +252,6 @@ class _DebugHomePanelState extends State<DebugHomePanel> implements Notification
               textColor: Styles().colors.fillColorPrimary,
               borderColor: Styles().colors.fillColorPrimary,
               onTap: _onTapCovid19ExposureLogs)),
-      Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-          child: RoundedButton(
-              label: "Test Crash",
-              backgroundColor: Styles().colors.background,
-              fontSize: 16.0,
-              textColor: Styles().colors.fillColorPrimary,
-              borderColor: Styles().colors.fillColorPrimary,
-              onTap: _onTapCovid19TestCrash)),
       Padding(padding: EdgeInsets.only(top: 10), child: Container()),
     ]);
 
@@ -394,8 +401,18 @@ class _DebugHomePanelState extends State<DebugHomePanel> implements Notification
     Navigator.push(context, CupertinoPageRoute(builder: (context) => DebugHealthRulesPanel()));
   }
 
-  void _onTapCovid19TestCrash(){
+  void _onTapTestCrash(){
     FirebaseCrashlytics.instance.crash();
+  }
+
+  void _onTapHttpProxy() {
+    if(Organizations().isDevEnvironment) {
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => DebugHttpProxyPanel()));
+    }
+  }
+
+  void _onTapDirections() {
+    Navigator.push(context, CupertinoPageRoute(builder: (context) => DebugDirectionsPanel()));
   }
 
   String prettyPrintJson(var input){
@@ -589,11 +606,5 @@ class _DebugHomePanelState extends State<DebugHomePanel> implements Notification
         _switchingEnvironment = false;
       });
     });
-  }
-
-  void _onTapHttpProxy() {
-    if(Organizations().isDevEnvironment) {
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => DebugHttpProxyPanel()));
-    }
   }
 }

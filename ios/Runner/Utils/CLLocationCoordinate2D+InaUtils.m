@@ -82,3 +82,7 @@ static double computeAngleBetween(CLLocationCoordinate2D from, CLLocationCoordin
 double CLLocationCoordinate2DInaDistance(CLLocationCoordinate2D from, CLLocationCoordinate2D to) {
 	return computeAngleBetween(from, to) * EARTH_RADIUS;
 }
+
+bool CLLocationCoordinate2DInaEqual(CLLocationCoordinate2D coord1, CLLocationCoordinate2D coord2) {
+	return (coord1.latitude == coord2.latitude) && (coord1.longitude == coord2.longitude);
+}

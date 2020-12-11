@@ -1,6 +1,6 @@
 //
 //  main.m
-//  MapsIndoors
+//  Runner
 //
 //  Created by Mihail Varbanov on 2/19/19.
 //  Copyright 2020 Board of Trustees of the University of Illinois.

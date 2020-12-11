@@ -1,10 +1,9 @@
-//
-//  MapDirectionsController.h
+////  MapDirectionsController.h
 //  Runner
 //
-//  Created by Mihail Varbanov on 7/11/19.
+//  Created by Mihail Varbanov on 12/8/20.
 //  Copyright 2020 Board of Trustees of the University of Illinois.
-    
+	
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -19,8 +18,11 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "MapController.h"
+#import "FlutterCompletion.h"
 
-@interface MapDirectionsController : MapController
+@interface MapDirectionsController : UIViewController<FlutterCompletionHandler>
+@property (nonatomic, strong) NSDictionary*         parameters;
+@property (nonatomic, strong) FlutterCompletion     completionHandler;
+
 - (instancetype)initWithParameters:(NSDictionary*)parameters completionHandler:(FlutterCompletion)completionHandler;
 @end
