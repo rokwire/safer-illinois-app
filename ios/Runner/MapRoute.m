@@ -46,7 +46,7 @@
 		}
 		
 		double totalMiles = fabs((double)totalMeters) / 1609.344;
-		NSString *text = [NSString stringWithFormat:@"%.*f %@", (totalMiles < 10.0) ? 1 : 0, totalMiles, (totalMiles != 1.0) ? @"mi" : @"mi"];
+		NSString *text = [NSString stringWithFormat:@"%.*f %@", (totalMiles < 10.0) ? 1 : 0, totalMiles, NSLocalizedString(@"mi", nil)];
 		return [[MapValue alloc] initWithValue:totalMeters text:text];
 	}
 }
@@ -68,13 +68,13 @@
 	
 		NSString *text = nil;
 		if (totalHours < 1) {
-			text = [NSString stringWithFormat:@"%lu min", minutes];
+			text = [NSString stringWithFormat:@"%lu %@", minutes, NSLocalizedString(@"min", nil)];
 		}
 		else if (totalHours < 24) {
-			text = [NSString stringWithFormat:@"%lu h %02lu min", totalHours, minutes];
+			text = [NSString stringWithFormat:@"%lu %@ %02lu %@", totalHours, NSLocalizedString(@"h", nil), minutes, NSLocalizedString(@"min", nil)];
 		}
 		else {
-			text = [NSString stringWithFormat:@"%lu h", totalHours];
+			text = [NSString stringWithFormat:@"%lu %@", totalHours, NSLocalizedString(@"h", nil)];
 		}
 
 		return [[MapValue alloc] initWithValue:totalSeconds text:text];

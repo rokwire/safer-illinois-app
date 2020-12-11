@@ -218,7 +218,7 @@ NSInteger travelModeIndex(NSString* value);
 			camera = [GMSCameraPosition cameraWithTarget:_targetLocation.coordinate zoom:self.targetZoom];
 		}
 		else {
-			[self buildContentStatus:@"Internal Error Occured"];
+			[self buildContentStatus:NSLocalizedString(@"Internal Error Occured", nil)];
 			return true;
 		}
 
@@ -515,7 +515,7 @@ NSInteger travelModeIndex(NSString* value);
 			stepIndex = _navInstrIndex;
 		}
 		else {
-			stepInstr = @"<b>Arrival</b> at the destination";
+			stepInstr = NSLocalizedString(@"<b>Arrival</b> at the destination", nil);
 		}
 	}
 	if ((stepInstr == nil) && (0 <= stepIndex) && (stepIndex < _route.steps.count)) {
@@ -535,7 +535,7 @@ NSInteger travelModeIndex(NSString* value);
 			_targetLocation = [[CLLocation alloc] initWithLatitude:latitude.doubleValue longitude:longitude.doubleValue];
 		}
 		else {
-			[self buildContentStatus:@"Missing target location"];
+			[self buildContentStatus:NSLocalizedString(@"Missing target location", nil)];
 			return true;
 		}
 	}
@@ -562,7 +562,7 @@ NSInteger travelModeIndex(NSString* value);
 	if (CLLocationManager.locationServicesEnabled && (CLLocationManager.authorizationStatus == kCLAuthorizationStatusNotDetermined)) {
 		if (!_requestingAuthorization) {
 			_requestingAuthorization = true;
-			[self buildActivityStatus:@"Requesting permisions"];
+			[self buildActivityStatus:NSLocalizedString(@"Requesting permisions", nil)];
 			[_locationManager requestAlwaysAuthorization];
 		}
 		return true;
@@ -577,7 +577,7 @@ NSInteger travelModeIndex(NSString* value);
 	    ((CLLocationManager.authorizationStatus == kCLAuthorizationStatusAuthorizedAlways) || (CLLocationManager.authorizationStatus == kCLAuthorizationStatusAuthorizedWhenInUse))) {
 		if (!_requestingCurrentLocation) {
 			_requestingCurrentLocation = true;
-			[self buildActivityStatus:@"Requesting location"];
+			[self buildActivityStatus:NSLocalizedString(@"Requesting location", nil) ];
 			[_locationManager startUpdatingLocation];
 		}
 		return true;
@@ -593,7 +593,7 @@ NSInteger travelModeIndex(NSString* value);
 		}
 		else if (_currentLocation != nil) {
 			_routeStatus = RouteStatus_Progress;
-			[self buildActivityStatus:@"Building route"];
+			[self buildActivityStatus:NSLocalizedString(@"Building route", nil)];
 			[self updateNav];
 
 			__weak typeof(self) weakSelf = self;

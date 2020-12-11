@@ -28,6 +28,15 @@
 "Failed to detect current location." = "Failed to detect current location.";
 "Looking for route..." = "Looking for route...";
 "Failed to find route." = "Failed to find route.";
+"Internal Error Occured" = "Internal Error Occured";
+"Missing target location" = "Missing target location";
+"Requesting permisions" = "Requesting permisions";
+"Requesting location" = "Requesting location";
+"Building route" = "Building route";
+"<b>Arrival</b> at the destination" = "<b>Arrival</b> at the destination";
+"mi" = "mi";
+"h" = "h";
+"min" = "min";
 "START" = "START";
 "FINISH" = "FINISH";
 "Pick Location" = "Pick Location";
