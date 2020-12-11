@@ -1,4 +1,3 @@
-
 //  File.strings
 //  Runner
 //
@@ -18,17 +17,9 @@
 // limitations under the License.
 //
 
-
 // Chinese
 
 "Directions" = "Directions";
-"Detecting current location..." = "Detecting current location...";
-"Resolving target address ..." = "Resolving target address ...";
-"Failed to resolve target address." = "Failed to resolve target address.";
-"Detecting current location..." = "Detecting current location...";
-"Failed to detect current location." = "Failed to detect current location.";
-"Looking for route..." = "Looking for route...";
-"Failed to find route." = "Failed to find route.";
 "Internal Error Occured" = "Internal Error Occured";
 "Missing target location" = "Missing target location";
 "Requesting permisions" = "Requesting permisions";
@@ -40,9 +31,5 @@
 "min" = "min";
 "START" = "START";
 "FINISH" = "FINISH";
-"Pick Location" = "Pick Location";
-"Location" = "Location";
-"Please select a location." = "Please select a location.";
-"CUSTOM" = "CUSTOM";
 "Today" = "Today";
 "Tomorrow" = "Tomorrow";
