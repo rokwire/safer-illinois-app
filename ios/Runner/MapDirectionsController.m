@@ -45,10 +45,14 @@ typedef NS_ENUM(NSInteger, RouteStatus) {
 	RouteStatus_Finished,
 };
 
-static NSString* const kTravelModes[] = { @"walking", @"bicycling", @"driving", @"transit" };
-static NSString* const kTravelModeKey = @"mapDirections.travelMode";
 static float const kDefaultZoom = 17;
 static float const kCurrentLocationUpdateThreshold = 1; // in meters
+
+static NSString* const kTravelModes[] = { @"walking", @"bicycling", @"driving", @"transit" };
+static NSString* const kTravelModeKey = @"mapDirections.travelMode";
+
+NSString* travelModeString(NSInteger travelMode);
+NSInteger travelModeIndex(NSString* value);
 
 @interface MapDirectionsController()<GMSMapViewDelegate, CLLocationManagerDelegate>
 
@@ -85,6 +89,7 @@ static float const kCurrentLocationUpdateThreshold = 1; // in meters
 @property (nonatomic) GMSMarker* currentLocationMarker;
 
 @property (nonatomic) bool firstLocationUpdate;
+@property (nonatomic) NSInteger travelMode;
 @property (nonatomic) NavStatus navStatus;
 @property (nonatomic) NavStatus navAutoUpdate;
 @property (nonatomic) NSInteger navStepIndex;
@@ -102,6 +107,8 @@ static float const kCurrentLocationUpdateThreshold = 1; // in meters
 		_locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation;
 //	_locationManager.distanceFilter = kCurrentLocationUpdateThreshold;
 		_locationManager.delegate = self;
+		
+		_travelMode = MAX(travelModeIndex([[NSUserDefaults standardUserDefaults] inaStringForKey:kTravelModeKey]), 0);
 	}
 	return self;
 }
@@ -241,8 +248,8 @@ static float const kCurrentLocationUpdateThreshold = 1; // in meters
 	_navTravelModesCtrl = [[UISegmentedControl alloc] initWithFrame:CGRectZero];
 	_navTravelModesCtrl.tintColor = [UIColor inaColorWithHex:@"#606060"];
 	[_navTravelModesCtrl addTarget:self action:@selector(didNavTravelMode) forControlEvents:UIControlEventValueChanged];
-	NSInteger selectedTravelModeIndex = [self buildTravelModeSegments];
-	[_navTravelModesCtrl setSelectedSegmentIndex:selectedTravelModeIndex];
+	[self buildTravelModeSegments];
+	[_navTravelModesCtrl setSelectedSegmentIndex:_travelMode];
 	[_mapView addSubview:_navTravelModesCtrl];
 
 	_navRefreshButton = [[UIButton alloc] initWithFrame:CGRectZero];
@@ -595,7 +602,7 @@ static float const kCurrentLocationUpdateThreshold = 1; // in meters
 }
 
 - (void)requestRouteWithCompletionHandler:(void (^)(MapRoute* route))completionHandler {
-	NSString *travelMode = [[NSUserDefaults standardUserDefaults] inaStringForKey:kTravelModeKey defaults:kTravelModes[0]];
+	NSString *travelMode = (0 <= _travelMode) && (_travelMode < _countof(kTravelModes)) ? kTravelModes[_travelMode] : kTravelModes[0];
 	NSString *languageCode = @"en";
 	NSString *apiKey = [AppDelegate.sharedInstance.keys uiucConfigStringForPathKey:@"google.maps.api_key"];
 	NSString *urlString = [NSString stringWithFormat:@"https://maps.googleapis.com/maps/api/directions/json?origin=%.6f,%.6f&destination=%.6f,%.6f&sensor=true&alternatives=false&mode=%@&language=%@&units=imperial&key=%@",
@@ -720,9 +727,7 @@ static float const kCurrentLocationUpdateThreshold = 1; // in meters
 	];
 }
 
-- (NSInteger)buildTravelModeSegments {
-	NSInteger selectedTravelModeIndex = 0;
-	NSString *selectedTravelMode = [[NSUserDefaults standardUserDefaults] inaStringForKey:kTravelModeKey defaults:kTravelModes[0]];
+- (void)buildTravelModeSegments {
 	for (NSInteger index = 0; index < _countof(kTravelModes); index++) {
 		UIImage *segmentImage = nil;
 		NSString *travelMode = kTravelModes[index];
@@ -742,19 +747,16 @@ static float const kCurrentLocationUpdateThreshold = 1; // in meters
 			segmentImage = [UIImage imageNamed:@"travel-mode-unknown"];
 		}
 		[_navTravelModesCtrl insertSegmentWithImage:segmentImage atIndex:index animated:NO];
-		if ([travelMode isEqualToString:selectedTravelMode]) {
-			selectedTravelModeIndex = index;
-		}
 	}
-	return selectedTravelModeIndex;
 }
 
 - (void)didNavTravelMode {
 
-	if ((0 <= _navTravelModesCtrl.selectedSegmentIndex) && (_navTravelModesCtrl.selectedSegmentIndex < _countof(kTravelModes))) {
+	NSInteger travelMode = _navTravelModesCtrl.selectedSegmentIndex;
+	if ((0 <= travelMode) && (travelMode <= _countof(kTravelModes)) && (_travelMode != travelMode)) {
 
-		NSString *travelMode = kTravelModes[_navTravelModesCtrl.selectedSegmentIndex];
-		[[NSUserDefaults standardUserDefaults] setObject:travelMode forKey:kTravelModeKey];
+		_travelMode = travelMode;
+		[[NSUserDefaults standardUserDefaults] setObject:kTravelModes[travelMode] forKey:kTravelModeKey];
 
 		_route = nil;
 		_routeStatus = RouteStatus_Unknown;
@@ -871,3 +873,19 @@ static float const kCurrentLocationUpdateThreshold = 1; // in meters
 }
 
 @end
+
+NSString* travelModeString(NSInteger travelMode) {
+	return ((0 <= travelMode) && (travelMode < _countof(kTravelModes))) ? kTravelModes[travelMode] : nil;
+}
+
+NSInteger travelModeIndex(NSString* value) {
+	if (value != nil) {
+		for (NSInteger index = 0; index < _countof(kTravelModes); index++) {
+			NSString *travelMode = kTravelModes[index];
+			if ([travelMode isEqualToString:value]) {
+				return index;
+			}
+		}
+	}
+	return -1;
+}

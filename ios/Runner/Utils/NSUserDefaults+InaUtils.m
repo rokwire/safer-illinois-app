@@ -22,9 +22,17 @@
 
 @implementation NSUserDefaults(InaUtils)
 
+- (NSString*)inaStringForKey:(NSString *)defaultName {
+	return [self inaStringForKey:defaultName defaults:nil];
+}
+
 - (NSString*)inaStringForKey:(NSString *)defaultName defaults:(NSString*)defaultValue {
 	NSString *value = [self stringForKey:defaultName];
 	return (value != nil) ? value : defaultValue;
+}
+
+- (NSNumber*)inaNumberForKey:(NSString *)defaultName {
+	return [self inaNumberForKey:defaultName defaults:nil];
 }
 
 - (NSNumber*)inaNumberForKey:(NSString *)defaultName defaults:(NSNumber*)defaultValue {
@@ -32,9 +40,17 @@
 	return [value isKindOfClass:[NSNumber class]] ? value : defaultValue;
 }
 
+- (NSInteger)inaIntegerForKey:(NSString *)defaultName {
+	return [self inaIntegerForKey:defaultName defaults:0];
+}
+
 - (NSInteger)inaIntegerForKey:(NSString *)defaultName defaults:(NSInteger)defaultValue {
 	id value = [self objectForKey:defaultName];
 	return [value respondsToSelector:@selector(integerValue)] ? [value integerValue] : defaultValue;
+}
+
+- (bool)inaBoolForKey:(NSString *)defaultName {
+	return [self inaBoolForKey:defaultName defaults:false];
 }
 
 - (bool)inaBoolForKey:(NSString *)defaultName defaults:(bool)defaultValue {
@@ -42,9 +58,17 @@
 	return [value respondsToSelector:@selector(boolValue)] ? [value boolValue] : defaultValue;
 }
 
+- (double)inaDoubleForKey:(NSString *)defaultName {
+	return [self inaDoubleForKey:defaultName defaults:0.0];
+}
+
 - (double)inaDoubleForKey:(NSString *)defaultName defaults:(double)defaultValue {
 	id value = [self objectForKey:defaultName];
 	return [value respondsToSelector:@selector(doubleValue)] ? [value doubleValue] : defaultValue;
+}
+
+- (float)inaFloatForKey:(NSString *)defaultName {
+	return [self inaFloatForKey:defaultName defaults:0.0f];
 }
 
 - (float)inaFloatForKey:(NSString *)defaultName defaults:(float)defaultValue {
