@@ -531,7 +531,6 @@ NSInteger travelModeIndex(NSString* value);
 		NSDictionary *target = [_parameters inaDictForKey:@"target"];
 		NSNumber *latitude = [target inaNumberForKey:@"latitude"];
 		NSNumber *longitude = [target inaNumberForKey:@"longitude"];
-		NSNumber *zoom = [target inaNumberForKey:@"zoom"];
 		if ((latitude != nil) && (longitude != nil)) {
 			_targetLocation = [[CLLocation alloc] initWithLatitude:latitude.doubleValue longitude:longitude.doubleValue];
 		}
