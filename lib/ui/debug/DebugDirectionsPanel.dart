@@ -118,6 +118,8 @@ class _DebugDirectionsPanelState extends State<DebugDirectionsPanel> {
         'latitude': latitude,
         'longitude': longitude,
         'zoom': 17,
+        'title': 'Debug Location',
+        'description': '(${_latitudeController.text}, ${_longitudeController.text})',
       },
     );
   }

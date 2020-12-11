@@ -70,9 +70,7 @@ NSInteger travelModeIndex(NSString* value);
 @property (nonatomic) UIButton* navNextButton;
 @property (nonatomic) UILabel* navStepLabel;
 
-
 @property (nonatomic) CLLocation* targetLocation;
-@property (nonatomic) NSNumber *targetZoom;
 
 @property (nonatomic) CLLocationManager* locationManager;
 @property (nonatomic) bool requestingAuthorization;
@@ -217,7 +215,7 @@ NSInteger travelModeIndex(NSString* value);
 			camera = [GMSCameraPosition cameraWithTarget:_route.legs.firstObject.startLocation.coordinate zoom:kDefaultZoom];
 		}
 		else if (_targetLocation != nil) {
-			camera = [GMSCameraPosition cameraWithTarget:_targetLocation.coordinate zoom:((_targetZoom != nil) ? _targetZoom.floatValue : kDefaultZoom)];
+			camera = [GMSCameraPosition cameraWithTarget:_targetLocation.coordinate zoom:self.targetZoom];
 		}
 		else {
 			[self buildContentStatus:@"Internal Error Occured"];
@@ -337,7 +335,8 @@ NSInteger travelModeIndex(NSString* value);
 		MapLeg *lastLeg = _route.legs.lastObject;
 		if (lastLeg.endLocation != nil) {
 			GMSMarker *endLocationMarker = [GMSMarker markerWithPosition:lastLeg.endLocation.coordinate];
-			endLocationMarker.title = lastLeg.endAddress;
+			endLocationMarker.title = self.targetTitle ?: lastLeg.endAddress;
+			endLocationMarker.snippet = self.targetDescription;
 			endLocationMarker.icon = [UIImage imageNamed:@"maps-icon-marker-origin-small.png"];
 			endLocationMarker.groundAnchor = CGPointMake(0.5, 0.5);
 			endLocationMarker.map = _mapView;
@@ -413,6 +412,8 @@ NSInteger travelModeIndex(NSString* value);
 			GMSMarker *endLocationMarker = [GMSMarker markerWithPosition:_targetLocation.coordinate];
 			endLocationMarker.icon = [UIImage imageNamed:@"maps-icon-marker-origin-small.png"];
 			endLocationMarker.groundAnchor = CGPointMake(0.5, 0.5);
+			endLocationMarker.title = self.targetTitle;
+			endLocationMarker.snippet = self.targetDescription;
 			endLocationMarker.map = _mapView;
 		}
 
@@ -424,7 +425,7 @@ NSInteger travelModeIndex(NSString* value);
 				camera = [_mapView cameraForBounds:bounds insets:UIEdgeInsetsMake(96, 48, 96, 48)];
 			}
 			else {
-				camera = [GMSCameraPosition cameraWithTarget:_targetLocation.coordinate zoom:((_targetZoom != nil) ? _targetZoom.floatValue : kDefaultZoom)];
+				camera = [GMSCameraPosition cameraWithTarget:_targetLocation.coordinate zoom:self.targetZoom];
 			}
 			[_mapView animateToCameraPosition:camera];
 		}
@@ -532,7 +533,6 @@ NSInteger travelModeIndex(NSString* value);
 		NSNumber *zoom = [target inaNumberForKey:@"zoom"];
 		if ((latitude != nil) && (longitude != nil)) {
 			_targetLocation = [[CLLocation alloc] initWithLatitude:latitude.doubleValue longitude:longitude.doubleValue];
-			_targetZoom = zoom;
 		}
 		else {
 			[self buildContentStatus:@"Missing target location"];
@@ -540,6 +540,22 @@ NSInteger travelModeIndex(NSString* value);
 		}
 	}
 	return false;
+}
+
+- (float)targetZoom {
+	NSDictionary *target = [_parameters inaDictForKey:@"target"];
+	NSNumber *zoom = [target inaNumberForKey:@"zoom"];
+	return (zoom != nil) ? zoom.floatValue : kDefaultZoom;
+}
+
+- (NSString*)targetTitle {
+	NSDictionary *target = [_parameters inaDictForKey:@"target"];
+	return [target inaStringForKey:@"title"];
+}
+
+- (NSString*)targetDescription {
+	NSDictionary *target = [_parameters inaDictForKey:@"target"];
+	return [target inaStringForKey:@"description"];
 }
 
 - (bool)ensureLocationServices {
