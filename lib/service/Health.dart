@@ -575,6 +575,22 @@ class Health with Service implements NotificationsListener {
     return (privateKeyString != null) ? RsaKeyHelper.parsePrivateKeyFromPem(privateKeyString) : null;
   }
 
+  Future<void> loadUserPrivateKeyToWeb(String password) async {
+    if(AppString.isStringNotEmpty(password) && Storage().hasHealthUserEncryptedData){
+      String userPrivateKeyString = AESCrypt.decrypt(Storage().healthUserEncryptedData, keyString: password);
+      _userPrivateKey = AppString.isStringNotEmpty(userPrivateKeyString) ? RsaKeyHelper.parsePrivateKeyFromPem(userPrivateKeyString) : null;
+    }
+  }
+
+  Future<void> storeUserPrivateKeyToWeb(String password) async {
+    if(AppString.isStringNotEmpty(password) && _userPrivateKey != null){
+
+      String userPrivateKeyString = _userPrivateKey != null ? RsaKeyHelper.encodePrivateKeyToPemPKCS1(_userPrivateKey) : null;
+      String userPrivateKeyEncryptedString = userPrivateKeyString != null ?  AESCrypt.encrypt(userPrivateKeyString, keyString: password) : null;
+      Storage().healthUserEncryptedData = AppString.isStringNotEmpty(userPrivateKeyEncryptedString) ? userPrivateKeyEncryptedString : null;
+    }
+  }
+
   Future<bool> _saveUserPrivateKey(PrivateKey privateKey) async {
     bool result = false;
     if (_userId != null) {

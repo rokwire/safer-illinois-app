@@ -24,6 +24,7 @@ import 'package:illinois/ui/onboarding/OnboardingHealthConsentPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingHealthFinalPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingHealthHowItWorksPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingHealthIntroPanel.dart';
+import 'package:illinois/ui/onboarding/OnboardingHealthPasswordPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingHealthQrCodePanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingResidentInfoPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingReviewScanPanel.dart';
@@ -169,6 +170,7 @@ class Onboarding extends Service implements NotificationsListener{
       case "health_how_it_works": return OnboardingHealthHowItWorksPanel(onboardingContext: context);
       case "health_consent": return OnboardingHealthConsentPanel(onboardingContext: context);
       case "health_qrcode": return OnboardingHealthQrCodePanel(onboardingContext: context);
+      case "health_password": return OnboardingHealthPasswordPanel(onboardingContext: context);
       case "health_final": return OnboardingHealthFinalPanel(onboardingContext: context);
     }
     return null;
@@ -222,6 +224,9 @@ class Onboarding extends Service implements NotificationsListener{
     }
     else if (panel is OnboardingHealthQrCodePanel) {
       return 'health_qrcode';
+    }
+    else if (panel is OnboardingHealthPasswordPanel){
+      return 'health_password';
     }
     else if (panel is OnboardingHealthFinalPanel) {
       return 'health_final';
