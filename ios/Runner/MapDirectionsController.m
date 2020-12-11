@@ -30,6 +30,7 @@
 #import "NSUserDefaults+InaUtils.h"
 #import "UIColor+InaParse.h"
 #import "CLLocationCoordinate2D+InaUtils.h"
+#import "NSString+InaJson.h"
 #import "InaSymbols.h"
 
 typedef NS_ENUM(NSInteger, NavStatus) {
@@ -751,6 +752,42 @@ NSInteger travelModeIndex(NSString* value);
 	}
 }
 
+- (void)notifyRouteStart {
+	[self notifyRouteEvent:@"map.route.start"];
+}
+
+- (void)notifyRouteFinish {
+	[self notifyRouteEvent:@"map.route.finish"];
+}
+
+- (void)notifyRouteEvent:(NSString*)event {
+	
+	MapLeg *firstLeg = _route.legs.firstObject;
+	MapLeg *lastLeg = _route.legs.lastObject;
+	
+	NSInteger timestamp = floor(NSDate.date.timeIntervalSince1970 * 1000.0); // in milliseconds since 1970-01-01T00:00:00Z
+
+	NSDictionary *parameters = @{
+		@"origin": (firstLeg != nil) ? @{
+			@"latitude": (firstLeg.startLocation != nil) ? @(firstLeg.startLocation.coordinate.latitude) : [NSNull null],
+			@"longitude": (firstLeg.startLocation != nil) ? @(firstLeg.startLocation.coordinate.longitude) : [NSNull null],
+			@"address": firstLeg.startAddress ?: [NSNull null],
+		} : [NSNull null],
+		@"destination": (lastLeg.endLocation != nil) ? @{
+			@"latitude": (lastLeg.endLocation != nil) ? @(lastLeg.endLocation.coordinate.latitude) : [NSNull null],
+			@"longitude": (lastLeg.endLocation != nil) ? @(lastLeg.endLocation.coordinate.longitude) : [NSNull null],
+			@"address": lastLeg.endAddress ?: [NSNull null],
+		} : [NSNull null],
+		@"location": (_currentLocation != nil) ? @{
+			@"latitude": @(_currentLocation.coordinate.latitude),
+			@"longitude": @(_currentLocation.coordinate.longitude),
+			@"timestamp": @(timestamp),
+		} : [NSNull null],
+	};
+	
+	[AppDelegate.sharedInstance.flutterMethodChannel invokeMethod:event arguments:parameters.inaJsonString];
+}
+
 - (void)buildTravelModeSegments {
 	for (NSInteger index = 0; index < _countof(kTravelModes); index++) {
 		UIImage *segmentImage = nil;
@@ -837,6 +874,7 @@ NSInteger travelModeIndex(NSString* value);
 	if (_navStatus == NavStatus_Start) {
 		_navStatus = NavStatus_Progress;
 		_navStepIndex = 0;
+		[self notifyRouteStart];
 	}
 	else if (_navStatus == NavStatus_Progress) {
 		if ((_navStepIndex + 1) < _route.steps.count) {
@@ -845,6 +883,7 @@ NSInteger travelModeIndex(NSString* value);
 		else {
 			_navStatus = NavStatus_Finished;
 			_navStepIndex = -1;
+			[self notifyRouteFinish];
 		}
 	}
 	else if (_navStatus == NavStatus_Finished) {
