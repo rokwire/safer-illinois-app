@@ -48,7 +48,7 @@ typedef NS_ENUM(NSInteger, RouteStatus) {
 static NSString* const kTravelModes[] = { @"walking", @"bicycling", @"driving", @"transit" };
 static NSString* const kTravelModeKey = @"mapDirections.travelMode";
 static float const kDefaultZoom = 17;
-static float const kCurrentLocationUpdateThreshold = 10; // in meters
+static float const kCurrentLocationUpdateThreshold = 1; // in meters
 
 @interface MapDirectionsController()<GMSMapViewDelegate, CLLocationManagerDelegate>
 
@@ -99,6 +99,7 @@ static float const kCurrentLocationUpdateThreshold = 10; // in meters
 
 		_locationManager = [[CLLocationManager alloc] init];
 		_locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation;
+//	_locationManager.distanceFilter = kCurrentLocationUpdateThreshold;
 		_locationManager.delegate = self;
 	}
 	return self;
@@ -445,6 +446,8 @@ static float const kCurrentLocationUpdateThreshold = 10; // in meters
 		_currentLocationMarker.groundAnchor = CGPointMake(0.5, 0.5);
 		_currentLocationMarker.zIndex = 1;
 		_currentLocationMarker.map = _mapView;
+
+		[self updateNavByCurrentLocation];
 	}
 }
 
@@ -810,7 +813,6 @@ static float const kCurrentLocationUpdateThreshold = 10; // in meters
 	_currentLocation = location;
 	_currentLocationError = nil;
 	[self updateCurrentLocationMarker];
-	[self updateNavByCurrentLocation];
 
 	if (_requestingCurrentLocation) {
 		_requestingCurrentLocation = false;
