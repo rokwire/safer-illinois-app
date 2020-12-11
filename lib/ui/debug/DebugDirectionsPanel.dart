@@ -110,6 +110,9 @@ class _DebugDirectionsPanelState extends State<DebugDirectionsPanel> {
     Storage()['debug_latitude'] = _latitudeController.text;
     Storage()['debug_longitude'] = _longitudeController.text;
 
+    _latitudeFocusNode.unfocus();
+    _longitudeFocusNode.unfocus();
+
     NativeCommunicator().launchMapDirections(
       target: {
         'latitude': latitude,
