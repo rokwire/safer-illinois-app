@@ -19,17 +19,17 @@
 
 // Spanish
 
-"Directions" = "Directions";
-"Internal Error Occured" = "Internal Error Occured";
-"Missing target location" = "Missing target location";
-"Requesting permisions" = "Requesting permisions";
-"Requesting location" = "Requesting location";
-"Building route" = "Building route";
-"<b>Arrival</b> at the destination" = "<b>Arrival</b> at the destination";
+"Directions" = "Direcciones";
+"Internal Error Occured" = "Se produjo un error interno";
+"Missing target location" = "Falta la ubicación de destino";
+"Requesting permisions" = "Solicitar permisos";
+"Requesting location" = "Solicitando ubicación";
+"Building route" = "Ruta de construcción";
+"<b>Arrival</b> at the destination" = "<b>Llegada</b> al destino";
 "mi" = "mi";
 "h" = "h";
 "min" = "min";
-"START" = "START";
-"FINISH" = "FINISH";
-"Today" = "Today";
-"Tomorrow" = "Tomorrow";
+"START" = "COMIENZO";
+"FINISH" = "TERMINAR";
+"Today" = "Hoy";
+"Tomorrow" = "Mañana";

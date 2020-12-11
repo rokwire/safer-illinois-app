@@ -19,17 +19,17 @@
 
 // Chinese
 
-"Directions" = "Directions";
-"Internal Error Occured" = "Internal Error Occured";
-"Missing target location" = "Missing target location";
-"Requesting permisions" = "Requesting permisions";
-"Requesting location" = "Requesting location";
-"Building route" = "Building route";
-"<b>Arrival</b> at the destination" = "<b>Arrival</b> at the destination";
-"mi" = "mi";
-"h" = "h";
-"min" = "min";
-"START" = "START";
-"FINISH" = "FINISH";
-"Today" = "Today";
-"Tomorrow" = "Tomorrow";
+"Directions" = "方向";
+"Internal Error Occured" = "發生內部錯誤";
+"Missing target location" = "缺少目標位置";
+"Requesting permisions" = "請求權限";
+"Requesting location" = "要求位置";
+"Building route" = "建設路線";
+"<b>Arrival</b> at the destination" = "<b>到達/b>目的地";
+"mi" = "英里";
+"h" = "小時";
+"min" = "分鐘";
+"START" = "開始";
+"FINISH" = "完";
+"Today" = "今天";
+"Tomorrow" = "明天";
