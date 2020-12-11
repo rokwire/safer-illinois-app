@@ -88,6 +88,7 @@ static float const kCurrentLocationUpdateThreshold = 1; // in meters
 @property (nonatomic) NavStatus navStatus;
 @property (nonatomic) NavStatus navAutoUpdate;
 @property (nonatomic) NSInteger navStepIndex;
+@property (nonatomic) NSInteger navInstrIndex;
 
 @end
 
@@ -222,12 +223,12 @@ static float const kCurrentLocationUpdateThreshold = 1; // in meters
 		
 		if (_route != nil) {
 			_navStatus = NavStatus_Start;
-			_navStepIndex = -1;
+			_navStepIndex = _navInstrIndex = -1;
 			[self initRoutePreview];
 		}
 		else {
 			_navStatus = NavStatus_Unknown;
-			_navStepIndex = -1;
+			_navStepIndex = _navInstrIndex = -1;
 			[self initLocationPreview];
 		}
 
@@ -483,8 +484,7 @@ static float const kCurrentLocationUpdateThreshold = 1; // in meters
 		_navNextButton.enabled = true;
 	}
 	else if (_navStatus == NavStatus_Progress) {
-		MapStep *step = ((0 <= _navStepIndex) && (_navStepIndex < _route.steps.count)) ? [_route.steps objectAtIndex:_navStepIndex] : nil;
-		[self setStepHtml:step.htmlInstructions];
+		[self setStepHtml:self.progressStepInstruction];
 		_navPrevButton.enabled = _navNextButton.enabled = true;
 	}
 	else if (_navStatus == NavStatus_Finished) {
@@ -495,6 +495,24 @@ static float const kCurrentLocationUpdateThreshold = 1; // in meters
 	else {
 		_navStepLabel.text = nil;
 	}
+}
+
+- (NSString*)progressStepInstruction {
+	NSString *stepInstr = nil;
+	NSInteger stepIndex = _navStepIndex;
+	if (_navAutoUpdate && (0 <= _navInstrIndex)) {
+		if (_navInstrIndex < _route.steps.count) {
+			stepIndex = _navInstrIndex;
+		}
+		else {
+			stepInstr = @"<b>Arrival</b> at the destination";
+		}
+	}
+	if ((stepInstr == nil) && (0 <= stepIndex) && (stepIndex < _route.steps.count)) {
+		MapStep *step = [_route.steps objectAtIndex:stepIndex];
+		stepInstr = step.htmlInstructions;
+	}
+	return stepInstr;
 }
 
 - (bool)ensureTargetLocation {
@@ -628,12 +646,29 @@ static float const kCurrentLocationUpdateThreshold = 1; // in meters
 	return minStepIndex;
 }
 
+- (NSInteger)instructionIndexFromCurrentLocationUsingStepIndex:(NSInteger)stepIndex {
+	MapStep *step = ((0 <= stepIndex) && (stepIndex < _route.steps.count)) ? [_route.steps objectAtIndex:stepIndex] : nil;
+	if ((step.startLocation != nil) && (step.endLocation != nil) && (_currentLocation != nil)) {
+		double distanceToStart = CLLocationCoordinate2DInaDistance(step.startLocation.coordinate, _currentLocation.coordinate);
+		double distanceToEnd = CLLocationCoordinate2DInaDistance(_currentLocation.coordinate, step.endLocation.coordinate);
+		return (distanceToStart < distanceToEnd) ? stepIndex : (stepIndex + 1);
+	}
+	return -1;
+}
+
 - (void)updateNavByCurrentLocation {
 	if ((_route != nil) && (_currentLocation != nil) && (_navStatus == NavStatus_Progress) && _navAutoUpdate) {
 		NSInteger stepIndex = [self stepIndexFromCurrentLocation];
-		if ((0 <= stepIndex) && (stepIndex != _navStepIndex)) {
+		NSInteger instrIndex = [self instructionIndexFromCurrentLocationUsingStepIndex:stepIndex];
+		NSInteger lastStepIndex = _navStepIndex, lastInstrIndex = _navInstrIndex;
+		if ((0 <= stepIndex) && (stepIndex < _route.steps.count) && (stepIndex != _navStepIndex)) {
 			_navStepIndex = stepIndex;
 			[self initRouteStep];
+		}
+		if ((0 <= instrIndex) && (instrIndex <= _route.steps.count) && (_navInstrIndex != instrIndex)) {
+			_navInstrIndex = instrIndex;
+		}
+		if ((lastStepIndex != _navStepIndex) || (lastInstrIndex != _navInstrIndex)) {
 			[self updateNav];
 		}
 	}
@@ -643,6 +678,7 @@ static float const kCurrentLocationUpdateThreshold = 1; // in meters
 	if ((_route != nil) && (_currentLocation != nil) && _navAutoUpdate &&
 	    ((_navStatus != NavStatus_Progress) || (_navStepIndex != [self stepIndexFromCurrentLocation]))) {
 		_navAutoUpdate = false;
+		_navInstrIndex = -1;
 	}
 }
 
@@ -723,7 +759,7 @@ static float const kCurrentLocationUpdateThreshold = 1; // in meters
 		_route = nil;
 		_routeStatus = RouteStatus_Unknown;
 		_navStatus = NavStatus_Unknown;
-		_navStepIndex = -1;
+		_navStepIndex = _navInstrIndex = -1;
 		_navAutoUpdate = false;
 		[self clearMap];
 		
@@ -735,7 +771,7 @@ static float const kCurrentLocationUpdateThreshold = 1; // in meters
 	_route = nil;
 	_routeStatus = RouteStatus_Unknown;
 	_navStatus = NavStatus_Unknown;
-	_navStepIndex = -1;
+	_navStepIndex = _navInstrIndex = -1;
 	_navAutoUpdate = false;
 	[self clearMap];
 	
@@ -743,14 +779,9 @@ static float const kCurrentLocationUpdateThreshold = 1; // in meters
 }
 
 - (void)didNavAutoUpdate {
-	if (_navStatus == NavStatus_Progress) {
-		NSInteger stepIndex = [self stepIndexFromCurrentLocation];
-		if (0 <= stepIndex) {
-			_navStepIndex = stepIndex;
-			_navAutoUpdate = true;
-			[self initRouteStep];
-			[self updateNav];
-		}
+	if ((_route != nil) && (_navStatus == NavStatus_Progress) && !_navAutoUpdate) {
+		_navAutoUpdate = true;
+		[self updateNavByCurrentLocation];
 	}
 }
 
@@ -770,6 +801,8 @@ static float const kCurrentLocationUpdateThreshold = 1; // in meters
 		_navStatus = NavStatus_Progress;
 		_navStepIndex = _route.steps.count - 1;
 	}
+	
+	//TBD: _navInstrIndex
 	
 	[self turnOffAutoUpdateIfNeeded];
 	[self initRoute];
@@ -792,6 +825,8 @@ static float const kCurrentLocationUpdateThreshold = 1; // in meters
 	}
 	else if (_navStatus == NavStatus_Finished) {
 	}
+	
+	//TBD: _navInstrIndex
 
 	[self turnOffAutoUpdateIfNeeded];
 	[self initRoute];
