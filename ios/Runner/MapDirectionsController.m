@@ -198,7 +198,8 @@ NSInteger travelModeIndex(NSString* value);
 	_navNextButton.frame = CGRectMake(navX + navW - navBtnSize, navY, navBtnSize, navBtnSize);
 
 	navX += navBtnSize; navW = MAX(navW - 2 * navBtnSize, 0);
-	_navStepLabel.frame = CGRectMake(navX, navY - navBtnSize / 2, navW, 2 * navBtnSize);
+	CGFloat stepTxtH = [_navStepLabel inaAttributedTextSizeForBoundWidth:navW].height;
+	_navStepLabel.frame = CGRectMake(navX, navY + (navBtnSize - stepTxtH) / 2, navW, stepTxtH);
 }
 
 - (void)buildInitialContent {
@@ -279,7 +280,7 @@ NSInteger travelModeIndex(NSString* value);
 
 	_navStepLabel = [[UILabel alloc] initWithFrame:CGRectZero];
 	_navStepLabel.font = [UIFont systemFontOfSize:18];
-	_navStepLabel.numberOfLines = 2;
+	_navStepLabel.numberOfLines = 3;
 	_navStepLabel.textAlignment = NSTextAlignmentCenter;
 	_navStepLabel.textColor = [UIColor blackColor];
 	_navStepLabel.shadowColor = [UIColor colorWithWhite:1 alpha:0.5];
@@ -714,11 +715,11 @@ NSInteger travelModeIndex(NSString* value);
 - (void)setStepHtml:(NSString*)htmlContent {
 
 	NSString *html = [NSString stringWithFormat:@"<html>\
-		<head><style>body{ font-family: Helvetica; font-weight: regular; font-size: 18px; color:#000000 } </style></head>\
-		<body><center>%@</center></body>\
+		<head><style>body { margin: 0px; padding: 0px; text-align:center; font-family: Helvetica; font-weight: regular; font-size: 18px; color:#000000 } </style></head>\
+		<body>%@</body>\
 	</html>", htmlContent];
-
-	_navStepLabel.attributedText = [[NSAttributedString alloc]
+	
+	NSAttributedString *attributedString = [[NSAttributedString alloc]
 		initWithData:[html dataUsingEncoding:NSUTF8StringEncoding]
 		options:@{
 			NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType,
@@ -727,6 +728,11 @@ NSInteger travelModeIndex(NSString* value);
 		documentAttributes:nil
 		error:nil
 	];
+	
+	if (![_navStepLabel.attributedText isEqualToAttributedString:attributedString]) {
+		_navStepLabel.attributedText = attributedString;
+		[self.view setNeedsLayout];
+	}
 }
 
 - (void)buildTravelModeSegments {
@@ -806,8 +812,6 @@ NSInteger travelModeIndex(NSString* value);
 		_navStepIndex = _route.steps.count - 1;
 	}
 	
-	//TBD: _navInstrIndex
-	
 	[self turnOffAutoUpdateIfNeeded];
 	[self initRoute];
 	[self updateNav];
@@ -830,8 +834,6 @@ NSInteger travelModeIndex(NSString* value);
 	else if (_navStatus == NavStatus_Finished) {
 	}
 	
-	//TBD: _navInstrIndex
-
 	[self turnOffAutoUpdateIfNeeded];
 	[self initRoute];
 	[self updateNav];
