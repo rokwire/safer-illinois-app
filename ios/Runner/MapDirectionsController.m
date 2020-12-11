@@ -49,6 +49,7 @@ static float const kDefaultZoom = 17;
 static float const kCurrentLocationUpdateThreshold = 1; // in meters
 
 static NSString* const kTravelModes[] = { @"walking", @"bicycling", @"driving", @"transit" };
+static CLLocationDistance const kInstructionDistanceThresholds[] = { 10, 15, 25, 20 };
 static NSString* const kTravelModeKey = @"mapDirections.travelMode";
 
 NSString* travelModeString(NSInteger travelMode);
@@ -612,7 +613,7 @@ NSInteger travelModeIndex(NSString* value);
 	];
 	
 	[[NSURLSession.sharedSession dataTaskWithURL:[NSURL URLWithString:urlString] completionHandler:^(NSData* data, NSURLResponse* response, NSError* error) {
-		
+
 		MapRoute *route = nil;
 		if ((data != nil) && (error == nil)) {
 			NSDictionary *responseJson = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
@@ -634,12 +635,12 @@ NSInteger travelModeIndex(NSString* value);
 
 - (NSInteger)stepIndexFromCurrentLocation {
 	NSInteger minStepIndex = -1;
-	double minStepDistance = DBL_MAX;
+	CLLocationDistance minStepDistance = DBL_MAX;
 	if ((_currentLocation != nil) && (_route != nil)) {
 		for (NSInteger index = 0; index < _route.steps.count; index++ ) {
 			MapStep *step = [_route.steps objectAtIndex:index];
 			if ((step.startLocation != nil) && (step.endLocation != nil)) {
-				double distance =
+				CLLocationDistance distance =
 					CLLocationCoordinate2DInaDistance(step.startLocation.coordinate, _currentLocation.coordinate) +
 					CLLocationCoordinate2DInaDistance(_currentLocation.coordinate, step.endLocation.coordinate) -
 					CLLocationCoordinate2DInaDistance(step.startLocation.coordinate, step.endLocation.coordinate);
@@ -655,10 +656,11 @@ NSInteger travelModeIndex(NSString* value);
 
 - (NSInteger)instructionIndexFromCurrentLocationUsingStepIndex:(NSInteger)stepIndex {
 	MapStep *step = ((0 <= stepIndex) && (stepIndex < _route.steps.count)) ? [_route.steps objectAtIndex:stepIndex] : nil;
-	if ((step.startLocation != nil) && (step.endLocation != nil) && (_currentLocation != nil)) {
-		double distanceToStart = CLLocationCoordinate2DInaDistance(step.startLocation.coordinate, _currentLocation.coordinate);
-		double distanceToEnd = CLLocationCoordinate2DInaDistance(_currentLocation.coordinate, step.endLocation.coordinate);
-		return (distanceToStart < distanceToEnd) ? stepIndex : (stepIndex + 1);
+	if ((step.endLocation != nil) && (_currentLocation != nil)) {
+		NSInteger stepTravelMode = travelModeIndex(step.travelMode);
+		CLLocationDistance endThreshold = ((0 <= stepTravelMode) && (stepTravelMode < _countof(kInstructionDistanceThresholds))) ? kInstructionDistanceThresholds[stepTravelMode] : 0;
+		CLLocationDistance distanceToEnd = CLLocationCoordinate2DInaDistance(_currentLocation.coordinate, step.endLocation.coordinate);
+		return (distanceToEnd < endThreshold) ? (stepIndex + 1) : stepIndex;
 	}
 	return -1;
 }
@@ -882,7 +884,7 @@ NSInteger travelModeIndex(NSString* value) {
 	if (value != nil) {
 		for (NSInteger index = 0; index < _countof(kTravelModes); index++) {
 			NSString *travelMode = kTravelModes[index];
-			if ([travelMode isEqualToString:value]) {
+			if ([travelMode caseInsensitiveCompare:value] == NSOrderedSame) {
 				return index;
 			}
 		}
