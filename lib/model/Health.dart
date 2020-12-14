@@ -502,15 +502,14 @@ class HealthHistory implements Comparable<HealthHistory> {
   }
 
   static Future<List<HealthHistory>> listFromJson(List<dynamic> json, Map<HealthHistoryType, PrivateKey> privateKeys) async {
-    List<HealthHistory> values;
     if (json != null) {
-      values = [];
+      List<Future<HealthHistory>> futures = [];
       for (dynamic entry in json) {
-        HealthHistory value = await HealthHistory.decryptedFromJson((entry as Map)?.cast<String, dynamic>(), privateKeys);
-        values.add(value);
+        futures.add(HealthHistory.decryptedFromJson((entry as Map)?.cast<String, dynamic>(), privateKeys));
       }
+      return await Future.wait(futures);
     }
-    return values;
+    return null;
   }
 
   static List<dynamic> listToJson(List<HealthHistory> values) {
