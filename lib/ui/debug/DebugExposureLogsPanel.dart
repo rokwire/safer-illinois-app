@@ -33,15 +33,15 @@ import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:url_launcher/url_launcher.dart' as url_launcher;
 
-class SettingsDebugExposureLogsPanel extends StatefulWidget {
-  SettingsDebugExposureLogsPanel();
+class DebugExposureLogsPanel extends StatefulWidget {
+  DebugExposureLogsPanel();
 
   @override
-  _SettingsDebugExposureLogsPanelState createState() =>
-      _SettingsDebugExposureLogsPanelState();
+  _DebugExposureLogsPanelState createState() =>
+      _DebugExposureLogsPanelState();
 }
 
-class _SettingsDebugExposureLogsPanelState extends State<SettingsDebugExposureLogsPanel>
+class _DebugExposureLogsPanelState extends State<DebugExposureLogsPanel>
     implements NotificationsListener {
   TextEditingController _minDurationSettingController;
   FocusNode _minDurationSettingFocusNode;

@@ -37,7 +37,7 @@ import 'package:illinois/ui/onboarding/OnboardingLoginPhoneVerifyPanel.dart';
 import 'package:illinois/ui/settings2/Settings2ConsentPanel.dart';
 import 'package:illinois/ui/settings2/Settings2GovernmentIdPanel.dart';
 import 'package:illinois/ui/settings2/Settings2ExposureNotificationsPanel.dart';
-import 'package:illinois/ui/settings/debug/SettingsDebugHomePanel.dart';
+import 'package:illinois/ui/debug/DebugHomePanel.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/RibbonButton.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
@@ -820,7 +820,7 @@ class _DebugContainerState extends State<_DebugContainer> {
   void _onEnterPin(String pin){
     if (this.pinOfTheDay == pin) {
       Navigator.pop(context);
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsDebugHomePanel()));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => DebugHomePanel()));
     } else {
       AppToast.show("Invalid pin");
     }

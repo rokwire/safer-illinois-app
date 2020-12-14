@@ -41,7 +41,7 @@ import 'package:illinois/ui/WebPanel.dart';
 import 'package:illinois/ui/settings/SettingsQrCodePanel.dart';
 import 'package:illinois/ui/settings/SettingsRolesPanel.dart';
 import 'package:illinois/ui/settings/SettingsPersonalInfoPanel.dart';
-import 'package:illinois/ui/settings/debug/SettingsDebugHomePanel.dart';
+import 'package:illinois/ui/debug/DebugHomePanel.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/ui/widgets/RibbonButton.dart';
 import 'package:illinois/utils/Covid19.dart';
@@ -1110,7 +1110,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
 
   void _onDebugClicked() {
     Analytics.instance.logSelect(target: "Debug");
-    Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsDebugHomePanel()));
+    Navigator.push(context, CupertinoPageRoute(builder: (context) => DebugHomePanel()));
   }
 
   // Version Info
@@ -1224,7 +1224,7 @@ class _DebugContainerState extends State<_DebugContainer> {
         _clickedCount++;
         if (_clickedCount == 7) {
           if (Auth().isDebugManager) {
-            Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsDebugHomePanel()));
+            Navigator.push(context, CupertinoPageRoute(builder: (context) => DebugHomePanel()));
           }
           _clickedCount = 0;
         }

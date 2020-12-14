@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.10.4] - 2020-01-11
+### Added
+- Added map directions feature in iOS app [#446](https://github.com/rokwire/safer-illinois-app/issues/446).
+
 ## [2.10.3] - 2020-01-04
 ### Fixed
 - Pass the right user UIN when creating debug events. [#441](https://github.com/rokwire/safer-illinois-app/issues/441).
