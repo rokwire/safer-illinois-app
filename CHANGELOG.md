@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Speed up user history load [#449](https://github.com/rokwire/safer-illinois-app/issues/449).
 
+### Fixed
+- Do not translate symptoms names transmitted to analytics [#447](https://github.com/rokwire/safer-illinois-app/issues/447).
+
 ## [2.10.4] - 2020-01-11
 ### Added
 - Added map directions feature in iOS app [#446](https://github.com/rokwire/safer-illinois-app/issues/446).
