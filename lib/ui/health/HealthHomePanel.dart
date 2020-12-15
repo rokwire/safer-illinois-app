@@ -60,6 +60,10 @@ class HealthHomePanel extends StatefulWidget {
 class _HealthHomePanelState extends State<HealthHomePanel> implements NotificationsListener {
 
   bool _isRefreshing;
+  bool _isLoadingPrivateKey = false;
+
+  final TextEditingController _passwordController = TextEditingController();
+  final FocusNode _passwordFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -80,6 +84,8 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
   void dispose() {
     super.dispose();
     NotificationService().unsubscribe(this);
+    _passwordController.dispose();
+    _passwordFocusNode.dispose();
   }
 
   @override
@@ -97,16 +103,27 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
     }
   }
 
-  void _refresh() {
+  void _refresh({bool askForPassword = true}) {
     if (_isRefreshing != true) {
       setState(() { _isRefreshing = true; });
       
       Health().refreshStatusAndUser().then((_) {
         if (mounted) {
           setState(() { _isRefreshing = false; });
+
+          if(askForPassword) {
+            if(Health().hasStoredPrivateKey && !Health().hasPrivateKey){
+              _loadSecretFromServer();
+            }
+          }
         }
       });
     }
+  }
+
+  void _loadSecretFromServer(){
+    _passwordController.text = "";
+    showDialog(context: context, builder: (context) => _buildLoadSecretFromServerDialog(context));
   }
 
   @override
@@ -806,6 +823,126 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
     return items;
   }
 
+  Widget _buildLoadSecretFromServerDialog(BuildContext context) {
+    return StatefulBuilder(
+      builder: (context, setStateEx){
+        return ClipRRect(
+          borderRadius: BorderRadius.all(Radius.circular(8)),
+          child: Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: SingleChildScrollView(
+                child:Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Styles().colors.fillColorPrimary,
+                              borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.all(8),
+                              child: Row(
+                                children: <Widget>[
+                                  Expanded(
+                                    child: Center(
+                                      child: Text(
+                                        Localization().getStringEx("panel.health.covid19.qr_code.dialog.load_from_server_password.title", "Load my COVID-19 Secret from server"),
+                                        style: TextStyle(fontSize: 20, color: Colors.white),
+                                      ),
+                                    ),
+                                  ),
+                                  GestureDetector(
+                                    onTap: () => Navigator.pop(context),
+                                    child: Container(
+                                      height: 30,
+                                      width: 30,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.all(Radius.circular(15)),
+                                        border: Border.all(color: Styles().colors.white, width: 2),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          '\u00D7',
+                                          style: TextStyle(
+                                            fontSize: 24,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      height: 26,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 18),
+                      child: Text(
+                        Localization().getStringEx("panel.health.covid19.qr_code.dialog.load_from_server_password.description", "Please enter your password that you used last time to encrypt the secret"),
+
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Colors.black),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child: TextField(
+                        controller: _passwordController,
+                        focusNode: _passwordFocusNode,
+                        textAlign: TextAlign.center,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.black, width: 1.0)
+                            )
+                        ),
+                      ),
+                    ),
+                    Container(
+                      height: 26,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Expanded(
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: <Widget>[
+                                ScalableRoundedButton(
+                                    onTap: () => _onConfirmLoadFromServer(context, setStateEx),
+                                    backgroundColor: Colors.transparent,
+                                    borderColor: Styles().colors.fillColorSecondary,
+                                    textColor: Styles().colors.fillColorPrimary,
+                                    label: Localization().getStringEx("panel.health.covid19.qr_code.dialog.button.load_from_server_password.title", "Load from server")),
+                                _isLoadingPrivateKey ? Center(child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary),)) : Container()
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                )
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _userAccountsDropDownItem(HealthUserAccount account) {
     if (account != null) {
       bool isDefaultAccount = (account.isDefault != false);
@@ -947,6 +1084,28 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
     } else {
       AppAlert.showOfflineMessage(context, Localization().getStringEx('panel.settings.label.offline.phone_ver', 'Verify Your Phone Number is not available while offline.'));
     }
+  }
+
+  void _onConfirmLoadFromServer(BuildContext context, Function setStateEx){
+    setStateEx(() {
+      _isLoadingPrivateKey = true;
+    });
+
+    Health().loadUserPrivateKeyToWeb(_passwordController.text).then((_) {
+      if (mounted) {
+        setStateEx((){
+          _isLoadingPrivateKey = false;
+        });
+
+        if(Health().isUserLoggedIn && Health().hasPrivateKey) {
+          _refresh(askForPassword: false);
+          Navigator.pop(context, true);
+        }
+        else {
+          AppAlert.showDialogResult(context, Localization().getStringEx("panel.health.covid19.qr_code.dialog.load_from_server_password.error", "Unable to load the secret. Please revise the password or use another option to restore your secret"));
+        }
+      }
+    });
   }
 
   void _didConnectPhone(_) {

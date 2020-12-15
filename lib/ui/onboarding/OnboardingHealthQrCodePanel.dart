@@ -768,6 +768,7 @@ class _OnboardingHealthQrCodePanelState extends State<OnboardingHealthQrCodePane
   }
 
   void _onLoadSecretFromServer(){
+    _passwordController.text = "";
     showDialog(context: context, builder: (context) => _buildLoadSecretFromServerDialog(context)).then((value) {
       if (value == true) {
         widget.onboardingContext['privateKeyLoaded'] = true;
