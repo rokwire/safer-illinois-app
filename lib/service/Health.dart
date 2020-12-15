@@ -293,6 +293,14 @@ class Health with Service implements NotificationsListener {
     return this.isUserLoggedIn && (_user?.exposureNotification ?? false);
   }
 
+  bool get hasPrivateKey {
+    return (_userPrivateKey != null);
+  }
+  
+  bool get hasStoredPrivateKey {
+    return Storage().hasHealthUserEncryptedData;
+  }
+
   // User
 
   HealthUser get user {
@@ -304,7 +312,7 @@ class Health with Service implements NotificationsListener {
   }
 
   bool get _isUserReadAuthenticated {
-    return this._isUserAuthenticated && (_userPrivateKey != null);
+    return this._isUserAuthenticated && hasPrivateKey;
   }
 
   bool get _isUserWriteAuthenticated {

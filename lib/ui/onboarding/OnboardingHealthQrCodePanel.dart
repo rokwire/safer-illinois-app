@@ -753,12 +753,11 @@ class _OnboardingHealthQrCodePanelState extends State<OnboardingHealthQrCodePane
           _isLoadingFromServer = false;
         });
 
-        if(Health().isUserLoggedIn) {
-          widget.onboardingContext['privateKeyLoaded'] = true;
-          _goNext();
+        if(Health().isUserLoggedIn && Health().hasPrivateKey) {
+          Navigator.pop(context, true);
         }
         else {
-          AppAlert.showDialogResult(context, Localization().getStringEx("panel.health.covid19.qr_code.dialog.load_from_server_password.error", "Unable to load the secret. Please revise the password or use another option to restore your secret"));
+          Navigator.pop(context, Localization().getStringEx("panel.health.covid19.qr_code.dialog.load_from_server_password.error", "Unable to load the secret. Please revise the password or use another option to restore your secret"));
         }
       }
     });
@@ -769,7 +768,14 @@ class _OnboardingHealthQrCodePanelState extends State<OnboardingHealthQrCodePane
   }
 
   void _onLoadSecretFromServer(){
-    showDialog(context: context, builder: (context) => _buildLoadSecretFromServerDialog(context));
+    showDialog(context: context, builder: (context) => _buildLoadSecretFromServerDialog(context)).then((value) {
+      if (value == true) {
+        widget.onboardingContext['privateKeyLoaded'] = true;
+        _goNext();
+      } else if (value is String) {
+        AppAlert.showDialogResult(context, value);
+      }
+    });
   }
 
   String get _getContinueButtonTitle {
