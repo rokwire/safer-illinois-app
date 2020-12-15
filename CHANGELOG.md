@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sync health.rules.json with latest 2.9 content on production
 - Acknowledged "quarantine-on.reason" string entry in "health.rules.json".
 
+### Fixed
+- Do not translate symptoms names transmitted to analytics [#447](https://github.com/rokwire/safer-illinois-app/issues/447).
+
 ## [2.9.4] - 2020-11-18
 ### Fixed
 - Error message cannot be read if keyboard is up - please hide the keyboard after a send - see error_message_hidden.png [#414](https://github.com/rokwire/safer-illinois-app/issues/414).
