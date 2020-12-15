@@ -1329,9 +1329,8 @@ class Health with Service implements NotificationsListener {
 
       List<String> analyticsSymptoms = [];
       symptoms?.forEach((HealthSymptom symptom) {
-        String symptomName = rules?.localeString(symptom?.name) ?? symptom?.name;
-        if (AppString.isStringNotEmpty(symptomName)) {
-          analyticsSymptoms.add(symptomName);
+        if (AppString.isStringNotEmpty(symptom?.name)) {
+          analyticsSymptoms.add(symptom.name);
         }
       });
       Analytics().logHealth(
