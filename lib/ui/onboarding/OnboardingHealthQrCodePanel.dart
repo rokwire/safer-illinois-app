@@ -27,6 +27,7 @@ import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Onboarding.dart';
+import 'package:illinois/service/Storage.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/onboarding/OnboardingBackButton.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
@@ -249,6 +250,7 @@ class _OnboardingHealthQrCodePanelState extends State<OnboardingHealthQrCodePane
   }
 
   Widget _buildNoQrCodeContent(){
+    bool canLoadFromServer = kIsWeb && Storage().hasHealthUserEncryptedData;
     return Container(
         child: Column( children: <Widget>[
           Container(height: 15,),
@@ -294,7 +296,7 @@ class _OnboardingHealthQrCodePanelState extends State<OnboardingHealthQrCodePane
                 onTap: _onRefreshQrCodeTapped
             ),
           ],)),
-          Visibility(visible: kIsWeb, child: Column(children: [
+          Visibility(visible: canLoadFromServer, child: Column(children: [
             Container(height: 12,),
             _buildAction(
                 heading: Localization().getStringEx("panel.health.covid19.qr_code.load_from_server.button.heading", "Load my COVID-19 Secret from server:"),

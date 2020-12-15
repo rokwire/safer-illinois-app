@@ -49,7 +49,8 @@ class OnboardingHealthPasswordPanel extends StatefulWidget with OnboardingPanel 
   @override
   bool get onboardingCanDisplay {
     return (onboardingContext != null) && kIsWeb &&
-        (onboardingContext['shouldDisplayQrCode'] == true || onboardingContext['privateKeyLoaded'] == null);
+        onboardingContext['shouldDisplayQrCode'] == true &&
+        onboardingContext['privateKeyLoaded'] == null;
   }
 }
 

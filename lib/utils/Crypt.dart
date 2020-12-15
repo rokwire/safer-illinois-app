@@ -190,6 +190,26 @@ class AESCrypt {
     });
     return new String.fromCharCodes(codeUnits);
   }
+
+  static Uint8List keyInBytes(String key, { int keySize = kCCBlockSizeAES128 }) {
+    if(key != null){
+      Uint8List bytes = Uint8List.fromList(utf8.encode(key));
+      if(bytes.length > keySize){
+        bytes.length = keySize;
+        return bytes;
+      } else if(bytes.length < keySize){
+        int byteSizeDiff = keySize - bytes.length;
+        Uint8List diffList = Uint8List(byteSizeDiff);
+        for(int i = 0; i < byteSizeDiff; i++){
+          diffList[i] = 0;
+        }
+        return Uint8List.fromList(bytes + diffList);
+      } else {
+        return bytes;
+      }
+    }
+    return null;
+  }
 }
 
 class RSACrypt {

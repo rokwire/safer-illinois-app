@@ -577,7 +577,7 @@ class Health with Service implements NotificationsListener {
 
   Future<void> loadUserPrivateKeyToWeb(String password) async {
     if(AppString.isStringNotEmpty(password) && Storage().hasHealthUserEncryptedData){
-      String userPrivateKeyString = AESCrypt.decrypt(Storage().healthUserEncryptedData, keyString: password);
+      String userPrivateKeyString = AESCrypt.decrypt(Storage().healthUserEncryptedData, keyBytes: AESCrypt.keyInBytes(password));
       _userPrivateKey = AppString.isStringNotEmpty(userPrivateKeyString) ? RsaKeyHelper.parsePrivateKeyFromPem(userPrivateKeyString) : null;
     }
   }
@@ -586,7 +586,7 @@ class Health with Service implements NotificationsListener {
     if(AppString.isStringNotEmpty(password) && _userPrivateKey != null){
 
       String userPrivateKeyString = _userPrivateKey != null ? RsaKeyHelper.encodePrivateKeyToPemPKCS1(_userPrivateKey) : null;
-      String userPrivateKeyEncryptedString = userPrivateKeyString != null ?  AESCrypt.encrypt(userPrivateKeyString, keyString: password) : null;
+      String userPrivateKeyEncryptedString = userPrivateKeyString != null ?  AESCrypt.encrypt(userPrivateKeyString, keyBytes: AESCrypt.keyInBytes(password)) : null;
       Storage().healthUserEncryptedData = AppString.isStringNotEmpty(userPrivateKeyEncryptedString) ? userPrivateKeyEncryptedString : null;
     }
   }
