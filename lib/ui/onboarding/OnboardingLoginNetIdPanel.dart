@@ -61,7 +61,7 @@ class _OnboardingLoginNetIdPanelState extends State<OnboardingLoginNetIdPanel> i
   Widget build(BuildContext context) {
     String titleString = Localization().getStringEx('panel.onboarding.login.netid.label.title', 'Connect your NetID');
     String skipTitle = Localization().getStringEx('panel.onboarding.login.netid.button.dont_continue.title', 'Not right now');
-    bool hasSkip = !UserProfile().roles.contains(UserRole.nonUniversityMember);
+    bool hasSkip = !(UserProfile().roles?.contains(UserRole.nonUniversityMember) ?? false);
     return Scaffold(
         backgroundColor: Styles().colors.background,
         body: Stack(
