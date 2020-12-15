@@ -35,6 +35,7 @@ import 'package:illinois/service/Service.dart';
 import 'package:illinois/service/Storage.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:universal_html/html.dart' as html;
 import 'package:url_launcher/url_launcher.dart' as url_launcher;
 
 import 'package:illinois/service/UserProfile.dart';
@@ -160,9 +161,11 @@ class Auth with Service implements NotificationsListener {
 
   // Shibboleth Oauth
 
-  void authenticateWithShibboleth(){
-    
-    if ((Config().shibbolethOidcAuthUrl != null) && (Config().shibbolethClientId != null)) {
+  void authenticateWithShibboleth() {
+    String authUrl;
+    if (kIsWeb) {
+      authUrl = AppWeb.appHost() + '/auth/login';
+    } else if ((Config().shibbolethOidcAuthUrl != null) && (Config().shibbolethClientId != null)) {
       Uri uri = Uri.tryParse(Config().shibbolethOidcAuthUrl)?.replace(queryParameters: {
         'scope': "openid profile email offline_access",
         'response_type': 'code',
@@ -174,10 +177,10 @@ class Auth with Service implements NotificationsListener {
           },
         }),
       });
-      var uriStr = uri?.toString();
-      if (uriStr != null) {
-        _launchUrl(uriStr);
-      }
+      authUrl = uri?.toString();
+    }
+    if (authUrl != null) {
+      _launchUrl(authUrl);
     }
   }
 
@@ -1056,13 +1059,17 @@ class Auth with Service implements NotificationsListener {
   // Deep Links
 
   void _launchUrl(urlStr) async {
-    try {
-      if (await url_launcher.canLaunch(urlStr)) {
-        await url_launcher.launch(urlStr);
+    if (kIsWeb) {
+      // Open the url under the same tab
+      html.window.location.href = urlStr;
+    } else {
+      try {
+        if (await url_launcher.canLaunch(urlStr)) {
+          await url_launcher.launch(urlStr);
+        }
+      } catch (e) {
+        print(e);
       }
-    }
-    catch(e) {
-      print(e);
     }
   }
 
