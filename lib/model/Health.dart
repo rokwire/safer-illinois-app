@@ -117,7 +117,7 @@ class HealthStatus {
 
 class HealthStatusBlob {
 
-  final String status;
+  final String code;
   final int priority;
 
   final String nextStep;
@@ -137,11 +137,11 @@ class HealthStatusBlob {
   static const String _nextStepDateMacro = '{next_step_date}';
   static const String _nextStepDateFormat = 'EEEE, MMM d';
 
-  HealthStatusBlob({this.status, this.priority, this.nextStep, this.nextStepHtml, this.nextStepDateUtc, this.eventExplanation, this.eventExplanationHtml, this.reason, this.warning, this.fcmTopic, this.historyBlob});
+  HealthStatusBlob({this.code, this.priority, this.nextStep, this.nextStepHtml, this.nextStepDateUtc, this.eventExplanation, this.eventExplanationHtml, this.reason, this.warning, this.fcmTopic, this.historyBlob});
 
   factory HealthStatusBlob.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthStatusBlob(
-      status: json['health_status'],
+      code: json['code'] ?? json['health_status'],
       priority: json['priority'],
       nextStep: json['next_step'],
       nextStepHtml: json['next_step_html'],
@@ -157,7 +157,7 @@ class HealthStatusBlob {
 
   Map<String, dynamic> toJson() {
     return {
-      'health_status': status,
+      'code': code,
       'priority': priority,
       'next_step': nextStep,
       'next_step_html': nextStepHtml,
@@ -173,7 +173,7 @@ class HealthStatusBlob {
 
   bool operator ==(o) {
     return (o is HealthStatusBlob) &&
-      (o.status == status) &&
+      (o.code == code) &&
       (o.priority == priority) &&
       (o.nextStep == nextStep) &&
       (o.nextStepHtml == nextStepHtml) &&
@@ -187,7 +187,7 @@ class HealthStatusBlob {
   }
 
   int get hashCode =>
-    (status?.hashCode ?? 0) ^
+    (code?.hashCode ?? 0) ^
     (priority?.hashCode ?? 0) ^
     (nextStep?.hashCode ?? 0) ^
     (nextStepHtml?.hashCode ?? 0) ^
@@ -263,30 +263,30 @@ class HealthStatusBlob {
       (nextStepHtml?.toLowerCase()?.contains("test") ?? false);  
   }
 
-  String get localizedHealthStatus {
-    return localizedHealthStatusFromKey(status);
+  String get displayName {
+    return displayNameFromCode(code);
   }
 
-  String get localizedHealthStatusType {
-    return localizedHealthStatusTypeFromKey(status);
+  String get statusName {
+    return statusNameFromCode(code);
   }
 
-  String get localizedHealthStatusDescription {
-    return localizedHealthStatusDescriptionFromKey(status);
+  String get statusDescription {
+    return statusDescriptionFromCode(code);
   }
 
-  static String localizedHealthStatusFromKey(String key) {
-    String type = localizedHealthStatusTypeFromKey(key);
-    String description = localizedHealthStatusDescriptionFromKey(key);
-    return ((type != null) && (description != null)) ? "$type, $description" : type;
+  static String displayNameFromCode(String code) {
+    String name = statusNameFromCode(code);
+    String description = statusDescriptionFromCode(code);
+    return ((name != null) && (description != null)) ? "$name, $description" : name;
   }
 
-  static String localizedHealthStatusTypeFromKey(String key) {
-    return (key != null) ? Localization().getStringEx("com.illinois.covid19.status.type.${key.toLowerCase()}", AppString.capitalize(key)) : null;
+  static String statusNameFromCode(String code) {
+    return (code != null) ? Localization().getStringEx("com.illinois.covid19.status.type.${code.toLowerCase()}", AppString.capitalize(code)) : null;
   }
 
-  static String localizedHealthStatusDescriptionFromKey(String key) {
-    return (key != null) ? Localization().getStringEx("com.illinois.covid19.status.description.${key.toLowerCase()}", null) : null;
+  static String statusDescriptionFromCode(String code) {
+    return (code != null) ? Localization().getStringEx("com.illinois.covid19.status.description.${code.toLowerCase()}", null) : null;
   }
 }
 
@@ -2786,7 +2786,7 @@ abstract class _HealthRuleStatus {
 
 class HealthRuleStatus extends _HealthRuleStatus {
 
-  final String status;
+  final String code;
   final int priority;
 
   final dynamic nextStep;
@@ -2802,14 +2802,14 @@ class HealthRuleStatus extends _HealthRuleStatus {
 
   final dynamic fcmTopic;
 
-  HealthRuleStatus({this.status, this.priority,
+  HealthRuleStatus({this.code, this.priority,
     this.nextStep, this.nextStepHtml, this.nextStepInterval, this.nextStepDateUtc,
     this.eventExplanation, this.eventExplanationHtml,
     this.reason, this.warning, this.fcmTopic });
 
   factory HealthRuleStatus.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthRuleStatus(
-      status:               json['health_status'],
+      code:                 json['code'],
       priority:             json['priority'],
       nextStep:             json['next_step'],
       nextStepHtml:         json['next_step_html'],
@@ -2825,7 +2825,7 @@ class HealthRuleStatus extends _HealthRuleStatus {
   factory HealthRuleStatus.fromStatus(HealthRuleStatus status, { DateTime nextStepDateUtc, }) {
     
     return (status != null) ? HealthRuleStatus(
-      status:               status.status,
+      code:                 status.code,
       priority:             status.priority,
       nextStep:             status.nextStep,
       nextStepHtml:         status.nextStepHtml,
@@ -2841,7 +2841,7 @@ class HealthRuleStatus extends _HealthRuleStatus {
 
   bool operator ==(o) =>
     (o is HealthRuleStatus) &&
-      (o.status == status) &&
+      (o.code == code) &&
       (o.priority == priority) &&
       
       (o.nextStep == nextStep) &&
@@ -2858,7 +2858,7 @@ class HealthRuleStatus extends _HealthRuleStatus {
       (o.fcmTopic == fcmTopic);
 
   int get hashCode =>
-    (status?.hashCode ?? 0) ^
+    (code?.hashCode ?? 0) ^
     (priority?.hashCode ?? 0) ^
     
     (nextStep?.hashCode ?? 0) ^

@@ -28,9 +28,9 @@ import 'package:illinois/utils/Utils.dart';
 
 class HealthStatusUpdatePanel extends StatefulWidget {
   final HealthStatus status;
-  final String previousHealthStatus;
+  final String previousStatusCode;
 
-  HealthStatusUpdatePanel({this.status, this.previousHealthStatus} );
+  HealthStatusUpdatePanel({this.status, this.previousStatusCode} );
 
   @override
   _HealthStatusUpdatePanelState createState() => _HealthStatusUpdatePanelState();
@@ -39,11 +39,11 @@ class HealthStatusUpdatePanel extends StatefulWidget {
 class _HealthStatusUpdatePanelState extends State<HealthStatusUpdatePanel> {
   String _updateDate;
 
-  String _oldStatusType;
+  String _oldStatusName;
   String _oldStatusDescription;
   Color _oldSatusColor;
 
-  String _newStatusType;
+  String _newStatusName;
   String _newStatusDescription;
   Color _newSatusColor;
 
@@ -52,13 +52,13 @@ class _HealthStatusUpdatePanelState extends State<HealthStatusUpdatePanel> {
     //_updateStatus();
     _updateDate = (widget.status?.dateUtc != null) ? AppDateTime.formatDateTime(widget.status.dateUtc?.toLocal(), format:"MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode) : '';
 
-    _oldStatusType = HealthStatusBlob.localizedHealthStatusTypeFromKey(widget.previousHealthStatus) ?? '';
-    _oldStatusDescription = HealthStatusBlob.localizedHealthStatusDescriptionFromKey(widget.previousHealthStatus) ?? '';
-    _oldSatusColor = Styles().colors.getHealthStatusColor(widget.previousHealthStatus) ?? Styles().colors.mediumGray;
+    _oldStatusName = HealthStatusBlob.statusNameFromCode(widget.previousStatusCode) ?? '';
+    _oldStatusDescription = HealthStatusBlob.statusDescriptionFromCode(widget.previousStatusCode) ?? '';
+    _oldSatusColor = Styles().colors.getHealthStatusColor(widget.previousStatusCode) ?? Styles().colors.mediumGray;
 
-    _newStatusType = widget?.status?.blob?.localizedHealthStatusType ?? '';
-    _newStatusDescription = widget?.status?.blob?.localizedHealthStatusDescription ?? '';
-    _newSatusColor = Styles().colors.getHealthStatusColor(widget.status?.blob?.status) ?? Styles().colors.mediumGray;
+    _newStatusName = widget?.status?.blob?.statusName ?? '';
+    _newStatusDescription = widget?.status?.blob?.statusDescription ?? '';
+    _newSatusColor = Styles().colors.getHealthStatusColor(widget.status?.blob?.code) ?? Styles().colors.mediumGray;
 
     super.initState();
   }
@@ -130,7 +130,7 @@ class _HealthStatusUpdatePanelState extends State<HealthStatusUpdatePanel> {
               children: <Widget>[
                 CircleAvatar(child: Image.asset("images/icon-avatar-placeholder.png", excludeFromSemantics: true,),backgroundColor: _oldSatusColor, radius: 32,),
                 Container(height: 8,),
-                Text(_oldStatusType,style:TextStyle(color: Styles().colors.white, fontSize: 14, fontFamily: Styles().fontFamilies.regular)),
+                Text(_oldStatusName,style:TextStyle(color: Styles().colors.white, fontSize: 14, fontFamily: Styles().fontFamilies.regular)),
                 Text(_oldStatusDescription,style:TextStyle(color: Styles().colors.white, fontSize: 14, fontFamily: Styles().fontFamilies.bold)),
               ],
             )),
@@ -142,7 +142,7 @@ class _HealthStatusUpdatePanelState extends State<HealthStatusUpdatePanel> {
               children: <Widget>[
                 CircleAvatar(child: Image.asset("images/icon-avatar-placeholder.png", excludeFromSemantics: true),backgroundColor: _newSatusColor, radius: 32,),
                 Container(height: 8 ,),
-                Text(_newStatusType,style:TextStyle(color: Styles().colors.white, fontSize: 14, fontFamily: Styles().fontFamilies.regular)),
+                Text(_newStatusName,style:TextStyle(color: Styles().colors.white, fontSize: 14, fontFamily: Styles().fontFamilies.regular)),
                 Text(_newStatusDescription,style:TextStyle(color: Styles().colors.white, fontSize: 14, fontFamily: Styles().fontFamilies.bold)),
               ],
             )),

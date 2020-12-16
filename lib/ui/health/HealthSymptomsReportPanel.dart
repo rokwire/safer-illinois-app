@@ -248,9 +248,9 @@ class _HealthSymptomsReportPanelState extends State<HealthSymptomsReportPanel> i
   void _onStatusChanged() {
     // Got status update notification while submitting symptoms
     if (mounted && (_submittingSymptoms == true)) {
-      String oldStatus = Health().previousStatus?.blob?.status;
-      String newStatus = Health().status?.blob?.status;
-      if ((oldStatus != null) && (newStatus != null) && (oldStatus != newStatus)) {
+      String oldStatusCode = Health().previousStatus?.blob?.code;
+      String newStatusCode = Health().status?.blob?.code;
+      if ((oldStatusCode != null) && (newStatusCode != null) && (oldStatusCode != newStatusCode)) {
         _dismissed = true;
         Navigator.of(context).pop(); // pop immidiately as status update panel will be pushed.
       }

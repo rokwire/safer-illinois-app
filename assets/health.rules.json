@@ -1,7 +1,7 @@
 {
 	"defaults": {
 		"status": {
-			"health_status": "orange",
+			"code": "orange",
 			"next_step": "default.step"
 		}
 	},
@@ -14,7 +14,7 @@
 
 	"statuses": {
     "PCR.positive": {
-      "health_status": "red",
+      "code": "red",
       "priority": 11,
       "next_step_html": "positive.step.html"
     },
@@ -30,13 +30,13 @@
 				},
 				"success": null,
 				"fail": {
-					"health_status": "red",
+					"code": "red",
 					"priority": 11,
 					"next_step": "test.now.step"
 				}
 			},
 			"fail": {
-				"health_status": "red",
+				"code": "red",
 				"priority": 11,
 				"next_step_html": "positive.step.html"
 			}
@@ -54,14 +54,14 @@
 				},
 				"success": null,
 				"fail": {
-					"health_status": "red",
+					"code": "red",
 					"priority": 11,
 					"next_step": "test.now.step",
 					"fcm_topic": "PCR.positive-IP"
 				}
 			},
 			"fail": {
-				"health_status": "red",
+				"code": "red",
 				"priority": 11,
 				"next_step_html": "positive-ip.step.html",
 				"event_explanation": "positive-ip.explanation",
@@ -75,13 +75,13 @@
 				"interval": { "min": 0, "max": 60, "scope": "future" }
 			},
 			"success": {
-				"health_status": "orange",
+				"code": "orange",
 				"priority": 1,
 				"next_step": "test.now.step",
 				"reason": "test.now.reason"
 			},
 			"fail": {
-				"health_status": "yellow",
+				"code": "yellow",
 				"priority": 3,
 				"next_step_html": "positive-nip.step.html",
 				"next_step_interval": 60,
@@ -98,14 +98,14 @@
 				"interval": { "min": 0, "max": 1, "scope": "future", "current": true }
 			},
 			"success": {
-				"health_status": null,
+				"code": null,
 				"priority": null,
 				"next_step": "test.another.asap.step",
 				"next_step_interval": 1,
 				"warning": "test.future.warning"
 			},
 			"fail": {
-				"health_status": "orange",
+				"code": "orange",
 				"priority": 1,
 				"next_step": "test.now.step",
 				"reason": "test.now.reason"
@@ -123,14 +123,14 @@
 					"interval": { "min": 0, "max": "UserTestMonitorInterval", "scope": "future", "current": true }
 				},
 				"success": {
-					"health_status": "yellow",
+					"code": "yellow",
 					"priority": 1,
 					"next_step": "test.monitor.step",
 					"next_step_interval": "UserTestMonitorInterval",
 					"warning": "test.future.warning"
 				},
 				"fail": {
-					"health_status": "orange",
+					"code": "orange",
 					"priority": 1,
 					"next_step": "test.now.step",
 					"reason": "test.now.reason"
@@ -148,14 +148,14 @@
 						"interval": { "min": 0, "max": "UndergraduateTestMonitorInterval", "scope": "future", "current": true }
 					},
 					"success": {
-						"health_status": "yellow",
+						"code": "yellow",
 						"priority": 1,
 						"next_step": "test.monitor.step",
 						"next_step_interval": "UndergraduateTestMonitorInterval",
 						"warning": "test.future.warning"
 					},
 					"fail": {
-						"health_status": "orange",
+						"code": "orange",
 						"priority": 1,
 						"next_step": "test.now.step",
 						"reason": "test.now.reason"
@@ -167,14 +167,14 @@
 						"interval": { "min": 0, "max": "DefaultTestMonitorInterval", "scope": "future", "current": true }
 					},
 					"success": {
-						"health_status": "yellow",
+						"code": "yellow",
 						"priority": 1,
 						"next_step": "test.monitor.step",
 						"next_step_interval": "DefaultTestMonitorInterval",
 						"warning": "test.future.warning"
 					},
 					"fail": {
-						"health_status": "orange",
+						"code": "orange",
 						"priority": 1,
 						"next_step": "test.now.step",
 						"reason": "test.now.reason"
@@ -200,14 +200,14 @@
 					},
 					"success": null,
 					"fail": {
-						"health_status": "orange",
+						"code": "orange",
 						"priority": 2,
 						"next_step": "test.another.now.step",
 						"reason": "test.past.reason"
 					}
 				},
 				"fail": {
-					"health_status": "orange",
+					"code": "orange",
 					"priority": 2,
 					"next_step": "test.after.step",
 					"next_step_interval": { "value": 3, "origin": "referenceDate" },
@@ -215,7 +215,7 @@
 				}
 			},
 			"fail": {
-				"health_status": "orange",
+				"code": "orange",
 				"priority": 2,
 				"next_step": "test.multiple.step",
 				"reason": "test.required.reason"
@@ -223,7 +223,7 @@
 		},
 		
 		"symptoms-match": {
-			"health_status": "orange",
+			"code": "orange",
 			"priority": 1,
 			"next_step": "symptoms.step",
 			"reason": "symptoms.reason"
@@ -241,14 +241,14 @@
 				},
 				"success": null,
 				"fail": {
-					"health_status": "orange",
+					"code": "orange",
 					"priority": 1,
 					"next_step": "test.now.step",
 					"reason": "test.now.reason"
 				}
 			},
 			"fail": {
-				"health_status": "orange",
+				"code": "orange",
 				"priority": 2,
 				"next_step_html": "exposure.step.html",
 				"next_step_interval": 4,
@@ -257,7 +257,7 @@
 		},
 		
 		"quarantine-on": {
-			"health_status": "orange",
+			"code": "orange",
 			"priority": 10,
 			"next_step": "quarantine-on.step",
 			"reason": "Your status changed to Orange because the Public Health department placed you in Quarantine.",
@@ -275,14 +275,14 @@
 					"interval": { "min": 0, "max": "UserTestMonitorInterval", "scope": "future", "current": true }
 				},
 				"success": {
-					"health_status": "yellow",
+					"code": "yellow",
 					"priority": -1,
 					"next_step": "test.resume.step",
 					"next_step_interval": "UserTestMonitorInterval",
 					"warning": "test.future.warning"
 					},
 				"fail": {
-					"health_status": "orange",
+					"code": "orange",
 					"priority": -1,
 					"next_step": "test.now.step",
 					"reason": "test.now.reason"
@@ -300,14 +300,14 @@
 						"interval": { "min": 0, "max": "UndergraduateTestMonitorInterval", "scope": "future", "current": true }
 					},
 					"success": {
-						"health_status": "yellow",
+						"code": "yellow",
 						"priority": -1,
 						"next_step": "test.resume.step",
 						"next_step_interval": "UndergraduateTestMonitorInterval",
 						"warning": "test.future.warning"
 						},
 					"fail": {
-						"health_status": "orange",
+						"code": "orange",
 						"priority": -1,
 						"next_step": "test.now.step",
 						"reason": "test.now.reason"
@@ -319,14 +319,14 @@
 						"interval": { "min": 0, "max": "DefaultTestMonitorInterval", "scope": "future", "current": true }
 					},
 					"success": {
-						"health_status": "yellow",
+						"code": "yellow",
 						"priority": -1,
 						"next_step": "test.resume.step",
 						"next_step_interval": "DefaultTestMonitorInterval",
 						"warning": "test.future.warning"
 					},
 					"fail": {
-						"health_status": "orange",
+						"code": "orange",
 						"priority": -1,
 						"next_step": "test.now.step",
 						"reason": "test.now.reason"
@@ -341,14 +341,14 @@
 				"interval": { "min": -1, "max": 1, "current": true }
 			},
 			"success": {
-				"health_status": null,
+				"code": null,
 				"priority": null,
 				"next_step": "test.monitor.step",
 				"next_step_interval": 1,
 				"warning": "test.future.warning"
 			},
 			"fail": {
-				"health_status": "orange",
+				"code": "orange",
 				"priority": 1,
 				"next_step": "test.now.step",
 				"reason": "test.now.reason"
@@ -762,7 +762,7 @@
 			"symptoms.sore-throat": "Sore Throat",
 			"symptoms.congestion-or-runny-nose": "Congestion or runny nose",
 			"symptoms.nausea-or-vomiting": "Nausea or vomiting",
-			"symptoms.diarrhea":"Diarrhea"
+			"symptoms.diarrhea": "Diarrhea"
 		},
 		"es": {
 			"default.step": "Realice una prueba de saliva SHIELD cuando regrese al campus.",
