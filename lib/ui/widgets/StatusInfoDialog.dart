@@ -17,8 +17,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:illinois/model/Health.dart';
+import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Styles.dart';
+import 'package:illinois/utils/Utils.dart';
 
 class StatusInfoDialog extends StatelessWidget{
   final String currentCountyName;
@@ -31,6 +33,51 @@ class StatusInfoDialog extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> contentList = <Widget>[
+      Text(Localization().getStringEx("panel.health.status_update.info_dialog.label1", "Status color definitions can change depending on different counties."),
+        style: TextStyle(color: Styles().colors.textSurface, fontFamily: Styles().fontFamilies.regular, fontSize: 16),
+      ),
+      Container(height: 10,),
+      RichText(
+        textScaleFactor: MediaQuery.textScaleFactorOf(context),
+        text: TextSpan(
+          text: Localization().getStringEx("panel.health.status_update.info_dialog.label2", "Status colors for "),
+          style: TextStyle(color: Styles().colors.textSurface, fontFamily: Styles().fontFamilies.regular, fontSize: 16),
+          children: <TextSpan>[
+            TextSpan(text: currentCountyName, style: TextStyle(color: Styles().colors.textSurface, fontFamily: Styles().fontFamilies.bold, fontSize: 16)),
+            TextSpan(text: ':', style: TextStyle(color: Styles().colors.textSurface, fontFamily: Styles().fontFamilies.bold, fontSize: 16)),
+          ],
+        ),
+      ),
+    ];
+
+    List<HealthCodeData> codes = Health().rules?.codes?.list;
+    if (codes != null) {
+      for (HealthCodeData code in codes) {
+        if (code.visible != false) {
+          contentList.add(Container(height: 10,));
+          contentList.add(Row(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+            Image.asset('images/icon-member.png', excludeFromSemantics: true, color: code.color,),
+            Container(width: 8,),
+            Expanded(child: 
+              Text(code.longDescription(rules: Health().rules), style: TextStyle(color: Styles().colors.textSurface, fontFamily: Styles().fontFamilies.regular, fontSize: 16),
+              ),
+            ),
+          ],),);
+        }
+      }
+    }
+
+    List<String> infoList = Health().rules?.codes?.info(rules: Health().rules);
+    if (infoList != null) {
+      for (String info in infoList) {
+        if (AppString.isStringNotEmpty(info)) {
+          contentList.add(Container(height: 10,));
+          contentList.add(Text(info, style: TextStyle(color: Styles().colors.textSurface, fontFamily: Styles().fontFamilies.regular, fontSize: 16),),);
+        }
+      }
+    }
+
     return StatefulBuilder(
       builder: (context, setState){
         return ClipRRect(
@@ -53,67 +100,7 @@ class StatusInfoDialog extends StatelessWidget{
                           container: true,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(Localization().getStringEx("panel.health.status_update.info_dialog.label1", "Status color definitions can change depending on different counties."),
-                                style: TextStyle(color: Styles().colors.textSurface, fontFamily: Styles().fontFamilies.regular, fontSize: 16),
-                              ),
-                              Container(height: 10,),
-                              RichText(
-                                textScaleFactor: MediaQuery.textScaleFactorOf(context),
-                                text: TextSpan(
-                                  text: Localization().getStringEx("panel.health.status_update.info_dialog.label2", "Status colors for "),
-                                  style: TextStyle(color: Styles().colors.textSurface, fontFamily: Styles().fontFamilies.regular, fontSize: 16),
-                                  children: <TextSpan>[
-                                    TextSpan(text: currentCountyName, style: TextStyle(color: Styles().colors.textSurface, fontFamily: Styles().fontFamilies.bold, fontSize: 16)),
-                                    TextSpan(text: ':', style: TextStyle(color: Styles().colors.textSurface, fontFamily: Styles().fontFamilies.bold, fontSize: 16)),
-                                  ],
-                                ),
-                              ),
-                              Container(height: 10,),
-                              Row(
-                                children: <Widget>[
-                                  Image.asset('images/icon-member.png', excludeFromSemantics: true, color: Styles().colors.getHealthStatusColor(kHealthStatusYellow),),
-                                  Container(width: 8,),
-                                  Expanded(
-                                    child: Text(Localization().getStringEx("com.illinois.covid19.status.info.description.yellow", "Yellow: Recent negative test"),
-                                      style: TextStyle(color: Styles().colors.textSurface, fontFamily: Styles().fontFamilies.regular, fontSize: 16),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Container(height: 10,),
-                              Row(
-                                children: <Widget>[
-                                  Image.asset('images/icon-member.png', excludeFromSemantics: true, color: Styles().colors.getHealthStatusColor(kHealthStatusOrange),),
-                                  Container(width: 8,),
-                                  Expanded(
-                                    child: Text(Localization().getStringEx("com.illinois.covid19.status.info.description.orange", "Orange: First time user, Past due for test, Self-reported symptoms, Received exposure notification or Quarantined"),
-                                      style: TextStyle(color: Styles().colors.textSurface, fontFamily: Styles().fontFamilies.regular, fontSize: 16),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Container(height: 10,),
-                              Row(
-                                children: <Widget>[
-                                  Image.asset('images/icon-member.png', excludeFromSemantics: true, color: Styles().colors.getHealthStatusColor(kHealthStatusRed),),
-                                  Container(width: 8,),
-                                  Expanded(
-                                    child: Text(Localization().getStringEx("com.illinois.covid19.status.info.description.red", "Red: Positive test"),
-                                      style: TextStyle(color: Styles().colors.textSurface, fontFamily: Styles().fontFamilies.regular, fontSize: 16),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Container(height: 10,),
-                              Text(Localization().getStringEx("panel.health.status_update.info_dialog.label3", "Default status for new users is set to Orange."),
-                                style: TextStyle(color: Styles().colors.textSurface, fontFamily: Styles().fontFamilies.regular, fontSize: 16),
-                              ),
-                              Container(height: 10,),
-                              Text(Localization().getStringEx("panel.health.status_update.info_dialog.label4", "An up-to-date on-campus negative test result will reset your COVID-19 status to Yellow, and Building Entry will change to Granted."),
-                                style: TextStyle(color: Styles().colors.textSurface, fontFamily: Styles().fontFamilies.regular, fontSize: 16),
-                              ),
-                            ],
+                            children:contentList,
                           )
                         ),
                       ),

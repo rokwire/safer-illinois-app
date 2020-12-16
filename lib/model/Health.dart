@@ -2258,7 +2258,8 @@ class HealthRulesSet {
 
   static const String UserTestMonitorInterval = 'UserTestMonitorInterval';
 
-  HealthRulesSet({this.tests, this.symptoms, this.contactTrace, this.actions, this.defaults, this.codes, this.statuses, Map<String, dynamic> constants, Map<String, dynamic> strings}) :
+  HealthRulesSet({this.tests, this.symptoms, this.contactTrace, this.actions, this.defaults, HealthCodesSet codes, this.statuses, Map<String, dynamic> constants, Map<String, dynamic> strings}) :
+    this.codes = codes ?? HealthCodesSet(),
     this.constants = constants ?? Map<String, dynamic>(),
     this.constantOverrides = Map<String, dynamic>(),
     this.strings = strings ?? Map<String, dynamic>();
@@ -2386,7 +2387,7 @@ class HealthCodesSet {
     ListEquality().hash(_codesList) ^
     ListEquality().hash(_info);
 
-  List<HealthCodeData> get codes {
+  List<HealthCodeData> get list {
     return _codesList;
   }
 
@@ -2458,7 +2459,7 @@ class HealthCodeData {
     (reportsExposure?.hashCode ?? 0);
 
   Color get color {
-    return color;
+    return _color;
   }
   
   String name({HealthRulesSet rules}) {

@@ -134,7 +134,7 @@ class _HealthGuidelinesPanelState extends State<HealthGuidelinesPanel> {
                     ),
                   ),
                   _buildCountyDropdown(),
-                  Container(padding: EdgeInsets.all(8), decoration: BoxDecoration(color: (Styles().colors.getHealthStatusColor(this._currentStatusCode) ?? Styles().colors.background), borderRadius: BorderRadius.circular(4), border: Border.all(color: Styles().colors.surfaceAccent, width: 1)), child:
+                  Container(padding: EdgeInsets.all(8), decoration: BoxDecoration(color: Health().rules?.codes[this._currentStatusCode]?.color ?? Styles().colors.background, borderRadius: BorderRadius.circular(4), border: Border.all(color: Styles().colors.surfaceAccent, width: 1)), child:
                   (guidelinesCount == 0 ? Container() : ListView.separated(
                       physics: NeverScrollableScrollPhysics(),
                       shrinkWrap: true,

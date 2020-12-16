@@ -54,11 +54,11 @@ class _HealthStatusUpdatePanelState extends State<HealthStatusUpdatePanel> {
 
     _oldStatusName = HealthStatusBlob.statusNameFromCode(widget.previousStatusCode) ?? '';
     _oldStatusDescription = HealthStatusBlob.statusDescriptionFromCode(widget.previousStatusCode) ?? '';
-    _oldSatusColor = Styles().colors.getHealthStatusColor(widget.previousStatusCode) ?? Styles().colors.mediumGray;
+    _oldSatusColor = Health().rules?.codes[widget.previousStatusCode]?.color ?? Styles().colors.mediumGray;
 
     _newStatusName = widget?.status?.blob?.statusName ?? '';
     _newStatusDescription = widget?.status?.blob?.statusDescription ?? '';
-    _newSatusColor = Styles().colors.getHealthStatusColor(widget.status?.blob?.code) ?? Styles().colors.mediumGray;
+    _newSatusColor = Health().rules?.codes[widget.status?.blob?.code]?.color ?? Styles().colors.mediumGray;
 
     super.initState();
   }

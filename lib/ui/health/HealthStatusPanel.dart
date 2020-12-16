@@ -320,7 +320,7 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
     String statusCode = Health().status?.blob?.code;
     String statusName = Health().status?.blob?.displayName ?? '';
     bool userHasHealthStatus = (statusCode != null);
-    Color statusColor = (userHasHealthStatus ? (Styles().colors.getHealthStatusColor(statusCode) ?? _backgroundColor) : _backgroundColor);
+    Color statusColor = Health().rules?.codes[statusCode]?.color ?? _backgroundColor;
     String authCardOrPhone = this._userQRCodeContent;
     String textAuthCardOrPhone = this._userQRCodeDescr;
     String noStatusDescription = (_counties?.isNotEmpty ?? false) ? 
