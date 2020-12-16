@@ -712,14 +712,14 @@ class Exposure with Service implements NotificationsListener {
       if (_reportTargetTimestamp == null) {
         return 0;
       }
-      else if ((Health().status?.blob?.status != kHealthStatusRed) && (_lastReportTimestamp != null) && (_reportTargetTimestamp < _lastReportTimestamp)) {
+      else if ((Health().status?.blob?.reportsExposures(rules: Health().rules) != true) && (_lastReportTimestamp != null) && (_reportTargetTimestamp < _lastReportTimestamp)) {
         Storage().exposureReportTargetTimestamp = _reportTargetTimestamp = null;
         await _expireTEK(); 
         return 0;
       }
     }
     else {
-      if (Health().status?.blob?.status != kHealthStatusRed) {
+      if (Health().status?.blob?.reportsExposures(rules: Health().rules) != true) {
         return 0;
       }
     }
@@ -1030,8 +1030,8 @@ class Exposure with Service implements NotificationsListener {
       for (HealthHistory result in results) {
         Analytics().logHealth(
           action: Analytics.LogHealthContactTraceProcessedAction,
-          status: Health().status?.blob?.status,
-          prevStatus: lastHealthStatus?.blob?.status,
+          status: Health().status?.blob?.code,
+          prevStatus: lastHealthStatus?.blob?.code,
           attributes: {
             Analytics.LogHealthDurationName: result.blob.traceDuration,
             Analytics.LogHealthExposureTimestampName: result.dateUtc?.toIso8601String(),

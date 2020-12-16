@@ -76,11 +76,11 @@ class _HealthGuidelinesPanelState extends State<HealthGuidelinesPanel> {
 
   List<HealthGuidelineItem> _buildGuidelines() {
     HealthGuideline statusGuideline;
-    String statusName = this._currentHealthStatus;
+    String statusCode = this._currentStatusCode;
     List<HealthGuideline> guidelines = _selectedCounty?.guidelines;
-    if ((guidelines != null) && guidelines.isNotEmpty && (statusName != null) && statusName.isNotEmpty) {
+    if ((guidelines != null) && guidelines.isNotEmpty && (statusCode != null) && statusCode.isNotEmpty) {
       for (HealthGuideline guideline in guidelines) {
-        if (guideline.name?.toLowerCase() == statusName) {
+        if (guideline.name?.toLowerCase() == statusCode) {
           statusGuideline = guideline;
           break;
         }
@@ -91,13 +91,16 @@ class _HealthGuidelinesPanelState extends State<HealthGuidelinesPanel> {
     ];
   }
 
-  String get _currentHealthStatus {
-    return Health().status?.blob?.status?.toLowerCase();
+  String get _currentStatusCode {
+    return Health().status?.blob?.code?.toLowerCase();
   }
 
   @override
   Widget build(BuildContext context) {
+    String statusCode = Health().status?.blob?.code;
+    String statusName = Health().rules?.codes[statusCode]?.name(rules: Health().rules) ?? "Unknown";
     int guidelinesCount = _statusGuidelines?.length ?? 0;
+
     return Scaffold(
       backgroundColor: Styles().colors.background,
       appBar: SimpleHeaderBarWithBack(
@@ -128,13 +131,13 @@ class _HealthGuidelinesPanelState extends State<HealthGuidelinesPanel> {
                     padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
                     child: Text(
                       sprintf(Localization().getStringEx('panel.covid19_guidelines.status.title', 'These are based on your %s status in the following county:'),
-                          [Health().status?.blob?.localizedHealthStatus ?? "unknown"]),
+                          [statusName]),
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Styles().colors.textSurface, fontSize: 16, fontFamily: Styles().fontFamilies.regular),
                     ),
                   ),
                   _buildCountyDropdown(),
-                  Container(padding: EdgeInsets.all(8), decoration: BoxDecoration(color: (Styles().colors.getHealthStatusColor(this._currentHealthStatus) ?? Styles().colors.background), borderRadius: BorderRadius.circular(4), border: Border.all(color: Styles().colors.surfaceAccent, width: 1)), child:
+                  Container(padding: EdgeInsets.all(8), decoration: BoxDecoration(color: Health().rules?.codes[this._currentStatusCode]?.color ?? Styles().colors.background, borderRadius: BorderRadius.circular(4), border: Border.all(color: Styles().colors.surfaceAccent, width: 1)), child:
                   (guidelinesCount == 0 ? Container() : ListView.separated(
                       physics: NeverScrollableScrollPhysics(),
                       shrinkWrap: true,

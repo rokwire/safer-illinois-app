@@ -314,8 +314,8 @@ class _DebugSymptomsReportPanelState extends State<DebugSymptomsReportPanel> imp
   void _onStatusChanged() {
     // Got status update notification while submitting symptoms
     if (mounted && (_submittingSymptoms == true)) {
-      String oldStatus = Health().previousStatus?.blob?.status;
-      String newStatus = Health().status?.blob?.status;
+      String oldStatus = Health().previousStatus?.blob?.code;
+      String newStatus = Health().status?.blob?.code;
       if ((oldStatus != null) && (newStatus != null) && (oldStatus != newStatus)) {
         _dismissed = true;
         Navigator.of(context).pop(); // pop immidiately as status update panel will be pushed.

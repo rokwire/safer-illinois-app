@@ -117,7 +117,7 @@ class HealthStatus {
 
 class HealthStatusBlob {
 
-  final String status;
+  final String code;
   final int priority;
 
   final String nextStep;
@@ -137,11 +137,11 @@ class HealthStatusBlob {
   static const String _nextStepDateMacro = '{next_step_date}';
   static const String _nextStepDateFormat = 'EEEE, MMM d';
 
-  HealthStatusBlob({this.status, this.priority, this.nextStep, this.nextStepHtml, this.nextStepDateUtc, this.eventExplanation, this.eventExplanationHtml, this.reason, this.warning, this.fcmTopic, this.historyBlob});
+  HealthStatusBlob({this.code, this.priority, this.nextStep, this.nextStepHtml, this.nextStepDateUtc, this.eventExplanation, this.eventExplanationHtml, this.reason, this.warning, this.fcmTopic, this.historyBlob});
 
   factory HealthStatusBlob.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthStatusBlob(
-      status: json['health_status'],
+      code: json['code'] ?? json['health_status'],
       priority: json['priority'],
       nextStep: json['next_step'],
       nextStepHtml: json['next_step_html'],
@@ -157,7 +157,7 @@ class HealthStatusBlob {
 
   Map<String, dynamic> toJson() {
     return {
-      'health_status': status,
+      'code': code,
       'priority': priority,
       'next_step': nextStep,
       'next_step_html': nextStepHtml,
@@ -173,7 +173,7 @@ class HealthStatusBlob {
 
   bool operator ==(o) {
     return (o is HealthStatusBlob) &&
-      (o.status == status) &&
+      (o.code == code) &&
       (o.priority == priority) &&
       (o.nextStep == nextStep) &&
       (o.nextStepHtml == nextStepHtml) &&
@@ -187,7 +187,7 @@ class HealthStatusBlob {
   }
 
   int get hashCode =>
-    (status?.hashCode ?? 0) ^
+    (code?.hashCode ?? 0) ^
     (priority?.hashCode ?? 0) ^
     (nextStep?.hashCode ?? 0) ^
     (nextStepHtml?.hashCode ?? 0) ^
@@ -263,40 +263,10 @@ class HealthStatusBlob {
       (nextStepHtml?.toLowerCase()?.contains("test") ?? false);  
   }
 
-  String get localizedHealthStatus {
-    return localizedHealthStatusFromKey(status);
-  }
-
-  String get localizedHealthStatusType {
-    return localizedHealthStatusTypeFromKey(status);
-  }
-
-  String get localizedHealthStatusDescription {
-    return localizedHealthStatusDescriptionFromKey(status);
-  }
-
-  static String localizedHealthStatusFromKey(String key) {
-    String type = localizedHealthStatusTypeFromKey(key);
-    String description = localizedHealthStatusDescriptionFromKey(key);
-    return ((type != null) && (description != null)) ? "$type, $description" : type;
-  }
-
-  static String localizedHealthStatusTypeFromKey(String key) {
-    return (key != null) ? Localization().getStringEx("com.illinois.covid19.status.type.${key.toLowerCase()}", AppString.capitalize(key)) : null;
-  }
-
-  static String localizedHealthStatusDescriptionFromKey(String key) {
-    return (key != null) ? Localization().getStringEx("com.illinois.covid19.status.description.${key.toLowerCase()}", null) : null;
+  bool reportsExposures({HealthRulesSet rules}) {
+    return (rules?.codes[code]?.reportsExposures == true);
   }
 }
-
-///////////////////////////////
-// HealthStatus
-
-const String kHealthStatusRed       = 'red';
-const String kHealthStatusOrange    = 'orange';
-const String kHealthStatusYellow    = 'yellow';
-const String kHealthStatusGreen     = 'green';
 
 ////////////////////////////////
 // Building Access
@@ -2249,6 +2219,7 @@ class HealthRulesSet {
   final HealthContactTraceRulesSet contactTrace;
   final HealthActionRulesSet actions;
   final HealthDefaultsSet defaults;
+  final HealthCodesSet codes;
   final Map<String, _HealthRuleStatus> statuses;
   final Map<String, dynamic> constants;
   final Map<String, dynamic> constantOverrides;
@@ -2257,7 +2228,8 @@ class HealthRulesSet {
 
   static const String UserTestMonitorInterval = 'UserTestMonitorInterval';
 
-  HealthRulesSet({this.tests, this.symptoms, this.contactTrace, this.actions, this.defaults, this.statuses, Map<String, dynamic> constants, Map<String, dynamic> strings}) :
+  HealthRulesSet({this.tests, this.symptoms, this.contactTrace, this.actions, this.defaults, HealthCodesSet codes, this.statuses, Map<String, dynamic> constants, Map<String, dynamic> strings}) :
+    this.codes = codes ?? HealthCodesSet(),
     this.constants = constants ?? Map<String, dynamic>(),
     this.constantOverrides = Map<String, dynamic>(),
     this.strings = strings ?? Map<String, dynamic>();
@@ -2269,6 +2241,7 @@ class HealthRulesSet {
       contactTrace: HealthContactTraceRulesSet.fromJson(json['contact_trace']),
       actions: HealthActionRulesSet.fromJson(json['actions']),
       defaults: HealthDefaultsSet.fromJson(json['defaults']),
+      codes: HealthCodesSet.fromJson(json['codes']),
       statuses: _HealthRuleStatus.mapFromJson(json['statuses']),
       constants: json['constants'],
       strings: json['strings'],
@@ -2282,6 +2255,7 @@ class HealthRulesSet {
       (o.contactTrace == contactTrace) &&
       (o.actions == actions) &&
       (o.defaults == defaults) &&
+      (o.codes == codes) &&
       MapEquality().equals(o.statuses, statuses) &&
       MapEquality().equals(o.constants, constants) &&
       DeepCollectionEquality().equals(o.strings, strings);
@@ -2293,6 +2267,7 @@ class HealthRulesSet {
     (contactTrace?.hashCode ?? 0) ^
     (actions?.hashCode ?? 0) ^
     (defaults?.hashCode ?? 0) ^
+    (codes?.hashCode ?? 0) ^
     MapEquality().hash(statuses) ^
     MapEquality().hash(constants) ^
     DeepCollectionEquality().hash(strings);
@@ -2352,6 +2327,154 @@ class HealthDefaultsSet {
     (status?.hashCode ?? 0);
 }
 
+///////////////////////////////
+// HealthCodesSet
+
+class HealthCodesSet {
+  final List<HealthCodeData> _codesList;
+  final Map<String, HealthCodeData> _codesMap;
+  final List<String> _info;
+
+  HealthCodesSet({List<HealthCodeData> codes, List<String> info}) :
+    _codesList = codes,
+    _codesMap = HealthCodeData.mapFromList(codes),
+    _info = info;
+
+
+  factory HealthCodesSet.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthCodesSet(
+      codes: HealthCodeData.listFromJson(json['list']),
+      info: json['info']?.cast<String>()
+    ) : null;
+  }
+
+  bool operator ==(o) =>
+    (o is HealthCodesSet) &&
+      ListEquality().equals(o._codesList, _codesList) &&
+      ListEquality().equals(o._info, _info);
+
+  int get hashCode =>
+    ListEquality().hash(_codesList) ^
+    ListEquality().hash(_info);
+
+  List<HealthCodeData> get list {
+    return _codesList;
+  }
+
+  HealthCodeData operator [](String code) {
+    return (_codesMap != null) ? _codesMap[code] : null;
+  }
+
+  List<String> info({HealthRulesSet rules}) {
+    List<String> result;
+    if (_info != null) {
+      result = <String>[];
+      for (String entry in _info) {
+        result.add(rules?.localeString(entry) ?? entry);
+      }
+    }
+    return result;
+  }
+}
+
+///////////////////////////////
+// HealthCodeData
+
+class HealthCodeData {
+  final String code;
+  final String _colorString;
+  final Color  _color;
+  final String _name;
+  final String _description;
+  final String _longDescription;
+  final bool visible;
+  final bool reportsExposures;
+
+  HealthCodeData({this.code, String color, String name, String description, String longDescription, this.visible, this.reportsExposures}) :
+    _colorString = color,
+    _color = UiColors.fromHex(color),
+    _name = name,
+    _description = description,
+    _longDescription = longDescription;
+
+  factory HealthCodeData.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthCodeData(
+      code: json['code'],
+      color: json['color'],
+      name: json['name'],
+      description: json['description'],
+      longDescription: json['long_description'],
+      visible: json['visible'],
+      reportsExposures: json['reports_exposures']
+    ) : null;
+  }
+
+  bool operator ==(o) =>
+    (o is HealthCodeData) &&
+      (o.code == code) &&
+      (o._colorString == _colorString) &&
+      (o._name == _name) &&
+      (o._description == _description) &&
+      (o._longDescription == _longDescription) &&
+      (o.visible == visible) &&
+      (o.reportsExposures == reportsExposures);
+
+  int get hashCode =>
+    (code?.hashCode ?? 0) ^
+    (_colorString?.hashCode ?? 0) ^
+    (_name?.hashCode ?? 0) ^
+    (_description?.hashCode ?? 0) ^
+    (_longDescription?.hashCode ?? 0) ^
+    (visible?.hashCode ?? 0) ^
+    (reportsExposures?.hashCode ?? 0);
+
+  Color get color {
+    return _color;
+  }
+  
+  String name({HealthRulesSet rules}) {
+    return rules?.localeString(_name) ?? _name;
+  }
+
+  String description({HealthRulesSet rules}) {
+    return rules?.localeString(_description) ?? _description;
+  }
+
+  String displayName({HealthRulesSet rules}) {
+    String nameValue = name(rules: rules);
+    String descriptionValue = description(rules: rules);
+    return ((nameValue != null) && (descriptionValue != null)) ? "$nameValue, $descriptionValue" : nameValue;
+  }
+
+  String longDescription({HealthRulesSet rules}) {
+    return rules?.localeString(_longDescription) ?? _longDescription;
+  }
+
+  static List<HealthCodeData> listFromJson(List<dynamic> json) {
+    List<HealthCodeData> values;
+    if (json != null) {
+      values = [];
+      for (dynamic entry in json) {
+          try { values.add(HealthCodeData.fromJson((entry as Map)?.cast<String, dynamic>())); }
+          catch(e) { print(e?.toString()); }
+      }
+    }
+    return values;
+  }
+
+  static Map<String, HealthCodeData> mapFromList(List<HealthCodeData> list) {
+    Map<String, HealthCodeData> map;
+    if (list != null) {
+      map = <String, HealthCodeData>{};
+      for (HealthCodeData entry in list) {
+        if (entry?.code != null) {
+          map[entry.code] = entry;
+        }
+      }
+    }
+    return map;
+  }
+}
 
 ///////////////////////////////
 // HealthTestRulesSet
@@ -2786,7 +2909,7 @@ abstract class _HealthRuleStatus {
 
 class HealthRuleStatus extends _HealthRuleStatus {
 
-  final String status;
+  final String code;
   final int priority;
 
   final dynamic nextStep;
@@ -2802,14 +2925,14 @@ class HealthRuleStatus extends _HealthRuleStatus {
 
   final dynamic fcmTopic;
 
-  HealthRuleStatus({this.status, this.priority,
+  HealthRuleStatus({this.code, this.priority,
     this.nextStep, this.nextStepHtml, this.nextStepInterval, this.nextStepDateUtc,
     this.eventExplanation, this.eventExplanationHtml,
     this.reason, this.warning, this.fcmTopic });
 
   factory HealthRuleStatus.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthRuleStatus(
-      status:               json['health_status'],
+      code:                 json['code'],
       priority:             json['priority'],
       nextStep:             json['next_step'],
       nextStepHtml:         json['next_step_html'],
@@ -2825,7 +2948,7 @@ class HealthRuleStatus extends _HealthRuleStatus {
   factory HealthRuleStatus.fromStatus(HealthRuleStatus status, { DateTime nextStepDateUtc, }) {
     
     return (status != null) ? HealthRuleStatus(
-      status:               status.status,
+      code:                 status.code,
       priority:             status.priority,
       nextStep:             status.nextStep,
       nextStepHtml:         status.nextStepHtml,
@@ -2841,7 +2964,7 @@ class HealthRuleStatus extends _HealthRuleStatus {
 
   bool operator ==(o) =>
     (o is HealthRuleStatus) &&
-      (o.status == status) &&
+      (o.code == code) &&
       (o.priority == priority) &&
       
       (o.nextStep == nextStep) &&
@@ -2858,7 +2981,7 @@ class HealthRuleStatus extends _HealthRuleStatus {
       (o.fcmTopic == fcmTopic);
 
   int get hashCode =>
-    (status?.hashCode ?? 0) ^
+    (code?.hashCode ?? 0) ^
     (priority?.hashCode ?? 0) ^
     
     (nextStep?.hashCode ?? 0) ^

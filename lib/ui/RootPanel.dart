@@ -221,11 +221,11 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
   }
 
   void _presentHealthStatusUpdate() {
-    String oldStatus = Health().previousStatus?.blob?.status;
-    String newStatus = Health().status?.blob?.status;
-    if ((oldStatus != null) && (newStatus != null) && (oldStatus != newStatus)) {
+    String oldStatusCode = Health().previousStatus?.blob?.code;
+    String newStatusCode = Health().status?.blob?.code;
+    if ((oldStatusCode != null) && (newStatusCode != null) && (oldStatusCode != newStatusCode)) {
       Timer(Duration(milliseconds: 100), () {
-        Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthStatusUpdatePanel(status: Health().status, previousHealthStatus: oldStatus,)));
+        Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthStatusUpdatePanel(status: Health().status, previousStatusCode: oldStatusCode,)));
       });
     }
   }
