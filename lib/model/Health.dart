@@ -262,32 +262,6 @@ class HealthStatusBlob {
     return (nextStep?.toLowerCase()?.contains("test") ?? false) ||
       (nextStepHtml?.toLowerCase()?.contains("test") ?? false);  
   }
-
-  String get displayName {
-    return displayNameFromCode(code);
-  }
-
-  String get statusName {
-    return statusNameFromCode(code);
-  }
-
-  String get statusDescription {
-    return statusDescriptionFromCode(code);
-  }
-
-  static String displayNameFromCode(String code) {
-    String name = statusNameFromCode(code);
-    String description = statusDescriptionFromCode(code);
-    return ((name != null) && (description != null)) ? "$name, $description" : name;
-  }
-
-  static String statusNameFromCode(String code) {
-    return (code != null) ? Localization().getStringEx("com.illinois.covid19.status.type.${code.toLowerCase()}", AppString.capitalize(code)) : null;
-  }
-
-  static String statusDescriptionFromCode(String code) {
-    return (code != null) ? Localization().getStringEx("com.illinois.covid19.status.description.${code.toLowerCase()}", null) : null;
-  }
 }
 
 ///////////////////////////////

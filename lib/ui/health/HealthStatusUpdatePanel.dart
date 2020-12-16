@@ -52,13 +52,15 @@ class _HealthStatusUpdatePanelState extends State<HealthStatusUpdatePanel> {
     //_updateStatus();
     _updateDate = (widget.status?.dateUtc != null) ? AppDateTime.formatDateTime(widget.status.dateUtc?.toLocal(), format:"MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode) : '';
 
-    _oldStatusName = HealthStatusBlob.statusNameFromCode(widget.previousStatusCode) ?? '';
-    _oldStatusDescription = HealthStatusBlob.statusDescriptionFromCode(widget.previousStatusCode) ?? '';
-    _oldSatusColor = Health().rules?.codes[widget.previousStatusCode]?.color ?? Styles().colors.mediumGray;
+    HealthCodeData oldStatusCode = Health().rules?.codes[widget.previousStatusCode];
+    _oldStatusName = oldStatusCode?.name(rules: Health().rules) ?? '';
+    _oldStatusDescription = oldStatusCode?.description(rules: Health().rules) ?? '';
+    _oldSatusColor = oldStatusCode?.color ?? Styles().colors.mediumGray;
 
-    _newStatusName = widget?.status?.blob?.statusName ?? '';
-    _newStatusDescription = widget?.status?.blob?.statusDescription ?? '';
-    _newSatusColor = Health().rules?.codes[widget.status?.blob?.code]?.color ?? Styles().colors.mediumGray;
+    HealthCodeData newStatusCode = Health().rules?.codes[widget?.status?.blob?.code];
+    _newStatusName = newStatusCode?.name(rules: Health().rules) ?? '';
+    _newStatusDescription = newStatusCode?.description(rules: Health().rules) ?? '';
+    _newSatusColor = newStatusCode?.color ?? Styles().colors.mediumGray;
 
     super.initState();
   }

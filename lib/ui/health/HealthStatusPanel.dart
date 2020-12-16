@@ -318,8 +318,7 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
 
   Widget _buildQrCode(){
     String statusCode = Health().status?.blob?.code;
-    String statusName = Health().status?.blob?.displayName ?? '';
-    bool userHasHealthStatus = (statusCode != null);
+    String statusName = Health().rules?.codes[statusCode]?.displayName(rules: Health().rules) ?? '';
     Color statusColor = Health().rules?.codes[statusCode]?.color ?? _backgroundColor;
     String authCardOrPhone = this._userQRCodeContent;
     String textAuthCardOrPhone = this._userQRCodeDescr;
@@ -331,7 +330,7 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
       label: Localization().getStringEx("panel.covid19_passport.label.page_2", "Page 2"),
       explicitChildNodes: true,
       child: SingleChildScrollView(child:Column(children: <Widget>[
-        Visibility(visible: userHasHealthStatus, child:
+        Visibility(visible: (statusCode != null), child:
           Container(width: 176, height: 176, padding: EdgeInsets.all(13), decoration: BoxDecoration(color: statusColor, borderRadius: BorderRadius.circular(4)), child:
             Container(decoration: BoxDecoration(color: Styles().colors.white, borderRadius: BorderRadius.circular(4)), child:
               Column(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
@@ -346,7 +345,7 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
             ),
           ),
         ),
-        userHasHealthStatus ?
+        (statusCode != null) ?
           Padding(padding: const EdgeInsets.only(bottom: 16), child:
             Row(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.center, children: <Widget>[
               Expanded(child:

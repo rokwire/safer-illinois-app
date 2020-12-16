@@ -97,7 +97,10 @@ class _HealthGuidelinesPanelState extends State<HealthGuidelinesPanel> {
 
   @override
   Widget build(BuildContext context) {
+    String statusCode = Health().status?.blob?.code;
+    String statusName = Health().rules?.codes[statusCode]?.name(rules: Health().rules) ?? "Unknown";
     int guidelinesCount = _statusGuidelines?.length ?? 0;
+
     return Scaffold(
       backgroundColor: Styles().colors.background,
       appBar: SimpleHeaderBarWithBack(
@@ -128,7 +131,7 @@ class _HealthGuidelinesPanelState extends State<HealthGuidelinesPanel> {
                     padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
                     child: Text(
                       sprintf(Localization().getStringEx('panel.covid19_guidelines.status.title', 'These are based on your %s status in the following county:'),
-                          [Health().status?.blob?.displayName ?? "Unknown"]),
+                          [statusName]),
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Styles().colors.textSurface, fontSize: 16, fontFamily: Styles().fontFamilies.regular),
                     ),
