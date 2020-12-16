@@ -2249,6 +2249,7 @@ class HealthRulesSet {
   final HealthContactTraceRulesSet contactTrace;
   final HealthActionRulesSet actions;
   final HealthDefaultsSet defaults;
+  final HealthCodesSet codes;
   final Map<String, _HealthRuleStatus> statuses;
   final Map<String, dynamic> constants;
   final Map<String, dynamic> constantOverrides;
@@ -2257,7 +2258,7 @@ class HealthRulesSet {
 
   static const String UserTestMonitorInterval = 'UserTestMonitorInterval';
 
-  HealthRulesSet({this.tests, this.symptoms, this.contactTrace, this.actions, this.defaults, this.statuses, Map<String, dynamic> constants, Map<String, dynamic> strings}) :
+  HealthRulesSet({this.tests, this.symptoms, this.contactTrace, this.actions, this.defaults, this.codes, this.statuses, Map<String, dynamic> constants, Map<String, dynamic> strings}) :
     this.constants = constants ?? Map<String, dynamic>(),
     this.constantOverrides = Map<String, dynamic>(),
     this.strings = strings ?? Map<String, dynamic>();
@@ -2269,6 +2270,7 @@ class HealthRulesSet {
       contactTrace: HealthContactTraceRulesSet.fromJson(json['contact_trace']),
       actions: HealthActionRulesSet.fromJson(json['actions']),
       defaults: HealthDefaultsSet.fromJson(json['defaults']),
+      codes: HealthCodesSet.fromJson(json['codes']),
       statuses: _HealthRuleStatus.mapFromJson(json['statuses']),
       constants: json['constants'],
       strings: json['strings'],
@@ -2282,6 +2284,7 @@ class HealthRulesSet {
       (o.contactTrace == contactTrace) &&
       (o.actions == actions) &&
       (o.defaults == defaults) &&
+      (o.codes == codes) &&
       MapEquality().equals(o.statuses, statuses) &&
       MapEquality().equals(o.constants, constants) &&
       DeepCollectionEquality().equals(o.strings, strings);
@@ -2293,6 +2296,7 @@ class HealthRulesSet {
     (contactTrace?.hashCode ?? 0) ^
     (actions?.hashCode ?? 0) ^
     (defaults?.hashCode ?? 0) ^
+    (codes?.hashCode ?? 0) ^
     MapEquality().hash(statuses) ^
     MapEquality().hash(constants) ^
     DeepCollectionEquality().hash(strings);
@@ -2352,6 +2356,154 @@ class HealthDefaultsSet {
     (status?.hashCode ?? 0);
 }
 
+///////////////////////////////
+// HealthCodesSet
+
+class HealthCodesSet {
+  final List<HealthCodeData> _codesList;
+  final Map<String, HealthCodeData> _codesMap;
+  final List<String> _info;
+
+  HealthCodesSet({List<HealthCodeData> codes, List<String> info}) :
+    _codesList = codes,
+    _codesMap = HealthCodeData.mapFromList(codes),
+    _info = info;
+
+
+  factory HealthCodesSet.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthCodesSet(
+      codes: HealthCodeData.listFromJson(json['list']),
+      info: json['info']?.cast<String>()
+    ) : null;
+  }
+
+  bool operator ==(o) =>
+    (o is HealthCodesSet) &&
+      ListEquality().equals(o._codesList, _codesList) &&
+      ListEquality().equals(o._info, _info);
+
+  int get hashCode =>
+    ListEquality().hash(_codesList) ^
+    ListEquality().hash(_info);
+
+  List<HealthCodeData> get codes {
+    return _codesList;
+  }
+
+  HealthCodeData operator [](String code) {
+    return (_codesMap != null) ? _codesMap[code] : null;
+  }
+
+  List<String> info({HealthRulesSet rules}) {
+    List<String> result;
+    if (_info != null) {
+      result = <String>[];
+      for (String entry in _info) {
+        result.add(rules?.localeString(entry) ?? entry);
+      }
+    }
+    return result;
+  }
+}
+
+///////////////////////////////
+// HealthCodeData
+
+class HealthCodeData {
+  final String code;
+  final String _colorString;
+  final Color  _color;
+  final String _name;
+  final String _description;
+  final String _longDescription;
+  final bool visible;
+  final bool reportsExposure;
+
+  HealthCodeData({this.code, String color, String name, String description, String longDescription, this.visible, this.reportsExposure}) :
+    _colorString = color,
+    _color = UiColors.fromHex(color),
+    _name = name,
+    _description = description,
+    _longDescription = longDescription;
+
+  factory HealthCodeData.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthCodeData(
+      code: json['code'],
+      color: json['color'],
+      name: json['name'],
+      description: json['description'],
+      longDescription: json['long_description'],
+      visible: json['visible'],
+      reportsExposure: json['reportsExposure']
+    ) : null;
+  }
+
+  bool operator ==(o) =>
+    (o is HealthCodeData) &&
+      (o.code == code) &&
+      (o._colorString == _colorString) &&
+      (o._name == _name) &&
+      (o._description == _description) &&
+      (o._longDescription == _longDescription) &&
+      (o.visible == visible) &&
+      (o.reportsExposure == reportsExposure);
+
+  int get hashCode =>
+    (code?.hashCode ?? 0) ^
+    (_colorString?.hashCode ?? 0) ^
+    (_name?.hashCode ?? 0) ^
+    (_description?.hashCode ?? 0) ^
+    (_longDescription?.hashCode ?? 0) ^
+    (visible?.hashCode ?? 0) ^
+    (reportsExposure?.hashCode ?? 0);
+
+  Color get color {
+    return color;
+  }
+  
+  String name({HealthRulesSet rules}) {
+    return rules?.localeString(_name) ?? _name;
+  }
+
+  String description({HealthRulesSet rules}) {
+    return rules?.localeString(_description) ?? _description;
+  }
+
+  String displayName({HealthRulesSet rules}) {
+    String nameValue = name(rules: rules);
+    String descriptionValue = description(rules: rules);
+    return ((nameValue != null) && (descriptionValue != null)) ? "$nameValue, $descriptionValue" : nameValue;
+  }
+
+  String longDescription({HealthRulesSet rules}) {
+    return rules?.localeString(_longDescription) ?? _longDescription;
+  }
+
+  static List<HealthCodeData> listFromJson(List<dynamic> json) {
+    List<HealthCodeData> values;
+    if (json != null) {
+      values = [];
+      for (dynamic entry in json) {
+          try { values.add(HealthCodeData.fromJson((entry as Map)?.cast<String, dynamic>())); }
+          catch(e) { print(e?.toString()); }
+      }
+    }
+    return values;
+  }
+
+  static Map<String, HealthCodeData> mapFromList(List<HealthCodeData> list) {
+    Map<String, HealthCodeData> map;
+    if (list != null) {
+      map = <String, HealthCodeData>{};
+      for (HealthCodeData entry in list) {
+        if (entry?.code != null) {
+          map[entry.code] = entry;
+        }
+      }
+    }
+    return map;
+  }
+}
 
 ///////////////////////////////
 // HealthTestRulesSet
