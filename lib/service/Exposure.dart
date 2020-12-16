@@ -712,14 +712,14 @@ class Exposure with Service implements NotificationsListener {
       if (_reportTargetTimestamp == null) {
         return 0;
       }
-      else if ((Health().status?.blob?.code != kHealthStatusRed) && (_lastReportTimestamp != null) && (_reportTargetTimestamp < _lastReportTimestamp)) {
+      else if ((Health().status?.blob?.reportsExposures(rules: Health().rules) != true) && (_lastReportTimestamp != null) && (_reportTargetTimestamp < _lastReportTimestamp)) {
         Storage().exposureReportTargetTimestamp = _reportTargetTimestamp = null;
         await _expireTEK(); 
         return 0;
       }
     }
     else {
-      if (Health().status?.blob?.code != kHealthStatusRed) {
+      if (Health().status?.blob?.reportsExposures(rules: Health().rules) != true) {
         return 0;
       }
     }

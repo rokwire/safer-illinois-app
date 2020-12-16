@@ -751,7 +751,7 @@ class Health with Service implements NotificationsListener {
   }
 
   void _updateExposureReportTarget(HealthStatus status) {
-    if ((status?.blob?.code == kHealthStatusRed) &&
+    if ((status?.blob?.reportsExposures(rules: _rules) == true) &&
         /*status?.blob?.historyBlob?.isTest && */
         (status?.dateUtc != null))
     {

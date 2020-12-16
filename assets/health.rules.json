@@ -42,7 +42,7 @@
 				"name": "code.red.name",
 				"description": "code.red.description",
 				"long_description": "code.red.long_description",
-				"reportsExposure": true
+				"reports_exposures": true
 			}
 		],
 		"info": [
