@@ -250,7 +250,7 @@ class _OnboardingHealthQrCodePanelState extends State<OnboardingHealthQrCodePane
   }
 
   Widget _buildNoQrCodeContent(){
-    bool canLoadFromServer = kIsWeb && Storage().hasHealthUserEncryptedData;
+    bool canLoadFromServer = kIsWeb && Health().hasEncryptedPrivateKey;
     return Container(
         child: Column( children: <Widget>[
           Container(height: 15,),
@@ -747,7 +747,7 @@ class _OnboardingHealthQrCodePanelState extends State<OnboardingHealthQrCodePane
       _isLoadingFromServer = true;
     });
 
-    Health().loadUserPrivateKeyToWeb(_passwordController.text).then((_) {
+    Health().decryptUserPrivateKey(_passwordController.text).then((_) {
       if (mounted) {
         setStateEx((){
           _isLoadingFromServer = false;

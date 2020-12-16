@@ -297,8 +297,8 @@ class Health with Service implements NotificationsListener {
     return (_userPrivateKey != null);
   }
   
-  bool get hasStoredPrivateKey {
-    return Storage().hasHealthUserEncryptedData;
+  bool get hasEncryptedPrivateKey {
+    return _isUserAuthenticated && user.hasEncryptedPrivateKey;
   }
 
   // User
@@ -390,7 +390,7 @@ class Health with Service implements NotificationsListener {
     return false;
   }
 
-  Future<HealthUser> loginUser({bool consent, bool exposureNotification, AsymmetricKeyPair<PublicKey, PrivateKey> keys}) async {
+  Future<HealthUser> loginUser({bool consent, bool exposureNotification, AsymmetricKeyPair<PublicKey, PrivateKey> keys, String encryptedPrivateKey}) async {
 
     if (!this._isUserAuthenticated) {
       return null;
@@ -429,6 +429,11 @@ class Health with Service implements NotificationsListener {
       else {
         return null; // unable to generate RSA key pair
       }
+    }
+
+    if(encryptedPrivateKey != null){
+      user.encryptedPrivateKey = encryptedPrivateKey;
+      userUpdated = true;
     }
     
     // Consent
@@ -583,19 +588,20 @@ class Health with Service implements NotificationsListener {
     return (privateKeyString != null) ? RsaKeyHelper.parsePrivateKeyFromPem(privateKeyString) : null;
   }
 
-  Future<void> loadUserPrivateKeyToWeb(String password) async {
-    if(AppString.isStringNotEmpty(password) && Storage().hasHealthUserEncryptedData){
-      String userPrivateKeyString = AESCrypt.decrypt(Storage().healthUserEncryptedData, keyBytes: AESCrypt.keyInBytes(password));
+  Future<void> decryptUserPrivateKey(String password) async {
+    if(AppString.isStringNotEmpty(password) && hasEncryptedPrivateKey){
+      String userPrivateKeyString = AESCrypt.decrypt(_user.encryptedPrivateKey, keyBytes: AESCrypt.keyInBytes(password));
       _userPrivateKey = AppString.isStringNotEmpty(userPrivateKeyString) ? RsaKeyHelper.parsePrivateKeyFromPem(userPrivateKeyString) : null;
     }
   }
 
-  Future<void> storeUserPrivateKeyToWeb(String password) async {
+  Future<void> encryptUserPrivateKey(String password) async {
     if(AppString.isStringNotEmpty(password) && _userPrivateKey != null){
 
       String userPrivateKeyString = _userPrivateKey != null ? RsaKeyHelper.encodePrivateKeyToPemPKCS1(_userPrivateKey) : null;
       String userPrivateKeyEncryptedString = userPrivateKeyString != null ?  AESCrypt.encrypt(userPrivateKeyString, keyBytes: AESCrypt.keyInBytes(password)) : null;
-      Storage().healthUserEncryptedData = AppString.isStringNotEmpty(userPrivateKeyEncryptedString) ? userPrivateKeyEncryptedString : null;
+      String encryptedPrivateKey = AppString.isStringNotEmpty(userPrivateKeyEncryptedString) ? userPrivateKeyEncryptedString : null;
+      await loginUser(encryptedPrivateKey: encryptedPrivateKey);
     }
   }
 

@@ -1037,11 +1037,12 @@ class HealthUser {
   List<HealthUserAccount> accounts;
   String encryptedKey;
   String encryptedBlob;
+  String encryptedPrivateKey;
 
   HealthUserAccount defaultAccount;
   Map<String, HealthUserAccount> accountsMap;
 
-  HealthUser({this.uuid, this.publicKeyString, PublicKey publicKey, this.consent, this.exposureNotification, this.repost, this.accounts, this.encryptedKey, this.encryptedBlob}) {
+  HealthUser({this.uuid, this.publicKeyString, PublicKey publicKey, this.consent, this.exposureNotification, this.repost, this.accounts, this.encryptedKey, this.encryptedBlob, this.encryptedPrivateKey}) {
     _publicKey = publicKey;
     accountsMap = HealthUserAccount.mapFromList(accounts);
     defaultAccount = HealthUserAccount.defaultInList(accounts);
@@ -1057,6 +1058,7 @@ class HealthUser {
       accounts: HealthUserAccount.listFromJson(json['accounts']),
       encryptedKey: json['encrypted_key'],
       encryptedBlob: json['encrypted_blob'],
+      encryptedPrivateKey: json['encrypted_pk'],
     ) : null;
   }
 
@@ -1070,6 +1072,7 @@ class HealthUser {
       'accounts': HealthUserAccount.listToJson(accounts),
       'encrypted_key': encryptedKey,
       'encrypted_blob': encryptedBlob,
+      'encrypted_pk': encryptedPrivateKey,
     };
   }
 
@@ -1082,7 +1085,8 @@ class HealthUser {
       o.repost == repost &&
       ListEquality().equals(o.accounts, accounts) &&
       o.encryptedKey == encryptedKey &&
-      o.encryptedBlob == encryptedBlob;
+      o.encryptedBlob == encryptedBlob &&
+      o.encryptedPrivateKey == encryptedPrivateKey;
 
   int get hashCode =>
     (uuid?.hashCode ?? 0) ^
@@ -1092,7 +1096,8 @@ class HealthUser {
     (repost?.hashCode ?? 0) ^
     ListEquality().hash(accounts) ^
     (encryptedKey?.hashCode ?? 0) ^
-    (encryptedBlob?.hashCode ?? 0);
+    (encryptedBlob?.hashCode ?? 0) ^
+    (encryptedPrivateKey?.hashCode ?? 0);
 
   Future<void> encryptBlob(HealthUserBlob blob, PublicKey publicKey) async {
     Map<String, dynamic> encrypted = await compute(_encryptBlob, {
@@ -1114,6 +1119,7 @@ class HealthUser {
       accounts: user.accounts,
       encryptedKey: user.encryptedKey,
       encryptedBlob: user.encryptedBlob,
+      encryptedPrivateKey: user.encryptedPrivateKey,
     ) : null;
   }
 
@@ -1128,6 +1134,8 @@ class HealthUser {
     _publicKey = value;
     publicKeyString = (value != null) ? RsaKeyHelper.encodePublicKeyToPemPKCS1(value) : null;
   }
+
+  bool get hasEncryptedPrivateKey => AppString.isStringNotEmpty(encryptedPrivateKey);
 
   HealthUserAccount account({String accountId}) {
     return ((accountsMap != null) && (accountId != null)) ? accountsMap[accountId] : null;

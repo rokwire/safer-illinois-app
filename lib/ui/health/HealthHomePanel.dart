@@ -112,7 +112,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
           setState(() { _isRefreshing = false; });
 
           if(askForPassword) {
-            if(Health().hasStoredPrivateKey && !Health().hasPrivateKey){
+            if(Health().hasEncryptedPrivateKey && !Health().hasPrivateKey){
               _loadSecretFromServer();
             }
           }
@@ -1091,7 +1091,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
       _isLoadingPrivateKey = true;
     });
 
-    Health().loadUserPrivateKeyToWeb(_passwordController.text).then((_) {
+    Health().decryptUserPrivateKey(_passwordController.text).then((_) {
       if (mounted) {
         setStateEx((){
           _isLoadingPrivateKey = false;

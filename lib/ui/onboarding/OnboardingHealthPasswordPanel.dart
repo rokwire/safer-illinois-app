@@ -51,7 +51,7 @@ class OnboardingHealthPasswordPanel extends StatefulWidget with OnboardingPanel 
     return (onboardingContext != null) && kIsWeb &&
         onboardingContext['shouldDisplayQrCode'] == true &&
         onboardingContext['privateKeyLoaded'] == null &&
-        Health().hasPrivateKey && !Health().hasStoredPrivateKey;
+        Health().hasPrivateKey && !Health().hasEncryptedPrivateKey;
   }
 }
 
@@ -172,7 +172,7 @@ class _OnboardingHealthPasswordPanelState extends State<OnboardingHealthPassword
     setState(() {
       _saving = true;
     });
-    Health().storeUserPrivateKeyToWeb(_passwordController.text).then((value){
+    Health().encryptUserPrivateKey(_passwordController.text).then((value){
       setState(() {
         _saving = false;
       });

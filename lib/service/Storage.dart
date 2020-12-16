@@ -455,21 +455,6 @@ class Storage with Service {
     _setStringWithName(_healthUserKey, value);
   }
 
-  // This is a temporary solution. Do not store private key
-  static const String _healthUserEncryptedDataKey = 'health_user_encrypted_data';
-
-  bool get hasHealthUserEncryptedData {
-    return AppString.isStringNotEmpty(_getStringWithName(_healthUserEncryptedDataKey));
-  }
-
-  String get healthUserEncryptedData {
-    return _getStringWithName(_healthUserEncryptedDataKey);
-  }
-
-  set healthUserEncryptedData(String value) {
-    _setStringWithName(_healthUserEncryptedDataKey, value);
-  }
-
   static const String _healthUserStatusKey = 'health_user_status';
 
   String get healthUserStatus {
