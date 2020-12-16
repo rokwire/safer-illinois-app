@@ -38,8 +38,7 @@ import 'package:illinois/utils/Utils.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import "package:pointycastle/export.dart";
-//TMP:
-import 'package:flutter/services.dart' show rootBundle;
+//TMP: import 'package:flutter/services.dart' show rootBundle;
 
 class Health with Service implements NotificationsListener {
 
@@ -1464,8 +1463,7 @@ class Health with Service implements NotificationsListener {
   }
 
   Future<String> _loadRulesJsonStringFromNet({String countyId}) async {
-//TMP:
-    return await rootBundle.loadString('assets/health.rules.json');
+//TMP: return await rootBundle.loadString('assets/health.rules.json');
     countyId = countyId ?? _county?.id;
     String url = ((countyId != null) && (Config().healthUrl != null)) ? "${Config().healthUrl}/covid19/crules/county/$countyId" : null;
     String appVersion = AppVersion.majorVersion(Config().appVersion, 2);
