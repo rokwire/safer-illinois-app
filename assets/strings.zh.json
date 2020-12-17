@@ -424,6 +424,11 @@
 	"panel.health.onboarding.covid19.consent.button.scroll_to_continue.title": "滚动以继续",
 	"panel.health.onboarding.covid19.consent.label.error.login": "无法健康登录",
 
+	"panel.health.onboarding.covid19.password.description": "Please enter password and remember it.",
+	"panel.health.onboarding.covid19.password.button.continue.title": "Continue",
+	"panel.health.onboarding.covid19.password.button.continue.hint": "",
+	"panel.health.onboarding.covid19.password.label.error.login": "Unable to login in Health",
+
 	"panel.health.onboarding.covid19.resident_info.label.title": "使用政府頒發的ID驗證您的身份",
 	"panel.health.onboarding.covid19.resident_info.label.description": "驗證後，您將收到根據您所在縣的準則，症狀以及任何與COVID-19相關的測試的帶有顏色編碼的健康狀況.",
 	"panel.health.onboarding.covid19.resident_info.button.passport.title": "護照",

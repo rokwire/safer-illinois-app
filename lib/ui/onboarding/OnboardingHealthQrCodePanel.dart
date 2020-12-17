@@ -698,6 +698,7 @@ class _OnboardingHealthQrCodePanelState extends State<OnboardingHealthQrCodePane
                     Localization().getStringEx("panel.health.covid19.alert.qr_code.transfer.failed.msg", "Failed to transfer COVID-19 secret.");
                 AppAlert.showDialogResult(context, resultMessage).then((_){
                   if(success) {
+                    widget.onboardingContext['privateKeyTransferSuccess'] = true;
                     Navigator.pop(context);
                     _goNext();
                   }
@@ -771,7 +772,6 @@ class _OnboardingHealthQrCodePanelState extends State<OnboardingHealthQrCodePane
     _passwordController.text = "";
     showDialog(context: context, builder: (context) => _buildLoadSecretFromServerDialog(context)).then((value) {
       if (value == true) {
-        widget.onboardingContext['privateKeyLoaded'] = true;
         _goNext();
       } else if (value is String) {
         AppAlert.showDialogResult(context, value);

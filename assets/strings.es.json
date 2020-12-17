@@ -424,6 +424,11 @@
 	"panel.health.onboarding.covid19.consent.button.scroll_to_continue.title": "Desplácese para continuar",
 	"panel.health.onboarding.covid19.consent.label.error.login": "No se puede iniciar sesión en Health",
 
+	"panel.health.onboarding.covid19.password.description": "Please enter password and remember it.",
+	"panel.health.onboarding.covid19.password.button.continue.title": "Continue",
+	"panel.health.onboarding.covid19.password.button.continue.hint": "",
+	"panel.health.onboarding.covid19.password.label.error.login": "Unable to login in Health",
+
 	"panel.health.onboarding.covid19.resident_info.label.title": "Verifique su identidad con una identificación emitida por el gobierno",
 	"panel.health.onboarding.covid19.resident_info.label.description": "Después de verificar, recibirá un estado de salud codificado por colores según las pautas, los síntomas y cualquier prueba relacionada con COVID-19 de su condado.",
 	"panel.health.onboarding.covid19.resident_info.button.passport.title": "Pasaporte",

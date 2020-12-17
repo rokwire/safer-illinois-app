@@ -49,9 +49,8 @@ class OnboardingHealthPasswordPanel extends StatefulWidget with OnboardingPanel 
   @override
   bool get onboardingCanDisplay {
     return (onboardingContext != null) && kIsWeb &&
-        onboardingContext['shouldDisplayQrCode'] == true &&
-        onboardingContext['privateKeyLoaded'] == null &&
-        Health().hasPrivateKey && !Health().hasEncryptedPrivateKey;
+        onboardingContext['privateKeyTransferSuccess'] == true &&
+        Health().hasPrivateKey;
   }
 }
 
@@ -120,7 +119,7 @@ class _OnboardingHealthPasswordPanelState extends State<OnboardingHealthPassword
                         child: Column(
                           children: [
                             Text(
-                              Localization().getStringEx("panel.health.covid19.password.description", "Please enter password and remember it."),
+                              Localization().getStringEx("panel.health.onboarding.covid19.password.description", "Please enter password and remember it."),
                               textAlign: TextAlign.left,
                               style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Colors.black),
                             ),
@@ -146,7 +145,7 @@ class _OnboardingHealthPasswordPanelState extends State<OnboardingHealthPassword
                         padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 16),
                         child: ScalableRoundedButton(
                           label: _getContinueButtonTitle,
-                          hint: Localization().getStringEx("panel.health.covid19.qr_code.button.continue.hint", ""),
+                          hint: Localization().getStringEx("panel.health.onboarding.covid19.password.button.continue.hint", ""),
                           borderColor: Styles().colors.fillColorSecondaryVariant,
                           backgroundColor: Styles().colors.surface,
                           textColor: Styles().colors.fillColorPrimary,
@@ -169,21 +168,29 @@ class _OnboardingHealthPasswordPanelState extends State<OnboardingHealthPassword
   //Actions
 
   void _goNext() {
-    setState(() {
-      _saving = true;
-    });
-    Health().encryptUserPrivateKey(_passwordController.text).then((value){
+    if(!_saving) {
       setState(() {
-        _saving = false;
+        _saving = true;
       });
-      Onboarding().next(context, widget);
-    }).catchError((error){
-      AppAlert.showDialogResult(context, error);
-    }).whenComplete((){
-      setState(() {
-        _saving = false;
+      Health().encryptUserPrivateKey(_passwordController.text).then((user) {
+        if (mounted) {
+          setState(() {
+            _saving = false;
+          });
+          if(user==null){
+            //Error
+            AppToast.show(Localization().getStringEx("panel.health.onboarding.covid19.password.label.error.login","Unable to login in Health"));
+          } else {
+            Onboarding().next(context, widget);
+          }
+        }
+      }).catchError((error) {
+        setState(() {
+          _saving = false;
+        });
+        AppAlert.showDialogResult(context, error);
       });
-    });
+    }
   }
 
   void _goBack(BuildContext context) {

@@ -424,6 +424,11 @@
 	"panel.health.onboarding.covid19.consent.button.scroll_to_continue.title": "Scroll to Continue",
 	"panel.health.onboarding.covid19.consent.label.error.login": "Unable to login in Health",
 
+	"panel.health.onboarding.covid19.password.description": "Please enter password and remember it.",
+	"panel.health.onboarding.covid19.password.button.continue.title": "Continue",
+	"panel.health.onboarding.covid19.password.button.continue.hint": "",
+	"panel.health.onboarding.covid19.password.label.error.login": "Unable to login in Health",
+
 	"panel.health.onboarding.covid19.resident_info.label.title": "Verify your identity with a government-issued ID",
 	"panel.health.onboarding.covid19.resident_info.label.description": "After verifying you will receive a color-coded health status based on your county guidelines, symptoms, and any COVID-19 related tests.",
 	"panel.health.onboarding.covid19.resident_info.button.passport.title": "Passport",
