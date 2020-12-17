@@ -432,6 +432,11 @@ class Health with Service implements NotificationsListener {
       user.encryptedPrivateKey = encryptedPrivateKey;
       userUpdated = true;
     }
+
+    if (keys?.privateKey != null) {
+      _userPrivateKey = keys.privateKey;
+      userReset = true;
+    }
     
     // Consent
     Map<String, dynamic> analyticsSettingsAttributes = {}; 
@@ -463,16 +468,6 @@ class Health with Service implements NotificationsListener {
       } 
     }
 
-    if (keys?.privateKey != null) {
-      if (await _saveUserPrivateKey(keys.privateKey)) {
-        _userPrivateKey = keys.privateKey;
-        userReset = true;
-      }
-      else {
-        return null;
-      }
-    }
-
     if (analyticsSettingsAttributes != null) {
       Analytics().logHealth( action: Analytics.LogHealthSettingChangedAction, attributes: analyticsSettingsAttributes, defaultAttributes: Analytics.DefaultAttributes);
     }
@@ -496,7 +491,6 @@ class Health with Service implements NotificationsListener {
 
   Future<bool> deleteUser() async {
     if (await _clearUserFromNet()) {
-      await _saveUserPrivateKey(_userPrivateKey = null);
       await _clearHistory();
       _clearStatus();
       _clearUserAccountId();
@@ -549,14 +543,11 @@ class Health with Service implements NotificationsListener {
   PrivateKey get userPrivateKey {
     return _userPrivateKey;
   }
-  
+
   Future<bool> setUserPrivateKey(PrivateKey privateKey) async {
-    if (await _saveUserPrivateKey(privateKey)) {
-      _userPrivateKey = privateKey;
-      _refresh(_RefreshOptions.fromList([_RefreshOption.history]));
-      return true;
-    }
-    return false;
+    _userPrivateKey = privateKey;
+    _refresh(_RefreshOptions.fromList([_RefreshOption.history]));
+    return true;
   }
 
   Future<AsymmetricKeyPair<PublicKey, PrivateKey>> resetUserKeys() async {
@@ -595,20 +586,7 @@ class Health with Service implements NotificationsListener {
       HealthUser user = await loginUser(encryptedPrivateKey: encryptedPrivateKey);
       return user;
     }
-  }
-
-  Future<bool> _saveUserPrivateKey(PrivateKey privateKey) async {
-    bool result = false;
-    if (_userId != null) {
-      if (privateKey != null) {
-        String privateKeyString = RsaKeyHelper.encodePrivateKeyToPemPKCS1(privateKey);
-        result = await NativeCommunicator().setHealthRSAPrivateKey(userId: _userId, value: privateKeyString);
-      }
-      else {
-        result = await NativeCommunicator().removeHealthRSAPrivateKey(userId: _userId);
-      }
-    }
-    return result;
+    return null;
   }
 
   // User Accounts
