@@ -108,7 +108,6 @@ class Health with Service implements NotificationsListener {
     _servicePublicKey = RsaKeyHelper.parsePublicKeyFromPem(Config().healthPublicKey);
 
     _user = _loadUserFromStorage();
-    _userPrivateKey = await _loadUserPrivateKey();
     _userAccountId = Storage().healthUserAccountId;
     _userTestMonitorInterval = Storage().healthUserTestMonitorInterval;
 
@@ -176,9 +175,7 @@ class Health with Service implements NotificationsListener {
   void _onUserLoginChanged() {
 
     if (this._isUserAuthenticated) {
-      _refreshUserPrivateKey().then((_) {
-        _refresh(_RefreshOptions.fromList([_RefreshOption.user, _RefreshOption.userInterval, _RefreshOption.history]));
-      });
+      _refresh(_RefreshOptions.fromList([_RefreshOption.user, _RefreshOption.userInterval, _RefreshOption.history]));
     }
     else {
       _userPrivateKey = null;
@@ -229,7 +226,6 @@ class Health with Service implements NotificationsListener {
 
     await Future.wait([
       options.user ? _refreshUser() : Future<void>.value(),
-      options.userPrivateKey ? _refreshUserPrivateKey() : Future<void>.value(),
       
       options.userInterval ? _refreshUserTestMonitorInterval() : Future<void>.value(),
       options.status ? _refreshStatus() : Future<void>.value(),
@@ -578,15 +574,6 @@ class Health with Service implements NotificationsListener {
     }
 
     return null; // Failure - keep the old keys
-  }
-
-  Future<void> _refreshUserPrivateKey() async {
-    _userPrivateKey = await _loadUserPrivateKey();
-  }
-
-  Future<PrivateKey> _loadUserPrivateKey() async {
-    String privateKeyString = (_userId != null) ? await NativeCommunicator().getHealthRSAPrivateKey(userId: _userId) : null;
-    return (privateKeyString != null) ? RsaKeyHelper.parsePrivateKeyFromPem(privateKeyString) : null;
   }
 
   Future<void> decryptUserPrivateKey(String password) async {
