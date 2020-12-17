@@ -152,11 +152,7 @@ class _OnboardingHealthPasswordPanelState extends State<OnboardingHealthPassword
                           onTap: _goNext,
                         ),
                       ),
-                      _saving ? Column(
-                        children: <Widget>[
-                          Expanded(child: Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary), strokeWidth: 2,),)),
-                        ],
-                      ) : Container(),
+                      _saving ? CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary), strokeWidth: 2,) : Container(),
                     ],
                   ),
                 ],
