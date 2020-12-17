@@ -5,8 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## [2.10.5] - 2020-01-16
 ### Changed
 - Speed up user history load [#449](https://github.com/rokwire/safer-illinois-app/issues/449).
+- Encode health statuses in rules [#452](https://github.com/rokwire/safer-illinois-app/issues/452).
 
 ### Fixed
 - Do not translate symptoms names transmitted to analytics [#447](https://github.com/rokwire/safer-illinois-app/issues/447).

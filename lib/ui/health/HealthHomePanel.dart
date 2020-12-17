@@ -585,8 +585,9 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
   }
 
   Widget _buildStatusSection() {
-    String statusName = Health().status?.blob?.localizedHealthStatus;
-    Color statusColor = Styles().colors.getHealthStatusColor(Health().status?.blob?.status) ?? Styles().colors.textSurface;
+    String statusCode = Health().status?.blob?.code;
+    String statusName = Health().rules?.codes[statusCode]?.displayName(rules: Health().rules);
+    Color statusColor = Health().rules?.codes[statusCode]?.color ?? Styles().colors.textSurface;
     bool hasStatusCard  = Health().isUserLoggedIn;
     return Semantics(container: true, child: Container(
       padding: EdgeInsets.symmetric(vertical: 16),

@@ -1,7 +1,7 @@
 {
 	"defaults": {
 		"status": {
-			"health_status": "orange",
+			"code": "orange",
 			"next_step": "default.step"
 		}
 	},
@@ -12,9 +12,48 @@
 		"DefaultTestMonitorInterval": 8
 	},
 
+	"codes": {
+		"list": [
+			{
+				"code": "green",
+				"color": "#1ACD00",
+				"name": "code.green.name",
+				"description": "code.green.description",
+				"long_description": "code.green.long_description",
+				"visible": false
+			},
+			{
+				"code": "yellow",
+				"color": "#FFCF1C",
+				"name": "code.yellow.name",
+				"description": "code.yellow.description",
+				"long_description": "code.yellow.long_description"
+			},
+			{
+				"code": "orange",
+				"color": "#F29835",
+				"name": "code.orange.name",
+				"description": "code.orange.description",
+				"long_description": "code.orange.long_description"
+			},
+			{
+				"code": "red",
+				"color": "#FF4F4F",
+				"name": "code.red.name",
+				"description": "code.red.description",
+				"long_description": "code.red.long_description",
+				"reports_exposures": true
+			}
+		],
+		"info": [
+			"code.general.info.1",
+			"code.general.info.2"
+		]
+	},
+
 	"statuses": {
     "PCR.positive": {
-      "health_status": "red",
+      "code": "red",
       "priority": 11,
       "next_step_html": "positive.step.html"
     },
@@ -30,13 +69,13 @@
 				},
 				"success": null,
 				"fail": {
-					"health_status": "red",
+					"code": "red",
 					"priority": 11,
 					"next_step": "test.now.step"
 				}
 			},
 			"fail": {
-				"health_status": "red",
+				"code": "red",
 				"priority": 11,
 				"next_step_html": "positive.step.html"
 			}
@@ -54,14 +93,14 @@
 				},
 				"success": null,
 				"fail": {
-					"health_status": "red",
+					"code": "red",
 					"priority": 11,
 					"next_step": "test.now.step",
 					"fcm_topic": "PCR.positive-IP"
 				}
 			},
 			"fail": {
-				"health_status": "red",
+				"code": "red",
 				"priority": 11,
 				"next_step_html": "positive-ip.step.html",
 				"event_explanation": "positive-ip.explanation",
@@ -75,13 +114,13 @@
 				"interval": { "min": 0, "max": 60, "scope": "future" }
 			},
 			"success": {
-				"health_status": "orange",
+				"code": "orange",
 				"priority": 1,
 				"next_step": "test.now.step",
 				"reason": "test.now.reason"
 			},
 			"fail": {
-				"health_status": "yellow",
+				"code": "yellow",
 				"priority": 3,
 				"next_step_html": "positive-nip.step.html",
 				"next_step_interval": 60,
@@ -98,14 +137,14 @@
 				"interval": { "min": 0, "max": 1, "scope": "future", "current": true }
 			},
 			"success": {
-				"health_status": null,
+				"code": null,
 				"priority": null,
 				"next_step": "test.another.asap.step",
 				"next_step_interval": 1,
 				"warning": "test.future.warning"
 			},
 			"fail": {
-				"health_status": "orange",
+				"code": "orange",
 				"priority": 1,
 				"next_step": "test.now.step",
 				"reason": "test.now.reason"
@@ -123,14 +162,14 @@
 					"interval": { "min": 0, "max": "UserTestMonitorInterval", "scope": "future", "current": true }
 				},
 				"success": {
-					"health_status": "yellow",
+					"code": "yellow",
 					"priority": 1,
 					"next_step": "test.monitor.step",
 					"next_step_interval": "UserTestMonitorInterval",
 					"warning": "test.future.warning"
 				},
 				"fail": {
-					"health_status": "orange",
+					"code": "orange",
 					"priority": 1,
 					"next_step": "test.now.step",
 					"reason": "test.now.reason"
@@ -148,14 +187,14 @@
 						"interval": { "min": 0, "max": "UndergraduateTestMonitorInterval", "scope": "future", "current": true }
 					},
 					"success": {
-						"health_status": "yellow",
+						"code": "yellow",
 						"priority": 1,
 						"next_step": "test.monitor.step",
 						"next_step_interval": "UndergraduateTestMonitorInterval",
 						"warning": "test.future.warning"
 					},
 					"fail": {
-						"health_status": "orange",
+						"code": "orange",
 						"priority": 1,
 						"next_step": "test.now.step",
 						"reason": "test.now.reason"
@@ -167,14 +206,14 @@
 						"interval": { "min": 0, "max": "DefaultTestMonitorInterval", "scope": "future", "current": true }
 					},
 					"success": {
-						"health_status": "yellow",
+						"code": "yellow",
 						"priority": 1,
 						"next_step": "test.monitor.step",
 						"next_step_interval": "DefaultTestMonitorInterval",
 						"warning": "test.future.warning"
 					},
 					"fail": {
-						"health_status": "orange",
+						"code": "orange",
 						"priority": 1,
 						"next_step": "test.now.step",
 						"reason": "test.now.reason"
@@ -200,14 +239,14 @@
 					},
 					"success": null,
 					"fail": {
-						"health_status": "orange",
+						"code": "orange",
 						"priority": 2,
 						"next_step": "test.another.now.step",
 						"reason": "test.past.reason"
 					}
 				},
 				"fail": {
-					"health_status": "orange",
+					"code": "orange",
 					"priority": 2,
 					"next_step": "test.after.step",
 					"next_step_interval": { "value": 3, "origin": "referenceDate" },
@@ -215,7 +254,7 @@
 				}
 			},
 			"fail": {
-				"health_status": "orange",
+				"code": "orange",
 				"priority": 2,
 				"next_step": "test.multiple.step",
 				"reason": "test.required.reason"
@@ -223,7 +262,7 @@
 		},
 		
 		"symptoms-match": {
-			"health_status": "orange",
+			"code": "orange",
 			"priority": 1,
 			"next_step": "symptoms.step",
 			"reason": "symptoms.reason"
@@ -241,14 +280,14 @@
 				},
 				"success": null,
 				"fail": {
-					"health_status": "orange",
+					"code": "orange",
 					"priority": 1,
 					"next_step": "test.now.step",
 					"reason": "test.now.reason"
 				}
 			},
 			"fail": {
-				"health_status": "orange",
+				"code": "orange",
 				"priority": 2,
 				"next_step_html": "exposure.step.html",
 				"next_step_interval": 4,
@@ -257,7 +296,7 @@
 		},
 		
 		"quarantine-on": {
-			"health_status": "orange",
+			"code": "orange",
 			"priority": 10,
 			"next_step": "quarantine-on.step",
 			"reason": "Your status changed to Orange because the Public Health department placed you in Quarantine.",
@@ -275,14 +314,14 @@
 					"interval": { "min": 0, "max": "UserTestMonitorInterval", "scope": "future", "current": true }
 				},
 				"success": {
-					"health_status": "yellow",
+					"code": "yellow",
 					"priority": -1,
 					"next_step": "test.resume.step",
 					"next_step_interval": "UserTestMonitorInterval",
 					"warning": "test.future.warning"
 					},
 				"fail": {
-					"health_status": "orange",
+					"code": "orange",
 					"priority": -1,
 					"next_step": "test.now.step",
 					"reason": "test.now.reason"
@@ -300,14 +339,14 @@
 						"interval": { "min": 0, "max": "UndergraduateTestMonitorInterval", "scope": "future", "current": true }
 					},
 					"success": {
-						"health_status": "yellow",
+						"code": "yellow",
 						"priority": -1,
 						"next_step": "test.resume.step",
 						"next_step_interval": "UndergraduateTestMonitorInterval",
 						"warning": "test.future.warning"
 						},
 					"fail": {
-						"health_status": "orange",
+						"code": "orange",
 						"priority": -1,
 						"next_step": "test.now.step",
 						"reason": "test.now.reason"
@@ -319,14 +358,14 @@
 						"interval": { "min": 0, "max": "DefaultTestMonitorInterval", "scope": "future", "current": true }
 					},
 					"success": {
-						"health_status": "yellow",
+						"code": "yellow",
 						"priority": -1,
 						"next_step": "test.resume.step",
 						"next_step_interval": "DefaultTestMonitorInterval",
 						"warning": "test.future.warning"
 					},
 					"fail": {
-						"health_status": "orange",
+						"code": "orange",
 						"priority": -1,
 						"next_step": "test.now.step",
 						"reason": "test.now.reason"
@@ -341,14 +380,14 @@
 				"interval": { "min": -1, "max": 1, "current": true }
 			},
 			"success": {
-				"health_status": null,
+				"code": null,
 				"priority": null,
 				"next_step": "test.monitor.step",
 				"next_step_interval": 1,
 				"warning": "test.future.warning"
 			},
 			"fail": {
-				"health_status": "orange",
+				"code": "orange",
 				"priority": 1,
 				"next_step": "test.now.step",
 				"reason": "test.now.reason"
@@ -744,6 +783,7 @@
 			"exposure.reason": "Your status changed to Orange because you received an exposure notification.",
 			"quarantine-on.step": "Stay at home and avoid contacts",
 			"quarantine-on.reason": "Your status changed to Orange because the Public Health department placed you in Quarantine.",
+
 			"symptoms.no-symptoms": "No symptoms",
 			"symptoms.fever": "Fever",
 			"symptoms.chills": "Chills",
@@ -762,7 +802,22 @@
 			"symptoms.sore-throat": "Sore Throat",
 			"symptoms.congestion-or-runny-nose": "Congestion or runny nose",
 			"symptoms.nausea-or-vomiting": "Nausea or vomiting",
-			"symptoms.diarrhea":"Diarrhea"
+			"symptoms.diarrhea": "Diarrhea",
+			
+			"code.green.name": "Green",
+			"code.green.description": "Recent Antibodies",
+			"code.green.long_description": "Green: Recent antibodies",
+			"code.yellow.name": "Yellow",
+			"code.yellow.description": "Recent Negative Test",
+			"code.yellow.long_description": "Yellow: Recent negative test",
+			"code.orange.name": "Orange",
+			"code.orange.description": "Test Required",
+			"code.orange.long_description": "Orange: First time user, Past due for test, Self-reported symptoms, Received exposure notification or Quarantined",
+			"code.red.name": "Red",
+			"code.red.description": "Positive Test",
+			"code.red.long_description": "Red: Positive test",
+			"code.general.info.1": "Default status for new users is set to Orange.",
+			"code.general.info.2": "An up-to-date on-campus negative test result will reset your COVID-19 status to Yellow, and Building Entry will change to Granted."
 		},
 		"es": {
 			"default.step": "Realice una prueba de saliva SHIELD cuando regrese al campus.",
@@ -789,6 +844,7 @@
 			"exposure.reason": "Su estado cambió a Naranja porque recibió una notificación de exposición.",
 			"quarantine-on.step": "Quédese en casa y evite los contactos",
 			"quarantine-on.reason": "Su estado cambió a Orange porque el departamento de Salud Pública lo puso en cuarentena.",
+
 			"symptoms.no-symptoms": "Sin síntomas",
 			"symptoms.fever": "Fiebre",
 			"symptoms.chills": "Resfriado",
@@ -807,7 +863,22 @@
 			"symptoms.sore-throat": "Dolor de garganta",
 			"symptoms.congestion-or-runny-nose": "Congestión o secreción nasal",
 			"symptoms.nausea-or-vomiting": "Náuseas o vómitos",
-			"symptoms.diarrhea": "Diarrea"
+			"symptoms.diarrhea": "Diarrea",
+
+			"code.green.name": "Verde",
+			"code.green.description": "Anticuerpos recientes",
+			"code.green.long_description": "Verde: anticuerpos recientes",
+			"code.yellow.name": "Amarillo",
+			"code.yellow.description": "Prueba negativa reciente",
+			"code.yellow.long_description": "Amarillo: prueba negativa reciente",
+			"code.orange.name": "Naranja",
+			"code.orange.description": "Prueba requerida",
+			"code.orange.long_description": "Naranja: usuario por primera vez, atrasado para la prueba, síntomas autoinformados, notificación de exposición recibida o en cuarentena",
+			"code.red.name": "Rojo",
+			"code.red.description": "Prueba positiva",
+			"code.red.long_description": "Rojo: prueba positiva",
+			"code.general.info.1": "El estado predeterminado para los nuevos usuarios se establece en naranja.",
+			"code.general.info.2": "Un resultado de prueba negativo en el campus actualizado restablecerá su estado de COVID-19 a amarillo y la entrada al edificio cambiará a otorgada."
 		},
 		"zh": {
 			"default.step": "返回校園後，請參加SHIELD唾液測試。",
@@ -834,6 +905,7 @@
 			"exposure.reason": "您的狀態更改為橙色，因為您收到了曝光通知。",
 			"quarantine-on.step": "呆在家裡，避免接觸",
 			"quarantine-on.reason": "您的狀態更改為“橙色”，因為公共衛生部門已將您隔離。",
+
 			"symptoms.no-symptoms": "無症狀",
 			"symptoms.fever": "發熱",
 			"symptoms.chills": "寒意",
@@ -852,7 +924,22 @@
 			"symptoms.sore-throat": "咽喉痛",
 			"symptoms.congestion-or-runny-nose": "充血或流鼻涕",
 			"symptoms.nausea-or-vomiting": "噁心或嘔吐",
-			"symptoms.diarrhea":"腹瀉"
+			"symptoms.diarrhea":"腹瀉",
+
+			"code.green.name": "绿色",
+			"code.green.description": "最近抗體",
+			"code.green.long_description": "绿色：最近抗体",
+			"code.yellow.name": "黄色",
+			"code.yellow.description": "最近的陰性測試",
+			"code.yellow.long_description": "黄色：最近阴性测试",
+			"code.orange.name": "橙色",
+			"code.orange.description": "需要测试",
+			"code.orange.long_description": "橙色：首次使用、过期检测、自我报告症状、收到接触通知或隔离",
+			"code.red.name": "红色",
+			"code.red.description": "正面測試",
+			"code.red.long_description": "红色：阳性",
+			"code.general.info.1": "新用户的默认状态设置为橙色.",
+			"code.general.info.2": "最新的校园阴性测试结果会将您的COVID-19状态重置为黄色，而建筑物入口将更改为已批准."
 		}
 	}
 }

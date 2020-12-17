@@ -712,20 +712,5 @@
 	"com.illinois.features2.entry.log_out": "Cerrar sesión en el sistema",
 	"com.illinois.features2.entry.disable_notifications": "Desactivar las notificaciones",
 	"com.illinois.features2.entry.remove_credit_card": "Eliminar la información de su tarjeta de crédito",
-	"com.illinois.features2.entry.dont_share_location": "No comparta sus datos con otros usuarios.",
-
-	"com.illinois.covid19.status.type.orange": "Naranja",
-	"com.illinois.covid19.status.type.green": "Verde",
-	"com.illinois.covid19.status.type.yellow": "Amarillo",
-	"com.illinois.covid19.status.type.red": "Rojo",
-
-	"com.illinois.covid19.status.description.orange": "Prueba requerida",
-	"com.illinois.covid19.status.description.green": "Anticuerpos recientes",
-	"com.illinois.covid19.status.description.yellow": "Prueba negativa reciente",
-	"com.illinois.covid19.status.description.red": "Prueba positiva",
-
-	"com.illinois.covid19.status.info.description.orange": "Naranja: usuario por primera vez, atrasado para la prueba, síntomas autoinformados, notificación de exposición recibida o en cuarentena",
-	"com.illinois.covid19.status.info.description.green": "Verde: anticuerpos recientes",
-	"com.illinois.covid19.status.info.description.yellow": "Amarillo: prueba negativa reciente",
-	"com.illinois.covid19.status.info.description.red": "Rojo: prueba positiva"
+	"com.illinois.features2.entry.dont_share_location": "No comparta sus datos con otros usuarios."
 }
