@@ -593,6 +593,9 @@ class Health with Service implements NotificationsListener {
     if(AppString.isStringNotEmpty(password) && hasEncryptedPrivateKey){
       String userPrivateKeyString = AESCrypt.decrypt(_user.encryptedPrivateKey, keyBytes: AESCrypt.keyInBytes(password));
       _userPrivateKey = AppString.isStringNotEmpty(userPrivateKeyString) ? RsaKeyHelper.parsePrivateKeyFromPem(userPrivateKeyString) : null;
+      if(_userPrivateKey != null){
+        _refresh(_RefreshOptions.fromList([_RefreshOption.history, _RefreshOption.status, _RefreshOption.user]));
+      }
     }
   }
 
