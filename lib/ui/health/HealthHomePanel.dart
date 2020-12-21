@@ -25,6 +25,7 @@ import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/FlexUI.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Organizations.dart';
+import 'package:illinois/ui/groups/GroupsHomePanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginPhoneVerifyPanel.dart';
 import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/Connectivity.dart';
@@ -302,6 +303,8 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
         contentList.add(_buildFindTestLocationsButton());
       } else if (code == 'switch_account') {
         contentList.add(_buildSwitchAccount());
+      } else if (code == 'groups') {
+        contentList.add(_buildGroups());
       }
 
     }
@@ -508,8 +511,8 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Semantics(explicitChildNodes: true, child: ScalableRoundedButton(
-            label: Localization().getStringEx("panel.covid19home.button.find_test_locations.title", "Find test locations"),
-            hint: Localization().getStringEx("panel.covid19home.button.find_test_locations.hint", ""),
+            label: Localization().getStringEx("panel.covid19home.button.groups.title", "Groups"),
+            hint: Localization().getStringEx("panel.covid19home.button.groups.hint", ""),
             borderColor: Styles().colors.fillColorSecondary,
             backgroundColor: Styles().colors.surface,
             textColor: Styles().colors.fillColorPrimary,
@@ -789,6 +792,23 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
     
   }
 
+  Widget _buildGroups() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(4),
+        boxShadow: [BoxShadow(color: Color.fromRGBO(19, 41, 75, 0.3), spreadRadius: 2.0, blurRadius: 8.0, offset: Offset(0, 2))],
+      ),
+      child: RibbonButton(
+        label: Localization().getStringEx("panel.covid19home.button.groups.title", "Groups"),
+        hint: Localization().getStringEx("panel.covid19home.button.groups.hint", ""),
+        borderRadius: BorderRadius.circular(4),
+        height: null,
+        onTap: ()=>_onTapGroups(),
+      ),
+    );
+
+  }
+
   List<DropdownMenuItem<HealthUserAccount>> _buildUserAccountsDropDownItems() {
     List<DropdownMenuItem<HealthUserAccount>> items;
     if (Health().user?.accounts != null) {
@@ -886,6 +906,15 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
     if(Connectivity().isNotOffline) {
       Analytics.instance.logSelect(target: "COVID-19 Find Test Locations");
       Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthTestLocationsPanel()));
+    } else{
+      AppAlert.showOfflineMessage(context);
+    }
+  }
+
+  void _onTapGroups(){
+    if(Connectivity().isNotOffline) {
+      Analytics.instance.logSelect(target: "COVID-19 Groups");
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => GroupsHomePanel()));
     } else{
       AppAlert.showOfflineMessage(context);
     }
