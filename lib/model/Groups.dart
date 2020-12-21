@@ -287,8 +287,8 @@ class Member {
     try { officerTitle = json['officerTitle']; } catch(e) { print(e.toString()); }
     try { answers = _answers.map((answerJson) => GroupMembershipAnswer.fromJson(answerJson)).toList(); } catch(e) { print(e.toString()); }
 
-    try { dateCreated    = _dateTimeFromString(json['date_created'], format: _parkingEventDateFormat, isUtc: true); } catch(e) { print(e.toString()); }
-    try { dateUpdated    = _dateTimeFromString(json['date_updated'], format: _parkingEventDateFormat, isUtc: true); } catch(e) { print(e.toString()); }
+    try { dateCreated    = DateFormat(_parkingEventDateFormat).parse(json['date_created'], true); } catch(e) { print(e.toString()); }
+    try { dateUpdated    = DateFormat(_parkingEventDateFormat).parse(json['date_updated'], true); } catch(e) { print(e.toString()); }
   }
 
   void _initFromOther(Member other) {
@@ -320,8 +320,8 @@ class Member {
     json['status']              = groupMemberStatusToString(status);
     json['officerTitle']        = officerTitle;
     json['answers']             = answers.map((answer) => answer.toJson()).toList();
-    json['date_created']        = _formatDateTime(dateCreated, format: _parkingEventDateFormat);
-    json['date_updated']        = _formatDateTime(dateCreated, format: _parkingEventDateFormat);
+    json['date_created']        = DateFormat(_parkingEventDateFormat).format(dateCreated);
+    json['date_updated']        = DateFormat(_parkingEventDateFormat).format(dateUpdated);
 
     return json;
   }
@@ -604,36 +604,4 @@ class GroupMembershipAnswer {
     }
     return json;
   }
-}
-
-
-DateTime _dateTimeFromString(String dateTimeString, {String format, bool isUtc = false}) {
-  if (AppString.isStringEmpty(dateTimeString)) {
-    return null;
-  }
-  DateFormat dateFormat;
-  DateTime dateTime;
-  if (AppString.isStringNotEmpty(format)) {
-    dateFormat = DateFormat(format);
-  }
-  try {
-    dateTime = (dateFormat != null) ? dateFormat.parse(dateTimeString, isUtc) : DateTime.parse(dateTimeString);
-  }
-  on Exception catch (e) {
-    Log.e(e.toString());
-  }
-  return dateTime;
-}
-
-String _formatDateTime(DateTime dateTime,
-    {String format}) {
-  if (dateTime == null) {
-    return null;
-  }
-  if (AppString.isStringEmpty(format)) {
-    format = _iso8601DateTimeFormat;
-  }
-  DateFormat dateFormat = DateFormat(format);
-  String formattedDateTime = dateFormat.format(dateTime);
-  return formattedDateTime;
 }
