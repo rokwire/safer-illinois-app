@@ -348,6 +348,7 @@ class Config with Service implements NotificationsListener {
   String get loggingUrl             { return platformBuildingBlocks['logging_url']; }                 // "https://api-dev.rokwire.illinois.edu/logs"
   String get userProfileUrl         { return platformBuildingBlocks['user_profile_url']; }            // "https://api-dev.rokwire.illinois.edu/profiles"
   String get rokwireAuthUrl         { return platformBuildingBlocks['rokwire_auth_url']; }            // "https://api-dev.rokwire.illinois.edu/authentication"
+  String get groupsUrl              { return platformBuildingBlocks["groups_url"]; }                  // "https://api-dev.rokwire.illinois.edu/gr/api";
   String get rokmetroAuthUrl        { return platformBuildingBlocks['rokmetro_auth_url']; }           // "https://api-dev.rokwire.illinois.edu/authbb/77779"
   String get sportsServiceUrl       { return platformBuildingBlocks['sports_service_url']; }          // "https://api-dev.rokwire.illinois.edu/sports-service";
   String get healthUrl              { return platformBuildingBlocks['health_url']; }                  // "https://api-dev.rokwire.illinois.edu/health"
