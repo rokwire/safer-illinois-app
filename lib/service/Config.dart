@@ -349,6 +349,7 @@ class Config with Service implements NotificationsListener {
   String get loggingUrl             { return platformBuildingBlocks['logging_url']; }                 // "https://api-dev.rokwire.illinois.edu/logs"
   String get userProfileUrl         { return platformBuildingBlocks['user_profile_url']; }            // "https://api-dev.rokwire.illinois.edu/profiles"
   String get rokwireAuthUrl         { return platformBuildingBlocks['rokwire_auth_url']; }            // "https://api-dev.rokwire.illinois.edu/authentication"
+  String get groupsUrl              { return platformBuildingBlocks["groups_url"]; }                  // "https://api-dev.rokwire.illinois.edu/gr/api";
 //RokmetroAuth: teporarly disabled
 //String get rokmetroAuthUrl        { return platformBuildingBlocks['rokmetro_auth_url']; }           // "https://auth.api.dev.services.rokmetro.com/23147768-73ac-4830-bca7-ea927785f2ae"
   String get rokmetroAuthUrl        { return null; }
@@ -377,6 +378,5 @@ class Config with Service implements NotificationsListener {
 
   bool get residentRoleEnabled     { return false; }
   bool get capitolStaffRoleEnabled { return (settings['roleCapitolStaffEnabled'] == true); }
-
 }
 
