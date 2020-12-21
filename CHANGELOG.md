@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.10.6] - 2020-12-21
+### Added
+Integrate Groups UI into the Safer app [#455](https://github.com/rokwire/safer-illinois-app/issues/455).
+
 ## [2.10.5] - 2020-01-16
 ### Changed
 - Speed up user history load [#449](https://github.com/rokwire/safer-illinois-app/issues/449).
