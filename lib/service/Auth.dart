@@ -198,11 +198,10 @@ class Auth with Service implements NotificationsListener {
 
     // 2. Request Rokmetro token
     RokmetroToken newRokmetroToken = await _loadRokmetroToken(optAuthToken: newAuthToken);
-//  RokmetroAuth: teporarly disabled
-//  if (newRokmetroToken == null) {
-//    _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
-//    return;
-//  }
+    if (newRokmetroToken == null) {
+      _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
+      return;
+    }
 
     // 3. Request AuthUser & RokmetroUser
     results = await Future.wait([
@@ -217,11 +216,10 @@ class Auth with Service implements NotificationsListener {
     }
 
     RokmetroUser newRokmetroUser = ((results != null) && (1 < results.length)) ? results[1] : null;
-//  RokmetroAuth: teporarly disabled
-//  if (newRokmetroUser == null) {
-//    _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
-//    return;
-//  }
+    if (newRokmetroUser == null) {
+      _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
+      return;
+    }
 
     // 4. Request UserProfile PersonalData and AuthCard
     results = await Future.wait([
@@ -347,11 +345,10 @@ class Auth with Service implements NotificationsListener {
 
     // 2. Request Rokmetro token
     RokmetroToken newRokmetroToken = await _loadRokmetroToken(optAuthToken: newAuthToken);
-//  RokmetroAuth: teporarly disabled
-//  if (newRokmetroToken == null) {
-//    _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
-//    return false;
-//  }
+    if (newRokmetroToken == null) {
+      _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
+      return false;
+    }
 
     // 3. Request RokmetroUser && AuthUser
     results = await Future.wait([
@@ -361,11 +358,10 @@ class Auth with Service implements NotificationsListener {
     ]);
 
     RokmetroUser newRokmetroUser = ((results != null) && (0 < results.length)) ? results[0] : null;
-//  RokmetroAuth: teporarly disabled
-//  if (newRokmetroUser == null) {
-//    _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
-//    return false;
-//  }
+    if (newRokmetroUser == null) {
+      _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
+      return false;
+    }
 
     // Do not fail if Aith User is NA, keep allowing regular phone flow
     AuthUser newAuthUser = ((results != null) && (1 < results.length)) ? results[1] : null;
@@ -487,7 +483,7 @@ class Auth with Service implements NotificationsListener {
   }
 
   AuthToken get userSignToken {
-    return _authToken; //TBD: _rokmetroToken
+    return _authToken; //RokmetroAuth: _rokmetroToken
   }
 
   UserPiiData get userPiiData {
@@ -626,13 +622,13 @@ class Auth with Service implements NotificationsListener {
 
   Future<RokmetroToken> _loadRokmetroToken({AuthToken optAuthToken}) async {
     AuthToken token = optAuthToken ?? _authToken;
-    if ((Config().rokmetroAuthUrl != null) && (Config().rokmetroApiKey != null) && (token != null)) {
+    if ((Config().rokmetroAuthUrl != null) && (Config().rokwireApiKey != null) && (token != null)) {
       try {
         String url = "${Config().rokmetroAuthUrl}/swap-token";
         String idToken = token?.idToken;
         String tokenType = token?.tokenType ?? 'Bearer';
         Map <String, String> headers = {
-          Network.RokwireApiKey : Config().rokmetroApiKey,
+          Network.RokwireApiKey : Config().rokwireApiKey,
           HttpHeaders.authorizationHeader: "$tokenType $idToken"
         };
         Http.Response response = await Network().get(url, headers: headers);
@@ -647,13 +643,13 @@ class Auth with Service implements NotificationsListener {
 
   Future<RokmetroUser> _loadRokmetroUser({RokmetroToken optRokmetroToken}) async {
     RokmetroToken token = optRokmetroToken ?? _rokmetroToken;
-    if ((Config().rokmetroAuthUrl != null) && (Config().rokmetroApiKey != null) && (token != null)) {
+    if ((Config().rokmetroAuthUrl != null) && (Config().rokwireApiKey != null) && (token != null)) {
       try {
         String url = "${Config().rokmetroAuthUrl}/user-info";
         String idToken = token?.idToken;
         String tokenType = token?.tokenType ?? 'Bearer';
         Map <String, String> headers = {
-          Network.RokwireApiKey : Config().rokmetroApiKey,
+          Network.RokwireApiKey : Config().rokwireApiKey,
           HttpHeaders.authorizationHeader: "$tokenType $idToken"
         };
         Http.Response response = await Network().get(url, headers: headers);
@@ -977,7 +973,7 @@ class Auth with Service implements NotificationsListener {
   // Refresh Auth Token
 
   Future<void> refreshUserSignToken() {
-    return _refreshAuthToken(); //TBD: _refreshRokmetroToken();
+    return _refreshAuthToken(); //RokmetroAuth: _refreshRokmetroToken();
   }
 
   Future<void> _refreshAuthToken() async {
