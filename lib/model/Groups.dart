@@ -28,7 +28,6 @@ import 'package:illinois/utils/Utils.dart';
 // Group
 
 final _parkingEventDateFormat = "yyyy-MM-ddTHH:mm:ssZ";
-final _iso8601DateTimeFormat = 'yyyy-MM-ddTHH:mm:ss';
 
 class Group {
 	String              id;

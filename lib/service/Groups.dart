@@ -33,6 +33,8 @@ class Groups /* with Service */ {
   static const String notifyGroupCreated            = "edu.illinois.rokwire.group.created";
   static const String notifyGroupUpdated            = "edu.illinois.rokwire.group.updated";
 
+  static final Map<String,String> _apiHeader        = {Network.RokwireAppId : "edu.illinois.covid"};
+
   Map<String, Member> _userMembership;
 
   // Singletone instance
@@ -69,7 +71,7 @@ class Groups /* with Service */ {
   Future<List<String>> get categories async {
     String url = '${Config().groupsUrl}/group-categories';
     try {
-      Response response = await Network().get(url, auth: NetworkAuth.App,);
+      Response response = await Network().get(url, auth: NetworkAuth.App, headers: _apiHeader);
       int responseCode = response?.statusCode ?? -1;
       String responseBody = response?.body;
       List<dynamic> categoriesJson = ((response != null) && (responseCode == 200)) ? jsonDecode(responseBody) : null;
@@ -88,7 +90,7 @@ class Groups /* with Service */ {
   Future<List<Group>> loadGroups({bool myGroups = false}) async {
     String url = myGroups ? '${Config().groupsUrl}/user/groups' : '${Config().groupsUrl}/groups';
     try {
-      Response response = await Network().get(url, auth: myGroups ? NetworkAuth.User : (Auth().isShibbolethLoggedIn) ? NetworkAuth.User : NetworkAuth.App,);
+      Response response = await Network().get(url, auth: myGroups ? NetworkAuth.User : (Auth().isShibbolethLoggedIn) ? NetworkAuth.User : NetworkAuth.App, headers: _apiHeader);
       int responseCode = response?.statusCode ?? -1;
       String responseBody = response?.body;
       List<dynamic> groupsJson = ((response != null) && (responseCode == 200)) ? jsonDecode(responseBody) : null;
@@ -105,7 +107,7 @@ class Groups /* with Service */ {
     if(AppString.isStringNotEmpty(groupId)) {
       String url = '${Config().groupsUrl}/groups/$groupId';
       try {
-        Response response = await Network().get(url, auth: Auth().isShibbolethLoggedIn ? NetworkAuth.User : NetworkAuth.App,);
+        Response response = await Network().get(url, auth: Auth().isShibbolethLoggedIn ? NetworkAuth.User : NetworkAuth.App,headers: _apiHeader);
         int responseCode = response?.statusCode ?? -1;
         String responseBody = response?.body;
         Map<String, dynamic> groupsJson = ((response != null) && (responseCode == 200)) ? jsonDecode(responseBody) : null;
@@ -126,7 +128,7 @@ class Groups /* with Service */ {
         json["creator_name"] = Auth()?.authUser?.fullName ?? "";
         json["creator_photo_url"] = "";
         String body = jsonEncode(json);
-        Response response = await Network().post(url, auth: NetworkAuth.User, body: body);
+        Response response = await Network().post(url, auth: NetworkAuth.User, body: body, headers: _apiHeader);
         int responseCode = response?.statusCode ?? -1;
         String responseBody = response?.body;
         Map<String, dynamic> jsonData = ((response != null) && (responseCode == 200)) ? jsonDecode(responseBody) : null;
@@ -148,7 +150,7 @@ class Groups /* with Service */ {
       try {
         Map<String, dynamic> json = group.toJson();
         String body = jsonEncode(json);
-        Response response = await Network().put(url, auth: NetworkAuth.User, body: body);
+        Response response = await Network().put(url, auth: NetworkAuth.User, body: body, headers: _apiHeader);
         if((response?.statusCode ?? -1) == 200){
           NotificationService().notify(notifyGroupUpdated, group.id);
           return true;
@@ -173,7 +175,7 @@ class Groups /* with Service */ {
         json["member_answers"] = AppCollection.isCollectionNotEmpty(answers) ? answers.map((e) => e.toJson()).toList() : [];
 
         String body = jsonEncode(json);
-        Response response = await Network().post(url, auth: NetworkAuth.User, body: body);
+        Response response = await Network().post(url, auth: NetworkAuth.User, body: body, headers: _apiHeader);
         if((response?.statusCode ?? -1) == 200){
           NotificationService().notify(notifyGroupUpdated, group.id);
           return true;
@@ -189,7 +191,7 @@ class Groups /* with Service */ {
     if(groupId != null) {
       String url = '${Config().groupsUrl}/group/$groupId/pending-members';
       try {
-        Response response = await Network().delete(url, auth: NetworkAuth.User,);
+        Response response = await Network().delete(url, auth: NetworkAuth.User, headers: _apiHeader);
         if((response?.statusCode ?? -1) == 200){
           NotificationService().notify(notifyGroupUpdated, groupId);
           return true;
@@ -205,7 +207,7 @@ class Groups /* with Service */ {
     if(groupId != null) {
       String url = '${Config().groupsUrl}/group/$groupId/members';
       try {
-        Response response = await Network().delete(url, auth: NetworkAuth.User,);
+        Response response = await Network().delete(url, auth: NetworkAuth.User, headers: _apiHeader);
         if((response?.statusCode ?? -1) == 200){
           NotificationService().notify(notifyGroupUpdated, groupId);
           return true;
@@ -223,7 +225,7 @@ class Groups /* with Service */ {
       String body = jsonEncode(bodyMap);
       String url = '${Config().groupsUrl}/memberships/$memberId/approval';
       try {
-        Response response = await Network().put(url, auth: NetworkAuth.User, body: body);
+        Response response = await Network().put(url, auth: NetworkAuth.User, body: body, headers: _apiHeader);
         if((response?.statusCode ?? -1) == 200){
           NotificationService().notify(notifyGroupUpdated, groupId);
           return true;
@@ -241,7 +243,7 @@ class Groups /* with Service */ {
       String body = jsonEncode(bodyMap);
       String url = '${Config().groupsUrl}/memberships/$memberId';
       try {
-        Response response = await Network().put(url, auth: NetworkAuth.User, body: body);
+        Response response = await Network().put(url, auth: NetworkAuth.User, body: body, headers: _apiHeader);
         if((response?.statusCode ?? -1) == 200){
           NotificationService().notify(notifyGroupUpdated, groupId);
           return true;
@@ -257,7 +259,7 @@ class Groups /* with Service */ {
     if(AppString.isStringNotEmpty(groupId) && AppString.isStringNotEmpty(memberId)) {
       String url = '${Config().groupsUrl}/memberships/$memberId';
       try {
-        Response response = await Network().delete(url, auth: NetworkAuth.User,);
+        Response response = await Network().delete(url, auth: NetworkAuth.User, headers: _apiHeader);
         if((response?.statusCode ?? -1) == 200){
           NotificationService().notify(notifyGroupUpdated, groupId);
           return true;
@@ -275,7 +277,7 @@ class Groups /* with Service */ {
     if(AppString.isStringNotEmpty(groupId)) {
       String url = '${Config().groupsUrl}/group/$groupId/events';
       try {
-        Response response = await Network().get(url, auth: NetworkAuth.User);
+        Response response = await Network().get(url, auth: NetworkAuth.User, headers: _apiHeader);
         if((response?.statusCode ?? -1) == 200){
           //Successfully loaded ids
           String responseBody = response?.body;
@@ -306,7 +308,7 @@ class Groups /* with Service */ {
       try {
         Map<String, dynamic> bodyMap = {"event_id":eventId};
         String body = jsonEncode(bodyMap);
-        Response response = await Network().post(url, auth: NetworkAuth.User,body: body);
+        Response response = await Network().post(url, auth: NetworkAuth.User,body: body, headers: _apiHeader);
         if((response?.statusCode ?? -1) == 200){
           NotificationService().notify(notifyGroupUpdated, groupId);
           return true;
@@ -322,7 +324,7 @@ class Groups /* with Service */ {
     if(AppString.isStringNotEmpty(groupId) && AppString.isStringNotEmpty(eventId)) {
       String url = '${Config().groupsUrl}/group/$groupId/event/$eventId';
       try {
-        Response response = await Network().delete(url, auth: NetworkAuth.User);
+        Response response = await Network().delete(url, auth: NetworkAuth.User, headers: _apiHeader);
         if((response?.statusCode ?? -1) == 200){
           NotificationService().notify(notifyGroupUpdated, groupId);
           return true;
