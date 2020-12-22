@@ -511,8 +511,8 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Semantics(explicitChildNodes: true, child: ScalableRoundedButton(
-            label: Localization().getStringEx("panel.covid19home.button.groups.title", "Groups"),
-            hint: Localization().getStringEx("panel.covid19home.button.groups.hint", ""),
+            label: Localization().getStringEx("panel.covid19home.button.find_test_locations.title", "Find test locations"),
+            hint: Localization().getStringEx("panel.covid19home.button.find_test_locations.hint", ""),
             borderColor: Styles().colors.fillColorSecondary,
             backgroundColor: Styles().colors.surface,
             textColor: Styles().colors.fillColorPrimary,
