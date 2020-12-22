@@ -23,8 +23,11 @@ class FilterListItemWidget extends StatelessWidget {
   final String subLabel;
   final GestureTapCallback onTap;
   final bool selected;
+  final String selectedIconRes;
+  final String unselectedIconRes;
 
-  FilterListItemWidget({@required this.label, this.subLabel, @required this.onTap, this.selected = false});
+  FilterListItemWidget({@required this.label, this.subLabel, @required this.onTap, this.selected = false,
+    this.selectedIconRes = 'images/icon-selected.png', this.unselectedIconRes = 'images/icon-unselected.png', });
 
   @override
   Widget build(BuildContext context) {
@@ -44,26 +47,25 @@ class FilterListItemWidget extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.max,
                   children: <Widget>[
+                    Expanded(child:
                     Text(
                       label,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+//                        maxLines: 1,
+//                        overflow: TextOverflow.ellipsis,
                       style: labelsStyle,
                     ),
-                    Expanded(
-                      child: Container(),
                     ),
                     hasSubLabel
                         ? Text(
-                            subLabel,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: labelsStyle,
-                          )
+                      subLabel,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: labelsStyle,
+                    )
                         : Container(),
                     Padding(
                       padding: EdgeInsets.only(left: 10),
-                      child: Image.asset((selected ? 'images/icon-selected.png' : 'images/icon-unselected.png')),
+                      child: Image.asset((selected ? selectedIconRes:unselectedIconRes)),
                     )
                   ],
                 ),

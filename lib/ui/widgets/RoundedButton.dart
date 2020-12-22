@@ -171,11 +171,13 @@ class ScalableRoundedButton extends StatelessWidget {
   final Color borderColor;
   final double borderWidth;
   final Color secondaryBorderColor;
+  final List<BoxShadow> shadow;
   final EdgeInsetsGeometry padding;
   final bool enabled;
   final bool showAdd;
   final bool showChevron;
   final bool showExternalLink;
+  final int maxLines;
 
   ScalableRoundedButton(
       {this.label = '',
@@ -190,10 +192,12 @@ class ScalableRoundedButton extends StatelessWidget {
         this.borderColor,
         this.borderWidth = 2.0,
         this.secondaryBorderColor,
+        this.shadow,
         this.onTap,
         this.showAdd = false,
         this.showChevron = false,
         this.showExternalLink = false,
+        this.maxLines = 10
       });
 
   @override
@@ -209,11 +213,12 @@ class ScalableRoundedButton extends StatelessWidget {
           onTap: onTap,
           child: Container(
             decoration: BoxDecoration(
-              color: (backgroundColor ?? Styles().colors.fillColorPrimary),
-              border: Border.all(
-                  color: (borderColor != null) ? borderColor : (backgroundColor ?? Styles().colors.fillColorPrimary),
-                  width: borderWidth),
-              borderRadius: borderRadius,
+                color: (backgroundColor ?? Styles().colors.fillColorPrimary),
+                border: Border.all(
+                    color: (borderColor != null) ? borderColor : (backgroundColor ?? Styles().colors.fillColorPrimary),
+                    width: borderWidth),
+                borderRadius: borderRadius,
+                boxShadow: this.shadow
             ),
             child: Container(
               decoration: BoxDecoration(
@@ -226,36 +231,41 @@ class ScalableRoundedButton extends StatelessWidget {
                   borderRadius: borderRadius),
               child: Padding(
                   padding: padding,
-                  child: Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-                    Expanded(child:
-                    Text(
-                      label,
-                      textAlign: textAlign,
-                      style: TextStyle(
-                        fontFamily: fontFamily ?? Styles().fontFamilies.bold,
-                        fontSize: fontSize,
-                        color: textColor,
-                      ),
-                    )),
-                    Visibility(
-                        visible: showChevron,
-                        child: Padding(
-                          padding: EdgeInsets.only(left: 5),
-                          child: Image.asset('images/chevron-right.png'),
-                        )),
-                    Visibility(
-                        visible: showAdd,
-                        child: Padding(
-                          padding: EdgeInsets.only(left: 5),
-                          child: Image.asset('images/icon-add-20x18.png'),
-                        )),
-                    Visibility(
-                        visible: showExternalLink,
-                        child: Padding(
-                          padding: EdgeInsets.only(left: 5),
-                          child: Image.asset('images/external-link.png'),
-                        ))
-                  ],)),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Expanded(child:
+                      Text(
+                        label,
+                        textAlign: textAlign,
+                        maxLines: maxLines,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontFamily: fontFamily ?? Styles().fontFamilies.bold,
+                          fontSize: fontSize,
+                          color: textColor,
+                        ),
+                      )),
+                      Visibility(
+                          visible: showChevron,
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 5),
+                            child: Image.asset('images/chevron-right.png'),
+                          )),
+                      Visibility(
+                          visible: showAdd,
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 5),
+                            child: Image.asset('images/icon-add-20x18.png'),
+                          )),
+                      Visibility(
+                          visible: showExternalLink,
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 5),
+                            child: Image.asset('images/external-link.png'),
+                          ))
+
+                    ],)),
             ),
           ),
         ));
