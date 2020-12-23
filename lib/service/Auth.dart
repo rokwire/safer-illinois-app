@@ -107,6 +107,12 @@ class Auth with Service implements NotificationsListener {
     _userPiiCacheFile = await _getUserPiiCacheFile();
     _userPiiData = await _loadUserPiiDataFromCache();
 
+    // Backward compatability
+    if ((_authToken != null) && (_rokmetroToken == null)) {
+      _rokmetroToken = await _loadRokmetroToken(optAuthToken: _authToken);
+      _rokmetroUser = await _loadRokmetroUser(optRokmetroToken: _rokmetroToken);
+    }
+
     _syncProfilePiiDataIfNeed(); // No need for await
   }
 
