@@ -17,8 +17,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:illinois/model/Groups.dart';
+import 'package:illinois/model/ImageType.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Groups.dart';
+import 'package:illinois/service/ImageService.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/ui/WebPanel.dart';
@@ -817,7 +819,7 @@ class _AddImageWidget extends StatefulWidget {
 class _AddImageWidgetState extends State<_AddImageWidget> {
   var _imageUrlController = TextEditingController();
 
-  //final ImageType _imageType = ImageType(identifier: 'event-tout', width: 1080);
+  final ImageType _imageType = ImageType(identifier: 'event-tout', width: 1080);
   bool _showProgress = false;
 
   _AddImageWidgetState();
@@ -938,8 +940,6 @@ class _AddImageWidgetState extends State<_AddImageWidget> {
         _showProgress = true;
       });
 
-      ///TBD Migrate the Image Service
-      /*
       Future<ImagesResult> result =
       ImageService().useUrl(_imageType, url);
       result.then((logicResult) {
@@ -962,14 +962,12 @@ class _AddImageWidgetState extends State<_AddImageWidget> {
             Navigator.pop(context, logicResult.data);
             break;
         }
-      });*/
+      });
     }
   }
 
-  ///TBD Migrate the Image Service
-
   void _onTapChooseFromDevice() {
-    /*Analytics.instance.logSelect(target: "Choose From Device");
+    Analytics.instance.logSelect(target: "Choose From Device");
 
     setState(() {
       _showProgress = true;
@@ -996,6 +994,6 @@ class _AddImageWidgetState extends State<_AddImageWidget> {
           Navigator.pop(context, logicResult.data);
           break;
       }
-    });*/
+    });
   }
 }
