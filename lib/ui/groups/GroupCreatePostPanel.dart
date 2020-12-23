@@ -16,9 +16,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:illinois/model/Groups.dart';
 import 'package:illinois/service/Analytics.dart';
-import 'package:illinois/service/Groups.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Styles.dart';
 
@@ -33,7 +31,7 @@ class GroupCreatePostPanel extends StatefulWidget{
 }
 
 class _GroupCreatePostPanelState extends State<GroupCreatePostPanel>{
-  Member _member;
+  //Member _member;
   
   TextEditingController _postController = new TextEditingController();
 
@@ -49,7 +47,7 @@ class _GroupCreatePostPanelState extends State<GroupCreatePostPanel>{
   }
 
   _initMember(){
-    _member = Groups().getUserMembership(widget.groupId);
+    //_member = Groups().getUserMembership(widget.groupId);
   }
 
   @override

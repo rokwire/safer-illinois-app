@@ -5,8 +5,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+- Added support of both authentication methods, use Rokmetro auth in Health BB API calls [#396](https://github.com/rokwire/safer-illinois-app/issues/396).
 
-## [2.10.5] - 2020-01-16
+## [2.10.7] - 2020-12-22
+### Changed
+- Integrate Groups UI into the Safer app - Additional Fixes [#455](https://github.com/rokwire/safer-illinois-app/issues/455).
+
+## [2.10.6] - 2020-12-21
+### Added
+- Integrate Groups UI into the Safer app [#455](https://github.com/rokwire/safer-illinois-app/issues/455).
+
+## [2.10.5] - 2020-12-16
 ### Changed
 - Speed up user history load [#449](https://github.com/rokwire/safer-illinois-app/issues/449).
 - Encode health statuses in rules [#452](https://github.com/rokwire/safer-illinois-app/issues/452).
@@ -14,16 +24,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Do not translate symptoms names transmitted to analytics [#447](https://github.com/rokwire/safer-illinois-app/issues/447).
 
-## [2.10.4] - 2020-01-11
+## [2.10.4] - 2020-12-11
 ### Added
 - Added map directions feature in iOS app [#446](https://github.com/rokwire/safer-illinois-app/issues/446).
 
-## [2.10.3] - 2020-01-04
+## [2.10.3] - 2020-12-04
 ### Fixed
 - Pass the right user UIN when creating debug events. [#441](https://github.com/rokwire/safer-illinois-app/issues/441).
 - Fixed user details in Status panel when subaccount is selected. [#442](https://github.com/rokwire/safer-illinois-app/issues/442).
 
-## [2.10.2] - 2020-01-03
+## [2.10.2] - 2020-12-03
 ### Added
 - Added user subaccounts feature [#437](https://github.com/rokwire/safer-illinois-app/issues/437).
 
