@@ -5,8 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## [2.10.8] - 2020-12-23
 ### Added
 - Added support of both authentication methods, use Rokmetro auth in Health BB API calls [#396](https://github.com/rokwire/safer-illinois-app/issues/396).
+
+### Fixed
+- Integrate Groups UI into the Safer app - Additional Fixes [#455](https://github.com/rokwire/safer-illinois-app/issues/455).
 
 ## [2.10.7] - 2020-12-22
 ### Changed
