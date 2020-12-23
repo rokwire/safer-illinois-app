@@ -17,7 +17,7 @@
 		"info_center": ["connect", "stay_healthy", "your_health"],
 		"info_center.connect": ["netid", "phone"],
 		"info_center.stay_healthy" : ["recent_event", "next_step", "symptom_checkin", "add_test_result"],
-		"info_center.your_health" : [ "health_status", "tiles", "health_history", "find_test_location", "wellness_center", "switch_account"],
+		"info_center.your_health" : [ "health_status", "tiles", "health_history", "find_test_location", "wellness_center", "groups", "switch_account"],
 		"info_center.your_health.tiles": ["county_guidelines", "care_team"]
 	},
 	"rules": {
@@ -28,12 +28,13 @@
 			"onboarding.confirm_phone"        : ["NOT", ["employee", "OR", "student"]]
 		},
 		"auth": {
-			"info_center.connect" 		               : { "healthLoggedIn": false },
-			"info_center.stay_healthy" 						   : { "healthLoggedIn": true },
-			"info_center.your_health.health_status"  : { "healthLoggedIn": true },
-			"info_center.your_health.health_history" : { "healthLoggedIn": true },
+			"info_center.connect" 		               		: { "healthLoggedIn": false },
+			"info_center.stay_healthy" 						: { "healthLoggedIn": true },
+			"info_center.your_health.health_status"  		: { "healthLoggedIn": true },
+			"info_center.your_health.health_history" 		: { "healthLoggedIn": true },
 			"info_center.your_health.find_test_location" 	: { "healthLoggedIn": false },
-			"info_center.your_health.switch_account" 	: { "healthMultipleAccounts": true },
+			"info_center.your_health.switch_account" 		: { "healthMultipleAccounts": true },
+			"info_center.your_health.groups" 				: { "healthLoggedIn": true },
 
 			"settings.user_info"              : { "loggedIn": true },
 			"settings.connect"                : { "loggedIn": false },

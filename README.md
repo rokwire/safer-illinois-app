@@ -3,7 +3,7 @@ The official COVID-19 app of the University of Illinois. Powered by the [Rokwire
 
 ## Requirements
 
-### [Flutter](https://flutter.dev/docs/get-started/install) v1.17.5
+### [Flutter](https://flutter.dev/docs/get-started/install) v1.22.1
 
 ### [Android Studio](https://developer.android.com/studio) 3.6+
 
