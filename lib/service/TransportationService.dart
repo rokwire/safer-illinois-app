@@ -41,7 +41,7 @@ class TransportationService /* with Service */ {
         'user_id': userId,
         'device_id': deviceId,
       });
-      final response = (url != null) ? await Network().get(url, auth: NetworkAuth.App, body:body) : null;
+      final response = (url != null) ? await Network().get(url, auth: Network.AppAuth, body:body) : null;
 
       String responseBody = response?.body;
       if ((response != null) && (response.statusCode == 200)) {
@@ -64,7 +64,7 @@ class TransportationService /* with Service */ {
         'device_id': deviceId,
         'ibeacon_data': iBeaconData,
       });
-      final response = (url != null) ? await Network().get(url, auth: NetworkAuth.App, body:body) : null;
+      final response = (url != null) ? await Network().get(url, auth: Network.AppAuth, body:body) : null;
       if (response != null) {
         if (response.statusCode == 200) {
           String responseBody = response.body;

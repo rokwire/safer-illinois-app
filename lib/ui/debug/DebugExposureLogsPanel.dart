@@ -1271,7 +1271,7 @@ class _DebugExposureLogsPanelState extends State<DebugExposureLogsPanel>
     Map<String, String> headers = {"Content-type": "application/json"};
 
     Response response = await Network().post(Url + "GetSessionID",
-        headers: headers, body: null, auth: NetworkAuth.App);
+        headers: headers, body: null, auth: Network.AppAuth);
     String body = response.body;
     if (response.statusCode == HttpStatus.ok) {
       // update text field
@@ -1328,7 +1328,7 @@ class _DebugExposureLogsPanelState extends State<DebugExposureLogsPanel>
         '{"isAndroid": $_isAndroid, "deviceID": "$_deviceID", "sessionID":$_currentSession}';
     print("" + req);
     Response response = await Network().post(Url + "CreateSession",
-        headers: headers, body: req, auth: NetworkAuth.App);
+        headers: headers, body: req, auth: Network.AppAuth);
 
     // statusCode:
     if (response.statusCode == HttpStatus.ok) {
@@ -1365,7 +1365,7 @@ class _DebugExposureLogsPanelState extends State<DebugExposureLogsPanel>
   *  */
   void _onSessionJoin() async {
     // Response response = await Network()
-    //     .post(Url + "getSessionID", body: post, auth: NetworkAuth.App);
+    //     .post(Url + "getSessionID", body: post, auth: Network.AppAuth);
     if (_processingSessionID) {
       return;
     }
@@ -1396,7 +1396,7 @@ class _DebugExposureLogsPanelState extends State<DebugExposureLogsPanel>
         '{"isAndroid": $_isAndroid, "deviceID": "$_deviceID", "sessionID":$_currentSession}';
     print("" + req);
     Response response = await Network().post(Url + "JoinSession",
-        headers: headers, body: req, auth: NetworkAuth.App);
+        headers: headers, body: req, auth: Network.AppAuth);
     // statusCode:
     // if ok, parse js
     // if not, print the value
@@ -1454,7 +1454,7 @@ class _DebugExposureLogsPanelState extends State<DebugExposureLogsPanel>
         ' "sessionID":$_currentSession, "additionalDetail":"${_additionalDetailTextController.text}" }';
     print("" + req);
     Response response = await Network().post(Url + "EndSession",
-        headers: headers, body: req, auth: NetworkAuth.App);
+        headers: headers, body: req, auth: Network.AppAuth);
     // update text field
     setState(() {
       if (response.statusCode == HttpStatus.ok) {

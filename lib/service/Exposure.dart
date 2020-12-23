@@ -659,7 +659,7 @@ class Exposure with Service implements NotificationsListener {
   Future<bool> reportTEKs(List<ExposureTEK> teks) async {
     String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/trace/report" : null;
     String post = (url != null) ? AppJson.encode(ExposureTEK.listToJson(teks)) : null;
-    Response response = (url != null) ? await Network().post(url, body: post, auth: NetworkAuth.App) : null;
+    Response response = (url != null) ? await Network().post(url, body: post, auth: Network.AppAuth) : null;
     return (response?.statusCode == 200);
   }
 
@@ -683,7 +683,7 @@ class Exposure with Service implements NotificationsListener {
       url += '?$params';
     }
 
-    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
+    Response response = (url != null) ? await Network().get(url, auth: Network.AppAuth) : null;
     String responseString = (response?.statusCode == 200) ? response.body : null;
     List<dynamic> responseJson = (responseString != null) ? AppJson.decodeList(responseString) : null;
     return (responseJson != null) ? ExposureTEK.listFromJson(responseJson) : null;
@@ -1205,7 +1205,7 @@ class Exposure with Service implements NotificationsListener {
       Response response = await Network().post(
           Config().exposureLogUrl,
           body: AppJson.encode(upload),
-          auth: NetworkAuth.App);
+          auth: Network.AppAuth);
       return response?.statusCode == 200;
     }
     return null;
