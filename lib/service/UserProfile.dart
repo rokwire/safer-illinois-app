@@ -144,7 +144,7 @@ class UserProfile with Service implements NotificationsListener {
     String profileUuid = _profileData.uuid;
     String url = (Config().userProfileUrl != null) ? "${Config().userProfileUrl}/$profileUuid" : null;
     Map<String, String> headers = {"Accept": "application/json","content-type":"application/json"};
-    final response = (url != null) ? await Network().put(url, body: json.encode(_profileData.toJson()), headers: headers, client: _client, auth: NetworkAuth.App) : null;
+    final response = (url != null) ? await Network().put(url, body: json.encode(_profileData.toJson()), headers: headers, client: _client, auth: Network.AppAuth) : null;
     String responseBody = response?.body;
     bool success = ((response != null) && (responseBody != null) && (response.statusCode == 200));
     
@@ -171,7 +171,7 @@ class UserProfile with Service implements NotificationsListener {
   Future<UserProfileData> requestProfile(String uuid) async {
     String url = ((Config().userProfileUrl != null) && (uuid != null) && (0 < uuid.length)) ? '${Config().userProfileUrl}/$uuid' : null;
 
-    final response = (url != null) ? await Network().get(url, auth: NetworkAuth.App) : null;
+    final response = (url != null) ? await Network().get(url, auth: Network.AppAuth) : null;
 
     if(response != null) {
       if (response?.statusCode == 404) {
@@ -190,7 +190,7 @@ class UserProfile with Service implements NotificationsListener {
 
   Future<UserProfileData> _requestCreateProfile() async {
     try {
-      final response = (Config().userProfileUrl != null) ? await Network().post(Config().userProfileUrl, auth: NetworkAuth.App, timeout: 10) : null;
+      final response = (Config().userProfileUrl != null) ? await Network().post(Config().userProfileUrl, auth: Network.AppAuth, timeout: 10) : null;
       if ((response != null) && (response.statusCode == 200)) {
         String responseBody = response.body;
         Map<String, dynamic> jsonData = AppJson.decode(responseBody);
@@ -208,7 +208,7 @@ class UserProfile with Service implements NotificationsListener {
   Future<void> deleteProfile() async{
     String profileUuid = _profileData?.uuid;
     if((Config().userProfileUrl != null) && (profileUuid != null)) {
-      await Network().delete("${Config().userProfileUrl}/$profileUuid", headers: {"Accept": "application/json", "content-type": "application/json"}, auth: NetworkAuth.App);
+      await Network().delete("${Config().userProfileUrl}/$profileUuid", headers: {"Accept": "application/json", "content-type": "application/json"}, auth: Network.AppAuth);
 
       _clearStoredProfile();
       _notifyProfileDeleted();
@@ -239,7 +239,7 @@ class UserProfile with Service implements NotificationsListener {
       String url = "${Config().userProfileUrl}/${_profileData?.uuid}";
       Map<String, String> headers = {"Accept": "application/json","content-type":"application/json"};
       String post = json.encode(_profileData.toJson());
-      Network().put(url, body: post, headers: headers, auth: NetworkAuth.App);
+      Network().put(url, body: post, headers: headers, auth: Network.AppAuth);
     }
 
     // 2. We might need to add FCM token and user roles from Storage to new user

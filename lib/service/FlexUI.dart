@@ -197,7 +197,7 @@ class FlexUI with Service implements NotificationsListener {
     try {
       String body = json.encode(post);
       _httpClient = httpClient = Http.Client();
-      Http.Response response = await Network().get(url, body:body, auth: NetworkAuth.App, client: _httpClient);
+      Http.Response response = await Network().get(url, body:body, auth: Network.AppAuth, client: _httpClient);
       int responseCode = response?.statusCode ?? -1;
       String responseBody = response?.body;
       Log.d('FlexUI: GET $url\n$body\nResponse $responseCode:\n$responseBody\n');

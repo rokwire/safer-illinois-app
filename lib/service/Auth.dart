@@ -317,7 +317,7 @@ class Auth with Service implements NotificationsListener {
     var headers = {
       "Content-Type": "application/json"
     };
-    final response = await Network().post(url, body: body, headers: headers, auth: NetworkAuth.App);
+    final response = await Network().post(url, body: body, headers: headers, auth: Network.AppAuth);
     if (response != null) {
       return (response.statusCode >= 200 && response.statusCode <= 300);
     }
@@ -417,7 +417,7 @@ class Auth with Service implements NotificationsListener {
       "Content-Type": "application/json"
     };
     final response = await Network().post(
-        '${Config().rokwireAuthUrl}/phone-verify', body: phoneVerifyBody, headers: headers, auth: NetworkAuth.App);
+        '${Config().rokwireAuthUrl}/phone-verify', body: phoneVerifyBody, headers: headers, auth: Network.AppAuth);
     if ((response != null) &&
         (response.statusCode >= 200 && response.statusCode <= 300)) {
       Map<String, dynamic> jsonData = AppJson.decode(response.body);
@@ -480,10 +480,6 @@ class Auth with Service implements NotificationsListener {
 
   RokmetroUser get rokmetroUser {
     return _rokmetroUser;
-  }
-
-  AuthToken get userSignToken {
-    return _authToken; //RokmetroAuth: _rokmetroToken
   }
 
   UserPiiData get userPiiData {
@@ -577,7 +573,7 @@ class Auth with Service implements NotificationsListener {
     PhoneToken phoneToken = (optAuthToken is PhoneToken) ? optAuthToken : null;
     if ((Config().healthUrl != null) && (phoneToken?.phone != null)) {
       String url = "${Config().healthUrl}/covid19/rosters/phone/${phoneToken.phone}";
-      Http.Response userDataResp = await Network().get(url, auth: NetworkAuth.App);
+      Http.Response userDataResp = await Network().get(url, auth: Network.AppAuth);
       if ((userDataResp != null) && (userDataResp.statusCode == 200)) {
         Map<String, dynamic> responseJson = AppJson.decodeMap(userDataResp.body);
         //TMP: return AuthUser(uin: '000000000');
@@ -700,7 +696,7 @@ class Auth with Service implements NotificationsListener {
       final response = (url != null) ? await Network().put(url,
           headers: {'Content-Type':'application/json'},
           body: body,
-          auth: NetworkAuth.User
+          auth: Network.ShibbolethUserAuth
       ) : null;
 
       String responseBody = ((response != null) && (response.statusCode == 200)) ? response.body : null;
@@ -725,7 +721,7 @@ class Auth with Service implements NotificationsListener {
 
       await Network().delete(url,
           headers: {'Content-Type':'application/json'},
-          auth: NetworkAuth.User
+          auth: Network.ShibbolethUserAuth
       ).whenComplete((){
         _applyUserPiiData(null, null);
       });
@@ -972,20 +968,17 @@ class Auth with Service implements NotificationsListener {
 
   // Refresh Auth Token
 
-  Future<void> refreshUserSignToken() {
-    return _refreshAuthToken(); //RokmetroAuth: _refreshRokmetroToken();
-  }
-
-  Future<void> _refreshAuthToken() async {
+  Future<AuthToken> refreshAuthToken() async {
     if (isShibbolethLoggedIn) {
-      await _refreshShibbolethAuthToken();
+      return await _refreshShibbolethAuthToken();
     }
     else {
       // We do not support this currently
+      return null;
     }
   }
 
-  Future<void> _refreshShibbolethAuthToken() async {
+  Future<AuthToken> _refreshShibbolethAuthToken() async {
     if ((_authToken is ShibbolethToken) && (Config().shibbolethOidcTokenUrl != null) && (Config().shibbolethClientId != null) && (Config().shibbolethClientSecret != null)) {
       if(_refreshTokenFuture != null){
         Log.d("Auth: will await refresh token");
@@ -1016,6 +1009,7 @@ class Auth with Service implements NotificationsListener {
             Log.d("Auth: did refresh token: ${authToken?.idToken}");
             Storage().authToken = _authToken = token;
             NotificationService().notify(notifyAuthTokenChanged);
+            return token;
           }
         }
         catch(e) {
@@ -1024,14 +1018,16 @@ class Auth with Service implements NotificationsListener {
         }
       }
     }
+    return null;
   }
 
-  /*Future<void> _refreshRokmetroToken() async {
+  Future<AuthToken> refreshRokmetroToken() async {
     RokmetroToken newRokmetroToken = await _loadRokmetroToken(optAuthToken: _authToken);
     if (newRokmetroToken?.idToken != null) {
       Storage().rokmetroToken = _rokmetroToken = newRokmetroToken;
     }
-  }*/
+    return newRokmetroToken;
+  }
 
   // Deep Links
 
