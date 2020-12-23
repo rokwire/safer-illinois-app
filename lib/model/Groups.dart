@@ -16,7 +16,6 @@
 
 import 'dart:ui';
 
-import 'package:illinois/service/Log.dart';
 import 'package:intl/intl.dart';
 import 'package:collection/collection.dart';
 import 'package:illinois/service/Auth.dart';
