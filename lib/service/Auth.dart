@@ -107,11 +107,8 @@ class Auth with Service implements NotificationsListener {
     _userPiiCacheFile = await _getUserPiiCacheFile();
     _userPiiData = await _loadUserPiiDataFromCache();
 
-    // Backward compatability
-    if ((_authToken != null) && (_rokmetroToken == null)) {
-      _rokmetroToken = await _loadRokmetroToken(optAuthToken: _authToken);
-      _rokmetroUser = await _loadRokmetroUser(optRokmetroToken: _rokmetroToken);
-    }
+    // Backward compatability - no rokmetro data stored from previous versions
+    await _ensureRokmetroData();
 
     _syncProfilePiiDataIfNeed(); // No need for await
   }
@@ -663,6 +660,15 @@ class Auth with Service implements NotificationsListener {
       }
     }
     return null;
+  }
+
+  Future<void> _ensureRokmetroData() async {
+    if ((_authToken != null) && (_rokmetroToken == null)) {
+      Storage().rokmetroToken = _rokmetroToken = await _loadRokmetroToken(optAuthToken: _authToken);
+    }
+    if ((_rokmetroToken != null) && (_rokmetroUser == null)) {
+      Storage().rokmetroUser = _rokmetroUser = await _loadRokmetroUser(optRokmetroToken: _rokmetroToken);
+    }
   }
 
   /// UserPIIData
