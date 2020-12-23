@@ -16,7 +16,6 @@
 
 import 'dart:ui';
 
-import 'package:illinois/service/Log.dart';
 import 'package:intl/intl.dart';
 import 'package:collection/collection.dart';
 import 'package:illinois/service/Auth.dart';
@@ -31,12 +30,12 @@ final _parkingEventDateFormat = "yyyy-MM-ddTHH:mm:ssZ";
 
 class Group {
 	String              id;
-	String              category;
+	String              category = "Other Social";
 	String              type;
 	String              title;
 	bool                certified;
 
-  GroupPrivacy         privacy;
+  GroupPrivacy         privacy = GroupPrivacy.private;
   String               description;
   String               imageURL;
   String               webURL;
