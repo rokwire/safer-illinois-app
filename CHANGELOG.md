@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Fixed
+- Fixed rokmetro token refresh [#396](https://github.com/rokwire/safer-illinois-app/issues/396).
+
+### Added
+- Defined PCR.xpositive2 rule [#461](https://github.com/rokwire/safer-illinois-app/issues/461).
 
 ## [2.10.8] - 2020-12-23
 ### Added
