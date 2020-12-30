@@ -659,6 +659,18 @@
 					"gr-2.5-1": { "min": 1 }
 				},
 				"status": "symptoms-match"
+			},
+			{
+				"counts": {
+					"gr-2.10-1": { "min": 1 }
+				},
+				"status": "symptoms-match"
+			},
+			{
+				"counts": {
+					"gr-2.10-2": { "min": 2 }
+				},
+				"status": "symptoms-match"
 			}
 		],
 		
@@ -667,7 +679,7 @@
 				"id": null,
 				"name": "gr-2.4-0",
 				"group" : "no-symptoms",
-				"visible": true,
+				"visible": false,
 				"symptoms": [
 					{
 						"id": "b669503f-938b-11ea-8f2a-0a58a9feac2a",
@@ -713,7 +725,7 @@
 			{
 				"id": null,
 				"name": "gr-2.5-1",
-				"visible": true,
+				"visible": false,
 				"group" : "have-symptoms",
 				"symptoms": [
 					{
@@ -761,7 +773,70 @@
 						"name": "symptoms.diarrhea"
 					}
 				]
-			}
+			},
+			{
+				"id": null,
+				"name": "gr-2.10-1",
+				"visible": true,
+				"symptoms": [
+					{
+						"id": "bbdb2a96-4a7f-11eb-b378-0242ac130002",
+						"name": "symptoms.fever"
+					},
+					{
+						"id": "bbdb2cee-4a7f-11eb-b378-0242ac130002",
+						"name": "symptoms.cough"
+					},
+					{
+						"id": "bbdb2de8-4a7f-11eb-b378-0242ac130002",
+						"name": "symptoms.shortness-of-breath"
+					},
+					{
+						"id": "bbdb3054-4a7f-11eb-b378-0242ac130002",
+						"name": "symptoms.loss-of-taste-and-or-smell"
+					}
+				]
+			},
+			{
+				"id": null,
+				"name": "gr-2.10-2",
+				"visible": true,
+				"symptoms": [
+					{
+						"id": "bbdb3130-4a7f-11eb-b378-0242ac130002",
+						"name": "symptoms.fatigue"
+					},
+					{
+						"id": "bbdb31ee-4a7f-11eb-b378-0242ac130002",
+						"name": "symptoms.muscle-or-body-aches"
+					},
+					{
+						"id": "bbdb32a2-4a7f-11eb-b378-0242ac130002",
+						"name": "symptoms.chills-with-or-without-shaking"
+					},
+					{
+						"id": "bbdb3360-4a7f-11eb-b378-0242ac130002",
+						"name": "symptoms.headache"
+					},
+					{
+						"id": "bbdb3414-4a7f-11eb-b378-0242ac130002",
+						"name": "symptoms.congestion-or-runny-nose"
+					},
+					{
+						"id": "bbdb34c8-4a7f-11eb-b378-0242ac130002",
+						"name": "symptoms.nausea-or-vomiting"
+					},
+					{
+						"id": "bbdb3770-4a7f-11eb-b378-0242ac130002",
+						"name": "symptoms.diarrhea-multiple-episodes-of-loose-or-watery-stools"
+					},
+					{
+						"id": "bbdb382e-4a7f-11eb-b378-0242ac130002",
+						"name": "symptoms.sore-throat"
+					}
+				]
+			}			
+
 		]
 	},
 	
@@ -845,7 +920,9 @@
 			"symptoms.congestion-or-runny-nose": "Congestion or runny nose",
 			"symptoms.nausea-or-vomiting": "Nausea or vomiting",
 			"symptoms.diarrhea": "Diarrhea",
-			
+			"symptoms.diarrhea-multiple-episodes-of-loose-or-watery-stools": "Diarrhea (multiple episodes of loose or watery stools)",
+			"symptoms.chills-with-or-without-shaking": "Chills with or without shaking",
+
 			"code.green.name": "Green",
 			"code.green.description": "Recent Antibodies",
 			"code.green.long_description": "Green: Recent antibodies",
@@ -906,6 +983,8 @@
 			"symptoms.congestion-or-runny-nose": "Congestión o secreción nasal",
 			"symptoms.nausea-or-vomiting": "Náuseas o vómitos",
 			"symptoms.diarrhea": "Diarrea",
+			"symptoms.diarrhea-multiple-episodes-of-loose-or-watery-stools": "Diarrea (múltiples episodios de heces blandas o acuosas)",
+			"symptoms.chills-with-or-without-shaking": "Escalofríos con o sin temblores",
 
 			"code.green.name": "Verde",
 			"code.green.description": "Anticuerpos recientes",
@@ -967,6 +1046,8 @@
 			"symptoms.congestion-or-runny-nose": "充血或流鼻涕",
 			"symptoms.nausea-or-vomiting": "噁心或嘔吐",
 			"symptoms.diarrhea":"腹瀉",
+			"symptoms.diarrhea-multiple-episodes-of-loose-or-watery-stools": "腹瀉（大便多發或水樣發作）",
+			"symptoms.chills-with-or-without-shaking": "顫抖或不顫抖",
 
 			"code.green.name": "绿色",
 			"code.green.description": "最近抗體",
