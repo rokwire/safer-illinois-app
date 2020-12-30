@@ -259,7 +259,7 @@ class _GroupCreatePanelState extends State<GroupCreatePanel> {
     );
   }
 
-  Widget _buildTitle(String title, String iconRes){
+  /*Widget _buildTitle(String title, String iconRes){
     return
       Container(
         padding: EdgeInsets.only(left: 16),
@@ -283,7 +283,7 @@ class _GroupCreatePanelState extends State<GroupCreatePanel> {
                   )
               ))
       ],)));
-  }
+  }*/
 
   void onNameChanged(String name){
     _group.title = name;
