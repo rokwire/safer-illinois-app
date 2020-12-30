@@ -80,6 +80,48 @@
 				"next_step_html": "positive.step.html"
 			}
 		},
+		"PCR.xpositive2": {
+			"condition": "timeout",
+			"params": {
+				"interval": { "min": 0, "max": 10, "scope": "future" }
+			},
+			"success": {
+				"condition": "require-test",
+				"params": {
+					"interval": { "min": 11, "max": null, "scope": "future" },
+					"category": "PCR.negative"
+				},
+				"success": {
+					"condition": "timeout",
+					"params": {
+						"interval": { "min": 0, "max": 89, "scope": "future", "origin": "referenceDate" }
+					},
+					"success": {
+						"code": "orange",
+						"priority": 1,
+						"next_step": "test.now.step"
+					},
+					"fail": {
+						"code": "yellow",
+						"priority": 3,
+						"next_step_html": "positive-nip.step.html",
+						"next_step_interval": 90,
+						"event_explanation": "positive-nip.explanation",
+						"warning": "test.future.warning"
+					}
+				},
+				"fail": {
+					"code": "red",
+					"priority": 11,
+					"next_step": "test.now.step"
+				}
+			},
+			"fail": {
+				"code": "red",
+				"priority": 11,
+				"next_step_html": "positive.step.html"
+			}
+		},
 		
 		"PCR.positive-IP": {
 			"condition": "timeout",
