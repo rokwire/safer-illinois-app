@@ -8,12 +8,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixed rokmetro token refresh [#396](https://github.com/rokwire/safer-illinois-app/issues/396).
 
-### Added
-- Defined PCR.xpositive2 rule [#461](https://github.com/rokwire/safer-illinois-app/issues/461).
-
-### Changed
-- Updated symptoms rules [#464](https://github.com/rokwire/safer-illinois-app/issues/464).
-
 ## [2.10.8] - 2020-12-23
 ### Added
 - Added support of both authentication methods, use Rokmetro auth in Health BB API calls [#396](https://github.com/rokwire/safer-illinois-app/issues/396).
