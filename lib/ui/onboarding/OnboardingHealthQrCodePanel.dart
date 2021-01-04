@@ -25,9 +25,7 @@ import 'package:flutter/material.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
-import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Onboarding.dart';
-import 'package:illinois/service/Storage.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/onboarding/OnboardingBackButton.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
@@ -36,6 +34,7 @@ import 'package:illinois/utils/Covid19.dart';
 import 'package:illinois/utils/Crypt.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:pointycastle/export.dart' as PointyCastle;
+import 'package:qr_flutter/qr_flutter.dart';
 
 
 class OnboardingHealthQrCodePanel extends StatefulWidget with OnboardingPanel {
@@ -60,8 +59,10 @@ class _OnboardingHealthQrCodePanelState extends State<OnboardingHealthQrCodePane
 
   PointyCastle.PublicKey _userPublicKey;
   PointyCastle.PrivateKey _userPrivateKey;
+  String _userPrivateKeyString;
+
   bool _prepairing, _userKeysPaired;
-  Uint8List _qrCodeBytes;
+
   bool _saving = false;
 
   bool _isRefreshing = false;
@@ -104,21 +105,10 @@ class _OnboardingHealthQrCodePanelState extends State<OnboardingHealthQrCodePane
     List<int> privateKeyCompressedData = (privateKeyData != null) ? GZipEncoder().encode(privateKeyData) : null;
     String privateKeyString = (privateKeyData != null) ? base64.encode(privateKeyCompressedData) : null;
     if (privateKeyString != null) {
-      NativeCommunicator().getBarcodeImageData({
-        'content': privateKeyString,
-        'format': 'qrCode',
-        'width': 1024,
-        'height': 1024,
-      }).then((Uint8List qrCodeBytes) {
-        if (mounted) {
-          _qrCodeBytes = qrCodeBytes;
-          _finishPrepare();
-        }
-      });
+      _userPrivateKeyString = privateKeyString;
     }
-    else {
-      _finishPrepare();
-    }
+
+    _finishPrepare();
   }
 
   void _finishPrepare() {
@@ -202,7 +192,7 @@ class _OnboardingHealthQrCodePanelState extends State<OnboardingHealthQrCodePane
 
   Widget _buildPrivateKeyContent(){
     return SingleChildScrollView(
-      child: (_qrCodeBytes != null) ? _buildQrCodeContent() : _buildNoQrCodeContent(),
+      child: (_userPrivateKeyString != null) ? _buildQrCodeContent() : _buildNoQrCodeContent(),
     );
   }
 
@@ -317,9 +307,17 @@ class _OnboardingHealthQrCodePanelState extends State<OnboardingHealthQrCodePane
           color: Styles().colors.white,
           borderRadius: BorderRadius.all( Radius.circular(5))),
       padding: EdgeInsets.all(1),
-      child: Semantics(child:
-        Image.memory(_qrCodeBytes, fit: BoxFit.fitWidth, semanticLabel: Localization().getStringEx("panel.health.covid19.qr_code.primary.heading.title", "Your COVID-19 Encryption Key"),
-      )),
+      child: Semantics(
+          label:  Localization().getStringEx("panel.health.covid19.qr_code.primary.heading.title", "Your COVID-19 Encryption Key"),
+          excludeSemantics: true,
+          child: AppString.isStringNotEmpty(_userPrivateKeyString)
+              ? QrImage(
+                  data: _userPrivateKeyString,
+                  version: QrVersions.auto,
+                  size: 1024.0,
+                )
+              : Container()
+      ),
     );
   }
 
@@ -636,13 +634,14 @@ class _OnboardingHealthQrCodePanelState extends State<OnboardingHealthQrCodePane
 
   Future<void> _saveQrImage() async{
     Analytics.instance.logSelect(target: "Save Your Encryption Key");
-    if (_qrCodeBytes == null) {
+    if (_userPrivateKeyString == null) {
       AppAlert.showDialogResult(context, Localization().getStringEx("panel.health.covid19.qr_code.alert.no_qr_code.msg", "There is no QR Code")).then((_) {
         _goNext();
       });
     }
     else {
-      bool result = await Covid19Utils.saveQRCodeImageToPictures(qrCodeBytes: _qrCodeBytes, title: Localization().getStringEx("panel.covid19.transfer.label.qr_image_label", "Safer Illinois COVID-19 Code"));
+
+      bool result = await Covid19Utils.saveQRCodeImageToPictures(qrCodeBytes: utf8.encode(_userPrivateKeyString), title: Localization().getStringEx("panel.covid19.transfer.label.qr_image_label", "Safer Illinois COVID-19 Code"));
       String platformTargetText = (defaultTargetPlatform == TargetPlatform.android)?Localization().getStringEx("panel.health.covid19.alert.save.success.pictures", "Pictures"): Localization().getStringEx("panel.health.covid19.alert.save.success.gallery", "gallery");
       String message = result
             ? (Localization().getStringEx("panel.covid19.transfer.alert.save.success.msg", "Successfully saved qr code in ") + platformTargetText)
@@ -783,7 +782,7 @@ class _OnboardingHealthQrCodePanelState extends State<OnboardingHealthQrCodePane
     if (_prepairing == true) {
       return '';
     }
-    else if (_qrCodeBytes != null) {
+    else if (_userPrivateKeyString != null) {
       return Localization().getStringEx("panel.health.covid19.qr_code.button.continue.title", "Continue");
     }
     else {

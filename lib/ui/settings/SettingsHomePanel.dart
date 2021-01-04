@@ -26,6 +26,7 @@ import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Connectivity.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Organizations.dart';
+import 'package:illinois/ui/onboarding/OnboardingHealthPasswordPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginPhoneVerifyPanel.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/utils/AppDateTime.dart';
@@ -736,14 +737,14 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
             borderColor: Styles().colors.fillColorPrimary,
             onTap: _onTapLoadCovid19QrCode),),
           Container(width: 8,),
-          Expanded(child: ScalableRoundedButton(
+          /*Expanded(child: ScalableRoundedButton(
             label: Localization().getStringEx('panel.settings.home.covid19.button.scan.title', 'Scan'),
             backgroundColor: Styles().colors.background,
             fontSize: 16.0,
             textColor: Styles().colors.fillColorPrimary,
             borderColor: Styles().colors.fillColorPrimary,
             onTap: _onTapScanCovid19QrCode)),
-          Container(width: 8,),
+          Container(width: 8,),*/
           Expanded(child:
             _buildCovid19ResetButton(),
           ),
@@ -879,7 +880,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
     }
   }
 
-  void _onTapScanCovid19QrCode() {
+  /*void _onTapScanCovid19QrCode() {
     if (Connectivity().isNotOffline) {
       Analytics.instance.logSelect(target: "Scan COVID-19 Secret QRcode");
       BarcodeScanner.scan().then((result) {
@@ -894,7 +895,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
     } else {
       AppAlert.showOfflineMessage(context);
     }
-  }
+  }*/
 
   void _onTapLoadCovid19QrCode() {
     if (Connectivity().isNotOffline) {
@@ -933,6 +934,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
                       setState(() {
                         _healthUserKeysPaired = true;
                       });
+                      Navigator.push(context, CupertinoPageRoute(builder: (context)=>OnboardingHealthPasswordPanel()));
                     }
                   });
                 }

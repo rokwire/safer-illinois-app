@@ -177,7 +177,11 @@ class _OnboardingHealthPasswordPanelState extends State<OnboardingHealthPassword
             //Error
             AppToast.show(Localization().getStringEx("panel.health.onboarding.covid19.password.label.error.login","Unable to login in Health"));
           } else {
-            Onboarding().next(context, widget);
+            if(widget.onboardingContext != null){
+              Onboarding().next(context, widget);
+            } else {
+              Navigator.pop(context);
+            }
           }
         }
       }).catchError((error) {
