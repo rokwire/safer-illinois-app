@@ -931,7 +931,9 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   void _onTapUnlockCovid19(){
     if (Connectivity().isNotOffline) {
       Analytics.instance.logSelect(target: "Unlock COVID-19 Secret Password");
-      showDialog(context: context, builder: (context) => PasswordUnlockDialog());
+      showDialog(context: context, builder: (context) => PasswordUnlockDialog()).whenComplete((){
+        _verifyHealthUserKeys();
+      });
     } else {
       AppAlert.showOfflineMessage(context);
     }
