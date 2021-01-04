@@ -242,43 +242,36 @@ class _GroupsHomePanelState extends State<GroupsHomePanel> implements Notificati
         color: Styles().colors.white,
         child: Padding(
             padding: const EdgeInsets.only(left: 6, right: 16, bottom: 13),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                AppCollection.isCollectionEmpty(_categories)
-                    ? Container()
-                    : FilterSelectorWidget(
-                    label: _selectedCategory,
-                    hint: "",
-                    active: (_activeFilterType == FilterType.category),
-                    visible: true,
-                    onTap: (){
-                      Analytics.instance.logSelect(target: "GroupFilter");
-                      setState(() {
-                        _activeFilterType = (_activeFilterType != FilterType.category) ? FilterType.category : FilterType.none;
-                      });
-                    },
-                  ),
-                Expanded(child: Container()),
-                Semantics(
-                  label:Localization().getStringEx("panel.groups_home.button.search.title", "Search"),
-                  child:
-                  IconButton(
-                    icon: Image.asset(
-                      'images/icon-search.png',
-                      color: Styles().colors.fillColorSecondary,
-                      excludeFromSemantics: true,
-                      width: 25,
-                      height: 25,
-                    ),
-                    onPressed: () {
-                      Analytics.instance.logSelect(target: "Search");
-                      Navigator.push(context, CupertinoPageRoute(builder: (context) => GroupsSearchPanel()));
-                    },
-                  ),
-                )
-              ],
+            child: Semantics(
+              label:Localization().getStringEx("panel.groups_home.button.search.title", "Search"),
+              excludeSemantics: true,
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: (){
+                  Analytics.instance.logSelect(target: "Search");
+                  Navigator.push(context, CupertinoPageRoute(builder: (context) => GroupsSearchPanel()));
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Expanded(child: Container()),
+                    IconButton(
+                      icon: Image.asset(
+                        'images/icon-search.png',
+                        color: Styles().colors.fillColorSecondary,
+                        excludeFromSemantics: true,
+                        width: 25,
+                        height: 25,
+                      ),
+                      onPressed: () {
+                        Analytics.instance.logSelect(target: "Search");
+                        Navigator.push(context, CupertinoPageRoute(builder: (context) => GroupsSearchPanel()));
+                      },
+                    )
+                  ],
+                ),
+              ),
             ),
           ),
       );
