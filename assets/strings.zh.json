@@ -240,6 +240,7 @@
 		"panel.settings.home.covid19.button.retry.title": "重试",
 		"panel.settings.home.covid19.button.reset.title": "重置",
 		"panel.settings.home.covid19.button.load.title": "加载",
+		"panel.settings.home.covid19.button.unlock.title": "Unlock",
 		"panel.settings.home.covid19.button.scan.title": "扫描",
 		"panel.settings.home.covid19.button.qr_code.title": "QR Code",
 

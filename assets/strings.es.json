@@ -240,6 +240,7 @@
 	"panel.settings.home.covid19.button.retry.title": "Reintentar",
 	"panel.settings.home.covid19.button.reset.title": "Reiniciar",
 	"panel.settings.home.covid19.button.load.title": "Carga",
+	"panel.settings.home.covid19.button.unlock.title": "Unlock",
 	"panel.settings.home.covid19.button.scan.title": "Escanear",
 	"panel.settings.home.covid19.button.qr_code.title": "Código QR",
 

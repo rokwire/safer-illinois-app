@@ -29,6 +29,7 @@ import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/ui/onboarding/OnboardingHealthPasswordPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginPhoneVerifyPanel.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
+import 'package:illinois/ui/widgets/PasswordUnlockDialog.dart';
 import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/FlexUI.dart';
@@ -706,6 +707,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   }
 
   Widget _buildCovid19KeysSection() {
+    bool canDecryptPrivateKey = Health().hasEncryptedPrivateKey && !Health().hasPrivateKey;
     if ((_refreshingHealthUser == true) || (_checkingHealthUserKeysPaired == true)) {
       return Text(Localization().getStringEx('panel.settings.home.covid19.text.keys.checking', 'Checking COVID-19 keys...'), style: TextStyle(color: Styles().colors.textBackground, fontFamily: Styles().fontFamilies.regular, fontSize: 16),);
     }
@@ -718,8 +720,16 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
         buttons =  <Widget>[
           Expanded(child: Container()),
           Container(width: 8,),
-          Expanded(child: Container()),
-          Container(width: 8,),
+          canDecryptPrivateKey
+              ? Expanded(child: ScalableRoundedButton(
+              label: Localization().getStringEx("panel.settings.home.covid19.button.unlock.title","Unlock",),
+              backgroundColor: Styles().colors.background,
+              fontSize: 16.0,
+              textColor: Styles().colors.fillColorPrimary,
+              borderColor: Styles().colors.fillColorPrimary,
+              onTap: _onTapUnlockCovid19),)
+              : Container(),
+          Container(width: canDecryptPrivateKey ? 8 : 0,),
           Expanded(child: _buildCovid19ResetButton()),
         ];
       }
@@ -736,7 +746,17 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
             textColor: Styles().colors.fillColorPrimary,
             borderColor: Styles().colors.fillColorPrimary,
             onTap: _onTapLoadCovid19QrCode),),
-          Container(width: 8,),
+          Container(width:8),
+          canDecryptPrivateKey
+              ? Expanded(child: ScalableRoundedButton(
+              label: Localization().getStringEx("panel.settings.home.covid19.button.unlock.title","Unlock",),
+              backgroundColor: Styles().colors.background,
+              fontSize: 16.0,
+              textColor: Styles().colors.fillColorPrimary,
+              borderColor: Styles().colors.fillColorPrimary,
+              onTap: _onTapUnlockCovid19),)
+              : Container(),
+          Container(width: canDecryptPrivateKey ? 8 : 0,),
           /*Expanded(child: ScalableRoundedButton(
             label: Localization().getStringEx('panel.settings.home.covid19.button.scan.title', 'Scan'),
             backgroundColor: Styles().colors.background,
@@ -903,6 +923,15 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
       Covid19Utils.loadQRCodeImageFromPictures().then((String qrCodeString) {
         _onCovid19QrCodeScanSucceeded(qrCodeString);
       });
+    } else {
+      AppAlert.showOfflineMessage(context);
+    }
+  }
+
+  void _onTapUnlockCovid19(){
+    if (Connectivity().isNotOffline) {
+      Analytics.instance.logSelect(target: "Unlock COVID-19 Secret Password");
+      showDialog(context: context, builder: (context) => PasswordUnlockDialog());
     } else {
       AppAlert.showOfflineMessage(context);
     }
