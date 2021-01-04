@@ -61,8 +61,7 @@ class Organization {
   String get defaultEnvironment {
     if (environments != null) {
 
-      //TMP:
-      return 'dev';
+      //TMP: return 'dev';
 
       for (String environment in environments.keys) {
         if (environments[environment].isDefault == true) {
