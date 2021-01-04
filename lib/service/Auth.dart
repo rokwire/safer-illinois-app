@@ -1053,7 +1053,8 @@ class Auth with Service implements NotificationsListener {
   }
 
   Future<AuthToken> refreshRokmetroToken() async {
-    RokmetroToken newRokmetroToken = await _loadRokmetroToken(optAuthToken: _authToken);
+    AuthToken newAuthToken = await refreshAuthToken();
+    RokmetroToken newRokmetroToken = await _loadRokmetroToken(optAuthToken: newAuthToken);
     if (newRokmetroToken?.idToken != null) {
       Storage().rokmetroToken = _rokmetroToken = newRokmetroToken;
     }

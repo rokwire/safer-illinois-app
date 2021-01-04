@@ -726,7 +726,7 @@
 	"panel.groups_create.privacy.hint.default": "Select privacy setting..",
 	"panel.groups_create.privacy.hint": "Double tap to show privacy options",
 	"panel.groups_create.privacy.description": "Anyone who uses the Illinois app can find this group. Only admins can see whose in the group.",
-	"panel.groups_create.button.create.title": "Request Group Approval",
+	"panel.groups_create.button.create.title": "Create Group",
 
 	"panel.group_create_post.label.title": "New Post",
 	"panel.group_create_post.label.post": "post",
