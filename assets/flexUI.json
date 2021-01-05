@@ -1,6 +1,6 @@
 {
 	"content": {
-		"onboarding": ["get_started", "organization", "notifications_auth", "location_auth", "bluetooth_auth", "roles", "login_netid", "login_phone", "verify_phone", "confirm_phone",
+		"onboarding": ["get_started", "roles", "login_netid", "login_phone", "verify_phone", "confirm_phone", "organization", "notifications_auth", "location_auth", "bluetooth_auth",
 			 "health_intro", "health_how_it_works", "health_consent", "health_qrcode", "health_password", "health_final"],
 
 		"settings": ["user_info", "connect", "customizations", "connected", "notifications", "covid19", "privacy", "account", "feedback"],
