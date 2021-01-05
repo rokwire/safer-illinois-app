@@ -213,22 +213,33 @@ class AppUrl {
   }
 }
 
-//TBD: DD - web
 class AppWeb {
   static String host() {
-    if (kIsWeb) {
-      return html.window.location.origin;
-    } else {
-      return null;
-    }
+    return html.window.location.origin;
   }
 
   static String appHost() {
-    if (kIsWeb) {
-      return host() + '/safer';
-    } else {
+    return host() + '/safer';
+  }
+
+  static String getCookie(String name) {
+    String cookie = html.window.document.cookie;
+    if (cookie == null || cookie.isEmpty || cookie.trim().isEmpty) {
       return null;
     }
+
+    List<String> cookies = cookie.split("; ");
+    if (cookies == null || cookies.isEmpty) {
+      return null;
+    }
+
+    for (var current in cookies) {
+      if (current.startsWith(name)) {
+        String value = current.substring(name.length + 1); //"name=...
+        return value;
+      }
+    }
+    return null;
   }
 }
 

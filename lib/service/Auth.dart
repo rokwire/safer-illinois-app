@@ -25,7 +25,6 @@ import 'package:illinois/model/Auth.dart';
 import 'package:illinois/model/UserProfile.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/AppLivecycle.dart';
-import 'package:illinois/service/DeepLink.dart';
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Config.dart';
@@ -36,7 +35,6 @@ import 'package:illinois/service/Storage.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:universal_html/html.dart' as html;
-import 'package:url_launcher/url_launcher.dart' as url_launcher;
 
 import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/utils/Utils.dart';
@@ -87,7 +85,6 @@ class Auth with Service implements NotificationsListener {
   @override
   void createService() {
     NotificationService().subscribe(this, [
-      DeepLink.notifyUri,
       AppLivecycle.notifyStateChanged,
       UserProfile.notifyProfileDeleted,
       Config.notifyConfigChanged,
@@ -144,10 +141,7 @@ class Auth with Service implements NotificationsListener {
   
   @override
   void onNotification(String name, dynamic param) {
-    if (name == DeepLink.notifyUri) {
-      _onDeepLinkUri(param);
-    }
-    else if (name == AppLivecycle.notifyStateChanged) {
+    if (name == AppLivecycle.notifyStateChanged) {
       if (param == AppLifecycleState.resumed) {
         _reloadAuthCardIfNeeded();
         _reloadUserPiiDataIfNeeded();
@@ -165,28 +159,11 @@ class Auth with Service implements NotificationsListener {
   // Shibboleth Oauth
 
   void authenticateWithShibboleth() {
-    String authUrl;
-    if (kIsWeb) {
-      authUrl = AppWeb.appHost() + '/auth/login';
-    } else if ((Config().shibbolethOidcAuthUrl != null) && (Config().shibbolethClientId != null)) {
-      Uri uri = Uri.tryParse(Config().shibbolethOidcAuthUrl)?.replace(queryParameters: {
-        'scope': "openid profile email offline_access",
-        'response_type': 'code',
-        'redirect_uri': REDIRECT_URI,
-        'client_id': Config().shibbolethClientId,
-        'claims': json.jsonEncode({
-          'userinfo': {
-            'uiucedu_uin': {'essential': true},
-          },
-        }),
-      });
-      authUrl = uri?.toString();
-    }
-    if (authUrl != null) {
-      _launchUrl(authUrl);
-    }
+    String authUrl = AppWeb.appHost() + '/auth/login';
+    _launchUrl(authUrl);
   }
 
+  //TBD: Leave it as a reference. Remove it after we have proper login and proper retrieving of a user details
   Future<void> _handleShibbolethAuthentication(code) async {
 
     NativeCommunicator().dismissSafariVC();
@@ -497,7 +474,8 @@ class Auth with Service implements NotificationsListener {
   }
 
   bool get isLoggedIn {
-    return _authToken != null;
+    String swcSessCookie = AppWeb.getCookie('swc-sess');
+    return AppString.isStringNotEmpty(swcSessCookie);
   }
 
   bool get isShibbolethLoggedIn {
@@ -1064,36 +1042,8 @@ class Auth with Service implements NotificationsListener {
   // Deep Links
 
   void _launchUrl(urlStr) async {
-    if (kIsWeb) {
-      // Open the url under the same tab
-      html.window.location.href = urlStr;
-    } else {
-      try {
-        if (await url_launcher.canLaunch(urlStr)) {
-          await url_launcher.launch(urlStr);
-        }
-      } catch (e) {
-        print(e);
-      }
-    }
-  }
-
-  void _onDeepLinkUri(Uri uri) {
-    if (uri != null) {
-      Uri shibbolethRedirectUri;
-      try { shibbolethRedirectUri = Uri.parse(REDIRECT_URI); }
-      catch(e) { print(e?.toString()); }
-
-      var code = uri.queryParameters['code'];
-      if ((shibbolethRedirectUri != null) &&
-          (shibbolethRedirectUri.scheme == uri.scheme) &&
-          (shibbolethRedirectUri.authority == uri.authority) &&
-          (shibbolethRedirectUri.path == uri.path) &&
-          ((code != null) && code.isNotEmpty))
-      {
-        _handleShibbolethAuthentication(code);
-      }
-    }
+    // Open the url under the same tab
+    html.window.location.href = urlStr;
   }
 
   // AuthListeners
