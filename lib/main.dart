@@ -23,10 +23,8 @@ import 'package:illinois/service/AppNavigation.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/UserProfile.dart';
-import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
-import 'package:illinois/ui/onboarding/OnboardingUpgradePanel.dart';
 
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/Analytics.dart';
@@ -115,8 +113,6 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> implements NotificationsListener {
 
-  String _upgradeRequiredVersion;
-  String _upgradeAvailableVersion;
   Key key = UniqueKey();
 
   @override
@@ -125,23 +121,12 @@ class _AppState extends State<App> implements NotificationsListener {
 
     NotificationService().subscribe(this, [
       Onboarding.notifyFinished,
-      Config.notifyUpgradeAvailable,
-      Config.notifyUpgradeRequired,
       Organizations.notifyOrganizationChanged,
       Organizations.notifyEnvironmentChanged,
       UserProfile.notifyProfileDeleted,
     ]);
 
     AppLivecycle.instance.ensureBinding();
-
-    _upgradeRequiredVersion = Config().upgradeRequiredVersion;
-    _upgradeAvailableVersion = Config().upgradeAvailableVersion;
-    
-    // This is just a placeholder to take some action on app upgrade.
-    String lastRunVersion = Storage().lastRunVersion;
-    if ((lastRunVersion == null) || (lastRunVersion != Config().appVersion)) {
-      Storage().lastRunVersion = Config().appVersion;
-    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       NativeCommunicator().dismissLaunchScreen();
@@ -178,13 +163,7 @@ class _AppState extends State<App> implements NotificationsListener {
   }
 
   Widget get _homePanel {
-    if (_upgradeRequiredVersion != null) {
-      return OnboardingUpgradePanel(requiredVersion:_upgradeRequiredVersion);
-    }
-    else if (_upgradeAvailableVersion != null) {
-      return OnboardingUpgradePanel(availableVersion:_upgradeAvailableVersion);
-    }
-    else if (!Storage().onBoardingPassed) {
+    if (!Storage().onBoardingPassed) {
       return Onboarding().startPanel;
     }
     else {
@@ -210,16 +189,6 @@ class _AppState extends State<App> implements NotificationsListener {
   void onNotification(String name, dynamic param) {
     if (name == Onboarding.notifyFinished) {
       _finishOnboarding(param);
-    }
-    else if (name == Config.notifyUpgradeRequired) {
-      setState(() {
-        _upgradeRequiredVersion = param;
-      });
-    }
-    else if (name == Config.notifyUpgradeAvailable) {
-      setState(() {
-        _upgradeAvailableVersion = param;
-      });
     }
     else if (name == Organizations.notifyOrganizationChanged) {
       _resetUI();

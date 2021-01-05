@@ -36,8 +36,6 @@ class Config with Service implements NotificationsListener {
 
   static const String _configFileName           = "config.json";
 
-  static const String notifyUpgradeRequired     = "edu.illinois.rokwire.config.upgrade.required";
-  static const String notifyUpgradeAvailable    = "edu.illinois.rokwire.config.upgrade.available";
   static const String notifyConfigChanged       = "edu.illinois.rokwire.config.changed";
 
   Map<String, dynamic> _config;

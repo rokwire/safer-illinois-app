@@ -243,19 +243,6 @@ class Storage with Service {
     }
   }
 
-  ////////////////////////////
-  // Last Run Version
-
-  static const String lastRunVersionKey  = 'last_run_version';
-
-  String get lastRunVersion {
-    return _getStringWithName(lastRunVersionKey);
-  }
-
-  set lastRunVersion(String value) {
-    _setStringWithName(lastRunVersionKey, value);
-  }
-
   ////////////////
   // Auth
 
