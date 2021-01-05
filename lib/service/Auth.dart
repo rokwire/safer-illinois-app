@@ -58,7 +58,6 @@ class Auth with Service implements NotificationsListener {
   AuthToken _authToken;
   AuthUser _authUser;
 
-  RokmetroToken _rokmetroToken;
   RokmetroUser _rokmetroUser;
 
   UserPiiData _userPiiData;
@@ -93,7 +92,6 @@ class Auth with Service implements NotificationsListener {
     _authToken = Storage().authToken;
     _authUser = Storage().authUser;
 
-    _rokmetroToken = Storage().rokmetroToken;
     _rokmetroUser = Storage().rokmetroUser;
 
     _authCardCacheFile = await _getAuthCardCacheFile();
@@ -113,7 +111,6 @@ class Auth with Service implements NotificationsListener {
     _authToken = null;
     _authUser = null;
 
-    _rokmetroToken = null;
     _rokmetroUser = null;
 
     AppFile.delete(_authCardCacheFile);
@@ -177,16 +174,17 @@ class Auth with Service implements NotificationsListener {
     }
 
     // 2. Request Rokmetro token
-    RokmetroToken newRokmetroToken = await _loadRokmetroToken(optAuthToken: newAuthToken);
-    if (newRokmetroToken == null) {
-      _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
-      return;
-    }
+    // RokmetroToken newRokmetroToken = await _loadRokmetroToken(optAuthToken: newAuthToken);
+    // if (newRokmetroToken == null) {
+    //   _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
+    //   return;
+    // }
 
     // 3. Request AuthUser & RokmetroUser
     results = await Future.wait([
       _loadShibbolethAuthUser(optAuthToken: newAuthToken),
-      _loadRokmetroUser(optRokmetroToken: newRokmetroToken)
+      // _loadRokmetroUser(optRokmetroToken: newRokmetroToken)
+      _loadRokmetroUser()
     ]);
 
     AuthUser newAuthUser = ((results != null) && (0 < results.length)) ? results[0] : null;
@@ -233,7 +231,7 @@ class Auth with Service implements NotificationsListener {
     NotificationService().notify(notifyUserChanged);
 
     // 6.3 RokmetroToken
-    Storage().rokmetroToken = _rokmetroToken = newRokmetroToken;
+    // Storage().rokmetroToken = _rokmetroToken = newRokmetroToken;
 
     // 6.4 RokmetroUser
     Storage().rokmetroUser = _rokmetroUser = newRokmetroUser;
@@ -326,15 +324,16 @@ class Auth with Service implements NotificationsListener {
     }
 
     // 2. Request Rokmetro token
-    RokmetroToken newRokmetroToken = await _loadRokmetroToken(optAuthToken: newAuthToken);
-    if (newRokmetroToken == null) {
-      _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
-      return false;
-    }
+    // RokmetroToken newRokmetroToken = await _loadRokmetroToken(optAuthToken: newAuthToken);
+    // if (newRokmetroToken == null) {
+    //   _notifyAuthLoginFailed(analyticsAction: Analytics.LogAuthLoginNetIdActionName);
+    //   return false;
+    // }
 
     // 3. Request RokmetroUser && AuthUser
     results = await Future.wait([
-      _loadRokmetroUser(optRokmetroToken: newRokmetroToken),
+      // _loadRokmetroUser(optRokmetroToken: newRokmetroToken),
+      _loadRokmetroUser(),
       Config().capitolStaffRoleEnabled ? _loadPhoneAuthUser(optAuthToken: newAuthToken) : Future<AuthUser>.value(null),
       _loadUserPersonalDataWithPhoneAuth(phone: phoneNumber, optAuthToken: newAuthToken)
     ]);
@@ -371,7 +370,7 @@ class Auth with Service implements NotificationsListener {
     NotificationService().notify(notifyUserChanged);
 
     // 5.3 RokmetroToken
-    Storage().rokmetroToken = _rokmetroToken = newRokmetroToken;
+    // Storage().rokmetroToken = _rokmetroToken = newRokmetroToken;
 
     // 5.4 RokmetroUser
     Storage().rokmetroUser = _rokmetroUser = newRokmetroUser;
@@ -422,7 +421,6 @@ class Auth with Service implements NotificationsListener {
   void _clear([bool notify = false]) {
     Storage().authToken = _authToken = null;
     Storage().authUser = _authUser = null;
-    Storage().rokmetroToken = _rokmetroToken = null;
     Storage().rokmetroUser = _rokmetroUser = null;
     _authCard = null;
 
@@ -450,10 +448,6 @@ class Auth with Service implements NotificationsListener {
 
   AuthUser get authUser {
     return _authUser;
-  }
-
-  RokmetroToken get rokmetroToken {
-    return _rokmetroToken;
   }
 
   RokmetroUser get rokmetroUser {
@@ -594,41 +588,13 @@ class Auth with Service implements NotificationsListener {
     }
   }
 
-  /// Rokmetro Token and User
+  /// Rokmetro User
 
-  Future<RokmetroToken> _loadRokmetroToken({AuthToken optAuthToken}) async {
-    AuthToken token = optAuthToken ?? _authToken;
-    if ((Config().rokmetroAuthUrl != null) && (Config().rokwireApiKey != null) && (token != null)) {
-      try {
-        String url = "${Config().rokmetroAuthUrl}/swap-token";
-        String idToken = token?.idToken;
-        String tokenType = token?.tokenType ?? 'Bearer';
-        Map <String, String> headers = {
-          Network.RokwireApiKey : Config().rokwireApiKey,
-          HttpHeaders.authorizationHeader: "$tokenType $idToken"
-        };
-        Http.Response response = await Network().get(url, headers: headers);
-        String responseBody = (response?.statusCode == 200) ? response.body : null;
-        return (responseBody != null) ? RokmetroToken(idToken: responseBody) : null;
-      } catch(e) {
-        print(e?.toString());
-      }
-    }
-    return null;
-  }
-
-  Future<RokmetroUser> _loadRokmetroUser({RokmetroToken optRokmetroToken}) async {
-    RokmetroToken token = optRokmetroToken ?? _rokmetroToken;
-    if ((Config().rokmetroAuthUrl != null) && (Config().rokwireApiKey != null) && (token != null)) {
+  Future<RokmetroUser> _loadRokmetroUser() async {
+    if (Config().rokmetroAuthUrl != null) {
       try {
         String url = "${Config().rokmetroAuthUrl}/user-info";
-        String idToken = token?.idToken;
-        String tokenType = token?.tokenType ?? 'Bearer';
-        Map <String, String> headers = {
-          Network.RokwireApiKey : Config().rokwireApiKey,
-          HttpHeaders.authorizationHeader: "$tokenType $idToken"
-        };
-        Http.Response response = await Network().get(url, headers: headers);
+        Http.Response response = await Network().get(url);
         String responseBody = (response?.statusCode == 200) ? response.body : null;
         Map<String, dynamic> responseJson = (responseBody != null) ? AppJson.decodeMap(responseBody) : null;
         return (responseJson != null) ? RokmetroUser.fromJson(responseJson) : null;
@@ -640,11 +606,8 @@ class Auth with Service implements NotificationsListener {
   }
 
   Future<void> _ensureRokmetroData() async {
-    if ((_authToken != null) && (_rokmetroToken == null)) {
-      Storage().rokmetroToken = _rokmetroToken = await _loadRokmetroToken(optAuthToken: _authToken);
-    }
-    if ((_rokmetroToken != null) && (_rokmetroUser == null)) {
-      Storage().rokmetroUser = _rokmetroUser = await _loadRokmetroUser(optRokmetroToken: _rokmetroToken);
+    if ((_rokmetroUser == null)) {
+      Storage().rokmetroUser = _rokmetroUser = await _loadRokmetroUser();
     }
   }
 
@@ -986,15 +949,6 @@ class Auth with Service implements NotificationsListener {
   Future<AuthToken> _refreshShibbolethAuthToken() async {
     //TBD: DD - web - to be removed
     return null;
-  }
-
-  Future<AuthToken> refreshRokmetroToken() async {
-    AuthToken newAuthToken = await refreshAuthToken();
-    RokmetroToken newRokmetroToken = await _loadRokmetroToken(optAuthToken: newAuthToken);
-    if (newRokmetroToken?.idToken != null) {
-      Storage().rokmetroToken = _rokmetroToken = newRokmetroToken;
-    }
-    return newRokmetroToken;
   }
 
   // Deep Links

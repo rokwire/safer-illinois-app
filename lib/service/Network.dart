@@ -350,16 +350,6 @@ class Network  {
           result[HttpHeaders.authorizationHeader] = "$tokenType $idToken";
         }
       }
-      else if ((auth & RokmetroUserAuth) != 0) {
-        String idToken = Auth().rokmetroToken?.idToken;
-        String tokenType = Auth().rokmetroToken?.tokenType ?? 'Bearer';
-        if ((idToken != null) && idToken.isNotEmpty) {
-          if (result == null) {
-            result = (headers != null) ? Map.from(headers) : Map();
-          }
-          result[HttpHeaders.authorizationHeader] = "$tokenType $idToken";
-        }
-      }
 
       if ((auth & HealthAccountAuth) != 0) {
         String rokwireAccountId = Health().userAccountId;
@@ -395,9 +385,6 @@ class Network  {
     if (auth != null) {
       if ((auth & ShibbolethUserAuth) != 0) {
         return await Auth().refreshAuthToken();
-      }
-      else if ((auth & RokmetroUserAuth) != 0) {
-        return await Auth().refreshRokmetroToken();
       }
     }
     return null;
