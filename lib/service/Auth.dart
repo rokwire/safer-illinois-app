@@ -468,8 +468,8 @@ class Auth with Service implements NotificationsListener {
   }
 
   bool get isShibbolethLoggedIn {
-    //TBD: DD - web check if user is shibboleth singed logged in.
-    return false;
+    String rokmetroUserAuth = _rokmetroUser?.auth;
+    return 'oidc' == rokmetroUserAuth;
   }
 
   bool get isPhoneLoggedIn {
