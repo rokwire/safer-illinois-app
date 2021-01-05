@@ -934,23 +934,6 @@ class Auth with Service implements NotificationsListener {
     }
   }
 
-  // Refresh Auth Token
-
-  Future<AuthToken> refreshAuthToken() async {
-    if (isShibbolethLoggedIn) {
-      return await _refreshShibbolethAuthToken();
-    }
-    else {
-      // We do not support this currently
-      return null;
-    }
-  }
-
-  Future<AuthToken> _refreshShibbolethAuthToken() async {
-    //TBD: DD - web - to be removed
-    return null;
-  }
-
   // Deep Links
 
   void _launchUrl(urlStr) async {

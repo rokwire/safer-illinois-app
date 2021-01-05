@@ -20,7 +20,6 @@ import 'dart:typed_data';
 
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:http/http.dart' as Http;
-import 'package:illinois/model/Auth.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Connectivity.dart';
 import 'package:illinois/service/Analytics.dart';
@@ -151,11 +150,6 @@ class Network  {
   Future<Http.Response> get(url, { String body, Encoding encoding, Map<String, String> headers, int auth, Http.Client client, int timeout = 60, bool sendAnalytics = true, String analyticsUrl, bool analyticsAnonymous }) async {
     Http.Response response = await _get(url, headers: headers, body: body, encoding: encoding, auth: auth, client: client, timeout: timeout);
     
-    if (_requiresTokenRefresh(response, auth)) {
-      await _refreshToken(auth);
-      response = await _get(url, headers: headers, body: body, encoding: encoding, auth: auth, client: client, timeout: timeout);
-    }
-
     if (sendAnalytics) {
       Analytics().logHttpResponse(response, requestMethod:'GET', requestUrl: analyticsUrl ?? url, anonymous: analyticsAnonymous);
     }
@@ -180,11 +174,6 @@ class Network  {
 
   Future<Http.Response> post(url, { body, Encoding encoding, Map<String, String> headers, int auth, int timeout = 60, bool sendAnalytics = true, String analyticsUrl, bool analyticsAnonymous }) async{
     Http.Response response = await _post(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout);
-
-    if (_requiresTokenRefresh(response, auth)) {
-      await _refreshToken(auth);
-      response = await _post(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout);
-    }
 
     if (sendAnalytics) {
       Analytics().logHttpResponse(response, requestMethod:'POST', requestUrl: analyticsUrl ?? url, anonymous: analyticsAnonymous);
@@ -217,11 +206,6 @@ class Network  {
   Future<Http.Response> put(url, { body, Encoding encoding, Map<String, String> headers, int auth, int timeout = 60, Http.Client client, bool sendAnalytics = true, String analyticsUrl, bool analyticsAnonymous }) async {
     Http.Response response = await _put(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout, client: client);
 
-    if (_requiresTokenRefresh(response, auth)) {
-      await _refreshToken(auth);
-      response = await _put(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout, client: client);
-    }
-
     if (sendAnalytics) {
       Analytics().logHttpResponse(response, requestMethod:'PUT', requestUrl: analyticsUrl ?? url, anonymous: analyticsAnonymous);
     }
@@ -247,11 +231,6 @@ class Network  {
   Future<Http.Response> patch(url, { body, Encoding encoding, Map<String, String> headers, int auth, int timeout = 60, bool sendAnalytics = true, String analyticsUrl, bool analyticsAnonymous }) async {
     Http.Response response = await _patch(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout);
 
-    if (_requiresTokenRefresh(response, auth)) {
-      await _refreshToken(auth);
-      response = await _patch(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout);
-    }
-
     if (sendAnalytics) {
       Analytics().logHttpResponse(response, requestMethod:'PATCH', requestUrl: analyticsUrl ?? url, anonymous: analyticsAnonymous);
     }
@@ -276,11 +255,6 @@ class Network  {
 
   Future<Http.Response> delete(url, { Map<String, String> headers, int auth, int timeout = 60, bool sendAnalytics = true, String analyticsUrl, bool analyticsAnonymous }) async {
     Http.Response response = await _delete(url, headers: headers, auth: auth, timeout: timeout);
-
-    if (_requiresTokenRefresh(response, auth)) {
-      await _refreshToken(auth);
-      response = await _delete(url, headers: headers, auth: auth, timeout: timeout);
-    }
 
     if (sendAnalytics) {
       Analytics().logHttpResponse(response, requestMethod:'DELETE', requestUrl: analyticsUrl ?? url, anonymous: analyticsAnonymous);
@@ -375,19 +349,6 @@ class Network  {
     }
 
     return (result != null) ? result : headers;
-  }
-
-  bool _requiresTokenRefresh(Http.Response response, int auth) {
-    return (response?.statusCode == 401) && (auth != null) && ((auth & (ShibbolethUserAuth | RokmetroUserAuth)) != 0) && (Auth().authToken != null);
-  }
-
-  Future<AuthToken> _refreshToken(int auth) async {
-    if (auth != null) {
-      if ((auth & ShibbolethUserAuth) != 0) {
-        return await Auth().refreshAuthToken();
-      }
-    }
-    return null;
   }
 
 
