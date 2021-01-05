@@ -16,7 +16,6 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:illinois/model/UserProfile.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Localization.dart';
@@ -60,8 +59,6 @@ class _OnboardingLoginNetIdPanelState extends State<OnboardingLoginNetIdPanel> i
   @override
   Widget build(BuildContext context) {
     String titleString = Localization().getStringEx('panel.onboarding.login.netid.label.title', 'Connect your NetID');
-    String skipTitle = Localization().getStringEx('panel.onboarding.login.netid.button.dont_continue.title', 'Not right now');
-    bool hasSkip = !(UserProfile().roles?.contains(UserRole.nonUniversityMember) ?? false);
     return Scaffold(
         backgroundColor: Styles().colors.background,
         body: Stack(
@@ -131,34 +128,7 @@ class _OnboardingLoginNetIdPanelState extends State<OnboardingLoginNetIdPanel> i
                               backgroundColor: Styles().colors.background,
                               textColor: Styles().colors.fillColorPrimary,
                               onTap: () => _onLoginTapped()),
-                        ),
-                      hasSkip ? Row(
-                        children: <Widget>[
-                          Expanded(
-                              child: GestureDetector(
-                            onTap: () => _onSkipTapped(),
-                            child: Semantics(
-                                label: skipTitle,
-                                hint: Localization().getStringEx('panel.onboarding.login.netid.button.dont_continue.hint', 'Skip verification'),
-                                button: true,
-                                excludeSemantics: true,
-                                child: Padding(
-                                  padding: EdgeInsets.only(bottom: 24),
-                                  child: Text(
-                                    skipTitle,
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: Styles().colors.fillColorPrimary,
-                                      decoration: TextDecoration.underline,
-                                      decorationColor: Styles().colors.fillColorSecondary,
-                                      fontFamily: Styles().fontFamilies.medium,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                )),
-                          )),
-                        ],
-                      ) : Container()
+                        )
               ])),
             _progress
                 ? Container(
@@ -210,14 +180,6 @@ class _OnboardingLoginNetIdPanelState extends State<OnboardingLoginNetIdPanel> i
   void _onLoginTapped() {
     Analytics.instance.logSelect(target: 'Log in with NetID');
     Auth().authenticateWithShibboleth();
-  }
-
-  void _onSkipTapped() {
-    Analytics.instance.logSelect(target: 'Not right now');
-    if (Auth().isShibbolethLoggedIn) {
-      widget.onboardingContext["shouldDisplayQrCode"] = true;
-    }
-    Onboarding().next(context, widget);
   }
 
   // NotificationsListener
