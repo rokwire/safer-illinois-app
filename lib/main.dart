@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:illinois/service/AppNavigation.dart';
+import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/UserProfile.dart';
@@ -35,6 +36,7 @@ import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/ui/RootPanel.dart';
 import 'package:illinois/service/Styles.dart';
+import 'package:illinois/ui/onboarding/OnboardingHealthIntroPanel.dart';
 
 final AppExitListener appExitListener = AppExitListener();
 
@@ -164,9 +166,12 @@ class _AppState extends State<App> implements NotificationsListener {
 
   Widget get _homePanel {
     if (!Storage().onBoardingPassed) {
-      return Onboarding().startPanel;
-    }
-    else {
+      if (Auth().isLoggedIn) {
+        return OnboardingHealthIntroPanel(onboardingContext: {},);
+      } else {
+        return Onboarding().startPanel;
+      }
+    } else {
       return RootPanel();
     }
   }
