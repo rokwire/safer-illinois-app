@@ -35,8 +35,6 @@ import 'package:illinois/utils/Utils.dart';
 
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'package:package_info/package_info.dart';
-import 'package:device_info/device_info.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:illinois/service/UserProfile.dart';
@@ -241,9 +239,6 @@ class Analytics with Service implements NotificationsListener {
   String               _currentPageName;
   Map<String, dynamic> _currentPageAttributes;
   bool                 _currentPageAnonymous;
-  PackageInfo          _packageInfo;
-  AndroidDeviceInfo    _androidDeviceInfo;
-  IosDeviceInfo        _iosDeviceInfo;
   String               _appId;
   String               _appVersion;
   String               _osVersion;
@@ -299,31 +294,8 @@ class Analytics with Service implements NotificationsListener {
     _updateUserRoles();
     _updateSessionUuid();
 
-    //TBD: DD - web
-    if (kIsWeb) {
-      _appVersion = AppVersion.webVersion();
-      _appId = AppWeb.appHost();
-    } else {
-      PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
-        _packageInfo = packageInfo;
-        _appId = _packageInfo?.packageName;
-        _appVersion = "${_packageInfo?.version}+${_packageInfo?.buildNumber}";
-      });
-
-      if (defaultTargetPlatform == TargetPlatform.android) {
-        DeviceInfoPlugin().androidInfo.then((AndroidDeviceInfo androidDeviceInfo) {
-          _androidDeviceInfo = androidDeviceInfo;
-          _deviceModel = _androidDeviceInfo.model;
-          _osVersion = _androidDeviceInfo.version.release;
-        });
-      } else if (defaultTargetPlatform == TargetPlatform.iOS) {
-        DeviceInfoPlugin().iosInfo.then((IosDeviceInfo iosDeviceInfo) {
-          _iosDeviceInfo = iosDeviceInfo;
-          _deviceModel = _iosDeviceInfo.model;
-          _osVersion = _iosDeviceInfo.systemVersion;
-        });
-      }
-    }
+    _appVersion = AppVersion.webVersion();
+    _appId = AppWeb.appHost();
   }
 
   @override

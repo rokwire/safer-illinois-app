@@ -22,18 +22,15 @@ import 'package:http/http.dart' as http;
 import 'package:illinois/model/Organization.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
-import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/Service.dart';
 import 'package:illinois/utils/Crypt.dart';
-import 'package:package_info/package_info.dart';
 import 'package:collection/collection.dart';
 import 'package:illinois/service/Storage.dart';
 import 'package:illinois/service/Network.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
 
 class Config with Service implements NotificationsListener {
 
@@ -45,8 +42,7 @@ class Config with Service implements NotificationsListener {
 
   Map<String, dynamic> _config;
 
-  PackageInfo          _packageInfo;
-  Directory            _appDocumentsDir; 
+  Directory            _appDocumentsDir;
   DateTime             _pausedDateTime;
   
   final Set<String>    _reportedUpgradeVersions = Set<String>();
@@ -80,22 +76,10 @@ class Config with Service implements NotificationsListener {
 
   @override
   Future<void> initService() async {
-    //TBD: DD - web
-    if (!kIsWeb) {
-      if (_packageInfo == null) {
-        _packageInfo = await PackageInfo.fromPlatform();
-      }
-
-      if (_appDocumentsDir == null) {
-        _appDocumentsDir = await getApplicationDocumentsDirectory();
-        Log.d('Application Documents Directory: ${_appDocumentsDir.path}');
-      }
-    }
 
     _config = await _loadFromFile(_configFile);
 
     if (_config != null) {
-        _checkUpgrade();
         _updateFromNet();
     }
     else if (Organizations().organization != null) {
@@ -107,8 +91,6 @@ class Config with Service implements NotificationsListener {
           _configFile.writeAsStringSync(configString, flush: true);
         }
         NotificationService().notify(notifyConfigChanged, null);
-        
-        _checkUpgrade();
       }
     }
     else {
@@ -205,8 +187,6 @@ class Config with Service implements NotificationsListener {
           _configFile.writeAsString(configString, flush: true);
         }
         NotificationService().notify(notifyConfigChanged, null);
-
-        _checkUpgrade();
       }
     });
   }
@@ -241,11 +221,7 @@ class Config with Service implements NotificationsListener {
   // Upgrade
 
   String get appId {
-    if (kIsWeb) {
-      return AppWeb.appHost();
-    } else {
-      return _packageInfo?.packageName;
-    }
+    return AppWeb.appHost();
   }
 
   String get appVersion {
@@ -282,20 +258,6 @@ class Config with Service implements NotificationsListener {
     }
   }
 
-  void _checkUpgrade() {
-    //TBD: DD - web
-    if (kIsWeb) {
-      return;
-    }
-    String value;
-    if ((value = this.upgradeRequiredVersion) != null) {
-      NotificationService().notify(notifyUpgradeRequired, value);
-    }
-    else if ((value = this.upgradeAvailableVersion) != null) {
-      NotificationService().notify(notifyUpgradeAvailable, value);
-    }
-  }
-
   String _upgradeStringEntry(String key) {
     dynamic entry = upgradeInfo[key];
     if (entry is String) {
@@ -311,11 +273,7 @@ class Config with Service implements NotificationsListener {
   }
 
   String get _version {
-    if (kIsWeb) {
-      return AppVersion.webVersion();
-    } else {
-      return _packageInfo?.version;
-    }
+    return AppVersion.webVersion();
   }
 
   // Assets cache path

@@ -51,7 +51,6 @@ import 'package:illinois/utils/Crypt.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:barcode_scan/barcode_scan.dart';
-import 'package:package_info/package_info.dart';
 import 'package:pointycastle/export.dart' as PointyCastle;
 
 
@@ -1158,15 +1157,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   }
 
   void _loadVersionInfo() async {
-    if (kIsWeb) {
-      _versionName = AppVersion.webVersion();
-    } else {
-      PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
-        setState(() {
-          _versionName = packageInfo?.version;
-        });
-      });
-    }
+    _versionName = AppVersion.webVersion();
   }
 
   // Utilities

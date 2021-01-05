@@ -44,7 +44,6 @@ dependencies:
   sprintf: ^5.0.0
   sqflite: ^1.1.7+1
   encrypt: ^4.0.2
-  package_info: ^0.4.0+9
   device_info: ^0.4.0+4
   connectivity: ^0.4.5+1
   collection: ^1.14.11
