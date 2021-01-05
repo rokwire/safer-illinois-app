@@ -25,7 +25,6 @@ import 'package:illinois/model/Auth.dart';
 import 'package:illinois/model/UserProfile.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/AppLivecycle.dart';
-import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Network.dart';
@@ -67,8 +66,6 @@ class Auth with Service implements NotificationsListener {
 
   AuthCard _authCard;
   File _authCardCacheFile;
-
-  Future<Http.Response> _refreshTokenFuture;
 
   // Singletone Instance
   
@@ -260,11 +257,11 @@ class Auth with Service implements NotificationsListener {
   }
 
   Future<AuthToken> _loadShibbolethAuthTokenWithCode(String code) async {
-    
+
     String tokenUriStr = Config().shibbolethOidcTokenUrl
         ?.replaceAll("{shibboleth_client_id}", Config().shibbolethClientId ?? '')
         ?.replaceAll("{shibboleth_client_secret}", Config().shibbolethClientSecret ?? '');
-    
+
     Map<String,dynamic> bodyData = {
       'code': code,
       'grant_type': 'authorization_code',
@@ -276,7 +273,9 @@ class Auth with Service implements NotificationsListener {
       String responseBody = (response != null && response.statusCode == 200) ? response.body : null;
       Map<String,dynamic> jsonData = AppString.isStringNotEmpty(responseBody) ? AppJson.decode(responseBody) : null;
       if(jsonData != null){
-        return ShibbolethToken.fromJson(jsonData);
+        //TBD: DD - web - to be removed
+        // return ShibbolethToken.fromJson(jsonData);
+        return null;
       }
     }
     catch(e) { print(e?.toString()); }
@@ -444,10 +443,6 @@ class Auth with Service implements NotificationsListener {
   AuthToken get authToken {
     return _authToken;
   }
-
-  ShibbolethToken get shibbolethToken {
-    return _authToken is ShibbolethToken ? _authToken : null;
-  }
   
   PhoneToken get phoneToken {
     return _authToken is PhoneToken ? _authToken : null;
@@ -479,7 +474,8 @@ class Auth with Service implements NotificationsListener {
   }
 
   bool get isShibbolethLoggedIn {
-    return shibbolethToken != null;
+    //TBD: DD - web check if user is shibboleth singed logged in.
+    return false;
   }
 
   bool get isPhoneLoggedIn {
@@ -988,45 +984,7 @@ class Auth with Service implements NotificationsListener {
   }
 
   Future<AuthToken> _refreshShibbolethAuthToken() async {
-    if ((_authToken is ShibbolethToken) && (Config().shibbolethOidcTokenUrl != null) && (Config().shibbolethClientId != null) && (Config().shibbolethClientSecret != null)) {
-      if(_refreshTokenFuture != null){
-        Log.d("Auth: will await refresh token");
-        await _refreshTokenFuture;
-        Log.d("Auth: did await refresh token");
-      }
-      else {
-        try {
-          Log.d("Auth: will refresh token");
-
-          String tokenUriStr = Config().shibbolethOidcTokenUrl
-              ?.replaceAll("{shibboleth_client_id}", Config().shibbolethClientId ?? '')
-              ?.replaceAll("{shibboleth_client_secret}", Config().shibbolethClientSecret ?? '');
-          
-          Map<String, String> body = {
-            "refresh_token": _authToken?.refreshToken,
-            "grant_type": "refresh_token",
-          };
-
-          _refreshTokenFuture = Network().post(tokenUriStr, body: body);
-          Response tokenResponse = await _refreshTokenFuture;
-          _refreshTokenFuture = null;
-
-          String tokenResponseBody = ((tokenResponse != null) && (tokenResponse.statusCode == 200)) ? tokenResponse.body : null;
-          Map<String, dynamic> bodyMap = (tokenResponseBody != null) ? AppJson.decodeMap(tokenResponseBody) : null;
-          ShibbolethToken token = (bodyMap != null) ? ShibbolethToken.fromJson(bodyMap) : null;
-          if (token?.idToken != null) {
-            Log.d("Auth: did refresh token: ${authToken?.idToken}");
-            Storage().authToken = _authToken = token;
-            NotificationService().notify(notifyAuthTokenChanged);
-            return token;
-          }
-        }
-        catch(e) {
-          print(e.toString());
-          _refreshTokenFuture = null; // make sure to clear this in case something went wrong.
-        }
-      }
-    }
+    //TBD: DD - web - to be removed
     return null;
   }
 

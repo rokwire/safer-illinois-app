@@ -32,60 +32,11 @@ abstract class AuthToken {
       if (json.containsKey("phone")) {
         return PhoneToken.fromJson(json);
       }
-      else {
-        return ShibbolethToken.fromJson(json);
-      }
     }
     return null;
   }
 
   toJson() => {};
-}
-
-class ShibbolethToken with AuthToken {
-
-  final String idToken;
-  final String accessToken;
-  final String refreshToken;
-  final String tokenType;
-  final int expiresIn;
-
-  ShibbolethToken({this.idToken, this.accessToken, this.refreshToken, this.tokenType, this.expiresIn});
-
-  factory ShibbolethToken.fromJson(Map<String, dynamic> json) {
-    return (json != null) ? ShibbolethToken(
-      idToken: json['id_token'],
-      accessToken: json['access_token'],
-      refreshToken: json['refresh_token'],
-      tokenType: json['token_type'],
-      expiresIn: json['expires_in'],
-    ) : null;
-  }
-
-  toJson() {
-    return {
-      'id_token': idToken,
-      'access_token': accessToken,
-      'refresh_token': refreshToken,
-      'token_type': tokenType,
-      'expires_in': expiresIn
-    };
-  }
-
-  bool operator ==(o) =>
-      o is ShibbolethToken &&
-          o.idToken == idToken &&
-          o.accessToken == accessToken &&
-          o.refreshToken == refreshToken &&
-          o.tokenType == tokenType &&
-          o.expiresIn == expiresIn;
-
-  int get hashCode =>
-      idToken.hashCode ^
-      accessToken.hashCode ^
-      refreshToken.hashCode ^
-      tokenType.hashCode ^
-      expiresIn.hashCode;
 }
 
 class PhoneToken with AuthToken {
