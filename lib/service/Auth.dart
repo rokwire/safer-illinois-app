@@ -25,6 +25,7 @@ import 'package:illinois/model/Auth.dart';
 import 'package:illinois/model/UserProfile.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/AppLivecycle.dart';
+import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Network.dart';
@@ -415,7 +416,11 @@ class Auth with Service implements NotificationsListener {
   // Clear / Logout
   
   void logout() {
-    _clear(true);
+    _logout().then((success) {
+      if (success) {
+        _clear(true);
+      }
+    });
   }
 
   void _clear([bool notify = false]) {
@@ -434,6 +439,26 @@ class Auth with Service implements NotificationsListener {
       NotificationService().notify(notifyAuthTokenChanged);
       _notifyAuthLoggedOut();
     }
+  }
+
+  Future<bool> _logout() async {
+    String host = AppWeb.appHost();
+    if (AppString.isStringEmpty(host)) {
+      return false;
+    }
+    String signOutUrl = '$host/auth/logout';
+    try {
+      Response response = await Network().get(signOutUrl);
+      bool success = (response.statusCode == 200);
+      if (!success) {
+        Log.e('Failed to logout. Reason:');
+        Log.e(response.body);
+      }
+      return success;
+    } catch (e) {
+      print(e.toString());
+    }
+    return false;
   }
 
   // Public accessories
