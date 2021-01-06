@@ -285,6 +285,21 @@ class Storage with Service {
     _setIntWithName(authCardTimeKey, value);
   }
 
+  static const String rokmetroTokenKey  = '_rokmetro_token';
+
+  RokmetroToken get rokmetroToken {
+    try {
+      String jsonString = _getStringWithName(rokmetroTokenKey);
+      Map<String, dynamic> jsonData = AppJson.decodeMap(jsonString);
+      return (jsonData != null) ? RokmetroToken.fromJson(jsonData) : null;
+    } on Exception catch (e) { print(e.toString()); }
+    return null;
+  }
+
+  set rokmetroToken(RokmetroToken value) {
+    _setStringWithName(rokmetroTokenKey, AppJson.encode(value?.toJson()));
+  }
+
   static const String rokmetroUserKey  = '_rokmetro_user';
 
   RokmetroUser get rokmetroUser {

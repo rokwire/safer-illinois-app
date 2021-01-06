@@ -333,6 +333,32 @@ class AuthCard {
   }
 }
 
+class RokmetroToken with AuthToken {
+  final String idToken;
+  final String tokenType = "Bearer"; // missing data from the phone validation
+
+  RokmetroToken({this.idToken});
+
+  factory RokmetroToken.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? RokmetroToken(
+      idToken: json['id_token'],
+    ) : null;
+  }
+
+  toJson() {
+    return {
+      'id_token': idToken,
+    };
+  }
+
+  bool operator ==(o) =>
+      o is RokmetroToken &&
+          o.idToken == idToken;
+
+  int get hashCode =>
+      idToken.hashCode;
+}
+
 class RokmetroUser {
   final String uid;
   final String name;

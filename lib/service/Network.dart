@@ -324,6 +324,16 @@ class Network  {
           result[HttpHeaders.authorizationHeader] = "$tokenType $idToken";
         }
       }
+      else if ((auth & RokmetroUserAuth) != 0) {
+        String idToken = Auth().rokmetroToken?.idToken;
+        String tokenType = Auth().rokmetroToken?.tokenType ?? 'Bearer';
+        if ((idToken != null) && idToken.isNotEmpty) {
+          if (result == null) {
+            result = (headers != null) ? Map.from(headers) : Map();
+          }
+          result[HttpHeaders.authorizationHeader] = "$tokenType $idToken";
+        }
+      }
 
       if ((auth & HealthAccountAuth) != 0) {
         String rokwireAccountId = Health().userAccountId;
@@ -350,7 +360,6 @@ class Network  {
 
     return (result != null) ? result : headers;
   }
-
 
   void _saveCookiesFromResponse(String url, Http.Response response) {
     if (AppString.isStringEmpty(url) || response == null)
