@@ -23,7 +23,6 @@ import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/DeepLink.dart';
 import 'package:illinois/service/Health.dart';
-import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Network.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
@@ -86,7 +85,7 @@ class OSFHealth with Service implements NotificationsListener {
   Future<void> _handleOSFAuthentication(String code) async {
     if (Config().osfBaseUrl != null) {
       NotificationService().notify(notifyOnFetchBegin, null);
-      NativeCommunicator().dismissSafariVC();
+      //NativeCommunicator().dismissSafariVC();
       int processedEntriesCount = 0;
       try {
         Response response = await Network().post("${Config().osfBaseUrl}/oauth2/token",

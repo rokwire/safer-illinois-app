@@ -24,11 +24,9 @@ import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/Auth.dart';
-import 'package:illinois/service/BluetoothServices.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Exposure.dart';
 import 'package:illinois/service/LocationServices.dart';
-import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Network.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
@@ -140,7 +138,7 @@ class Health with Service implements NotificationsListener {
 
   @override
   Set<Service> get serviceDependsOn {
-    return Set.from([Storage(), Config(), UserProfile(), Auth(), NativeCommunicator()]);
+    return Set.from([Storage(), Config(), UserProfile(), Auth()]);
   }
 
   // NotificationsListener
@@ -475,10 +473,6 @@ class Health with Service implements NotificationsListener {
     if (exposureNotification == true) {
       if (await LocationServices().status == LocationServicesStatus.PermissionNotDetermined) {
         await LocationServices().requestPermission();
-      }
-
-      if (BluetoothServices().status == BluetoothStatus.PermissionNotDetermined) {
-        await BluetoothServices().requestStatus();
       }
     }
 

@@ -26,7 +26,6 @@ import 'package:illinois/model/UserProfile.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/Log.dart';
-import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Network.dart';
 import 'package:illinois/service/NotificationService.dart';
@@ -163,8 +162,6 @@ class Auth with Service implements NotificationsListener {
 
   //TBD: Leave it as a reference. Remove it after we have proper login and proper retrieving of a user details
   Future<void> _handleShibbolethAuthentication(code) async {
-
-    NativeCommunicator().dismissSafariVC();
     
     List<dynamic> results;
     NotificationService().notify(notifyStarted);

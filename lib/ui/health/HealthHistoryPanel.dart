@@ -23,7 +23,6 @@ import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/Localization.dart';
-import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/service/Styles.dart';
@@ -674,7 +673,7 @@ class _HealthHistoryEntryState extends State<_HealthHistoryEntry> with SingleTic
       Health().loadLocation(locationId: locationId).then((location){
         setState(() => _isLoading = false);
         if(location!=null){
-          NativeCommunicator().launchMap(
+          /*NativeCommunicator().launchMap(
               target: {
                 'latitude': location?.latitude,
                 'longitude': location?.longitude,
@@ -686,7 +685,7 @@ class _HealthHistoryEntryState extends State<_HealthHistoryEntry> with SingleTic
                 'longitude': location?.longitude,
                 'description': null,
               }]
-          );
+          );*/
         } else {
           //error
           AppToast.show("Unable to load location");

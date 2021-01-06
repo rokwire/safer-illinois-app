@@ -23,7 +23,6 @@ import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/Auth.dart';
-import 'package:illinois/service/BluetoothServices.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Log.dart';
@@ -148,7 +147,6 @@ class Exposure with Service implements NotificationsListener {
   @override
   void createService() {
     NotificationService().subscribe(this, [
-      BluetoothServices.notifyStatusChanged,
       Config.notifyConfigChanged,
       AppLivecycle.notifyStateChanged,
       Health.notifyUserUpdated,
@@ -228,9 +226,6 @@ class Exposure with Service implements NotificationsListener {
         _updatePlugin();
         _updateExposuresMonitor();
       }
-      else if (name == BluetoothServices.notifyStatusChanged) {
-        _updatePlugin();
-      }
       else if (name == AppLivecycle.notifyStateChanged) {
         _onAppLivecycleStateChanged(param); 
       }
@@ -264,7 +259,7 @@ class Exposure with Service implements NotificationsListener {
   }
 
   bool get _pluginEnabled {
-    return (BluetoothServices().status == BluetoothStatus.PermissionAllowed) && _serviceEnabled;
+    return  _serviceEnabled;
   }
 
   Future<void> _initializePlugin() async {

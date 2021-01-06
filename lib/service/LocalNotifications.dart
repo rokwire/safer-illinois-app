@@ -17,7 +17,6 @@
 import 'dart:io';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
 import 'package:illinois/service/Log.dart';
@@ -49,23 +48,9 @@ class LocalNotifications with Service {
     initPlugin();
   }
 
-  @override
-  Set<Service> get serviceDependsOn {
-    return Set.from([NativeCommunicator()]);
-  }
-
   void initPlugin() {
     if (_flutterLocalNotificationsPlugin == null) {
-      if (Platform.isIOS) {
-        NativeCommunicator().queryNotificationsAuthorization("query").then((bool notificationsAuthorized) {
-          if (notificationsAuthorized) {
-            _initPlugin();
-          }
-        });
-      }
-      else {
-        _initPlugin();
-      }
+      _initPlugin();
     }
   }
 

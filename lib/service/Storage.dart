@@ -21,7 +21,6 @@ import 'package:illinois/model/Auth.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/model/Organization.dart';
 import 'package:illinois/model/UserProfile.dart';
-import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
 import 'package:illinois/utils/Crypt.dart';
@@ -50,10 +49,6 @@ class Storage with Service {
   Future<void> initService() async {
     if (_sharedPreferences == null) {
       _sharedPreferences = await SharedPreferences.getInstance();
-    }
-    //TBD: DD - web
-    if ((_encryptionKey == null) && !kIsWeb) {
-      _encryptionKey = await NativeCommunicator().encryptionKey(name: 'storage', size: AESCrypt.kCCBlockSizeAES128);
     }
   }
 

@@ -14,27 +14,18 @@
  * limitations under the License.
  */
 
-import 'dart:convert';
-import 'dart:typed_data';
-
-import 'package:archive/archive.dart';
-import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
-import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/onboarding/OnboardingBackButton.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/ui/widgets/TrianglePainter.dart';
-import 'package:illinois/utils/Covid19.dart';
-import 'package:illinois/utils/Crypt.dart';
 import 'package:illinois/utils/Utils.dart';
-import 'package:pointycastle/export.dart' as PointyCastle;
 
 
 class OnboardingHealthPasswordPanel extends StatefulWidget with OnboardingPanel {

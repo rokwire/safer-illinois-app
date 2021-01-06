@@ -18,7 +18,6 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:illinois/service/AppLivecycle.dart';
-import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
 import 'package:location/location.dart';
@@ -73,7 +72,7 @@ class LocationServices with Service implements NotificationsListener {
   }
 
   Future<LocationServicesStatus> get status async {
-    _lastStatus = _locationServicesStatusFromString(await NativeCommunicator().queryLocationServicesPermission('query'));
+    _lastStatus = LocationServicesStatus.ServiceDisabled;
     _updateLocationMonitor();
     return _lastStatus;
   }
@@ -105,7 +104,7 @@ class LocationServices with Service implements NotificationsListener {
 
     _lastStatus = await this.status;
     if (_lastStatus == LocationServicesStatus.PermissionNotDetermined) {
-      _lastStatus = _locationServicesStatusFromString(await NativeCommunicator().queryLocationServicesPermission('request'));
+      _lastStatus = LocationServicesStatus.ServiceDisabled;
       _notifyStatusChanged();
     }
 

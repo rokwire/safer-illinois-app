@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-import 'dart:io';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:illinois/service/Analytics.dart';
-import 'package:illinois/service/BluetoothServices.dart';
 import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
@@ -40,11 +36,7 @@ class OnboardingAuthBluetoothPanel extends StatefulWidget with OnboardingPanel {
 
   @override
   bool get onboardingCanDisplay {
-    if (kIsWeb) {
-      return false;
-    } else {
-      return Platform.isIOS && (BluetoothServices().status != BluetoothStatus.PermissionAllowed);
-    }
+    return false;
   }
 }
 
@@ -181,23 +173,7 @@ class _OnboardingAuthBluetoothPanelState extends State<OnboardingAuthBluetoothPa
   }
 
   void _requestBluetooth(BuildContext context) {
-
     Analytics.instance.logSelect(target: 'Enable Bluetooth') ;
-
-    BluetoothStatus authStatus = BluetoothServices().status;
-    if (authStatus == BluetoothStatus.PermissionNotDetermined) {
-      BluetoothServices().requestStatus().then((_){
-        _goNext();
-      });
-    }
-    else if (authStatus == BluetoothStatus.PermissionDenied) {
-      String message = Localization().getStringEx('panel.onboarding.bluetooth.label.access_denied', 'You have already denied access to this app.');
-      showDialog(context: context, builder: (context) => _buildDialogWidget(context, message: message, pushNext: false));
-    }
-    else if (authStatus == BluetoothStatus.PermissionAllowed) {
-      String message = Localization().getStringEx('panel.onboarding.bluetooth.label.access_granted', 'You have already granted access to this app.');
-      showDialog(context: context, builder: (context) => _buildDialogWidget(context, message: message, pushNext: true));
-    }
   }
 
   Widget _buildDialogWidget(BuildContext context, {String message, bool pushNext}) {

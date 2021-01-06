@@ -19,17 +19,12 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
-import 'package:http/http.dart';
-// import 'package:firebase_messaging/firebase_messaging.dart' as FirebaseMessagingPlugin;
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/model/UserProfile.dart';
-import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/FirebaseService.dart';
 import 'package:illinois/service/Health.dart';
 
-import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Config.dart';
-import 'package:illinois/service/Network.dart';
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Organizations.dart';

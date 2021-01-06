@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Storage.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
@@ -112,15 +111,5 @@ class _DebugDirectionsPanelState extends State<DebugDirectionsPanel> {
 
     _latitudeFocusNode.unfocus();
     _longitudeFocusNode.unfocus();
-
-    NativeCommunicator().launchMapDirections(
-      target: {
-        'latitude': latitude,
-        'longitude': longitude,
-        'zoom': 17,
-        'title': 'Debug Location',
-        'description': '(${_latitudeController.text}, ${_longitudeController.text})',
-      },
-    );
   }
 }

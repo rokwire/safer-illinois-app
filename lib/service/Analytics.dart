@@ -38,7 +38,6 @@ import 'package:path/path.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:illinois/service/UserProfile.dart';
-import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/LocationServices.dart';
 
@@ -277,8 +276,6 @@ class Analytics with Service implements NotificationsListener {
       UserProfile.notifyRolesUpdated,
       UserProfile.notifyProfileUpdated,
       UserProfile.notifyProfileDeleted,
-      NativeCommunicator.notifyMapRouteStart,
-      NativeCommunicator.notifyMapRouteFinish,
     ]);
   }
 
@@ -290,7 +287,6 @@ class Analytics with Service implements NotificationsListener {
     
     _updateConnectivity();
     _updateLocationServices();
-    _updateNotificationServices();
     _updateUserRoles();
     _updateSessionUuid();
 
@@ -399,12 +395,6 @@ class Analytics with Service implements NotificationsListener {
       _updateSessionUuid();
       _updateUserRoles();
     }
-    else if (name == NativeCommunicator.notifyMapRouteStart) {
-      logMapRoute(action: LogMapRouteStartActionName, params: param);
-    }
-    else if (name == NativeCommunicator.notifyMapRouteFinish) {
-      logMapRoute(action: LogMapRouteFinishActionName, params: param);
-    }
   }
 
   // Connectivity
@@ -430,7 +420,6 @@ class Analytics with Service implements NotificationsListener {
     }
     else if (state == AppLifecycleState.resumed) {
       _updateSessionUuid();
-      _updateNotificationServices();
       logLivecycle(name: LogLivecycleEventForeground);
     }
     else if (state == AppLifecycleState.detached) {
@@ -513,21 +502,6 @@ class Analytics with Service implements NotificationsListener {
   // Notification Services
 
   void updateNotificationServices() {
-    _updateNotificationServices();
-  }
-
-  void _updateNotificationServices() {
-    //TBD: DD - web
-    if (!kIsWeb) {
-      // Android does not need for permission for user notifications
-      if (Platform.isAndroid) {
-        _notificationServices = 'enabled';
-      } else if (Platform.isIOS) {
-        NativeCommunicator().queryNotificationsAuthorization("query").then((bool notificationsAuthorized) {
-          _notificationServices = notificationsAuthorized ? 'enabled' : "not_enabled";
-        });
-      }
-    }
   }
 
   // Sesssion Uuid

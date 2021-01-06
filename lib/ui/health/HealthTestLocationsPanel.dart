@@ -17,7 +17,6 @@
 import 'dart:collection';
 
 import 'package:illinois/service/Analytics.dart';
-import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:location/location.dart' as Core;
 import 'package:flutter/material.dart';
@@ -590,18 +589,7 @@ class _TestLocation extends StatelessWidget{
     double lat = testLocation?.latitude;
     double lng = testLocation?.longitude;
     if ((lat != null) && (lng != null)) {
-      NativeCommunicator().launchMap(
-          target: {
-            'latitude': testLocation?.latitude,
-            'longitude': testLocation?.longitude,
-            'zoom': 17,
-          },
-          markers: [{
-            'name': testLocation?.name,
-            'description': testLocation?.fullAddress,
-            'latitude': testLocation?.latitude,
-            'longitude': testLocation?.longitude,
-          }]);
+
     }
   }
 

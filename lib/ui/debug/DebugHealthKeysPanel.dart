@@ -23,7 +23,6 @@ import 'package:flutter/material.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
-import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
@@ -417,21 +416,6 @@ class _DebugHealthKeysPanelState extends State<DebugHealthKeysPanel> {
   void _onSavePrivateRSAKey() {
     String privateKeyString = (_rsaPrivateKey != null) ? RsaKeyHelper.encodePrivateKeyToPemPKCS1(_rsaPrivateKey) : null;
     if (privateKeyString != null) {
-      NativeCommunicator().getBarcodeImageData({
-        'content': privateKeyString,
-        'format': 'qrCode',
-        'width': 1024,
-        'height': 1024,
-      }).then((Uint8List qrCodeBytes) {
-        if (qrCodeBytes != null) {
-          Covid19Utils.saveQRCodeImageToPictures(qrCodeBytes: qrCodeBytes, title: Localization().getStringEx("panel.covid19.transfer.label.qr_image_label", "Safer Illinois COVID-19 Code")).then((bool result) {
-            AppAlert.showDialogResult(context, result ? 'QR Code Image saved.' : 'Failed to save QR Code image.');
-          });
-        }
-        else {
-          AppAlert.showDialogResult(context, 'Failed to build QR Code image.');
-        }
-      });
     }
     else {
       AppAlert.showDialogResult(context, 'No RSA private key.');

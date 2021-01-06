@@ -24,7 +24,6 @@ import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
-import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/TransportationService.dart';
 import 'package:illinois/service/UserProfile.dart';
@@ -102,7 +101,7 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
   }
 
   static Future<Color> _loadColorOfTheDay() async {
-    return await TransportationService().loadBussColor(deviceId: await NativeCommunicator().getDeviceId(), userId: UserProfile().uuid);
+    return await TransportationService().loadBussColor(deviceId: "", userId: UserProfile().uuid);
   }
 
   static Future<MemoryImage> _loadPhotoBytes() async {

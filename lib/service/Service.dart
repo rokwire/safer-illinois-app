@@ -19,7 +19,6 @@ import 'package:flutter/foundation.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/Auth.dart';
-import 'package:illinois/service/BluetoothServices.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Connectivity.dart';
 import 'package:illinois/service/FirebaseService.dart';
@@ -32,7 +31,6 @@ import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/HttpProxy.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/LocationServices.dart';
-import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/OSFHealth.dart';
 import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Organizations.dart';
@@ -89,8 +87,6 @@ class Services {
     AppLivecycle(),
     Connectivity(),
     LocationServices(),
-    BluetoothServices(),
-    NativeCommunicator(),
     LocalNotifications(),
     DeepLink(),
 
@@ -152,8 +148,6 @@ class Services {
     for (Service service in _allServices) {
       // Do not include these services in web app
       if (((service is LocationServices) ||
-              (service is BluetoothServices) ||
-              (service is NativeCommunicator) ||
               (service is LocalNotifications) ||
               (service is DeepLink) ||
               (service is FirebaseMessaging) ||

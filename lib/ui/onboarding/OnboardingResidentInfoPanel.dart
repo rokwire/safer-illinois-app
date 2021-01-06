@@ -20,7 +20,6 @@ import 'package:illinois/model/UserProfile.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Localization.dart';
-import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/service/UserProfile.dart';
@@ -140,13 +139,6 @@ class OnboardingResidentInfoPanel extends StatelessWidget with OnboardingPanel {
       analyticsScanType = Analytics.LogDocumentScanPassportType;
       recognizers = ['passport'];
     }
-
-    NativeCommunicator().microBlinkScan(recognizers: recognizers).then((dynamic result) {
-      Analytics().logDocumentScan(type: analyticsScanType, result: (result != null));
-      if (result != null) {
-        _didScan(context, documentType, result);
-      }
-    });
   }
 
   void _didScan(BuildContext context, UserDocumentType documentType, Map<dynamic, dynamic> scanData) {

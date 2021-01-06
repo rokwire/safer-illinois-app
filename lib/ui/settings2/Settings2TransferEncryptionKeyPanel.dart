@@ -25,7 +25,6 @@ import 'package:flutter/material.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
-import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
@@ -79,7 +78,7 @@ class _Settings2TransferEncryptionKeyPanelState extends State<Settings2TransferE
     List<int> privateKeyCompressedData = (privateKeyData != null) ? GZipEncoder().encode(privateKeyData) : null;
     String privateKeyString = (privateKeyData != null) ? base64.encode(privateKeyCompressedData) : null;
     if (privateKeyString != null) {
-      NativeCommunicator().getBarcodeImageData({
+      /*NativeCommunicator().getBarcodeImageData({
         'content': privateKeyString,
         'format': 'qrCode',
         'width': 1024,
@@ -89,7 +88,7 @@ class _Settings2TransferEncryptionKeyPanelState extends State<Settings2TransferE
           _qrCodeBytes = qrCodeBytes;
           _finishPrepare();
         }
-      });
+      });*/
     }
     else {
       _finishPrepare();

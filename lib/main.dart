@@ -21,7 +21,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:illinois/service/AppNavigation.dart';
 import 'package:illinois/service/Auth.dart';
-import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/service/NotificationService.dart';
@@ -129,10 +128,6 @@ class _AppState extends State<App> implements NotificationsListener {
     ]);
 
     AppLivecycle.instance.ensureBinding();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      NativeCommunicator().dismissLaunchScreen();
-    });
 
     super.initState();
   }

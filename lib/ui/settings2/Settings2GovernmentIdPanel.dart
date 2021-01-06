@@ -26,7 +26,6 @@ import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Exposure.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
-import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/service/UserProfile.dart';
@@ -616,13 +615,6 @@ class _Settings2GovernmentIdPanelPanelState extends State<Settings2GovernmentIdP
       analyticsScanType = Analytics.LogDocumentScanPassportType;
       recognizers = ['passport'];
     }
-
-    NativeCommunicator().microBlinkScan(recognizers: recognizers).then((dynamic result) {
-      Analytics().logDocumentScan(type: analyticsScanType, result: (result != null));
-      if (result != null) {
-        _didRescan(result);
-      }
-    });
   }
 
   void _didRescan(Map<dynamic, dynamic> scanData) {

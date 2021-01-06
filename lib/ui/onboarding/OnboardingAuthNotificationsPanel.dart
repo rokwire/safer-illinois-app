@@ -23,7 +23,6 @@ import 'package:illinois/service/Localization.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/ui/onboarding/OnboardingBackButton.dart';
 import 'package:illinois/service/Styles.dart';
-import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/LocalNotifications.dart';
 import 'package:illinois/ui/widgets/ScalableScrollView.dart';
 import 'package:illinois/ui/widgets/SwipeDetector.dart';
@@ -43,8 +42,7 @@ class OnboardingAuthNotificationsPanel extends StatelessWidget with OnboardingPa
   }
 
   Future<bool> get onboardingCanDisplayAsync async {
-    bool notificationsAuthorized = await NativeCommunicator().queryNotificationsAuthorization("query");
-    return !notificationsAuthorized;
+    return false;
   }
 
   @override
@@ -183,7 +181,7 @@ class OnboardingAuthNotificationsPanel extends StatelessWidget with OnboardingPa
   }
 
   void _requestAuthorization(BuildContext context) async {
-    bool notificationsAuthorized = await NativeCommunicator().queryNotificationsAuthorization("query");
+   /* bool notificationsAuthorized = await NativeCommunicator().queryNotificationsAuthorization("query");
     if (notificationsAuthorized) {
       showDialog(context: context, builder: (context) => _buildDialogWidget(context));
     } else {
@@ -194,7 +192,7 @@ class OnboardingAuthNotificationsPanel extends StatelessWidget with OnboardingPa
       }
       print('Notifications granted: $granted');
       _goNext(context);
-    }
+    }*/
   }
 
   Widget _buildDialogWidget(BuildContext context) {
