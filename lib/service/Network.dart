@@ -45,6 +45,7 @@ class Network  {
   static const String RokwireAccountId = 'ROKWIRE-ACC-ID';
   static const String RokwireAppId = 'APP';
   static const String RokwireAppVersion = 'V';
+  static const String RokwireCsrfToken = 'CSRF';
 
   // Auth
   static const int AppAuth            = 1;
@@ -303,6 +304,12 @@ class Network  {
 
     Map<String, String> result;
 
+    if (Auth().isLoggedIn) {
+      result = (headers != null) ? Map.from(headers) : Map();
+      result[RokwireCsrfToken] = Auth().csrfToken;
+    }
+
+    //TBD: DD - web - remove any other header except CSRF token
     if (auth != null) {
       if ((auth & AppAuth) != 0) {
         String rokwireApiKey = Config().rokwireApiKey;

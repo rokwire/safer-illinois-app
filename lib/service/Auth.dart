@@ -57,6 +57,7 @@ class Auth with Service implements NotificationsListener {
 
   AuthToken _authToken;
   AuthUser _authUser;
+  String _csrfToken;
 
   RokmetroToken _rokmetroToken;
   RokmetroUser _rokmetroUser;
@@ -90,6 +91,9 @@ class Auth with Service implements NotificationsListener {
 
   @override
   Future<void> initService() async {
+    if (isLoggedIn) {
+      await _loadCsrfToken();
+    }
     _authToken = Storage().authToken;
     _authUser = Storage().authUser;
 
@@ -991,6 +995,27 @@ class Auth with Service implements NotificationsListener {
       _authCard = null;
       _saveAuthCardStringToCache(null);
     }
+  }
+
+  // CSRF Token
+
+  Future<void> _loadCsrfToken() async {
+    String url = AppWeb.appHost() + '/csrf-token';
+    Response response = await Network().get(url);
+    int responseCode = response?.statusCode ?? -1;
+    bool success = (responseCode == 200);
+    String responseBody = response?.body;
+    if (success) {
+      _csrfToken = responseBody;
+    } else {
+      _csrfToken = null;
+      Log.e('Failed to load csrf token. Reason:');
+      Log.e(responseBody);
+    }
+  }
+
+  String get csrfToken {
+    return _csrfToken;
   }
 
   // Deep Links
