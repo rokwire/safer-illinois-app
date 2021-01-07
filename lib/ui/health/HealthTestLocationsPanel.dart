@@ -18,7 +18,6 @@ import 'dart:collection';
 
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/utils/Utils.dart';
-import 'package:location/location.dart' as Core;
 import 'package:flutter/material.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Health.dart';
@@ -26,7 +25,6 @@ import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Storage.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/service/Styles.dart';
-import 'package:illinois/service/LocationServices.dart';
 
 class HealthTestLocationsPanel extends StatefulWidget {
   _HealthTestLocationsPanelState createState() => _HealthTestLocationsPanelState();
@@ -39,17 +37,12 @@ class _HealthTestLocationsPanelState extends State<HealthTestLocationsPanel>{
   ProviderDropDownItem _selectedProviderItem;
   String _initialProviderId;
 
-
-  Core.LocationData _locationData;
-  LocationServicesStatus _locationServicesStatus;
-
   bool _isLoading = false;
   List<HealthServiceLocation> _locations;
 
   @override
   void initState() {
     _initialProviderId = Storage().lastHealthProvider?.id;
-    _loadLocationsServicesData();
     _loadCounties();
 
     if (Health().county?.id != null) {
@@ -109,34 +102,6 @@ class _HealthTestLocationsPanelState extends State<HealthTestLocationsPanel>{
               ) :Container(),
         ),
     );
-  }
-
-  void _sortLocations() async{
-    _locationData = _userLocationEnabled ? await LocationServices.instance.location : null;
-    if((_locations?.isNotEmpty?? false) && _locationData!=null){
-      _locations.sort((fistLocation, secondLocation) {
-          double firstDistance = AppLocation.distance(fistLocation.latitude, fistLocation.longitude, _locationData.latitude, _locationData.longitude);
-          double secondDistance = AppLocation.distance(secondLocation.latitude, secondLocation.longitude, _locationData.latitude, _locationData.longitude);
-          return  (firstDistance - secondDistance)?.toInt();
-      });
-      setState(() {});
-    }
-  }
-
-  void _loadLocationsServicesData(){
-
-    LocationServices.instance.status.then((LocationServicesStatus locationServicesStatus) {
-      _locationServicesStatus = locationServicesStatus;
-
-      if (_locationServicesStatus == LocationServicesStatus.PermissionNotDetermined) {
-        LocationServices.instance.requestPermission().then((LocationServicesStatus locationServicesStatus) {
-          _locationServicesStatus = locationServicesStatus;
-          _sortLocations();
-        });
-      } else {
-        _sortLocations();
-      }
-    });
   }
 
   Widget _buildCountyField(){
@@ -315,10 +280,6 @@ class _HealthTestLocationsPanelState extends State<HealthTestLocationsPanel>{
         setState((){});
         _loadLocations();
     });
-  }
-
-  bool get _userLocationEnabled {
-    return (_locationServicesStatus == LocationServicesStatus.PermissionAllowed);
   }
 }
 

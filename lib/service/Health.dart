@@ -26,7 +26,6 @@ import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Exposure.dart';
-import 'package:illinois/service/LocationServices.dart';
 import 'package:illinois/service/Network.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
@@ -468,12 +467,6 @@ class Health with Service implements NotificationsListener {
 
     if (analyticsSettingsAttributes != null) {
       Analytics().logHealth( action: Analytics.LogHealthSettingChangedAction, attributes: analyticsSettingsAttributes, defaultAttributes: Analytics.DefaultAttributes);
-    }
-
-    if (exposureNotification == true) {
-      if (await LocationServices().status == LocationServicesStatus.PermissionNotDetermined) {
-        await LocationServices().requestPermission();
-      }
     }
 
     if (userReset == true) {

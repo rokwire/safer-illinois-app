@@ -39,7 +39,6 @@ import 'package:uuid/uuid.dart';
 
 import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/service/AppLivecycle.dart';
-import 'package:illinois/service/LocationServices.dart';
 
 class Analytics with Service implements NotificationsListener {
 
@@ -272,7 +271,6 @@ class Analytics with Service implements NotificationsListener {
       Connectivity.notifyStatusChanged,
       AppLivecycle.notifyStateChanged,
       AppNavigation.notifyEvent,
-      LocationServices.notifyStatusChanged,
       UserProfile.notifyRolesUpdated,
       UserProfile.notifyProfileUpdated,
       UserProfile.notifyProfileDeleted,
@@ -286,7 +284,6 @@ class Analytics with Service implements NotificationsListener {
     _initTimer();
     
     _updateConnectivity();
-    _updateLocationServices();
     _updateUserRoles();
     _updateSessionUuid();
 
@@ -313,7 +310,7 @@ class Analytics with Service implements NotificationsListener {
 
   @override
   Set<Service> get serviceDependsOn {
-    return Set.from([Config(), UserProfile(), LocationServices(), Connectivity() ]);
+    return Set.from([Config(), UserProfile(), Connectivity() ]);
   }
 
   // Database
@@ -375,9 +372,6 @@ class Analytics with Service implements NotificationsListener {
   void onNotification(String name, dynamic param) {
     if (name == Connectivity.notifyStatusChanged) {
       _applyConnectivityStatus(param);
-    }
-    else if (name == LocationServices.notifyStatusChanged) {
-      _applyLocationServicesStatus(param);
     }
     else if (name == AppLivecycle.notifyStateChanged) {
       _onAppLivecycleStateChanged(param);
@@ -476,26 +470,6 @@ class Analytics with Service implements NotificationsListener {
 
         logPage(name: panelName, attributes: panelAttributes, anonymous: anonymous);
       }
-    }
-  }
-
-  // Location Services
-
-  void _updateLocationServices() {
-    //TBD: DD - web
-    if (!kIsWeb) {
-      LocationServices.instance.status.then((LocationServicesStatus locationServicesStatus) {
-        _applyLocationServicesStatus(locationServicesStatus);
-      });
-    }
-  }
-
-  void _applyLocationServicesStatus(LocationServicesStatus locationServicesStatus) {
-    switch (locationServicesStatus) {
-      case LocationServicesStatus.ServiceDisabled:          _locationServices = "disabled"; break;
-      case LocationServicesStatus.PermissionNotDetermined:  _locationServices = "not_determined"; break;
-      case LocationServicesStatus.PermissionDenied:         _locationServices = "denied"; break;
-      case LocationServicesStatus.PermissionAllowed:        _locationServices = "allowed"; break;
     }
   }
 

@@ -30,7 +30,6 @@ import 'package:illinois/service/FlexUI.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/HttpProxy.dart';
 import 'package:illinois/service/Localization.dart';
-import 'package:illinois/service/LocationServices.dart';
 import 'package:illinois/service/OSFHealth.dart';
 import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Organizations.dart';
@@ -86,7 +85,6 @@ class Services {
 
     AppLivecycle(),
     Connectivity(),
-    LocationServices(),
     LocalNotifications(),
     DeepLink(),
 
@@ -147,8 +145,7 @@ class Services {
     _services = List();
     for (Service service in _allServices) {
       // Do not include these services in web app
-      if (((service is LocationServices) ||
-              (service is LocalNotifications) ||
+      if (((service is LocalNotifications) ||
               (service is DeepLink) ||
               (service is FirebaseMessaging) ||
               (service is Exposure)) &&

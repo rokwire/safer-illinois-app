@@ -28,10 +28,8 @@ import 'package:illinois/ui/onboarding/OnboardingHealthPasswordPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingHealthQrCodePanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingResidentInfoPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingReviewScanPanel.dart';
-import 'package:illinois/ui/onboarding/OnboardingAuthBluetoothPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginPhoneConfirmPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingGetStartedPanel.dart';
-import 'package:illinois/ui/onboarding/OnboardingAuthLocationPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginNetIdPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginPhonePanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingAuthNotificationsPanel.dart';
@@ -157,8 +155,6 @@ class Onboarding extends Service implements NotificationsListener{
       case "get_started": return OnboardingGetStartedPanel(onboardingContext: context);
       case "organization": return OnboardingOrganizationsPanel(onboardingContext: context);
       case "notifications_auth": return OnboardingAuthNotificationsPanel(onboardingContext: context);
-      case "location_auth": return OnboardingAuthLocationPanel(onboardingContext: context);
-      case "bluetooth_auth": return OnboardingAuthBluetoothPanel(onboardingContext: context);
       case "roles": return OnboardingRolesPanel(onboardingContext: context);
       case "login_netid": return OnboardingLoginNetIdPanel(onboardingContext: context);
       case "login_phone": return OnboardingLoginPhonePanel(onboardingContext: context);
@@ -185,12 +181,6 @@ class Onboarding extends Service implements NotificationsListener{
     }
     else if (panel is OnboardingAuthNotificationsPanel) {
       return 'notifications_auth';
-    }
-    else if (panel is OnboardingAuthLocationPanel) {
-      return 'location_auth';
-    }
-    else if (panel is OnboardingAuthBluetoothPanel) {
-      return 'bluetooth_auth';
     }
     else if (panel is OnboardingRolesPanel) {
       return 'roles';
