@@ -16,7 +16,6 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:illinois/model/UserProfile.dart';
 import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Analytics.dart';
@@ -57,8 +56,6 @@ class _OnboardingLoginPhonePanelState extends State<OnboardingLoginPhonePanel> {
   @override
   Widget build(BuildContext context) {
     String titleString = Localization().getStringEx('panel.onboarding.login.phone.label.title', 'Verify your phone number');
-    String skipTitle = Localization().getStringEx('panel.onboarding.login.phone.button.dont_continue.title', 'Not right now');
-    bool hasSkip = !(UserProfile().roles?.contains(UserRole.nonUniversityMember) ?? false);
     return Scaffold(
         backgroundColor: Styles().colors.background,
         body: Stack(
@@ -121,7 +118,7 @@ class _OnboardingLoginPhonePanelState extends State<OnboardingLoginPhonePanel> {
                           Align(
                             alignment: Alignment.bottomCenter,
                             child: Padding(
-                              padding: EdgeInsets.only(top: 12, bottom: hasSkip ? 12 : 24),
+                              padding: EdgeInsets.only(top: 12, bottom: 24),
                               child: ScalableRoundedButton(
                                   label: Localization().getStringEx('panel.onboarding.login.phone.button.continue.title', 'Verify Phone Number'),
                                   hint: Localization().getStringEx('panel.onboarding.login.phone.button.continue.hint', ''),
@@ -131,33 +128,6 @@ class _OnboardingLoginPhonePanelState extends State<OnboardingLoginPhonePanel> {
                                   onTap: () => _onLoginTapped()),
                             ),
                           ),
-                          hasSkip ? Row(
-                            children: <Widget>[
-                              Expanded(
-                                  child: GestureDetector(
-                                    onTap: () => _onSkipTapped(),
-                                    child: Semantics(
-                                        label: skipTitle,
-                                        hint: Localization().getStringEx('panel.onboarding.login.phone.button.dont_continue.hint', 'Skip verification'),
-                                        button: true,
-                                        excludeSemantics: true,
-                                        child: Padding(
-                                          padding: EdgeInsets.only(bottom: 24),
-                                          child: Text(
-                                            skipTitle,
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              color: Styles().colors.fillColorPrimary,
-                                              decoration: TextDecoration.underline,
-                                              decorationColor: Styles().colors.fillColorSecondary,
-                                              fontFamily: Styles().fontFamilies.medium,
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                        )),
-                                  )),
-                            ],
-                          ) : Container()
                         ])
                 )
               ],
@@ -181,17 +151,6 @@ class _OnboardingLoginPhonePanelState extends State<OnboardingLoginPhonePanel> {
     }
     else {
       Navigator.push(context, CupertinoPageRoute(builder: (context) => OnboardingLoginPhoneVerifyPanel(onFinish: widget.onFinish)));
-    }
-  }
-
-  void _onSkipTapped() {
-    Analytics.instance.logSelect(target: 'Not right now');
-    if (widget.onboardingContext != null) {
-      widget.onboardingContext['shouldVerifyPhone'] = false;
-      Onboarding().next(context, widget);
-    }
-    else if (widget.onFinish != null) {
-      widget.onFinish(null);
     }
   }
 }
