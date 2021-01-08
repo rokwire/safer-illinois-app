@@ -16,12 +16,13 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:illinois/model/UserProfile.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/NotificationService.dart';
-import 'package:illinois/service/UserProfile.dart';
+import 'package:illinois/service/Storage.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/ui/onboarding/OnboardingBackButton.dart';
 import 'package:illinois/service/Styles.dart';
@@ -37,7 +38,9 @@ class OnboardingLoginNetIdPanel extends StatefulWidget with OnboardingPanel {
 
   @override
   bool get onboardingCanDisplay {
-    return UserProfile().isStudentOrEmployee;
+    Set<UserRole> roles = Storage().userRoles;
+    // Check if user is selected student or employee
+    return (roles != null) && (roles.contains(UserRole.student) || roles.contains(UserRole.employee));
   }
 }
 

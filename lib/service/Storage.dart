@@ -185,6 +185,29 @@ class Storage with Service {
   }
 
   /////////////
+  // User Roles
+
+  static const String _userRolesKey  = '_user_roles';
+
+  Set<UserRole> get userRoles {
+    final String rolesToString = _getStringWithName(_userRolesKey);
+    final List<dynamic> rolesJson = AppJson.decodeList(rolesToString);
+    return UserRole.userRolesFromList(rolesJson);
+  }
+
+  set userRoles(Set<UserRole> roles) {
+    String userRolesToString;
+    if (AppCollection.isCollectionNotEmpty(roles)) {
+      List<dynamic> rolesJson = List();
+      for (UserRole role in roles) {
+        rolesJson.add(role.toJson());
+      }
+      userRolesToString = AppJson.encode(rolesJson);
+    }
+    _setStringWithName(_userRolesKey, userRolesToString);
+  }
+
+  /////////////
   // UserPII
 
   static const String userPidKey  = 'user_pid';

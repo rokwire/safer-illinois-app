@@ -67,11 +67,13 @@ class UserProfile with Service implements NotificationsListener {
   Future<void> initService() async {
 
     _profileData = Storage().userProfile;
-    
-    if (_profileData == null) {
-      await _createProfile();
-    } else if (_profileData.uuid != null) {
-      await _loadProfile();
+
+    if (Auth().isLoggedIn) {
+      if (_profileData == null) {
+        await _createProfile();
+      } else if (_profileData.uuid != null) {
+        await _loadProfile();
+      }
     }
   }
 
@@ -144,7 +146,7 @@ class UserProfile with Service implements NotificationsListener {
     String profileUuid = _profileData.uuid;
     String url = (Config().userProfileUrl != null) ? "${Config().userProfileUrl}/$profileUuid" : null;
     Map<String, String> headers = {"Accept": "application/json","content-type":"application/json"};
-    final response = (url != null) ? await Network().put(url, body: json.encode(_profileData.toJson()), headers: headers, client: _client, auth: Network.AppAuth) : null;
+    final response = (url != null) ? await Network().put(url, body: json.encode(_profileData.toJson()), headers: headers, client: _client) : null;
     String responseBody = response?.body;
     bool success = ((response != null) && (responseBody != null) && (response.statusCode == 200));
     
@@ -171,7 +173,7 @@ class UserProfile with Service implements NotificationsListener {
   Future<UserProfileData> requestProfile(String uuid) async {
     String url = ((Config().userProfileUrl != null) && (uuid != null) && (0 < uuid.length)) ? '${Config().userProfileUrl}/$uuid' : null;
 
-    final response = (url != null) ? await Network().get(url, auth: Network.AppAuth) : null;
+    final response = (url != null) ? await Network().get(url) : null;
 
     if(response != null) {
       if (response?.statusCode == 404) {
@@ -190,7 +192,7 @@ class UserProfile with Service implements NotificationsListener {
 
   Future<UserProfileData> _requestCreateProfile() async {
     try {
-      final response = (Config().userProfileUrl != null) ? await Network().post(Config().userProfileUrl, auth: Network.AppAuth, timeout: 10) : null;
+      final response = (Config().userProfileUrl != null) ? await Network().post(Config().userProfileUrl, timeout: 10) : null;
       if ((response != null) && (response.statusCode == 200)) {
         String responseBody = response.body;
         Map<String, dynamic> jsonData = AppJson.decode(responseBody);
@@ -208,7 +210,7 @@ class UserProfile with Service implements NotificationsListener {
   Future<void> deleteProfile() async{
     String profileUuid = _profileData?.uuid;
     if((Config().userProfileUrl != null) && (profileUuid != null)) {
-      await Network().delete("${Config().userProfileUrl}/$profileUuid", headers: {"Accept": "application/json", "content-type": "application/json"}, auth: Network.AppAuth);
+      await Network().delete("${Config().userProfileUrl}/$profileUuid", headers: {"Accept": "application/json", "content-type": "application/json"});
 
       _clearStoredProfile();
       _notifyProfileDeleted();
@@ -230,6 +232,9 @@ class UserProfile with Service implements NotificationsListener {
   }
 
   void applyProfileData(UserProfileData profileData) {
+
+    // 0. Apply User roles stored before login
+    UserProfile().roles = Storage().userRoles;
     
     // 1. We might need to remove FCM token from current user
     String applyProfileUuid = profileData?.uuid;
@@ -239,7 +244,7 @@ class UserProfile with Service implements NotificationsListener {
       String url = "${Config().userProfileUrl}/${_profileData?.uuid}";
       Map<String, String> headers = {"Accept": "application/json","content-type":"application/json"};
       String post = json.encode(_profileData.toJson());
-      Network().put(url, body: post, headers: headers, auth: Network.AppAuth);
+      Network().put(url, body: post, headers: headers);
     }
 
     // 2. We might need to add FCM token and user roles from Storage to new user
@@ -256,10 +261,15 @@ class UserProfile with Service implements NotificationsListener {
     }
   }
 
-  void _clearStoredProfile(){
+  void _clearStoredProfile() {
+    _clearStoredRoles();
     Storage().userProfile = _profileData = null;
     Auth().logout();
     Storage().onBoardingPassed = false;
+  }
+
+  void _clearStoredRoles() {
+    Storage().userRoles = null;
   }
 
   // FCM Tokens
@@ -287,7 +297,8 @@ class UserProfile with Service implements NotificationsListener {
   set roles(Set<UserRole> userRoles) {
     if (_profileData != null) {
       _profileData.roles = userRoles;
-      _updateProfile().then((_){
+      _updateProfile().then((_) {
+        _clearStoredRoles();
         _notifyUserRolesUpdated();
       });
     }

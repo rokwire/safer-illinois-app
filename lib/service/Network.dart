@@ -304,7 +304,7 @@ class Network  {
 
     Map<String, String> result;
 
-    if (Auth().isLoggedIn) {
+    if (Auth().isLoggedIn && AppString.isStringNotEmpty(Auth().csrfToken)) {
       result = (headers != null) ? Map.from(headers) : Map();
       result[RokwireCsrfToken] = Auth().csrfToken;
     }

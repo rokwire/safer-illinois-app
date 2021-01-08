@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/FlexUI.dart';
 import 'package:illinois/service/Onboarding.dart';
+import 'package:illinois/service/Storage.dart';
 import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/model/UserProfile.dart';
@@ -45,7 +46,7 @@ class _OnboardingRoleSelectionPanelState extends State<OnboardingRolesPanel> {
 
   @override
   void initState() {
-    _selectedRoles = UserProfile().roles ?? Set<UserRole>();
+    _selectedRoles = Storage().userRoles ?? Set<UserRole>();
     super.initState();
   }
   
@@ -258,7 +259,7 @@ class _OnboardingRoleSelectionPanelState extends State<OnboardingRolesPanel> {
   void _onExploreClicked() {
     Analytics.instance.logSelect(target:"Confirm");
     if (_selectedRoles != null && _selectedRoles.isNotEmpty && !_updating) {
-      UserProfile().roles = _selectedRoles;
+      Storage().userRoles = _selectedRoles;
       setState(() { _updating = true; });
       FlexUI().update().then((_){
         if (mounted) {
