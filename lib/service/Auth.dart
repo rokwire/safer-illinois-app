@@ -966,7 +966,7 @@ class Auth with Service implements NotificationsListener {
   // CSRF Token
 
   Future<void> _loadCsrfToken() async {
-    String url = AppWeb.appHost() + '/csrf-token';
+    String url = AppWeb.appHost() + '/auth/csrf-token';
     Response response = await Network().get(url);
     int responseCode = response?.statusCode ?? -1;
     bool success = (responseCode == 200);

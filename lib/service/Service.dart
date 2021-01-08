@@ -79,6 +79,7 @@ class Services {
     FirebaseService(),
     FirebaseCrashlytics(),
     Storage(),
+    Auth(),
     Organizations(),
     Config(),
     HttpProxy(),
@@ -91,7 +92,6 @@ class Services {
     Localization(),
     Styles(),
 
-    Auth(),
     UserProfile(),
     Analytics(),
     FirebaseMessaging(),
