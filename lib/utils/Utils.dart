@@ -176,7 +176,7 @@ class AppVersion {
 
   //TBD: DD - web
   static String webVersion() {
-    return '2.10.8';
+    return '2.10.9';
   }
 }
 
