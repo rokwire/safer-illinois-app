@@ -16,20 +16,16 @@
 
 import 'dart:async';
 import 'package:http/http.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:illinois/model/Organization.dart';
+import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/Network.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
 import 'package:illinois/service/Storage.dart';
-import 'package:illinois/utils/Crypt.dart';
 import 'package:illinois/utils/Utils.dart';
 
 class Organizations with Service {
-
-  static const String _organizationsHookAsset    = 'organizations.hook.json.enc';
-  static const String _organizationsAsset        = 'organizations.json.enc';
 
   static const String notifyOrganizationChanged  = "edu.illinois.rokwire.organizations.organization.changed";
   static const String notifyEnvironmentChanged   = "edu.illinois.rokwire.organizations.environment.changed";
@@ -149,51 +145,19 @@ class Organizations with Service {
     return _organizations;
   }
 
-  static Future<ApiHook> _loadOrganizationsHookAsset() async {
-    //TBD: DD - web
-    try {
-      String hookStrEnc = await rootBundle.loadString('assets/$_organizationsHookAsset');
-      String hookStr = (hookStrEnc != null) ? AESCrypt.decode(hookStrEnc) : null;
-      Map<String, dynamic> hookJson = AppJson.decodeMap(hookStr);
-      return ApiHook.fromJson(hookJson);
-    } catch (e) {
-      print(e.toString());
-    }
-    return null;
-  }
-
-  static Future<List<Organization>> _loadOrganizationsAsset() async {
-    //TBD: DD - web
-    try {
-      String organizationsStrEnc = await rootBundle.loadString('assets/$_organizationsAsset');
-      String organizationsStr = (organizationsStrEnc != null) ? AESCrypt.decode(organizationsStrEnc) : null;
-      List<dynamic> organizationsJson = AppJson.decodeList(organizationsStr);
-      return Organization.listFromJson(organizationsJson);
-    } catch (e) {
-      print(e.toString());
-    }
-    return null;
-  }
-
   static Future<List<Organization>> _loadOrganizations() async {
-    ApiHook apiHook = await _loadOrganizationsHookAsset();
-    if ((apiHook != null) && (apiHook.url != null)) {
-      Map<String, String> headers = (apiHook.apiKey != null) ? {
-        Network.RokwireApiKey : apiHook.apiKey
-      } : null;
-
-      Response response;
-      try {
-        response = await Network().get(apiHook.url, headers: headers);
-      } catch (e) {
-        Log.e(e.toString());
-      }
-      String responseString = (response?.statusCode == 200) ? response.body : null;
-      List<dynamic> responseJson = (responseString != null) ? AppJson.decodeList(responseString) : null;
-      return (responseJson != null) ? Organization.listFromJson(responseJson) : null;
+    if (!Auth().isLoggedIn) {
+      return null;
     }
-    else {
-      return await _loadOrganizationsAsset();
+    String url = AppWeb.host() + '/assets/buckets/items/organizations';
+    Response response;
+    try {
+      response = await Network().get(url);
+    } catch (e) {
+      Log.e(e.toString());
     }
+    String responseString = (response?.statusCode == 200) ? response.body : null;
+    List<dynamic> responseJson = (responseString != null) ? AppJson.decodeList(responseString) : null;
+    return (responseJson != null) ? Organization.listFromJson(responseJson) : null;
   }
 }
