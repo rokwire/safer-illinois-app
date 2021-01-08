@@ -973,6 +973,7 @@ class Auth with Service implements NotificationsListener {
     String responseBody = response?.body;
     if (success) {
       _csrfToken = responseBody;
+      print("CSRF Success!");
     } else {
       _csrfToken = null;
       Log.e('Failed to load csrf token. Reason:');
