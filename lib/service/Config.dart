@@ -21,6 +21,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:illinois/model/Organization.dart';
 import 'package:illinois/service/AppLivecycle.dart';
+import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Organizations.dart';
@@ -129,12 +130,12 @@ class Config with Service implements NotificationsListener {
   }
 
   Future<String> _loadAsStringFromNet({ApiHook apiHook}) async {
+    if (!Auth().isLoggedIn) {
+      return null;
+    }
     try {
       String requestUrl = apiHook?.url ?? this.appConfigUrl;
-      String requestApiKey = apiHook?.apiKey ?? this.rokwireApiKey;
-      http.Response response = await Network().get(requestUrl, headers: {
-        Network.RokwireApiKey : requestApiKey
-      });
+      http.Response response = await Network().get(requestUrl);
       return ((response != null) && (response.statusCode == 200)) ? response.body : null;
     } catch (e) {
       print(e.toString());
