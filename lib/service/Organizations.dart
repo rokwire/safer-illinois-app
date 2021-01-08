@@ -15,11 +15,7 @@
  */
 
 import 'dart:async';
-import 'package:http/http.dart';
 import 'package:illinois/model/Organization.dart';
-import 'package:illinois/service/Auth.dart';
-import 'package:illinois/service/Log.dart';
-import 'package:illinois/service/Network.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
 import 'package:illinois/service/Storage.dart';
@@ -52,7 +48,7 @@ class Organizations with Service {
   Future<void> initService() async {
     _organization = Storage().organization;
     if (_organization?.id == null) {
-      _organizations = await _loadOrganizations();
+      _organizations = _loadOrganizations();
       if (_organizations?.length == 1) {
         Storage().organization = _organization = _organizations.first;
       }
@@ -138,26 +134,17 @@ class Organizations with Service {
     return _organization?.apiHook(environment: this.environment);
   }
 
-  Future<List<Organization>> ensureOrganizations() async {
+  List<Organization> ensureOrganizations() {
     if (_organizations == null) {
-      _organizations = await _loadOrganizations();
+      _organizations = _loadOrganizations();
     }
     return _organizations;
   }
 
-  static Future<List<Organization>> _loadOrganizations() async {
-    if (!Auth().isLoggedIn) {
-      return null;
-    }
-    String url = AppWeb.host() + '/assets/buckets/items/organizations';
-    Response response;
-    try {
-      response = await Network().get(url);
-    } catch (e) {
-      Log.e(e.toString());
-    }
-    String responseString = (response?.statusCode == 200) ? response.body : null;
-    List<dynamic> responseJson = (responseString != null) ? AppJson.decodeList(responseString) : null;
-    return (responseJson != null) ? Organization.listFromJson(responseJson) : null;
+  static List<Organization> _loadOrganizations() {
+    //TBD: DD - remove hardcoded Organization
+    String organizationsJsonString = '[{"environments":{"dev":{"url":"https://api-dev.rokwire.illinois.edu/covid/app/configs","default":"true"}}}]';
+    List<dynamic> organizationsJson = AppJson.decodeList(organizationsJsonString);
+    return Organization.listFromJson(organizationsJson);
   }
 }

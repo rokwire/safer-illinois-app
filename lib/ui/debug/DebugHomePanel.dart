@@ -73,13 +73,11 @@ class _DebugHomePanelState extends State<DebugHomePanel> implements Notification
     setState(() {
       _organizationProgress = true;
     });
-    Organizations().ensureOrganizations().then((List<Organization> organizations) {
-      setState(() {
-        _organizations = organizations;
-        _organizationProgress = false;
-      });
+    _organizations = Organizations().ensureOrganizations();
+    setState(() {
+      _organizationProgress = false;
     });
-    
+
     super.initState();
   }
 
