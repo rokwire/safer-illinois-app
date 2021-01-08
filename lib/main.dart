@@ -36,7 +36,6 @@ import 'package:illinois/service/Localization.dart';
 import 'package:illinois/ui/RootPanel.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/onboarding/OnboardingHealthIntroPanel.dart';
-import 'package:illinois/ui/onboarding/OnboardingOrganizationsPanel.dart';
 
 final AppExitListener appExitListener = AppExitListener();
 
@@ -163,7 +162,7 @@ class _AppState extends State<App> implements NotificationsListener {
   Widget get _homePanel {
     if (!Storage().onBoardingPassed) {
       if (Auth().isLoggedIn) {
-        return OnboardingOrganizationsPanel(onboardingContext: {},);
+        return OnboardingHealthIntroPanel(onboardingContext: {},);
       } else {
         return Onboarding().startPanel;
       }
