@@ -16,14 +16,12 @@
 
 import 'dart:convert';
 
-//TBD: DD - web
-// import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:illinois/model/Organization.dart';
 import 'package:illinois/service/Auth.dart';
-import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Organizations.dart';
@@ -37,7 +35,6 @@ import 'package:illinois/ui/debug/DebugHealthKeysPanel.dart';
 import 'package:illinois/ui/debug/DebugSymptomsReportPanel.dart';
 import 'package:illinois/ui/debug/DebugContactTraceReportPanel.dart';
 import 'package:illinois/ui/debug/DebugHttpProxyPanel.dart';
-import 'package:illinois/ui/debug/DebugFirebaseMessagingPanel.dart';
 import 'package:illinois/ui/debug/DebugHealthRulesPanel.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
@@ -99,7 +96,6 @@ class _DebugHomePanelState extends State<DebugHomePanel> implements Notification
   Widget build(BuildContext context) {
     String userUuid = UserProfile().uuid;
     String pid = Storage().userPid;
-    String firebaseProjectId = FirebaseMessaging().projectID;
 
     List<Widget> content = <Widget>[
       Padding(padding: EdgeInsets.only(top: 4), child: Container()),
@@ -110,10 +106,6 @@ class _DebugHomePanelState extends State<DebugHomePanel> implements Notification
       Padding(
         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
         child: Text(AppString.isStringNotEmpty(pid) ? 'PID: $pid' : "unknown pid"),
-      ),
-      Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-        child: Text('Firebase: $firebaseProjectId'),
       ),
     ];
 
@@ -149,15 +141,6 @@ class _DebugHomePanelState extends State<DebugHomePanel> implements Notification
               textColor: Styles().colors.fillColorPrimary,
               borderColor: Styles().colors.fillColorPrimary,
               onTap: _onUserProfileInfoClicked(context))),
-      Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-          child: RoundedButton(
-              label: "Messaging",
-              backgroundColor: Styles().colors.background,
-              fontSize: 16.0,
-              textColor: Styles().colors.fillColorPrimary,
-              borderColor: Styles().colors.fillColorPrimary,
-              onTap: _onMessagingClicked())),
       Padding(
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
           child: RoundedButton(
@@ -300,12 +283,6 @@ class _DebugHomePanelState extends State<DebugHomePanel> implements Notification
   }
 
   // Helpers
-
-  Function _onMessagingClicked() {
-    return () {
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => DebugFirebaseMessagingPanel()));
-    };
-  }
 
   Function _onUserProfileInfoClicked(BuildContext context) {
     return () {

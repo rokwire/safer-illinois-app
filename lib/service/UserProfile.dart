@@ -22,8 +22,6 @@ import 'package:illinois/model/UserProfile.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Config.dart';
-import 'package:illinois/service/FirebaseCrashlytics.dart';
-import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
@@ -54,7 +52,6 @@ class UserProfile with Service implements NotificationsListener {
   void createService() {
     NotificationService().subscribe(this, [
       AppLivecycle.notifyStateChanged,
-      FirebaseMessaging.notifyToken,
     ]);
   }
 
@@ -89,10 +86,7 @@ class UserProfile with Service implements NotificationsListener {
   // NotificationsListener
   @override
   void onNotification(String name, dynamic param) {
-    if (name == FirebaseMessaging.notifyToken) {
-      _updateFCMToken();
-    }
-    else if(name == AppLivecycle.notifyStateChanged && param == AppLifecycleState.resumed){
+    if(name == AppLivecycle.notifyStateChanged && param == AppLifecycleState.resumed){
       //_loadProfile();
     }
   }
@@ -153,7 +147,6 @@ class UserProfile with Service implements NotificationsListener {
     if (!success) {
       //error
       String message = "Error on updating user - " + (response != null ? response.statusCode.toString() : "null");
-      FirebaseCrashlytics().log(message);
     }
     else if (_client == client) {
       _client = null;
@@ -233,31 +226,24 @@ class UserProfile with Service implements NotificationsListener {
 
   void applyProfileData(UserProfileData profileData) {
 
-    // 0. Apply User roles stored before login
+    // 1. Apply User roles stored before login
     UserProfile().roles = Storage().userRoles;
     
-    // 1. We might need to remove FCM token from current user
+    // 2. We might need to remove FCM token from current user
     String applyProfileUuid = profileData?.uuid;
     String currentProfileUuid = _profileData?.uuid;
     bool profileSwitched = (currentProfileUuid != null) && (currentProfileUuid != applyProfileUuid);
-    if (profileSwitched && (Config().userProfileUrl != null) && (_profileData?.uuid != null) && _removeFCMToken(_profileData)) {
+    if (profileSwitched && (Config().userProfileUrl != null) && (_profileData?.uuid != null)) {
       String url = "${Config().userProfileUrl}/${_profileData?.uuid}";
       Map<String, String> headers = {"Accept": "application/json","content-type":"application/json"};
       String post = json.encode(_profileData.toJson());
       Network().put(url, body: post, headers: headers);
     }
 
-    // 2. We might need to add FCM token and user roles from Storage to new user
-    bool applyProfileUpdated = _applyFCMToken(profileData);
-
     Storage().userProfile = _profileData = profileData;
 
     if (profileSwitched) {
       _notifyProfileUpdated();
-    }
-    
-    if (applyProfileUpdated) {
-      _updateProfile();
     }
   }
 
@@ -266,26 +252,6 @@ class UserProfile with Service implements NotificationsListener {
     Storage().userProfile = _profileData = null;
     Auth().logout();
     Storage().onBoardingPassed = false;
-  }
-
-  void _clearStoredRoles() {
-    Storage().userRoles = null;
-  }
-
-  // FCM Tokens
-
-  void _updateFCMToken() {
-    if (_applyFCMToken(_profileData)) {
-      _updateProfile();
-    }
-  }
-
-  static bool _applyFCMToken(UserProfileData profileData) {
-    return profileData?.applyFCMToken(FirebaseMessaging().token) ?? false;
-  }
-
-  static bool _removeFCMToken(UserProfileData profileData) {
-    return profileData?.removeFCMToken(FirebaseMessaging().token) ?? false;
   }
 
   //UserRoles
@@ -315,6 +281,10 @@ class UserProfile with Service implements NotificationsListener {
   bool get isStudentOrEmployee {
     Set<UserRole> roles = _profileData?.roles;
     return (roles != null) && (roles.contains(UserRole.student) || roles.contains(UserRole.employee));
+  }
+
+  void _clearStoredRoles() {
+    Storage().userRoles = null;
   }
 
   // Notifications

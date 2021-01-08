@@ -22,7 +22,6 @@ import 'package:http/http.dart' as http;
 import 'package:illinois/model/Organization.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/Auth.dart';
-import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/Service.dart';
@@ -64,7 +63,6 @@ class Config with Service implements NotificationsListener {
   void createService() {
     NotificationService().subscribe(this, [
       AppLivecycle.notifyStateChanged,
-      FirebaseMessaging.notifyConfigUpdate
     ]);
   }
 
@@ -196,9 +194,6 @@ class Config with Service implements NotificationsListener {
   void onNotification(String name, dynamic param) {
     if (name == AppLivecycle.notifyStateChanged) {
       _onAppLivecycleStateChanged(param);
-    }
-    else if (name == FirebaseMessaging.notifyConfigUpdate) {
-      _updateFromNet();
     }
   }
 
