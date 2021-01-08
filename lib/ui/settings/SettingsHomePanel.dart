@@ -31,7 +31,6 @@ import 'package:illinois/ui/onboarding/OnboardingLoginPhoneVerifyPanel.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/PasswordUnlockDialog.dart';
 import 'package:illinois/utils/AppDateTime.dart';
-import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/FlexUI.dart';
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/UserProfile.dart';
@@ -51,6 +50,7 @@ import 'package:illinois/utils/Crypt.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:barcode_scan/barcode_scan.dart';
+import 'package:illinois/web/js_controller.dart';
 import 'package:pointycastle/export.dart' as PointyCastle;
 
 
@@ -82,7 +82,6 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
       Auth.notifyUserPiiDataChanged,
       UserProfile.notifyProfileUpdated,
       Health.notifyUserUpdated,
-      FirebaseMessaging.notifySettingUpdated,
       FlexUI.notifyChanged,
     ]);
 
@@ -108,8 +107,6 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
       _updateState();
     } else if (name == Health.notifyUserUpdated) {
       _verifyHealthUserKeys();
-    } else if (name == FirebaseMessaging.notifySettingUpdated) {
-      _updateState();
     } else if (name == FlexUI.notifyChanged) {
       _updateState();
     }
@@ -135,9 +132,6 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
       }
       else if (code == 'connected') {
         contentList.add(_buildConnected());
-      }
-      else if (code == 'notifications') {
-        contentList.add(_buildNotifications());
       }
       else if (code == 'covid19') {
         contentList.add(_buildCovid19Settings());
@@ -534,39 +528,6 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
     );
   }
 
-  // NotificationsOptions
-
-  Widget _buildNotifications() {
-    List<Widget> contentList = new List();
-
-    List<dynamic> codes = FlexUI()['settings.notifications'] ?? [];
-    for (int index = 0; index < codes.length; index++) {
-      String code = codes[index];
-      BorderRadius borderRadius = _borderRadiusFromIndex(index, codes.length);
-      if (code == 'covid19') {
-        contentList.add(ToggleRibbonButton(
-          height: null,
-          borderRadius: borderRadius,
-          label: Localization().getStringEx("panel.settings.home.notifications.covid19", "COVID-19 notifications"),
-          toggled: FirebaseMessaging().notifyCovid19,
-          context: context,
-          onTap: _onCovid19Toggled));
-      }
-    }
-
-    return _OptionsSection(
-      title: Localization().getStringEx("panel.settings.home.notifications.title", "Notifications"),
-      widgets: contentList);
-  }
-
-  void _onCovid19Toggled() {
-    if (Connectivity().isNotOffline) {
-      Analytics.instance.logSelect(target: "COVID-19 notifications");
-      FirebaseMessaging().notifyCovid19 = !FirebaseMessaging().notifyCovid19;
-    } else {
-      AppAlert.showOfflineMessage(context);
-    }
-  }
 
   void _refreshHealthUser() {
     setState(() {
@@ -1012,8 +973,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
     if (Connectivity().isNotOffline) {
       Analytics.instance.logSelect(target: "Privacy Statement");
       if (Config().privacyPolicyUrl != null) {
-        Navigator.push(context, CupertinoPageRoute(
-            builder: (context) => WebPanel(url: Config().privacyPolicyUrl, title: Localization().getStringEx("panel.settings.privacy_statement.label.title", "Privacy Statement"),)));
+        openUrlInNewTab(Config().privacyPolicyUrl);
       }
     } else {
       AppAlert.showOfflineMessage(context);
@@ -1099,9 +1059,9 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
       if (Connectivity().isNotOffline && (Config().feedbackUrl != null)) {
         String feedbackUrl = Config().feedbackUrl;
 
-        String panelTitle = Localization().getStringEx('panel.settings.feedback.label.title', 'PROVIDE FEEDBACK');
-        Navigator.push(
-            context, CupertinoPageRoute(builder: (context) => WebPanel(url: feedbackUrl, title: panelTitle,)));
+        //String panelTitle = Localization().getStringEx('panel.settings.feedback.label.title', 'PROVIDE FEEDBACK');
+
+        openUrlInNewTab(feedbackUrl);
       }
       else {
         AppAlert.showOfflineMessage(context, Localization().getStringEx('panel.settings.label.offline.feedback', 'Providing a Feedback is not available while offline.'));

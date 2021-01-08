@@ -19,7 +19,6 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:illinois/service/DeepLink.dart';
-import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/Service.dart';
@@ -54,8 +53,6 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
   void initState() {
     super.initState();
     NotificationService().subscribe(this, [
-      FirebaseMessaging.notifyPopupMessage,
-      FirebaseMessaging.notifyCovid19Notification,
       Localization.notifyStringsUpdated,
       Organizations.notifyOrganizationChanged,
       Organizations.notifyEnvironmentChanged,
@@ -76,10 +73,7 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
 
   @override
   void onNotification(String name, dynamic param) {
-    if (name == FirebaseMessaging.notifyPopupMessage) {
-      _onFirebasePopupMessage(param);
-    }
-    else if (name == Localization.notifyStringsUpdated) {
+    if (name == Localization.notifyStringsUpdated) {
       setState(() { });
     }
     else if (name == Organizations.notifyOrganizationChanged) {
@@ -90,9 +84,6 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
     }
     else if (name == Health.notifyStatusUpdated) {
       _presentHealthStatusUpdate();
-    }
-    else if (name == FirebaseMessaging.notifyCovid19Notification) {
-      _onFirebaseCovid19Notification(param);
     }
     else if(name == DeepLink.notifyUri) {
       _onDeeplinkUri(param);

@@ -22,10 +22,9 @@ import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Connectivity.dart';
 import 'package:illinois/service/FirebaseService.dart';
-import 'package:illinois/service/FirebaseCrashlytics.dart';
 import 'package:illinois/service/DeepLink.dart';
 import 'package:illinois/service/Exposure.dart';
-import 'package:illinois/service/FirebaseMessaging.dart';
+import 'package:illinois/service/Exposure.dart';
 import 'package:illinois/service/FlexUI.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/HttpProxy.dart';
@@ -77,7 +76,6 @@ class Services {
   List<Service> _allServices = [
     // Add highest priority services at top
     FirebaseService(),
-    FirebaseCrashlytics(),
     Storage(),
     Organizations(),
     Config(),
@@ -94,7 +92,6 @@ class Services {
     Auth(),
     UserProfile(),
     Analytics(),
-    FirebaseMessaging(),
     Health(),
     Exposure(),
     OSFHealth(),
@@ -147,7 +144,6 @@ class Services {
       // Do not include these services in web app
       if (((service is LocalNotifications) ||
               (service is DeepLink) ||
-              (service is FirebaseMessaging) ||
               (service is Exposure)) &&
           kIsWeb) {
         continue;

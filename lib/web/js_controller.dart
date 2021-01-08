@@ -12,3 +12,7 @@ Future<String> getQrCodeValue() async {
   String qrCode = await promiseToFuture(readQrCodeImage());
   return qrCode;
 }
+
+@JS()
+external dynamic openUrlInNewTab(String url);
+

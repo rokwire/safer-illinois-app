@@ -26,3 +26,8 @@ async function scanImageFile(event) {
     }
     return result;
 }
+
+function openUrlInNewTab(url){
+  var win = window.open(url, '_blank');
+  win.focus();
+}

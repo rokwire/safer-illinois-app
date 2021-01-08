@@ -28,8 +28,6 @@ import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/utils/Utils.dart';
 
-import 'FirebaseCrashlytics.dart';
-
 /*enum NetworkAuth {
   App,
   AuthUser,
@@ -110,7 +108,6 @@ class Network  {
       }
     } catch (e) { 
       Log.e(e.toString());
-      FirebaseCrashlytics().recordError(e, null);
     }
     return null;
   }
@@ -141,7 +138,6 @@ class Network  {
         }
       } catch (e) { 
         Log.e(e.toString());
-        FirebaseCrashlytics().recordError(e, null);
       }
     }
     return null;
@@ -166,7 +162,6 @@ class Network  {
         return ((response != null) && (timeout != null)) ? response.timeout(Duration(seconds: timeout), onTimeout: _responseTimeoutHandler) : response;
       } catch (e) {
         Log.e(e.toString());
-        FirebaseCrashlytics().recordError(e, null);
       }
     }
     return null;
@@ -197,7 +192,6 @@ class Network  {
 
       } catch (e) {
         Log.e(e.toString());
-        FirebaseCrashlytics().recordError(e, null);
       }
     }
     return null;
@@ -222,7 +216,6 @@ class Network  {
         return ((response != null) && (timeout != null)) ? response.timeout(Duration(seconds: timeout), onTimeout: _responseTimeoutHandler) : response;
       } catch (e) {
         Log.e(e.toString());
-        FirebaseCrashlytics().recordError(e, null);
       }
     }
     return null;
@@ -247,7 +240,6 @@ class Network  {
         return ((response != null) && (timeout != null)) ? response.timeout(Duration(seconds: timeout), onTimeout: _responseTimeoutHandler) : response;
       } catch (e) {
         Log.e(e.toString());
-        FirebaseCrashlytics().recordError(e, null);
       }
     }
     return null;
@@ -272,7 +264,6 @@ class Network  {
         return ((response != null) && (timeout != null)) ? response.timeout(Duration(seconds: timeout)) : response;
       } catch (e) {
         Log.e(e.toString());
-        FirebaseCrashlytics().recordError(e, null);
       }
     }
     return null;
@@ -289,7 +280,6 @@ class Network  {
         return ((response != null) && (timeout != null)) ? response.timeout(Duration(seconds: timeout), onTimeout: _responseBytesHandler) : response;
       } catch (e) {
         Log.e(e.toString());
-        FirebaseCrashlytics().recordError(e, null);
       }
     }
     return null;
