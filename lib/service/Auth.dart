@@ -92,22 +92,23 @@ class Auth with Service implements NotificationsListener {
   Future<void> initService() async {
     if (isLoggedIn) {
       await _loadCsrfToken();
+
+      _authToken = Storage().authToken;
+      _authUser = Storage().authUser;
+
+      _rokmetroUser = Storage().rokmetroUser;
+
+      _authCardCacheFile = await _getAuthCardCacheFile();
+      _authCard = await _loadAuthCardFromCache();
+
+      _userPiiCacheFile = await _getUserPiiCacheFile();
+      _userPiiData = await _loadUserPiiDataFromCache();
+
+      // Backward compatability - no rokmetro data stored from previous versions
+      await _ensureRokmetroData();
+
+      _syncProfilePiiDataIfNeed(); // No need for await
     }
-    _authToken = Storage().authToken;
-    _authUser = Storage().authUser;
-
-    _rokmetroUser = Storage().rokmetroUser;
-
-    _authCardCacheFile = await _getAuthCardCacheFile();
-    _authCard = await _loadAuthCardFromCache();
-
-    _userPiiCacheFile = await _getUserPiiCacheFile();
-    _userPiiData = await _loadUserPiiDataFromCache();
-
-    // Backward compatability - no rokmetro data stored from previous versions
-    await _ensureRokmetroData();
-
-    _syncProfilePiiDataIfNeed(); // No need for await
   }
 
   @override
@@ -632,9 +633,6 @@ class Auth with Service implements NotificationsListener {
   }
 
   Future<void> _ensureRokmetroData() async {
-    // if ((_authToken != null) && (_rokmetroToken == null)) {
-    //   Storage().rokmetroToken = _rokmetroToken = await _loadRokmetroToken(optAuthToken: _authToken);
-    // }
     if (_rokmetroUser == null) {
       Storage().rokmetroUser = _rokmetroUser = await _loadRokmetroUser();
     }
