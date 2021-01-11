@@ -190,10 +190,11 @@ class FlexUI with Service implements NotificationsListener {
     }
 
     String url = '${Config().talentChooserUrl}/ui-content?data-version=$_dataVersion';
-    
+
     Map<String, dynamic> post = {
       'user': UserProfile().data?.toShortJson(),
-      'auth_token': Auth().authToken?.toJson(),
+      //TBD: DD - web - Auth token
+      'auth_token': null,
       'auth_user': Auth().authUser?.toJson(),
       'card': Auth().authCard?.toShortJson(),
       'pii': Auth().userPiiData?.toShortJson(),

@@ -264,23 +264,6 @@ class Storage with Service {
   ////////////////
   // Auth
 
-  static const String authTokenKey  = '_auth_token';
-
-  AuthToken get authToken {
-    try {
-      String jsonString = _getStringWithName(authTokenKey);
-      dynamic jsonData = AppJson.decode(jsonString);
-      return (jsonData != null) ? AuthToken.fromJson(jsonData) : null;
-    } on Exception catch (e) {
-      print(e.toString());
-    }
-    return null;
-  }
-
-  set authToken(AuthToken value) {
-    _setStringWithName(authTokenKey, value != null ? json.encode(value.toJson()) : null);
-  }
-
   static const String authUserKey  = '_auth_info';
 
   AuthUser get authUser {

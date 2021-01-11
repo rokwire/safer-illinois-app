@@ -55,7 +55,6 @@ class Auth with Service implements NotificationsListener {
   static const String _authCardName   = "idCard.json";
   static const String _userPiiFileName   = "piiData.json";
 
-  AuthToken _authToken;
   AuthUser _authUser;
   String _csrfToken;
 
@@ -93,7 +92,6 @@ class Auth with Service implements NotificationsListener {
     if (isLoggedIn) {
       await _loadCsrfToken();
 
-      _authToken = Storage().authToken;
       _authUser = Storage().authUser;
 
       _rokmetroUser = Storage().rokmetroUser;
@@ -113,7 +111,6 @@ class Auth with Service implements NotificationsListener {
 
   @override
   Future<void> clearService() async {
-    _authToken = null;
     _authUser = null;
 
     _rokmetroUser = null;
@@ -222,11 +219,6 @@ class Auth with Service implements NotificationsListener {
     // Everything is fine - cleanup and store new tokens and data
     // 5. Clear everything before proceed further. Notification is not required at this stage
     _clear(false);
-
-    // 6. Store everythong and notify everyone
-    // 6.1 AuthToken
-    Storage().authToken = _authToken = newAuthToken;
-    NotificationService().notify(notifyAuthTokenChanged);
 
     // 6.2 AuthUser
     Storage().authUser = _authUser = newAuthUser;
@@ -363,16 +355,10 @@ class Auth with Service implements NotificationsListener {
     _clear(false);
 
     // 5. Store everything and notify everyone
-    // 5.1 AuthToken
-    Storage().authToken = _authToken = newAuthToken;
-    NotificationService().notify(notifyAuthTokenChanged);
 
     // 5.2 AuthUser
     Storage().authUser = _authUser = newAuthUser;
     NotificationService().notify(notifyUserChanged);
-
-    // 5.3 RokmetroToken
-    // Storage().rokmetroToken = _rokmetroToken = newRokmetroToken;
 
     // 5.4 RokmetroUser
     Storage().rokmetroUser = _rokmetroUser = newRokmetroUser;
@@ -425,9 +411,7 @@ class Auth with Service implements NotificationsListener {
   }
 
   void _clear([bool notify = false]) {
-    Storage().authToken = _authToken = null;
     Storage().authUser = _authUser = null;
-    // Storage().rokmetroToken = _rokmetroToken = null;
     Storage().rokmetroUser = _rokmetroUser = null;
     _authCard = null;
 
@@ -464,13 +448,10 @@ class Auth with Service implements NotificationsListener {
   }
 
   // Public accessories
-
-  AuthToken get authToken {
-    return _authToken;
-  }
   
   PhoneToken get phoneToken {
-    return _authToken is PhoneToken ? _authToken : null;
+    //TBD: DD - web - to be removed
+    return null;
   }
 
   AuthUser get authUser {
@@ -549,7 +530,7 @@ class Auth with Service implements NotificationsListener {
   // Auth User
 
   Future<AuthUser> _loadShibbolethAuthUser({AuthToken optAuthToken}) async {
-    optAuthToken = (optAuthToken != null) ? optAuthToken : _authToken;
+    optAuthToken = (optAuthToken != null) ? optAuthToken : null;
     if (Config().shibbolethOidcUserUrl != null) {
       try {
         Http.Response userDataResp = await Network().get(Config().shibbolethOidcUserUrl, headers: {HttpHeaders.authorizationHeader : "${optAuthToken?.tokenType} ${optAuthToken?.accessToken}"});
@@ -570,7 +551,7 @@ class Auth with Service implements NotificationsListener {
   }
 
   Future<dynamic> _loadCapitolStaffUIN({AuthToken optAuthToken}) async {
-    optAuthToken = (optAuthToken != null) ? optAuthToken : _authToken;
+    optAuthToken = (optAuthToken != null) ? optAuthToken : null;
     PhoneToken phoneToken = (optAuthToken is PhoneToken) ? optAuthToken : null;
     if ((Config().healthUrl != null) && (phoneToken?.phone != null)) {
       String url = "${Config().healthUrl}/covid19/rosters/phone/${phoneToken.phone}";
@@ -656,7 +637,7 @@ class Auth with Service implements NotificationsListener {
 
   Future<String> _loadPidWithData({Map<String,String> data, AuthToken optAuthToken}) async {
     String url = (Config().userProfileUrl != null) ? '${Config().userProfileUrl}/pii' : null;
-    optAuthToken = (optAuthToken != null) ? optAuthToken : authToken;
+    optAuthToken = (optAuthToken != null) ? optAuthToken : null;
 
     final response = (url != null) ? await Network().post(url,
         headers: {'Content-Type':'application/json', HttpHeaders.authorizationHeader: "${optAuthToken?.tokenType} ${optAuthToken?.idToken}"},
@@ -774,7 +755,7 @@ class Auth with Service implements NotificationsListener {
 
   Future<String> _loadUserPiiDataStringFromNet({String pid, AuthToken optAuthToken}) async {
     pid = (pid != null) ? pid : Storage().userPid;
-    optAuthToken = (optAuthToken != null) ? optAuthToken : authToken;
+    optAuthToken = (optAuthToken != null) ? optAuthToken : null;
     try {
       String url = (Config().userProfileUrl != null) ? '${Config().userProfileUrl}/pii/$pid' : null;
       final response = (url != null) ? await Network().get(url, headers: {
@@ -833,7 +814,7 @@ class Auth with Service implements NotificationsListener {
   // User Personal Data
 
   Future<_UserPersonalData> _loadUserPersonalDataWithShibbolethAuth({AuthToken optAuthToken, AuthUser optAuthUser}) async {
-    optAuthToken = (optAuthToken != null) ? optAuthToken : _authToken;
+    optAuthToken = (optAuthToken != null) ? optAuthToken : null;
     optAuthUser = (optAuthUser != null) ? optAuthUser : _authUser;
 
     String userPiiPid = await _loadPidWithShibbolethAuth(email: optAuthUser?.email, optAuthToken: optAuthToken);
@@ -844,7 +825,7 @@ class Auth with Service implements NotificationsListener {
   }
 
   Future<_UserPersonalData> _loadUserPersonalDataWithPhoneAuth({AuthToken optAuthToken, String phone}) async {
-    optAuthToken = (optAuthToken != null) ? optAuthToken : _authToken;
+    optAuthToken = (optAuthToken != null) ? optAuthToken : null;
 
     String userPiiPid = await _loadPidWithPhoneAuth(phone: phone, optAuthToken: optAuthToken);
     String userPiiDataString = (userPiiPid != null) ? await _loadUserPiiDataStringFromNet(pid: userPiiPid, optAuthToken: optAuthToken) : null;
@@ -907,7 +888,7 @@ class Auth with Service implements NotificationsListener {
   }
 
   Future<String> _loadAuthCardStringFromNet({AuthToken optAuthToken, AuthUser optAuthUser}) async {
-    optAuthToken = (optAuthToken != null) ? optAuthToken : _authToken;
+    optAuthToken = (optAuthToken != null) ? optAuthToken : null;
     optAuthUser = (optAuthUser != null) ? optAuthUser : _authUser;
     try {
       String url = Config().iCardUrl;

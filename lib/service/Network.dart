@@ -310,17 +310,6 @@ class Network  {
           result[RokwireApiKey] = rokwireApiKey;
         }
       }
-      
-      if ((auth & ShibbolethUserAuth) != 0) {
-        String idToken = Auth().authToken?.idToken;
-        String tokenType = Auth().authToken?.tokenType ?? 'Bearer';
-        if ((idToken != null) && idToken.isNotEmpty) {
-          if (result == null) {
-            result = (headers != null) ? Map.from(headers) : Map();
-          }
-          result[HttpHeaders.authorizationHeader] = "$tokenType $idToken";
-        }
-      }
 
       if ((auth & HealthAccountAuth) != 0) {
         String rokwireAccountId = Health().userAccountId;
