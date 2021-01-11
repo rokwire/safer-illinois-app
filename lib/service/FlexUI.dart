@@ -195,7 +195,8 @@ class FlexUI with Service implements NotificationsListener {
       'user': UserProfile().data?.toShortJson(),
       //TBD: DD - web - Auth token
       'auth_token': null,
-      'auth_user': Auth().authUser?.toJson(),
+      //TBD: DD - web - Rokmetro user
+      'auth_user': Auth().rokmetroUser?.toJson(),
       'card': Auth().authCard?.toShortJson(),
       'pii': Auth().userPiiData?.toShortJson(),
       'platform': platformJson,

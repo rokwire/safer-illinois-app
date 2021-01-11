@@ -55,7 +55,6 @@ class Auth with Service implements NotificationsListener {
   static const String _authCardName   = "idCard.json";
   static const String _userPiiFileName   = "piiData.json";
 
-  AuthUser _authUser;
   String _csrfToken;
 
   RokmetroUser _rokmetroUser;
@@ -92,8 +91,6 @@ class Auth with Service implements NotificationsListener {
     if (isLoggedIn) {
       await _loadCsrfToken();
 
-      _authUser = Storage().authUser;
-
       _rokmetroUser = Storage().rokmetroUser;
 
       _authCardCacheFile = await _getAuthCardCacheFile();
@@ -111,8 +108,6 @@ class Auth with Service implements NotificationsListener {
 
   @override
   Future<void> clearService() async {
-    _authUser = null;
-
     _rokmetroUser = null;
 
     AppFile.delete(_authCardCacheFile);
@@ -221,8 +216,8 @@ class Auth with Service implements NotificationsListener {
     _clear(false);
 
     // 6.2 AuthUser
-    Storage().authUser = _authUser = newAuthUser;
-    NotificationService().notify(notifyUserChanged);
+    // Storage().authUser = _authUser = newAuthUser;
+    // NotificationService().notify(notifyUserChanged);
 
     // 6.3 RokmetroToken
     // Storage().rokmetroToken = _rokmetroToken = newRokmetroToken;
@@ -357,8 +352,8 @@ class Auth with Service implements NotificationsListener {
     // 5. Store everything and notify everyone
 
     // 5.2 AuthUser
-    Storage().authUser = _authUser = newAuthUser;
-    NotificationService().notify(notifyUserChanged);
+    // Storage().authUser = _authUser = newAuthUser;
+    // NotificationService().notify(notifyUserChanged);
 
     // 5.4 RokmetroUser
     Storage().rokmetroUser = _rokmetroUser = newRokmetroUser;
@@ -411,7 +406,6 @@ class Auth with Service implements NotificationsListener {
   }
 
   void _clear([bool notify = false]) {
-    Storage().authUser = _authUser = null;
     Storage().rokmetroUser = _rokmetroUser = null;
     _authCard = null;
 
@@ -454,10 +448,6 @@ class Auth with Service implements NotificationsListener {
     return null;
   }
 
-  AuthUser get authUser {
-    return _authUser;
-  }
-
   RokmetroUser get rokmetroUser {
     return _rokmetroUser;
   }
@@ -485,23 +475,31 @@ class Auth with Service implements NotificationsListener {
   }
 
   bool get hasUIN {
-    return (0 < (_authUser?.uin?.length ?? 0));
+    return (0 < (_rokmetroUser?.uid?.length ?? 0));
   }
 
   bool get isEventEditor {
-    return _authUser?.groupMembership?.contains('urn:mace:uiuc.edu:urbana:authman:app-rokwire-service-policy-rokwire event approvers') ?? false;
+    //TBD: DD - web ?
+    // return _authUser?.groupMembership?.contains('urn:mace:uiuc.edu:urbana:authman:app-rokwire-service-policy-rokwire event approvers') ?? false;
+    return false;
   }
 
   bool get isStadiumPollManager {
-    return _authUser?.groupMembership?.contains('urn:mace:uiuc.edu:urbana:authman:app-rokwire-service-policy-rokwire stadium poll manager') ?? false;
+    //TBD: DD - web ?
+    // return _authUser?.groupMembership?.contains('urn:mace:uiuc.edu:urbana:authman:app-rokwire-service-policy-rokwire stadium poll manager') ?? false;
+    return false;
   }
 
   bool get isDebugManager {
-    return _authUser?.groupMembership?.contains('urn:mace:uiuc.edu:urbana:authman:app-rokwire-service-policy-rokwire debug') ?? false;
+    //TBD: DD - web ?
+    // return _authUser?.groupMembership?.contains('urn:mace:uiuc.edu:urbana:authman:app-rokwire-service-policy-rokwire debug') ?? false;
+    return false;
   }
 
   bool isMemberOf(String groupName) {
-    return _authUser?.groupMembership?.contains(groupName) ?? false;
+    //TBD: DD - web ?
+    // return _authUser?.groupMembership?.contains(groupName) ?? false;
+    return false;
   }
 
   bool get isCapitolStaff {
@@ -520,7 +518,7 @@ class Auth with Service implements NotificationsListener {
   }
 
   String get fullUserName {
-    String userName = authUser?.fullName;
+    String userName = rokmetroUser?.name;
     if (AppString.isStringEmpty(userName)) {
       userName = userPiiData?.fullName;
     }
@@ -656,7 +654,6 @@ class Auth with Service implements NotificationsListener {
       final response = (url != null) ? await Network().put(url,
           headers: {'Content-Type':'application/json'},
           body: body,
-          auth: Network.ShibbolethUserAuth
       ) : null;
 
       String responseBody = ((response != null) && (response.statusCode == 200)) ? response.body : null;
@@ -700,9 +697,10 @@ class Auth with Service implements NotificationsListener {
   }
 
   Future<void> _syncProfilePiiDataIfNeed() async {
-    if(isShibbolethLoggedIn){
+    if(isShibbolethLoggedIn) {
       UserPiiData piiData = userPiiData;
-      if((piiData != null) && piiData.updateFromAuthUser(_authUser)){
+      //TBD: DD - web for auth user / rokmetro user
+      if((piiData != null) && piiData.updateFromAuthUser(null)) {
         storeUserPiiData(piiData);
       }
     }
@@ -815,7 +813,7 @@ class Auth with Service implements NotificationsListener {
 
   Future<_UserPersonalData> _loadUserPersonalDataWithShibbolethAuth({AuthToken optAuthToken, AuthUser optAuthUser}) async {
     optAuthToken = (optAuthToken != null) ? optAuthToken : null;
-    optAuthUser = (optAuthUser != null) ? optAuthUser : _authUser;
+    optAuthUser = (optAuthUser != null) ? optAuthUser : null;
 
     String userPiiPid = await _loadPidWithShibbolethAuth(email: optAuthUser?.email, optAuthToken: optAuthToken);
     String userPiiDataString = (userPiiPid != null) ? await _loadUserPiiDataStringFromNet(pid: userPiiPid, optAuthToken: optAuthToken) : null;
@@ -889,7 +887,7 @@ class Auth with Service implements NotificationsListener {
 
   Future<String> _loadAuthCardStringFromNet({AuthToken optAuthToken, AuthUser optAuthUser}) async {
     optAuthToken = (optAuthToken != null) ? optAuthToken : null;
-    optAuthUser = (optAuthUser != null) ? optAuthUser : _authUser;
+    optAuthUser = (optAuthUser != null) ? optAuthUser : null;
     try {
       String url = Config().iCardUrl;
       Map<String, String> headers = {

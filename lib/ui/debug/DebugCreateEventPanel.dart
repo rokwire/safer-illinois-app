@@ -500,7 +500,7 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
     String aesKey = AESCrypt.randomKey();
     String encryptedBlob = AESCrypt.encrypt(blob, keyString: aesKey);
     String encryptedKey = RSACrypt.encrypt(aesKey, Health().user?.publicKey);
-    String userUin = (Health().userAccount?.isDefault != false) ? Auth().authUser?.uin : Health().userAccount.externalId;
+    String userUin = (Health().userAccount?.isDefault != false) ? Auth().rokmetroUser?.uid : Health().userAccount.externalId;
 
     //PointyCastle.PrivateKey privateKey = await Health().userPrivateKey;
     //String decryptedKey = ((privateKey != null) && (encryptedKey != null)) ? RSACrypt.decrypt(encryptedKey, privateKey) : null;

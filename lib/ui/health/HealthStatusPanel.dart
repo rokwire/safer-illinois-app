@@ -439,8 +439,8 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
         qrCodeContent = Auth().authCard?.magTrack2;
       }
       else if (Auth().isPhoneLoggedIn) {
-        if (AppString.isStringNotEmpty(Auth().authUser?.uin)) {
-          qrCodeContent = "xxxx${Auth().authUser.uin}xxx=xxxxxxxxxxx";
+        if (AppString.isStringNotEmpty(Auth().rokmetroUser?.uid)) {
+          qrCodeContent = "xxxx${Auth().rokmetroUser.uid}xxx=xxxxxxxxxxx";
         }
         else {
           qrCodeContent = Auth().phoneToken?.phone;
@@ -461,8 +461,8 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
         return null;
       }
       else if (Auth().isPhoneLoggedIn) {
-        if (AppString.isStringNotEmpty(Auth().authUser?.uin)) {
-          return Auth().authUser?.uin;
+        if (AppString.isStringNotEmpty(Auth().rokmetroUser?.uid)) {
+          return Auth().rokmetroUser?.uid;
         }
         else {
           return Auth().phoneToken?.phone;

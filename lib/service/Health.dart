@@ -315,7 +315,7 @@ class Health with Service implements NotificationsListener {
 
   String get _userId {
     if (Auth().isShibbolethLoggedIn) {
-      return Auth().authUser?.uin;
+      return Auth().rokmetroUser?.uid;
     }
     else if (Auth().isPhoneLoggedIn) {
       return Auth().phoneToken?.phone;
@@ -330,13 +330,13 @@ class Health with Service implements NotificationsListener {
     if (AppString.isStringNotEmpty(userName = Auth().fullUserName)) {
       return userName;
     }
-    else if (AppString.isStringNotEmpty(userName = Auth().authUser?.uin)) {
+    else if (AppString.isStringNotEmpty(userName = Auth().rokmetroUser?.uid)) {
       return userName;
     }
-    else if (AppString.isStringNotEmpty(userName = Auth().authUser?.email)) {
+    else if (AppString.isStringNotEmpty(userName = Auth().rokmetroUser?.email)) {
       return userName;
     }
-    else if (AppString.isStringNotEmpty(userName = Auth().authUser?.phone)) {
+    else if (AppString.isStringNotEmpty(userName = Auth().rokmetroUser?.phone)) {
       return userName;
     }
     else if (AppString.isStringNotEmpty(userName = Auth().phoneToken?.phone)) {

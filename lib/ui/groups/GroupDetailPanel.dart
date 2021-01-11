@@ -61,7 +61,7 @@ class _GroupPanelState extends State<GroupPanel> implements NotificationsListene
   bool get _isMember {
     if(_group?.members?.isNotEmpty ?? false){
       for(Member member in _group.members){
-        if(member.email == Auth()?.authUser?.email){
+        if(member.email == Auth()?.rokmetroUser?.email){
           return true;
         }
       }
@@ -72,7 +72,7 @@ class _GroupPanelState extends State<GroupPanel> implements NotificationsListene
   bool get _isAdmin {
     if(_group?.members?.isNotEmpty ?? false){
       for(Member member in _group.members){
-        if(member.email == Auth()?.authUser?.email && member.status == GroupMemberStatus.admin){
+        if(member.email == Auth()?.rokmetroUser?.email && member.status == GroupMemberStatus.admin){
           return true;
         }
       }

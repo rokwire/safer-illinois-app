@@ -264,18 +264,6 @@ class Storage with Service {
   ////////////////
   // Auth
 
-  static const String authUserKey  = '_auth_info';
-
-  AuthUser get authUser {
-    final String authUserToString = _getStringWithName(authUserKey);
-    AuthUser authUser = AuthUser.fromJson(AppJson.decode(authUserToString));
-    return authUser;
-  }
-
-  set authUser(AuthUser value) {
-    _setStringWithName(authUserKey, value != null ? json.encode(value.toJson()) : null);
-  }
-
   static const String authCardTimeKey  = '_auth_card_time';
 
   int get authCardTime {

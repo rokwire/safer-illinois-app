@@ -144,7 +144,7 @@ class Group {
   Member get currentUserAsMember{
     if(Auth().isShibbolethLoggedIn && AppCollection.isCollectionNotEmpty(members)) {
       for (Member member in members) {
-        if (member.email == Auth()?.authUser?.email) {
+        if (member.email == Auth()?.rokmetroUser?.email) {
           return member;
         }
       }
@@ -172,7 +172,7 @@ class Group {
   bool get currentUserIsUserMember{
     if(Auth().isShibbolethLoggedIn && AppCollection.isCollectionNotEmpty(members)){
       for(Member member in members){
-        if(member.email == Auth()?.authUser?.email && member.status != GroupMemberStatus.pending){
+        if(member.email == Auth()?.rokmetroUser?.email && member.status != GroupMemberStatus.pending){
           return true;
         }
       }

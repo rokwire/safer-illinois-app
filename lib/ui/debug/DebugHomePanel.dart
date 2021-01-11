@@ -86,7 +86,7 @@ class _DebugHomePanelState extends State<DebugHomePanel> implements Notification
 
   String get _userDebugData{
     String userDataText = prettyPrintJson((UserProfile()?.data?.toJson()));
-    String authUserText = prettyPrintJson(Auth()?.authUser?.toJson());
+    String authUserText = prettyPrintJson(Auth()?.rokmetroUser?.toJson());
     String userData =  "Profile: " + (userDataText ?? "unknown") + "\n\n" +
         "Auth: " + (authUserText ?? "unknown");
     return userData;

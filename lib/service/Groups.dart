@@ -124,8 +124,8 @@ class Groups /* with Service */ {
       String url = '${Config().groupsUrl}/groups';
       try {
         Map<String, dynamic> json = group.toJson(withId: false);
-        json["creator_email"] = Auth()?.authUser?.email ?? "";
-        json["creator_name"] = Auth()?.authUser?.fullName ?? "";
+        json["creator_email"] = Auth()?.rokmetroUser?.email ?? "";
+        json["creator_name"] = Auth()?.rokmetroUser?.name ?? "";
         json["creator_photo_url"] = "";
         String body = jsonEncode(json);
         Response response = await Network().post(url, auth: Network.ShibbolethUserAuth, body: body, headers: _apiHeader);
@@ -169,8 +169,8 @@ class Groups /* with Service */ {
       String url = '${Config().groupsUrl}/group/${group.id}/pending-members';
       try {
         Map<String, dynamic> json = {};
-        json["email"] = Auth()?.authUser?.email ?? "";
-        json["name"] = Auth()?.authUser?.fullName ?? "";
+        json["email"] = Auth()?.rokmetroUser?.email ?? "";
+        json["name"] = Auth()?.rokmetroUser?.name ?? "";
         json["creator_photo_url"] = "";
         json["member_answers"] = AppCollection.isCollectionNotEmpty(answers) ? answers.map((e) => e.toJson()).toList() : [];
 
