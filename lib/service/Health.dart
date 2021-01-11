@@ -302,7 +302,7 @@ class Health with Service implements NotificationsListener {
   }
 
   bool get _isUserAuthenticated {
-    return (Auth().authToken?.idToken != null);
+    return Auth().isLoggedIn;
   }
 
   bool get _isUserReadAuthenticated {
