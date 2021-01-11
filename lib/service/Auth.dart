@@ -31,8 +31,6 @@ import 'package:illinois/service/Network.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
 import 'package:illinois/service/Storage.dart';
-import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:universal_html/html.dart' as html;
 
 import 'package:illinois/service/UserProfile.dart';
@@ -52,18 +50,13 @@ class Auth with Service implements NotificationsListener {
   static const String notifyUserPiiDataChanged  = "edu.illinois.rokwire.auth.pii.changed";
   static const String notifyCardChanged  = "edu.illinois.rokwire.auth.card.changed";
 
-  static const String _authCardName   = "idCard.json";
-  static const String _userPiiFileName   = "piiData.json";
-
   String _csrfToken;
 
   RokmetroUser _rokmetroUser;
 
   UserPiiData _userPiiData;
-  File _userPiiCacheFile;
 
   AuthCard _authCard;
-  File _authCardCacheFile;
 
   // Singletone Instance
   
@@ -93,12 +86,6 @@ class Auth with Service implements NotificationsListener {
 
       _rokmetroUser = Storage().rokmetroUser;
 
-      _authCardCacheFile = await _getAuthCardCacheFile();
-      _authCard = await _loadAuthCardFromCache();
-
-      _userPiiCacheFile = await _getUserPiiCacheFile();
-      _userPiiData = await _loadUserPiiDataFromCache();
-
       // Backward compatability - no rokmetro data stored from previous versions
       await _ensureRokmetroData();
 
@@ -109,11 +96,7 @@ class Auth with Service implements NotificationsListener {
   @override
   Future<void> clearService() async {
     _rokmetroUser = null;
-
-    AppFile.delete(_authCardCacheFile);
     _authCard = null;
-
-    AppFile.delete(_userPiiCacheFile);
     _userPiiData = null;
   }
 
@@ -689,7 +672,6 @@ class Auth with Service implements NotificationsListener {
     if (_userPiiData != userPiiData) {
       _userPiiData = userPiiData;
       Storage().userPid = userPiiData?.pid;
-      _saveUserPiiDataStringToCache(userPiiDataString);
       if(notify) {
         NotificationService().notify(notifyUserPiiDataChanged);
       }
@@ -704,51 +686,6 @@ class Auth with Service implements NotificationsListener {
         storeUserPiiData(piiData);
       }
     }
-  }
-
-  Future<File> _getUserPiiCacheFile() async {
-    //TBD: DD - web
-    if (kIsWeb) {
-      return null;
-    }
-    Directory appDocDir = await getApplicationDocumentsDirectory();
-    String cacheFilePath = join(appDocDir.path, _userPiiFileName);
-    return File(cacheFilePath);
-  }
-
-  Future<String> _loadUserPiiDataStringFromCache() async {
-    //TBD: DD - web
-    if (kIsWeb) {
-      return null;
-    }
-    try {
-      return ((_userPiiCacheFile != null) && await _userPiiCacheFile.exists()) ? await _userPiiCacheFile.readAsString() : null;
-    }
-    on Exception catch (e) {
-      print(e.toString());
-    }
-    return null;
-  }
-
-  Future<void> _saveUserPiiDataStringToCache(String value) async {
-    try {
-      if (_userPiiCacheFile != null) {
-        if (value != null) {
-          await _userPiiCacheFile.writeAsString(value, flush: true);
-        }
-        else if (await _userPiiCacheFile.exists()) {
-          await _userPiiCacheFile.delete();
-        }
-      }
-    }
-    on Exception catch (e) {
-      print(e.toString());
-    }
-    return null;
-  }
-
-  Future<UserPiiData> _loadUserPiiDataFromCache() async {
-    return _userPiiDataFromJsonString(await _loadUserPiiDataStringFromCache());
   }
 
   Future<String> _loadUserPiiDataStringFromNet({String pid, AuthToken optAuthToken}) async {
@@ -836,53 +773,7 @@ class Auth with Service implements NotificationsListener {
 
   void _applyAuthCard(AuthCard authCard, String authCardJson) {
     _authCard = authCard;
-    _saveAuthCardStringToCache(authCardJson);
     NotificationService().notify(notifyCardChanged);
-  }
-
-  Future<File> _getAuthCardCacheFile() async {
-    //TBD: DD - web
-    if (kIsWeb) {
-      return null;
-    }
-    Directory appDocDir = await getApplicationDocumentsDirectory();
-    String cacheFilePath = join(appDocDir.path, _authCardName);
-    return File(cacheFilePath);
-  }
-
-  Future<String> _loadAuthCardStringFromCache() async {
-    //TBD: DD - web
-    if (kIsWeb) {
-      return null;
-    }
-    try {
-      return ((_authCardCacheFile != null) && await _authCardCacheFile.exists()) ? await _authCardCacheFile.readAsString() : null;
-    }
-    on Exception catch (e) {
-      print(e.toString());
-    }
-    return null;
-  }
-
-  Future<void> _saveAuthCardStringToCache(String value) async {
-    try {
-      if (_authCardCacheFile != null) {
-        if (value != null) {
-          await _authCardCacheFile.writeAsString(value, flush: true);
-        }
-        else if (await _authCardCacheFile.exists()) {
-          await _authCardCacheFile.delete();
-        }
-      }
-    }
-    on Exception catch (e) {
-      print(e.toString());
-    }
-    return null;
-  }
-
-  Future<AuthCard> _loadAuthCardFromCache() async {
-    return _authCardFromJsonString(await _loadAuthCardStringFromCache());
   }
 
   Future<String> _loadAuthCardStringFromNet({AuthToken optAuthToken, AuthUser optAuthUser}) async {
@@ -936,7 +827,6 @@ class Auth with Service implements NotificationsListener {
   void _clearAuthCard() {
     if (_authCard != null) {
       _authCard = null;
-      _saveAuthCardStringToCache(null);
     }
   }
 
