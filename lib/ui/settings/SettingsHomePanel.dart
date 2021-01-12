@@ -689,8 +689,6 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
               borderColor: Styles().colors.fillColorPrimary,
               onTap: _onTapUnlockCovid19),)
               : Container(),
-          Container(width: canDecryptPrivateKey ? 8 : 0,),
-          Expanded(child: _buildCovid19ResetButton()),
         ];
       }
       else if ((Health().userPrivateKey == null) || (_healthUserKeysPaired != true)) {
