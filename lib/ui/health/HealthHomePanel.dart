@@ -446,8 +446,9 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
   Widget _buildNextStepSection() {
     String nextStepText = Health().status?.blob?.displayNextStep;
     String nextStepHtml = Health().status?.blob?.displayNextStepHtml;
-    String warningTitle = Health().status?.blob?.displayWarning;
-    bool hasNextStep = AppString.isStringNotEmpty(nextStepText) || AppString.isStringNotEmpty(nextStepHtml) || AppString.isStringNotEmpty(warningTitle);
+    String warningText = Health().status?.blob?.displayWarning;
+    String warningHtml = Health().status?.blob?.displayWarningHtml;
+    bool hasNextStep = AppString.isStringNotEmpty(nextStepText) || AppString.isStringNotEmpty(nextStepHtml) || AppString.isStringNotEmpty(warningText) || AppString.isStringNotEmpty(warningHtml);
     String headingText = hasNextStep ? Localization().getStringEx("panel.covid19home.label.next_step.title", "NEXT STEP") : '';
     String headingDate = (hasNextStep && (Health().status?.blob?.nextStepDateUtc != null)) ? AppDateTime.formatDateTime(Health().status.blob.nextStepDateUtc.toLocal(), format: "MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode) : '';
 
@@ -477,10 +478,21 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
       ]);
     }
 
-    if (AppString.isStringNotEmpty(warningTitle)) {
+    if (AppString.isStringNotEmpty(warningText)) {
       content.addAll(<Widget>[
           Container(height: 12,),
-          Text(warningTitle, style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Styles().colors.fillColorPrimary),),
+          Text(warningText, style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Styles().colors.fillColorPrimary),),
+      ]);
+    }
+
+    if (AppString.isStringNotEmpty(warningHtml)) {
+      content.addAll(<Widget>[
+          Container(height: 12,),
+          Html(data: warningHtml, onLinkTap: (url) => _onTapLink(url),
+            style: {
+              "body": Style(fontFamily: Styles().fontFamilies.medium, color: Styles().colors.fillColorPrimary)
+            },
+          ),
       ]);
     }
 
