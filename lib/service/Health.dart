@@ -731,7 +731,7 @@ class Health with Service implements NotificationsListener {
   }
 
   void _applyStatus(HealthStatus status) {
-    if (_status != status) {
+    if ((_status != status) || ((_status != null) && (status != null) && (_status.blob != status.blob))) {
       String oldStatusCode = _status?.blob?.code;
       String newStatusCode = status?.blob?.code;
       if ((oldStatusCode != null) && (newStatusCode != null) && (oldStatusCode != newStatusCode)) {
@@ -824,7 +824,7 @@ class Health with Service implements NotificationsListener {
         else if (historyEntry.isAction) {
           if (rules.actions != null) {
             HealthActionRule actionRule = rules.actions.matchRule(blob: historyEntry?.blob, rules: rules);
-            ruleStatus = actionRule?.status?.eval(history: history, historyIndex: index, rules: rules);
+            ruleStatus = actionRule?.status?.eval(history: history, historyIndex: index, rules: rules, params: historyEntry.blob?.actionParams);
           }
           else {
             return null;
