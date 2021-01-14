@@ -503,7 +503,6 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
     DateTime nowMidnight = AppDateTime.midnight(DateTime.now());
     int duration = dateMidnight?.difference(nowMidnight)?.inDays ?? -1;
     int exemptInterval = (0 <= duration) ? duration : null;
-    String actionParams = (exemptInterval != null) ?  '\n  "ActionParams": { "ExemptInterval": $exemptInterval },' : '';
 
     DateTime exemptDate = (exemptInterval != null) ? nowMidnight.add(Duration(days: exemptInterval)) : null;
     String exemptDateString = (exemptDate != null) ? AppDateTime.formatDateTime(exemptDate, format: 'EEEE, MMM d') : null;
@@ -511,7 +510,8 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
 
 
     return '''{ "Date": "$date",
-  "ActionType": "exempt-on",$actionParams
+  "ActionType": "exempt-on",
+  "ActionParams": { "ExemptInterval": $exemptInterval },
   "ActionText": "$actionText" }''';}
 
   String get _sampleActionExemptOffBlob {
