@@ -1109,6 +1109,7 @@ class Health with Service implements NotificationsListener {
         blob: HealthHistoryBlob(
           actionType: event?.blob?.actionType,
           actionText: event?.blob?.actionText,
+          actionParams: event?.blob?.actionParams,
         ),
         publicKey: _user?.publicKey
       ));
@@ -1176,6 +1177,7 @@ class Health with Service implements NotificationsListener {
             attributes: {
               Analytics.LogHealthActionTypeName: event.blob?.actionType,
               Analytics.LogHealthActionTextName: event.blob?.defaultLocaleActionText,
+              Analytics.LogHealthActionParamsName: event.blob?.actionParams,
           });
         }
       }

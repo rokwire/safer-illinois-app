@@ -472,9 +472,8 @@ class HealthHistory implements Comparable<HealthHistory> {
       return this.isAction &&
         (this.dateUtc == event?.blob?.dateUtc) &&
         (this.blob?.actionType == event?.blob?.actionType) &&
-        ((this.blob?.actionText == event?.blob?.actionText) ||
-         ((this.blob?.actionText is Map) && (event?.blob?.actionText is Map) && MapEquality().equals(this.blob?.actionText, event?.blob?.actionText))
-        );
+        (MapEquality().equals(this.blob?.actionParams, event?.blob?.actionParams)) &&
+        (DeepCollectionEquality().equals(this.blob?.actionText, event?.blob?.actionText));
     }
     else {
       return false;
@@ -628,12 +627,13 @@ class HealthHistoryBlob {
   
   final String actionType;
   final dynamic actionText;
+  final Map<String, dynamic> actionParams;
 
   HealthHistoryBlob({
     this.provider, this.providerId, this.location, this.locationId, this.countyId, this.testType, this.testResult,
     this.symptoms,
     this.traceDuration, this.traceTEK,
-    this.actionType, this.actionText,
+    this.actionType, this.actionText, this.actionParams,
   });
 
   factory HealthHistoryBlob.fromJson(Map<String, dynamic> json) {
@@ -653,6 +653,7 @@ class HealthHistoryBlob {
       
       actionType: json['action_type'],
       actionText: json['action_text'],
+      actionParams: json['action_params'],
     ) : null;
   }
 
@@ -673,6 +674,7 @@ class HealthHistoryBlob {
       
       'action_type': actionType,
       'action_text': actionText,
+      'action_params': actionParams,
     };
   }
 
@@ -692,6 +694,7 @@ class HealthHistoryBlob {
       (o.traceTEK == traceTEK) &&
 
       (o.actionType == actionType) &&
+      MapEquality().equals(o.actionParams, actionParams) &&
       DeepCollectionEquality().equals(o.actionText, actionText);
   }
 
@@ -710,6 +713,7 @@ class HealthHistoryBlob {
     (traceTEK?.hashCode ?? 0) ^
 
     (actionType?.hashCode ?? 0) ^
+    (MapEquality().hash(actionParams) ?? 0) ^
     (DeepCollectionEquality().hash(actionText) ?? 0);
 
   bool get isTest {
@@ -924,8 +928,9 @@ class HealthPendingEventBlob {
 
   final String   actionType;
   final dynamic  actionText;
+  final Map<String, dynamic> actionParams;
 
-  HealthPendingEventBlob({this.dateUtc, this.testType, this.testResult, this.actionType, this.actionText});
+  HealthPendingEventBlob({this.dateUtc, this.testType, this.testResult, this.actionType, this.actionParams, this.actionText});
 
   factory HealthPendingEventBlob.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthPendingEventBlob(
@@ -934,6 +939,7 @@ class HealthPendingEventBlob {
       testResult:    AppJson.stringValue(json['Result']),
       actionType:    AppJson.stringValue(json['ActionType']),
       actionText:    json['ActionText'],
+      actionParams:  AppJson.mapValue(json['ActionParams']),
     ) : null;
   }
 
@@ -945,11 +951,12 @@ class HealthPendingEventBlob {
         'Result': testResult,
       };
     }
-    else if ((actionType != null) || (actionText != null)) {
+    else if ((actionType != null) || (actionText != null) || (actionParams != null)) {
       return {
         'Date': healthDateTimeToString(dateUtc),
         'ActionType': actionType,
         'ActionText': actionText,
+        'ActionParams': actionParams,
       };
     }
     else {
