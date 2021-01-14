@@ -2239,15 +2239,14 @@ class HealthRulesSet {
   final HealthDefaultsSet defaults;
   final HealthCodesSet codes;
   final Map<String, _HealthRuleStatus> statuses;
-  final Map<String, dynamic> constants;
+  final Map<String, _HealthRuleInterval> intervals;
   final Map<String, dynamic> strings;
 
 
   static const String UserTestMonitorInterval = 'UserTestMonitorInterval';
 
-  HealthRulesSet({this.tests, this.symptoms, this.contactTrace, this.actions, this.defaults, HealthCodesSet codes, this.statuses, Map<String, dynamic> constants, Map<String, dynamic> strings}) :
+  HealthRulesSet({this.tests, this.symptoms, this.contactTrace, this.actions, this.defaults, HealthCodesSet codes, this.statuses, this.intervals, Map<String, dynamic> strings}) :
     this.codes = codes ?? HealthCodesSet(),
-    this.constants = constants ?? Map<String, dynamic>(),
     this.strings = strings ?? Map<String, dynamic>();
 
   factory HealthRulesSet.fromJson(Map<String, dynamic> json) {
@@ -2259,7 +2258,7 @@ class HealthRulesSet {
       defaults: HealthDefaultsSet.fromJson(json['defaults']),
       codes: HealthCodesSet.fromJson(json['codes']),
       statuses: _HealthRuleStatus.mapFromJson(json['statuses']),
-      constants: json['constants'],
+      intervals: _HealthRuleInterval.mapFromJson(json['intervals']),
       strings: json['strings'],
     ) : null;
   }
@@ -2273,7 +2272,7 @@ class HealthRulesSet {
       (o.defaults == defaults) &&
       (o.codes == codes) &&
       MapEquality().equals(o.statuses, statuses) &&
-      MapEquality().equals(o.constants, constants) &&
+      MapEquality().equals(o.intervals, intervals) &&
       DeepCollectionEquality().equals(o.strings, strings);
   }
 
@@ -2285,11 +2284,11 @@ class HealthRulesSet {
     (defaults?.hashCode ?? 0) ^
     (codes?.hashCode ?? 0) ^
     MapEquality().hash(statuses) ^
-    MapEquality().hash(constants) ^
+    MapEquality().hash(intervals) ^
     DeepCollectionEquality().hash(strings);
 
-  dynamic getConstant(String name) {
-    return constants[name];
+  _HealthRuleInterval getInterval(String name) {
+    return (intervals != null) ? intervals[name] : null; 
   }
 
   String localeString(dynamic entry) {
@@ -2670,7 +2669,7 @@ class HealthSymptomsRule {
 
   factory HealthSymptomsRule.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthSymptomsRule(
-      counts: _countsFromJson(json['counts']),
+      counts: _HealthRuleInterval.mapFromJson(json['counts']),
       status: _HealthRuleStatus.fromJson(json['status']),
     ) : null;
   }
@@ -2692,17 +2691,6 @@ class HealthSymptomsRule {
           try { values.add(HealthSymptomsRule.fromJson((entry as Map)?.cast<String, dynamic>())); }
           catch(e) { print(e?.toString()); }
       }
-    }
-    return values;
-  }
-
-  static Map<String, _HealthRuleInterval> _countsFromJson(Map<String, dynamic> json) {
-    Map<String, _HealthRuleInterval> values;
-    if (json != null) {
-      values = Map<String, _HealthRuleInterval>();
-      json.forEach((key, value) {
-        values[key] = _HealthRuleInterval.fromJson(value);
-      });
     }
     return values;
   }
@@ -3388,6 +3376,17 @@ abstract class _HealthRuleInterval {
   int  scope({ HealthRulesSet rules, Map<String, dynamic> params });
   bool current({ HealthRulesSet rules, Map<String, dynamic> params });
   HealthRuleIntervalOrigin origin({ HealthRulesSet rules, Map<String, dynamic> params });
+
+  static Map<String, _HealthRuleInterval> mapFromJson(Map<String, dynamic> json) {
+    Map<String, _HealthRuleInterval> result;
+    if (json != null) {
+      result = Map<String, _HealthRuleInterval>();
+      json.forEach((key, value) {
+        result[key] = _HealthRuleInterval.fromJson(value);
+      });
+    }
+    return result;
+  }
 }
 
 enum HealthRuleIntervalOrigin { historyDate, referenceDate }
@@ -3542,7 +3541,6 @@ class HealthRuleInterval extends _HealthRuleInterval {
 
 class HealthRuleIntervalReference extends _HealthRuleInterval {
   final String _reference;
-  _HealthRuleInterval _referenceRulesInterval;
 
   HealthRuleIntervalReference({String reference}) :
     _reference = reference;
@@ -3558,28 +3556,21 @@ class HealthRuleIntervalReference extends _HealthRuleInterval {
   int get hashCode =>
     (_reference?.hashCode ?? 0);
 
-  _HealthRuleInterval referenceInterval({ HealthRulesSet rules, Map<String, dynamic> params }) {
-    
+  _HealthRuleInterval _referenceInterval({ HealthRulesSet rules, Map<String, dynamic> params }) {
     _HealthRuleInterval referenceParamInterval = (params != null) ? _HealthRuleInterval.fromJson(params[_reference]) : null;
-    if (referenceParamInterval != null) {
-      return  referenceParamInterval;
-    }
-    if (_referenceRulesInterval == null) {
-      _referenceRulesInterval = _HealthRuleInterval.fromJson(rules?.getConstant(_reference));
-    }
-    return _referenceRulesInterval;
+    return (referenceParamInterval != null) ? referenceParamInterval : rules?.getInterval(_reference);
   }
 
   @override
   bool match(int value, { HealthRulesSet rules, Map<String, dynamic> params }) {
-    return referenceInterval(rules: rules, params: params)?.match(value, rules: rules, params: params) ?? false;
+    return _referenceInterval(rules: rules, params: params)?.match(value, rules: rules, params: params) ?? false;
   }
   
-  @override bool valid({ HealthRulesSet rules, Map<String, dynamic> params })   { return referenceInterval(rules: rules, params: params)?.valid(rules: rules, params: params) ?? false; }
-  @override int  value({ HealthRulesSet rules, Map<String, dynamic> params })   { return referenceInterval(rules: rules, params: params)?.value(rules: rules, params: params); }
-  @override int  scope({ HealthRulesSet rules, Map<String, dynamic> params })   { return referenceInterval(rules: rules, params: params)?.scope(rules: rules, params: params); }
-  @override bool current({ HealthRulesSet rules, Map<String, dynamic> params }) { return referenceInterval(rules: rules, params: params)?.current(rules: rules, params: params); }
-  @override HealthRuleIntervalOrigin origin({ HealthRulesSet rules, Map<String, dynamic> params }) { return referenceInterval(rules: rules, params: params)?.origin(rules: rules, params: params); }
+  @override bool valid({ HealthRulesSet rules, Map<String, dynamic> params })   { return _referenceInterval(rules: rules, params: params)?.valid(rules: rules, params: params) ?? false; }
+  @override int  value({ HealthRulesSet rules, Map<String, dynamic> params })   { return _referenceInterval(rules: rules, params: params)?.value(rules: rules, params: params); }
+  @override int  scope({ HealthRulesSet rules, Map<String, dynamic> params })   { return _referenceInterval(rules: rules, params: params)?.scope(rules: rules, params: params); }
+  @override bool current({ HealthRulesSet rules, Map<String, dynamic> params }) { return _referenceInterval(rules: rules, params: params)?.current(rules: rules, params: params); }
+  @override HealthRuleIntervalOrigin origin({ HealthRulesSet rules, Map<String, dynamic> params }) { return _referenceInterval(rules: rules, params: params)?.origin(rules: rules, params: params); }
 }
 
 ///////////////////////////////
