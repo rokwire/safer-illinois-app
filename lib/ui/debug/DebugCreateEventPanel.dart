@@ -400,7 +400,7 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
   }
 
   Widget _buildSubmit() {
-    return Padding(padding: EdgeInsets.all(16),
+    return Padding(padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Stack(children: <Widget>[
           Row(children: <Widget>[
             Expanded(child: Container(),),
