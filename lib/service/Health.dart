@@ -104,11 +104,9 @@ class Health with Service implements NotificationsListener {
     _appDocumentsDir = (kIsWeb) ? null : (await getApplicationDocumentsDirectory());
     _servicePublicKey = RsaKeyHelper.parsePublicKeyFromPem(Config().healthPublicKey);
 
-    _user = _loadUserFromStorage();
     _userAccountId = Storage().healthUserAccountId;
     _userTestMonitorInterval = Storage().healthUserTestMonitorInterval;
 
-    _status = _loadStatusFromStorage();
     _history = await _loadHistoryFromCache();
 
     _county = await _ensureCounty();
@@ -512,17 +510,9 @@ class Health with Service implements NotificationsListener {
 
   void _applyUser(HealthUser user) {
     if (_user != user) {
-      _saveUserToStorage(_user = user);
+      _user = user;
       _notify(notifyUserUpdated);
     }
-  }
-
-  static HealthUser _loadUserFromStorage() {
-    return HealthUser.fromJson(AppJson.decodeMap(Storage().healthUser));
-  }
-
-  static void _saveUserToStorage(HealthUser user) {
-    Storage().healthUser = AppJson.encode(user?.toJson());
   }
 
   // User RSA keys
@@ -686,7 +676,7 @@ class Health with Service implements NotificationsListener {
       String url = "${Config().healthUrl}/covid19/v2/app-version/2.2/statuses";
       Response response = await Network().delete(url);
       if (response?.statusCode == 200) {
-       _saveStatusToStorage(_status = _previousStatus = null);
+        _status = _previousStatus = null;
         _notify(notifyStatusUpdated);
         return true;
       }
@@ -729,7 +719,8 @@ class Health with Service implements NotificationsListener {
       }
 
       _previousStatus = (status != null) ? _status : null;
-      _saveStatusToStorage(_status = status);
+      _status = status;
+      
       _notify(notifyStatusUpdated);
     }
     _applyBuildingAccessForStatus(status);
@@ -837,14 +828,6 @@ class Health with Service implements NotificationsListener {
       }
     }
     return status;
-  }
-
-  static HealthStatus _loadStatusFromStorage() {
-    return HealthStatus.fromJson(AppJson.decodeMap(Storage().healthUserStatus));
-  }
-
-  static void _saveStatusToStorage(HealthStatus status) {
-    Storage().healthUserStatus = AppJson.encode(status?.toJson());
   }
 
   // History

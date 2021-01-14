@@ -406,26 +406,6 @@ class Storage with Service {
     _setStringWithName(_lastHealthOsfTestDateKey, dateString);
   }
 
-  static const String _healthUserKey = 'health_user';
-
-  String get healthUser {
-    return _getStringWithName(_healthUserKey);
-  }
-
-  set healthUser(String value) {
-    _setStringWithName(_healthUserKey, value);
-  }
-
-  static const String _healthUserStatusKey = 'health_user_status';
-
-  String get healthUserStatus {
-    return _getStringWithName(_healthUserStatusKey);
-  }
-
-  set healthUserStatus(String value) {
-    _setStringWithName(_healthUserStatusKey, value);
-  }
-
   static const String _healthUserTestMonitorIntervalKey = 'health_user_test_monitor_interval';
 
   int get healthUserTestMonitorInterval {
