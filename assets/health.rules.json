@@ -405,13 +405,13 @@
 					"interval": { "min": 0, "max": "ExemptInterval", "scope": "future" }
 				},
 				"success": {
-					"health_status": "orange",
+					"code": "orange",
 					"priority": 1,
 					"next_step": "test.now.step",
 					"reason": "test.now.reason"
 				},
 				"fail": {
-					"health_status": "yellow",
+					"code": "yellow",
 					"priority": 12,
 					"next_step": "You are exempted from testing until {next_step_date}",
 					"next_step_interval": "ExemptInterval",
@@ -420,16 +420,16 @@
 				}
 			},
 			"fail": {
-				"health_status": "yellow",
+				"code": "yellow",
 				"priority": 12,
 				"next_step": "You are exempted from testing",
 				"reason": "Your status changed to Yellow because you are exempted from testing",
 				"fcm_topic": "exempt"
 			}
 		},
-		
+
     "exempt-off": {
-      "health_status": "orange",
+      "code": "orange",
       "priority": -1,
       "next_step": "test.now.step",
       "reason": "Your status changed to Orange because your exempt from testing status was canceled"
@@ -782,6 +782,14 @@
 			{
 				"type": "quarantine-off",
 				"status": "quarantine-off"
+			},
+			{
+				"type": "exempt-on",
+				"status": "exempt-on"
+			},
+			{
+				"type": "exempt-off",
+				"status": "exempt-off"
 			},
 			{
 				"type": "out-of-test-compliance",
