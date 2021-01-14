@@ -2240,7 +2240,6 @@ class HealthRulesSet {
   final HealthCodesSet codes;
   final Map<String, _HealthRuleStatus> statuses;
   final Map<String, dynamic> constants;
-  final Map<String, dynamic> constantOverrides;
   final Map<String, dynamic> strings;
 
 
@@ -2249,7 +2248,6 @@ class HealthRulesSet {
   HealthRulesSet({this.tests, this.symptoms, this.contactTrace, this.actions, this.defaults, HealthCodesSet codes, this.statuses, Map<String, dynamic> constants, Map<String, dynamic> strings}) :
     this.codes = codes ?? HealthCodesSet(),
     this.constants = constants ?? Map<String, dynamic>(),
-    this.constantOverrides = Map<String, dynamic>(),
     this.strings = strings ?? Map<String, dynamic>();
 
   factory HealthRulesSet.fromJson(Map<String, dynamic> json) {
@@ -2290,16 +2288,8 @@ class HealthRulesSet {
     MapEquality().hash(constants) ^
     DeepCollectionEquality().hash(strings);
 
-  int get userTestMonitorInterval {
-    return getConstant(UserTestMonitorInterval);
-  }
-
-  set userTestMonitorInterval(int value) {
-    constantOverrides[UserTestMonitorInterval] = value;
-  }
-
   dynamic getConstant(String name) {
-    return constantOverrides[name] ?? constants[name];
+    return constants[name];
   }
 
   String localeString(dynamic entry) {
@@ -3157,7 +3147,7 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
       return null;
     }
 
-    dynamic category = params['category'];
+    dynamic category = (this.params != null) ? this.params['category'] : null;
     if (category is List) {
       category = Set.from(category);
     }
@@ -3304,12 +3294,12 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
 
   dynamic _evalTestUser({ HealthRulesSet rules, Map<String, dynamic> params }) {
     
-    dynamic role = params['role'];
+    dynamic role = (this.params != null) ? this.params['role'] : null;
     if ((role != null) && !_matchStringTarget(target: UserRole.userRolesToList(UserProfile().roles), source: role)) {
       return false;
     }
     
-    dynamic login = params['login'];
+    dynamic login = (this.params != null) ? this.params['login'] : null;
     if (login != null) {
       if (login is bool) {
         if (Auth().isLoggedIn != login) {
@@ -3333,12 +3323,12 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
       }
     }
     
-    dynamic cardRole = params['card.role'];
+    dynamic cardRole = (this.params != null) ? this.params['card.role'] : null;
     if ((cardRole != null) && !_matchStringTarget(target: Auth().authCard?.role, source: cardRole)) {
       return false;
     }
     
-    dynamic cardStudentLevel = params['card.student_level'];
+    dynamic cardStudentLevel = (this.params != null) ? this.params['card.student_level'] : null;
     if ((cardStudentLevel != null) && !_matchStringTarget(target: Auth().authCard?.studentLevel, source: cardStudentLevel)) {
       return false;
     }
