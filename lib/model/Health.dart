@@ -3064,11 +3064,12 @@ class HealthRuleReferenceStatus extends _HealthRuleStatus {
 
 class HealthRuleConditionalStatus extends _HealthRuleStatus {
   final String condition;
-  final Map<String, dynamic> params;
+  final Map<String, dynamic> _params; // Defferentiate from params parameter
   final _HealthRuleStatus successStatus;
   final _HealthRuleStatus failStatus;
 
-  HealthRuleConditionalStatus({this.condition, this.params, this.successStatus, this.failStatus});
+  HealthRuleConditionalStatus({this.condition, Map<String, dynamic> params, this.successStatus, this.failStatus}) :
+    _params = params;
 
   factory HealthRuleConditionalStatus.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthRuleConditionalStatus(
@@ -3082,13 +3083,13 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
   bool operator ==(o) =>
     (o is HealthRuleConditionalStatus) &&
       (o.condition == condition) &&
-      DeepCollectionEquality().equals(o.params, params) &&
+      MapEquality().equals(o._params, _params) &&
       (o.successStatus == successStatus) &&
       (o.failStatus == failStatus);
 
   int get hashCode =>
     (condition?.hashCode ?? 0) ^
-    DeepCollectionEquality().hash(params) ^
+    MapEquality().hash(_params) ^
     (successStatus?.hashCode ?? 0) ^
     (failStatus?.hashCode ?? 0);
 
@@ -3135,7 +3136,7 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
 
   dynamic _evalRequireTest({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
     
-    _HealthRuleInterval interval = (this.params != null) ? _HealthRuleInterval.fromJson(this.params['interval']) : null;
+    _HealthRuleInterval interval = (_params != null) ? _HealthRuleInterval.fromJson(_params['interval']) : null;
     if (interval == null) {
       return null;
     }
@@ -3147,7 +3148,7 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
       return null;
     }
 
-    dynamic category = (this.params != null) ? this.params['category'] : null;
+    dynamic category = (_params != null) ? _params['category'] : null;
     if (category is List) {
       category = Set.from(category);
     }
@@ -3206,7 +3207,7 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
   }
 
   dynamic _evalRequireSymptoms({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
-    _HealthRuleInterval interval = (this.params != null) ? _HealthRuleInterval.fromJson(this.params['interval']) : null;
+    _HealthRuleInterval interval = (_params != null) ? _HealthRuleInterval.fromJson(_params['interval']) : null;
     if (interval == null) {
       return null;
     }
@@ -3261,7 +3262,7 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
   }
 
   dynamic _evalTimeout({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
-    _HealthRuleInterval interval = (this.params != null) ? _HealthRuleInterval.fromJson(this.params['interval']) : null;
+    _HealthRuleInterval interval = (_params != null) ? _HealthRuleInterval.fromJson(_params['interval']) : null;
     if (interval == null) {
       return null;
     }
@@ -3288,18 +3289,18 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
   }
 
   dynamic _evalTestInterval({ HealthRulesSet rules, Map<String, dynamic> params }) {
-    dynamic interval = (this.params != null) ? _HealthRuleInterval.fromJson(this.params['interval']) : null;
+    dynamic interval = (_params != null) ? _HealthRuleInterval.fromJson(_params['interval']) : null;
     return (interval?.valid(rules: rules, params: params) ?? false);
   }
 
   dynamic _evalTestUser({ HealthRulesSet rules, Map<String, dynamic> params }) {
     
-    dynamic role = (this.params != null) ? this.params['role'] : null;
+    dynamic role = (_params != null) ? _params['role'] : null;
     if ((role != null) && !_matchStringTarget(target: UserRole.userRolesToList(UserProfile().roles), source: role)) {
       return false;
     }
     
-    dynamic login = (this.params != null) ? this.params['login'] : null;
+    dynamic login = (_params != null) ? _params['login'] : null;
     if (login != null) {
       if (login is bool) {
         if (Auth().isLoggedIn != login) {
@@ -3323,12 +3324,12 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
       }
     }
     
-    dynamic cardRole = (this.params != null) ? this.params['card.role'] : null;
+    dynamic cardRole = (_params != null) ? _params['card.role'] : null;
     if ((cardRole != null) && !_matchStringTarget(target: Auth().authCard?.role, source: cardRole)) {
       return false;
     }
     
-    dynamic cardStudentLevel = (this.params != null) ? this.params['card.student_level'] : null;
+    dynamic cardStudentLevel = (_params != null) ? _params['card.student_level'] : null;
     if ((cardStudentLevel != null) && !_matchStringTarget(target: Auth().authCard?.studentLevel, source: cardStudentLevel)) {
       return false;
     }
