@@ -38,7 +38,8 @@ import 'package:illinois/utils/Utils.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import "package:pointycastle/export.dart";
-//TMP: import 'package:flutter/services.dart' show rootBundle;
+//TMP:
+import 'package:flutter/services.dart' show rootBundle;
 
 class Health with Service implements NotificationsListener {
 
@@ -116,7 +117,6 @@ class Health with Service implements NotificationsListener {
 
     _county = await _ensureCounty();
     _rules = await _loadRulesFromCache();
-    _rules?.userTestMonitorInterval = _userTestMonitorInterval;
     _buildingAccessRules = _loadBuildingAccessRulesFromStorage();
 
     _refresh(_RefreshOptions.all());
@@ -239,10 +239,6 @@ class Health with Service implements NotificationsListener {
       options.buildingAccessRules ? _refreshBuildingAccessRules() : Future<void>.value(),
     ]);
     
-    if (options.rules || options.userInterval) {
-      _rules?.userTestMonitorInterval = _userTestMonitorInterval;
-    }
-
     if (options.history || options.rules || options.userInterval) {
       await _rebuildStatus();
       await _logProcessedEvents();
@@ -720,7 +716,7 @@ class Health with Service implements NotificationsListener {
 
   Future<void> _rebuildStatus() async {
     if (this._isUserWriteAuthenticated && (_rules != null) && (_history != null)) {
-      HealthStatus status = _buildStatus(rules: _rules, history: _history);
+      HealthStatus status = _evalStatus();
       if ((status?.blob != null) && (status?.blob != _status?.blob)) {
         if (await _saveStatusToNet(status)) {
           _applyStatus(status);
@@ -730,7 +726,7 @@ class Health with Service implements NotificationsListener {
   }
 
   void _applyStatus(HealthStatus status) {
-    if (_status != status) {
+    if ((_status != status) || ((_status != null) && (status != null) && (_status.blob != status.blob))) {
       String oldStatusCode = _status?.blob?.code;
       String newStatusCode = status?.blob?.code;
       if ((oldStatusCode != null) && (newStatusCode != null) && (oldStatusCode != newStatusCode)) {
@@ -757,12 +753,18 @@ class Health with Service implements NotificationsListener {
       Exposure().reportTargetTimestamp = status.dateUtc.millisecondsSinceEpoch;
     }
   }
-  static HealthStatus _buildStatus({HealthRulesSet rules, List<HealthHistory> history}) {
+
+  HealthStatus _evalStatus() {
+    Map<String, dynamic> params = (_userTestMonitorInterval != null) ? { HealthRulesSet.UserTestMonitorInterval : _userTestMonitorInterval } : null;
+    return _buildStatus(rules: _rules, history: _history, params: params);
+  }
+
+  static HealthStatus _buildStatus({ HealthRulesSet rules, List<HealthHistory> history, Map<String, dynamic> params }) {
     if ((rules == null) || (history == null)) {
       return null;
     }
 
-    HealthRuleStatus defaultStatus = rules?.defaults?.status?.eval(history: history, historyIndex: -1, rules: rules);
+    HealthRuleStatus defaultStatus = rules?.defaults?.status?.eval(history: history, historyIndex: -1, rules: rules, params: params);
     if (defaultStatus == null) {
       return null;
     }
@@ -796,7 +798,7 @@ class Health with Service implements NotificationsListener {
         if (historyEntry.isTest && historyEntry.canTestUpdateStatus) {
           if (rules.tests != null) {
             HealthTestRuleResult testRuleResult = rules.tests?.matchRuleResult(blob: historyEntry?.blob, rules: rules);
-            ruleStatus = testRuleResult?.status?.eval(history: history, historyIndex: index, rules: rules);
+            ruleStatus = testRuleResult?.status?.eval(history: history, historyIndex: index, rules: rules, params: params);
           }
           else {
             return null;
@@ -805,7 +807,7 @@ class Health with Service implements NotificationsListener {
         else if (historyEntry.isSymptoms) {
           if (rules.symptoms != null) {
             HealthSymptomsRule symptomsRule = rules.symptoms.matchRule(blob: historyEntry?.blob, rules: rules);
-            ruleStatus = symptomsRule?.status?.eval(history: history, historyIndex: index, rules: rules);
+            ruleStatus = symptomsRule?.status?.eval(history: history, historyIndex: index, rules: rules, params: params);
           }
           else {
             return null;
@@ -814,7 +816,7 @@ class Health with Service implements NotificationsListener {
         else if (historyEntry.isContactTrace) {
           if (rules.contactTrace != null) {
             HealthContactTraceRule contactTraceRule = rules.contactTrace.matchRule(blob: historyEntry?.blob, rules: rules);
-            ruleStatus = contactTraceRule?.status?.eval(history: history, historyIndex: index, rules: rules);
+            ruleStatus = contactTraceRule?.status?.eval(history: history, historyIndex: index, rules: rules, params: params);
           }
           else {
             return null;
@@ -823,7 +825,7 @@ class Health with Service implements NotificationsListener {
         else if (historyEntry.isAction) {
           if (rules.actions != null) {
             HealthActionRule actionRule = rules.actions.matchRule(blob: historyEntry?.blob, rules: rules);
-            ruleStatus = actionRule?.status?.eval(history: history, historyIndex: index, rules: rules);
+            ruleStatus = actionRule?.status?.eval(history: history, historyIndex: index, rules: rules, params: _buildParams(params, historyEntry.blob?.actionParams));
           }
           else {
             return null;
@@ -852,6 +854,20 @@ class Health with Service implements NotificationsListener {
       }
     }
     return status;
+  }
+
+  static Map<String, dynamic> _buildParams(Map<String, dynamic> params1, Map<String, dynamic> params2) {
+    if (params1 == null) {
+      return params2;
+    }
+    else if (params2 == null) {
+      return params1;
+    }
+    else {
+      Map<String, dynamic> combinedParams = Map.from(params1);
+      combinedParams.addAll(params2);
+      return combinedParams;
+    }
   }
 
   static HealthStatus _loadStatusFromStorage() {
@@ -1109,6 +1125,7 @@ class Health with Service implements NotificationsListener {
         blob: HealthHistoryBlob(
           actionType: event?.blob?.actionType,
           actionText: event?.blob?.actionText,
+          actionParams: event?.blob?.actionParams,
         ),
         publicKey: _user?.publicKey
       ));
@@ -1176,6 +1193,7 @@ class Health with Service implements NotificationsListener {
             attributes: {
               Analytics.LogHealthActionTypeName: event.blob?.actionType,
               Analytics.LogHealthActionTextName: event.blob?.defaultLocaleActionText,
+              Analytics.LogHealthActionParamsName: event.blob?.actionParams,
           });
         }
       }
@@ -1465,12 +1483,15 @@ class Health with Service implements NotificationsListener {
   }
 
   Future<String> _loadRulesJsonStringFromNet({String countyId}) async {
-//TMP: return await rootBundle.loadString('assets/health.rules.json');
+//TMP:
+    return await rootBundle.loadString('assets/health.rules.json');
+/*
     countyId = countyId ?? _county?.id;
     String url = ((countyId != null) && (Config().healthUrl != null)) ? "${Config().healthUrl}/covid19/crules/county/$countyId" : null;
     String appVersion = AppVersion.majorVersion(Config().appVersion, 2);
     Response response = (url != null) ? await Network().get(url, auth: Network.AppAuth, headers: { Network.RokwireAppVersion : appVersion }) : null;
     return (response?.statusCode == 200) ? response.body : null;
+*/    
   }
 
   File _getRulesCacheFile() {

@@ -29,6 +29,7 @@ import 'package:illinois/service/Network.dart';
 import 'package:illinois/service/Storage.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
+import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/utils/Crypt.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:illinois/service/Styles.dart';
@@ -51,6 +52,8 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
 
   LinkedHashMap<String, HealthServiceProvider> _providers;
   String _selectedProviderId;
+  DateTime _selectedDate;
+
 
   bool _submitting;
   
@@ -179,6 +182,7 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
   }
 
   Widget _buildContent() {
+    String dateText = (_selectedDate != null) ? AppDateTime.formatDateTime(_selectedDate, format: 'MM/dd/yyyy') : "-";
     return Padding(padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
       child: Column(crossAxisAlignment:CrossAxisAlignment.start, children: <Widget>[
 
@@ -210,12 +214,30 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
         Padding(padding: EdgeInsets.symmetric(vertical: 8),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
             Padding(padding: EdgeInsets.only(bottom: 4),
+              child: Text("Date (Exempt):", style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 12, color: Styles().colors.fillColorPrimary),),
+            ),
+            GestureDetector(onTap: _onTapPickDate,
+              child: Container(height: 48, 
+                decoration: BoxDecoration(border: Border.all(color: Styles().colors.surfaceAccent, width: 1), borderRadius: BorderRadius.all(Radius.circular(4))),
+                padding: EdgeInsets.symmetric(horizontal: 12),
+                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+                  Text(dateText, style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 16, fontFamily: Styles().fontFamilies.medium),),
+                  Image.asset('images/icon-down-orange.png')
+                ],),
+              ),
+            ),
+          ],)
+        ),
+
+        Padding(padding: EdgeInsets.symmetric(vertical: 4),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+            Padding(padding: EdgeInsets.only(bottom: 4),
               child: Text(Localization().getStringEx("panel.health.covid19.debug.create.label.blob","Blob"), style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 12, color: Styles().colors.fillColorPrimary),),
             ),
             Stack(children: <Widget>[
               Semantics(textField: true, child:Container(color: Styles().colors.white,
                 child: TextField(
-                  maxLines: 8,
+                  maxLines: 4,
                   controller: _blobController,
                   decoration: InputDecoration(border: OutlineInputBorder(borderSide: BorderSide(color: Colors.black, width: 1.0))),
                   style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textBackground,),
@@ -234,6 +256,7 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
             ]),
           ]),
         ),
+
 
         Padding(padding: EdgeInsets.symmetric(vertical: 8),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
@@ -287,6 +310,32 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
                   fontFamily: Styles().fontFamilies.bold,
                   fontSize: 16, borderWidth: 2, height: 42,
                   onTap:() { _onPopulate(this._sampleActionQuarantineOffBlob);  }
+                ),
+              ),
+            ],),
+
+            Container(height: 4,),
+
+            Row(children: <Widget>[
+              Expanded(child:
+                RoundedButton(label: "Exempt ON",
+                  textColor: Styles().colors.fillColorPrimary,
+                  borderColor: Styles().colors.fillColorSecondary,
+                  backgroundColor: Styles().colors.white,
+                  fontFamily: Styles().fontFamilies.bold,
+                  fontSize: 16, borderWidth: 2, height: 42,
+                  onTap:() { _onPopulate(this._sampleActionExemptOnBlob);  }
+                ),
+              ),
+              Container(width: 4,),
+              Expanded(child:
+                RoundedButton(label: "Exempt OFF",
+                  textColor: Styles().colors.fillColorPrimary,
+                  borderColor: Styles().colors.fillColorSecondary,
+                  backgroundColor: Styles().colors.white,
+                  fontFamily: Styles().fontFamilies.bold,
+                  fontSize: 16, borderWidth: 2, height: 42,
+                  onTap:() { _onPopulate(this._sampleActionExemptOffBlob);  }
                 ),
               ),
             ],),
@@ -351,7 +400,7 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
   }
 
   Widget _buildSubmit() {
-    return Padding(padding: EdgeInsets.all(16),
+    return Padding(padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Stack(children: <Widget>[
           Row(children: <Widget>[
             Expanded(child: Container(),),
@@ -418,94 +467,122 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
 
   String get _sampleTestNegativeBlob {
     String date = healthDateTimeToString(DateTime.now().toUtc());
-    return '''{
-  "Date": "$date",
+    return '''{ "Date": "$date",
   "TestName": "COVID-19 PCR",
-  "Result": "negative"
-}''';}
+  "Result": "negative" }''';}
 
   String get _sampleTestPositiveBlob {
     String date = healthDateTimeToString(DateTime.now().toUtc());
-    return '''{
-  "Date": "$date",
+    return '''{ "Date": "$date",
   "TestName": "COVID-19 PCR",
-  "Result": "positive"
-}''';}
+  "Result": "positive" }''';}
 
   String get _sampleActionQuarantineOnBlob {
     String date = healthDateTimeToString(DateTime.now().toUtc());
-    return '''{
-  "Date": "$date",
+    return '''{ "Date": "$date",
   "ActionType": "quarantine-on",
   "ActionText": {
     "en": "You are in quarantine",
     "es": "Estas en cuarentena",
     "zh": "您正在隔離"
-  }
-}''';}
+  }}''';}
 
   String get _sampleActionQuarantineOffBlob {
     String date = healthDateTimeToString(DateTime.now().toUtc());
-    return '''{
-  "Date": "$date",
+    return '''{ "Date": "$date",
   "ActionType": "quarantine-off",
   "ActionText": {
     "en": "You are out of quarantine",
     "es": "Estas fuera de cuarentena",
     "zh": "你沒隔離"
-  }
-}''';}
+  }}''';}
+
+  String get _sampleActionExemptOnBlob {
+    String date = healthDateTimeToString(DateTime.now().toUtc());
+    DateTime dateMidnight = AppDateTime.midnight(_selectedDate);
+    DateTime nowMidnight = AppDateTime.midnight(DateTime.now());
+    int duration = dateMidnight?.difference(nowMidnight)?.inDays ?? -1;
+    int exemptInterval = (0 <= duration) ? duration : null;
+
+    DateTime exemptDate = (exemptInterval != null) ? nowMidnight.add(Duration(days: exemptInterval)) : null;
+    String exemptDateString = (exemptDate != null) ? AppDateTime.formatDateTime(exemptDate, format: 'EEEE, MMM d') : null;
+    String actionText = (exemptDateString != null) ? "You are exempt from testing until $exemptDateString" : "You are exempt from testing";
+
+
+    return '''{ "Date": "$date",
+  "ActionType": "exempt-on",
+  "ActionParams": { "ExemptInterval": $exemptInterval },
+  "ActionText": "$actionText" }''';}
+
+  String get _sampleActionExemptOffBlob {
+    String date = healthDateTimeToString(DateTime.now().toUtc());
+    return '''{ "Date": "$date",
+  "ActionType": "exempt-off",
+  "ActionText": "Your exempt from testing status is canceled" }''';}
 
   String get _sampleActionOutOfComplianceBlob {
     String date = healthDateTimeToString(DateTime.now().toUtc());
-    return '''{
-  "Date": "$date",
-  "ActionType": "out-of-test-compliance",
+    return '''{ "Date": "$date",
+  "ActionType": "exempt-off",
   "ActionText": {
     "en": "You are out of test compliance",
     "es": "No cumple con las pruebas",
     "zh": "您沒有符合測試要求"
-  }
-}''';}
+  }}''';}
 
   String get _sampleActionTestPendingBlob {
     String date = healthDateTimeToString(DateTime.now().toUtc());
-    return '''{
-  "Date": "$date",
+    return '''{ "Date": "$date",
   "ActionType": "test_pending",
   "ActionText": {
     "en": "Your test is pending",
     "es": "Tu prueba esta pendiente",
     "zh": "您的測試正在等待中"
-  }
-}''';}
+  }}''';}
 
   String get _sampleActionForceTestBlob {
     String date = healthDateTimeToString(DateTime.now().toUtc());
-    return '''{
-  "Date": "$date",
+    return '''{ "Date": "$date",
   "ActionType": "force-test",
   "ActionText": {
     "en": "You are required to have 2 tests separated by 3 days",
     "es": "Debe tener 2 pruebas separadas por 3 días",
     "zh": "您需要進行2項測試，每3天間隔一次"
-  }
-}''';}
+  }}''';}
 
   String get _sampleActionReleaseBlob {
     String date = healthDateTimeToString(DateTime.now().toUtc());
-    return '''{
-  "Date": "$date",
+    return '''{ "Date": "$date",
   "ActionType": "release",
   "ActionText": {
     "en": "You are required to to take a test",
     "es": "Debes realizar una prueba",
     "zh": "您必須參加考試"
-  }
-}''';}
+  }}''';}
 
   void _onPopulate(String content) {
     _blobController.text = content;
+  }
+
+  void _onTapPickDate() {
+    DateTime initialDate = (_selectedDate != null) ? _selectedDate : DateTime.now();
+    DateTime firstDate = initialDate.subtract(new Duration(days: 365 * 5));
+    DateTime lastDate = initialDate.add(new Duration(days: 365 * 5));
+    showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: firstDate,
+      lastDate: lastDate,
+      builder: (BuildContext context, Widget child) {
+        return Theme(data: ThemeData.light(), child: child,);
+      },
+    ).then((DateTime result) {
+      if (mounted && (result != null)) {
+        setState(() {
+          _selectedDate = result;
+        });
+      }
+    });
   }
 
   Future<String> _postEvent({String blob, String providerId}) async {

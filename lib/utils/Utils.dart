@@ -316,6 +316,18 @@ class AppJson {
       return null;
     }
   }
+
+  static Map<String, dynamic> mapValue(dynamic value) {
+    try { return (value is Map) ? value.cast<String, dynamic>() : null; }
+    catch(e) { print(e?.toString()); }
+    return null;
+  }
+
+  static List<dynamic> listValue(dynamic value) {
+    try { return (value is List) ? value.cast<dynamic>() : null; }
+    catch(e) { print(e?.toString()); }
+    return null;
+  }
 }
 
 class AppFile {

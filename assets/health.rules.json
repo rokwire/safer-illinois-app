@@ -6,10 +6,20 @@
 		}
 	},
 
-	"constants": {
-		"UserTestMonitorInterval": null,
+	"intervals": {
+		"DefaultTestMonitorInterval": 8,
 		"UndergraduateTestMonitorInterval": 4,
-		"DefaultTestMonitorInterval": 8
+		"UserTestMonitorInterval": null,
+
+		"TestMonitorInterval": {
+			"condition": "test-interval", "params": { "interval": "UserTestMonitorInterval" },
+			"success": "UserTestMonitorInterval",
+			"fail": {
+				"condition": "test-user", "params": { "card.role": "Undergraduate", "card.student_level": "1U" },
+				"success": "UndergraduateTestMonitorInterval",
+				"fail": "DefaultTestMonitorInterval"
+			}
+		}
 	},
 
 	"codes": {
@@ -152,76 +162,25 @@
 		},
 
 		"test-monitor": {
-			"condition": "test-interval",
+			"condition": "require-test",
 			"params": {
-				"interval": "UserTestMonitorInterval"
+				"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
 			},
 			"success": {
-				"condition": "require-test",
-				"params": {
-					"interval": { "min": 0, "max": "UserTestMonitorInterval", "scope": "future", "current": true }
-				},
-				"success": {
-					"code": "yellow",
-					"priority": 1,
-					"next_step": "test.monitor.step",
-					"next_step_interval": "UserTestMonitorInterval",
-					"warning": "test.future.warning"
-				},
-				"fail": {
-					"code": "orange",
-					"priority": 1,
-					"next_step": "test.now.step",
-					"reason": "test.now.reason"
-				}
+				"code": "yellow",
+				"priority": 1,
+				"next_step": "test.monitor.step",
+				"next_step_interval": "TestMonitorInterval",
+				"warning": "test.future.warning"
 			},
 			"fail": {
-				"condition": "test-user",
-				"params": {
-					"card.role": "Undergraduate",
-					"card.student_level": "1U"
-				},
-				"success": {
-					"condition": "require-test",
-					"params": {
-						"interval": { "min": 0, "max": "UndergraduateTestMonitorInterval", "scope": "future", "current": true }
-					},
-					"success": {
-						"code": "yellow",
-						"priority": 1,
-						"next_step": "test.monitor.step",
-						"next_step_interval": "UndergraduateTestMonitorInterval",
-						"warning": "test.future.warning"
-					},
-					"fail": {
-						"code": "orange",
-						"priority": 1,
-						"next_step": "test.now.step",
-						"reason": "test.now.reason"
-					}
-				},
-				"fail": {
-					"condition": "require-test",
-					"params": {
-						"interval": { "min": 0, "max": "DefaultTestMonitorInterval", "scope": "future", "current": true }
-					},
-					"success": {
-						"code": "yellow",
-						"priority": 1,
-						"next_step": "test.monitor.step",
-						"next_step_interval": "DefaultTestMonitorInterval",
-						"warning": "test.future.warning"
-					},
-					"fail": {
-						"code": "orange",
-						"priority": 1,
-						"next_step": "test.now.step",
-						"reason": "test.now.reason"
-					}
-				}
+				"code": "orange",
+				"priority": 1,
+				"next_step": "test.now.step",
+				"reason": "test.now.reason"
 			}
 		},
-		
+
 		"force-test": {
 			"condition": "require-test",
 			"params": {
@@ -304,73 +263,22 @@
 		},
 
 		"quarantine-off": {
-			"condition": "test-interval",
+			"condition": "require-test",
 			"params": {
-				"interval": "UserTestMonitorInterval"
+				"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
 			},
 			"success": {
-				"condition": "require-test",
-				"params": {
-					"interval": { "min": 0, "max": "UserTestMonitorInterval", "scope": "future", "current": true }
+				"code": "yellow",
+				"priority": -1,
+				"next_step": "test.resume.step",
+				"next_step_interval": "TestMonitorInterval",
+				"warning": "test.future.warning"
 				},
-				"success": {
-					"code": "yellow",
-					"priority": -1,
-					"next_step": "test.resume.step",
-					"next_step_interval": "UserTestMonitorInterval",
-					"warning": "test.future.warning"
-					},
-				"fail": {
-					"code": "orange",
-					"priority": -1,
-					"next_step": "test.now.step",
-					"reason": "test.now.reason"
-				}
-			},
 			"fail": {
-				"condition": "test-user",
-				"params": {
-					"card.role": "Undergraduate",
-					"card.student_level": "1U"
-				},
-				"success": {
-					"condition": "require-test",
-					"params": {
-						"interval": { "min": 0, "max": "UndergraduateTestMonitorInterval", "scope": "future", "current": true }
-					},
-					"success": {
-						"code": "yellow",
-						"priority": -1,
-						"next_step": "test.resume.step",
-						"next_step_interval": "UndergraduateTestMonitorInterval",
-						"warning": "test.future.warning"
-						},
-					"fail": {
-						"code": "orange",
-						"priority": -1,
-						"next_step": "test.now.step",
-						"reason": "test.now.reason"
-					}
-				},
-				"fail": {
-					"condition": "require-test",
-					"params": {
-						"interval": { "min": 0, "max": "DefaultTestMonitorInterval", "scope": "future", "current": true }
-					},
-					"success": {
-						"code": "yellow",
-						"priority": -1,
-						"next_step": "test.resume.step",
-						"next_step_interval": "DefaultTestMonitorInterval",
-						"warning": "test.future.warning"
-					},
-					"fail": {
-						"code": "orange",
-						"priority": -1,
-						"next_step": "test.now.step",
-						"reason": "test.now.reason"
-					}
-				}
+				"code": "orange",
+				"priority": -1,
+				"next_step": "test.now.step",
+				"reason": "test.now.reason"
 			}
 		},
 
@@ -394,6 +302,47 @@
 			}
 		},
 
+		"exempt-on": {
+			"condition": "test-interval",
+			"params": {
+				"interval": "ExemptInterval"
+			},
+			"success": {
+				"condition": "timeout",
+				"params": {
+					"interval": { "min": 0, "max": "ExemptInterval", "scope": "future" }
+				},
+				"success": {
+					"code": "orange",
+					"priority": 1,
+					"next_step": "test.now.step",
+					"reason": "test.now.reason"
+				},
+				"fail": {
+					"code": "yellow",
+					"priority": 12,
+					"next_step": "You are exempted from testing until {next_step_date}",
+					"next_step_interval": "ExemptInterval",
+					"reason": "Your status changed to Yellow because you are exempted from testing until {next_step_date}",
+					"fcm_topic": "exempt"
+				}
+			},
+			"fail": {
+				"code": "yellow",
+				"priority": 12,
+				"next_step": "You are exempted from testing",
+				"reason": "Your status changed to Yellow because you are exempted from testing",
+				"fcm_topic": "exempt"
+			}
+		},
+
+    "exempt-off": {
+      "code": "orange",
+      "priority": -1,
+      "next_step": "test.now.step",
+      "reason": "Your status changed to Orange because your exempt from testing status was canceled"
+		},
+		
 		"release": {
 			"code": "orange",
 			"priority": -1,
@@ -748,6 +697,14 @@
 			{
 				"type": "quarantine-off",
 				"status": "quarantine-off"
+			},
+			{
+				"type": "exempt-on",
+				"status": "exempt-on"
+			},
+			{
+				"type": "exempt-off",
+				"status": "exempt-off"
 			},
 			{
 				"type": "out-of-test-compliance",
