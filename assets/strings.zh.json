@@ -653,8 +653,8 @@
 	"panel.health.status_update.label.reason.symptoms.title": "你报告了新的症状",
 	"panel.health.status_update.label.reason.exposed.title": "你接触过可能被感染的人",
 	"panel.health.status_update.label.reason.exposure.detail": "暴露时间: ",
-		"panel.health.status_update.label.reason.action.title": "卫生部门要求你采取行动",
-		"panel.health.status_update.label.reason.action.detail": "待办行动: ",
+	"panel.health.status_update.label.reason.action.title": "Health authorities require you to take an action.",
+	"panel.health.status_update.label.reason.action.detail": "待办行动: ",
 	"panel.health.status_update.button.info.title": "Info ",
 
 	"panel.health.next_steps.button.continue.title.find_locatio": "查找位置",
