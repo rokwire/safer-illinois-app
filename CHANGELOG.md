@@ -12,13 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added 'release' action and status to health rules [#470](https://github.com/rokwire/safer-illinois-app/issues/470).
 
 ### Fixed
+- Fixed rokmetro token refresh [#396](https://github.com/rokwire/safer-illinois-app/issues/396).
 - Fixed grammer in Status Update String [#454](https://github.com/rokwire/safer-illinois-app/issues/454)
 
 ### Changed
 - Optimized health rules [#469](https://github.com/rokwire/safer-illinois-app/issues/469).
-
-### Fixed
-- Fixed rokmetro token refresh [#396](https://github.com/rokwire/safer-illinois-app/issues/396).
 
 ## [2.10.8] - 2020-12-23
 ### Added
