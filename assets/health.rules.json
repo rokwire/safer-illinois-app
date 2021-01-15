@@ -433,7 +433,14 @@
       "priority": -1,
       "next_step": "test.now.step",
       "reason": "Your status changed to Orange because your exempt from testing status was canceled"
-    }
+		},
+		
+		"release": {
+			"code": "orange",
+			"priority": -1,
+			"next_step": "release.step",
+			"reason": "release.reason"
+		}
 	},
 
 	"tests" : {
@@ -802,6 +809,10 @@
 			{
 				"type": "force-test",
 				"status": "force-test"
+			},
+			{
+				"type": "release",
+				"status": "release"
 			}
 		]
 	},
@@ -832,6 +843,8 @@
 			"exposure.reason": "Your status changed to Orange because you received an exposure notification.",
 			"quarantine-on.step": "Stay at home and avoid contacts",
 			"quarantine-on.reason": "Your status changed to Orange because the Public Health department placed you in Quarantine.",
+			"release.step": "Take a SHIELD Saliva Test",
+			"release.reason": "Your status changed to Orange because the Public Health department requires you to take a test.",
 
 			"symptoms.no-symptoms": "No symptoms",
 			"symptoms.fever": "Fever",
@@ -893,6 +906,8 @@
 			"exposure.reason": "Su estado cambió a Naranja porque recibió una notificación de exposición.",
 			"quarantine-on.step": "Quédese en casa y evite los contactos",
 			"quarantine-on.reason": "Su estado cambió a Orange porque el departamento de Salud Pública lo puso en cuarentena.",
+			"release.step": "Realice una prueba de saliva SHIELD",
+			"release.reason": "Su estado cambió a Orange porque el departamento de Salud Pública requiere que tome una prueba.",
 
 			"symptoms.no-symptoms": "Sin síntomas",
 			"symptoms.fever": "Fiebre",
@@ -954,6 +969,8 @@
 			"exposure.reason": "您的狀態更改為橙色，因為您收到了曝光通知。",
 			"quarantine-on.step": "呆在家裡，避免接觸",
 			"quarantine-on.reason": "您的狀態更改為“橙色”，因為公共衛生部門已將您隔離。",
+			"release.step": "參加SHIELD唾液測試",
+			"release.reason": "您的狀態更改為“橙色”，因為公共衛生部門要求您進行測試。",
 
 			"symptoms.no-symptoms": "無症狀",
 			"symptoms.fever": "發熱",
