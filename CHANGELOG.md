@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added 'warningHtml' field to HealthStatus [#467](https://github.com/rokwire/safer-illinois-app/issues/467).
 - Added 'release' action and status to health rules [#470](https://github.com/rokwire/safer-illinois-app/issues/470).
 
+### Fixed
+- Fixed grammer in Status Update String [#454](https://github.com/rokwire/safer-illinois-app/issues/454)
+
 ### Changed
 - Optimized health rules [#469](https://github.com/rokwire/safer-illinois-app/issues/469).
 
