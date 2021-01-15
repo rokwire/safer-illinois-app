@@ -332,13 +332,13 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
               ),
               Container(width: 4,),
               Expanded(child:
-                RoundedButton(label: "",
+                RoundedButton(label: "Release",
                   textColor: Styles().colors.fillColorPrimary,
                   borderColor: Styles().colors.fillColorSecondary,
                   backgroundColor: Styles().colors.white,
                   fontFamily: Styles().fontFamilies.bold,
                   fontSize: 16, borderWidth: 2, height: 42,
-                  onTap:() { _onPopulate(''); }
+                  onTap:() { _onPopulate(this._sampleActionReleaseBlob); }
                 ),
               ),
             ],),
@@ -489,6 +489,18 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
     "en": "You are required to have 2 tests separated by 3 days",
     "es": "Debe tener 2 pruebas separadas por 3 días",
     "zh": "您需要進行2項測試，每3天間隔一次"
+  }
+}''';}
+
+  String get _sampleActionReleaseBlob {
+    String date = healthDateTimeToString(DateTime.now().toUtc());
+    return '''{
+  "Date": "$date",
+  "ActionType": "release",
+  "ActionText": {
+    "en": "You are required to to take a test",
+    "es": "Debes realizar una prueba",
+    "zh": "您必須參加考試"
   }
 }''';}
 
