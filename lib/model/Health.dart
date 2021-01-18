@@ -579,6 +579,26 @@ class HealthHistory implements Comparable<HealthHistory> {
     return result;
   }
 
+  static int retrieveNumTests(List<HealthHistory> history, int prevDays, { DateTime endDate }) {
+    int count = 0;
+    if (history != null) {
+
+      if (endDate == null) {
+        endDate = DateTime.now().toUtc();
+      }
+      DateTime startDate = endDate.subtract(Duration(days: prevDays));
+      for (int index = 0; index < history.length; index++) {
+        HealthHistory historyEntry = history[index];
+        if (historyEntry.isTestVerified && (historyEntry.dateUtc != null) &&
+            (historyEntry.dateUtc.isAfter(startDate)) &&
+            (historyEntry.dateUtc.isBefore(endDate))) {
+          count++;
+        }
+      }
+    }
+    return count;
+  }
+
   static List<HealthHistory> pastList(List<HealthHistory> history) {
     List<HealthHistory> result;
     if (history != null) {
