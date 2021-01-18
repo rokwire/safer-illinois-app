@@ -21,6 +21,7 @@ import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
 import 'package:illinois/service/Storage.dart';
 import 'package:illinois/ui/onboarding/OnboardingHealthConsentPanel.dart';
+import 'package:illinois/ui/onboarding/OnboardingHealthDisclosurePanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingHealthFinalPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingHealthHowItWorksPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingHealthIntroPanel.dart';
@@ -167,6 +168,7 @@ class Onboarding extends Service implements NotificationsListener{
       case "review_scan": return OnboardingReviewScanPanel(onboardingContext: context);
       case "health_intro": return OnboardingHealthIntroPanel(onboardingContext: context);
       case "health_how_it_works": return OnboardingHealthHowItWorksPanel(onboardingContext: context);
+      case "health_disclosure": return OnBoardingHealthDisclosurePanel(onboardingContext: context);
       case "health_consent": return OnboardingHealthConsentPanel(onboardingContext: context);
       case "health_qrcode": return OnboardingHealthQrCodePanel(onboardingContext: context);
       case "health_final": return OnboardingHealthFinalPanel(onboardingContext: context);
@@ -216,6 +218,9 @@ class Onboarding extends Service implements NotificationsListener{
     }
     else if (panel is OnboardingHealthHowItWorksPanel) {
       return 'health_how_it_works';
+    }
+    else if (panel is OnBoardingHealthDisclosurePanel) {
+      return 'health_disclosure';
     }
     else if (panel is OnboardingHealthConsentPanel) {
       return 'health_consent';
