@@ -437,7 +437,7 @@ class _DebugExposurePanelState extends State<DebugExposurePanel> implements Noti
   }
 
   void _loadExposures() {
-    Exposure().loadLocalExposures(timestamp: Exposure.thresholdTimestamp).then((List<ExposureRecord> exposures) {
+    Exposure().loadLocalExposures(startTimestamp: Exposure.thresholdTimestamp).then((List<ExposureRecord> exposures) {
       setState(() {
         _exposures = exposures;
       });

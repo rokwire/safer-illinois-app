@@ -747,7 +747,7 @@ class _DebugExposureLogsPanelState extends State<DebugExposureLogsPanel>
 
   void _loadExposures() {
     Exposure()
-        .loadLocalExposures(timestamp: Exposure.thresholdTimestamp)
+        .loadLocalExposures(startTimestamp: Exposure.thresholdTimestamp)
         .then((List<ExposureRecord> exposures) {
       setState(() {
         _exposures = exposures;

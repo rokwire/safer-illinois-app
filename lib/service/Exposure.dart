@@ -477,17 +477,23 @@ class Exposure with Service implements NotificationsListener {
 
   // Local Exposures
 
-  Future<List<ExposureRecord>> loadLocalExposures({int timestamp, bool processed }) async {
+  Future<List<ExposureRecord>> loadLocalExposures({int startTimestamp, int endTimestamp, bool processed }) async {
     List<ExposureRecord> result;
 
     String query = "SELECT $_databaseRowID, $_databaseExposureTimestampField, $_databaseExposureRPIField, $_databaseExposureDurationField FROM $_databaseExposureTable";
     
     String where = '';
-    if (timestamp != null) {
+    if (startTimestamp != null) {
       if (where.isNotEmpty) {
         where += ' AND ';
       }
-      where += "$_databaseExposureTimestampField >= $timestamp";  
+      where += "$_databaseExposureTimestampField >= $startTimestamp";  
+    }
+    if (endTimestamp != null) {
+      if (where.isNotEmpty) {
+        where += ' AND ';
+      }
+      where += "$_databaseExposureTimestampField <= $endTimestamp";  
     }
     if (processed != null) {
       if (where.isNotEmpty) {
@@ -901,7 +907,7 @@ class Exposure with Service implements NotificationsListener {
     _checkingExposures = true;
     int thresholdTimestamp = Exposure.thresholdTimestamp;
 
-    List<ExposureRecord> exposures = await Exposure().loadLocalExposures(timestamp: thresholdTimestamp, processed: false);
+    List<ExposureRecord> exposures = await Exposure().loadLocalExposures(startTimestamp: thresholdTimestamp, processed: false);
     if (exposures == null) {
       _checkingExposures = null; 
       Log.d('Failed to load local exposures.');
@@ -1114,7 +1120,7 @@ class Exposure with Service implements NotificationsListener {
     int previousTestTimestamp = previousTestDateUtc?.millisecondsSinceEpoch;
 
     List<Future<dynamic>> futures = <Future>[
-        loadLocalExposures(timestamp: previousTestTimestamp),
+        loadLocalExposures(startTimestamp: previousTestTimestamp),
         loadReportedTEKs(timestamp: previousTestTimestamp),
     ];
     List<dynamic> results = await Future.wait(futures);
