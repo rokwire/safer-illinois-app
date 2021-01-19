@@ -198,6 +198,7 @@ class Analytics with Service implements NotificationsListener {
   static const String   LogHealthActionProcessedAction       = "action_processed";
   static const String   LogHealthReportExposuresAction       = "report_exposures";
   static const String   LogHealthCheckExposuresAction        = "check_exposures";
+  static const String   LogHealthDataIntervalAction          = "data_interval";
   static const String   LogHealthStatusName                  = "status";
   static const String   LogHealthPrevStatusName              = "previous_status";
   static const String   LogHealthSettingNotifyExposuresName  = "notify_exposures";
@@ -213,7 +214,13 @@ class Analytics with Service implements NotificationsListener {
   static const String   LogHealthActionTextName              = "action_text";
   static const String   LogHealthActionParamsName            = "action_params";
   static const String   LogHealthActionTimestampName         = "action_timestamp";
-  static const String   LogHealthExposureScore               = "exposure_score";
+  static const String   LogHealthExposureScoreName           = "exposure_score";
+  static const String   LogHealthIntervalNumberName          = "interval_number";
+  static const String   LogHealthIntervalLenghtName          = "interval_lenght";
+  static const String   LogHealthDeviceIdName                = "device_id";
+  static const String   LogHealthNumTestsName                = "num_tests";
+  static const String   LogHealthNumPositiveTestsName        = "num_positive_tests";
+  static const String   LogHealthNumNegativeTestsName        = "num_negative_tests";
 
   // Event Attributes
   static const String   LogAttributeUrl                    = "url";

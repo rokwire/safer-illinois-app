@@ -74,6 +74,7 @@ class Health with Service implements NotificationsListener {
   _RefreshOptions _refreshOptions;
   Set<String> _pendingNotifications;
   DateTime _pausedDateTime;
+  _HealthLogger _logger = _HealthLogger(intervalLength: 6);
 
   // Singletone Instance
 
@@ -89,6 +90,7 @@ class Health with Service implements NotificationsListener {
 
   @override
   void createService() {
+    _logger.createLogger();
     NotificationService().subscribe(this, [
       AppLivecycle.notifyStateChanged,
       Auth.notifyLoginChanged,
@@ -118,7 +120,9 @@ class Health with Service implements NotificationsListener {
     _rules = await _loadRulesFromCache();
     _buildingAccessRules = _loadBuildingAccessRulesFromStorage();
 
-    _refresh(_RefreshOptions.all());
+    _refresh(_RefreshOptions.all()).then((value) {
+      _logger.initLogger();
+    });
   }
 
   @override
@@ -135,6 +139,8 @@ class Health with Service implements NotificationsListener {
     _county = null;
     _rules = null;
     _buildingAccessRules = null;
+
+    _logger.clearLogger();
   }
 
   @override
@@ -1160,7 +1166,7 @@ class Health with Service implements NotificationsListener {
               Analytics.LogHealthProviderName: event.provider,
               Analytics.LogHealthTestTypeName: event.blob?.testType,
               Analytics.LogHealthTestResultName: event.blob?.testResult,
-              Analytics.LogHealthExposureScore: score,
+              Analytics.LogHealthExposureScoreName: score,
           });
           
           if (exposureTestReportDays != null)  {
@@ -1694,4 +1700,149 @@ enum _RefreshOption {
   county,
   rules,
   buildingAccessRules,
+}
+
+class _HealthLogger implements NotificationsListener {
+  static const String lastReportedStorageEntry = 'health.log.last.report.interval';
+
+  final int _intervalLengthHr; // in hours
+  String _deviceId;
+
+  _HealthLogger({ int intervalLength }) : // in hours
+    _intervalLengthHr = intervalLength;
+
+  void createLogger() {
+    NotificationService().subscribe(this, [
+      AppLivecycle.notifyStateChanged,
+    ]);
+  }
+
+  Future<void> initLogger() async {
+    _deviceId = await NativeCommunicator().getDeviceId();
+    _checkLog();
+  }
+ 
+  void clearLogger() {
+  }
+
+  // NotificationsListener
+
+  @override
+  void onNotification(String name, dynamic param) {
+    if (name == AppLivecycle.notifyStateChanged) {
+     _onAppLivecycleStateChanged(param); 
+    }
+  }
+
+  void _onAppLivecycleStateChanged(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _checkLog();
+    }
+  }
+
+  int get _intervalLengthMs {
+    return _intervalLengthHr * 3600 * 1000; // in milliseconds
+  }
+
+  int get _currentIntervalNumber {
+    return DateTime.now().toUtc().millisecondsSinceEpoch ~/ _intervalLengthMs;
+  }
+
+  String _storageEntry(String entry) {
+    return "$entry.$_intervalLengthHr";
+  }
+
+  void _checkLog() {
+    List<HealthHistory> history = Health().history;
+    if (history == null) {
+      return;
+    }
+
+    int startIntervalNumber;
+    int currentIntervalNumber = _currentIntervalNumber;
+    int lastReportedIntervalNumber = Storage()[_storageEntry(lastReportedStorageEntry)];
+    if (lastReportedIntervalNumber == null) {
+      HealthHistory historyEntry = ((history != null) && (0 < history.length)) ? history.first : null;
+      int historyEpochTimeUtcMs = historyEntry?.dateUtc?.millisecondsSinceEpoch;
+      if (historyEpochTimeUtcMs != null) {
+        startIntervalNumber = historyEpochTimeUtcMs ~/ _intervalLengthMs;
+      }
+      else {
+        startIntervalNumber = currentIntervalNumber - 1;
+      }
+    }
+    else if ((lastReportedIntervalNumber + 1) < currentIntervalNumber) {
+      startIntervalNumber = lastReportedIntervalNumber + 1;
+    }
+
+    if (startIntervalNumber != null) {
+      for (int intervalNumber = startIntervalNumber; intervalNumber < currentIntervalNumber; intervalNumber++) {
+        _log(intervalNumber);
+      }
+    }
+  }
+
+  void _log(int intervalNumber) {
+
+    List<HealthHistory> history = Health().history;
+    HealthRulesSet rules = Health().rules;
+
+    if ((history == null) || (rules == null) || (_deviceId == null)) {
+      return;
+    }
+
+    int startEpochTimeUtcMs = intervalNumber * _intervalLengthMs;
+    int endEpochTimeUtcMs = startEpochTimeUtcMs + _intervalLengthMs;
+    Set<String> negativeTestCategories = _negativeTestCategories;
+    Set<String> positiveTestCategories = _positiveTestCategories;
+
+    int numberOfTests = 0;
+    int numberOfPositiveTests = 0;
+    int numberOfNegativeTests = 0;
+
+    // Start from older
+    for (int index = history.length - 1; 0 <= index; index--) {
+      HealthHistory historyEntry = history[index];
+      int historyEpochTimeUtcMs = historyEntry?.dateUtc?.millisecondsSinceEpoch;
+      if (historyEpochTimeUtcMs != null) {
+        if ((startEpochTimeUtcMs <= historyEpochTimeUtcMs) && (historyEpochTimeUtcMs < endEpochTimeUtcMs) && historyEntry.isTest && historyEntry.canTestUpdateStatus) {
+          numberOfTests++;
+
+          HealthTestRuleResult testRuleResult = rules?.tests?.matchRuleResult(blob: historyEntry?.blob, rules: rules);
+          if ((negativeTestCategories != null) && (testRuleResult != null) && (negativeTestCategories.contains(testRuleResult.category))) {
+            numberOfNegativeTests++;
+          }
+          if ((positiveTestCategories != null) && (testRuleResult != null) && (positiveTestCategories.contains(testRuleResult.category))) {
+            numberOfPositiveTests++;
+          }
+        }
+      }
+    }
+
+    Analytics().logHealth(
+      action: Analytics.LogHealthDataIntervalAction,
+      attributes: {
+        Analytics.LogHealthIntervalNumberName: intervalNumber,
+        Analytics.LogHealthIntervalLenghtName: _intervalLengthHr,
+        Analytics.LogHealthDeviceIdName: _deviceId,
+
+        Analytics.LogHealthNumTestsName: numberOfTests,
+        Analytics.LogHealthNumPositiveTestsName: numberOfPositiveTests,
+        Analytics.LogHealthNumNegativeTestsName: numberOfNegativeTests,
+    });
+
+    Storage()[_storageEntry(lastReportedStorageEntry)] = intervalNumber;
+  }
+
+  static Set<String> get _negativeTestCategories {
+    //TMP: return Set.from(["PCR.negative", "SAR.negative"]);
+    dynamic list = Config().settings['covid19ExposureNegativeTestCategories'];
+    return (list is List) ? Set.from(list) : null;
+  }
+
+  static Set<String> get _positiveTestCategories {
+    //TMP: return Set.from(["PCR.positive", "SAR.positive"]);
+    dynamic list = Config().settings['covid19ExposurePositiveTestCategories'];
+    return (list is List) ? Set.from(list) : null;
+  }
 }
