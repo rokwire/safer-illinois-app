@@ -1762,7 +1762,7 @@ class _HealthLogger implements NotificationsListener {
     int currentIntervalNumber = _currentIntervalNumber;
     int lastReportedIntervalNumber = Storage()[_storageEntry(lastReportedStorageEntry)];
     if (lastReportedIntervalNumber == null) {
-      HealthHistory historyEntry = ((history != null) && (0 < history.length)) ? history.first : null;
+      HealthHistory historyEntry = ((history != null) && (0 < history.length)) ? history.last : null;
       int historyEpochTimeUtcMs = historyEntry?.dateUtc?.millisecondsSinceEpoch;
       if (historyEpochTimeUtcMs != null) {
         startIntervalNumber = historyEpochTimeUtcMs ~/ _intervalLengthMs;
@@ -1796,28 +1796,55 @@ class _HealthLogger implements NotificationsListener {
     Set<String> negativeTestCategories = _negativeTestCategories;
     Set<String> positiveTestCategories = _positiveTestCategories;
 
-    int numberOfTests = 0;
-    int numberOfPositiveTests = 0;
-    int numberOfNegativeTests = 0;
+    int numberOfTests = 0, numberOfPositiveTests = 0, numberOfNegativeTests = 0;
+    int lastTestResultCode = 0, firstTestResultCode = 0; // -1 negative, +1 positive
 
     // Start from older
     for (int index = history.length - 1; 0 <= index; index--) {
       HealthHistory historyEntry = history[index];
       int historyEpochTimeUtcMs = historyEntry?.dateUtc?.millisecondsSinceEpoch;
       if (historyEpochTimeUtcMs != null) {
-        if ((startEpochTimeUtcMs <= historyEpochTimeUtcMs) && (historyEpochTimeUtcMs < endEpochTimeUtcMs) && historyEntry.isTest && historyEntry.canTestUpdateStatus) {
-          numberOfTests++;
+        if (historyEntry.isTest && historyEntry.canTestUpdateStatus) {
+          if (historyEpochTimeUtcMs < startEpochTimeUtcMs) {
+            // before the interval
 
-          HealthTestRuleResult testRuleResult = rules?.tests?.matchRuleResult(blob: historyEntry?.blob, rules: rules);
-          if ((negativeTestCategories != null) && (testRuleResult != null) && (negativeTestCategories.contains(testRuleResult.category))) {
-            numberOfNegativeTests++;
+            HealthTestRuleResult testRuleResult = rules?.tests?.matchRuleResult(blob: historyEntry?.blob, rules: rules);
+            if (testRuleResult != null) {
+              if ((negativeTestCategories != null) && negativeTestCategories.contains(testRuleResult.category)) {
+                lastTestResultCode = -1;
+              }
+              else if ((positiveTestCategories != null) && positiveTestCategories.contains(testRuleResult.category)) {
+                lastTestResultCode = 1;
+              }
+            }
           }
-          if ((positiveTestCategories != null) && (testRuleResult != null) && (positiveTestCategories.contains(testRuleResult.category))) {
-            numberOfPositiveTests++;
+          else if (historyEpochTimeUtcMs < endEpochTimeUtcMs) {
+            // inside the interval
+            numberOfTests++;
+
+            HealthTestRuleResult testRuleResult = rules?.tests?.matchRuleResult(blob: historyEntry?.blob, rules: rules);
+            if (testRuleResult != null) {
+              if ((negativeTestCategories != null) && negativeTestCategories.contains(testRuleResult.category)) {
+                numberOfNegativeTests++;
+                if (firstTestResultCode == null) {
+                  firstTestResultCode = -1;
+                }
+              }
+              if ((positiveTestCategories != null) && positiveTestCategories.contains(testRuleResult.category)) {
+                numberOfPositiveTests++;
+                if (firstTestResultCode == null) {
+                  firstTestResultCode = 1;
+                }
+              }
+            }
           }
+
         }
       }
     }
+
+    bool becameNegative = (lastTestResultCode == 1) && (firstTestResultCode == -1);
+    bool becamePositive = (lastTestResultCode == -1) && (firstTestResultCode == 1);
 
     Analytics().logHealth(
       action: Analytics.LogHealthDataIntervalAction,
@@ -1829,6 +1856,9 @@ class _HealthLogger implements NotificationsListener {
         Analytics.LogHealthNumTestsName: numberOfTests,
         Analytics.LogHealthNumPositiveTestsName: numberOfPositiveTests,
         Analytics.LogHealthNumNegativeTestsName: numberOfNegativeTests,
+
+        Analytics.LogHealthBecameNegativeName: becameNegative,
+        Analytics.LogHealthBecamePositiveName: becamePositive,
     });
 
     Storage()[_storageEntry(lastReportedStorageEntry)] = intervalNumber;
