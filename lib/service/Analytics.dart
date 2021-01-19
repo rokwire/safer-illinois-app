@@ -223,6 +223,7 @@ class Analytics with Service implements NotificationsListener {
   static const String   LogHealthNumNegativeTestsName        = "num_negative_tests";
   static const String   LogHealthBecameNegativeName          = "became_positive";
   static const String   LogHealthBecamePositiveName          = "became_negative";
+  static const String   LogHealthNumRPIName                  = "num_rpi";
 
   // Event Attributes
   static const String   LogAttributeUrl                    = "url";

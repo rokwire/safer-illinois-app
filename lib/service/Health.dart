@@ -19,6 +19,7 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:illinois/model/Exposure.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/AppLivecycle.dart';
@@ -1719,7 +1720,7 @@ class _HealthLogger implements NotificationsListener {
 
   Future<void> initLogger() async {
     _deviceId = await NativeCommunicator().getDeviceId();
-    _checkLog();
+    await _checkLog();
   }
  
   void clearLogger() {
@@ -1752,7 +1753,7 @@ class _HealthLogger implements NotificationsListener {
     return "$entry.$_intervalLengthHr";
   }
 
-  void _checkLog() {
+  Future<void> _checkLog() async {
     List<HealthHistory> history = Health().history;
     if (history == null) {
       return;
@@ -1777,12 +1778,12 @@ class _HealthLogger implements NotificationsListener {
 
     if (startIntervalNumber != null) {
       for (int intervalNumber = startIntervalNumber; intervalNumber < currentIntervalNumber; intervalNumber++) {
-        _log(intervalNumber);
+        await _log(intervalNumber);
       }
     }
   }
 
-  void _log(int intervalNumber) {
+  Future<void> _log(int intervalNumber) async {
 
     List<HealthHistory> history = Health().history;
     HealthRulesSet rules = Health().rules;
@@ -1799,7 +1800,7 @@ class _HealthLogger implements NotificationsListener {
     int numberOfTests = 0, numberOfPositiveTests = 0, numberOfNegativeTests = 0;
     int lastTestResultCode = 0, firstTestResultCode = 0; // -1 negative, +1 positive
 
-    // Start from older
+    // History: start from older
     for (int index = history.length - 1; 0 <= index; index--) {
       HealthHistory historyEntry = history[index];
       int historyEpochTimeUtcMs = historyEntry?.dateUtc?.millisecondsSinceEpoch;
@@ -1838,13 +1839,16 @@ class _HealthLogger implements NotificationsListener {
               }
             }
           }
-
         }
       }
     }
 
     bool becameNegative = (lastTestResultCode == 1) && (firstTestResultCode == -1);
     bool becamePositive = (lastTestResultCode == -1) && (firstTestResultCode == 1);
+
+    List<ExposureRecord> exposures = await Exposure().loadLocalExposures(startTimestamp: startEpochTimeUtcMs, endTimestamp: endEpochTimeUtcMs);
+    int numRPI = exposures?.length ?? 0;
+
 
     Analytics().logHealth(
       action: Analytics.LogHealthDataIntervalAction,
@@ -1859,6 +1863,8 @@ class _HealthLogger implements NotificationsListener {
 
         Analytics.LogHealthBecameNegativeName: becameNegative,
         Analytics.LogHealthBecamePositiveName: becamePositive,
+
+        Analytics.LogHealthNumRPIName: numRPI,
     });
 
     Storage()[_storageEntry(lastReportedStorageEntry)] = intervalNumber;
