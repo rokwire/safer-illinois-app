@@ -62,20 +62,21 @@
 	},
 
 	"statuses": {
-    "PCR.positive": {
+    "PCR.positive.0": {
       "code": "red",
       "priority": 11,
       "next_step_html": "positive.step.html"
-    },
-		"PCR.xpositive": {
+		},
+		
+    "PCR.positive": {
 			"condition": "timeout",
 			"params": {
-				"interval": { "min": 0, "max": 8, "scope": "future" }
+				"interval": { "min": 0, "max": 10, "scope": "future" }
 			},
 			"success": {
 				"condition": "require-test",
 				"params": {
-					"interval": { "min": 9, "max": null, "scope": "future" }
+					"interval": { "min": 11, "max": null, "scope": "future" }
 				},
 				"success": null,
 				"fail": {
