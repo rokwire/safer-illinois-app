@@ -144,7 +144,7 @@ class _OnBoardingHealthDisclosurePanelState extends State<OnBoardingHealthDisclo
                         ),
                         Container(height: 2,),
                         Text(
-                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content4", "4. Photos to allow a user to import their personal encryption key (QR code) in to the app and to allow reporting of a test result from a non UW-Madison testing center."),
+                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content4", "4. Photos to allow a user to import their personal encryption key (QR code) in to the app and to allow reporting of a test result from a non UIUC testing center."),
                           style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 14, color:Styles().colors.textSurface),
                         ),
                         Container(height: 2,),
