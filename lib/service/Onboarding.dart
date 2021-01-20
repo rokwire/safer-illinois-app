@@ -28,6 +28,7 @@ import 'package:illinois/ui/health/onboarding/Covid19OnBoardingQrCodePanel.dart'
 import 'package:illinois/ui/health/onboarding/Covid19OnBoardingResidentInfoPanel.dart';
 import 'package:illinois/ui/health/onboarding/Covid19OnBoardingReviewScanPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingAuthBluetoothPanel.dart';
+import 'package:illinois/ui/onboarding/OnboardingHealthDisclosurePanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginPhoneConfirmPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingGetStartedPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingAuthLocationPanel.dart';
@@ -167,6 +168,7 @@ class Onboarding extends Service implements NotificationsListener{
       case "covid19_review_scan": return Covid19OnBoardingReviewScanPanel(onboardingContext: context);
       case "covid19_intro": return Covid19OnBoardingIntroPanel(onboardingContext: context);
       case "covid19_how_it_works": return Covid19OnBoardingHowItWorks(onboardingContext: context);
+      case "health_disclosure": return OnBoardingHealthDisclosurePanel(onboardingContext: context);
       case "covid19_consent": return Covid19OnBoardingConsentPanel(onboardingContext: context);
       case "covid19_qrcode": return Covid19OnBoardingQrCodePanel(onboardingContext: context);
       case "covid19_final": return Covid19OnBoardingFinalPanel(onboardingContext: context);
@@ -216,6 +218,9 @@ class Onboarding extends Service implements NotificationsListener{
     }
     else if (panel is Covid19OnBoardingHowItWorks) {
       return 'covid19_how_it_works';
+    }
+    else if (panel is OnBoardingHealthDisclosurePanel) {
+      return 'health_disclosure';
     }
     else if (panel is Covid19OnBoardingConsentPanel) {
       return 'covid19_consent';

@@ -18,7 +18,6 @@ cp "${GOOGLE_SERVICE_SRC}" "${GOOGLE_SERVICE_DEST}"
 # Upload app DSYM for Crashlytics
 if [[ "${CONFIGURATION}" == *"Release"* ]]; then
   echo "Uploading app DSYM for Crashlytics"
-# "${PODS_ROOT}/Fabric/run"
-# "${PODS_ROOT}/Fabric/upload-symbols" -gsp "${GOOGLE_SERVICE_SRC}" -p ios "${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}"
+  "${PODS_ROOT}/FirebaseCrashlytics/run"
   "${PODS_ROOT}/FirebaseCrashlytics/upload-symbols" -gsp "${GOOGLE_SERVICE_SRC}" -p ios "${DWARF_DSYM_FOLDER_PATH}"
 fi

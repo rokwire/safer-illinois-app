@@ -9,19 +9,19 @@
 	"constants": {
 		"UserTestMonitorInterval": null,
 		"UndergraduateTestMonitorInterval": 4,
-		"DefaultTestMonitorInterval": 8
+		"DefaultTestMonitorInterval": 4
 	},
 
 	"statuses": {
-    "PCR.positive": {
+    "PCR.xpositive": {
       "health_status": "red",
       "priority": 11,
       "next_step_html": "positive.step.html"
     },
-		"PCR.xpositive": {
+		"PCR.positive": {
 			"condition": "timeout",
 			"params": {
-				"interval": { "min": 0, "max": 8, "scope": "future" }
+				"interval": { "min": 0, "max": 10, "scope": "future" }
 			},
 			"success": {
 				"condition": "require-test",
@@ -191,25 +191,25 @@
 			"success": {
 				"condition": "timeout",
 				"params": {
-					"interval": { "min": 0, "max": 2, "scope": "future", "origin": "referenceDate" }
+					"interval": { "min": 0, "max": 3, "scope": "future", "origin": "referenceDate" }
 				},
 				"success": {
 					"condition": "require-test",
 					"params": {
-						"interval": { "min": 3, "scope": "future", "origin": "referenceDate" }
+						"interval": { "min": 4, "scope": "future", "origin": "referenceDate" }
 					},
 					"success": null,
 					"fail": {
 						"health_status": "orange",
 						"priority": 2,
-						"next_step": "test.another.now.step",
+						"next_step_html": "test.another.now.step.html",
 						"reason": "test.past.reason"
 					}
 				},
 				"fail": {
 					"health_status": "orange",
 					"priority": 2,
-					"next_step": "test.after.step",
+					"next_step_html": "test.after.step.html",
 					"next_step_interval": { "value": 3, "origin": "referenceDate" },
 					"reason": "test.after.reason"
 				}
@@ -217,7 +217,7 @@
 			"fail": {
 				"health_status": "orange",
 				"priority": 2,
-				"next_step": "test.multiple.step",
+				"next_step_html": "test.multiple.step.html",
 				"reason": "test.required.reason"
 			}
 		},
@@ -260,7 +260,7 @@
 			"health_status": "orange",
 			"priority": 10,
 			"next_step": "quarantine-on.step",
-			"reason": "Your status changed to Orange because the Public Health department placed you in Quarantine.",
+			"reason": "quarantine-on.reason",
 			"fcm_topic": "quarantine-on"
 		},
 
@@ -333,7 +333,7 @@
 					}
 				}
 			}
-		},
+    },
 
 		"out-of-test-compliance": {
 			"condition": "require-test",
@@ -353,7 +353,14 @@
 				"next_step": "test.now.step",
 				"reason": "test.now.reason"
 			}
-		}
+		},
+
+    "release": {
+      "health_status": "orange",
+      "priority": -1,
+      "next_step": "release.step",
+      "reason": "release.reason"
+    }
 	},
 
 	"tests" : {
@@ -714,6 +721,10 @@
 			{
 				"type": "force-test",
 				"status": "force-test"
+			},
+			{
+				"type": "release",
+				"status": "release"
 			}
 		]
 	},
@@ -730,20 +741,22 @@
 			"test.now.step": "Get a test now",
 			"test.now.reason": "Your status changed to Orange because you are past due for a test.",
 			"test.another.asap.step": "Get another test asap",
-			"test.another.now.step": "Get another test now",
-			"test.after.step": "Get your 2nd test after {next_step_date}",
+      "test.another.now.step.html": "<h3>Get your second test now.</h3><ul><li>Limit yourself to essential activities until you get the second negative result.</li><li>Your building access will change to Granted (Yellow) with the second negative test result.</li></ul><p>See <a href='https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'> testing schedule and rules</a>.</p>",
+      "test.after.step.html": "<h3>Get your second test after {next_step_date}. You must take two on-campus tests by Jan. 25.</h3><ul><li>Separate the tests by three days of quarantine:&nbsp;if the first test is on day one, the second test will be on day five.</li><li>Limit yourself to essential activities until you get the second negative result.</li><li>Your building access will change to Granted (Yellow) with the second negative test result.</li></ul><p>See <a href='https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'> testing schedule and rules</a>.</p>",
 			"test.after.reason": "Your status changed to Orange because you are required to take another test.",
 			"test.required.reason": "Your status changed to Orange because you are required to get a test.",
 			"test.resume.step": "Resume testing on your assigned days",
 			"test.future.warning": "You will turn orange/access denied if no negative test by {next_step_date}.",
 			"test.past.reason": "Your status changed to Orange because you are past due for another test.",
-			"test.multiple.step": "You will need to have 2 tests separated by 3 days with negative results to turn yellow",
+      "test.multiple.step.html": "<h3>You must take two on-campus tests by Jan. 25.</h3><ul><li>Separate the tests by three days of quarantine:&nbsp;if the first test is on day one, the second test will be on day five.</li><li>Limit yourself to essential activities until you get the second negative result.</li><li>Your building access will change to Granted (Yellow) with the second negative test result.</li></ul><p>See <a href=https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'> testing schedule and rules</a>.</p>",
 			"symptoms.step": "Take a COVID-19 test now",
 			"symptoms.reason": "Your status changed to Orange because you self-reported symptoms consistent with the virus.",
 			"exposure.step.html": "<h3>You have likely been exposed to a person who is infected with COVID-19.</h3><ul><h6><li>You must quarantine yourself immediately.</li></h6><h6><li>Stay home. Do not go to work, school, or public areas.</li></h6><h6><li>Separate yourself from others in your home.</li></h6><h6><li>Contact <a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a> for guidance.</li></h6><h6><li>Get tested after {next_step_date} to see if you have developed the disease.</li></h6><h6><li>More Info: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Quarantine and Isolation</a></li></h6></ul>",
 			"exposure.reason": "Your status changed to Orange because you received an exposure notification.",
 			"quarantine-on.step": "Stay at home and avoid contacts",
 			"quarantine-on.reason": "Your status changed to Orange because the Public Health department placed you in Quarantine.",
+      "release.step": "Take a SHIELD Saliva Test",
+      "release.reason": "Your status changed to Orange because the Public Health department requires you to take a test.",
 			"symptoms.no-symptoms": "No symptoms",
 			"symptoms.fever": "Fever",
 			"symptoms.chills": "Chills",
@@ -775,20 +788,22 @@
 			"test.now.step": "Haz una prueba ahora",
 			"test.now.reason": "Su estado cambió a Naranja porque está atrasado en un examen.",
 			"test.another.asap.step": "Obtenga otra prueba lo antes posible",
-			"test.another.now.step": "Hazte otra prueba ahora",
-			"test.after.step": "Realice su segunda prueba después del {next_step_date}",
+      "test.another.now.step.html": "<h3>Obtenga su segunda prueba ahora. Debes de tomar dos pruebas en el campus antes del 25 de enero.</h3><ul><li>Separe las pruebas con tres d&iacute;as de cuarentena: &nbsp;si la primera prueba es el d&iacute;a uno, la segunda prueba ser&aacute; el d&iacute;a cinco.</li><li>Lim&iacute;tese a las actividades esenciales hasta que obtenga el segundo resultado negativo.</li><li>El acceso al edificio cambiar&aacute; a Concedido (amarillo) con el segundo resultado negativo de la prueba.</li></ul><p>Ver el <a href='https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'>calendario y las reglas de las pruebas</a>.</p>",
+      "test.after.step.html": "<h3>Obtenga su segunda prueba despu&eacute;s del {next_step_date}. Debes de tomar dos pruebas en el campus antes del 25 de enero.</h3><ul><li>Separe las pruebas con tres d&iacute;as de cuarentena: &nbsp;si la primera prueba es el d&iacute;a uno, la segunda prueba ser&aacute; el d&iacute;a cinco.</li><li>Lim&iacute;tese a las actividades esenciales hasta que obtenga el segundo resultado negativo.</li><li>El acceso al edificio cambiar&aacute; a Concedido (amarillo) con el segundo resultado negativo de la prueba.</li></ul><p>Ver el <a href='https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'>calendario y las reglas de las pruebas</a>.</p>",
 			"test.after.reason": "Su estado cambió a Naranja porque debe realizar otra prueba.",
 			"test.required.reason": "Su estado cambió a Naranja porque debe realizar una prueba.",
 			"test.resume.step": "Reanudar las pruebas en los días asignados",
 			"test.future.warning": "Se volverá naranja / acceso denegado si no hay una prueba negativa antes del {next_step_date}.",
 			"test.past.reason": "Su estado cambió a Naranja porque está atrasado para otro examen.",
-			"test.multiple.step": "Deberá tener 2 pruebas separadas por 3 días con resultados negativos para volverse amarillo",
+      "test.multiple.step.html": "<h3>Debes de tomar dos pruebas en el campus antes del 25 de enero.</h3><ul><li>Separe las pruebas con tres d&iacute;as de cuarentena: &nbsp;si la primera prueba es el d&iacute;a uno, la segunda prueba ser&aacute; el d&iacute;a cinco.</li><li>Lim&iacute;tese a las actividades esenciales hasta que obtenga el segundo resultado negativo.</li><li>El acceso al edificio cambiar&aacute; a Concedido (amarillo) con el segundo resultado negativo de la prueba.</li></ul><p>Ver el <a href='https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'>calendario y las reglas de las pruebas</a>.</p>",
 			"symptoms.step": "Realice una prueba de COVID-19 ahora",
 			"symptoms.reason": "Su estado cambió a Naranja porque usted mismo informó de síntomas consistentes con el virus.",
 			"exposure.step.html": "<h3>Es probable que haya estado expuesto a una persona infectada con COVID-19.</h3><ul><h6><li>Debe ponerse en cuarentena inmediatamente.</li></h6><h6><li>Quedarse en casa. No vaya al trabajo, la escuela o áreas públicas.</li></h6><h6><li>Sepárate de las demás en tu casa.</li></h6><h6><li>Póngase en contacto con <a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a> para obtener orientación.</li></h6><h6><li>Hágase la prueba después del {next_step_date} para ver si ha desarrollado la enfermedad.</li></h6><h6><li>Más información: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Cuarentena y aislamiento</a></li></h6></ul>",
 			"exposure.reason": "Su estado cambió a Naranja porque recibió una notificación de exposición.",
 			"quarantine-on.step": "Quédese en casa y evite los contactos",
 			"quarantine-on.reason": "Su estado cambió a Orange porque el departamento de Salud Pública lo puso en cuarentena.",
+      "release.step": "Realice una prueba de saliva SHIELD",
+      "release.reason": "Su estado cambió a Orange porque el departamento de Salud Pública requiere que tome una prueba.",
 			"symptoms.no-symptoms": "Sin síntomas",
 			"symptoms.fever": "Fiebre",
 			"symptoms.chills": "Resfriado",
@@ -820,20 +835,22 @@
 			"test.now.step": "立即獲得測試",
 			"test.now.reason": "您的狀態更改為“橙色”，因為您已逾期進行測試。",
 			"test.another.asap.step": "盡快獲得另一個測試",
-			"test.another.now.step": "現在再進行一次測試",
-			"test.after.step": "在{next_step_date}之後進行第二次測試",
+      "test.another.now.step.html": "<h3>现在进行第二次测试. 你必须在1月25日之前检测两次.</h3><ul><li>两次测试之间需隔离三天：如果第一次测试在第一天，第二次测试将在第五天</li><li>在得到第二个阴性测试结果之前，尽量只做必要的出行</li><li>在第二个阴性结果出来后，您的建筑访问权限将更改为&ldquo;已授予&rdquo;（黄色）</li></ul><p><a href='https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'>见测试计划和规则</a>.</p>",
+      "test.after.step.html": "<h3>在{next_step_date}之后进行第二次测试. 你必须在1月25日之前检测两次.</h3><ul><li>两次测试之间需隔离三天：如果第一次测试在第一天，第二次测试将在第五天</li><li>在得到第二个阴性测试结果之前，尽量只做必要的出行</li><li>在第二个阴性结果出来后，您的建筑访问权限将更改为&ldquo;已授予&rdquo;（黄色）</li></ul><p><a href='https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'>见测试计划和规则</a>.</p>",
 			"test.after.reason": "您的狀態更改為“橙色”，因為您需要參加另一項測試。",
 			"test.required.reason": "您的狀態更改為橙色，因為需要進行測試。",
 			"test.resume.step": "在您指定的日期恢復測試",
 			"test.future.warning": "如果在{next_step_date}之前沒有任何負面測試，您將變成橙色/訪問被拒絕。",
 			"test.past.reason": "您的狀態更改為“橙色”，因為您已逾期進行另一項測試。",
-			"test.multiple.step": "您將需要進行2次測試，每3天一次，結果為陰性，然後變為黃色",
+      "test.multiple.step.html": "<h3>你必须在1月25日之前检测两次.</h3><ul><li>两次测试之间需隔离三天：如果第一次测试在第一天，第二次测试将在第五天</li><li>在得到第二个阴性测试结果之前，尽量只做必要的出行</li><li>在第二个阴性结果出来后，您的建筑访问权限将更改为&ldquo;已授予&rdquo;（黄色）</li></ul><p><a href='https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'>见测试计划和规则</a>.</p>",
 			"symptoms.step": "立即參加COVID-19測試",
 			"symptoms.reason": "您的狀態更改為橙色，因為您自我報告的症狀與病毒一致。",
 			"exposure.step.html": "<h3>您可能已經接觸了感染了COVID-19的人。</h3><ul><h6><li>您必須立即隔離自己。</li></h6><h6><li>您已被強制隔離。</li></h6><h6><li>與家中的其他人分開。</li></h6><h6><li>請與<a href='mailto:covidwellness@illinois.edu'> covidwellness@illinois.edu </a>聯繫以獲取指導。</li></h6><h6><li>在{next_step_date}之後進行測試，看看您是否已患上這種疾病。</li></h6><h6><li>更多信息: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>隔離與隔離</a></li></h6></ul>",
 			"exposure.reason": "您的狀態更改為橙色，因為您收到了曝光通知。",
 			"quarantine-on.step": "呆在家裡，避免接觸",
 			"quarantine-on.reason": "您的狀態更改為“橙色”，因為公共衛生部門已將您隔離。",
+      "release.step": "參加SHIELD唾液測試",
+      "release.reason": "您的狀態更改為“橙色”，因為公共衛生部門要求您進行測試。",
 			"symptoms.no-symptoms": "無症狀",
 			"symptoms.fever": "發熱",
 			"symptoms.chills": "寒意",
