@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## [2.9.5] - 2021-1-20
 ### Changed
 - Sync health.rules.json with latest 2.9 content on production
 - Acknowledged "quarantine-on.reason" string entry in "health.rules.json".
