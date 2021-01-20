@@ -260,7 +260,7 @@
 			"health_status": "orange",
 			"priority": 10,
 			"next_step": "quarantine-on.step",
-			"reason": "Your status changed to Orange because the Public Health department placed you in Quarantine.",
+			"reason": "quarantine-on.reason",
 			"fcm_topic": "quarantine-on"
 		},
 
