@@ -16,6 +16,7 @@
 
 import 'dart:convert';
 
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -255,6 +256,15 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
               textColor: Styles().colors.fillColorPrimary,
               borderColor: Styles().colors.fillColorPrimary,
               onTap: _onTapCovid19ExposureLogs)),
+      Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+          child: RoundedButton(
+              label: "Test Crash",
+              backgroundColor: Styles().colors.background,
+              fontSize: 16.0,
+              textColor: Styles().colors.fillColorPrimary,
+              borderColor: Styles().colors.fillColorPrimary,
+              onTap: _onTapCovid19TestCrash)),
       Padding(padding: EdgeInsets.only(top: 10), child: Container()),
     ]);
 
@@ -410,6 +420,10 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
 
   void _onTapCovid19Rules(){
     Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19DebugRulesPanel()));
+  }
+
+  void _onTapCovid19TestCrash(){
+    FirebaseCrashlytics.instance.crash();
   }
 
   String prettyPrintJson(var input){
