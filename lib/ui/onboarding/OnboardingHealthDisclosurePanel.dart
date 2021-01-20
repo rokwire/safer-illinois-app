@@ -159,7 +159,7 @@ class _OnBoardingHealthDisclosurePanelState extends State<OnBoardingHealthDisclo
                         ),
                         Container(height: 2,),
                         Text(
-                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content7", "7. Location. Location services on your device must be turned on to activate the Bluetooth low energy technology necessary for the exposure notification function of the Application. However, the Application does not access, collect, or store any location data, including GPS data. If location services on your device are turned off, the Application will perform the limited functions of storing and providing information about COVID-19 test results, any voluntarily reported symptoms, and building access status."),
+                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content7", "7. Location services on your device must be turned on to activate the Bluetooth low energy technology necessary for the exposure notification function of the Application. However, the Application does not access, collect, or store any location data, including GPS data. If location services on your device are turned off, the Application will perform the limited functions of storing and providing information about COVID-19 test results, any voluntarily reported symptoms, and building access status."),
                           style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 14, color:Styles().colors.textSurface),
                         ),
 
