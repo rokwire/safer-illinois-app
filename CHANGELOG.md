@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Acknowledged "quarantine-on.reason" string entry in "health.rules.json".
 - Port this fix as hotfix for 2.9 (Original title: Fix FirebaseCrashlytics) [#428](https://github.com/rokwire/safer-illinois-app/issues/428).
 - Port fix: Added Onboarding Disclosure Panel [#477](https://github.com/rokwire/safer-illinois-app/issues/477]).
+- Port fix: fixed grammer in Status Update String [#454](https://github.com/rokwire/safer-illinois-app/issues/454)
 
 ### Fixed
 - Do not translate symptoms names transmitted to analytics [#447](https://github.com/rokwire/safer-illinois-app/issues/447).

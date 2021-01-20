@@ -683,7 +683,7 @@
 	"panel.health.status_update.label.reason.symptoms.title": "You reported new symptoms",
 	"panel.health.status_update.label.reason.exposed.title": "You were exposed to someone who was likely infected",
 	"panel.health.status_update.label.reason.exposure.detail": "Duration of exposure: ",
-	"panel.health.status_update.label.reason.action.title": "You were required an action by health authorities",
+	"panel.health.status_update.label.reason.action.title": "Health authorities require you to take an action.",
 	"panel.health.status_update.label.reason.action.detail": "Action Required: ",
 	"panel.health.status_update.button.info.title": "Info ",
 

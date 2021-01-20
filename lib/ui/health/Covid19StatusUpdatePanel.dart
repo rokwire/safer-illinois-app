@@ -248,7 +248,7 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
           ],);
       }
       else if (reasonHistory.isAction) {
-        reasonHistoryName = Localization().getStringEx("panel.health.status_update.label.reason.action.title", "You were required an action by health authorities");
+        reasonHistoryName = Localization().getStringEx("panel.health.status_update.label.reason.action.title", "Health authorities require you to take an action.");
 
         reasonHistoryDetail = Column(
           crossAxisAlignment: CrossAxisAlignment.center,
