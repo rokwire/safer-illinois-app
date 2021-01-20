@@ -409,7 +409,7 @@
 	"panel.health.onboarding.covid19.how_it_works.button.next.hint": "",
 
 	"panel.health.onboarding.covid19.disclosure.label.title": "Information Usage Disclosure",
-	"panel.health.onboarding.covid19.disclosure.label.description1": "The Safer Community app uses:",
+	"panel.health.onboarding.covid19.disclosure.label.description1": "The Safer Illinois app uses:",
 	"panel.health.onboarding.covid19.disclosure.label.content1": "1. GPS to provide the user interactive maps and outdoor geofenced notifications to find test locations.",
 	"panel.health.onboarding.covid19.disclosure.label.content2": "2. SSID/BSSID (WiFi) to provide geofenced notifications to indoor test locations where GPS does not work.",
 	"panel.health.onboarding.covid19.disclosure.label.content3": "3. Bluetooth to enable opt in exposure notifications of close contact with individuals that test positive for COVID-19.",
