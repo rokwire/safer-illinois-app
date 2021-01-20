@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Sync health.rules.json with latest 2.9 content on production
 - Acknowledged "quarantine-on.reason" string entry in "health.rules.json".
+- Port this fix as hotfix for 2.9 (Original title: Fix FirebaseCrashlytics) [#428](https://github.com/rokwire/safer-illinois-app/issues/428).
 
 ### Fixed
 - Do not translate symptoms names transmitted to analytics [#447](https://github.com/rokwire/safer-illinois-app/issues/447).
