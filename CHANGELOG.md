@@ -86,6 +86,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Health service reworked to permanantly cache all data necessary for status build.
 - Use better naming in internal classes.
 
+## [2.9.5] - 2021-1-20
+### Changed
+- Sync health.rules.json with latest 2.9 content on production
+- Acknowledged "quarantine-on.reason" string entry in "health.rules.json".
+- Port this fix as hotfix for 2.9 (Original title: Fix FirebaseCrashlytics) [#428](https://github.com/rokwire/safer-illinois-app/issues/428).
+- Port fix: Added Onboarding Disclosure Panel [#477](https://github.com/rokwire/safer-illinois-app/issues/477]).
+- Port fix: fixed grammer in Status Update String [#454](https://github.com/rokwire/safer-illinois-app/issues/454)
+
+### Fixed
+- Do not translate symptoms names transmitted to analytics [#447](https://github.com/rokwire/safer-illinois-app/issues/447).
+
 ## [2.9.4] - 2020-11-18
 ### Fixed
 - Error message cannot be read if keyboard is up - please hide the keyboard after a send - see error_message_hidden.png [#414](https://github.com/rokwire/safer-illinois-app/issues/414).
