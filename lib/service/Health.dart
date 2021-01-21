@@ -1143,6 +1143,48 @@ class Health with Service implements NotificationsListener {
     }
   }
 
+  Future<void> _logExposureStatistics() async {
+    int testFrequency168Hours = HealthHistory.retrieveNumTests(_history, 168);
+    List socialActivity6Hours = await Exposure().evalSocialActivity(6);
+    List socialActivity24Hours = await Exposure().evalSocialActivity(24);
+    List socialActivity168Hours = await Exposure().evalSocialActivity(168);
+
+    bool contactTrace168Hours;
+    String testResult168Hours;
+    DateTime cutoffDate = DateTime.now().toUtc().subtract(Duration(hours: 168));
+
+    HealthHistory mostRecentContactTrace = HealthHistory.mostRecentContactTrace(_history);
+    if (mostRecentContactTrace == null ||
+        mostRecentContactTrace.dateUtc.isBefore(cutoffDate)) {
+      contactTrace168Hours = false;
+    } else {
+      contactTrace168Hours = true;
+    }
+
+    HealthHistory mostRecentTest = HealthHistory.mostRecentTest(_history);
+    if (mostRecentTest == null ||
+        mostRecentTest.dateUtc.isBefore(cutoffDate)) {
+      testResult168Hours = null;
+    } else {
+      testResult168Hours = mostRecentTest.blob?.testResult;
+    }
+
+    Analytics().logHealth(
+      action: Analytics.LogHealthExposureStatistics,
+      attributes: {
+        Analytics.LogTestFrequency168Hours: testFrequency168Hours,
+        Analytics.LogRpiSeen6Hours: socialActivity6Hours[0],
+        Analytics.LogRpiMatches6Hours: socialActivity6Hours[1],
+        Analytics.LogRpiSeen24Hours: socialActivity24Hours[0],
+        Analytics.LogRpiMatches24Hours: socialActivity24Hours[1],
+        Analytics.LogRpiSeen168Hours: socialActivity168Hours[0],
+        Analytics.LogRpiMatches168Hours: socialActivity168Hours[1],
+        Analytics.LogExposureNotification168Hours: contactTrace168Hours,
+        Analytics.LogTestResult168Hours: testResult168Hours,
+      }
+    );
+  }
+
   Future<void> _logProcessedEvents() async {
     if ((_processedEvents != null) && (0 < _processedEvents.length)) {
 

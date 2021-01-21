@@ -214,6 +214,16 @@ class Analytics with Service implements NotificationsListener {
   static const String   LogHealthActionParamsName            = "action_params";
   static const String   LogHealthActionTimestampName         = "action_timestamp";
   static const String   LogHealthExposureScore               = "exposure_score";
+  static const String   LogHealthExposureStatistics          = "exposure_statistics";
+  static const String   LogRpiSeen6Hours                     = "rpi_seen_6_hour";
+  static const String   LogRpiSeen24Hours                    = "rpi_seen_24_hour";
+  static const String   LogRpiSeen168Hours                   = "rpi_seen_168_hour";
+  static const String   LogRpiMatches6Hours                  = "rpi_matches_6_hour";
+  static const String   LogRpiMatches24Hours                 = "rpi_matches_24_hour";
+  static const String   LogRpiMatches168Hours                = "rpi_matches_168_hour";
+  static const String   LogTestFrequency168Hours             = "test_frequency_168_hour";
+  static const String   LogExposureNotification168Hours      = "exposure_notification_168_hour";
+  static const String   LogTestResult168Hours                = "test_result_168_hour";
 
   // Event Attributes
   static const String   LogAttributeUrl                    = "url";
