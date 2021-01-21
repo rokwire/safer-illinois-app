@@ -1187,6 +1187,10 @@ class Exposure with Service implements NotificationsListener {
 
     List<ExposureRecord> exposures = ((results != null) && (0 < results.length)) ? results[0] : null;
     List<ExposureTEK> reportedTEKs = ((results != null) && (1 < results.length)) ? results[1] : null;
+
+    exposures.removeWhere((element) => element.dateUtc.isAfter(maxDateUtc));
+    reportedTEKs.removeWhere((element) => element.dateUtc.isAfter(maxDateUtc));
+
     if ((exposures == null) || (reportedTEKs == null)) {
       return null;
     }
