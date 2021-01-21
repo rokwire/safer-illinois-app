@@ -224,6 +224,7 @@ class Analytics with Service implements NotificationsListener {
   static const String   LogTestFrequency168Hours             = "test_frequency_168_hour";
   static const String   LogExposureNotification168Hours      = "exposure_notification_168_hour";
   static const String   LogTestResult168Hours                = "test_result_168_hour";
+  static const String   LogEpoch                             = "epoch";
 
   // Event Attributes
   static const String   LogAttributeUrl                    = "url";

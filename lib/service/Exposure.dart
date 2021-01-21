@@ -1168,16 +1168,16 @@ class Exposure with Service implements NotificationsListener {
       (((hasExposureNotificationsEnabled == true) ? 1 : 0) << 2);
   }
 
-  Future<List> evalSocialActivity(int prevHours, { DateTime endDate }) async {
+  Future<List> evalSocialActivity(int prevHours, { DateTime maxDateUtc }) async {
     // Returns: [# Rpi seen, # Rpi matches with positive Tek]
 
     if (!_serviceEnabled) {
       return null;
     }
-    if (endDate == null) {
-      endDate = DateTime.now().toUtc();
+    if (maxDateUtc == null) {
+      maxDateUtc = DateTime.now().toUtc();
     }
-    int startTimestamp = endDate.subtract(Duration(hours: prevHours))?.millisecondsSinceEpoch;
+    int startTimestamp = maxDateUtc.subtract(Duration(hours: prevHours))?.millisecondsSinceEpoch;
 
     List<Future<dynamic>> futures = <Future>[
       loadLocalExposures(timestamp: startTimestamp),

@@ -39,6 +39,7 @@ import 'package:illinois/utils/Utils.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import "package:pointycastle/export.dart";
+import 'package:shared_preferences/shared_preferences.dart';
 //TMP: import 'package:flutter/services.dart' show rootBundle;
 
 class Health with Service implements NotificationsListener {
@@ -76,6 +77,9 @@ class Health with Service implements NotificationsListener {
   Set<String> _pendingNotifications;
   DateTime _pausedDateTime;
 
+  final int sendLogInterval = 6 * 60 * 60 * 1000; // 6 hours
+  Timer timer;
+
   // Singletone Instance
 
   static final Health _instance = Health._internal();
@@ -95,13 +99,11 @@ class Health with Service implements NotificationsListener {
       Auth.notifyLoginChanged,
       Config.notifyConfigChanged,
     ]);
-    Log.d("service has been created");
   }
 
   @override
   void destroyService() {
     NotificationService().unsubscribe(this);
-    Log.d("service has been destroyed")
   }
 
   @override
@@ -122,7 +124,9 @@ class Health with Service implements NotificationsListener {
     _buildingAccessRules = _loadBuildingAccessRulesFromStorage();
 
     _refresh(_RefreshOptions.all());
-    Log.d("service initialized");
+
+    // Set up timer
+    timer = Timer.periodic(Duration(hours: 6), (Timer t) => _logExposureStatistics());
   }
 
   @override
@@ -139,7 +143,6 @@ class Health with Service implements NotificationsListener {
     _county = null;
     _rules = null;
     _buildingAccessRules = null;
-    Log.d("service cleared");
   }
 
   @override
@@ -1149,18 +1152,32 @@ class Health with Service implements NotificationsListener {
   }
 
   Future<void> _logExposureStatistics() async {
-    // TODO: add a timer to call this function every 6 hours
-    // TODO: analytics need to be uploaded with the same start/end date (time epoch)
-    int testFrequency168Hours = HealthHistory.retrieveNumTests(_history, 168);
-    List socialActivity6Hours = await Exposure().evalSocialActivity(6);
-    List socialActivity24Hours = await Exposure().evalSocialActivity(24);
-    List socialActivity168Hours = await Exposure().evalSocialActivity(168);
+    // TODO: set up shared preferences/make lastEpoch as an attribute of each user
+    final prefs = await SharedPreferences.getInstance();
+    int lastEpoch = prefs.getInt('lastEpoch') ?? 0;
+    int currEpoch = DateTime.now().millisecondsSinceEpoch ~/ sendLogInterval;
+    if (lastEpoch == 0) {
+      prefs.setInt('lastEpoch', currEpoch);
+    } else if (currEpoch != lastEpoch) {
+      // need to send lastEpoch's data
+      _sendExposureStatistics(lastEpoch);
+      prefs.setInt('lastEpoch', currEpoch);
+    }
+  }
+
+  Future<void> _sendExposureStatistics(int epoch) async {
+
+    DateTime maxDateUtc = DateTime.fromMillisecondsSinceEpoch((epoch + 1) * sendLogInterval);
+    int testFrequency168Hours = HealthHistory.retrieveNumTests(_history, 168, maxDateUtc: maxDateUtc);
+    List socialActivity6Hours = await Exposure().evalSocialActivity(6, maxDateUtc: maxDateUtc);
+    List socialActivity24Hours = await Exposure().evalSocialActivity(24, maxDateUtc: maxDateUtc);
+    List socialActivity168Hours = await Exposure().evalSocialActivity(168, maxDateUtc: maxDateUtc);
 
     bool contactTrace168Hours;
     String testResult168Hours;
     DateTime cutoffDate = DateTime.now().toUtc().subtract(Duration(hours: 168));
 
-    HealthHistory mostRecentContactTrace = HealthHistory.mostRecentContactTrace(_history);
+    HealthHistory mostRecentContactTrace = HealthHistory.mostRecentContactTrace(_history, maxDateUtc: maxDateUtc);
     if (mostRecentContactTrace == null ||
         mostRecentContactTrace.dateUtc.isBefore(cutoffDate)) {
       contactTrace168Hours = false;
@@ -1168,7 +1185,7 @@ class Health with Service implements NotificationsListener {
       contactTrace168Hours = true;
     }
 
-    HealthHistory mostRecentTest = HealthHistory.mostRecentTest(_history);
+    HealthHistory mostRecentTest = HealthHistory.mostRecentTest(_history, beforeDateUtc: maxDateUtc);
     if (mostRecentTest == null ||
         mostRecentTest.dateUtc.isBefore(cutoffDate)) {
       testResult168Hours = null;
@@ -1188,6 +1205,7 @@ class Health with Service implements NotificationsListener {
         Analytics.LogRpiMatches168Hours: socialActivity168Hours[1],
         Analytics.LogExposureNotification168Hours: contactTrace168Hours,
         Analytics.LogTestResult168Hours: testResult168Hours,
+        Analytics.LogEpoch: epoch,
       }
     );
   }
