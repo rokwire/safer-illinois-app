@@ -27,6 +27,7 @@ import 'package:illinois/service/BluetoothServices.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Exposure.dart';
 import 'package:illinois/service/LocationServices.dart';
+import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Network.dart';
 import 'package:illinois/service/NotificationService.dart';
@@ -94,11 +95,13 @@ class Health with Service implements NotificationsListener {
       Auth.notifyLoginChanged,
       Config.notifyConfigChanged,
     ]);
+    Log.d("service has been created");
   }
 
   @override
   void destroyService() {
     NotificationService().unsubscribe(this);
+    Log.d("service has been destroyed")
   }
 
   @override
@@ -119,6 +122,7 @@ class Health with Service implements NotificationsListener {
     _buildingAccessRules = _loadBuildingAccessRulesFromStorage();
 
     _refresh(_RefreshOptions.all());
+    Log.d("service initialized");
   }
 
   @override
@@ -135,6 +139,7 @@ class Health with Service implements NotificationsListener {
     _county = null;
     _rules = null;
     _buildingAccessRules = null;
+    Log.d("service cleared");
   }
 
   @override
@@ -1144,6 +1149,8 @@ class Health with Service implements NotificationsListener {
   }
 
   Future<void> _logExposureStatistics() async {
+    // TODO: add a timer to call this function every 6 hours
+    // TODO: analytics need to be uploaded with the same start/end date (time epoch)
     int testFrequency168Hours = HealthHistory.retrieveNumTests(_history, 168);
     List socialActivity6Hours = await Exposure().evalSocialActivity(6);
     List socialActivity24Hours = await Exposure().evalSocialActivity(24);
@@ -1174,10 +1181,10 @@ class Health with Service implements NotificationsListener {
       attributes: {
         Analytics.LogTestFrequency168Hours: testFrequency168Hours,
         Analytics.LogRpiSeen6Hours: socialActivity6Hours[0],
-        Analytics.LogRpiMatches6Hours: socialActivity6Hours[1],
         Analytics.LogRpiSeen24Hours: socialActivity24Hours[0],
-        Analytics.LogRpiMatches24Hours: socialActivity24Hours[1],
         Analytics.LogRpiSeen168Hours: socialActivity168Hours[0],
+        Analytics.LogRpiMatches6Hours: socialActivity6Hours[1],
+        Analytics.LogRpiMatches24Hours: socialActivity24Hours[1],
         Analytics.LogRpiMatches168Hours: socialActivity168Hours[1],
         Analytics.LogExposureNotification168Hours: contactTrace168Hours,
         Analytics.LogTestResult168Hours: testResult168Hours,
