@@ -200,14 +200,14 @@
 					"fail": {
 						"code": "orange",
 						"priority": 2,
-						"next_step": "test.another.now.step",
+						"next_step_html": "test.another.now.step.html",
 						"reason": "test.past.reason"
 					}
 				},
 				"fail": {
 					"code": "orange",
 					"priority": 2,
-					"next_step": "test.after.step",
+					"next_step_html": "test.after.step.html",
 					"next_step_interval": { "value": 3, "origin": "referenceDate" },
 					"reason": "test.after.reason"
 				}
@@ -215,7 +215,7 @@
 			"fail": {
 				"code": "orange",
 				"priority": 2,
-				"next_step": "test.multiple.step",
+				"next_step_html": "test.multiple.step.html",
 				"reason": "test.required.reason"
 			}
 		},
@@ -737,14 +737,14 @@
 			"test.now.step": "Get a test now",
 			"test.now.reason": "Your status changed to Orange because you are past due for a test.",
 			"test.another.asap.step": "Get another test asap",
-			"test.another.now.step": "Get another test now",
-			"test.after.step": "Get your 2nd test after {next_step_date}",
+			"test.another.now.step.html": "<h3>Get your second test now.</h3><ul><li>Limit yourself to essential activities until you get the second negative result.</li><li>Your building access will change to Granted (Yellow) with the second negative test result.</li></ul><p>See <a href='https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'> testing schedule and rules</a>.</p>",
+			"test.after.step.html": "<h3>Get your second test after {next_step_date}. You must take two on-campus tests by Jan. 25.</h3><ul><li>Separate the tests by three days of quarantine:&nbsp;if the first test is on day one, the second test will be on day five.</li><li>Limit yourself to essential activities until you get the second negative result.</li><li>Your building access will change to Granted (Yellow) with the second negative test result.</li></ul><p>See <a href='https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'> testing schedule and rules</a>.</p>",
 			"test.after.reason": "Your status changed to Orange because you are required to take another test.",
 			"test.required.reason": "Your status changed to Orange because you are required to get a test.",
 			"test.resume.step": "Resume testing on your assigned days",
 			"test.future.warning": "You will turn orange/access denied if no negative test by {next_step_date}.",
 			"test.past.reason": "Your status changed to Orange because you are past due for another test.",
-			"test.multiple.step": "You will need to have 2 tests separated by 3 days with negative results to turn yellow",
+			"test.multiple.step.html": "<h3>You must take two on-campus tests by Jan. 25.</h3><ul><li>Separate the tests by three days of quarantine:&nbsp;if the first test is on day one, the second test will be on day five.</li><li>Limit yourself to essential activities until you get the second negative result.</li><li>Your building access will change to Granted (Yellow) with the second negative test result.</li></ul><p>See <a href=https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'> testing schedule and rules</a>.</p>",
 			"symptoms.step": "Take a COVID-19 test now",
 			"symptoms.reason": "Your status changed to Orange because you self-reported symptoms consistent with the virus.",
 			"exposure.step.html": "<h3>You have likely been exposed to a person who is infected with COVID-19.</h3><ul><h6><li>You must quarantine yourself immediately.</li></h6><h6><li>Stay home. Do not go to work, school, or public areas.</li></h6><h6><li>Separate yourself from others in your home.</li></h6><h6><li>Contact <a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a> for guidance.</li></h6><h6><li>Get tested after {next_step_date} to see if you have developed the disease.</li></h6><h6><li>More Info: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Quarantine and Isolation</a></li></h6></ul>",
