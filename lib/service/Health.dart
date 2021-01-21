@@ -126,6 +126,7 @@ class Health with Service implements NotificationsListener {
     _refresh(_RefreshOptions.all());
 
     // Set up timer
+    _logExposureStatistics();
     timer = Timer.periodic(Duration(hours: 6), (Timer t) => _logExposureStatistics());
   }
 
@@ -1192,7 +1193,6 @@ class Health with Service implements NotificationsListener {
     } else {
       testResult168Hours = mostRecentTest.blob?.testResult;
     }
-
     Analytics().logHealth(
       action: Analytics.LogHealthExposureStatistics,
       attributes: {
