@@ -129,37 +129,27 @@ class _OnBoardingHealthDisclosurePanelState extends State<OnBoardingHealthDisclo
                             )),
                         Container(height: 4,),
                         Text(
-                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content1", "1. GPS to provide the user interactive maps and outdoor geofenced notifications to find test locations."),
+                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content1", "1. Bluetooth to enable opt-in exposure notifications of close contact with individuals that test positive for COVID-19."),
                           style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 14, color:Styles().colors.textSurface),
                         ),
                         Container(height: 2,),
                         Text(
-                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content2", "2. SSID/BSSID (WiFi) to provide geofenced notifications to indoor test locations where GPS does not work."),
+                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content2", "2. Photos to allow a user to import their personal encryption key (QR code) into the app."),
                           style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 14, color:Styles().colors.textSurface),
                         ),
                         Container(height: 2,),
                         Text(
-                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content3", "3. Bluetooth to enable opt in exposure notifications of close contact with individuals that test positive for COVID-19."),
+                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content3", "3. Videos to allow a user to import their personal encryption key (QR code) into the app."),
                           style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 14, color:Styles().colors.textSurface),
                         ),
                         Container(height: 2,),
                         Text(
-                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content4", "4. Photos to allow a user to import their personal encryption key (QR code) in to the app and to allow reporting of a test result from a non UIUC testing center."),
+                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content4", "4. Files (external storage read and write) to allow a user to import their personal encryption key (QR code) into the app."),
                           style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 14, color:Styles().colors.textSurface),
                         ),
                         Container(height: 2,),
                         Text(
-                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content5", "5. Videos to allow a user to import their personal encryption key (QR code) in to the app and to allow reporting of a test result from a non UW-Madison testing center."),
-                          style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 14, color:Styles().colors.textSurface),
-                        ),
-                        Container(height: 2,),
-                        Text(
-                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content6", "6. Files (external storage read and write) to allow a user to import their personal encryption key (QR code) in to the app and to allow reporting of a test result from a non UW-Madison testing center."),
-                          style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 14, color:Styles().colors.textSurface),
-                        ),
-                        Container(height: 2,),
-                        Text(
-                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content7", "7. Location services on your device must be turned on to activate the Bluetooth low energy technology necessary for the exposure notification function of the Application. However, the Application does not access, collect, or store any location data, including GPS data. If location services on your device are turned off, the Application will perform the limited functions of storing and providing information about COVID-19 test results, any voluntarily reported symptoms, and building access status."),
+                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content5", "5. Location services on your device must be turned on to activate the Bluetooth low energy technology necessary for the exposure notification function of the Application. However, the Application does not access, collect, or store any location data, including GPS data. If location services on your device are turned off, the Application will perform the limited functions of storing and providing information about COVID-19 test results, any voluntarily reported symptoms, and building access status."),
                           style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 14, color:Styles().colors.textSurface),
                         ),
 
@@ -177,7 +167,7 @@ class _OnBoardingHealthDisclosurePanelState extends State<OnBoardingHealthDisclo
                             )),
                         Container(height: 4,),
                         Text(
-                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content8", "Name, University identifier, Birth date, Phone number, Address, Sex, Race, and Ethnicity. This information is reported to public health and your University."),
+                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content8", "Name, email address, University ID number (UIN), phone number, and student registration information"),
                           style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color:Styles().colors.textSurface),
                         ),
                         Container(height: 11,),
@@ -223,26 +213,6 @@ class _OnBoardingHealthDisclosurePanelState extends State<OnBoardingHealthDisclo
                         Container(height: 4,),
                         Text(
                           Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content14", "  - READ_EXTERNAL_STORAGE"),
-                          style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 20, color:Styles().colors.textSurface),
-                        ),
-                        Container(height: 11,),
-                        Semantics( header: true, hint: Localization().getStringEx("app.common.heading.three.hint","Header 3"),
-                            child: Text(Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.description7", "Assistance navigating to a COVID-19 test site"),
-                              style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 18, color:Styles().colors.textSurface),
-                            )),
-                        Container(height: 4,),
-                        Text(
-                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content15", "To assist you in finding a test site on campus, we provide maps for directions and geolocation based notifications when you approach your test site. WiFi and the following permissions are used to enable this:"),
-                          style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color:Styles().colors.textSurface),
-                        ),
-                        Container(height: 4,),
-                        Text(
-                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content16", "  - LOCATION"),
-                          style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 20, color:Styles().colors.textSurface),
-                        ),
-                        Container(height: 4,),
-                        Text(
-                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content17", "  - ACCESS_WIFI_STATE"),
                           style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 20, color:Styles().colors.textSurface),
                         ),
                         Container(height: 11,),
