@@ -1666,7 +1666,7 @@ class Health with Service implements NotificationsListener {
     if (AppString.isStringNotEmpty(userId)) {
       String storageEntry = "lastEpoch.$userId";
       int lastEpoch = Storage().getInt(storageEntry);
-      int currEpoch = DateTime.now().millisecondsSinceEpoch ~/ _exposureStatisticsLogInterval;
+      int currEpoch = DateTime.now().toUtc().millisecondsSinceEpoch ~/ _exposureStatisticsLogInterval;
       if (currEpoch != lastEpoch) {
         // need to send lastEpoch's data
         _sendExposureStatistics(lastEpoch ?? (currEpoch - 1));
