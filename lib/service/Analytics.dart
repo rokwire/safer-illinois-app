@@ -198,6 +198,7 @@ class Analytics with Service implements NotificationsListener {
   static const String   LogHealthActionProcessedAction       = "action_processed";
   static const String   LogHealthReportExposuresAction       = "report_exposures";
   static const String   LogHealthCheckExposuresAction        = "check_exposures";
+  static const String   LogHealthExposureStatisticsAction    = "exposure_statistics";
   static const String   LogHealthStatusName                  = "status";
   static const String   LogHealthPrevStatusName              = "previous_status";
   static const String   LogHealthSettingNotifyExposuresName  = "notify_exposures";
@@ -213,7 +214,17 @@ class Analytics with Service implements NotificationsListener {
   static const String   LogHealthActionTextName              = "action_text";
   static const String   LogHealthActionParamsName            = "action_params";
   static const String   LogHealthActionTimestampName         = "action_timestamp";
-  static const String   LogHealthExposureScore               = "exposure_score";
+  static const String   LogHealthExposureScoreName           = "exposure_score";
+  static const String   LogRpiSeen6HoursName                 = "rpi_seen_6_hour";
+  static const String   LogRpiSeen24HoursName                = "rpi_seen_24_hour";
+  static const String   LogRpiSeen168HoursName               = "rpi_seen_168_hour";
+  static const String   LogRpiMatches6HoursName              = "rpi_matches_6_hour";
+  static const String   LogRpiMatches24HoursName             = "rpi_matches_24_hour";
+  static const String   LogRpiMatches168HoursName            = "rpi_matches_168_hour";
+  static const String   LogTestFrequency168HoursName         = "test_frequency_168_hour";
+  static const String   LogExposureNotification168HoursName  = "exposure_notification_168_hour";
+  static const String   LogTestResult168HoursName            = "test_result_168_hour";
+  static const String   LogEpochName                         = "epoch";
 
   // Event Attributes
   static const String   LogAttributeUrl                    = "url";

@@ -54,6 +54,8 @@ class Health with Service implements NotificationsListener {
   static const String _rulesFileName                   = "rules.json";
   static const String _historyFileName                 = "history.json";
 
+  static const int    _exposureStatisticsLogInterval   = 6 * 60 * 60 * 1000; // 6 hours
+
   HealthUser _user;
   PrivateKey _userPrivateKey;
   String _userAccountId;
@@ -74,6 +76,7 @@ class Health with Service implements NotificationsListener {
   _RefreshOptions _refreshOptions;
   Set<String> _pendingNotifications;
   DateTime _pausedDateTime;
+  Timer _exposureStatisticsLogTimer;
 
   // Singletone Instance
 
@@ -118,7 +121,14 @@ class Health with Service implements NotificationsListener {
     _rules = await _loadRulesFromCache();
     _buildingAccessRules = _loadBuildingAccessRulesFromStorage();
 
-    _refresh(_RefreshOptions.all());
+    _exposureStatisticsLogTimer = Timer.periodic(Duration(milliseconds: _exposureStatisticsLogInterval), (_) {
+      _logExposureStatistics();
+    });
+
+    _refresh(_RefreshOptions.all()).then((_) {
+      _logExposureStatistics();
+    });
+
   }
 
   @override
@@ -135,6 +145,9 @@ class Health with Service implements NotificationsListener {
     _county = null;
     _rules = null;
     _buildingAccessRules = null;
+
+    _exposureStatisticsLogTimer.cancel();
+    _exposureStatisticsLogTimer = null;
   }
 
   @override
@@ -165,7 +178,9 @@ class Health with Service implements NotificationsListener {
       if (_pausedDateTime != null) {
         Duration pausedDuration = DateTime.now().difference(_pausedDateTime);
         if (Config().refreshTimeout < pausedDuration.inSeconds) {
-          _refresh(_RefreshOptions.all());
+          _refresh(_RefreshOptions.all()).then((_) {
+            _logExposureStatistics();            
+          });
         }
       }
     }
@@ -1160,7 +1175,7 @@ class Health with Service implements NotificationsListener {
               Analytics.LogHealthProviderName: event.provider,
               Analytics.LogHealthTestTypeName: event.blob?.testType,
               Analytics.LogHealthTestResultName: event.blob?.testResult,
-              Analytics.LogHealthExposureScore: score,
+              Analytics.LogHealthExposureScoreName: score,
           });
           
           if (exposureTestReportDays != null)  {
@@ -1644,6 +1659,65 @@ class Health with Service implements NotificationsListener {
     return (responseJson != null) ? HealthServiceLocation.fromJson(responseJson) : null;
   }
 
+  // Exposure Statistics Log
+
+  Future<void> _logExposureStatistics() async {
+    String userId = this._userId;
+    if (AppString.isStringNotEmpty(userId)) {
+      String storageEntry = "lastEpoch.$userId";
+      int lastEpoch = Storage().getInt(storageEntry);
+      int currEpoch = DateTime.now().millisecondsSinceEpoch ~/ _exposureStatisticsLogInterval;
+      if (currEpoch != lastEpoch) {
+        // need to send lastEpoch's data
+        _sendExposureStatistics(lastEpoch ?? (currEpoch - 1));
+        Storage().setInt(storageEntry, currEpoch);
+      }
+    }
+  }
+
+  Future<void> _sendExposureStatistics(int epoch) async {
+
+    DateTime maxDateUtc = DateTime.fromMillisecondsSinceEpoch((epoch + 1) * _exposureStatisticsLogInterval);
+    int testFrequency168Hours = HealthHistory.retrieveNumTests(_history, 168, maxDateUtc: maxDateUtc);
+    List socialActivity6Hours = await Exposure().evalSocialActivity(6, maxDateUtc: maxDateUtc);
+    List socialActivity24Hours = await Exposure().evalSocialActivity(24, maxDateUtc: maxDateUtc);
+    List socialActivity168Hours = await Exposure().evalSocialActivity(168, maxDateUtc: maxDateUtc);
+
+    bool contactTrace168Hours;
+    String testResult168Hours;
+    DateTime cutoffDate = DateTime.now().toUtc().subtract(Duration(hours: 168));
+
+    HealthHistory mostRecentContactTrace = HealthHistory.mostRecentContactTrace(_history, maxDateUtc: maxDateUtc);
+    if (mostRecentContactTrace == null ||
+        mostRecentContactTrace.dateUtc.isBefore(cutoffDate)) {
+      contactTrace168Hours = false;
+    } else {
+      contactTrace168Hours = true;
+    }
+
+    HealthHistory mostRecentTest = HealthHistory.mostRecentTest(_history, beforeDateUtc: maxDateUtc);
+    if (mostRecentTest == null ||
+        mostRecentTest.dateUtc.isBefore(cutoffDate)) {
+      testResult168Hours = null;
+    } else {
+      testResult168Hours = mostRecentTest.blob?.testResult;
+    }
+    Analytics().logHealth(
+      action: Analytics.LogHealthExposureStatisticsAction,
+      attributes: {
+        Analytics.LogTestFrequency168HoursName: testFrequency168Hours,
+        Analytics.LogRpiSeen6HoursName: socialActivity6Hours[0],
+        Analytics.LogRpiSeen24HoursName: socialActivity24Hours[0],
+        Analytics.LogRpiSeen168HoursName: socialActivity168Hours[0],
+        Analytics.LogRpiMatches6HoursName: socialActivity6Hours[1],
+        Analytics.LogRpiMatches24HoursName: socialActivity24Hours[1],
+        Analytics.LogRpiMatches168HoursName: socialActivity168Hours[1],
+        Analytics.LogExposureNotification168HoursName: contactTrace168Hours,
+        Analytics.LogTestResult168HoursName: testResult168Hours,
+        Analytics.LogEpochName: epoch,
+      }
+    );
+  }
 }
 
 class _RefreshOptions {

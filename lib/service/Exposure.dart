@@ -1168,6 +1168,54 @@ class Exposure with Service implements NotificationsListener {
       (((hasExposureNotificationsEnabled == true) ? 1 : 0) << 2);
   }
 
+  Future<List> evalSocialActivity(int prevHours, { DateTime maxDateUtc }) async {
+    // Returns: [# Rpi seen, # Rpi matches with positive Tek]
+
+    if (!_serviceEnabled) {
+      return null;
+    }
+    if (maxDateUtc == null) {
+      maxDateUtc = DateTime.now().toUtc();
+    }
+    int startTimestamp = maxDateUtc.subtract(Duration(hours: prevHours))?.millisecondsSinceEpoch;
+
+    List<Future<dynamic>> futures = <Future>[
+      loadLocalExposures(timestamp: startTimestamp),
+      loadReportedTEKs(timestamp: startTimestamp),
+    ];
+    List<dynamic> results = await Future.wait(futures);
+
+    List<ExposureRecord> exposures = ((results != null) && (0 < results.length)) ? results[0] : null;
+    List<ExposureTEK> reportedTEKs = ((results != null) && (1 < results.length)) ? results[1] : null;
+
+    exposures.removeWhere((element) => element.dateUtc.isAfter(maxDateUtc));
+    reportedTEKs.removeWhere((element) => element.dateUtc.isAfter(maxDateUtc));
+
+    if ((exposures == null) || (reportedTEKs == null)) {
+      return null;
+    }
+    int totalRpiSeen = exposures.length;
+    int totalRpiMatches = 0;
+
+    for (ExposureTEK tek in reportedTEKs) {
+      Map<String, int> rpisMap = await _loadTekRPIs(tek);
+      if (rpisMap != null) {
+        Set<String> rpisSet = Set.from(rpisMap.keys);
+        for (ExposureRecord exposure in exposures) {
+          if (rpisSet.contains(exposure.rpi) &&
+              ((exposure.timestamp + _rpiCheckExposureBuffer) >= rpisMap[exposure.rpi]) &&
+              ((exposure.timestamp - _rpiCheckExposureBuffer - _rpiRefreshInterval) < rpisMap[exposure.rpi])
+          ) {
+            totalRpiMatches++;
+          }
+        }
+      }
+    }
+
+    return [totalRpiSeen, totalRpiMatches];
+  }
+
+
   // Logging
   
   void startLogSession(int sessionId) {
