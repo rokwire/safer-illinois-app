@@ -27,7 +27,6 @@ import 'package:illinois/service/BluetoothServices.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Exposure.dart';
 import 'package:illinois/service/LocationServices.dart';
-import 'package:illinois/service/Log.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Network.dart';
 import 'package:illinois/service/NotificationService.dart';
@@ -56,6 +55,8 @@ class Health with Service implements NotificationsListener {
   static const String _rulesFileName                   = "rules.json";
   static const String _historyFileName                 = "history.json";
 
+  static const int    _exposureStatisticsLogInterval   = 6 * 60 * 60 * 1000; // 6 hours
+
   HealthUser _user;
   PrivateKey _userPrivateKey;
   String _userAccountId;
@@ -76,9 +77,7 @@ class Health with Service implements NotificationsListener {
   _RefreshOptions _refreshOptions;
   Set<String> _pendingNotifications;
   DateTime _pausedDateTime;
-
-  final int sendLogInterval = 6 * 60 * 60 * 1000; // 6 hours
-  Timer timer;
+  Timer _exposureStatisticsLogTimer;
 
   // Singletone Instance
 
@@ -123,11 +122,14 @@ class Health with Service implements NotificationsListener {
     _rules = await _loadRulesFromCache();
     _buildingAccessRules = _loadBuildingAccessRulesFromStorage();
 
-    _refresh(_RefreshOptions.all());
+    _exposureStatisticsLogTimer = Timer.periodic(Duration(milliseconds: _exposureStatisticsLogInterval), (_) {
+      _logExposureStatistics();
+    });
 
-    // Set up timer
-    _logExposureStatistics();
-    timer = Timer.periodic(Duration(hours: 6), (Timer t) => _logExposureStatistics());
+    _refresh(_RefreshOptions.all()).then((_) {
+      _logExposureStatistics();
+    });
+
   }
 
   @override
@@ -144,6 +146,9 @@ class Health with Service implements NotificationsListener {
     _county = null;
     _rules = null;
     _buildingAccessRules = null;
+
+    _exposureStatisticsLogTimer.cancel();
+    _exposureStatisticsLogTimer = null;
   }
 
   @override
@@ -174,7 +179,9 @@ class Health with Service implements NotificationsListener {
       if (_pausedDateTime != null) {
         Duration pausedDuration = DateTime.now().difference(_pausedDateTime);
         if (Config().refreshTimeout < pausedDuration.inSeconds) {
-          _refresh(_RefreshOptions.all());
+          _refresh(_RefreshOptions.all()).then((_) {
+            _logExposureStatistics();            
+          });
         }
       }
     }
@@ -1152,64 +1159,6 @@ class Health with Service implements NotificationsListener {
     }
   }
 
-  Future<void> _logExposureStatistics() async {
-    // TODO: set up shared preferences/make lastEpoch as an attribute of each user
-    final prefs = await SharedPreferences.getInstance();
-    int lastEpoch = prefs.getInt('lastEpoch') ?? 0;
-    int currEpoch = DateTime.now().millisecondsSinceEpoch ~/ sendLogInterval;
-    if (lastEpoch == 0) {
-      prefs.setInt('lastEpoch', currEpoch);
-    } else if (currEpoch != lastEpoch) {
-      // need to send lastEpoch's data
-      _sendExposureStatistics(lastEpoch);
-      prefs.setInt('lastEpoch', currEpoch);
-    }
-  }
-
-  Future<void> _sendExposureStatistics(int epoch) async {
-
-    DateTime maxDateUtc = DateTime.fromMillisecondsSinceEpoch((epoch + 1) * sendLogInterval);
-    int testFrequency168Hours = HealthHistory.retrieveNumTests(_history, 168, maxDateUtc: maxDateUtc);
-    List socialActivity6Hours = await Exposure().evalSocialActivity(6, maxDateUtc: maxDateUtc);
-    List socialActivity24Hours = await Exposure().evalSocialActivity(24, maxDateUtc: maxDateUtc);
-    List socialActivity168Hours = await Exposure().evalSocialActivity(168, maxDateUtc: maxDateUtc);
-
-    bool contactTrace168Hours;
-    String testResult168Hours;
-    DateTime cutoffDate = DateTime.now().toUtc().subtract(Duration(hours: 168));
-
-    HealthHistory mostRecentContactTrace = HealthHistory.mostRecentContactTrace(_history, maxDateUtc: maxDateUtc);
-    if (mostRecentContactTrace == null ||
-        mostRecentContactTrace.dateUtc.isBefore(cutoffDate)) {
-      contactTrace168Hours = false;
-    } else {
-      contactTrace168Hours = true;
-    }
-
-    HealthHistory mostRecentTest = HealthHistory.mostRecentTest(_history, beforeDateUtc: maxDateUtc);
-    if (mostRecentTest == null ||
-        mostRecentTest.dateUtc.isBefore(cutoffDate)) {
-      testResult168Hours = null;
-    } else {
-      testResult168Hours = mostRecentTest.blob?.testResult;
-    }
-    Analytics().logHealth(
-      action: Analytics.LogHealthExposureStatistics,
-      attributes: {
-        Analytics.LogTestFrequency168Hours: testFrequency168Hours,
-        Analytics.LogRpiSeen6Hours: socialActivity6Hours[0],
-        Analytics.LogRpiSeen24Hours: socialActivity24Hours[0],
-        Analytics.LogRpiSeen168Hours: socialActivity168Hours[0],
-        Analytics.LogRpiMatches6Hours: socialActivity6Hours[1],
-        Analytics.LogRpiMatches24Hours: socialActivity24Hours[1],
-        Analytics.LogRpiMatches168Hours: socialActivity168Hours[1],
-        Analytics.LogExposureNotification168Hours: contactTrace168Hours,
-        Analytics.LogTestResult168Hours: testResult168Hours,
-        Analytics.LogEpoch: epoch,
-      }
-    );
-  }
-
   Future<void> _logProcessedEvents() async {
     if ((_processedEvents != null) && (0 < _processedEvents.length)) {
 
@@ -1711,6 +1660,65 @@ class Health with Service implements NotificationsListener {
     return (responseJson != null) ? HealthServiceLocation.fromJson(responseJson) : null;
   }
 
+  // Exposure Statistics Log
+
+  Future<void> _logExposureStatistics() async {
+    // TODO: set up shared preferences/make lastEpoch as an attribute of each user
+    final prefs = await SharedPreferences.getInstance();
+    int lastEpoch = prefs.getInt('lastEpoch') ?? 0;
+    int currEpoch = DateTime.now().millisecondsSinceEpoch ~/ _exposureStatisticsLogInterval;
+    if (lastEpoch == 0) {
+      prefs.setInt('lastEpoch', currEpoch);
+    } else if (currEpoch != lastEpoch) {
+      // need to send lastEpoch's data
+      _sendExposureStatistics(lastEpoch);
+      prefs.setInt('lastEpoch', currEpoch);
+    }
+  }
+
+  Future<void> _sendExposureStatistics(int epoch) async {
+
+    DateTime maxDateUtc = DateTime.fromMillisecondsSinceEpoch((epoch + 1) * _exposureStatisticsLogInterval);
+    int testFrequency168Hours = HealthHistory.retrieveNumTests(_history, 168, maxDateUtc: maxDateUtc);
+    List socialActivity6Hours = await Exposure().evalSocialActivity(6, maxDateUtc: maxDateUtc);
+    List socialActivity24Hours = await Exposure().evalSocialActivity(24, maxDateUtc: maxDateUtc);
+    List socialActivity168Hours = await Exposure().evalSocialActivity(168, maxDateUtc: maxDateUtc);
+
+    bool contactTrace168Hours;
+    String testResult168Hours;
+    DateTime cutoffDate = DateTime.now().toUtc().subtract(Duration(hours: 168));
+
+    HealthHistory mostRecentContactTrace = HealthHistory.mostRecentContactTrace(_history, maxDateUtc: maxDateUtc);
+    if (mostRecentContactTrace == null ||
+        mostRecentContactTrace.dateUtc.isBefore(cutoffDate)) {
+      contactTrace168Hours = false;
+    } else {
+      contactTrace168Hours = true;
+    }
+
+    HealthHistory mostRecentTest = HealthHistory.mostRecentTest(_history, beforeDateUtc: maxDateUtc);
+    if (mostRecentTest == null ||
+        mostRecentTest.dateUtc.isBefore(cutoffDate)) {
+      testResult168Hours = null;
+    } else {
+      testResult168Hours = mostRecentTest.blob?.testResult;
+    }
+    Analytics().logHealth(
+      action: Analytics.LogHealthExposureStatistics,
+      attributes: {
+        Analytics.LogTestFrequency168Hours: testFrequency168Hours,
+        Analytics.LogRpiSeen6Hours: socialActivity6Hours[0],
+        Analytics.LogRpiSeen24Hours: socialActivity24Hours[0],
+        Analytics.LogRpiSeen168Hours: socialActivity168Hours[0],
+        Analytics.LogRpiMatches6Hours: socialActivity6Hours[1],
+        Analytics.LogRpiMatches24Hours: socialActivity24Hours[1],
+        Analytics.LogRpiMatches168Hours: socialActivity168Hours[1],
+        Analytics.LogExposureNotification168Hours: contactTrace168Hours,
+        Analytics.LogTestResult168Hours: testResult168Hours,
+        Analytics.LogEpoch: epoch,
+      }
+    );
+  }
 }
 
 class _RefreshOptions {
