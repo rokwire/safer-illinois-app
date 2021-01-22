@@ -5,6 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Fixed
+- OnBoardingHealthDisclosurePanel duplicated text [#490](https://github.com/rokwire/safer-illinois-app/issues/490)
+
+## [2.10.11] - 2021-01-19
+### Changed
+- Changed interval between first and second test for Spring 2021 [#482](https://github.com/rokwire/safer-illinois-app/issues/482)
+- Updated Next Steps for Two Test Spring 2021 event [#480](https://github.com/rokwire/safer-illinois-app/issues/480).
+- Updated PCR.positive rule [#485](https://github.com/rokwire/safer-illinois-app/issues/485).
 
 ## [2.10.10] - 2021-01-18
 ### Changed
@@ -77,6 +85,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Health service reworked to permanantly cache all data necessary for status build.
 - Use better naming in internal classes.
+
+## [2.9.5] - 2021-1-20
+### Changed
+- Sync health.rules.json with latest 2.9 content on production
+- Acknowledged "quarantine-on.reason" string entry in "health.rules.json".
+- Port this fix as hotfix for 2.9 (Original title: Fix FirebaseCrashlytics) [#428](https://github.com/rokwire/safer-illinois-app/issues/428).
+- Port fix: Added Onboarding Disclosure Panel [#477](https://github.com/rokwire/safer-illinois-app/issues/477]).
+- Port fix: fixed grammer in Status Update String [#454](https://github.com/rokwire/safer-illinois-app/issues/454)
+
+### Fixed
+- Do not translate symptoms names transmitted to analytics [#447](https://github.com/rokwire/safer-illinois-app/issues/447).
 
 ## [2.9.4] - 2020-11-18
 ### Fixed
