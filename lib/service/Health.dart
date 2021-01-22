@@ -38,7 +38,6 @@ import 'package:illinois/utils/Utils.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import "package:pointycastle/export.dart";
-import 'package:shared_preferences/shared_preferences.dart';
 //TMP: import 'package:flutter/services.dart' show rootBundle;
 
 class Health with Service implements NotificationsListener {
@@ -1663,16 +1662,16 @@ class Health with Service implements NotificationsListener {
   // Exposure Statistics Log
 
   Future<void> _logExposureStatistics() async {
-    // TODO: set up shared preferences/make lastEpoch as an attribute of each user
-    final prefs = await SharedPreferences.getInstance();
-    int lastEpoch = prefs.getInt('lastEpoch') ?? 0;
-    int currEpoch = DateTime.now().millisecondsSinceEpoch ~/ _exposureStatisticsLogInterval;
-    if (lastEpoch == 0) {
-      prefs.setInt('lastEpoch', currEpoch);
-    } else if (currEpoch != lastEpoch) {
-      // need to send lastEpoch's data
-      _sendExposureStatistics(lastEpoch);
-      prefs.setInt('lastEpoch', currEpoch);
+    String userId = this._userId;
+    if (AppString.isStringNotEmpty(userId)) {
+      String storageEntry = "lastEpoch.$userId";
+      int lastEpoch = Storage().getInt(storageEntry);
+      int currEpoch = DateTime.now().millisecondsSinceEpoch ~/ _exposureStatisticsLogInterval;
+      if (currEpoch != lastEpoch) {
+        // need to send lastEpoch's data
+        _sendExposureStatistics(lastEpoch ?? (currEpoch - 1));
+        Storage().setInt(storageEntry, currEpoch);
+      }
     }
   }
 
