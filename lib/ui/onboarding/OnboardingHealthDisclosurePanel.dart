@@ -167,7 +167,7 @@ class _OnBoardingHealthDisclosurePanelState extends State<OnBoardingHealthDisclo
                             )),
                         Container(height: 4,),
                         Text(
-                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content8", "Name, University identifier, Birth date, Phone number, Address, Sex, Race, and Ethnicity. This information is reported to public health and your University."),
+                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content8", "Name, email address, University ID number (UIN), phone number, and student registration information"),
                           style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color:Styles().colors.textSurface),
                         ),
                         Container(height: 11,),
