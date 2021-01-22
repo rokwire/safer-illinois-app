@@ -418,7 +418,7 @@
 	"panel.health.onboarding.covid19.disclosure.label.content5": "5. Location services on your device must be turned on to activate the Bluetooth low energy technology necessary for the exposure notification function of the Application. However, the Application does not access, collect, or store any location data, including GPS data. If location services on your device are turned off, the Application will perform the limited functions of storing and providing information about COVID-19 test results, any voluntarily reported symptoms, and building access status.",
 	"panel.health.onboarding.covid19.disclosure.label.description2": "YOUR INFORMATION AND HOW WE USE IT",
 	"panel.health.onboarding.covid19.disclosure.label.description3": "Information we need to provide you COVID-19 test results",
-	"panel.health.onboarding.covid19.disclosure.label.content8": "Name, email address, University ID number (UIN), student registration information",
+	"panel.health.onboarding.covid19.disclosure.label.content8": "Name, email address, University ID number (UIN), phone number, and student registration information",
 	"panel.health.onboarding.covid19.disclosure.label.description4": "Symptoms",
 	"panel.health.onboarding.covid19.disclosure.label.content9": "Your COVID-19 Symptoms are reported as anonymous data.",
 	"panel.health.onboarding.covid19.disclosure.label.description5": "COVID-19 Medical History",
