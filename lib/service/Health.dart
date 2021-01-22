@@ -1176,7 +1176,7 @@ class Health with Service implements NotificationsListener {
               Analytics.LogHealthProviderName: event.provider,
               Analytics.LogHealthTestTypeName: event.blob?.testType,
               Analytics.LogHealthTestResultName: event.blob?.testResult,
-              Analytics.LogHealthExposureScore: score,
+              Analytics.LogHealthExposureScoreName: score,
           });
           
           if (exposureTestReportDays != null)  {
@@ -1704,18 +1704,18 @@ class Health with Service implements NotificationsListener {
       testResult168Hours = mostRecentTest.blob?.testResult;
     }
     Analytics().logHealth(
-      action: Analytics.LogHealthExposureStatistics,
+      action: Analytics.LogHealthExposureStatisticsAction,
       attributes: {
-        Analytics.LogTestFrequency168Hours: testFrequency168Hours,
-        Analytics.LogRpiSeen6Hours: socialActivity6Hours[0],
-        Analytics.LogRpiSeen24Hours: socialActivity24Hours[0],
-        Analytics.LogRpiSeen168Hours: socialActivity168Hours[0],
-        Analytics.LogRpiMatches6Hours: socialActivity6Hours[1],
-        Analytics.LogRpiMatches24Hours: socialActivity24Hours[1],
-        Analytics.LogRpiMatches168Hours: socialActivity168Hours[1],
-        Analytics.LogExposureNotification168Hours: contactTrace168Hours,
-        Analytics.LogTestResult168Hours: testResult168Hours,
-        Analytics.LogEpoch: epoch,
+        Analytics.LogTestFrequency168HoursName: testFrequency168Hours,
+        Analytics.LogRpiSeen6HoursName: socialActivity6Hours[0],
+        Analytics.LogRpiSeen24HoursName: socialActivity24Hours[0],
+        Analytics.LogRpiSeen168HoursName: socialActivity168Hours[0],
+        Analytics.LogRpiMatches6HoursName: socialActivity6Hours[1],
+        Analytics.LogRpiMatches24HoursName: socialActivity24Hours[1],
+        Analytics.LogRpiMatches168HoursName: socialActivity168Hours[1],
+        Analytics.LogExposureNotification168HoursName: contactTrace168Hours,
+        Analytics.LogTestResult168HoursName: testResult168Hours,
+        Analytics.LogEpochName: epoch,
       }
     );
   }
