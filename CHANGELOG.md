@@ -86,6 +86,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Health service reworked to permanantly cache all data necessary for status build.
 - Use better naming in internal classes.
 
+## [2.9.6] - 2021-1-22
+### Fixed
+- Updated Onboarding Disclosure Panel text. [#497](https://github.com/rokwire/safer-illinois-app/issues/497)
+
 ## [2.9.5] - 2021-1-20
 ### Changed
 - Sync health.rules.json with latest 2.9 content on production
