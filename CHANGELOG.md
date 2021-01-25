@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - OnBoardingHealthDisclosurePanel duplicated text [#490](https://github.com/rokwire/safer-illinois-app/issues/490)
 
+### Changed
+- Updated app config format to refer 'oidc' instead of 'shibboleth', merge shibboleth url entries in app config into single one [#501](https://github.com/rokwire/safer-illinois-app/issues/501)
+
 ## [2.10.11] - 2021-01-19
 ### Changed
 - Changed interval between first and second test for Spring 2021 [#482](https://github.com/rokwire/safer-illinois-app/issues/482)

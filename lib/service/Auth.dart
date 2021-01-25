@@ -165,12 +165,13 @@ class Auth with Service implements NotificationsListener {
 
   void authenticateWithShibboleth(){
     
-    if ((Config().shibbolethOidcAuthUrl != null) && (Config().shibbolethClientId != null)) {
-      Uri uri = Uri.tryParse(Config().shibbolethOidcAuthUrl)?.replace(queryParameters: {
+    if ((Config().oidcUrl != null) && (Config().oidcClientId != null)) {
+      String url = "${Config().oidcUrl}/authorize";
+      Uri uri = Uri.tryParse(url)?.replace(queryParameters: {
         'scope': "openid profile email offline_access",
         'response_type': 'code',
         'redirect_uri': REDIRECT_URI,
-        'client_id': Config().shibbolethClientId,
+        'client_id': Config().oidcClientId,
         'claims': json.jsonEncode({
           'userinfo': {
             'uiucedu_uin': {'essential': true},
@@ -281,10 +282,8 @@ class Auth with Service implements NotificationsListener {
 
   Future<AuthToken> _loadShibbolethAuthTokenWithCode(String code) async {
     
-    String tokenUriStr = Config().shibbolethOidcTokenUrl
-        ?.replaceAll("{shibboleth_client_id}", Config().shibbolethClientId ?? '')
-        ?.replaceAll("{shibboleth_client_secret}", Config().shibbolethClientSecret ?? '');
-    
+    String tokenUriStr = Uri.tryParse("${Config().oidcUrl}/token")?.replace(userInfo: "${Config().oidcClientId}:${Config().oidcClientSecret}")?.toString();
+
     Map<String,dynamic> bodyData = {
       'code': code,
       'grant_type': 'authorization_code',
@@ -552,9 +551,10 @@ class Auth with Service implements NotificationsListener {
 
   Future<AuthUser> _loadShibbolethAuthUser({AuthToken optAuthToken}) async {
     optAuthToken = (optAuthToken != null) ? optAuthToken : _authToken;
-    if (Config().shibbolethOidcUserUrl != null) {
+    if (Config().oidcUrl != null) {
       try {
-        Http.Response userDataResp = await Network().get(Config().shibbolethOidcUserUrl, headers: {HttpHeaders.authorizationHeader : "${optAuthToken?.tokenType} ${optAuthToken?.accessToken}"});
+        String url = "${Config().oidcUrl}/userinfo";
+        Http.Response userDataResp = await Network().get(url, headers: { HttpHeaders.authorizationHeader : "${optAuthToken?.tokenType} ${optAuthToken?.accessToken}"});
         String responseBody = ((userDataResp != null) && (userDataResp.statusCode == 200)) ? userDataResp.body : null;
         if ((responseBody != null) && (userDataResp.statusCode == 200)) {
           var userDataMap = (responseBody != null) ? AppJson.decode(responseBody) : null;
@@ -991,7 +991,7 @@ class Auth with Service implements NotificationsListener {
   }
 
   Future<AuthToken> _refreshShibbolethAuthToken() async {
-    if ((_authToken is ShibbolethToken) && (Config().shibbolethOidcTokenUrl != null) && (Config().shibbolethClientId != null) && (Config().shibbolethClientSecret != null)) {
+    if ((_authToken is ShibbolethToken) && (Config().oidcUrl != null) && (Config().oidcClientId != null) && (Config().oidcClientSecret != null)) {
       if(_refreshTokenFuture != null){
         Log.d("Auth: will await refresh token");
         await _refreshTokenFuture;
@@ -1001,9 +1001,7 @@ class Auth with Service implements NotificationsListener {
         try {
           Log.d("Auth: will refresh token");
 
-          String tokenUriStr = Config().shibbolethOidcTokenUrl
-              ?.replaceAll("{shibboleth_client_id}", Config().shibbolethClientId ?? '')
-              ?.replaceAll("{shibboleth_client_secret}", Config().shibbolethClientSecret ?? '');
+          String tokenUriStr = Uri.tryParse("${Config().oidcUrl}/token")?.replace(userInfo: "${Config().oidcClientId}:${Config().oidcClientSecret}")?.toString();
           
           Map<String, String> body = {
             "refresh_token": _authToken?.refreshToken,

@@ -327,7 +327,7 @@ class Config with Service implements NotificationsListener {
 
   Map<String, dynamic> get secretKeys              { return (_config != null) ? (_config['secretKeys'] ?? {}) : {}; }
   Map<String, dynamic> get secretRokwire           { return secretKeys['rokwire'] ?? {}; }
-  Map<String, dynamic> get secretShibboleth        { return secretKeys['shibboleth'] ?? {}; }
+  Map<String, dynamic> get secretOidc              { return secretKeys['oidc'] ?? {}; }
   Map<String, dynamic> get secretOsf               { return secretKeys['osf'] ?? {}; }
   Map<String, dynamic> get secretHealth            { return secretKeys['health'] ?? {}; }
   
@@ -335,9 +335,7 @@ class Config with Service implements NotificationsListener {
 
   Map<String, dynamic> get settings                { return (_config != null) ? (_config['settings'] ?? {}) : {}; }
 
-  String get shibbolethOidcTokenUrl { return otherUniversityServices['shibboleth_oidc_token_url']; }  // "https://{shibboleth_client_id}:{shibboleth_client_secret}@shibboleth.illinois.edu/idp/profile/oidc/token"
-  String get shibbolethOidcAuthUrl  { return otherUniversityServices['shibboleth_oidc_auth_url']; }   // "https://shibboleth.illinois.edu/idp/profile/oidc/authorize"
-  String get shibbolethOidcUserUrl  { return otherUniversityServices['shibboleth_oidc_user_url']; }   // "https://shibboleth.illinois.edu/idp/profile/oidc/userinfo"
+  String get oidcUrl                { return otherUniversityServices['oidc_url']; }                   // "https://shibboleth.illinois.edu/idp/profile/oidc"
   String get assetsUrl              { return otherUniversityServices['assets_url']; }                 // "https://rokwire-assets.s3.us-east-2.amazonaws.com"
   String get feedbackUrl            { return otherUniversityServices['feedback_url']; }               // "https://forms.illinois.edu/sec/1971889"
   String get iCardUrl               { return otherUniversityServices['icard_url']; }                  // "https://www.icard.uillinois.edu/rest/rw/rwIDData/rwCardInfo"
@@ -361,8 +359,8 @@ class Config with Service implements NotificationsListener {
 
   String get rokwireApiKey          { return secretRokwire['api_key']; }
 
-  String get shibbolethClientId     { return secretShibboleth['client_id']; }
-  String get shibbolethClientSecret { return secretShibboleth['client_secret']; }
+  String get oidcClientId           { return secretOidc['client_id']; }
+  String get oidcClientSecret       { return secretOidc['client_secret']; }
 
   String get osfClientId            { return secretOsf['client_id']; }
 
