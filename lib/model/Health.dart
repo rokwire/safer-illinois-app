@@ -216,7 +216,7 @@ class HealthStatusBlob {
 
   String displayNextStepDate({String format = _nextStepDateFormat}) {
     if (nextStepDateUtc != null) {
-      DateTime nextStepMidnightLocal = AppDateTime.midnight(nextStepDateUtc);
+      DateTime nextStepMidnightLocal = AppDateTime.midnight(nextStepDateUtc.toLocal());
       if (nextStepMidnightLocal == AppDateTime.todayMidnightLocal) {
         return Localization().getStringEx('model.explore.time.today', 'Today').toLowerCase();
       }
@@ -451,13 +451,7 @@ class HealthHistory implements Comparable<HealthHistory> {
   }
 
   DateTime get dateMidnightLocal {
-    if (dateUtc != null) {
-      DateTime dateLocal = dateUtc.toLocal();
-      return DateTime(dateLocal.year, dateLocal.month, dateLocal.day);
-    }
-    else {
-      return null;
-    }
+    return (dateUtc != null) ? AppDateTime.midnight(dateUtc.toLocal()) : null;
   }
 
   bool matchPendingEvent(HealthPendingEvent event) {
