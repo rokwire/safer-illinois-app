@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.9.7] - 2021-1-26
+- Updated order of panel shown during onboarding [#503](https://github.com/rokwire/safer-illinois-app/issues/503)
+- Apply nextStepDate in local time when making the calculations for displayNextStepDate.
+
 ## [2.9.6] - 2021-1-22
 ### Fixed
 - Updated Onboarding Disclosure Panel text. [#497](https://github.com/rokwire/safer-illinois-app/issues/497)
