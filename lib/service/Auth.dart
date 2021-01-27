@@ -15,7 +15,7 @@
  */
 
 import 'dart:io';
-import 'dart:convert' as json;
+import 'dart:convert' as convert;
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -33,16 +33,15 @@ import 'package:illinois/service/Network.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
 import 'package:illinois/service/Storage.dart';
+import 'package:illinois/service/UserProfile.dart';
+import 'package:illinois/utils/Crypt.dart';
+import 'package:illinois/utils/Utils.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart' as url_launcher;
-
-import 'package:illinois/service/UserProfile.dart';
-import 'package:illinois/utils/Utils.dart';
+import 'package:crypto/crypto.dart';
 
 class Auth with Service implements NotificationsListener {
-
-  static const String REDIRECT_URI = 'edu.illinois.covid://covid.illinois.edu/shib-auth';
 
   static const String notifyStarted  = "edu.illinois.rokwire.auth.started";
   static const String notifyAuthTokenChanged  = "edu.illinois.rokwire.auth.authtoken.changed";
@@ -54,8 +53,11 @@ class Auth with Service implements NotificationsListener {
   static const String notifyUserPiiDataChanged  = "edu.illinois.rokwire.auth.pii.changed";
   static const String notifyCardChanged  = "edu.illinois.rokwire.auth.card.changed";
 
-  static const String _authCardName   = "idCard.json";
+  static const String _authCardName      = "idCard.json";
   static const String _userPiiFileName   = "piiData.json";
+
+  static const String _clientIdMacro     = '{oidc_client_id}';
+  static const String _clientSecretMacro = '{oidc_client_secret}';
 
   AuthToken _authToken;
   AuthUser _authUser;
@@ -70,6 +72,7 @@ class Auth with Service implements NotificationsListener {
   File _authCardCacheFile;
 
   Future<Http.Response> _refreshTokenFuture;
+  String _pkceVerifier;
 
   // Singletone Instance
   
@@ -165,19 +168,26 @@ class Auth with Service implements NotificationsListener {
 
   void authenticateWithShibboleth(){
     
-    if ((Config().oidcUrl != null) && (Config().oidcClientId != null)) {
-      String url = "${Config().oidcUrl}/authorize";
-      Uri uri = Uri.tryParse(url)?.replace(queryParameters: {
-        'scope': "openid profile email offline_access",
+    if ((Config().oidcAuthUrl != null) && (Config().oidcClientId != null) && (Config().oidcRedirectUrl != null)) {
+    
+      Map<String, dynamic> params = {
+        'scope': Config().oidcScope,
         'response_type': 'code',
-        'redirect_uri': REDIRECT_URI,
+        'redirect_uri': Config().oidcRedirectUrl,
         'client_id': Config().oidcClientId,
-        'claims': json.jsonEncode({
-          'userinfo': {
-            'uiucedu_uin': {'essential': true},
-          },
-        }),
-      });
+      };
+
+      if (Config().oidcClaims != null) {
+        params['claims'] = Config().oidcClaims;
+      }
+
+      if (Config().oidcUsePkce == true) {
+        params['code_challenge_method'] = 'S256';
+        params['code_challenge'] = createPKCEChallenge();
+      }
+
+      Uri uri = Uri.tryParse(Config().oidcAuthUrl)?.replace(queryParameters: params);
+
       var uriStr = uri?.toString();
       if (uriStr != null) {
         _launchUrl(uriStr);
@@ -281,26 +291,46 @@ class Auth with Service implements NotificationsListener {
   }
 
   Future<AuthToken> _loadShibbolethAuthTokenWithCode(String code) async {
-    
-    String tokenUriStr = Uri.tryParse("${Config().oidcUrl}/token")?.replace(userInfo: "${Config().oidcClientId}:${Config().oidcClientSecret}")?.toString();
 
-    Map<String,dynamic> bodyData = {
-      'code': code,
-      'grant_type': 'authorization_code',
-      'redirect_uri': REDIRECT_URI,
-    };
-    Http.Response response;
-    try {
-      response = (tokenUriStr != null) ? await Network().post(tokenUriStr,body: bodyData) : null;
-      String responseBody = (response != null && response.statusCode == 200) ? response.body : null;
-      Map<String,dynamic> jsonData = AppString.isStringNotEmpty(responseBody) ? AppJson.decode(responseBody) : null;
-      if(jsonData != null){
-        return ShibbolethToken.fromJson(jsonData);
+    if ((Config().oidcTokenUrl != null)&& (Config().oidcClientId != null) && (Config().oidcRedirectUrl != null)) {
+
+      String tokenUrlStr = Config().oidcTokenUrl
+        ?.replaceAll(_clientIdMacro, Config().oidcClientId ?? '')
+        ?.replaceAll(_clientSecretMacro, Config().oidcClientSecret ?? '');
+
+      Map<String,dynamic> bodyData = {
+        'code': code,
+        'grant_type': 'authorization_code',
+        'redirect_uri': Config().oidcRedirectUrl,
+        'client_id': Config().oidcClientId,
+        'client_secret': Config().oidcClientSecret,
+      };
+
+      if (_pkceVerifier != null) {
+        bodyData['code_verifier'] = _pkceVerifier;
+        _pkceVerifier = null;
+      } 
+
+      Http.Response response;
+      try {
+        response = (tokenUrlStr != null) ? await Network().post(tokenUrlStr,body: bodyData) : null;
+        String responseBody = (response != null && response.statusCode == 200) ? response.body : null;
+        Map<String,dynamic> jsonData = AppString.isStringNotEmpty(responseBody) ? AppJson.decode(responseBody) : null;
+        if(jsonData != null){
+          return ShibbolethToken.fromJson(jsonData);
+        }
       }
+      catch(e) { print(e?.toString()); }
     }
-    catch(e) { print(e?.toString()); }
+    
     return null;
   }
+
+  String createPKCEChallenge() {
+    _pkceVerifier = convert.base64Url.encode(RsaKeyHelper.getSecureRandom().nextBytes(50)).replaceAll('=', '');
+    return convert.base64Url.encode(sha256.convert(convert.utf8.encode(_pkceVerifier)).bytes).replaceAll('=', '');
+  }
+
 
   // Phone verification
 
@@ -551,10 +581,9 @@ class Auth with Service implements NotificationsListener {
 
   Future<AuthUser> _loadShibbolethAuthUser({AuthToken optAuthToken}) async {
     optAuthToken = (optAuthToken != null) ? optAuthToken : _authToken;
-    if (Config().oidcUrl != null) {
+    if (Config().oidcUserUrl != null) {
       try {
-        String url = "${Config().oidcUrl}/userinfo";
-        Http.Response userDataResp = await Network().get(url, headers: { HttpHeaders.authorizationHeader : "${optAuthToken?.tokenType} ${optAuthToken?.accessToken}"});
+        Http.Response userDataResp = await Network().get(Config().oidcUserUrl, headers: { HttpHeaders.authorizationHeader : "${optAuthToken?.authAccessTokenHeader}"});
         String responseBody = ((userDataResp != null) && (userDataResp.statusCode == 200)) ? userDataResp.body : null;
         if ((responseBody != null) && (userDataResp.statusCode == 200)) {
           var userDataMap = (responseBody != null) ? AppJson.decode(responseBody) : null;
@@ -624,11 +653,9 @@ class Auth with Service implements NotificationsListener {
     if ((Config().rokmetroAuthUrl != null) && (Config().rokwireApiKey != null) && (token != null)) {
       try {
         String url = "${Config().rokmetroAuthUrl}/swap-token";
-        String idToken = token?.idToken;
-        String tokenType = token?.tokenType ?? 'Bearer';
         Map <String, String> headers = {
           Network.RokwireApiKey : Config().rokwireApiKey,
-          HttpHeaders.authorizationHeader: "$tokenType $idToken"
+          HttpHeaders.authorizationHeader: token?.authIdTokenHeader
         };
         Http.Response response = await Network().get(url, headers: headers);
         String responseBody = (response?.statusCode == 200) ? response.body : null;
@@ -645,11 +672,9 @@ class Auth with Service implements NotificationsListener {
     if ((Config().rokmetroAuthUrl != null) && (Config().rokwireApiKey != null) && (token != null)) {
       try {
         String url = "${Config().rokmetroAuthUrl}/user-info";
-        String idToken = token?.idToken;
-        String tokenType = token?.tokenType ?? 'Bearer';
         Map <String, String> headers = {
           Network.RokwireApiKey : Config().rokwireApiKey,
-          HttpHeaders.authorizationHeader: "$tokenType $idToken"
+          HttpHeaders.authorizationHeader: token?.authIdTokenHeader
         };
         Http.Response response = await Network().get(url, headers: headers);
         String responseBody = (response?.statusCode == 200) ? response.body : null;
@@ -692,8 +717,8 @@ class Auth with Service implements NotificationsListener {
     optAuthToken = (optAuthToken != null) ? optAuthToken : authToken;
 
     final response = (url != null) ? await Network().post(url,
-        headers: {'Content-Type':'application/json', HttpHeaders.authorizationHeader: "${optAuthToken?.tokenType} ${optAuthToken?.idToken}"},
-        body: json.jsonEncode(data),
+        headers: {'Content-Type':'application/json', HttpHeaders.authorizationHeader: optAuthToken?.authIdTokenHeader},
+        body: convert.jsonEncode(data),
     ) : null;
     String responseBody = ((response != null) && (response.statusCode == 200)) ? response.body : null;
     Map<String, dynamic> jsonData = (responseBody != null) ? AppJson.decode(responseBody) : null;
@@ -704,7 +729,7 @@ class Auth with Service implements NotificationsListener {
   Future<UserPiiData> storeUserPiiData(UserPiiData piiData) async {
     if(piiData != null) {
       String url = (Config().userProfileUrl != null) ? '${Config().userProfileUrl}/pii/${piiData.pid}' : null;
-      String body = json.jsonEncode(piiData.toJson());
+      String body = convert.jsonEncode(piiData.toJson());
       final response = (url != null) ? await Network().put(url,
           headers: {'Content-Type':'application/json'},
           body: body,
@@ -719,7 +744,7 @@ class Auth with Service implements NotificationsListener {
         return userPiiData;
       } else {
         // This is a kind of workaround if the backend fails - still to save the data locally
-        _applyUserPiiData(piiData, json.jsonEncode(piiData.toJson()));
+        _applyUserPiiData(piiData, convert.jsonEncode(piiData.toJson()));
         return piiData;
       }
 
@@ -803,7 +828,7 @@ class Auth with Service implements NotificationsListener {
     try {
       String url = (Config().userProfileUrl != null) ? '${Config().userProfileUrl}/pii/$pid' : null;
       final response = (url != null) ? await Network().get(url, headers: {
-        HttpHeaders.authorizationHeader: "${optAuthToken?.tokenType} ${optAuthToken?.idToken}"
+        HttpHeaders.authorizationHeader: optAuthToken?.authIdTokenHeader
       }) : null;
       return ((response != null) && (response.statusCode == 200)) ? response.body : null;
     }
@@ -991,8 +1016,8 @@ class Auth with Service implements NotificationsListener {
   }
 
   Future<AuthToken> _refreshShibbolethAuthToken() async {
-    if ((_authToken is ShibbolethToken) && (Config().oidcUrl != null) && (Config().oidcClientId != null) && (Config().oidcClientSecret != null)) {
-      if(_refreshTokenFuture != null){
+    if ((_authToken is ShibbolethToken) && (Config().oidcTokenUrl != null) && (Config().oidcClientId != null)) {
+      if (_refreshTokenFuture != null){
         Log.d("Auth: will await refresh token");
         await _refreshTokenFuture;
         Log.d("Auth: did await refresh token");
@@ -1001,14 +1026,19 @@ class Auth with Service implements NotificationsListener {
         try {
           Log.d("Auth: will refresh token");
 
-          String tokenUriStr = Uri.tryParse("${Config().oidcUrl}/token")?.replace(userInfo: "${Config().oidcClientId}:${Config().oidcClientSecret}")?.toString();
+          String tokenUrlStr = Config().oidcTokenUrl
+            ?.replaceAll(_clientIdMacro, Config().oidcClientId ?? '')
+            ?.replaceAll(_clientSecretMacro, Config().oidcClientSecret ?? '');
           
           Map<String, String> body = {
             "refresh_token": _authToken?.refreshToken,
             "grant_type": "refresh_token",
+            "client_id": Config().oidcClientId,
+            "client_secret": Config().oidcClientSecret,
+            "redirect_uri": Config().oidcRedirectUrl,
           };
 
-          _refreshTokenFuture = Network().post(tokenUriStr, body: body);
+          _refreshTokenFuture = Network().post(tokenUrlStr, body: body);
           Response tokenResponse = await _refreshTokenFuture;
           _refreshTokenFuture = null;
 
@@ -1055,15 +1085,13 @@ class Auth with Service implements NotificationsListener {
 
   void _onDeepLinkUri(Uri uri) {
     if (uri != null) {
-      Uri shibbolethRedirectUri;
-      try { shibbolethRedirectUri = Uri.parse(REDIRECT_URI); }
-      catch(e) { print(e?.toString()); }
+      Uri oidcRedirectUri = Uri.tryParse(Config().oidcRedirectUrl);
 
       var code = uri.queryParameters['code'];
-      if ((shibbolethRedirectUri != null) &&
-          (shibbolethRedirectUri.scheme == uri.scheme) &&
-          (shibbolethRedirectUri.authority == uri.authority) &&
-          (shibbolethRedirectUri.path == uri.path) &&
+      if ((oidcRedirectUri != null) &&
+          (oidcRedirectUri.scheme == uri.scheme) &&
+          (oidcRedirectUri.authority == uri.authority) &&
+          (oidcRedirectUri.path == uri.path) &&
           ((code != null) && code.isNotEmpty))
       {
         _handleShibbolethAuthentication(code);

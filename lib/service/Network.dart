@@ -341,23 +341,21 @@ class Network  {
       }
       
       if ((auth & ShibbolethUserAuth) != 0) {
-        String idToken = Auth().authToken?.idToken;
-        String tokenType = Auth().authToken?.tokenType ?? 'Bearer';
-        if ((idToken != null) && idToken.isNotEmpty) {
+        String authorizationHeader = Auth().authToken?.authIdTokenHeader;
+        if ((authorizationHeader != null) && authorizationHeader.isNotEmpty) {
           if (result == null) {
             result = (headers != null) ? Map.from(headers) : Map();
           }
-          result[HttpHeaders.authorizationHeader] = "$tokenType $idToken";
+          result[HttpHeaders.authorizationHeader] = authorizationHeader;
         }
       }
       else if ((auth & RokmetroUserAuth) != 0) {
-        String idToken = Auth().rokmetroToken?.idToken;
-        String tokenType = Auth().rokmetroToken?.tokenType ?? 'Bearer';
-        if ((idToken != null) && idToken.isNotEmpty) {
+        String authorizationHeader = Auth().rokmetroToken?.authIdTokenHeader;
+        if ((authorizationHeader != null) && authorizationHeader.isNotEmpty) {
           if (result == null) {
             result = (headers != null) ? Map.from(headers) : Map();
           }
-          result[HttpHeaders.authorizationHeader] = "$tokenType $idToken";
+          result[HttpHeaders.authorizationHeader] = authorizationHeader;
         }
       }
 

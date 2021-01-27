@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - OnBoardingHealthDisclosurePanel duplicated text [#490](https://github.com/rokwire/safer-illinois-app/issues/490)
 - Apply nextStepDate in local time when making the calculations for displayNextStepDate.
+- Extend Auth OIDC processing to handle external configurations.
 
 ### Changed
 - Updated app config format to refer 'oidc' instead of 'shibboleth', merge shibboleth url entries in app config into single one [#501](https://github.com/rokwire/safer-illinois-app/issues/501)

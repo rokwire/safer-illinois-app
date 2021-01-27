@@ -40,6 +40,14 @@ abstract class AuthToken {
   }
 
   toJson() => {};
+
+  String get authIdTokenHeader {
+    return (idToken != null) ? "${tokenType ?? 'Bearer'} $idToken" : null;
+  }
+
+  String get authAccessTokenHeader {
+    return (accessToken != null) ? "${tokenType ?? 'Bearer'} $accessToken" : null;
+  }
 }
 
 class ShibbolethToken with AuthToken {
@@ -91,9 +99,9 @@ class ShibbolethToken with AuthToken {
 class PhoneToken with AuthToken {
   final String phone;
   final String idToken;
-  final String tokenType = "Bearer"; // missing data from the phone validation
+  final String tokenType;
 
-  PhoneToken({this.phone, this.idToken});
+  PhoneToken({this.phone, this.idToken, this.tokenType});
 
   factory PhoneToken.fromJson(Map<String, dynamic> json) {
     return (json != null) ? PhoneToken(
@@ -384,9 +392,9 @@ class AuthCard {
 
 class RokmetroToken with AuthToken {
   final String idToken;
-  final String tokenType = "Bearer"; // missing data from the phone validation
+  final String tokenType;
 
-  RokmetroToken({this.idToken});
+  RokmetroToken({this.idToken, this.tokenType});
 
   factory RokmetroToken.fromJson(Map<String, dynamic> json) {
     return (json != null) ? RokmetroToken(

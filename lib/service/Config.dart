@@ -325,6 +325,8 @@ class Config with Service implements NotificationsListener {
   Map<String, dynamic> get platformBuildingBlocks  { return (_config != null) ? (_config['platformBuildingBlocks'] ?? {}) : {}; }
   Map<String, dynamic> get thirdPartyServices      { return (_config != null) ? (_config['thirdPartyServices'] ?? {}) : {}; }
 
+  Map<String, dynamic> get oidc                    { return (_config != null) ? (_config['oidc'] ?? {}) : {}; }
+
   Map<String, dynamic> get secretKeys              { return (_config != null) ? (_config['secretKeys'] ?? {}) : {}; }
   Map<String, dynamic> get secretRokwire           { return secretKeys['rokwire'] ?? {}; }
   Map<String, dynamic> get secretOidc              { return secretKeys['oidc'] ?? {}; }
@@ -335,27 +337,34 @@ class Config with Service implements NotificationsListener {
 
   Map<String, dynamic> get settings                { return (_config != null) ? (_config['settings'] ?? {}) : {}; }
 
-  String get oidcUrl                { return otherUniversityServices['oidc_url']; }                   // "https://shibboleth.illinois.edu/idp/profile/oidc"
-  String get assetsUrl              { return otherUniversityServices['assets_url']; }                 // "https://rokwire-assets.s3.us-east-2.amazonaws.com"
-  String get feedbackUrl            { return otherUniversityServices['feedback_url']; }               // "https://forms.illinois.edu/sec/1971889"
-  String get iCardUrl               { return otherUniversityServices['icard_url']; }                  // "https://www.icard.uillinois.edu/rest/rw/rwIDData/rwCardInfo"
-  String get privacyPolicyUrl       { return otherUniversityServices['privacy_policy_url']; }         // "https://www.vpaa.uillinois.edu/resources/web_privacy"
-  String get exposureLogUrl         { return otherUniversityServices['exposure_log_url']; }           // "http://ec2-18-191-37-235.us-east-2.compute.amazonaws.com:8003/PostSessionData"
+  String get assetsUrl              { return otherUniversityServices['assets_url']; }         // "https://rokwire-assets.s3.us-east-2.amazonaws.com"
+  String get feedbackUrl            { return otherUniversityServices['feedback_url']; }       // "https://forms.illinois.edu/sec/1971889"
+  String get iCardUrl               { return otherUniversityServices['icard_url']; }          // "https://www.icard.uillinois.edu/rest/rw/rwIDData/rwCardInfo"
+  String get privacyPolicyUrl       { return otherUniversityServices['privacy_policy_url']; } // "https://www.vpaa.uillinois.edu/resources/web_privacy"
+  String get exposureLogUrl         { return otherUniversityServices['exposure_log_url']; }   // "http://ec2-18-191-37-235.us-east-2.compute.amazonaws.com:8003/PostSessionData"
 
-  String get appConfigUrl           { return platformBuildingBlocks['appconfig_url']; }               // "https://api-dev.rokwire.illinois.edu/app/configs"
-  String get loggingUrl             { return platformBuildingBlocks['logging_url']; }                 // "https://api-dev.rokwire.illinois.edu/logs"
-  String get userProfileUrl         { return platformBuildingBlocks['user_profile_url']; }            // "https://api-dev.rokwire.illinois.edu/profiles"
-  String get rokwireAuthUrl         { return platformBuildingBlocks['rokwire_auth_url']; }            // "https://api-dev.rokwire.illinois.edu/authentication"
-  String get groupsUrl              { return platformBuildingBlocks["groups_url"]; }                  // "https://api-dev.rokwire.illinois.edu/gr/api";
-  String get rokmetroAuthUrl        { return platformBuildingBlocks['rokmetro_auth_url']; }           // "https://api-dev.rokwire.illinois.edu/authbb/77779"
-  String get sportsServiceUrl       { return platformBuildingBlocks['sports_service_url']; }          // "https://api-dev.rokwire.illinois.edu/sports-service";
-  String get healthUrl              { return platformBuildingBlocks['health_url']; }                  // "https://api-dev.rokwire.illinois.edu/health"
-  String get talentChooserUrl       { return platformBuildingBlocks['talent_chooser_url']; }          // "https://api-dev.rokwire.illinois.edu/talent-chooser/api/ui-content"
-  String get transportationUrl      { return platformBuildingBlocks["transportation_url"]; }          // "https://api-dev.rokwire.illinois.edu/transportation"
-  String get locationsUrl           { return platformBuildingBlocks["locations_url"]; }               // "https://api-dev.rokwire.illinois.edu/location/api";
-  String get imagesServiceUrl       { return platformBuildingBlocks['images_service_url']; }          // "https://api-dev.rokwire.illinois.edu/images-service";
+  String get oidcAuthUrl            { return oidc['auth_url']; }                              // "https://shibboleth.illinois.edu/idp/profile/oidc/authorize"
+  String get oidcTokenUrl           { return oidc['token_url']; }                             // "https://{oidc_client_id}:{oidc_client_secret}@shibboleth.illinois.edu/idp/profile/oidc/token"
+  String get oidcUserUrl            { return oidc['user_url']; }                              // "https://shibboleth.illinois.edu/idp/profile/oidc/userinfo"
+  String get oidcRedirectUrl        { return oidc['redirect_url']; }                          // "edu.illinois.covid://covid.illinois.edu/shib-auth"
+  String get oidcScope              { return oidc['scope']; }                                 // "openid profile email offline_access"
+  String get oidcClaims             { return oidc['claims']; }                                // "{\"userinfo\":{\"uiucedu_uin\":{\"essential\":true}}}"
+  bool   get oidcUsePkce            { return oidc['pkce']; }                              // true | false | null
+
+  String get appConfigUrl           { return platformBuildingBlocks['appconfig_url']; }       // "https://api-dev.rokwire.illinois.edu/app/configs"
+  String get loggingUrl             { return platformBuildingBlocks['logging_url']; }         // "https://api-dev.rokwire.illinois.edu/logs"
+  String get userProfileUrl         { return platformBuildingBlocks['user_profile_url']; }    // "https://api-dev.rokwire.illinois.edu/profiles"
+  String get rokwireAuthUrl         { return platformBuildingBlocks['rokwire_auth_url']; }    // "https://api-dev.rokwire.illinois.edu/authentication"
+  String get groupsUrl              { return platformBuildingBlocks["groups_url"]; }          // "https://api-dev.rokwire.illinois.edu/gr/api";
+  String get rokmetroAuthUrl        { return platformBuildingBlocks['rokmetro_auth_url']; }   // "https://api-dev.rokwire.illinois.edu/authbb/77779"
+  String get sportsServiceUrl       { return platformBuildingBlocks['sports_service_url']; }  // "https://api-dev.rokwire.illinois.edu/sports-service";
+  String get healthUrl              { return platformBuildingBlocks['health_url']; }          // "https://api-dev.rokwire.illinois.edu/health"
+  String get talentChooserUrl       { return platformBuildingBlocks['talent_chooser_url']; }  // "https://api-dev.rokwire.illinois.edu/talent-chooser/api/ui-content"
+  String get transportationUrl      { return platformBuildingBlocks["transportation_url"]; }  // "https://api-dev.rokwire.illinois.edu/transportation"
+  String get locationsUrl           { return platformBuildingBlocks["locations_url"]; }       // "https://api-dev.rokwire.illinois.edu/location/api";
+  String get imagesServiceUrl       { return platformBuildingBlocks['images_service_url']; }  // "https://api-dev.rokwire.illinois.edu/images-service";
   
-  String get osfBaseUrl             { return thirdPartyServices['osf_base_url']; }                    // "https://ssproxy.osfhealthcare.org/fhir-proxy"
+  String get osfBaseUrl             { return thirdPartyServices['osf_base_url']; }            // "https://ssproxy.osfhealthcare.org/fhir-proxy"
 
   String get rokwireApiKey          { return secretRokwire['api_key']; }
 
