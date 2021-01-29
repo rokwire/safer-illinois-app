@@ -124,7 +124,7 @@ class _OnBoardingHealthDisclosurePanelState extends State<OnBoardingHealthDisclo
                         Container(height: 11,),
 
                         Semantics( header: true, hint: Localization().getStringEx("app.common.heading.two.hint","Header 2"),
-                            child: Text(Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.description1", "The Safer Community app uses:"),
+                            child: Text(Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.description1", "The Safer Illinois app uses:"),
                               style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 14, color:Styles().colors.textSurface),
                             )),
                         Container(height: 4,),
@@ -149,7 +149,7 @@ class _OnBoardingHealthDisclosurePanelState extends State<OnBoardingHealthDisclo
                         ),
                         Container(height: 2,),
                         Text(
-                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content5", "5. Location services on your device must be turned on to activate the Bluetooth low energy technology necessary for the exposure notification function of the Application. However, the Application does not access, collect, or store any location data, including GPS data. If location services on your device are turned off, the Application will perform the limited functions of storing and providing information about COVID-19 test results, any voluntarily reported symptoms, and building access status."),
+                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content5", "5. Location services on your device must be turned on to activate the Bluetooth low energy technology necessary for the exposure notification function of the Application to work in the background. However, the Application does not access, collect, or store any location data, including GPS data. If location services on your device are turned off, the Application will perform the limited functions of storing and providing information about COVID-19 test results, any voluntarily reported symptoms, and building access status."),
                           style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 14, color:Styles().colors.textSurface),
                         ),
 
@@ -162,7 +162,7 @@ class _OnBoardingHealthDisclosurePanelState extends State<OnBoardingHealthDisclo
 
                         Container(height: 11,),
                         Semantics( header: true, hint: Localization().getStringEx("app.common.heading.three.hint","Header 3"),
-                            child: Text(Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.description3", "Information we need to provide you a COVID-19 Test"),
+                            child: Text(Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.description3", "Information we need to provide you COVID-19 test results"),
                               style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 18, color:Styles().colors.textSurface),
                             )),
                         Container(height: 4,),
@@ -177,7 +177,7 @@ class _OnBoardingHealthDisclosurePanelState extends State<OnBoardingHealthDisclo
                             )),
                         Container(height: 4,),
                         Text(
-                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content9", "Your COVID-19 Symptoms are reported as anonymous data. "),
+                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content9", "Your COVID-19 Symptoms are reported as anonymous data."),
                           style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color:Styles().colors.textSurface),
                         ),
                         Container(height: 11,),
@@ -222,7 +222,7 @@ class _OnBoardingHealthDisclosurePanelState extends State<OnBoardingHealthDisclo
                             )),
                         Container(height: 4,),
                         Text(
-                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content18", "Your phone transmits and receives anonymous identifying numbers via Bluetooth. This identifier is stored on any phones that come close to you.  If someone tests positive for COVID-19, their phone tells our servers the anonymous numbers they have sent for the last 14 days.  Your phone will check if you were near that infected users' phone long enough to warrant an exposure notification. This is all done anonymously. Your location is never tracked or stored on our servers. The following permissions are used to enable this:"),
+                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content18", "Your phone transmits and receives anonymous identifying numbers via Bluetooth. This identifier is stored on any phones that come close to you.  If someone tests positive for COVID-19, their phone tells our servers the anonymous numbers they have sent for the last 14 days.  Your phone will check if you were near that infected users' phone long enough to warrant an exposure notification. This is all done anonymously. Your location is never tracked or stored on our servers. If you have elected to use Exposure Notification, Location Services, and Bluetooth, these capabilities will run in the background when the app is not in use. The following permissions are used to enable this:"),
                           style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color:Styles().colors.textSurface),
                         ),
                         Container(height: 4,),
