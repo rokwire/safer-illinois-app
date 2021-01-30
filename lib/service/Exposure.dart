@@ -57,11 +57,13 @@ class Exposure with Service implements NotificationsListener {
   static const String _expireTEKMethodName             = 'expireTEK';
   static const String _exposureRPIMethodName           = 'exposureRPILog';
   static const String _exposureRSSIMethodName          = 'exposureRSSILog';
+  static const String _expUpTimeMethodName             = 'exposureUpTime';
 
   static const String _settingsParamName               = 'settings';
   static const String _tekParamName                    = 'tek';
   static const String _timestampParamName              = 'timestamp';
   static const String _expirestampParamName            = 'expirestamp';
+  static const String _upTimeWinParamName              = 'upTimeWindow';
 
   static const String _tecNotificationName              = 'tek';
   static const String _exposureNotificationName         = 'exposure';
@@ -309,6 +311,13 @@ class Exposure with Service implements NotificationsListener {
     await _methodChannel.invokeMethod(_stopMethodName);
     _isPluginStarted = false;
     _pluginSettings = null;
+  }
+
+  Future<Map<int, int>> _expUpTime(int hours) async {
+    Map<dynamic, dynamic> result = await _methodChannel.invokeMethod(_expUpTimeMethodName, {
+      _upTimeWinParamName : hours,
+    });
+    return result?.cast<int, int>();
   }
 
   Future<void> _expireTEK() async {

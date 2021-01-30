@@ -49,6 +49,9 @@ static NSString* const kSettingsParamName       = @"settings";
 static NSString* const kTEKParamName            = @"tek";
 static NSString* const kTimestampParamName      = @"timestamp";
 
+static NSString* const kExpUpTimeMethodName     = @"exposureUpTime";
+static NSString* const kUpTimeWinParamName      = @"upTimeWindow";
+
 static NSString* const kTEKNotificationName     = @"tek";
 static NSString* const kTEKTimestampParamName   = @"timestamp";
 static NSString* const kTEKExpirestampParamName = @"expirestamp";
@@ -117,6 +120,8 @@ static int const kNoRssi = 127;
 	NSMutableDictionary<NSUUID*, NSData*>*           _peripheralRPIs;
 	NSMutableDictionary<NSUUID*, ExposureRecord*>*   _iosExposures;
 	NSMutableDictionary<NSData*, ExposureRecord*>*   _androidExposures;
+
+	NSMutableDictionary<NSNumber*, NSNumber*>*       _exposureUpTime;
 	
 	NSTimer*                                         _scanTimer;
 	NSTimeInterval                                   _lastNotifyExposireThickTime;
@@ -132,6 +137,10 @@ static int const kNoRssi = 127;
 	NSTimeInterval                                   _exposureScanWindowInterval;
 	NSTimeInterval                                   _exposureScanWaitInterval;
 	NSTimeInterval                                   _exposureMinDuration;
+	
+	NSTimeInterval                                   _exposureStartTime;
+    bool                                             _exposureOn;
+
 	int                                              _exposureMinRssi;
 	int                                              _exposureExpireDays;
 }
@@ -159,6 +168,7 @@ static ExposurePlugin *g_Instance = nil;
 		_iosExposures              = [[NSMutableDictionary alloc] init];
 		_androidExposures          = [[NSMutableDictionary alloc] init];
 		_teks                      = [self.class loadTEK2sFromStorage];
+		_exposureOn                = false;
 		_bgTaskId                  = UIBackgroundTaskInvalid;
 	}
 	return self;
@@ -214,7 +224,10 @@ static ExposurePlugin *g_Instance = nil;
 		[self updateTEKExpireTime];
 		result(nil);
 	}
-	
+	else if ([call.method isEqualToString:kExpUpTimeMethodName]) {
+        NSInteger upTimeWindow = [parameters inaIntegerForKey:kUpTimeWinParamName];
+        result([self durationsInWindow:upTimeWindow]);
+    }
 	else {
 		result(nil);
 	}
@@ -226,6 +239,8 @@ static ExposurePlugin *g_Instance = nil;
 
 	if (self.isPeripheralAuthorized && self.isCentralAuthorized && (_peripheralManager == nil) && (_centralManager == nil) && (_startResult == nil)) {
 		NSLog(@"ExposurePlugin: Start");
+		NSTimeInterval current_time = [[[NSDate alloc] init] timeIntervalSince1970];
+        _exposureStartTime = current_time;
 		_startResult = result;
 		[self initSettings:settings];
 		[self initRPI];
@@ -234,6 +249,8 @@ static ExposurePlugin *g_Instance = nil;
 		[self startLocationManager];
 		[self startAudioPlayer];
 		[self connectAppLiveCycleEvents];
+		_exposureOn = true;
+        _exposureUpTime = [self loadTimeFromStorage];
 	}
 	else if (result != nil) {
 		result([NSNumber numberWithBool:YES]);
@@ -263,6 +280,8 @@ static ExposurePlugin *g_Instance = nil;
 
 - (void)stop {
 	NSLog(@"ExposurePlugin: Stop");
+	_exposureOn = false;
+    [self stopExposureUptime];
 	[self stopPeripheral];
 	[self stopCentral];
 	[self stopLocationManager];
@@ -830,6 +849,8 @@ static ExposurePlugin *g_Instance = nil;
 	{
 		NSLog(@"ExposurePlugin: Posting Exposure Local Notification");
 		
+		[self exposureHeartBeat];
+
 		UNMutableNotificationContent* content = [[UNMutableNotificationContent alloc] init];
 		content.body = @"Exposure Notification system checking";
 		content.sound = nil;
@@ -842,6 +863,89 @@ static ExposurePlugin *g_Instance = nil;
 
 }
 
+#pragma mark Exposure Uptime
+- (void)exposureHeartBeat {
+    [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
+        if (settings.authorizationStatus == 2 && settings.lockScreenSetting == 2) {
+            NSTimeInterval current_time = [[[NSDate alloc] init] timeIntervalSince1970];
+            if (self->_exposureUpTime != NULL) {
+                [self->_exposureUpTime setObject:[NSNumber numberWithInt:(int)(current_time - self->_exposureStartTime)] forKey:[NSNumber numberWithInt: (int)self->_exposureStartTime]];
+                [self saveTimeToStorage];
+            }
+        }
+    }];
+}
+
+- (void)stopExposureUptime {
+    [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
+        if (settings.authorizationStatus == 2 && settings.lockScreenSetting == 2) {
+            NSTimeInterval current_time = [[[NSDate alloc] init] timeIntervalSince1970];
+            if (self->_exposureUpTime != NULL) {
+                [self->_exposureUpTime setObject:[NSNumber numberWithInt:(int)(current_time - self->_exposureStartTime)] forKey:[NSNumber numberWithInt: (int)self->_exposureStartTime]];
+                [self saveTimeToStorage];
+            }
+        }
+    }];
+}
+
+- (void)saveTimeToStorage {
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];
+    NSString *filePath = [documentsDirectory stringByAppendingPathComponent:@"exposureUpTime"];
+    if (_exposureUpTime != NULL) {
+        NSMutableDictionary<NSString*, NSString*> *_storageUpTime = [[NSMutableDictionary alloc] init];
+        for(NSNumber *_time in _exposureUpTime) {
+            NSString *_storageTime = [_time stringValue];
+            NSString *_storageDuration = [[_exposureUpTime objectForKey:_time] stringValue];
+            if ((_storageTime != NULL) && (_storageDuration != NULL)) {
+                [_storageUpTime setObject:_storageDuration forKey:_storageTime];
+            }
+        }
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:_storageUpTime options:0 error:NULL];
+        [jsonData writeToFile:filePath atomically:YES];
+    }
+}
+
+- (NSMutableDictionary<NSNumber*, NSNumber*>*)loadTimeFromStorage {
+    NSMutableDictionary<NSNumber*, NSNumber*>* upTimes = [[NSMutableDictionary alloc] init];
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];
+    NSString *filePath = [documentsDirectory stringByAppendingPathComponent:@"exposureUpTime"];
+    NSData *jsondata = [NSData dataWithContentsOfFile:filePath options:0 error:NULL];
+    if (jsondata != nil) {
+        NSDictionary* _storedDictionary = [NSJSONSerialization JSONObjectWithData:jsondata options:0 error:NULL];
+        if ([_storedDictionary isKindOfClass:[NSDictionary class]]) {
+            for (NSString *_storageTime in _storedDictionary) {
+                NSString *_storageDuration = [_storedDictionary objectForKey:_storageTime];
+                [upTimes setObject:[NSNumber numberWithInt:[_storageDuration intValue]] forKey:[NSNumber numberWithInt:[_storageTime intValue]]];
+            }
+        }
+    }
+    return upTimes;
+}
+
+- (NSDictionary*)durationsInWindow:(NSInteger)timeWindow {
+    NSMutableDictionary *durations = [[NSMutableDictionary alloc] init];
+    if (_exposureUpTime != NULL) {
+        NSTimeInterval current_time = [[[NSDate alloc] init] timeIntervalSince1970];
+        NSInteger _timeWindowInSeconds = timeWindow * 60 * 60;
+        NSInteger _expireTimestamp = current_time - 168 * 60 * 60;
+        NSTimeInterval _startTimestamp = current_time - _timeWindowInSeconds;
+        for (NSNumber *_time in _exposureUpTime) {
+            if ([_time intValue] + [[_exposureUpTime objectForKey:_time] intValue] >= _startTimestamp) {
+                if ([_time intValue] >= _startTimestamp) {
+                    [durations setObject:[_exposureUpTime objectForKey:_time] forKey:_time];
+                } else {
+                    [durations setObject:[NSNumber numberWithInt:[[_exposureUpTime objectForKey:_time] intValue] + [_time intValue] - _startTimestamp] forKey:[NSNumber numberWithInt:_startTimestamp]];
+                }
+            } else if ([_time intValue] + [[_exposureUpTime objectForKey:_time] intValue] < _expireTimestamp) {
+                [_exposureUpTime removeObjectForKey:_time];
+            }
+        }
+    }
+    return durations;
+}
+
 #pragma mark App Livecycle Events
 
 - (void)connectAppLiveCycleEvents {
@@ -850,6 +954,7 @@ static ExposurePlugin *g_Instance = nil;
 	[notificationCenter addObserver:self selector:@selector(applicationWillEnterForeground) name:UIApplicationWillEnterForegroundNotification object:nil];
 	[notificationCenter addObserver:self selector:@selector(applicationWillResignActive) name:UIApplicationWillResignActiveNotification object:nil];
 	[notificationCenter addObserver:self selector:@selector(applicationDidBecomeActive) name:UIApplicationDidBecomeActiveNotification object:nil];
+	[notificationCenter addObserver:self selector:@selector(applicationWillTerminate) name:UIApplicationWillTerminateNotification object:nil];]
 	[notificationCenter addObserver:self selector:@selector(audioSessionInterruptionNotification:) name:AVAudioSessionInterruptionNotification object:nil];
 }
 
@@ -859,6 +964,7 @@ static ExposurePlugin *g_Instance = nil;
 	[notificationCenter removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
 	[notificationCenter removeObserver:self name:UIApplicationWillResignActiveNotification object:nil];
 	[notificationCenter removeObserver:self name:UIApplicationDidBecomeActiveNotification object:nil];
+	[notificationCenter removeObserver:self name:UIApplicationWillTerminateNotification object:nil];
 	[notificationCenter removeObserver:self name:AVAudioSessionInterruptionNotification object:nil];
 }
 
@@ -889,6 +995,12 @@ static ExposurePlugin *g_Instance = nil;
 
 - (void)applicationDidBecomeActive {
 	[UIApplication.sharedApplication endReceivingRemoteControlEvents];
+}
+
+- (void)applicationWillTerminate {
+    if (_exposureOn) {
+        [self stopExposureUptime];
+    }
 }
 
 - (void)audioSessionInterruptionNotification:(NSNotification *)notification {
