@@ -752,17 +752,21 @@ class Auth with Service implements NotificationsListener {
     return null;
   }
 
-  Future<void> deleteUserPiiData() async {
+  Future<bool> deleteUserPiiData() async {
     if (Config().userProfileUrl != null) {
       String url = '${Config().userProfileUrl}/pii/${Storage().userPid}';
 
-      await Network().delete(url,
-          headers: {'Content-Type':'application/json'},
-          auth: Network.ShibbolethUserAuth
-      ).whenComplete((){
-        _applyUserPiiData(null, null);
-      });
+      try {
+        Response response = await Network().delete(url, headers: {'Content-Type': 'application/json'}, auth: Network.ShibbolethUserAuth);
+        if(response?.statusCode == 200) {
+          _applyUserPiiData(null, null);
+          return true;
+        }
+      } catch(error){
+        Log.e(error);
+      }
     }
+    return false;
   }
 
   void _applyUserPiiData(UserPiiData userPiiData, String userPiiDataString, [bool notify = true]) {
