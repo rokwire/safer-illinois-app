@@ -85,8 +85,10 @@ class _Settings2HomePanelState extends State<Settings2HomePanel> implements Noti
 
     await Health().deleteUser();
     await Exposure().deleteUser();
-    await Auth().deleteUserPiiData();
-    await User().deleteUser();
+    bool piiDeleted = await Auth().deleteUserPiiData();
+    if(piiDeleted) {
+      await User().deleteUser();
+    }
     Auth().logout();
   }
 
