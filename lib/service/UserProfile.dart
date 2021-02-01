@@ -208,22 +208,25 @@ class UserProfile with Service implements NotificationsListener {
   Future<void> deleteProfile() async{
     String profileUuid = _profileData?.uuid;
     if((Config().userProfileUrl != null) && (profileUuid != null)) {
-      await Network().delete("${Config().userProfileUrl}/$profileUuid", headers: {"Accept": "application/json", "content-type": "application/json"}, auth: Network.AppAuth);
-
-      _clearStoredProfile();
-      _notifyProfileDeleted();
-
       try {
-        _profileData = await requestProfile(Storage().localProfileUuid);
-      } on UserProfileNotFoundException catch (_) {
-        _profileData = await _requestCreateProfile();
-        if (_profileData?.uuid != null) {
-          Storage().localProfileUuid = _profileData?.uuid;
-        }
+        await Network().delete("${Config().userProfileUrl}/$profileUuid", headers: {"Accept": "application/json", "content-type": "application/json"}, auth: Network.AppAuth);
       }
-      if (_profileData != null) {
-        Storage().userProfile = _profileData;
-        _notifyProfileUpdated();
+      finally {
+        _clearStoredProfile();
+        _notifyProfileDeleted();
+
+        try {
+          _profileData = await requestProfile(Storage().localProfileUuid);
+        } on UserProfileNotFoundException catch (_) {
+          _profileData = await _requestCreateProfile();
+          if (_profileData?.uuid != null) {
+            Storage().localProfileUuid = _profileData?.uuid;
+          }
+        }
+        if (_profileData != null) {
+          Storage().userProfile = _profileData;
+          _notifyProfileUpdated();
+        }
       }
     }
 
