@@ -844,14 +844,16 @@ class Auth with Service implements NotificationsListener {
         String tokenResponseBody = ((tokenResponse != null) && (tokenResponse.statusCode == 200)) ? tokenResponse.body : null;
         var bodyMap = (tokenResponseBody != null) ? AppJson.decode(tokenResponseBody) : null;
         _authToken = ShibbolethToken.fromJson(bodyMap);
-        if (authToken?.idToken != null) {
-          _saveAuthToken();
-          Log.d("Auth: did refresh token: ${authToken?.idToken}");
-          _notifyAuthTokenChanged();
+        _saveAuthToken();
+        if (authToken?.idToken == null) { // Why we need this if ?
+          _authInfo = null;
+          _saveAuthInfo();
+          _clearAuthCard();
+          _notifyAuthCardChanged();
+          _notifyAuthInfoChanged();
         }
-        else{
-          logout();
-        }
+        Log.d("Auth: did refresh token: ${authToken?.idToken}");
+        _notifyAuthTokenChanged();
       }
       catch(e) {
         print(e.toString());
