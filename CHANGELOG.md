@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 - Updated details of background permissions [#506](https://github.com/rokwire/safer-illinois-app/issues/506)
+- Updated details of background permissions Explore Shibboleth login failure due to deleted UUID [#508](https://github.com/rokwire/safer-illinois-app/issues/508)
 
 ## [2.9.7] - 2021-1-26
 - Updated order of panel shown during onboarding [#503](https://github.com/rokwire/safer-illinois-app/issues/503)
