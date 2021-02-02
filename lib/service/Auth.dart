@@ -1055,7 +1055,7 @@ class Auth with Service implements NotificationsListener {
             NotificationService().notify(notifyAuthTokenChanged);
             return token;
           }
-          else if(tokenResponse.statusCode == 401 || tokenResponse.statusCode == 403){
+          else if (tokenResponse.statusCode == 401 || tokenResponse.statusCode == 403) {
             logout(); // Logout only on 401 or 403. Do not do anything else for the rest of scenarios
           }
         }
@@ -1070,7 +1070,7 @@ class Auth with Service implements NotificationsListener {
 
   Future<AuthToken> refreshRokmetroToken() async {
     AuthToken newAuthToken = await refreshAuthToken();
-    RokmetroToken newRokmetroToken = await _loadRokmetroToken(optAuthToken: newAuthToken);
+    RokmetroToken newRokmetroToken = (newAuthToken != null) ? await _loadRokmetroToken(optAuthToken: newAuthToken) : null;
     if (newRokmetroToken?.idToken != null) {
       Storage().rokmetroToken = _rokmetroToken = newRokmetroToken;
     }
