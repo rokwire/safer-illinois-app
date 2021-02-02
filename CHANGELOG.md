@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Fixed
+- Explore Shibboleth login failure due to deleted UUID [#508](https://github.com/rokwire/safer-illinois-app/issues/508)
 - OnBoardingHealthDisclosurePanel duplicated text [#490](https://github.com/rokwire/safer-illinois-app/issues/490)
 - Apply nextStepDate in local time when making the calculations for displayNextStepDate.
 - Extend Auth OIDC processing to handle external configurations.

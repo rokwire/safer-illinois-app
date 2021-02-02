@@ -1055,6 +1055,9 @@ class Auth with Service implements NotificationsListener {
             NotificationService().notify(notifyAuthTokenChanged);
             return token;
           }
+          else if(tokenResponse.statusCode == 401 || tokenResponse.statusCode == 403){
+            logout(); // Logout only on 401 or 403. Do not do anything else for the rest of scenarios
+          }
         }
         catch(e) {
           print(e.toString());
