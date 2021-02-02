@@ -152,8 +152,9 @@ class Network  {
     Http.Response response = await _get(url, headers: headers, body: body, encoding: encoding, auth: auth, client: client, timeout: timeout);
     
     if (_requiresTokenRefresh(response, auth)) {
-      await _refreshToken(auth);
-      response = await _get(url, headers: headers, body: body, encoding: encoding, auth: auth, client: client, timeout: timeout);
+      if (await _refreshToken(auth) != null) {
+        response = await _get(url, headers: headers, body: body, encoding: encoding, auth: auth, client: client, timeout: timeout);
+      }
     }
 
     if (sendAnalytics) {
@@ -182,8 +183,9 @@ class Network  {
     Http.Response response = await _post(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout);
 
     if (_requiresTokenRefresh(response, auth)) {
-      await _refreshToken(auth);
-      response = await _post(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout);
+      if (await _refreshToken(auth) != null) {
+        response = await _post(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout);
+      }
     }
 
     if (sendAnalytics) {
@@ -218,8 +220,9 @@ class Network  {
     Http.Response response = await _put(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout, client: client);
 
     if (_requiresTokenRefresh(response, auth)) {
-      await _refreshToken(auth);
-      response = await _put(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout, client: client);
+      if (await _refreshToken(auth) != null) {
+        response = await _put(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout, client: client);
+      }
     }
 
     if (sendAnalytics) {
@@ -248,8 +251,9 @@ class Network  {
     Http.Response response = await _patch(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout);
 
     if (_requiresTokenRefresh(response, auth)) {
-      await _refreshToken(auth);
-      response = await _patch(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout);
+      if (await _refreshToken(auth) != null) {
+        response = await _patch(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout);
+      }
     }
 
     if (sendAnalytics) {
@@ -278,8 +282,9 @@ class Network  {
     Http.Response response = await _delete(url, headers: headers, auth: auth, timeout: timeout);
 
     if (_requiresTokenRefresh(response, auth)) {
-      await _refreshToken(auth);
-      response = await _delete(url, headers: headers, auth: auth, timeout: timeout);
+      if (await _refreshToken(auth) != null) {
+        response = await _delete(url, headers: headers, auth: auth, timeout: timeout);
+      }
     }
 
     if (sendAnalytics) {
