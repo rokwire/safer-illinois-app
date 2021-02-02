@@ -752,17 +752,21 @@ class Auth with Service implements NotificationsListener {
     return null;
   }
 
-  Future<void> deleteUserPiiData() async {
+  Future<bool> deleteUserPiiData() async {
     if (Config().userProfileUrl != null) {
       String url = '${Config().userProfileUrl}/pii/${Storage().userPid}';
 
-      await Network().delete(url,
-          headers: {'Content-Type':'application/json'},
-          auth: Network.ShibbolethUserAuth
-      ).whenComplete((){
-        _applyUserPiiData(null, null);
-      });
+      try {
+        Response response = await Network().delete(url, headers: {'Content-Type': 'application/json'}, auth: Network.ShibbolethUserAuth);
+        if(response?.statusCode == 200) {
+          _applyUserPiiData(null, null);
+          return true;
+        }
+      } catch(error){
+        Log.e(error);
+      }
     }
+    return false;
   }
 
   void _applyUserPiiData(UserPiiData userPiiData, String userPiiDataString, [bool notify = true]) {
@@ -1051,6 +1055,9 @@ class Auth with Service implements NotificationsListener {
             NotificationService().notify(notifyAuthTokenChanged);
             return token;
           }
+          else if (tokenResponse.statusCode == 401 || tokenResponse.statusCode == 403) {
+            logout(); // Logout only on 401 or 403. Do not do anything else for the rest of scenarios
+          }
         }
         catch(e) {
           print(e.toString());
@@ -1063,7 +1070,7 @@ class Auth with Service implements NotificationsListener {
 
   Future<AuthToken> refreshRokmetroToken() async {
     AuthToken newAuthToken = await refreshAuthToken();
-    RokmetroToken newRokmetroToken = await _loadRokmetroToken(optAuthToken: newAuthToken);
+    RokmetroToken newRokmetroToken = (newAuthToken != null) ? await _loadRokmetroToken(optAuthToken: newAuthToken) : null;
     if (newRokmetroToken?.idToken != null) {
       Storage().rokmetroToken = _rokmetroToken = newRokmetroToken;
     }
