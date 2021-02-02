@@ -221,6 +221,9 @@ class Analytics with Service implements NotificationsListener {
   static const String   LogRpiMatches6HoursName              = "rpi_matches_6_hour";
   static const String   LogRpiMatches24HoursName             = "rpi_matches_24_hour";
   static const String   LogRpiMatches168HoursName            = "rpi_matches_168_hour";
+  static const String   LogExposureUpTime6HoursName          = "exposure_uptime_6_hour";
+  static const String   LogExposureUpTime24HoursName         = "exposure_uptime_24_hour";
+  static const String   LogExposureUpTime168HoursName        = "exposure_uptime_168_hour";
   static const String   LogTestFrequency168HoursName         = "test_frequency_168_hour";
   static const String   LogExposureNotification168HoursName  = "exposure_notification_168_hour";
   static const String   LogTestResult168HoursName            = "test_result_168_hour";

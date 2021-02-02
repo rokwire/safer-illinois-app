@@ -122,6 +122,7 @@ static int const kNoRssi = 127;
 	NSMutableDictionary<NSData*, ExposureRecord*>*   _androidExposures;
 
 	NSMutableDictionary<NSNumber*, NSNumber*>*       _exposureUpTime;
+	NSTimeInterval                                   _exposureStartTime;
 	
 	NSTimer*                                         _scanTimer;
 	NSTimeInterval                                   _lastNotifyExposireThickTime;
@@ -138,11 +139,9 @@ static int const kNoRssi = 127;
 	NSTimeInterval                                   _exposureScanWaitInterval;
 	NSTimeInterval                                   _exposureMinDuration;
 	
-	NSTimeInterval                                   _exposureStartTime;
-    bool                                             _exposureOn;
-
 	int                                              _exposureMinRssi;
 	int                                              _exposureExpireDays;
+	int                                              _exposureUptimeExpireInterval;
 }
 @property (nonatomic, readonly) int                exposureMinRssi;
 @property (nonatomic) UIBackgroundTaskIdentifier   bgTaskId;
@@ -168,7 +167,6 @@ static ExposurePlugin *g_Instance = nil;
 		_iosExposures              = [[NSMutableDictionary alloc] init];
 		_androidExposures          = [[NSMutableDictionary alloc] init];
 		_teks                      = [self.class loadTEK2sFromStorage];
-		_exposureOn                = false;
 		_bgTaskId                  = UIBackgroundTaskInvalid;
 	}
 	return self;
@@ -225,9 +223,9 @@ static ExposurePlugin *g_Instance = nil;
 		result(nil);
 	}
 	else if ([call.method isEqualToString:kExpUpTimeMethodName]) {
-        NSInteger upTimeWindow = [parameters inaIntegerForKey:kUpTimeWinParamName];
-        result([self durationsInWindow:upTimeWindow]);
-    }
+		NSInteger upTimeWindow = [parameters inaIntegerForKey:kUpTimeWinParamName];
+		result([self exposureUptimeDurationInWindow:upTimeWindow]);
+	}
 	else {
 		result(nil);
 	}
@@ -239,8 +237,6 @@ static ExposurePlugin *g_Instance = nil;
 
 	if (self.isPeripheralAuthorized && self.isCentralAuthorized && (_peripheralManager == nil) && (_centralManager == nil) && (_startResult == nil)) {
 		NSLog(@"ExposurePlugin: Start");
-		NSTimeInterval current_time = [[[NSDate alloc] init] timeIntervalSince1970];
-        _exposureStartTime = current_time;
 		_startResult = result;
 		[self initSettings:settings];
 		[self initRPI];
@@ -249,8 +245,7 @@ static ExposurePlugin *g_Instance = nil;
 		[self startLocationManager];
 		[self startAudioPlayer];
 		[self connectAppLiveCycleEvents];
-		_exposureOn = true;
-        _exposureUpTime = [self loadTimeFromStorage];
+		[self startExposureUptime];
 	}
 	else if (result != nil) {
 		result([NSNumber numberWithBool:YES]);
@@ -280,8 +275,6 @@ static ExposurePlugin *g_Instance = nil;
 
 - (void)stop {
 	NSLog(@"ExposurePlugin: Stop");
-	_exposureOn = false;
-    [self stopExposureUptime];
 	[self stopPeripheral];
 	[self stopCentral];
 	[self stopLocationManager];
@@ -289,6 +282,7 @@ static ExposurePlugin *g_Instance = nil;
 	[self clearRPI];
 	[self clearExposures];
 	[self disconnectAppLiveCycleEvents];
+	[self stopExposureUptime];
 }
 
 #pragma mark Peripheral
@@ -849,7 +843,12 @@ static ExposurePlugin *g_Instance = nil;
 	{
 		NSLog(@"ExposurePlugin: Posting Exposure Local Notification");
 		
-		[self exposureHeartBeat];
+		__weak typeof(self) weakSelf = self;
+		[[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
+			if (settings.authorizationStatus == 2 && settings.lockScreenSetting == 2) {
+				[weakSelf exposureUptimeHeartBeat];
+			}
+		}];
 
 		UNMutableNotificationContent* content = [[UNMutableNotificationContent alloc] init];
 		content.body = @"Exposure Notification system checking";
@@ -864,86 +863,111 @@ static ExposurePlugin *g_Instance = nil;
 }
 
 #pragma mark Exposure Uptime
-- (void)exposureHeartBeat {
-    [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
-        if (settings.authorizationStatus == 2 && settings.lockScreenSetting == 2) {
-            NSTimeInterval current_time = [[[NSDate alloc] init] timeIntervalSince1970];
-            if (self->_exposureUpTime != NULL) {
-                [self->_exposureUpTime setObject:[NSNumber numberWithInt:(int)(current_time - self->_exposureStartTime)] forKey:[NSNumber numberWithInt: (int)self->_exposureStartTime]];
-                [self saveTimeToStorage];
-            }
-        }
-    }];
+
+- (void)startExposureUptime {
+	_exposureStartTime = [[[NSDate alloc] init] timeIntervalSince1970];
+	_exposureUpTime = [self loadExposureUptimeFromStorage];
 }
 
 - (void)stopExposureUptime {
-    [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
-        if (settings.authorizationStatus == 2 && settings.lockScreenSetting == 2) {
-            NSTimeInterval current_time = [[[NSDate alloc] init] timeIntervalSince1970];
-            if (self->_exposureUpTime != NULL) {
-                [self->_exposureUpTime setObject:[NSNumber numberWithInt:(int)(current_time - self->_exposureStartTime)] forKey:[NSNumber numberWithInt: (int)self->_exposureStartTime]];
-                [self saveTimeToStorage];
-            }
-        }
-    }];
+	[self exposureUptimeHeartBeat];
+	_exposureStartTime = 0.0;
+	_exposureUpTime = nil;
 }
 
-- (void)saveTimeToStorage {
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *documentsDirectory = [paths objectAtIndex:0];
-    NSString *filePath = [documentsDirectory stringByAppendingPathComponent:@"exposureUpTime"];
-    if (_exposureUpTime != NULL) {
-        NSMutableDictionary<NSString*, NSString*> *_storageUpTime = [[NSMutableDictionary alloc] init];
-        for(NSNumber *_time in _exposureUpTime) {
-            NSString *_storageTime = [_time stringValue];
-            NSString *_storageDuration = [[_exposureUpTime objectForKey:_time] stringValue];
-            if ((_storageTime != NULL) && (_storageDuration != NULL)) {
-                [_storageUpTime setObject:_storageDuration forKey:_storageTime];
-            }
-        }
-        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:_storageUpTime options:0 error:NULL];
-        [jsonData writeToFile:filePath atomically:YES];
-    }
+- (void)exposureUptimeHeartBeat {
+	if ((0.0 < _exposureStartTime) && (_exposureUpTime != nil)) {
+		NSTimeInterval upTime = [[[NSDate alloc] init] timeIntervalSince1970] - _exposureStartTime;
+		[_exposureUpTime setObject:[NSNumber numberWithInteger:upTime] forKey:[NSNumber numberWithInteger:_exposureStartTime]];
+		[self saveExposureUptimeToStorage];
+	}
 }
 
-- (NSMutableDictionary<NSNumber*, NSNumber*>*)loadTimeFromStorage {
-    NSMutableDictionary<NSNumber*, NSNumber*>* upTimes = [[NSMutableDictionary alloc] init];
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *documentsDirectory = [paths objectAtIndex:0];
-    NSString *filePath = [documentsDirectory stringByAppendingPathComponent:@"exposureUpTime"];
-    NSData *jsondata = [NSData dataWithContentsOfFile:filePath options:0 error:NULL];
-    if (jsondata != nil) {
-        NSDictionary* _storedDictionary = [NSJSONSerialization JSONObjectWithData:jsondata options:0 error:NULL];
-        if ([_storedDictionary isKindOfClass:[NSDictionary class]]) {
-            for (NSString *_storageTime in _storedDictionary) {
-                NSString *_storageDuration = [_storedDictionary objectForKey:_storageTime];
-                [upTimes setObject:[NSNumber numberWithInt:[_storageDuration intValue]] forKey:[NSNumber numberWithInt:[_storageTime intValue]]];
-            }
-        }
-    }
-    return upTimes;
+- (NSString*)exposureUptimeFilePath {
+	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+	NSString *documentsDirectory = [paths objectAtIndex:0];
+	return [documentsDirectory stringByAppendingPathComponent:@"exposureUpTime.json"];
 }
 
-- (NSDictionary*)durationsInWindow:(NSInteger)timeWindow {
-    NSMutableDictionary *durations = [[NSMutableDictionary alloc] init];
-    if (_exposureUpTime != NULL) {
-        NSTimeInterval current_time = [[[NSDate alloc] init] timeIntervalSince1970];
-        NSInteger _timeWindowInSeconds = timeWindow * 60 * 60;
-        NSInteger _expireTimestamp = current_time - 168 * 60 * 60;
-        NSTimeInterval _startTimestamp = current_time - _timeWindowInSeconds;
-        for (NSNumber *_time in _exposureUpTime) {
-            if ([_time intValue] + [[_exposureUpTime objectForKey:_time] intValue] >= _startTimestamp) {
-                if ([_time intValue] >= _startTimestamp) {
-                    [durations setObject:[_exposureUpTime objectForKey:_time] forKey:_time];
-                } else {
-                    [durations setObject:[NSNumber numberWithInt:[[_exposureUpTime objectForKey:_time] intValue] + [_time intValue] - _startTimestamp] forKey:[NSNumber numberWithInt:_startTimestamp]];
-                }
-            } else if ([_time intValue] + [[_exposureUpTime objectForKey:_time] intValue] < _expireTimestamp) {
-                [_exposureUpTime removeObjectForKey:_time];
-            }
-        }
-    }
-    return durations;
+- (void)saveExposureUptimeToStorage {
+	if (_exposureUpTime != nil) {
+		NSMutableDictionary<NSString*, NSNumber*> *storageUpTime = [[NSMutableDictionary alloc] init];
+		NSMutableArray<NSNumber*> *expiredTimeKeys = nil;
+
+		NSInteger currentTimestamp = (NSInteger)[[[NSDate alloc] init] timeIntervalSince1970];
+		NSInteger expireTimestamp = currentTimestamp - _exposureUptimeExpireInterval;
+
+		for (NSNumber *timeNum in _exposureUpTime) {
+			NSInteger time = [timeNum integerValue];
+			NSString *timeStr = [timeNum stringValue];
+
+			NSNumber *durationNum = [_exposureUpTime inaNumberForKey:timeNum];
+			NSInteger duration = [durationNum integerValue];
+
+			if ((time + duration) < expireTimestamp) {
+				if (expiredTimeKeys == nil) {
+					expiredTimeKeys = [[NSMutableArray alloc] init];
+				}
+				[expiredTimeKeys addObject:timeNum];
+			}
+			else if ((timeStr != nil) && (durationNum != nil)) {
+				[storageUpTime setObject:durationNum forKey:timeStr];
+			}
+		}
+
+		if (expiredTimeKeys != nil) {
+			for (NSNumber *timeKey in expiredTimeKeys) {
+				[_exposureUpTime removeObjectForKey:timeKey];
+			}
+		}
+
+		NSData *jsonData = [NSJSONSerialization dataWithJSONObject:storageUpTime options:0 error:NULL];
+		[jsonData writeToFile:self.exposureUptimeFilePath atomically:YES];
+	}
+}
+
+- (NSMutableDictionary<NSNumber*, NSNumber*>*)loadExposureUptimeFromStorage {
+	NSMutableDictionary<NSNumber*, NSNumber*> *upTimes = [[NSMutableDictionary alloc] init];
+
+	NSInteger currentTimestamp = (NSInteger)[[[NSDate alloc] init] timeIntervalSince1970];
+	NSInteger expireTimestamp = currentTimestamp - _exposureUptimeExpireInterval;
+
+	NSData *jsonData = [NSData dataWithContentsOfFile:self.exposureUptimeFilePath options:0 error:NULL];
+	NSDictionary* storedDictionary = (jsonData != nil) ? [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:NULL] : nil;
+	if ([storedDictionary isKindOfClass:[NSDictionary class]]) {
+		for (NSString *timeStr in storedDictionary) {
+			NSInteger time = [timeStr integerValue];
+			NSNumber *durationNum = [storedDictionary inaNumberForKey:timeStr];
+			NSInteger duration = [durationNum integerValue];
+			if ((time + duration) > expireTimestamp) {
+				[upTimes setObject:durationNum forKey:[NSNumber numberWithInteger:time]];
+			}
+		}
+	}
+
+	return upTimes;
+}
+
+- (NSNumber*)exposureUptimeDurationInWindow:(NSInteger)timeWindow {
+	NSInteger durationInWindow = 0;
+	if (_exposureUpTime != nil) {
+		NSTimeInterval currentTime = [[[NSDate alloc] init] timeIntervalSince1970];
+		NSTimeInterval timeWindowInSeconds = timeWindow * 60 * 60;
+		NSInteger startTimestamp = (NSInteger)(currentTime - timeWindowInSeconds);
+
+		for (NSNumber *timeNum in _exposureUpTime) {
+			NSInteger time = [timeNum integerValue];
+			NSInteger duration = [_exposureUpTime inaIntegerForKey:timeNum];
+			if ((time + duration) >= startTimestamp) {
+				if (time >= startTimestamp) {
+					durationInWindow += duration;
+				} else {
+					durationInWindow += (duration + time - startTimestamp);
+				}
+			}
+		}
+	}
+	return [NSNumber numberWithInteger:durationInWindow];
 }
 
 #pragma mark App Livecycle Events
@@ -954,7 +978,7 @@ static ExposurePlugin *g_Instance = nil;
 	[notificationCenter addObserver:self selector:@selector(applicationWillEnterForeground) name:UIApplicationWillEnterForegroundNotification object:nil];
 	[notificationCenter addObserver:self selector:@selector(applicationWillResignActive) name:UIApplicationWillResignActiveNotification object:nil];
 	[notificationCenter addObserver:self selector:@selector(applicationDidBecomeActive) name:UIApplicationDidBecomeActiveNotification object:nil];
-	[notificationCenter addObserver:self selector:@selector(applicationWillTerminate) name:UIApplicationWillTerminateNotification object:nil];]
+	[notificationCenter addObserver:self selector:@selector(applicationWillTerminate) name:UIApplicationWillTerminateNotification object:nil];
 	[notificationCenter addObserver:self selector:@selector(audioSessionInterruptionNotification:) name:AVAudioSessionInterruptionNotification object:nil];
 }
 
@@ -998,7 +1022,7 @@ static ExposurePlugin *g_Instance = nil;
 }
 
 - (void)applicationWillTerminate {
-    if (_exposureOn) {
+    if (0.0 < _exposureStartTime) {
         [self stopExposureUptime];
     }
 }
@@ -1019,13 +1043,14 @@ static ExposurePlugin *g_Instance = nil;
 #pragma mark Settings
 
 - (void)initSettings:(NSDictionary*)settings {
-	_exposureTimeoutInterval    = (settings != nil) ? [settings inaDoubleForKey:@"covid19ExposureServiceTimeoutInterval"    defaults:300] : 300; // 5 minutes
-	_exposurePingInterval       = (settings != nil) ? [settings inaDoubleForKey:@"covid19ExposureServicePingInterval"       defaults: 60] :  60; // 1 minute
-	_exposureScanWindowInterval = (settings != nil) ? [settings inaDoubleForKey:@"covid19ExposureServiceScanWindowInterval" defaults:  4] :   4; // 4 seconds of scanning
-	_exposureScanWaitInterval   = (settings != nil) ? [settings inaDoubleForKey:@"covid19ExposureServiceScanWaitInterval"   defaults:150] : 150; // 2.5 minutes of latent period
-	_exposureMinDuration        = (settings != nil) ? [settings inaDoubleForKey:@"covid19ExposureServiceLogMinDuration"     defaults:  0] :   0; // 0 seconds
-	_exposureExpireDays         = (settings != nil) ? [settings inaIntForKey:   @"covid19ExposureExpireDays"                defaults: 14] :  14; // 14 days
-	_exposureMinRssi            = (settings != nil) ? [settings inaIntForKey:   @"covid19ExposureServiceMinRSSI"            defaults:-90] : -90;
+	_exposureTimeoutInterval      = (settings != nil) ? [settings inaDoubleForKey:@"covid19ExposureServiceTimeoutInterval"      defaults:    300] :    300; // 5 minutes
+	_exposurePingInterval         = (settings != nil) ? [settings inaDoubleForKey:@"covid19ExposureServicePingInterval"         defaults:     60] :     60; // 1 minute
+	_exposureScanWindowInterval   = (settings != nil) ? [settings inaDoubleForKey:@"covid19ExposureServiceScanWindowInterval"   defaults:      4] :      4; // 4 seconds of scanning
+	_exposureScanWaitInterval     = (settings != nil) ? [settings inaDoubleForKey:@"covid19ExposureServiceScanWaitInterval"     defaults:    150] :    150; // 2.5 minutes of latent period
+	_exposureMinDuration          = (settings != nil) ? [settings inaDoubleForKey:@"covid19ExposureServiceLogMinDuration"       defaults:      0] :      0; // 0 seconds
+	_exposureExpireDays           = (settings != nil) ? [settings inaIntForKey:   @"covid19ExposureExpireDays"                  defaults:     14] :     14; // 14 days
+	_exposureMinRssi              = (settings != nil) ? [settings inaIntForKey:   @"covid19ExposureServiceMinRSSI"              defaults:    -90] :    -90;
+	_exposureUptimeExpireInterval = (settings != nil) ? [settings inaIntForKey:   @"covid19ExposureServiceUptimeExpireInterval" defaults: 604800] : 604800; // 7 days (168 * 60 * 60)
 }
 
 #pragma mark RPI

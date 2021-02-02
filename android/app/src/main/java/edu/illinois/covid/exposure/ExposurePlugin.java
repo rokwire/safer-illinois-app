@@ -1263,8 +1263,8 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
         }
     }
 
-    private Map<Integer, Integer> durationsInWindow (long upTimeWindow) {
-        Map<Integer, Integer> upTimeWindowResult = new HashMap<>();
+    private Integer expUpDurationInWindow (long upTimeWindow) {
+        int durationInWindow = 0;
         long currentTime = (long) Utils.DateTime.getCurrentTimeMillisSince1970() / 1000;
         long _timeWindowInSeconds = upTimeWindow * 60 * 60;
         long _expireTimestamp = currentTime - 168 * 60 * 60;
@@ -1273,16 +1273,16 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
             for (Integer _time : expUpTimeMap.keySet()) {
                 if (_time.intValue() + expUpTimeMap.get(_time).intValue() >= _startTimestamp) {
                     if (_time.intValue() >= _startTimestamp) {
-                        upTimeWindowResult.put(_time, expUpTimeMap.get(_time));
+                        durationInWindow += expUpTimeMap.get(_time);
                     } else {
-                        upTimeWindowResult.put(new Integer((int) _startTimestamp), new Integer(expUpTimeMap.get(_time).intValue() + _time.intValue() - (int) _startTimestamp));
+                        durationInWindow += expUpTimeMap.get(_time).intValue() + _time.intValue() - (int) _startTimestamp;
                     }
-                } else {
+                } else if ((_time.intValue() + expUpTimeMap.get(_time).intValue()) < (int)_expireTimestamp) {
                     expUpTimeMap.remove(_time);
                 }
             }
         }
-        return upTimeWindowResult;
+        return new Integer(durationInWindow);
     }
 
     //region RPI timer
@@ -1364,7 +1364,7 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
                     break;
                 case Constants.EXPOSURE_PLUGIN_METHOD_EXP_UP_TIME:
                     long upTimeWindow = Utils.Map.getValueFromPath(call.arguments, Constants.EXPOSURE_PLUGIN_UP_TIME_WIN_PARAM_NAME, 0);
-                    Map<Integer, Integer> upTimeWindowResult = durationsInWindow(upTimeWindow);
+                    Integer upTimeWindowResult = expUpDurationInWindow(upTimeWindow);
                     result.success(upTimeWindowResult);
                     break;
                 case Constants.EXPOSURE_PLUGIN_METHOD_NAME_EXPIRE_TEK:

@@ -313,15 +313,16 @@ class Exposure with Service implements NotificationsListener {
     _pluginSettings = null;
   }
 
-  Future<Map<int, int>> _expUpTime(int hours) async {
-    Map<dynamic, dynamic> result = await _methodChannel.invokeMethod(_expUpTimeMethodName, {
-      _upTimeWinParamName : hours,
-    });
-    return result?.cast<int, int>();
-  }
-
   Future<void> _expireTEK() async {
     await _methodChannel.invokeMethod(_expireTEKMethodName);
+  }
+
+  Future<int> evalExposureUpTime(int hours) async {
+    dynamic duration = await _methodChannel.invokeMethod(_expUpTimeMethodName, {
+      _upTimeWinParamName : hours,
+    });
+
+    return duration is int ? duration : null;
   }
 
   Future<List<ExposureTEK>> loadTeks({int minStamp, int maxStamp}) async {
