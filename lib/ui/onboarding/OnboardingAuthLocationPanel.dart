@@ -91,7 +91,7 @@ class OnboardingAuthLocationPanel extends StatelessWidget with OnboardingPanel {
                               child: Text(
                                 Localization().getStringEx(
                                     'panel.onboarding.location.label.description',
-                                    "Required for exposure notifications to work in the background on your phone"),
+                                    "Background location is required for Bluetooth-based exposure notification to work on your phone"),
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                     fontFamily: Styles().fontFamilies.regular,
