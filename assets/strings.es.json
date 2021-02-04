@@ -59,7 +59,7 @@
 
 	"panel.onboarding.location.label.title": "Activar los servicios de ubicación",
 	"panel.onboarding.location.label.hint": "Encabezado 1",
-	"panel.onboarding.location.label.description": "Se requiere para que las notificaciones de exposición funcionen en segundo plano en su teléfono",
+	"panel.onboarding.location.label.description": "Se requiere una ubicación en segundo plano para que la notificación de exposición basada en Bluetooth funcione en su teléfono ",
 	"panel.onboarding.location.button.allow.title": "Servicio de localización activado",
 	"panel.onboarding.location.button.allow.hint": "",
 	"panel.onboarding.location.button.dont_allow.title": "No en este momento",

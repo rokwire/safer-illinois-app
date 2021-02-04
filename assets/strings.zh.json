@@ -59,7 +59,7 @@
 
 	"panel.onboarding.location.label.title": "打开位置服务",
 	"panel.onboarding.location.label.title.hint": "标题1",
-	"panel.onboarding.location.label.description": "曝光通知在手機上正常工作所必需",
+	"panel.onboarding.location.label.description": "要在手機上使用基於藍牙的曝光通知，需要背景位置",
 	"panel.onboarding.location.button.allow.title": "啟用位置服務",
 	"panel.onboarding.location.button.allow.hint": "",
 	"panel.onboarding.location.button.dont_allow.title": "暂时不",
