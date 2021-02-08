@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Do not edit straightly roles from user data [#229](https://github.com/rokwire/illinois-app/issues/229).
 
+### Fixed
+- Fixed Counseling Center url [#512](https://github.com/rokwire/safer-illinois-app/issues/512).
+
 ## [2.9.10] - 2021-2-5
 ### Fixed
 - Additional fix for refresh token and logout on 400, 401 or 403 erresponse code. [#508](https://github.com/rokwire/safer-illinois-app/issues/508)
