@@ -5,36 +5,38 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## [2.9.11] - 2021-02-08
 ### Changed
 - Do not edit straightly roles from user data [#229](https://github.com/rokwire/illinois-app/issues/229).
 
 ### Fixed
 - Fixed Counseling Center url [#512](https://github.com/rokwire/safer-illinois-app/issues/512).
 
-## [2.9.10] - 2021-2-5
+## [2.9.10] - 2021-02-05
 ### Fixed
 - Additional fix for refresh token and logout on 400, 401 or 403 erresponse code. [#508](https://github.com/rokwire/safer-illinois-app/issues/508)
 
-## [2.9.9] - 2021-2-3
+## [2.9.9] - 2021-02-03
 ### Fixed
 - Additional fix for refresh token and logout on 401 or 403 erresponse code. [#508](https://github.com/rokwire/safer-illinois-app/issues/508)
 
-## [2.9.8] - 2021-2-1
+## [2.9.8] - 2021-02-01
 ### Fixed
 - Explore Shibboleth login failure due to deleted UUID [#508](https://github.com/rokwire/safer-illinois-app/issues/508)
 - Updated details of background permissions [#506](https://github.com/rokwire/safer-illinois-app/issues/506)
 - Updated details of background permissions Explore Shibboleth login failure due to deleted UUID [#508](https://github.com/rokwire/safer-illinois-app/issues/508)
 
-## [2.9.7] - 2021-1-26
+## [2.9.7] - 2021-01-26
 ### Fixed
 - Updated order of panel shown during onboarding [#503](https://github.com/rokwire/safer-illinois-app/issues/503)
 - Apply nextStepDate in local time when making the calculations for displayNextStepDate.
 
-## [2.9.6] - 2021-1-22
+## [2.9.6] - 2021-01-22
 ### Fixed
 - Updated Onboarding Disclosure Panel text. [#497](https://github.com/rokwire/safer-illinois-app/issues/497)
 
-## [2.9.5] - 2021-1-20
+## [2.9.5] - 2021-01-20
 ### Changed
 - Sync health.rules.json with latest 2.9 content on production
 - Acknowledged "quarantine-on.reason" string entry in "health.rules.json".
