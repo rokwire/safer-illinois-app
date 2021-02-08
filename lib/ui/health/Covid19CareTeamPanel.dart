@@ -296,7 +296,7 @@ class _Covid19CareTeamPanelState extends State<Covid19CareTeamPanel> with Ticker
                       _linkWidget(
                         title:Localization().getStringEx(
                           "panel.health.covid19.care_team.label.counseling_center.link", "Counseling Center"),
-                        url: ' https://www.counselingcenter.illinois.edu/#quicklinks'
+                        url: 'https://www.counselingcenter.illinois.edu/#quicklinks'
                       ),
                       Container(height: 12,),
                       _linkWidget(
