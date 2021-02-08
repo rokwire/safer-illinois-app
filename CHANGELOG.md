@@ -5,12 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Changed
+- Do not edit straightly roles from user data [#229](https://github.com/rokwire/illinois-app/issues/229).
+
 ## [2.9.10] - 2021-2-5
-Fixed
+### Fixed
 - Additional fix for refresh token and logout on 400, 401 or 403 erresponse code. [#508](https://github.com/rokwire/safer-illinois-app/issues/508)
 
 ## [2.9.9] - 2021-2-3
-Fixed
+### Fixed
 - Additional fix for refresh token and logout on 401 or 403 erresponse code. [#508](https://github.com/rokwire/safer-illinois-app/issues/508)
 
 ## [2.9.8] - 2021-2-1

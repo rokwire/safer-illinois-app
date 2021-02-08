@@ -289,7 +289,7 @@ class User with Service implements NotificationsListener {
 
   set roles(Set<UserRole> userRoles) {
     if (_userData != null) {
-      _userData.roles = userRoles;
+      _userData.roles = (userRoles != null) ? Set.from(userRoles) : null;
       _updateUser().then((_){
         _notifyUserRolesUpdated();
       });
