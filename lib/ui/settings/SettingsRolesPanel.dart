@@ -42,7 +42,7 @@ class _SettingsRolesPanelState extends State<SettingsRolesPanel> implements Noti
   void initState() {
     NotificationService().subscribe(this, UserProfile.notifyRolesUpdated);
     _userRoles = UserProfile().roles ?? Set<UserRole>();
-    _selectedRoles = Set<UserRole>.from(_userRoles);
+    _selectedRoles = (UserProfile().roles != null) ? Set<UserRole>.from(UserProfile().roles) : Set<UserRole>();
     super.initState();
   }
 
@@ -265,7 +265,7 @@ class _SettingsRolesPanelState extends State<SettingsRolesPanel> implements Noti
   void onNotification(String name, dynamic param) {
     if (name == UserProfile.notifyRolesUpdated) {
       setState(() {
-        _selectedRoles = UserProfile().roles ?? Set<UserRole>();
+        _selectedRoles = (UserProfile().roles != null) ? Set<UserRole>.from(UserProfile().roles) : Set<UserRole>();
       });
     }
   }

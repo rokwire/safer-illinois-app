@@ -45,7 +45,7 @@ class _OnboardingRoleSelectionPanelState extends State<OnboardingRolesPanel> {
 
   @override
   void initState() {
-    _selectedRoles = UserProfile().roles ?? Set<UserRole>();
+    _selectedRoles = (UserProfile().roles != null) ? Set<UserRole>.from(UserProfile().roles) : Set<UserRole>();
     super.initState();
   }
   

@@ -59,7 +59,7 @@
 
 	"panel.onboarding.location.label.title": "Turn on Location Services",
 	"panel.onboarding.location.label.title.hint": "Header 1",
-	"panel.onboarding.location.label.description": "Required for exposure notifications to work in the background on your phone",
+	"panel.onboarding.location.label.description": "Background location is required for Bluetooth-based exposure notification to work on your phone",
 	"panel.onboarding.location.button.allow.title": "Enable Location Services",
 	"panel.onboarding.location.button.allow.hint": "",
 	"panel.onboarding.location.button.dont_allow.title": "Not right now",

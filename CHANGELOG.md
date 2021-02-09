@@ -10,9 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - OnBoardingHealthDisclosurePanel duplicated text [#490](https://github.com/rokwire/safer-illinois-app/issues/490)
 - Apply nextStepDate in local time when making the calculations for displayNextStepDate.
 - Extend Auth OIDC processing to handle external configurations.
+- Fixed Counseling Center url [#512](https://github.com/rokwire/safer-illinois-app/issues/512).
 
 ### Changed
 - Updated app config format to refer 'oidc' instead of 'shibboleth', merge shibboleth url entries in app config into single one [#501](https://github.com/rokwire/safer-illinois-app/issues/501)
+- Do not edit straightly roles from user data [#229](https://github.com/rokwire/illinois-app/issues/229).
+- Increased connectivity plugin version [#519](https://github.com/rokwire/safer-illinois-app/issues/519).
 
 ## [2.10.11] - 2021-01-19
 ### Changed
@@ -32,6 +35,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added 'warningHtml' field to HealthStatus [#467](https://github.com/rokwire/safer-illinois-app/issues/467).
 - Added 'release' action and status to health rules [#470](https://github.com/rokwire/safer-illinois-app/issues/470).
 
+## [2.9.11] - 2021-02-08
+### Changed
+- Do not edit straightly roles from user data [#229](https://github.com/rokwire/illinois-app/issues/229).
+
+### Fixed
+- Fixed Counseling Center url [#512](https://github.com/rokwire/safer-illinois-app/issues/512).
+
+## [2.9.10] - 2021-02-05
+### Fixed
+- Additional fix for refresh token and logout on 400, 401 or 403 erresponse code. [#508](https://github.com/rokwire/safer-illinois-app/issues/508)
+
+## [2.9.9] - 2021-02-03
+### Fixed
+- Additional fix for refresh token and logout on 401 or 403 erresponse code. [#508](https://github.com/rokwire/safer-illinois-app/issues/508)
+
+## [2.9.8] - 2021-02-01
+### Fixed
+- Explore Shibboleth login failure due to deleted UUID [#508](https://github.com/rokwire/safer-illinois-app/issues/508)
+- OnBoardingHealthDisclosurePanel duplicated text [#490](https://github.com/rokwire/safer-illinois-app/issues/490)
+- Apply nextStepDate in local time when making the calculations for displayNextStepDate.
+- Extend Auth OIDC processing to handle external configurations.
+- Fixed Counseling Center url [#512](https://github.com/rokwire/safer-illinois-app/issues/512).
+
+### Changed
+- Updated app config format to refer 'oidc' instead of 'shibboleth', merge shibboleth url entries in app config into single one [#501](https://github.com/rokwire/safer-illinois-app/issues/501)
+- Do not edit straightly roles from user data [#229](https://github.com/rokwire/illinois-app/issues/229).
+
+## [2.9.7] - 2021-01-26
 ### Fixed
 - Fixed rokmetro token refresh [#396](https://github.com/rokwire/safer-illinois-app/issues/396).
 - Fixed grammer in Status Update String [#454](https://github.com/rokwire/safer-illinois-app/issues/454)
@@ -97,11 +128,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Apply nextStepDate in local time when making the calculations for displayNextStepDate.
 - Updated details of background permissions [#506](https://github.com/rokwire/safer-illinois-app/issues/506)
 
-## [2.9.6] - 2021-1-22
+## [2.9.6] - 2021-01-22
 ### Fixed
 - Updated Onboarding Disclosure Panel text. [#497](https://github.com/rokwire/safer-illinois-app/issues/497)
 
-## [2.9.5] - 2021-1-20
+## [2.9.5] - 2021-01-20
 ### Changed
 - Sync health.rules.json with latest 2.9 content on production
 - Acknowledged "quarantine-on.reason" string entry in "health.rules.json".

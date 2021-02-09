@@ -289,7 +289,7 @@ class UserProfile with Service implements NotificationsListener {
 
   set roles(Set<UserRole> userRoles) {
     if (_profileData != null) {
-      _profileData.roles = userRoles;
+      _profileData.roles = (userRoles != null) ? Set<UserRole>.from(userRoles) : null;
       _updateProfile().then((_){
         _notifyUserRolesUpdated();
       });
