@@ -193,7 +193,6 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
         refreshRpi();
         startAdvertise();
         startRpiTimer();
-        expStartTime = (long) Utils.DateTime.getCurrentTimeMillisSince1970() / 1000;
         startExpUpTimeTimer();
         startScan();
     }
@@ -1208,6 +1207,7 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
     //endregion
 
     private void startExpUpTimeTimer() {
+        expStartTime = (long) Utils.DateTime.getCurrentTimeMillisSince1970() / 1000;
         long refreshIntervalInMillis = 60 * 1000;
         stopExpUpTimeTimer();
         expUpTimeTimer = new Timer();
@@ -1224,17 +1224,33 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
             expUpTimeTimer.cancel();
         }
         expUpTimeTimer = null;
-        long currentTime = (long) Utils.DateTime.getCurrentTimeMillisSince1970() / 1000;
-        this.expUpTimeMap.put(new Integer((int)expStartTime), new Integer((int)(currentTime - expStartTime)));
-        saveExpUpTimeToStorage();
+        if (expStartTime != 0) {
+            long currentTime = (long) Utils.DateTime.getCurrentTimeMillisSince1970() / 1000;
+            this.expUpTimeMap.put(new Integer((int)expStartTime), new Integer((int)(currentTime - expStartTime)));
+            saveExpUpTimeToStorage();
+        }
     }
 
     private void expUpTimeHit() {
-        long currentTime = (long) Utils.DateTime.getCurrentTimeMillisSince1970() / 1000;
-        this.expUpTimeMap.put(new Integer((int)expStartTime), new Integer((int)(currentTime - expStartTime)));
-        saveExpUpTimeToStorage();
+        if (expStartTime != 0 && expUpTimeTimer != null) {
+            long currentTime = (long) Utils.DateTime.getCurrentTimeMillisSince1970() / 1000;
+            this.expUpTimeMap.put(new Integer((int)expStartTime), new Integer((int)(currentTime - expStartTime)));
+            saveExpUpTimeToStorage();
+        }
     }
 
+    private void removeExpiredTime() {
+        if (expUpTimeMap != null) {
+            long currentTime = (long) Utils.DateTime.getCurrentTimeMillisSince1970() / 1000;
+            long _expireTimestamp = currentTime - 168 * 60 * 60;
+            for (Integer _time : expUpTimeMap.keySet()) {
+                if ((_time.intValue() + expUpTimeMap.get(_time).intValue()) < (int)_expireTimestamp) {
+                    expUpTimeMap.remove(_time);
+                }
+            }
+        }
+    }
+    
     private void loadExpUpTimeFromStorage() {
         try
         {
@@ -1246,14 +1262,15 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
             this.expUpTimeMap = new HashMap<Integer, Integer>((Map)objectInputStream.readObject());
         }
         catch(ClassNotFoundException | IOException | ClassCastException e) {
-            e.printStackTrace();
             this.expUpTimeMap = new HashMap<Integer, Integer>();
+            e.printStackTrace();
         }
     }
 
     private void saveExpUpTimeToStorage() {
         try
         {
+            removeExpiredTime();
             FileOutputStream fos = activityContext.openFileOutput("exposureUpTime.map", Context.MODE_PRIVATE);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(this.expUpTimeMap);
