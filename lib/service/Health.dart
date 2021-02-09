@@ -179,7 +179,7 @@ class Health with Service implements NotificationsListener {
         Duration pausedDuration = DateTime.now().difference(_pausedDateTime);
         if (Config().refreshTimeout < pausedDuration.inSeconds) {
           _refresh(_RefreshOptions.all()).then((_) {
-            _logExposureStatistics();            
+            _logExposureStatistics();
           });
         }
       }
@@ -1669,7 +1669,7 @@ class Health with Service implements NotificationsListener {
       int currEpoch = DateTime.now().toUtc().millisecondsSinceEpoch ~/ _exposureStatisticsLogInterval;
       if (currEpoch != lastEpoch) {
         // need to send lastEpoch's data
-        _sendExposureStatistics(lastEpoch ?? (currEpoch - 1));
+        await _sendExposureStatistics(lastEpoch ?? (currEpoch - 1));
         Storage().setInt(storageEntry, currEpoch);
       }
     }
@@ -1678,11 +1678,17 @@ class Health with Service implements NotificationsListener {
   Future<void> _sendExposureStatistics(int epoch) async {
 
     DateTime maxDateUtc = DateTime.fromMillisecondsSinceEpoch((epoch + 1) * _exposureStatisticsLogInterval);
+    
     int testFrequency168Hours = HealthHistory.retrieveNumTests(_history, 168, maxDateUtc: maxDateUtc);
+    
+    int  exposureUpTime6Hours = await Exposure().evalExposureUpTime(6);
+    int  exposureUpTime24Hours = await Exposure().evalExposureUpTime(24);
+    int  exposureUpTime168Hours = await Exposure().evalExposureUpTime(168);
+
     List socialActivity6Hours = await Exposure().evalSocialActivity(6, maxDateUtc: maxDateUtc);
     List socialActivity24Hours = await Exposure().evalSocialActivity(24, maxDateUtc: maxDateUtc);
     List socialActivity168Hours = await Exposure().evalSocialActivity(168, maxDateUtc: maxDateUtc);
-
+    
     bool contactTrace168Hours;
     String testResult168Hours;
     DateTime cutoffDate = DateTime.now().toUtc().subtract(Duration(hours: 168));
@@ -1712,6 +1718,9 @@ class Health with Service implements NotificationsListener {
         Analytics.LogRpiMatches6HoursName: socialActivity6Hours[1],
         Analytics.LogRpiMatches24HoursName: socialActivity24Hours[1],
         Analytics.LogRpiMatches168HoursName: socialActivity168Hours[1],
+        Analytics.LogExposureUpTime6HoursName : exposureUpTime6Hours,
+        Analytics.LogExposureUpTime24HoursName : exposureUpTime24Hours,
+        Analytics.LogExposureUpTime168HoursName : exposureUpTime168Hours,
         Analytics.LogExposureNotification168HoursName: contactTrace168Hours,
         Analytics.LogTestResult168HoursName: testResult168Hours,
         Analytics.LogEpochName: epoch,
