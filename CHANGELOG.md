@@ -17,6 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Do not edit straightly roles from user data [#229](https://github.com/rokwire/illinois-app/issues/229).
 - Increased connectivity plugin version [#519](https://github.com/rokwire/safer-illinois-app/issues/519).
 
+### Added
+- App Up time to exposure logs.
+
 ## [2.10.11] - 2021-01-19
 ### Changed
 - Changed interval between first and second test for Spring 2021 [#482](https://github.com/rokwire/safer-illinois-app/issues/482)
