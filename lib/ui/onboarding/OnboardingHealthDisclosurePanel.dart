@@ -27,6 +27,7 @@ import 'package:illinois/ui/onboarding/OnboardingBackButton.dart';
 import 'package:illinois/ui/widgets/RibbonButton.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/ui/widgets/TrianglePainter.dart';
+import 'package:illinois/utils/Utils.dart';
 
 class OnBoardingHealthDisclosurePanel extends StatefulWidget with OnboardingPanel {
 
@@ -67,6 +68,8 @@ class _OnBoardingHealthDisclosurePanelState extends State<OnBoardingHealthDisclo
   }
 
   Widget _buildContent(){
+    String section1Splitter = Localization().getString('panel.health.onboarding.covid19.disclosure.label.splitter1');
+
     return SafeArea(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,7 +115,7 @@ class _OnBoardingHealthDisclosurePanelState extends State<OnBoardingHealthDisclo
                 controller: _scrollController,
                 child: MeasureSize(
                     onChange: (Size size){
-                      determineContentCanScroll();
+                      _determineContentCanScroll();
                     },
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -128,30 +131,15 @@ class _OnBoardingHealthDisclosurePanelState extends State<OnBoardingHealthDisclo
                               style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 14, color:Styles().colors.textSurface),
                             )),
                         Container(height: 4,),
-                        Text(
-                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content1", "1. Bluetooth to enable opt-in exposure notifications of close contact with individuals that test positive for COVID-19."),
-                          style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 14, color:Styles().colors.textSurface),
-                        ),
+                        _section1Entry(Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content1", "1. Bluetooth to enable opt-in exposure notifications of close contact with individuals that test positive for COVID-19."), section1Splitter),
                         Container(height: 2,),
-                        Text(
-                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content2", "2. Photos to allow a user to import their personal encryption key (QR code) into the app."),
-                          style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 14, color:Styles().colors.textSurface),
-                        ),
+                        _section1Entry(Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content2", "2. Photos to allow a user to import their personal encryption key (QR code) into the app."), section1Splitter),
                         Container(height: 2,),
-                        Text(
-                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content3", "3. Videos to allow a user to import their personal encryption key (QR code) into the app."),
-                          style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 14, color:Styles().colors.textSurface),
-                        ),
+                        _section1Entry(Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content3", "3. Videos to allow a user to import their personal encryption key (QR code) into the app."), section1Splitter),
                         Container(height: 2,),
-                        Text(
-                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content4", "4. Files (external storage read and write) to allow a user to import their personal encryption key (QR code) into the app."),
-                          style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 14, color:Styles().colors.textSurface),
-                        ),
+                        _section1Entry(Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content4", "4. Files (external storage read and write) to allow a user to import their personal encryption key (QR code) into the app."), section1Splitter),
                         Container(height: 2,),
-                        Text(
-                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content5", "5. Location services on your device must be turned on to activate the Bluetooth low energy technology necessary for the exposure notification function of the Application to work in the background. However, the Application does not access, collect, or store any location data, including GPS data. If location services on your device are turned off, the Application will perform the limited functions of storing and providing information about COVID-19 test results, any voluntarily reported symptoms, and building access status."),
-                          style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 14, color:Styles().colors.textSurface),
-                        ),
+                        _section1Entry(Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content5", "5. Location services on your device must be turned on to activate the Bluetooth low energy technology necessary for the exposure notification function of the Application to work in the background. However, the Application does not access, collect, or store any location data, including GPS data. If location services on your device are turned off, the Application will perform the limited functions of storing and providing information about COVID-19 test results, any voluntarily reported symptoms, and building access status."), section1Splitter),
 
                         Container(height: 20,),
                         Semantics( header: true, hint: Localization().getStringEx("app.common.heading.two.hint","Header 2"),
@@ -287,13 +275,29 @@ class _OnBoardingHealthDisclosurePanelState extends State<OnBoardingHealthDisclo
     );
   }
 
-  void determineContentCanScroll(){
+  void _determineContentCanScroll(){
     if(_scrollController.position.maxScrollExtent==0){
       //There is nothing for scrolling
       setState(() {
         _canContinue = true;
       });
     }
+  }
+
+  Widget _section1Entry(String text, String splitter) {
+    if (((text != null) != null) && AppString.isStringNotEmpty(splitter)) {
+      List<String> content = text.split(splitter);
+      if ((content != null) && (1 < content.length)) {
+        String text1 = content[0] + splitter;
+        content = content.sublist(1);
+        String  text2 = content.join(splitter);
+        return RichText(text: TextSpan(style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 14, color:Styles().colors.textSurface), children: <TextSpan>[
+          TextSpan(text: text1, style:TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 14, color:Styles().colors.textSurface)),
+          TextSpan(text: text2),
+        ]));
+      }
+    }
+    return Text(text, style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 14, color:Styles().colors.textSurface),);
   }
 
   void _goBack(BuildContext context) {

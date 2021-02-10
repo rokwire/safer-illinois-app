@@ -415,6 +415,7 @@
 
 	"panel.health.onboarding.covid19.disclosure.label.title": "Information Usage Disclosure",
 	"panel.health.onboarding.covid19.disclosure.label.description1": "The Safer Illinois app uses:",
+	"panel.health.onboarding.covid19.disclosure.label.splitter1": ". ",
 	"panel.health.onboarding.covid19.disclosure.label.content1": "1. Bluetooth to enable opt-in exposure notifications of close contact with individuals that test positive for COVID-19.",
 	"panel.health.onboarding.covid19.disclosure.label.content2": "2. Photos to allow a user to import their personal encryption key (QR code) into the app.",
 	"panel.health.onboarding.covid19.disclosure.label.content3": "3. Videos to allow a user to import their personal encryption key (QR code) into the app.",
