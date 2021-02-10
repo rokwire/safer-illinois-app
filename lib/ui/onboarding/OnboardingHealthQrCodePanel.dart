@@ -537,41 +537,37 @@ class _OnboardingHealthQrCodePanelState extends State<OnboardingHealthQrCodePane
 
   void _onCovid19QrCodeScanSucceeded(String result) {
 
-    PointyCastle.PrivateKey privateKey;
-    try {
-      Uint8List pemCompressedData = (result != null) ? base64.decode(result) : null;
-      List<int> pemData = (pemCompressedData != null) ? GZipDecoder().decodeBytes(pemCompressedData) : null;
-      privateKey = (pemData != null) ? RsaKeyHelper.parsePrivateKeyFromPemData(pemData) : null;
-    }
-    catch (e) { print(e?.toString()); }
-    
-    if (privateKey != null) {
-      RsaKeyHelper.verifyRsaKeyPair(PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey>(_userPublicKey, privateKey)).then((bool result) {
-        if (mounted) {
-          if (result == true) {
-            Health().setUserPrivateKey(privateKey).then((success) {
-              if (mounted) {
-                String resultMessage = success ?
-                    Localization().getStringEx("panel.health.covid19.qr_code.alert.qr_code.transfer.succeeded.msg", "COVID-19 secret transferred successfully.") :
-                    Localization().getStringEx("panel.health.covid19.alert.qr_code.transfer.failed.msg", "Failed to transfer COVID-19 secret.");
-                AppAlert.showDialogResult(context, resultMessage).then((_){
-                  if(success) {
-                    Navigator.pop(context);
-                    _goNext();
+    RsaKeyHelper.decompressRsaPrivateKey(result).then((PointyCastle.PrivateKey privateKey) {
+      if (mounted) {
+        if (privateKey != null) {
+          RsaKeyHelper.verifyRsaKeyPair(PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey>(_userPublicKey, privateKey)).then((bool result) {
+            if (mounted) {
+              if (result == true) {
+                Health().setUserPrivateKey(privateKey).then((success) {
+                  if (mounted) {
+                    String resultMessage = success ?
+                        Localization().getStringEx("panel.health.covid19.qr_code.alert.qr_code.transfer.succeeded.msg", "COVID-19 secret transferred successfully.") :
+                        Localization().getStringEx("panel.health.covid19.alert.qr_code.transfer.failed.msg", "Failed to transfer COVID-19 secret.");
+                    AppAlert.showDialogResult(context, resultMessage).then((_){
+                      if(success) {
+                        Navigator.pop(context);
+                        _goNext();
+                      }
+                    });
                   }
                 });
               }
-            });
-          }
-          else {
-            AppAlert.showDialogResult(context, Localization().getStringEx('panel.health.covid19.alert.qr_code.not_match.msg', 'COVID-19 secret key does not match existing public RSA key.'));
-          }
+              else {
+                AppAlert.showDialogResult(context, Localization().getStringEx('panel.health.covid19.alert.qr_code.not_match.msg', 'COVID-19 secret key does not match existing public RSA key.'));
+              }
+            }
+          });
         }
-      });
-    }
-    else {
-      AppAlert.showDialogResult(context, Localization().getStringEx('panel.health.covid19.alert.qr_code.invalid.msg', 'Invalid QR code.'));
-    }
+        else {
+          AppAlert.showDialogResult(context, Localization().getStringEx('panel.health.covid19.alert.qr_code.invalid.msg', 'Invalid QR code.'));
+        }
+      }
+    });
   }
 
   void _onConfirmRefreshQrCode(BuildContext context, Function setStateEx){
