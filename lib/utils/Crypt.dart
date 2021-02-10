@@ -19,6 +19,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import "package:asn1lib/asn1lib.dart";
+import 'package:archive/archive.dart';
 import 'package:flutter/foundation.dart';
 import 'package:illinois/service/Log.dart';
 import "package:pointycastle/export.dart";
@@ -489,6 +490,10 @@ class RsaKeyHelper {
   static Future<bool> verifyRsaKeyPair(AsymmetricKeyPair<PublicKey, PrivateKey> rsaKeyPair) async {
     return await compute(_verifyRSAKeyPair, rsaKeyPair);
   }
+
+  static Future<PrivateKey> decompressRsaPrivateKey(String data) async {
+    return await compute(_decompressRsaPrivateKey, data);
+  }
 }
 
 bool _verifyRSAKeyPair(AsymmetricKeyPair<PublicKey, PrivateKey> rsaKeyPair) {
@@ -505,4 +510,17 @@ bool _verifyRSAKeyPair(AsymmetricKeyPair<PublicKey, PrivateKey> rsaKeyPair) {
     }
   }
   return null;
+}
+
+PrivateKey _decompressRsaPrivateKey(String data) {
+  PrivateKey privateKey;
+  try {
+    Uint8List pemCompressedData = (data != null) ? base64.decode(data) : null;
+    List<int> pemData = (pemCompressedData != null) ? GZipDecoder().decodeBytes(pemCompressedData) : null;
+    privateKey = (pemData != null) ? RsaKeyHelper.parsePrivateKeyFromPemData(pemData) : null;
+  }
+  catch (e) {
+    print(e?.toString());
+  }
+  return privateKey;
 }

@@ -178,6 +178,7 @@ class ScalableRoundedButton extends StatelessWidget {
   final bool showChevron;
   final bool showExternalLink;
   final int maxLines;
+  final Key buttonKey;
 
   ScalableRoundedButton(
       {this.label = '',
@@ -197,7 +198,8 @@ class ScalableRoundedButton extends StatelessWidget {
         this.showAdd = false,
         this.showChevron = false,
         this.showExternalLink = false,
-        this.maxLines = 10
+        this.maxLines = 10,
+        this.buttonKey
       });
 
   @override
@@ -212,6 +214,7 @@ class ScalableRoundedButton extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           child: Container(
+            key: buttonKey,
             decoration: BoxDecoration(
                 color: (backgroundColor ?? Styles().colors.fillColorPrimary),
                 border: Border.all(
