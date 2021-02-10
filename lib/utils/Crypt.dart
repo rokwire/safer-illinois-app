@@ -491,8 +491,18 @@ class RsaKeyHelper {
     return await compute(_verifyRSAKeyPair, rsaKeyPair);
   }
 
+  /// Decompess a [PrivateKey]
+  ///
+  /// Returns a private key decoded from base64 encoded string
   static Future<PrivateKey> decompressRsaPrivateKey(String data) async {
     return await compute(_decompressRsaPrivateKey, data);
+  }
+
+  /// Compess a [PrivateKey]
+  ///
+  /// Returns a base64 encoded string of compressed key content
+  static Future<String> compressRsaPrivateKey(PrivateKey privateKey) async {
+    return await compute(_compressRsaPrivateKey, privateKey);
   }
 }
 
@@ -523,4 +533,17 @@ PrivateKey _decompressRsaPrivateKey(String data) {
     print(e?.toString());
   }
   return privateKey;
+}
+
+String _compressRsaPrivateKey(PrivateKey privateKey) {
+  String privateKeyString;
+  try {
+    Uint8List privateKeyData = (privateKey != null) ? RsaKeyHelper.encodePrivateKeyToPEMDataPKCS1(privateKey) : null;
+    List<int> privateKeyCompressedData = (privateKeyData != null) ? GZipEncoder().encode(privateKeyData) : null;
+    privateKeyString = (privateKeyData != null) ? base64.encode(privateKeyCompressedData) : null;
+  }
+  catch (e) {
+    print(e?.toString());
+  }
+  return privateKeyString;
 }

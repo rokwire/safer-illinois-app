@@ -31,7 +31,7 @@ import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/utils/Covid19.dart';
 import 'package:illinois/utils/Crypt.dart';
 import 'package:illinois/utils/Utils.dart';
-import 'package:pointycastle/export.dart' as secure;
+import 'package:pointycastle/export.dart' as PointyCastle;
 
 class SettingsQrCodePanel extends StatefulWidget {
 
@@ -54,19 +54,14 @@ class _SettingsQrCodePanelState extends State<SettingsQrCodePanel> {
   }
 
   Future<Uint8List> _loadQrImageBytes() async {
-    secure.PrivateKey privateKey = Health().userPrivateKey;
-    Uint8List privateKeyData = (privateKey != null) ? RsaKeyHelper.encodePrivateKeyToPEMDataPKCS1(privateKey): null;
-    List<int> privateKeyCompressedData = (privateKeyData != null) ? GZipEncoder().encode(privateKeyData) : null;
-    String privateKeyString = (privateKeyData != null) ? base64.encode(privateKeyCompressedData) : null;
-    if (AppString.isStringEmpty(privateKeyString)) {
-      return null;
-    }
-    return await NativeCommunicator().getBarcodeImageData({
+    PointyCastle.PrivateKey privateKey = Health().userPrivateKey;
+    String privateKeyString = (privateKey != null) ? await RsaKeyHelper.compressRsaPrivateKey(privateKey) : null;
+    return (privateKeyString != null) ? await NativeCommunicator().getBarcodeImageData({
       'content': privateKeyString,
       'format': 'qrCode',
       'width': 1024,
       'height': 1024,
-    });
+    }) : null;
   }
 
   Future<void> _saveQrCode() async{

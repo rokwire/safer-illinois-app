@@ -75,19 +75,25 @@ class _Settings2TransferEncryptionKeyPanelState extends State<Settings2TransferE
   }
 
   void _buildHealthRSAQRCode() {
-    Uint8List privateKeyData = (_userKeysPaired && (_userPrivateKey != null)) ? RsaKeyHelper.encodePrivateKeyToPEMDataPKCS1(_userPrivateKey) : null;
-    List<int> privateKeyCompressedData = (privateKeyData != null) ? GZipEncoder().encode(privateKeyData) : null;
-    String privateKeyString = (privateKeyData != null) ? base64.encode(privateKeyCompressedData) : null;
-    if (privateKeyString != null) {
-      NativeCommunicator().getBarcodeImageData({
-        'content': privateKeyString,
-        'format': 'qrCode',
-        'width': 1024,
-        'height': 1024,
-      }).then((Uint8List qrCodeBytes) {
+    if (_userKeysPaired && (_userPrivateKey != null)) {
+      RsaKeyHelper.compressRsaPrivateKey(_userPrivateKey).then((String privateKeyString) {
         if (mounted) {
-          _qrCodeBytes = qrCodeBytes;
-          _finishPrepare();
+          if (privateKeyString != null) {
+            NativeCommunicator().getBarcodeImageData({
+              'content': privateKeyString,
+              'format': 'qrCode',
+              'width': 1024,
+              'height': 1024,
+            }).then((Uint8List qrCodeBytes) {
+              if (mounted) {
+                _qrCodeBytes = qrCodeBytes;
+                _finishPrepare();
+              }
+            });
+          }
+          else {
+            _finishPrepare();
+          }
         }
       });
     }
