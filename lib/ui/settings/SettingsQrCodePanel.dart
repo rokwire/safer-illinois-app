@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:archive/archive.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -114,7 +112,12 @@ class _SettingsQrCodePanelState extends State<SettingsQrCodePanel> {
                       padding: EdgeInsets.all(5), child:
                         Image.memory(_qrCodeBytes, fit: BoxFit.fitWidth, semanticLabel: Localization().getStringEx("panel.health.covid19.qr_code.primary.heading.title", "Your COVID-19 Encryption Key"),
                     ),),) :
-                  Container()),
+                  Container(width: MediaQuery.of(context).size.width, height: MediaQuery.of(context).size.width - 10, child:
+                    Align(alignment: Alignment.center, child:
+                      CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary), strokeWidth: 2,),
+                    ),
+                  )
+                ),
               ),
               Padding(padding: EdgeInsets.only(top: 24), child: Text(
                 Localization().getStringEx('panel.covid19.qr_code.description.heading.2', 'Save this QR code so that If you lose or replace your phone, you can retrieve your COVID-19 health information on your new phone.'),
