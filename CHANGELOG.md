@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated app config format to refer 'oidc' instead of 'shibboleth', merge shibboleth url entries in app config into single one [#501](https://github.com/rokwire/safer-illinois-app/issues/501)
 - Do not edit straightly roles from user data [#229](https://github.com/rokwire/illinois-app/issues/229).
 - Increased connectivity plugin version [#519](https://github.com/rokwire/safer-illinois-app/issues/519).
+- Updated space between texts in OnBoardingHealthDisclosurePanel [#488](https://github.com/rokwire/safer-illinois-app/issues/488).
 
 ### Added
 - App Up time to exposure logs.
