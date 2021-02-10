@@ -61,7 +61,9 @@ class _OnboardingHealthQrCodePanelState extends State<OnboardingHealthQrCodePane
   Uint8List _qrCodeBytes;
   bool _saving = false;
 
-  bool _isRefreshing = false;
+  bool _isScanning = false;
+  bool _isRetrieving = false;
+  bool _isReseting = false;
 
   @override
   void initState() {
@@ -266,7 +268,8 @@ class _OnboardingHealthQrCodePanelState extends State<OnboardingHealthQrCodePane
               description: Localization().getStringEx("panel.health.covid19.qr_code.secondary.button.scan.description", "If you still have access to your primary device, you can directly scan the COVID-19 Encryption Key QR code from that device."),
               title: Localization().getStringEx("panel.health.covid19.qr_code.secondary.button.scan.title", "Scan Your QR Code"),
               iconRes: "images/fill-1.png",
-              onTap: _onScan
+              onTap: _onScan,
+              progress: (_isScanning == true),
           ),
           Container(height: 12,),
           _buildAction(
@@ -274,14 +277,16 @@ class _OnboardingHealthQrCodePanelState extends State<OnboardingHealthQrCodePane
               description: Localization().getStringEx("panel.health.covid19.qr_code.secondary.button.retrieve.description", "If you no longer have access to your primary device, but saved your QR code to a cloud photo service, you can transfer your COVID-19 Encryption Key by retrieving it from your photos."),
               title: Localization().getStringEx("panel.health.covid19.qr_code.secondary.button.retrieve.title", "Retrieve Your QR Code"),
               iconRes: "images/group-10.png",
-              onTap: _onRetrieve
+              onTap: _onRetrieve,
+              progress: (_isRetrieving == true),
           ),
           Container(height: 12,),
           _buildAction(
               heading: Localization().getStringEx("panel.health.covid19.qr_code.reset.button.heading", "Reset my COVID-19 Secret QRcode:"),
               title: Localization().getStringEx("panel.health.covid19.qr_code.reset.button.title", "Reset my COVID-19 Secret QRcode"),
               iconRes: "images/group-10.png",
-              onTap: _onRefreshQrCodeTapped
+              onTap: _onRefreshQrCodeTapped,
+              progress: (_isReseting == true),
           ),
           Container(height: 12,),
           Container(height: 40,)
@@ -301,7 +306,7 @@ class _OnboardingHealthQrCodePanelState extends State<OnboardingHealthQrCodePane
     );
   }
 
-  Widget _buildAction({String heading, String description = "", String title, String iconRes, Function onTap}){
+  Widget _buildAction({String heading, String description = "", String title, String iconRes, bool progress, Function onTap}){
     return Semantics(container: true, child:Container(
         decoration: BoxDecoration(
         color: Styles().colors.white,
@@ -337,7 +342,13 @@ class _OnboardingHealthQrCodePanelState extends State<OnboardingHealthQrCodePane
                           child: Semantics(button: true, excludeSemantics:false, child:
                             Text(title, style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 14, color:Styles().colors.fillColorPrimary))),
                       )),
-                      Image.asset('images/chevron-right.png',excludeFromSemantics: true,),
+                      Stack(children: [
+                        Visibility(visible: (progress != true), child:
+                          Image.asset('images/chevron-right.png', excludeFromSemantics: true,),),
+                        Visibility(visible: (progress == true), child:
+                          Container(width: 20, height: 20, child:
+                            CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary), strokeWidth: 2,),),),
+                      ],),
                     ],
                   ))))),
           ],
@@ -443,7 +454,7 @@ class _OnboardingHealthQrCodePanelState extends State<OnboardingHealthQrCodePane
                                   borderColor: Styles().colors.fillColorSecondary,
                                   textColor: Styles().colors.fillColorPrimary,
                                   label: Localization().getStringEx("app.common.yes", "Yes")),
-                              _isRefreshing ? Center(child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary),)) : Container()
+                              _isReseting ? Center(child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary),)) : Container()
                             ],
                           ),
                         ),
@@ -511,6 +522,11 @@ class _OnboardingHealthQrCodePanelState extends State<OnboardingHealthQrCodePane
     }
   }
 
+  void _goBack(BuildContext context) {
+    Analytics.instance.logSelect(target: "Back");
+    Navigator.of(context).pop();
+  }
+
   void _onScan(){
     BarcodeScanner.scan().then((result) {
     // barcode_scan plugin returns 8 digits when it cannot read the qr code. Prevent it from storing such values
@@ -518,25 +534,23 @@ class _OnboardingHealthQrCodePanelState extends State<OnboardingHealthQrCodePane
         AppAlert.showDialogResult(context, Localization().getStringEx('panel.health.covid19.alert.qr_code.scan.failed.msg', 'Failed to read QR code.'));
       }
       else {
+        setState(() { _isScanning = true; });
         _onCovid19QrCodeScanSucceeded(result);
       }
     });
   }
 
-  void _goBack(BuildContext context) {
-    Analytics.instance.logSelect(target: "Back");
-    Navigator.of(context).pop();
-  }
-
   void _onRetrieve() {
     Analytics.instance.logSelect(target: "Retrieve Your QR Code");
     Covid19Utils.loadQRCodeImageFromPictures().then((String qrCodeString) {
-      _onCovid19QrCodeScanSucceeded(qrCodeString);
+      if (qrCodeString != null) {
+        setState(() { _isRetrieving = true; });
+        _onCovid19QrCodeScanSucceeded(qrCodeString);
+      }
     });
   }
 
   void _onCovid19QrCodeScanSucceeded(String result) {
-
     RsaKeyHelper.decompressRsaPrivateKey(result).then((PointyCastle.PrivateKey privateKey) {
       if (mounted) {
         if (privateKey != null) {
@@ -545,6 +559,7 @@ class _OnboardingHealthQrCodePanelState extends State<OnboardingHealthQrCodePane
               if (result == true) {
                 Health().setUserPrivateKey(privateKey).then((success) {
                   if (mounted) {
+                    setState(() { _isRetrieving = _isScanning = false; });
                     String resultMessage = success ?
                         Localization().getStringEx("panel.health.covid19.qr_code.alert.qr_code.transfer.succeeded.msg", "COVID-19 secret transferred successfully.") :
                         Localization().getStringEx("panel.health.covid19.alert.qr_code.transfer.failed.msg", "Failed to transfer COVID-19 secret.");
@@ -558,12 +573,14 @@ class _OnboardingHealthQrCodePanelState extends State<OnboardingHealthQrCodePane
                 });
               }
               else {
+                setState(() { _isRetrieving = _isScanning = false; });
                 AppAlert.showDialogResult(context, Localization().getStringEx('panel.health.covid19.alert.qr_code.not_match.msg', 'COVID-19 secret key does not match existing public RSA key.'));
               }
             }
           });
         }
         else {
+          setState(() { _isRetrieving = _isScanning = false; });
           AppAlert.showDialogResult(context, Localization().getStringEx('panel.health.covid19.alert.qr_code.invalid.msg', 'Invalid QR code.'));
         }
       }
@@ -572,13 +589,13 @@ class _OnboardingHealthQrCodePanelState extends State<OnboardingHealthQrCodePane
 
   void _onConfirmRefreshQrCode(BuildContext context, Function setStateEx){
     setStateEx(() {
-      _isRefreshing = true;
+      _isReseting = true;
     });
 
     Health().resetUserKeys().then((PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey> rsaKeys) {
       if (mounted) {
         setStateEx((){
-          _isRefreshing = false;
+          _isReseting = false;
         });
 
         if(rsaKeys != null) {
