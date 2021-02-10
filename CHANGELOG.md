@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - App Up time to exposure logs.
+- Added progress indictors when processing QR image code from load/scan [#495](https://github.com/rokwire/safer-illinois-app/issues/495).
 
 ## [2.10.11] - 2021-01-19
 ### Changed

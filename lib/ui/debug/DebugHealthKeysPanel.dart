@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:archive/archive.dart';
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/material.dart';
 import 'package:illinois/service/Analytics.dart';
@@ -439,43 +437,36 @@ class _DebugHealthKeysPanelState extends State<DebugHealthKeysPanel> {
   }
 
   void _applyPrivateRsaKeyString(String result) {
-
-    PointyCastle.PrivateKey privateKey;
-    try {
-      Uint8List pemCompressedData = (result != null) ? base64.decode(result) : null;
-      List<int> pemData = (pemCompressedData != null) ? GZipDecoder().decodeBytes(pemCompressedData) : null;
-      privateKey = (pemData != null) ? RsaKeyHelper.parsePrivateKeyFromPemData(pemData) : null;
-    }
-    catch (e) {
-      print(e?.toString());
-    }
-    
-    if (privateKey != null) {
-      RsaKeyHelper.verifyRsaKeyPair(PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey>(_rsaPublicKey, privateKey)).then((bool result) {
-        if (mounted) {
-          if (result == true) {
-            Health().setUserPrivateKey(privateKey).then((success) {
-              if (mounted) {
-                if (success) {
-                  _rsaPrivateKey = privateKey;
-                  _rsaPrivateKeyController.text = (_rsaPrivateKey != null) ? RsaKeyHelper.encodePrivateKeyToPemPKCS1(_rsaPrivateKey) : "- NA -";
-                  _rsaKeysStatus = _buildRSAKeysStatus();
-                }
-                else {
-                  AppAlert.showDialogResult(context, "Failed to transfer COVID-19 secret.");
-                }
+    RsaKeyHelper.decompressRsaPrivateKey(result).then((PointyCastle.PrivateKey privateKey) {
+      if (mounted) {
+        if (privateKey != null) {
+          RsaKeyHelper.verifyRsaKeyPair(PointyCastle.AsymmetricKeyPair<PointyCastle.PublicKey, PointyCastle.PrivateKey>(_rsaPublicKey, privateKey)).then((bool result) {
+            if (mounted) {
+              if (result == true) {
+                Health().setUserPrivateKey(privateKey).then((success) {
+                  if (mounted) {
+                    if (success) {
+                      _rsaPrivateKey = privateKey;
+                      _rsaPrivateKeyController.text = (_rsaPrivateKey != null) ? RsaKeyHelper.encodePrivateKeyToPemPKCS1(_rsaPrivateKey) : "- NA -";
+                      _rsaKeysStatus = _buildRSAKeysStatus();
+                    }
+                    else {
+                      AppAlert.showDialogResult(context, "Failed to transfer COVID-19 secret.");
+                    }
+                  }
+                });
               }
-            });
-          }
-          else {
-            AppAlert.showDialogResult(context, 'COVID-19 secret key does not match existing public RSA key.');
-          }
+              else {
+                AppAlert.showDialogResult(context, 'COVID-19 secret key does not match existing public RSA key.');
+              }
+            }
+          });
         }
-      });
-    }
-    else {
-      AppAlert.showDialogResult(context, 'Invalid QR code.');
-    }
+        else {
+          AppAlert.showDialogResult(context, 'Invalid QR code.');
+        }
+      }
+    });
   }
 
   void _onGenerateAESKey() {
