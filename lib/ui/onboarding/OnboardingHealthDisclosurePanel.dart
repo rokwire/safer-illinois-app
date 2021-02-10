@@ -121,7 +121,7 @@ class _OnBoardingHealthDisclosurePanelState extends State<OnBoardingHealthDisclo
                             child:Text(Localization().getStringEx('panel.health.onboarding.covid19.disclosure.label.title', 'Information Usage Disclosure'),
                               style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 28, color: Styles().colors.textSurface),
                             )),
-                        Container(height: 11,),
+                        Container(height: 10,),
 
                         Semantics( header: true, hint: Localization().getStringEx("app.common.heading.two.hint","Header 2"),
                             child: Text(Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.description1", "The Safer Illinois app uses:"),
@@ -153,93 +153,86 @@ class _OnBoardingHealthDisclosurePanelState extends State<OnBoardingHealthDisclo
                           style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 14, color:Styles().colors.textSurface),
                         ),
 
-                        Container(height: 11,),
+                        Container(height: 20,),
                         Semantics( header: true, hint: Localization().getStringEx("app.common.heading.two.hint","Header 2"),
                             child: Text(Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.description2", "YOUR INFORMATION AND HOW WE USE IT"),
                               style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 24, color:Styles().colors.textSurface),
                             )),
-                        Container(height: 4,),
+                        Container(height: 20,),
 
-                        Container(height: 11,),
                         Semantics( header: true, hint: Localization().getStringEx("app.common.heading.three.hint","Header 3"),
                             child: Text(Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.description3", "Information we need to provide you COVID-19 test results"),
                               style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 18, color:Styles().colors.textSurface),
                             )),
-                        Container(height: 4,),
                         Text(
                           Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content8", "Name, email address, University ID number (UIN), phone number, and student registration information"),
                           style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color:Styles().colors.textSurface),
                         ),
-                        Container(height: 11,),
+
+                        Container(height: 10,),
                         Semantics( header: true, hint: Localization().getStringEx("app.common.heading.three.hint","Header 3"),
                             child: Text(Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.description4", "Symptoms"),
                               style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 18, color:Styles().colors.textSurface),
                             )),
-                        Container(height: 4,),
                         Text(
                           Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content9", "Your COVID-19 Symptoms are reported as anonymous data."),
                           style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color:Styles().colors.textSurface),
                         ),
-                        Container(height: 11,),
+
+                        Container(height: 10,),
                         Semantics( header: true, hint: Localization().getStringEx("app.common.heading.three.hint","Header 3"),
                             child: Text(Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.description5", "COVID-19 Medical History"),
                               style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 18, color:Styles().colors.textSurface),
                             )),
-                        Container(height: 4,),
                         Text(
                           Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content10", "Events such as test results, symptom reports, being placed in isolation/quarantine are maintained on record but encrypted so your details are private."),
                           style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color:Styles().colors.textSurface),
                         ),
-                        Container(height: 11,),
+
+                        Container(height: 10,),
                         Semantics( header: true, hint: Localization().getStringEx("app.common.heading.three.hint","Header 3"),
                             child: Text(Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.description6", "Private Encryption Key Management to protect your health information"),
                               style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 18, color:Styles().colors.textSurface),
                             )),
-                        Container(height: 4,),
                         Text(
                           Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content11", "Your health history, status, and test results are encrypted on our servers and only you can view them. The following permissions are used to save and restore your secret QR code in your photo library:"),
                           style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color:Styles().colors.textSurface),
                         ),
-                        Container(height: 4,),
                         Text(
                           Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content12", "  - CAMERA"),
                           style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 20, color:Styles().colors.textSurface),
                         ),
-                        Container(height: 4,),
                         Text(
                           Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content13", "  - WRITE_EXTERNAL_STORAGE"),
                           style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 20, color:Styles().colors.textSurface),
                         ),
-                        Container(height: 4,),
                         Text(
                           Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content14", "  - READ_EXTERNAL_STORAGE"),
                           style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 20, color:Styles().colors.textSurface),
                         ),
-                        Container(height: 11,),
+
+                        Container(height: 10,),
                         Semantics( header: true, hint: Localization().getStringEx("app.common.heading.three.hint","Header 3"),
                             child: Text(Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.description8", "Opt-in exposure notification participation"),
                               style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 18, color:Styles().colors.textSurface),
                             )),
-                        Container(height: 4,),
                         Text(
                           Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content18", "Your phone transmits and receives anonymous identifying numbers via Bluetooth. This identifier is stored on any phones that come close to you.  If someone tests positive for COVID-19, their phone tells our servers the anonymous numbers they have sent for the last 14 days.  Your phone will check if you were near that infected users' phone long enough to warrant an exposure notification. This is all done anonymously. Your location is never tracked or stored on our servers. If you have elected to use Exposure Notification, Location Services, and Bluetooth, these capabilities will run in the background when the app is not in use. The following permissions are used to enable this:"),
                           style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color:Styles().colors.textSurface),
                         ),
-                        Container(height: 4,),
                         Text(
                           Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content19", "  - BLUETOOTH"),
                           style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 20, color:Styles().colors.textSurface),
                         ),
-                        Container(height: 4,),
                         Text(
                           Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content20", "  - BLUETOOTH_ADMIN"),
                           style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 20, color:Styles().colors.textSurface),
                         ),
-                        Container(height: 4,),
                         Text(
                           Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content21", "  - LOCATION"),
                           style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 20, color:Styles().colors.textSurface),
                         ),
+
                         Container(height: 10,),
                       ],
                     ))
