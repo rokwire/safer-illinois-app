@@ -208,22 +208,25 @@ class User with Service implements NotificationsListener {
   Future<void> deleteUser() async{
     String userUuid = _userData?.uuid;
     if((Config().userProfileUrl != null) && (userUuid != null)) {
-      await Network().delete("${Config().userProfileUrl}/$userUuid", headers: {"Accept": "application/json", "content-type": "application/json"}, auth: NetworkAuth.App);
-
-      _clearStoredUserData();
-      _notifyUserDeleted();
-
       try {
-        _userData = await requestUser(Storage().localUserUuid);
-      } on UserNotFoundException catch (_) {
-        _userData = await _requestCreateUser();
-        if (_userData?.uuid != null) {
-          Storage().localUserUuid = _userData?.uuid;
-        }
+        await Network().delete("${Config().userProfileUrl}/$userUuid", headers: {"Accept": "application/json", "content-type": "application/json"}, auth: NetworkAuth.App);
       }
-      if (_userData != null) {
-        Storage().userData = _userData;
-        _notifyUserUpdated();
+      finally {
+        _clearStoredUserData();
+        _notifyUserDeleted();
+
+        try {
+          _userData = await requestUser(Storage().localUserUuid);
+        } on UserNotFoundException catch (_) {
+          _userData = await _requestCreateUser();
+          if (_userData?.uuid != null) {
+            Storage().localUserUuid = _userData?.uuid;
+          }
+        }
+        if (_userData != null) {
+          Storage().userData = _userData;
+          _notifyUserUpdated();
+        }
       }
     }
 
@@ -286,7 +289,7 @@ class User with Service implements NotificationsListener {
 
   set roles(Set<UserRole> userRoles) {
     if (_userData != null) {
-      _userData.roles = userRoles;
+      _userData.roles = (userRoles != null) ? Set.from(userRoles) : null;
       _updateUser().then((_){
         _notifyUserRolesUpdated();
       });

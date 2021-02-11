@@ -11,7 +11,7 @@ description: Illinois client application.
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 2.9.7+907
+version: 2.9.12+912
 
 environment:
   sdk: ">=2.2.0 <3.0.0"
@@ -45,7 +45,7 @@ dependencies:
   encrypt: ^4.0.2
   package_info: ^0.4.0+9
   device_info: ^0.4.0+4
-  connectivity: ^0.4.5+1
+  connectivity: ^2.0.2
   collection: ^1.14.11
   uuid: ^2.0.2
   image_picker: ^0.6.7+4

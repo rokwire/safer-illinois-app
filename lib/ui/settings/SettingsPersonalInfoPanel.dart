@@ -45,8 +45,10 @@ class _SettingsPersonalInfoPanelState extends State<SettingsPersonalInfoPanel> {
 
     await Health().deleteUser();
     await Exposure().deleteUser();
-    await Auth().deleteUserPiiData();
-    await User().deleteUser();
+    bool piiDeleted = await Auth().deleteUserPiiData();
+    if(piiDeleted) {
+      await User().deleteUser();
+    }
     Auth().logout();
   }
 
