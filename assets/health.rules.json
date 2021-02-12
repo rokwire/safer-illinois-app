@@ -149,7 +149,7 @@
 			},
 			"success": {
 				"code": null,
-				"priority": null,
+				"priority": 1,
 				"next_step": "test.another.asap.step",
 				"next_step_interval": 1,
 				"warning": "test.future.warning"
@@ -290,7 +290,7 @@
 			},
 			"success": {
 				"code": null,
-				"priority": null,
+				"priority": 1,
 				"next_step": "test.monitor.step",
 				"next_step_interval": 1,
 				"warning": "test.future.warning"
