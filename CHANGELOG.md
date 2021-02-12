@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Apply nextStepDate in local time when making the calculations for displayNextStepDate.
 - Extend Auth OIDC processing to handle external configurations.
 - Fixed Counseling Center url [#512](https://github.com/rokwire/safer-illinois-app/issues/512).
+- Fixed priority of "PCR.invalid" and "out-of-test-compliance" rules [#526](https://github.com/rokwire/safer-illinois-app/issues/526).
 
 ### Changed
 - Updated app config format to refer 'oidc' instead of 'shibboleth', merge shibboleth url entries in app config into single one [#501](https://github.com/rokwire/safer-illinois-app/issues/501)
