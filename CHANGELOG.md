@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Increased connectivity plugin version [#519](https://github.com/rokwire/safer-illinois-app/issues/519).
 - Updated spaces between texts in OnBoardingHealthDisclosurePanel [#488](https://github.com/rokwire/safer-illinois-app/issues/488).
 - Make the points from the first section from OnBoardingHealthDisclosurePanel panel bold [#489](https://github.com/rokwire/safer-illinois-app/issues/489),
+- Updated Positive IP & NIP step & explanation strings [#529](https://github.com/rokwire/safer-illinois-app/issues/529).
 
 ### Added
 - App Up time to exposure logs.
