@@ -69,7 +69,7 @@ class Connectivity with Service {
     if (_connectivityStatus != status) {
       _connectivityStatus = status;
       Log.d("Connectivity: ${_connectivityStatus?.toString()}" );
-      NotificationService().notify(notifyStatusChanged, null);
+      NotificationService().notify(notifyStatusChanged, _connectivityStatus);
     }
   }
 
