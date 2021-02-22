@@ -26,6 +26,7 @@ import 'package:illinois/service/Service.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/NotificationService.dart';
+import 'package:illinois/ui/health/Covid19ApproveMemberPanel.dart';
 import 'package:illinois/ui/health/Covid19HistoryPanel.dart';
 import 'package:illinois/ui/health/Covid19InfoCenterPanel.dart';
 import 'package:illinois/ui/health/Covid19StatusPanel.dart';
@@ -50,6 +51,8 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
 
   static const String HEALTH_STATUS_URI = 'edu.illinois.covid://covid.illinois.edu/health/status';
 
+  bool _presentingMemberApplication;
+
   @override
   void initState() {
     super.initState();
@@ -60,6 +63,7 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
       Organizations.notifyOrganizationChanged,
       Organizations.notifyEnvironmentChanged,
       Health.notifyStatusUpdated,
+      Health.notifyMemberApplication,
       DeepLink.notifyUri,
     ]);
 
@@ -90,6 +94,9 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
     }
     else if (name == Health.notifyStatusUpdated) {
       _presentHealthStatusUpdate(param);
+    }
+    else if (name == Health.notifyMemberApplication) {
+      _presentMemberApplication(param);
     }
     else if (name == FirebaseMessaging.notifyCovid19Notification) {
       _onFirebaseCovid19Notification(param);
@@ -224,6 +231,16 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
     Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19StatusUpdatePanel(status: params['status'], previousHealthStatus: params['lastHealthStatus'],)));
   }
 
+  void _presentMemberApplication(dynamic param) {
+    if (_presentingMemberApplication != true) {
+      _presentingMemberApplication = true;
+      Navigator.push(context, PageRouteBuilder( opaque: false, pageBuilder: (context, _, __) => Covid19ApproveMemberPanel(memberApplication: param))).then((_) {
+        _presentingMemberApplication = false;
+        Health().checkMemberApplications();
+      });
+    }
+  }
+  
   void _onDeeplinkUri(Uri uri) {
     if (uri != null) {
       Uri healthStatusUri;

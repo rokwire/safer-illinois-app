@@ -50,6 +50,7 @@ class Health with Service implements NotificationsListener {
   static const String notifyHistoryUpdated          = "edu.illinois.rokwire.health.history.updated";
   static const String notifyUserUpdated             = "edu.illinois.rokwire.health.user.updated";
   static const String notifyUserPrivateKeyUpdated   = "edu.illinois.rokwire.health.user.private_key.updated";
+  static const String notifyMemberApplication       = "edu.illinois.rokwire.health.member.application";
   
   static const String notifyProcessingFinished      = "edu.illinois.rokwire.health.processing.finished";
   
@@ -114,6 +115,7 @@ class Health with Service implements NotificationsListener {
   @override
   void initServiceUI() {
     _process();
+    checkMemberApplications();
   }
 
   @override
@@ -163,6 +165,7 @@ class Health with Service implements NotificationsListener {
         if (Config().refreshTimeout < pausedDuration.inSeconds) {
           _refreshUser().then((_) {
             _process();
+            checkMemberApplications();
           });
         }
       }
@@ -1624,6 +1627,49 @@ class Health with Service implements NotificationsListener {
       return true;
     }
     return false;
+  }
+
+
+  // Membership application
+
+  Future<void> checkMemberApplications() async {
+// 'https://health.api.dev.services.rokmetro.com/255d1a55-8f05-48c2-b6bc-e9df26c7d1a1'
+// 'https://groups.api.dev.services.rokmetro.com/255d1a55-8f05-48c2-b6bc-e9df26c7d1a1'
+//  curl -X GET -H 'ROKMETRO-EXTERNAL-API-KEY: cpMEVWu6Eu25Z5um!!UzM4XLbJa5mMZ6tV' -i 'http://localhost:5000/ext/join-external-approvements?external-approver-id=68572'
+
+    String uin = Auth().isShibbolethLoggedIn ? Auth().authInfo?.uin : null;
+    if (Storage().onBoardingPassed && _isLoggedIn && AppString.isStringNotEmpty(uin)) {
+      String url = "${Config().groupsUrl}/ext/join-external-approvements?external-approver-id=$uin";
+      Response response = await Network().get(url, headers: {
+        'ROKMETRO-EXTERNAL-API-KEY': Config().rokmetroExtApiKey
+      });
+      String responseBody = (response?.statusCode == 200) ? response.body : null;
+      List<HealthFamilyMemberApplication> result = HealthFamilyMemberApplication.listFromJson(AppJson.decodeList(responseBody));
+      if ((result != null) && (0 < result.length)) {
+        NotificationService().notify(notifyMemberApplication, result.first); 
+      }
+    }
+  }
+
+  // Return:
+  //  - true, on succeess
+  //  - false or error string on fail
+  Future<dynamic> processMemberApplication(HealthFamilyMemberApplication memberApplication, bool status) async {
+    String url = "${Config().groupsUrl}/ext/join-external-approvements/${memberApplication?.id}";
+    Response response = await Network().put(url,
+      body: AppJson.encode({
+        'status': (status == true) ? 'accepted' : 'rejected'
+      }),
+      headers: {
+        'ROKMETRO-EXTERNAL-API-KEY': Config().rokmetroExtApiKey
+      });
+    if (response?.statusCode == 200) {
+      return true;
+    }
+    else {
+      String responseBody = response?.body;
+      return (AppString.isStringNotEmpty(responseBody)) ? responseBody : false;
+    }
   }
 }
     
