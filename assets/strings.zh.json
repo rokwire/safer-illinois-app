@@ -691,6 +691,12 @@
 	"panel.health.symptoms.label.error.submit": "未能提交症状.",
 	"panel.health.symptoms.label.error.no_selection": "Please select at least one symptom",
 
+	"panel.health.covid19.approve_member.label.text.statement1": "%s seeks your authorization to participate in Shield CU COVID-19 testing",
+	"panel.health.covid19.approve_member.label.text.statement2": "If you approve, your University account will be billed %s for each test taken.",
+	"panel.health.covid19.approve_member.button.approve.title": "I Approve",
+	"panel.health.covid19.approve_member.button.disapprove.title": "I Disapprove",
+	"panel.health.covid19.approve_member.label.text.error": "Failed to submit",
+
 	"model.explore.time.today": "今天",
 	"model.explore.time.tomorrow": "明天",
 	"model.explore.time.at": "在",

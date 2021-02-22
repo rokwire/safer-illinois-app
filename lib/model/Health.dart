@@ -1685,6 +1685,86 @@ class HealthGuidelineItem {
 }
 
 ///////////////////////////////
+// HealthFamilyMemberApplication
+
+class HealthFamilyMemberApplication {
+  String       id;
+  DateTime     dateCreated;
+  String       groupName;
+  String       applicantFirstName;
+  String       applicantLastName;
+  String       approverId;
+  String       approverLastName;
+
+  HealthFamilyMemberApplication({this.id, this.dateCreated, this.groupName,
+    this.applicantFirstName, this.applicantLastName,
+    this.approverId, this.approverLastName});
+
+  factory HealthFamilyMemberApplication.fromJson(Map<String, dynamic> json){
+    return (json != null) ? HealthFamilyMemberApplication(
+      id: json['id'],
+      dateCreated: healthDateTimeFromString(json['date_created']),
+      groupName: json['group_name'],
+      applicantFirstName: json['first_name'],
+      applicantLastName: json['last_name'],
+      approverId: json['external_approver_id'],
+      approverLastName: json['external_approver_last_name'],
+    ) : null;
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'date_created': healthDateTimeToString(dateCreated),
+      'group_name': groupName,
+      'first_name': applicantFirstName,
+      'last_name': applicantLastName,
+      'external_approver_id': approverId,
+      'external_approver_last_name': approverLastName,
+    };
+  }
+
+  String get applicantFullName {
+    if (AppString.isStringNotEmpty(applicantFirstName)) {
+      if (AppString.isStringNotEmpty(applicantLastName)) {
+        return "$applicantFirstName $applicantLastName";
+      }
+      else {
+        return "$applicantFirstName";
+      }
+    }
+    else {
+      return "$applicantLastName";
+    }
+  }
+
+  static List<HealthFamilyMemberApplication> listFromJson(List<dynamic> json) {
+    List<HealthFamilyMemberApplication> values;
+    if (json != null) {
+      values = [];
+      for (dynamic entry in json) {
+          HealthFamilyMemberApplication value;
+          try { value = HealthFamilyMemberApplication.fromJson((entry as Map)?.cast<String, dynamic>()); }
+          catch(e) { print(e.toString()); }
+          values.add(value);
+      }
+    }
+    return values;
+  }
+
+  static List<dynamic> listToJson(List<HealthFamilyMemberApplication> values) {
+    List<dynamic> json;
+    if (values != null) {
+      json = [];
+      for (HealthFamilyMemberApplication value in values) {
+        json.add(value?.toJson());
+      }
+    }
+    return json;
+  }
+}
+
+///////////////////////////////
 // HealthSymptom
 
 class HealthSymptom {
