@@ -69,7 +69,7 @@
 			}
 		},
 
-		"PCR.positive-NIP": {
+		"PCR.positive-NIP.0": {
 			"condition": "timeout",
 			"params": {
 				"interval": { "min": 0, "max": 60, "scope": "future" }
@@ -89,6 +89,8 @@
 				"warning": "test.future.warning"
 			}
 		},
+
+		"PCR.positive-NIP": "test-monitor",
 
 		"PCR.negative": "test-monitor",
 		
