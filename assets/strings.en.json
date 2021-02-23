@@ -700,7 +700,8 @@
 	"panel.health.covid19.pending_family_member.label.text.error": "Failed to submit",
 
 	"panel.health.covid19.family_members.heading.title": "Family Members",
-	"panel.health.covid19.family_members.label.failed": "Failed to load family members",
+	"panel.health.covid19.family_members.label.load_failed": "Failed to load family members",
+	"panel.health.covid19.family_members.label.submit_failed": "Failed to update status",
 	"panel.health.covid19.family_members.label.empty": "No family members",
 	"panel.health.covid19.family_members.label.status.accepted": "ACCEPTED",
 	"panel.health.covid19.family_members.label.status.rejected": "REJECTED",
