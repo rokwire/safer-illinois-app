@@ -7,16 +7,16 @@ import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:sprintf/sprintf.dart';
 
-class Covid19ApproveMemberPanel extends StatefulWidget {
-  final HealthFamilyMemberApplication memberApplication;
+class SettingsPendingFamilyMemberPanel extends StatefulWidget {
+  final HealthFamilyMember pendingMember;
 
-  Covid19ApproveMemberPanel({this.memberApplication});
+  SettingsPendingFamilyMemberPanel({this.pendingMember});
 
   @override
-  _Covid19ApproveMemberPanelState createState() => _Covid19ApproveMemberPanelState();
+  _SettingsPendingFamilyMemberPanelState createState() => _SettingsPendingFamilyMemberPanelState();
 }
 
-class _Covid19ApproveMemberPanelState extends State<Covid19ApproveMemberPanel> {
+class _SettingsPendingFamilyMemberPanelState extends State<SettingsPendingFamilyMemberPanel> {
 
   bool _hasProgress = false;
   bool _buttonsEnabled = true;
@@ -53,8 +53,8 @@ class _Covid19ApproveMemberPanelState extends State<Covid19ApproveMemberPanel> {
   }
 
   Widget _buildContent() {
-    String statement1Text = sprintf(Localization().getStringEx('panel.health.covid19.approve_member.label.text.statement1', '%s seeks your authorization to participate in Shield CU COVID-19 testing.'), [widget.memberApplication.applicantFullName]);
-    String statement2Text = sprintf(Localization().getStringEx('panel.health.covid19.approve_member.label.text.statement2', 'If you approve, your University account will be billed %s for each test taken.'), ['\$10']);
+    String statement1Text = sprintf(Localization().getStringEx('panel.health.covid19.pending_family_member.label.text.statement1', '%s seeks your authorization to participate in Shield CU COVID-19 testing.'), [widget.pendingMember.applicantFullName]);
+    String statement2Text = sprintf(Localization().getStringEx('panel.health.covid19.pending_family_member.label.text.statement2', 'If you approve, your University account will be billed %s for each test taken.'), ['\$10']);
 
     TextStyle textStyle = TextStyle(color: Styles().colors.textColorPrimary, fontFamily: Styles().fontFamilies.bold, fontSize: 18);
     TextStyle errorTextStyle = TextStyle(color: Colors.yellow, fontFamily: Styles().fontFamilies.regular, fontSize: 16);
@@ -87,8 +87,8 @@ class _Covid19ApproveMemberPanelState extends State<Covid19ApproveMemberPanel> {
         ),
         Align(alignment: Alignment.center, child: 
           Wrap(runSpacing: 8, spacing: 12, children: <Widget>[
-            _buildCommandButton(Localization().getStringEx('panel.health.covid19.approve_member.button.approve.title', 'I Approve'), _onApprove),
-            _buildCommandButton(Localization().getStringEx('panel.health.covid19.approve_member.button.disapprove.title', 'I Disapprove'), _onDisapprove),
+            _buildCommandButton(Localization().getStringEx('panel.health.covid19.pending_family_member.button.approve.title', 'I Approve'), _onApprove),
+            _buildCommandButton(Localization().getStringEx('panel.health.covid19.pending_family_member.button.disapprove.title', 'I Disapprove'), _onDisapprove),
           ]),
         ),
     ]));
@@ -123,36 +123,36 @@ class _Covid19ApproveMemberPanelState extends State<Covid19ApproveMemberPanel> {
   }
 
   void _onClose() {
-    Navigator.of(context).pop();
+    Navigator.of(context).pop(false);
   }
 
   void _onApprove() {
-    _submit(true);
+    _submit(HealthFamilyMember.StatusAccepted);
   }
 
   void _onDisapprove() {
-    _submit(false);
+    _submit(HealthFamilyMember.StatusRejected);
   }
 
-  void _submit(bool result) {
+  void _submit(String status) {
     setState(() {
       _hasProgress = true;
       _buttonsEnabled = false;
       _errorMessage = (_errorMessage != null) ? '' : null;
     });
-    Health().processMemberApplication(widget.memberApplication, result).then((dynamic result) {
+    Health().applyFamilyMemberStatus(widget.pendingMember, status).then((dynamic result) {
       if (mounted) {
         if (result == true) {
           setState(() {
             _hasProgress = false;
           });
-          Navigator.of(context).pop();
+          Navigator.of(context).pop(true);
         }
         else {
           setState(() {
             _hasProgress = false;
             _buttonsEnabled = true;
-            _errorMessage = (result is String) ? result : Localization().getStringEx('panel.health.covid19.approve_member.label.text.error', 'Failed to submit.');
+            _errorMessage = (result is String) ? result : Localization().getStringEx('panel.health.covid19.pending_family_member.label.text.error', 'Failed to submit.');
           });
         }
       }

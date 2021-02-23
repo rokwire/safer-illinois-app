@@ -1685,26 +1685,32 @@ class HealthGuidelineItem {
 }
 
 ///////////////////////////////
-// HealthFamilyMemberApplication
+// HealthFamilyMember
 
-class HealthFamilyMemberApplication {
-  String       id;
-  DateTime     dateCreated;
-  String       groupName;
-  String       applicantFirstName;
-  String       applicantLastName;
-  String       approverId;
-  String       approverLastName;
+class HealthFamilyMember {
+  String        id;
+  DateTime      dateCreated;
+  String        groupName;
+  String        status;
+  String        applicantFirstName;
+  String        applicantLastName;
+  String        approverId;
+  String        approverLastName;
 
-  HealthFamilyMemberApplication({this.id, this.dateCreated, this.groupName,
+  static const String StatusAccepted = 'accepted';
+  static const String StatusRejected = 'rejected';
+  static const String StatusPending  = 'pending';
+
+  HealthFamilyMember({this.id, this.dateCreated, this.groupName, this.status,
     this.applicantFirstName, this.applicantLastName,
     this.approverId, this.approverLastName});
 
-  factory HealthFamilyMemberApplication.fromJson(Map<String, dynamic> json){
-    return (json != null) ? HealthFamilyMemberApplication(
+  factory HealthFamilyMember.fromJson(Map<String, dynamic> json){
+    return (json != null) ? HealthFamilyMember(
       id: json['id'],
       dateCreated: healthDateTimeFromString(json['date_created']),
       groupName: json['group_name'],
+      status: json['status'],
       applicantFirstName: json['first_name'],
       applicantLastName: json['last_name'],
       approverId: json['external_approver_id'],
@@ -1717,6 +1723,7 @@ class HealthFamilyMemberApplication {
       'id': id,
       'date_created': healthDateTimeToString(dateCreated),
       'group_name': groupName,
+      'status': status,
       'first_name': applicantFirstName,
       'last_name': applicantLastName,
       'external_approver_id': approverId,
@@ -1738,13 +1745,25 @@ class HealthFamilyMemberApplication {
     }
   }
 
-  static List<HealthFamilyMemberApplication> listFromJson(List<dynamic> json) {
-    List<HealthFamilyMemberApplication> values;
+  bool get isPending {
+    return status == StatusPending;
+  }
+
+  bool get isAcepted {
+    return status == StatusAccepted;
+  }
+
+  bool get isRejected {
+    return status == StatusRejected;
+  }
+
+  static List<HealthFamilyMember> listFromJson(List<dynamic> json) {
+    List<HealthFamilyMember> values;
     if (json != null) {
       values = [];
       for (dynamic entry in json) {
-          HealthFamilyMemberApplication value;
-          try { value = HealthFamilyMemberApplication.fromJson((entry as Map)?.cast<String, dynamic>()); }
+          HealthFamilyMember value;
+          try { value = HealthFamilyMember.fromJson((entry as Map)?.cast<String, dynamic>()); }
           catch(e) { print(e.toString()); }
           values.add(value);
       }
@@ -1752,15 +1771,26 @@ class HealthFamilyMemberApplication {
     return values;
   }
 
-  static List<dynamic> listToJson(List<HealthFamilyMemberApplication> values) {
+  static List<dynamic> listToJson(List<HealthFamilyMember> values) {
     List<dynamic> json;
     if (values != null) {
       json = [];
-      for (HealthFamilyMemberApplication value in values) {
+      for (HealthFamilyMember value in values) {
         json.add(value?.toJson());
       }
     }
     return json;
+  }
+
+  static HealthFamilyMember pendingMemberFromList(List<HealthFamilyMember> values) {
+    if (values != null) {
+      for (HealthFamilyMember member in values) {
+        if (member.isPending) {
+          return member;
+        }
+      }
+    }
+    return null;
   }
 }
 
