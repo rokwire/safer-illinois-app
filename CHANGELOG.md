@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated Positive IP & NIP step & explanation strings [#529](https://github.com/rokwire/safer-illinois-app/issues/529).
 - Make POSITIVE-NIP COVID-19 PCR test result like the regular "PCR.negative" test result [#532](https://github.com/rokwire/safer-illinois-app/issues/532).
+- Introduced Approve Family members panel [#534](https://github.com/rokwire/safer-illinois-app/issues/534).
 
 ### Added
 - Added camera usage mention in disclosure screen [#530](https://github.com/rokwire/safer-illinois-app/issues/530).
