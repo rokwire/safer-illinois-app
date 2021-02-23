@@ -140,7 +140,26 @@
 			}
 		},
 
-		"PCR.positive-NIP": "test-monitor",
+		"PCR.positive-NIP": {
+			"condition": "require-test",
+			"params": {
+				"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
+			},
+			"success": {
+				"code": "yellow",
+				"priority": 1,
+				"next_step_html": "positive-nip.step.html",
+				"next_step_interval": "TestMonitorInterval",
+				"event_explanation": "positive-nip.explanation",
+				"warning": "test.future.warning"
+			},
+			"fail": {
+				"code": "orange",
+				"priority": 1,
+				"next_step": "test.now.step",
+				"reason": "test.now.reason"
+			}
+		},
 
 		"PCR.negative": "test-monitor",
 		
