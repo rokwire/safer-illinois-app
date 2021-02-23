@@ -26,7 +26,7 @@ import 'package:illinois/service/Service.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/NotificationService.dart';
-import 'package:illinois/ui/health/Covid19ApproveMemberPanel.dart';
+import 'package:illinois/ui/health/Covid19PendingFamilyMemberPanel.dart';
 import 'package:illinois/ui/health/Covid19HistoryPanel.dart';
 import 'package:illinois/ui/health/Covid19InfoCenterPanel.dart';
 import 'package:illinois/ui/health/Covid19StatusPanel.dart';
@@ -234,9 +234,11 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
   void _presentMemberApplication(dynamic param) {
     if (_presentingMemberApplication != true) {
       _presentingMemberApplication = true;
-      Navigator.push(context, PageRouteBuilder( opaque: false, pageBuilder: (context, _, __) => Covid19ApproveMemberPanel(memberApplication: param))).then((_) {
+      Navigator.push(context, PageRouteBuilder( opaque: false, pageBuilder: (context, _, __) => Covid19PendingFamilyMemberPanel(pendingMember: param))).then((result) {
         _presentingMemberApplication = false;
-        Health().checkMemberApplications();
+        if (result == true) {
+          Health().checkPendingFamilyMembers();
+        }
       });
     }
   }

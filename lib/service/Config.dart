@@ -327,7 +327,6 @@ class Config with Service implements NotificationsListener {
 
   Map<String, dynamic> get secretKeys              { return (_config != null) ? (_config['secretKeys'] ?? {}) : {}; }
   Map<String, dynamic> get secretRokwire           { return secretKeys['rokwire'] ?? {}; }
-  Map<String, dynamic> get secretRokmetro          { return secretKeys['rokmetro'] ?? {}; }
   Map<String, dynamic> get secretShibboleth        { return secretKeys['shibboleth'] ?? {}; }
   Map<String, dynamic> get secretOsf               { return secretKeys['osf'] ?? {}; }
   Map<String, dynamic> get secretHealth            { return secretKeys['health'] ?? {}; }
@@ -355,13 +354,10 @@ class Config with Service implements NotificationsListener {
   String get talentChooserUrl       { return platformBuildingBlocks['talent_chooser_url']; }          // "https://api-dev.rokwire.illinois.edu/talent-chooser/api/ui-content"
   String get transportationUrl      { return platformBuildingBlocks["transportation_url"]; }          // "https://api-dev.rokwire.illinois.edu/transportation"
   String get locationsUrl           { return platformBuildingBlocks["locations_url"]; }               // "https://api-dev.rokwire.illinois.edu/location/api";
-  String get groupsUrl              { return platformBuildingBlocks["groups_url"]; }                  // https://groups.api.dev.services.rokmetro.com
   
   String get osfBaseUrl             { return thirdPartyServices['osf_base_url']; }                    // "https://ssproxy.osfhealthcare.org/fhir-proxy"
 
   String get rokwireApiKey          { return secretRokwire['api_key']; }
-
-  String get rokmetroExtApiKey      { return secretRokmetro['external_api_key']; }
 
   String get shibbolethClientId     { return secretShibboleth['client_id']; }
   String get shibbolethClientSecret { return secretShibboleth['client_secret']; }
