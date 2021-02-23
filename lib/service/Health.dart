@@ -50,7 +50,8 @@ class Health with Service implements NotificationsListener {
   static const String notifyHistoryUpdated          = "edu.illinois.rokwire.health.history.updated";
   static const String notifyUserUpdated             = "edu.illinois.rokwire.health.user.updated";
   static const String notifyUserPrivateKeyUpdated   = "edu.illinois.rokwire.health.user.private_key.updated";
-  static const String notifyMemberApplication       = "edu.illinois.rokwire.health.member.application";
+  static const String notifyFamilyMembersAvailable  = "edu.illinois.rokwire.health.family.members.available";
+  static const String notifyPendingFamilyMember     = "edu.illinois.rokwire.health.family.member.pending";
   
   static const String notifyProcessingFinished      = "edu.illinois.rokwire.health.processing.finished";
   
@@ -1637,8 +1638,8 @@ class Health with Service implements NotificationsListener {
     Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.User) : null;
     String responseBody = (response?.statusCode == 200) ? response.body : null;
     List<dynamic> responseJson = (responseBody != null) ? AppJson.decodeList(responseBody) : null;
-    /*List<dynamic> responseJson = [
-      { "id": "1234", "first_name": "Pavel", "last_name": "Stoyanov", "date_created": "2021-02-19T10:27:43.679Z", "group_name": "U of Illinois employee family member", "external_approver_id": "68572", "external_approver_last_name": "Varbanov", "status":"pending" },
+    /*responseJson = [
+      { "id": "1234", "first_name": "Petyo", "last_name": "Stoyanov", "date_created": "2021-02-19T10:27:43.679Z", "group_name": "U of Illinois employee family member", "external_approver_id": "68572", "external_approver_last_name": "Varbanov", "status":"pending" },
       { "id": "5678", "first_name": "Mladen", "last_name": "Dryankov", "date_created": "2021-02-19T10:27:43.679Z", "group_name": "U of Illinois employee family member", "external_approver_id": "68572", "external_approver_last_name": "Varbanov", "status":"accepted" },
       { "id": "9101", "first_name": "Todor", "last_name": "Bachvarov", "date_created": "2021-02-19T10:27:43.679Z", "group_name": "U of Illinois employee family member", "external_approver_id": "68572", "external_approver_last_name": "Varbanov", "status":"rejected" },
     ];*/
@@ -1649,9 +1650,13 @@ class Health with Service implements NotificationsListener {
   Future<void> checkPendingFamilyMembers() async {
     if (Storage().onBoardingPassed && _isLoggedIn) {
       List<HealthFamilyMember> members = await loadFamilyMembers();
-      HealthFamilyMember pendingMember = HealthFamilyMember.pendingMemberFromList(members);
-      if (pendingMember != null) {
-        NotificationService().notify(notifyMemberApplication, pendingMember); 
+      if (members != null) {
+        NotificationService().notify(notifyFamilyMembersAvailable, members); 
+
+        HealthFamilyMember pendingMember = HealthFamilyMember.pendingMemberFromList(members);
+        if (pendingMember != null) {
+          NotificationService().notify(notifyPendingFamilyMember, pendingMember); 
+        }
       }
     }
   }

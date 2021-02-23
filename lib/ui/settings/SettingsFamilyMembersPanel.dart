@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
+import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
@@ -13,7 +14,7 @@ class SettingsFamilyMembersPanel extends StatefulWidget {
   _SettingsFamilyMembersPanelState createState() => _SettingsFamilyMembersPanelState();
 }
 
-class _SettingsFamilyMembersPanelState extends State<SettingsFamilyMembersPanel> {
+class _SettingsFamilyMembersPanelState extends State<SettingsFamilyMembersPanel> implements NotificationsListener {
 
   bool _loading;
   List<HealthFamilyMember> _members;
@@ -21,12 +22,29 @@ class _SettingsFamilyMembersPanelState extends State<SettingsFamilyMembersPanel>
   @override
   void initState() {
     super.initState();
+    NotificationService().subscribe(this, [
+      Health.notifyFamilyMembersAvailable,
+    ]);
     _loadMembers();
   }
 
   @override
   void dispose() {
+    NotificationService().unsubscribe(this);
     super.dispose();
+  }
+
+  // NotificationsListener
+
+  @override
+  void onNotification(String name, dynamic param) {
+    if (name == Health.notifyFamilyMembersAvailable) {
+      if (mounted && (param != null)) {
+        setState(() {
+          _members = param;
+        });
+      }
+    }
   }
 
   @override

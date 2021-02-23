@@ -63,7 +63,7 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
       Organizations.notifyOrganizationChanged,
       Organizations.notifyEnvironmentChanged,
       Health.notifyStatusUpdated,
-      Health.notifyMemberApplication,
+      Health.notifyPendingFamilyMember,
       DeepLink.notifyUri,
     ]);
 
@@ -95,8 +95,8 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
     else if (name == Health.notifyStatusUpdated) {
       _presentHealthStatusUpdate(param);
     }
-    else if (name == Health.notifyMemberApplication) {
-      _presentMemberApplication(param);
+    else if (name == Health.notifyPendingFamilyMember) {
+      _presentPedningFamilyMember(param);
     }
     else if (name == FirebaseMessaging.notifyCovid19Notification) {
       _onFirebaseCovid19Notification(param);
@@ -231,7 +231,7 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
     Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19StatusUpdatePanel(status: params['status'], previousHealthStatus: params['lastHealthStatus'],)));
   }
 
-  void _presentMemberApplication(dynamic param) {
+  void _presentPedningFamilyMember(dynamic param) {
     if (_presentingMemberApplication != true) {
       _presentingMemberApplication = true;
       Navigator.push(context, PageRouteBuilder( opaque: false, pageBuilder: (context, _, __) => SettingsPendingFamilyMemberPanel(pendingMember: param))).then((result) {
