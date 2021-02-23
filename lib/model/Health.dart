@@ -1688,14 +1688,14 @@ class HealthGuidelineItem {
 // HealthFamilyMember
 
 class HealthFamilyMember {
-  final String        id;
-  final DateTime      dateCreated;
-  final String        groupName;
-  final String        status;
-  final String        applicantFirstName;
-  final String        applicantLastName;
-  final String        approverId;
-  final String        approverLastName;
+  String        id;
+  DateTime      dateCreated;
+  String        groupName;
+  String        status;
+  String        applicantFirstName;
+  String        applicantLastName;
+  String        approverId;
+  String        approverLastName;
 
   static const String StatusAccepted = 'accepted';
   static const String StatusRejected = 'rejected';

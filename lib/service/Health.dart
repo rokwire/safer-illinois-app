@@ -1633,20 +1633,15 @@ class Health with Service implements NotificationsListener {
   // Membership application
 
   Future<List<HealthFamilyMember>> loadFamilyMembers() async {
-    //String uin = Auth().isShibbolethLoggedIn ? Auth().authInfo?.uin : null;
-    //String url = ((Config().groupsUrl != null) && (uin != null)) ? "${Config().groupsUrl}/ext/join-external-approvements?external-approver-id=$uin" : null;
-    //Response response = (url != null) ? await Network().get(url, headers: { 'ROKMETRO-EXTERNAL-API-KEY': Config().rokmetroExtApiKey }) : null;
-    
-    //TMP:
-    //String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/join-external-approvements" : null;
-    //Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.User) : null;
-    //String responseBody = (response?.statusCode == 200) ? response.body : null;
-    //List<dynamic> responseJson = (responseBody != null) ? AppJson.decodeList(responseBody) : null;
-    List<dynamic> responseJson = [
+    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/join-external-approvements" : null;
+    Response response = (url != null) ? await Network().get(url, auth: NetworkAuth.User) : null;
+    String responseBody = (response?.statusCode == 200) ? response.body : null;
+    List<dynamic> responseJson = (responseBody != null) ? AppJson.decodeList(responseBody) : null;
+    /*List<dynamic> responseJson = [
       { "id": "1234", "first_name": "Pavel", "last_name": "Stoyanov", "date_created": "2021-02-19T10:27:43.679Z", "group_name": "U of Illinois employee family member", "external_approver_id": "68572", "external_approver_last_name": "Varbanov", "status":"pending" },
       { "id": "5678", "first_name": "Mladen", "last_name": "Dryankov", "date_created": "2021-02-19T10:27:43.679Z", "group_name": "U of Illinois employee family member", "external_approver_id": "68572", "external_approver_last_name": "Varbanov", "status":"accepted" },
       { "id": "9101", "first_name": "Todor", "last_name": "Bachvarov", "date_created": "2021-02-19T10:27:43.679Z", "group_name": "U of Illinois employee family member", "external_approver_id": "68572", "external_approver_last_name": "Varbanov", "status":"rejected" },
-    ];
+    ];*/
 
     return  (responseJson != null) ? HealthFamilyMember.listFromJson(responseJson) : null;
   }
@@ -1665,11 +1660,6 @@ class Health with Service implements NotificationsListener {
   //  - true, on succeess
   //  - false or error string on fail
   Future<dynamic> applyFamilyMemberStatus(HealthFamilyMember member, String status) async {
-    //String url = (Config().groupsUrl != null) ? "${Config().groupsUrl}/ext/join-external-approvements/${member?.id}" : null;
-    //String post = AppJson.encode({'status': status });
-    //Map<String, String> headers = { 'ROKMETRO-EXTERNAL-API-KEY': Config().rokmetroExtApiKey };
-    //Response response = (url != null) ? await Network().put(url, body: post, headers: headers) : null;
-
     String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/join-external-approvements/${member?.id}" : null;
     String post = AppJson.encode({'status': status });
     Response response = (url != null) ? await Network().put(url, body: post, auth: NetworkAuth.User) : null;

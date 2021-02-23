@@ -7,16 +7,16 @@ import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:sprintf/sprintf.dart';
 
-class Covid19PendingFamilyMemberPanel extends StatefulWidget {
+class SettingsPendingFamilyMemberPanel extends StatefulWidget {
   final HealthFamilyMember pendingMember;
 
-  Covid19PendingFamilyMemberPanel({this.pendingMember});
+  SettingsPendingFamilyMemberPanel({this.pendingMember});
 
   @override
-  _Covid19PendingFamilyMemberPanelState createState() => _Covid19PendingFamilyMemberPanelState();
+  _SettingsPendingFamilyMemberPanelState createState() => _SettingsPendingFamilyMemberPanelState();
 }
 
-class _Covid19PendingFamilyMemberPanelState extends State<Covid19PendingFamilyMemberPanel> {
+class _SettingsPendingFamilyMemberPanelState extends State<SettingsPendingFamilyMemberPanel> {
 
   bool _hasProgress = false;
   bool _buttonsEnabled = true;
@@ -53,8 +53,8 @@ class _Covid19PendingFamilyMemberPanelState extends State<Covid19PendingFamilyMe
   }
 
   Widget _buildContent() {
-    String statement1Text = sprintf(Localization().getStringEx('panel.health.covid19.approve_member.label.text.statement1', '%s seeks your authorization to participate in Shield CU COVID-19 testing.'), [widget.pendingMember.applicantFullName]);
-    String statement2Text = sprintf(Localization().getStringEx('panel.health.covid19.approve_member.label.text.statement2', 'If you approve, your University account will be billed %s for each test taken.'), ['\$10']);
+    String statement1Text = sprintf(Localization().getStringEx('panel.health.covid19.pending_family_member.label.text.statement1', '%s seeks your authorization to participate in Shield CU COVID-19 testing.'), [widget.pendingMember.applicantFullName]);
+    String statement2Text = sprintf(Localization().getStringEx('panel.health.covid19.pending_family_member.label.text.statement2', 'If you approve, your University account will be billed %s for each test taken.'), ['\$10']);
 
     TextStyle textStyle = TextStyle(color: Styles().colors.textColorPrimary, fontFamily: Styles().fontFamilies.bold, fontSize: 18);
     TextStyle errorTextStyle = TextStyle(color: Colors.yellow, fontFamily: Styles().fontFamilies.regular, fontSize: 16);
@@ -87,8 +87,8 @@ class _Covid19PendingFamilyMemberPanelState extends State<Covid19PendingFamilyMe
         ),
         Align(alignment: Alignment.center, child: 
           Wrap(runSpacing: 8, spacing: 12, children: <Widget>[
-            _buildCommandButton(Localization().getStringEx('panel.health.covid19.approve_member.button.approve.title', 'I Approve'), _onApprove),
-            _buildCommandButton(Localization().getStringEx('panel.health.covid19.approve_member.button.disapprove.title', 'I Disapprove'), _onDisapprove),
+            _buildCommandButton(Localization().getStringEx('panel.health.covid19.pending_family_member.button.approve.title', 'I Approve'), _onApprove),
+            _buildCommandButton(Localization().getStringEx('panel.health.covid19.pending_family_member.button.disapprove.title', 'I Disapprove'), _onDisapprove),
           ]),
         ),
     ]));
@@ -152,7 +152,7 @@ class _Covid19PendingFamilyMemberPanelState extends State<Covid19PendingFamilyMe
           setState(() {
             _hasProgress = false;
             _buttonsEnabled = true;
-            _errorMessage = (result is String) ? result : Localization().getStringEx('panel.health.covid19.approve_member.label.text.error', 'Failed to submit.');
+            _errorMessage = (result is String) ? result : Localization().getStringEx('panel.health.covid19.pending_family_member.label.text.error', 'Failed to submit.');
           });
         }
       }

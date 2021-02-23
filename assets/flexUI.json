@@ -12,7 +12,7 @@
 		"settings.notifications": ["covid19"],
 		"settings.covid19": ["exposure_notifications", "provider_test_result", "qr_code"],
 		"settings.privacy": ["statement"],
-		"settings.account": ["personal_info"],
+		"settings.account": ["personal_info", "family_members"],
 
 		"info_center": ["stay_healthy", "your_health"],
 		"info_center.stay_healthy" : ["recent_event", "next_step", "symptom_checkin", "add_test_result"],
