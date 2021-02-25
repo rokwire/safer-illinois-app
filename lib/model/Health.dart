@@ -1949,6 +1949,7 @@ class HealthRulesSet {
   final Map<String, dynamic> strings;
 
   static const String UserTestMonitorInterval = 'UserTestMonitorInterval';
+  static const String FamilyMemberTestPrice = 'FamilyMemberTestPrice';
 
   HealthRulesSet({this.tests, this.symptoms, this.contactTrace, this.actions, this.defaults, this.statuses, Map<String, dynamic> constants, Map<String, dynamic> strings}) :
     this.constants = constants ?? Map<String, dynamic>(),
@@ -1973,6 +1974,10 @@ class HealthRulesSet {
 
   set userTestMonitorInterval(int value) {
     constants[UserTestMonitorInterval] = value;
+  }
+
+  String get familyMemberTestPrice {
+    return localeString(constants[FamilyMemberTestPrice]);
   }
 
   String localeString(dynamic entry) {

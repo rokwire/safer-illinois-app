@@ -115,8 +115,9 @@ class Health with Service implements NotificationsListener {
 
   @override
   void initServiceUI() {
-    _process();
-    checkPendingFamilyMembers();
+    _process().then((_) {
+      checkPendingFamilyMembers();
+    });
   }
 
   @override
