@@ -21,9 +21,17 @@ class _SettingsPendingFamilyMemberPanelState extends State<SettingsPendingFamily
   bool _hasProgress = false;
   bool _buttonsEnabled = true;
   String _errorMessage;
+  HealthRulesSet _rules;
 
   @override
   void initState() {
+    Health().loadRules2().then((HealthRulesSet rules) {
+      if (mounted) {
+        setState(() {
+          _rules = rules;
+        });
+      }
+    });
     super.initState();
   }
 
@@ -54,7 +62,7 @@ class _SettingsPendingFamilyMemberPanelState extends State<SettingsPendingFamily
 
   Widget _buildContent() {
     String statement1Text = sprintf(Localization().getStringEx('panel.health.covid19.pending_family_member.label.text.statement1', '%s seeks your authorization to participate in Shield CU COVID-19 testing.'), [widget.pendingMember.applicantFullName]);
-    String statement2Text = sprintf(Localization().getStringEx('panel.health.covid19.pending_family_member.label.text.statement2', 'If you approve, your University account will be billed %s for each test taken.'), ['\$10']);
+    String statement2Text = sprintf(Localization().getStringEx('panel.health.covid19.pending_family_member.label.text.statement2', 'If you approve, your University account will be billed %s for each test taken.'), [_rules?.familyMemberTestPrice ?? '\$xx']);
 
     TextStyle textStyle = TextStyle(color: Styles().colors.textColorPrimary, fontFamily: Styles().fontFamilies.bold, fontSize: 18);
     TextStyle errorTextStyle = TextStyle(color: Colors.yellow, fontFamily: Styles().fontFamilies.regular, fontSize: 16);

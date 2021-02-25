@@ -9,7 +9,8 @@
 	"constants": {
 		"UserTestMonitorInterval": null,
 		"UndergraduateTestMonitorInterval": 4,
-		"DefaultTestMonitorInterval": 4
+		"DefaultTestMonitorInterval": 4,
+		"FamilyMemberTestPrice": null
 	},
 
 	"statuses": {
