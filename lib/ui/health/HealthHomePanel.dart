@@ -110,14 +110,21 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
     }
   }
 
+  Future<void> _onPullToRefresh() async {
+    print("HealthHomePanel pullToRefresh");
+    return Health().refreshStatusAndUser();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Styles().colors.background,
       appBar: _HealthHomeHeaderBar(context: context,),
-      body: SingleChildScrollView(
-        child: SafeArea(
-          child: _buildMainContent(),
+      body: RefreshIndicator(onRefresh: _onPullToRefresh,
+        child: SingleChildScrollView(
+          child: SafeArea(
+            child: _buildMainContent(),
+          ),
         ),
       ),
     );
