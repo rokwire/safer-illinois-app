@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 - Load family member test price from health rules constants [#542](https://github.com/rokwire/safer-illinois-app/issues/542).
+- Implemented PullToRefresh feature in Home panel [#544](https://github.com/rokwire/safer-illinois-app/issues/544).
 
 ## [2.9.14] - 2021-02-23
 ### Added
