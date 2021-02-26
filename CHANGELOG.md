@@ -5,8 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
-- Load family member test price from health rules constants [#542](https://github.com/rokwire/safer-illinois-app/issues/542).
+### Added
 - Implemented PullToRefresh feature in Home panel [#544](https://github.com/rokwire/safer-illinois-app/issues/544).
+
+### Changed
+- Load family member test price from health rules constants [#542](https://github.com/rokwire/safer-illinois-app/issues/542).
 
 ## [2.9.14] - 2021-02-23
 ### Added
