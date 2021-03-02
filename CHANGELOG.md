@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed Counseling Center url [#512](https://github.com/rokwire/safer-illinois-app/issues/512).
 - Fixed priority of "PCR.invalid" and "out-of-test-compliance" rules [#526](https://github.com/rokwire/safer-illinois-app/issues/526).
 - Fixed passing status param in Connectivity.notifyStatusChanged notification.
+- Fixed "Remove My Information" processing [#547](https://github.com/rokwire/safer-illinois-app/issues/547).
 
 ### Changed
 - Updated app config format to refer 'oidc' instead of 'shibboleth', merge shibboleth url entries in app config into single one [#501](https://github.com/rokwire/safer-illinois-app/issues/501)
