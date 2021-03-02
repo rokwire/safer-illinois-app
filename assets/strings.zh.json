@@ -262,6 +262,7 @@
 	"panel.profile_info.dialog.remove_my_information.subtitle": "确定吗?",
 	"panel.profile_info.dialog.remove_my_information.yes.title": "是的",
 	"panel.profile_info.dialog.remove_my_information.no.title": "不",
+	"panel.profile_info.dialog.remove_my_information.message.failed": "無法刪除您的信息",
 
 	"panel.covid19_passport.header.title": "COVID-19",
 	"panel.covid19_passport.button.close.title": "關",

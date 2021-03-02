@@ -262,6 +262,7 @@
 	"panel.profile_info.dialog.remove_my_information.subtitle": "Are you sure?",
 	"panel.profile_info.dialog.remove_my_information.yes.title": "Yes",
 	"panel.profile_info.dialog.remove_my_information.no.title": "No",
+	"panel.profile_info.dialog.remove_my_information.message.failed": "Failed to remove your information",
 
 	"panel.covid19_passport.header.title": "COVID-19",
 	"panel.covid19_passport.button.close.title": "Close",
