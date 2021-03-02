@@ -758,7 +758,7 @@ class Auth with Service implements NotificationsListener {
 
       try {
         Response response = await Network().delete(url, headers: {'Content-Type': 'application/json'}, auth: Network.ShibbolethUserAuth);
-        if(response?.statusCode == 200) {
+        if((response != null) && (200 <= response.statusCode) && (response.statusCode <= 205)) { // returns 202 Accepted
           _applyUserPiiData(null, null);
           return true;
         }
