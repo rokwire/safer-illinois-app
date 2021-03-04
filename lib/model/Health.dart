@@ -1700,7 +1700,7 @@ class HealthFamilyMember {
   String        approverLastName;
 
   static const String StatusAccepted = 'accepted';
-  static const String StatusRejected = 'rejected';
+  static const String StatusRevoked = 'rejected';
   static const String StatusPending  = 'pending';
 
   HealthFamilyMember({this.id, this.dateCreated, this.groupName, this.status,
@@ -1771,8 +1771,8 @@ class HealthFamilyMember {
     return status == StatusAccepted;
   }
 
-  bool get isRejected {
-    return status == StatusRejected;
+  bool get isRevoked {
+    return status == StatusRevoked;
   }
 
   static List<HealthFamilyMember> listFromJson(List<dynamic> json) {
