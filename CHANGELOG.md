@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added email or phone in Family Members list entry [#549](https://github.com/rokwire/safer-illinois-app/issues/549).
 
+### Changed
+- Renamed all occurences of "Reject" with "Revoke" in Family Members panel [#553](https://github.com/rokwire/safer-illinois-app/issues/553).
+
 ## [2.9.16] - 2021-03-02
 ### Fixed
 - Fixed "Remove My Information" processing [#547](https://github.com/rokwire/safer-illinois-app/issues/547).

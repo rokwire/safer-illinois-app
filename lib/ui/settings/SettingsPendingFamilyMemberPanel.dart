@@ -139,7 +139,7 @@ class _SettingsPendingFamilyMemberPanelState extends State<SettingsPendingFamily
   }
 
   void _onDisapprove() {
-    _submit(HealthFamilyMember.StatusRejected);
+    _submit(HealthFamilyMember.StatusRevoked);
   }
 
   void _submit(String status) {

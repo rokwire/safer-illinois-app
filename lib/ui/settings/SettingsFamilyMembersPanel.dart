@@ -143,10 +143,10 @@ class _FamilyMemberWidgetState extends State<_FamilyMemberWidget> {
     List<Widget> buttons = <Widget>[];
     if (widget.member.isAcepted) {
       status = Localization().getStringEx('panel.health.covid19.family_members.label.status.accepted', 'ACCEPTED');
-      buttons.add(_buildCommandButton(Localization().getStringEx('panel.health.covid19.family_members.button.reject.title', 'Reject'), _onReject));
+      buttons.add(_buildCommandButton(Localization().getStringEx('panel.health.covid19.family_members.button.revoke.title', 'Revoke'), _onRevoke));
     }
-    else if (widget.member.isRejected) {
-      status = Localization().getStringEx('panel.health.covid19.family_members.label.status.rejected', 'REJECTED');
+    else if (widget.member.isRevoked) {
+      status = Localization().getStringEx('panel.health.covid19.family_members.label.status.revoked', 'REVOKED');
       buttons.add(_buildCommandButton(Localization().getStringEx('panel.health.covid19.family_members.button.accept.title', 'Accept'), _onAccept));
     }
     else if (widget.member.isPending) {
@@ -154,7 +154,7 @@ class _FamilyMemberWidgetState extends State<_FamilyMemberWidget> {
       buttons.addAll(<Widget>[
         _buildCommandButton(Localization().getStringEx('panel.health.covid19.family_members.button.accept.title', 'Accept'), _onAccept),
         Container(width: 8,),
-        _buildCommandButton(Localization().getStringEx('panel.health.covid19.family_members.button.reject.title', 'Reject'), _onReject),
+        _buildCommandButton(Localization().getStringEx('panel.health.covid19.family_members.button.revoke.title', 'Revoke'), _onRevoke),
       ]);
     }
     else {
@@ -230,8 +230,8 @@ class _FamilyMemberWidgetState extends State<_FamilyMemberWidget> {
     _submit(HealthFamilyMember.StatusAccepted);
   }
 
-  void _onReject() {
-    _submit(HealthFamilyMember.StatusRejected);
+  void _onRevoke() {
+    _submit(HealthFamilyMember.StatusRevoked);
   }
 
   void _submit(String status) {
