@@ -187,6 +187,7 @@ class _FamilyMemberWidgetState extends State<_FamilyMemberWidget> {
         Padding(padding: EdgeInsets.all(12), child:
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(widget.member.applicantFullName ?? '', style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 20, fontFamily: Styles().fontFamilies.bold),),
+              Text(widget.member.applicantEmailOrPhone ?? '', style: TextStyle(color: Styles().colors.fillColorPrimaryVariant, fontSize: 16, fontFamily: Styles().fontFamilies.medium),),
               Padding(padding: EdgeInsets.only(top: 8), child:
                 Row(mainAxisAlignment: MainAxisAlignment.start, children: buttons),
               ),
