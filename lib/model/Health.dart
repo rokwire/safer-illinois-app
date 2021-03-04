@@ -1694,6 +1694,8 @@ class HealthFamilyMember {
   String        status;
   String        applicantFirstName;
   String        applicantLastName;
+  String        applicantEmail;
+  String        applicantPhone;
   String        approverId;
   String        approverLastName;
 
@@ -1702,7 +1704,7 @@ class HealthFamilyMember {
   static const String StatusPending  = 'pending';
 
   HealthFamilyMember({this.id, this.dateCreated, this.groupName, this.status,
-    this.applicantFirstName, this.applicantLastName,
+    this.applicantFirstName, this.applicantLastName, this.applicantEmail, this.applicantPhone,
     this.approverId, this.approverLastName});
 
   factory HealthFamilyMember.fromJson(Map<String, dynamic> json){
@@ -1713,6 +1715,8 @@ class HealthFamilyMember {
       status: json['status'],
       applicantFirstName: json['first_name'],
       applicantLastName: json['last_name'],
+      applicantEmail: json['email'],
+      applicantPhone: json['phone'],
       approverId: json['external_approver_id'],
       approverLastName: json['external_approver_last_name'],
     ) : null;
@@ -1726,6 +1730,8 @@ class HealthFamilyMember {
       'status': status,
       'first_name': applicantFirstName,
       'last_name': applicantLastName,
+      'email': applicantEmail,
+      'phone': applicantPhone,
       'external_approver_id': approverId,
       'external_approver_last_name': approverLastName,
     };
@@ -1742,6 +1748,20 @@ class HealthFamilyMember {
     }
     else {
       return "$applicantLastName";
+    }
+  }
+
+  String get applicantEmailOrPhone {
+    //TMP:
+    return 'misho@inabyte.com';
+    if (AppString.isStringNotEmpty(applicantEmail)) {
+      return applicantEmail;
+    }
+    else if (AppString.isStringNotEmpty(applicantPhone)) {
+      return applicantPhone;
+    }
+    else {
+      return null;
     }
   }
 
