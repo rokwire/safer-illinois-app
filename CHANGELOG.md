@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## [2.10.12] - 2021-03-05
 ### Fixed
 - Explore Shibboleth login failure due to deleted UUID [#508](https://github.com/rokwire/safer-illinois-app/issues/508)
 - OnBoardingHealthDisclosurePanel duplicated text [#490](https://github.com/rokwire/safer-illinois-app/issues/490)
