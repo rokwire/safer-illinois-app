@@ -514,14 +514,14 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                FlatButton(
+                TextButton(
                     onPressed: () {
                       Analytics.instance.logAlert(text: "Sign out", selection: "Yes");
                       Navigator.pop(context);
                       Auth().logout();
                     },
                     child: Text(Localization().getStringEx("panel.settings.home.logout.button.yes", "Yes"))),
-                FlatButton(
+                TextButton(
                     onPressed: () {
                       Analytics.instance.logAlert(text: "Sign out", selection: "No");
                       Navigator.pop(context);
@@ -896,7 +896,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
               return AlertDialog(
                 content: Text(message, style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 16, fontFamily: Styles().fontFamilies.bold)),
                 actions: <Widget>[
-                  FlatButton(
+                  TextButton(
                       child: Text(
                           Localization().getStringEx("dialog.yes.title", "Yes"), style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 16, fontFamily: Styles().fontFamilies.bold)),
                       onPressed: () {
@@ -904,7 +904,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
                         Navigator.pop(buildContext, true);
                       }
                   ),
-                  FlatButton(
+                  TextButton(
                       child: Text(Localization().getStringEx("dialog.no.title", "No"), style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 16, fontFamily: Styles().fontFamilies.bold)),
                       onPressed: () {
                         Analytics.instance.logAlert(text: message, selection: "No");

@@ -502,14 +502,14 @@ class _Settings2HomePanelState extends State<Settings2HomePanel> implements Noti
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                FlatButton(
+                TextButton(
                     onPressed: () {
                       Analytics.instance.logAlert(text: "Sign out", selection: "Yes");
                       Navigator.pop(context);
                       Auth().logout();
                     },
                     child: Text("Yes")),
-                FlatButton(
+                TextButton(
                     onPressed: () {
                       Analytics.instance.logAlert(text: "Sign out", selection: "No");
                       Navigator.pop(context);
@@ -794,14 +794,14 @@ class _DebugContainerState extends State<_DebugContainer> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                FlatButton(
+                TextButton(
                     onPressed: () {
                       Navigator.pop(context);
                       //_finish();
                     },
                     child: Text(Localization().getStringEx('dialog.cancel.title', 'Cancel'))),
                 Container(width: 6),
-                FlatButton(
+                TextButton(
                     onPressed: () {
                       _onEnterPin(pinController?.text);
                       //_finish();

@@ -365,7 +365,7 @@ class AppAlert {
           return AlertDialog(
             content: Text(message),
             actions: <Widget>[
-              FlatButton(
+              TextButton(
                   child: Text(Localization().getStringEx("dialog.ok.title", "OK")),
                   onPressed: () {
                     Analytics.instance.logAlert(text: message, selection: "Ok");
@@ -401,7 +401,7 @@ class AppAlert {
           AppString.isStringNotEmpty(message) ? Text(message, textAlign: TextAlign.center,) : Container(),
         ],),
         actions: <Widget>[
-          FlatButton(
+          TextButton(
               child: Text(Localization().getStringEx("dialog.ok.title", "OK")),
               onPressed: (){
                 Analytics.instance.logAlert(text: message, selection: "OK");
