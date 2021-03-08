@@ -944,12 +944,12 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
     Analytics.instance.logSelect(target: "Scan COVID-19 Secret QRcode");
     BarcodeScanner.scan().then((ScanResult scanResult) {
       // barcode_scan plugin returns 8 digits when it cannot read the qr code. Prevent it from storing such values
-      if (scanResult.type == ResultType.Error) /* || AppString.isStringEmpty(scanResult.rawContent) || (scanResult.rawContent.length <= 8)*/ {
-        AppAlert.showDialogResult(context, Localization().getStringEx('panel.settings.home.covid19.alert.qr_code.scan.failed.msg', 'Failed to read QR code.'));
-      }
-      else if (scanResult.type == ResultType.Barcode) {
+      if ((scanResult.type == ResultType.Barcode) && AppString.isStringNotEmpty(scanResult.rawContent) && (8 < scanResult.rawContent.length)) {
         setState(() { _scanningHealthUserKeys = true; });
         _onCovid19QrCodeScanSucceeded(scanResult.rawContent);
+      }
+      else if (scanResult.type != ResultType.Cancelled) {
+        AppAlert.showDialogResult(context, Localization().getStringEx('panel.settings.home.covid19.alert.qr_code.scan.failed.msg', 'Failed to read QR code.'));
       }
     });
   }
