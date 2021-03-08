@@ -84,10 +84,10 @@ class Auth with Service implements NotificationsListener {
   Future<Uint8List> get photoImageBytes async{
     Uint8List bytes;
     if(Auth().isShibbolethLoggedIn){
-      bytes = await Auth().authCard.photoBytes;
+      bytes = await Auth().authCard?.photoBytes;
     }
     else if(Auth().isPhoneLoggedIn){
-      bytes = await Auth().userPiiData.photoBytes;
+      bytes = await Auth().userPiiData?.photoBytes;
     }
     return bytes;
   }

@@ -65,7 +65,12 @@ class Storage with Service {
   }
 
   void _setStringWithName(String name, String value) {
-    _sharedPreferences.setString(name, value);
+    if (value != null) {
+      _sharedPreferences.setString(name, value);
+    }
+    else {
+      _sharedPreferences.remove(name);
+    }
     NotificationService().notify(notifySettingChanged, name);
   }
 
@@ -78,10 +83,15 @@ class Storage with Service {
   }
 
   void _setEncryptedStringWithName(String name, String value) {
-    if ((_encryptionKey != null) && (value != null)) {
-      value = AESCrypt.encrypt(value, keyBytes: _encryptionKey);
+    if (value != null) {
+      if (_encryptionKey != null) {
+        value = AESCrypt.encrypt(value, keyBytes: _encryptionKey);
+      }
+      _sharedPreferences.setString(name, value);
     }
-    _sharedPreferences.setString(name, value);
+    else {
+      _sharedPreferences.remove(name);
+    }
     NotificationService().notify(notifySettingChanged, name);
   }
 
@@ -90,7 +100,12 @@ class Storage with Service {
   }
 
   void _setStringListWithName(String name, List<String> value) {
-    _sharedPreferences.setStringList(name, value);
+    if (value != null) {
+      _sharedPreferences.setStringList(name, value);
+    }
+    else {
+      _sharedPreferences.remove(name);
+    }
     NotificationService().notify(notifySettingChanged, name);
   }
 
@@ -99,7 +114,12 @@ class Storage with Service {
   }
 
   void _setBoolWithName(String name, bool value) {
-    _sharedPreferences.setBool(name, value);
+    if (value != null) {
+      _sharedPreferences.setBool(name, value);
+    }
+    else {
+      _sharedPreferences.remove(name);
+    }
     NotificationService().notify(notifySettingChanged, name);
   }
 
@@ -108,7 +128,12 @@ class Storage with Service {
   }
 
   void _setIntWithName(String name, int value) {
-    _sharedPreferences.setInt(name, value);
+    if (value != null) {
+      _sharedPreferences.setInt(name, value);
+    }
+    else {
+      _sharedPreferences.remove(name);
+    }
     NotificationService().notify(notifySettingChanged, name);
   }
 
@@ -117,7 +142,12 @@ class Storage with Service {
   }
 
   void _setDoubleWithName(String name, double value) {
-    _sharedPreferences.setDouble(name, value);
+    if (value != null) {
+      _sharedPreferences.setDouble(name, value);
+    }
+    else {
+      _sharedPreferences.remove(name);
+    }
     NotificationService().notify(notifySettingChanged, name);
   }*/
 
