@@ -211,7 +211,7 @@ Widget _buildDialogWidget(BuildContext context) {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                FlatButton(
+                TextButton(
                     onPressed: () {
                       Analytics.instance.logAlert(text:"Already have access", selection: "Ok");
                       _goNext(context, replace : true);

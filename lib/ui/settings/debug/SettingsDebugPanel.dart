@@ -505,8 +505,8 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
         return AlertDialog(
           content: Text(message),
             actions: <Widget>[
-              FlatButton(child: Text("Yes"), onPressed: () { Navigator.pop(context, true); }),
-              FlatButton(child: Text("No"), onPressed: () { Navigator.pop(context, false); }),
+              TextButton(child: Text("Yes"), onPressed: () { Navigator.pop(context, true); }),
+              TextButton(child: Text("No"), onPressed: () { Navigator.pop(context, false); }),
             ]);
       }).then((result) {
         if (result == true) {
@@ -596,8 +596,8 @@ class _SettingsDebugPanelState extends State<SettingsDebugPanel> implements Noti
         return AlertDialog(
           content: Text(message),
             actions: <Widget>[
-              FlatButton(child: Text("Yes"), onPressed: () { Navigator.pop(context, true); }),
-              FlatButton(child: Text("No"), onPressed: () { Navigator.pop(context, false); }),
+              TextButton(child: Text("Yes"), onPressed: () { Navigator.pop(context, true); }),
+              TextButton(child: Text("No"), onPressed: () { Navigator.pop(context, false); }),
             ]);
       }).then((result) {
         if (result == true) {
