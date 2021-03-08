@@ -410,11 +410,11 @@ class _Covid19DebugKeysPanelState extends State<Covid19DebugKeysPanel> {
   void _onScanPrivateRSAKey() {
     BarcodeScanner.scan().then((ScanResult scanResult) {
       // barcode_scan plugin returns 8 digits when it cannot read the qr code. Prevent it from storing such values
-      if (scanResult.type == ResultType.Error) { // (AppString.isStringEmpty(result) || (result.length <= 8)) {
-        AppAlert.showDialogResult(context, 'Failed to read QR code.');
-      }
-      else if (scanResult.type == ResultType.Barcode) {
+      if ((scanResult.type == ResultType.Barcode) && AppString.isStringNotEmpty(scanResult.rawContent) && (8 < scanResult.rawContent.length)) {
         _applyPrivateRsaKeyString(scanResult.rawContent);
+      }
+      else if (scanResult.type != ResultType.Cancelled) {
+        AppAlert.showDialogResult(context, 'Failed to read QR code.');
       }
     });
   }
