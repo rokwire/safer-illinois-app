@@ -41,8 +41,8 @@ class _GroupMembershipRequestPanelState extends State<GroupMembershipRequestPane
 
   @override
   void initState() {
-    _focusNodes = List();
-    _controllers = List();
+    _focusNodes = <FocusNode>[];
+    _controllers = <TextEditingController>[];
     _questions = widget.group?.questions ?? [];
     for (int index = 0; index < _questions.length; index++) {
       _controllers.add(TextEditingController());
@@ -173,7 +173,7 @@ class _GroupMembershipRequestPanelState extends State<GroupMembershipRequestPane
 
   void _onSubmit() {
     if (_submitting != true) {
-      List<GroupMembershipAnswer> answers = List<GroupMembershipAnswer>();
+      List<GroupMembershipAnswer> answers = <GroupMembershipAnswer>[];
       for (int index = 0; index < _questions.length; index++) {
         String question = _questions[index].question;
         TextEditingController controller = _controllers[index];

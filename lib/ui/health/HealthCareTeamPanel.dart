@@ -38,7 +38,7 @@ class HealthCareTeamPanel extends StatefulWidget {
 }
 
 class _HealthCareTeamPanelState extends State<HealthCareTeamPanel> with TickerProviderStateMixin{
-  List<AnimationController> _animationControllers = List();
+  List<AnimationController> _animationControllers = <AnimationController>[];
   //bool _moreInfoExpanded = false;
 
   @override

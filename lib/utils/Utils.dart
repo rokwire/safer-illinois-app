@@ -536,7 +536,7 @@ class AppDeviceOrientation {
     
     List<DeviceOrientation> orientationsList;
     if (stringsList != null) {
-      orientationsList = List();
+      orientationsList = <DeviceOrientation>[];
       for (dynamic string in stringsList) {
         if (string is String) {
           DeviceOrientation orientation = fromStr(string);
@@ -553,7 +553,7 @@ class AppDeviceOrientation {
     
     List<String> stringsList;
     if (orientationsList != null) {
-      stringsList = List();
+      stringsList = <String>[];
       for (DeviceOrientation orientation in orientationsList) {
         String orientationString = toStr(orientation);
         if (orientationString != null) {

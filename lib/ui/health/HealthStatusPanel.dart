@@ -403,7 +403,7 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
   List <DropdownMenuItem> _buildCountyDropdownItems(){
     List <DropdownMenuItem> result;
     if (_counties?.isNotEmpty ?? false) {
-      result = List <DropdownMenuItem>();
+      result = <DropdownMenuItem>[];
       for (HealthCounty county in _counties) {
         result.add(DropdownMenuItem<dynamic>(
           value: county,

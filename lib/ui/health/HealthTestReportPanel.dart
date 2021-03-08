@@ -92,7 +92,7 @@ class _HealthTestReportPanelState extends State<HealthTestReportPanel>{
       setState(() {
         _decreaseProgress();
         try{
-          _types = List<TestDropDownItem>();
+          _types = <TestDropDownItem>[];
           if(types?.isNotEmpty?? false) {
             _types.addAll(types?.map((HealthTestType type) {
               TestDropDownItem item = TestDropDownItem(type: TestDropDownItemType.provider, item: type);

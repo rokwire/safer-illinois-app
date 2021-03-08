@@ -82,7 +82,7 @@ class _WebPanelState extends State<WebPanel> {
   }
 
   List<Widget> _buildWebView() {
-    List<Widget> list = List<Widget>();
+    List<Widget> list = <Widget>[];
     list.add(WebView(
       initialUrl: widget.url,
       javascriptMode: JavascriptMode.unrestricted,
