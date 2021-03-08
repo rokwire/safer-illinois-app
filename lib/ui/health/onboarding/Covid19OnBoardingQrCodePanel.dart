@@ -530,13 +530,13 @@ class _Covid19OnBoardingQrCodePanelState extends State<Covid19OnBoardingQrCodePa
   }
 
   void _onScan(){
-    BarcodeScanner.scan().then((result) {
-    // barcode_scan plugin returns 8 digits when it cannot read the qr code. Prevent it from storing such values
-      if (AppString.isStringEmpty(result) || (result.length <= 8)) {
+    BarcodeScanner.scan().then((ScanResult scanResult) {
+      // barcode_scan plugin returns 8 digits when it cannot read the qr code. Prevent it from storing such values
+      if (scanResult.type == ResultType.Error) { // (AppString.isStringEmpty(result) || (result.length <= 8)) {
         AppAlert.showDialogResult(context, Localization().getStringEx('panel.health.covid19.alert.qr_code.scan.failed.msg', 'Failed to read QR code.'));
       }
-      else {
-        _onCovid19QrCodeScanSucceeded(result);
+      else if (scanResult.type == ResultType.Barcode) {
+         _onCovid19QrCodeScanSucceeded(scanResult.rawContent);
       }
     });
   }
