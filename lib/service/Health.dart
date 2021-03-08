@@ -858,7 +858,7 @@ class Health with Service implements NotificationsListener {
       if (0 < events.length) {
         List<Covid19History> histories = await loadCovid19History();
         if (histories != null) {
-          List<Covid19Event> result = List<Covid19Event>();
+          List<Covid19Event> result = <Covid19Event>[];
           for (Covid19Event event in events) {
             if (Covid19History.listContainsEvent(histories, event)) {
               // mark it as processed without duplicating the histyr entry
@@ -939,7 +939,7 @@ class Health with Service implements NotificationsListener {
     List<HealthTestType> testTypes = await loadHealthServiceTestTypes();
     Set<String> testTypeSet = testTypes != null ? testTypes.map((entry) => entry.name).toSet() : null;
     if (osfTests != null) {
-      List<Covid19OSFTest> processed = List<Covid19OSFTest>();
+      List<Covid19OSFTest> processed = <Covid19OSFTest>[];
       DateTime lastOsfTestDateUtc = Storage().lastHealthCovid19OsfTestDateUtc;
       DateTime latestOsfTestDateUtc;
 

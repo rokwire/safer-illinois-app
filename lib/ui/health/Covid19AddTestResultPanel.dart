@@ -104,7 +104,7 @@ class _Covid19AddTestResultPanelState extends State<Covid19AddTestResultPanel> i
   void _loadProviders() {
     _loading = true;
     Health().loadHealthServiceProviders().then((List<HealthServiceProvider> providers){
-      _providerItems = List<ProviderDropDownItem>();
+      _providerItems = <ProviderDropDownItem>[];
       if(providers?.isNotEmpty?? false) {
         _providerItems.addAll(providers?.map((HealthServiceProvider provider) {
           ProviderDropDownItem item = ProviderDropDownItem(type: ProviderDropDownItemType.provider, item: provider);
@@ -261,7 +261,7 @@ class _Covid19AddTestResultPanelState extends State<Covid19AddTestResultPanel> i
     if (itemsCount == 0) {
       return null;
     }
-    List<DropdownMenuItem<ProviderDropDownItem>> items = List<DropdownMenuItem<ProviderDropDownItem>>();
+    List<DropdownMenuItem<ProviderDropDownItem>> items = <DropdownMenuItem<ProviderDropDownItem>>[];
     try{
       items.addAll(_providerItems.map((ProviderDropDownItem item) {
         return DropdownMenuItem<ProviderDropDownItem>(

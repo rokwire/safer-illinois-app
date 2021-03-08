@@ -38,7 +38,7 @@ class Covid19CareTeamPanel extends StatefulWidget {
 }
 
 class _Covid19CareTeamPanelState extends State<Covid19CareTeamPanel> with TickerProviderStateMixin{
-  List<AnimationController> _animationControllers = List();
+  List<AnimationController> _animationControllers = <AnimationController>[];
   //bool _moreInfoExpanded = false;
 
   @override

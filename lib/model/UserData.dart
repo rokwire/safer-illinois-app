@@ -141,7 +141,7 @@ class UserRole {
   static List<dynamic> userRolesToList(Set<UserRole> userRoles) {
     List<String> userRolesList;
     if (userRoles != null) {
-      userRolesList = new List<String>();
+      userRolesList = <String>[];
       for (UserRole userRole in userRoles) {
         userRolesList.add(userRole.toString());
       }

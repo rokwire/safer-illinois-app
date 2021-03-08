@@ -1018,7 +1018,7 @@ class Exposure with Service implements NotificationsListener {
           if (result != null) {
             _markLocalExposureProcessed(detectedExposures);
             if (results == null) {
-              results = List<Covid19History>();
+              results = <Covid19History>[];
             }
             results.add(result);
           }

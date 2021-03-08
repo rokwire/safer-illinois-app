@@ -494,7 +494,7 @@ class Covid19History {
   static List<Covid19History> pastList(List<Covid19History> histories) {
     List<Covid19History> result;
     if (histories != null) {
-      result = List<Covid19History>();
+      result = <Covid19History>[];
       DateTime nowUtc = DateTime.now().toUtc();
       for (int index = 0; index < histories.length; index++) {
         Covid19History history =  histories[index];
@@ -1604,7 +1604,7 @@ class HealthGuideline {
   static List<HealthGuideline> fromJsonList(List<dynamic> jsonList) {
     List<HealthGuideline> sections;
     if (jsonList != null) {
-      sections = List();
+      sections = <HealthGuideline>[];
       for (dynamic jsonEntry in jsonList) {
         sections.add(HealthGuideline.fromJson(jsonEntry));
       }
@@ -1656,7 +1656,7 @@ class HealthGuidelineItem {
   static List<HealthGuidelineItem> fromJsonList(List<dynamic> jsonList) {
     List<HealthGuidelineItem> guidelineItems;
     if (jsonList != null) {
-      guidelineItems = List();
+      guidelineItems = <HealthGuidelineItem>[];
       for (dynamic jsonEntry in jsonList) {
         guidelineItems.add(HealthGuidelineItem.fromJson(jsonEntry));
       }
@@ -1912,7 +1912,7 @@ class HealthSymptomsGroup {
   }
 
   static List<HealthSymptom> getSymptoms(List<HealthSymptomsGroup> groups, Set<String> selected) {
-    List<HealthSymptom> symptoms = List<HealthSymptom>();
+    List<HealthSymptom> symptoms = <HealthSymptom>[];
     if ((groups != null) && (selected != null)) {
       for (HealthSymptomsGroup group in groups) {
         if ((group.symptoms != null)) {

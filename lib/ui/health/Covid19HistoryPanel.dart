@@ -49,7 +49,7 @@ class Covid19HistoryPanel extends StatefulWidget {
 
 class _Covid19HistoryPanelState extends State<Covid19HistoryPanel> implements NotificationsListener {
   
-  List<Covid19History> _statusHistory = List();
+  List<Covid19History> _statusHistory = <Covid19History>[];
   HealthRulesSet _rules;
   bool _isLoading = false;
   bool _isDeleting = false;

@@ -172,7 +172,7 @@ class AESCrypt {
 
       Uint8List encryptedJson = encrypter.encrypt(dataString, iv: iv).bytes;
 
-      List<int> list = List<int>();
+      List<int> list = <int>[];
       list.addAll(keyString2.codeUnits);
       list.addAll(encryptedJson);
       Uint8List data = Uint8List.fromList(list);

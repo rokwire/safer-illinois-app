@@ -143,7 +143,7 @@ class Services {
 
   void _sort() {
     
-    List<Service> queue = List();
+    List<Service> queue = <Service>[];
     while (_services.isNotEmpty) {
       // start with lowest priority service
       Service svc = _services.last;

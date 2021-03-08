@@ -490,7 +490,7 @@ class _Covid19StatusPanelState extends State<Covid19StatusPanel> implements Noti
   List <DropdownMenuItem> _buildCountyDropdownItems(){
     List <DropdownMenuItem> result;
     if (_counties?.isNotEmpty ?? false) {
-      result = List <DropdownMenuItem>();
+      result = <DropdownMenuItem>[];
       for (HealthCounty county in _counties.values) {
         result.add(DropdownMenuItem<dynamic>(
           value: county.id,

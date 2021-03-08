@@ -282,7 +282,7 @@ class _Settings2HomePanelState extends State<Settings2HomePanel> implements Noti
   }
 
   Widget _buildConnectedNetIdLayout() {
-    List<Widget> contentList = List();
+    List<Widget> contentList = <Widget>[];
 
     if(Auth().isShibbolethLoggedIn){
       contentList.add(Container(
@@ -319,7 +319,7 @@ class _Settings2HomePanelState extends State<Settings2HomePanel> implements Noti
   }
 
   Widget _buildConnectedPhoneLayout() {
-    List<Widget> contentList = List();
+    List<Widget> contentList = <Widget>[];
 
     if(Auth().isPhoneLoggedIn){
       String full = Auth()?.userPiiData?.fullName ?? "";

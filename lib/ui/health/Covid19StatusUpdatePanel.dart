@@ -218,7 +218,7 @@ class _Covid19StatusUpdatePanelState extends State<Covid19StatusUpdatePanel> {
       else if (reasonHistory.isSymptoms) {
         reasonHistoryName = Localization().getStringEx("panel.health.status_update.label.reason.symptoms.title", "You reported new symptoms");
         
-        List<Widget> symptomLayouts = List();
+        List<Widget> symptomLayouts = <Widget>[];
         List<HealthSymptom> symptoms = reasonHistory.symptoms;
         if (symptoms?.isNotEmpty ?? false) {
           symptoms.forEach((HealthSymptom symptom){
