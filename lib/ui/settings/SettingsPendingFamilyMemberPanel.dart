@@ -1,11 +1,16 @@
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_html/style.dart';
 import 'package:illinois/model/Health.dart';
+import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:sprintf/sprintf.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsPendingFamilyMemberPanel extends StatefulWidget {
   final HealthFamilyMember pendingMember;
@@ -20,6 +25,7 @@ class _SettingsPendingFamilyMemberPanelState extends State<SettingsPendingFamily
 
   bool _hasProgress = false;
   bool _buttonsEnabled = true;
+  bool _termsAccepted = false;
   String _errorMessage;
   HealthRulesSet _rules;
 
@@ -63,27 +69,35 @@ class _SettingsPendingFamilyMemberPanelState extends State<SettingsPendingFamily
   Widget _buildContent() {
     String statement1Text = sprintf(Localization().getStringEx('panel.health.covid19.pending_family_member.label.text.statement1', '%s seeks your authorization to participate in Shield CU COVID-19 testing.'), [widget.pendingMember.applicantFullName]);
     String statement2Text = sprintf(Localization().getStringEx('panel.health.covid19.pending_family_member.label.text.statement2', 'If you approve, your University account will be billed %s for each test taken.'), [_rules?.familyMemberTestPrice ?? '\$xx']);
+    String termsText = Localization().getStringEx('panel.health.covid19.pending_family_member.label.text.terms.title', 'Terms and Conditions');
+    String checkImageText = _termsAccepted ? '\u2611' : '\u2610';
 
+    Color termsColor = Styles().colors.fillColorSecondary, errorColor = Colors.yellow;
     TextStyle textStyle = TextStyle(color: Styles().colors.textColorPrimary, fontFamily: Styles().fontFamilies.bold, fontSize: 18);
-    TextStyle errorTextStyle = TextStyle(color: Colors.yellow, fontFamily: Styles().fontFamilies.regular, fontSize: 16);
+    TextStyle termsTextStyle = TextStyle(color: termsColor, fontFamily: Styles().fontFamilies.bold, fontSize: 18, decoration: TextDecoration.underline);
+    TextStyle termsImageStyle = TextStyle(color: termsColor, fontFamily: Styles().fontFamilies.bold, fontSize: 28);
+    TextStyle errorTextStyle = TextStyle(color: errorColor, fontFamily: Styles().fontFamilies.regular, fontSize: 16);
 
     List<Widget> statements = <Widget>[
       Text(statement1Text, style: textStyle, ),
       Container(height: 18),
       Text(statement2Text, style: textStyle, ),
+      InkWell(onTap: _onTerms, child: Column(children:<Widget>[
+        Container(height: 9),
+        Row(children:<Widget>[
+          Text(checkImageText, style: termsImageStyle),
+          Container(width: 9,),
+          Text(termsText, style: termsTextStyle),
+        ] ),
+        Container(height: 9),
+      ],),),
     ];
 
     if (_errorMessage != null) {
       statements.addAll(<Widget>[
-        Container(height: 9),
         Text(_errorMessage, style: errorTextStyle, ),
         Container(height: 9),
       ]);
-    }
-    else {
-      statements.add(
-        Container(height: 18),
-      );
     }
 
     return Padding(padding: EdgeInsets.all(20), child:
@@ -118,7 +132,7 @@ class _SettingsPendingFamilyMemberPanelState extends State<SettingsPendingFamily
         fontSize: 18,
         padding: EdgeInsets.symmetric(horizontal: 12),
         textColor: _buttonsEnabled ? Styles().colors.fillColorPrimary : Styles().colors.surfaceAccent,
-        borderColor: Styles().colors.fillColorSecondary,
+        borderColor: _buttonsEnabled ? Styles().colors.fillColorSecondary : Styles().colors.surfaceAccent,
         backgroundColor: Styles().colors.surface,
         onTap: handler,
       ),
@@ -130,40 +144,90 @@ class _SettingsPendingFamilyMemberPanelState extends State<SettingsPendingFamily
       CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary), strokeWidth: 3,));
   }
 
+  Widget _buildTermsDialog(BuildContext context) {
+    String termsHtml = Localization().getStringEx('panel.health.covid19.pending_family_member.label.text.terms.html', """
+<p>The person named above has self-identified as a family or household member (“Family Member”) and has requested access to the COVID-19 testing services provided by the University of Illinois (“University”). By touching the “AGREE” button below, you agree that:</p>
+<p>
+1. You are a University employee currently eligible for COVID-19 testing by the University;<br>
+2. Family Member is a family member in your household; and<br>
+3. You are responsible for any unpaid fees incurred by Family Member in obtaining COVID-19 testing services from the University.
+</p>
+<p>You also agree that you are accepting responsibility on behalf of the Family Member if the Family Member is a minor under age 18 and you are the parent or legal guardian of the Family Member.</p>
+<p>If you believe the person named above is improperly requesting access and/or has improperly obtained your University Identification Number (UIN), please contact [E-MAIL].</p>""");
+    Style htmlStyle = Style(color: Styles().colors.fillColorPrimary, fontFamily: Styles().fontFamilies.bold, fontSize: FontSize(16));
+    return ClipRRect(borderRadius: BorderRadius.all(Radius.circular(8)), child:
+      Dialog(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8),), child:
+        Stack(children: [
+          Padding(padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16), child:
+            SingleChildScrollView(child: 
+              Html(data: termsHtml, style: { 'body': htmlStyle }, onLinkTap: (url) => launch(url)),
+            ),
+          ),
+          Container(alignment: Alignment.topRight, height: 42, child: InkWell(onTap: _onCloseTerms, child: Container(width: 42, height: 42, alignment: Alignment.center, child: Image.asset('images/close-blue.png')))),
+        ],),
+      ),
+    );
+
+  }
+
+  void _onTerms() {
+    Analytics.instance.logSelect(target: "Terms");
+    if (!_termsAccepted) {
+      showDialog(context: context, builder: (context) => _buildTermsDialog(context) ).then((_) {
+        setState(() {
+          _termsAccepted = _buttonsEnabled = true;
+        });
+      });
+    }
+    setState(() {
+      _termsAccepted = _buttonsEnabled = false;
+    });
+  }
+
+  void _onCloseTerms() {
+    Analytics.instance.logSelect(target: "Close Terms");
+    Navigator.of(context).pop();
+  }
+
   void _onClose() {
+    Analytics.instance.logSelect(target: "Close");
     Navigator.of(context).pop(false);
   }
 
   void _onApprove() {
+    Analytics.instance.logSelect(target: "Approve");
     _submit(HealthFamilyMember.StatusAccepted);
   }
 
   void _onDisapprove() {
+    Analytics.instance.logSelect(target: "Disapprove");
     _submit(HealthFamilyMember.StatusRevoked);
   }
 
   void _submit(String status) {
-    setState(() {
-      _hasProgress = true;
-      _buttonsEnabled = false;
-      _errorMessage = (_errorMessage != null) ? '' : null;
-    });
-    Health().applyFamilyMemberStatus(widget.pendingMember, status).then((dynamic result) {
-      if (mounted) {
-        if (result == true) {
-          setState(() {
-            _hasProgress = false;
-          });
-          Navigator.of(context).pop(true);
+    if (_buttonsEnabled) {
+      setState(() {
+        _hasProgress = true;
+        _buttonsEnabled = false;
+        _errorMessage = (_errorMessage != null) ? '' : null;
+      });
+      Health().applyFamilyMemberStatus(widget.pendingMember, status).then((dynamic result) {
+        if (mounted) {
+          if (result == true) {
+            setState(() {
+              _hasProgress = false;
+            });
+            Navigator.of(context).pop(true);
+          }
+          else {
+            setState(() {
+              _hasProgress = false;
+              _buttonsEnabled = true;
+              _errorMessage = (result is String) ? result : Localization().getStringEx('panel.health.covid19.pending_family_member.label.text.error', 'Failed to submit.');
+            });
+          }
         }
-        else {
-          setState(() {
-            _hasProgress = false;
-            _buttonsEnabled = true;
-            _errorMessage = (result is String) ? result : Localization().getStringEx('panel.health.covid19.pending_family_member.label.text.error', 'Failed to submit.');
-          });
-        }
-      }
-    });
+      });
+    }
   }
 }
