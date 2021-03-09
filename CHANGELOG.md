@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added
+- Fire Analytics events in Pending Family Members popup.
 - Added terms and conditions to Pending Family Members popup [#557](https://github.com/rokwire/safer-illinois-app/issues/557).
 
 ## [2.9.17] - 2021-03-04

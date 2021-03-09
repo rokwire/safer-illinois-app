@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html/style.dart';
 import 'package:illinois/model/Health.dart';
+import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Styles.dart';
@@ -170,6 +171,7 @@ class _SettingsPendingFamilyMemberPanelState extends State<SettingsPendingFamily
   }
 
   void _onTerms() {
+    Analytics.instance.logSelect(target: "Terms");
     if (!_termsAccepted) {
       showDialog(context: context, builder: (context) => _buildTermsDialog(context) ).then((_) {
         setState(() {
@@ -183,18 +185,22 @@ class _SettingsPendingFamilyMemberPanelState extends State<SettingsPendingFamily
   }
 
   void _onCloseTerms() {
+    Analytics.instance.logSelect(target: "Close Terms");
     Navigator.of(context).pop();
   }
 
   void _onClose() {
+    Analytics.instance.logSelect(target: "Close");
     Navigator.of(context).pop(false);
   }
 
   void _onApprove() {
+    Analytics.instance.logSelect(target: "Approve");
     _submit(HealthFamilyMember.StatusAccepted);
   }
 
   void _onDisapprove() {
+    Analytics.instance.logSelect(target: "Disapprove");
     _submit(HealthFamilyMember.StatusRevoked);
   }
 
