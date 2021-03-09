@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## [2.9.18] - 2021-03-09
 ### Added
 - Fire Analytics events in Pending Family Members popup.
 - Added terms and conditions to Pending Family Members popup [#557](https://github.com/rokwire/safer-illinois-app/issues/557).
