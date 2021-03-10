@@ -134,12 +134,12 @@ class _OnBoardingHealthDisclosurePanelState extends State<OnBoardingHealthDisclo
                         ),
                         Container(height: 2,),
                         Text(
-                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content2", "2. Photos to allow a user to import their personal encryption key (QR code) into the app."),
+                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content2", "2. Camera to allow a user to import their personal encryption key (QR code) into the app."),
                           style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 14, color:Styles().colors.textSurface),
                         ),
                         Container(height: 2,),
                         Text(
-                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content3", "3. Videos to allow a user to import their personal encryption key (QR code) into the app."),
+                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content3", "3. Photos and Videos to allow a user to import their personal encryption key (QR code) into the app."),
                           style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 14, color:Styles().colors.textSurface),
                         ),
                         Container(height: 2,),

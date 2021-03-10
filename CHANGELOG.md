@@ -6,6 +6,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.9.18] - 2021-03-09
+### Added
+- Fire Analytics events in Pending Family Members popup.
+- Added terms and conditions to Pending Family Members popup [#557](https://github.com/rokwire/safer-illinois-app/issues/557).
+
+### Changed
+- Minor text changes in Pending Family Members popup.
+
+## [2.9.17] - 2021-03-04
+### Added
+- Added email or phone in Family Members list entry [#549](https://github.com/rokwire/safer-illinois-app/issues/549).
+
+### Changed
+- Renamed all occurences of "Reject" with "Revoke" in Family Members panel [#553](https://github.com/rokwire/safer-illinois-app/issues/553).
+
+## [2.9.16] - 2021-03-02
+### Fixed
+- Fixed "Remove My Information" processing [#547](https://github.com/rokwire/safer-illinois-app/issues/547).
+
+## [2.9.15] - 2021-02-26
+### Added
+- Implemented PullToRefresh feature in Home panel [#544](https://github.com/rokwire/safer-illinois-app/issues/544).
+
+### Changed
+- Load family member test price from health rules constants [#542](https://github.com/rokwire/safer-illinois-app/issues/542).
+
+## [2.9.14] - 2021-02-23
+### Added
+- Introduced Family members panel [#537](https://github.com/rokwire/safer-illinois-app/issues/537).
+
+## [2.9.13] - 2021-02-22
+### Changed
+- Updated Positive IP & NIP step & explanation strings [#529](https://github.com/rokwire/safer-illinois-app/issues/529).
+- Make POSITIVE-NIP COVID-19 PCR test result like the regular "PCR.negative" test result [#532](https://github.com/rokwire/safer-illinois-app/issues/532).
+- Introduced Approve Family member panel [#534](https://github.com/rokwire/safer-illinois-app/issues/534).
+
+### Added
+- Added camera usage mention in disclosure screen [#530](https://github.com/rokwire/safer-illinois-app/issues/530).
+- Handled family members requests [#534](https://github.com/rokwire/safer-illinois-app/issues/534).
+
 ## [2.9.12] - 2021-02-09
 ### Changed
 - Increased connectivity plugin version [#519](https://github.com/rokwire/safer-illinois-app/issues/519).

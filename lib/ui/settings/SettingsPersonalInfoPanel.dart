@@ -43,13 +43,16 @@ class _SettingsPersonalInfoPanelState extends State<SettingsPersonalInfoPanel> {
   Future<void> _deleteUserData() async{
     Analytics.instance.logAlert(text: "Remove My Information", selection: "Yes");
 
-    await Health().deleteUser();
-    await Exposure().deleteUser();
     bool piiDeleted = await Auth().deleteUserPiiData();
     if(piiDeleted) {
+      await Health().deleteUser();
+      await Exposure().deleteUser();
       await User().deleteUser();
+      // Auth().logout() - invoked by User().deleteUser()
     }
-    Auth().logout();
+    else {
+      AppAlert.showDialogResult(context, Localization().getStringEx("panel.profile_info.header.title", "Failed to remove your information"));
+    }
   }
 
 

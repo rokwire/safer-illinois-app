@@ -60,7 +60,7 @@ class Covid19InfoCenterPanel extends StatefulWidget {
 class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> implements NotificationsListener {
 
   Covid19Status _status;
-  bool _covid19Access = false;
+  bool _covid19Access;
   bool _loadingStatus;
   Covid19History _lastHistory;
   String _currentCountyName;
@@ -195,14 +195,22 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
     });
   }
 
+  Future<void> _onPullToRefresh() async {
+    print("Covid19InfoCenterPanel pullToRefresh");
+    _loadStatus();
+    Health().checkPendingFamilyMembers();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Styles().colors.background,
       appBar: _Covid19HomeHeaderBar(context: context,),
-      body: SingleChildScrollView(
-        child: SafeArea(
-          child: _buildMainContent(),
+      body: RefreshIndicator(onRefresh: _onPullToRefresh,
+        child: SingleChildScrollView(
+          child: SafeArea(
+            child: _buildMainContent(),
+          ),
         ),
       ),
     );
@@ -811,8 +819,9 @@ class _Covid19InfoCenterPanelState extends State<Covid19InfoCenterPanel> impleme
   }
 
   String get _accessStatusText{
-    return (_covid19Access? Localization().getStringEx("panel.covid19home.label.access.granted","Building access granted"):
-                            Localization().getStringEx("panel.covid19home.label.access.denied","Building access denied"));
+    return (_covid19Access == true ?
+      Localization().getStringEx("panel.covid19home.label.access.granted", "Building access granted"):
+      Localization().getStringEx("panel.covid19home.label.access.denied", "Building access denied"));
   }
 }
 

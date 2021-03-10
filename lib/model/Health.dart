@@ -1685,6 +1685,134 @@ class HealthGuidelineItem {
 }
 
 ///////////////////////////////
+// HealthFamilyMember
+
+class HealthFamilyMember {
+  String        id;
+  DateTime      dateCreated;
+  String        groupName;
+  String        status;
+  String        applicantFirstName;
+  String        applicantLastName;
+  String        applicantEmail;
+  String        applicantPhone;
+  String        approverId;
+  String        approverLastName;
+
+  static const String StatusAccepted = 'accepted';
+  static const String StatusRevoked = 'rejected';
+  static const String StatusPending  = 'pending';
+
+  HealthFamilyMember({this.id, this.dateCreated, this.groupName, this.status,
+    this.applicantFirstName, this.applicantLastName, this.applicantEmail, this.applicantPhone,
+    this.approverId, this.approverLastName});
+
+  factory HealthFamilyMember.fromJson(Map<String, dynamic> json){
+    return (json != null) ? HealthFamilyMember(
+      id: json['id'],
+      dateCreated: healthDateTimeFromString(json['date_created']),
+      groupName: json['group_name'],
+      status: json['status'],
+      applicantFirstName: json['first_name'],
+      applicantLastName: json['last_name'],
+      applicantEmail: json['email'],
+      applicantPhone: json['phone'],
+      approverId: json['external_approver_id'],
+      approverLastName: json['external_approver_last_name'],
+    ) : null;
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'date_created': healthDateTimeToString(dateCreated),
+      'group_name': groupName,
+      'status': status,
+      'first_name': applicantFirstName,
+      'last_name': applicantLastName,
+      'email': applicantEmail,
+      'phone': applicantPhone,
+      'external_approver_id': approverId,
+      'external_approver_last_name': approverLastName,
+    };
+  }
+
+  String get applicantFullName {
+    if (AppString.isStringNotEmpty(applicantFirstName)) {
+      if (AppString.isStringNotEmpty(applicantLastName)) {
+        return "$applicantFirstName $applicantLastName";
+      }
+      else {
+        return "$applicantFirstName";
+      }
+    }
+    else {
+      return "$applicantLastName";
+    }
+  }
+
+  String get applicantEmailOrPhone {
+    if (AppString.isStringNotEmpty(applicantEmail)) {
+      return applicantEmail;
+    }
+    else if (AppString.isStringNotEmpty(applicantPhone)) {
+      return applicantPhone;
+    }
+    else {
+      return null;
+    }
+  }
+
+  bool get isPending {
+    return status == StatusPending;
+  }
+
+  bool get isAcepted {
+    return status == StatusAccepted;
+  }
+
+  bool get isRevoked {
+    return status == StatusRevoked;
+  }
+
+  static List<HealthFamilyMember> listFromJson(List<dynamic> json) {
+    List<HealthFamilyMember> values;
+    if (json != null) {
+      values = [];
+      for (dynamic entry in json) {
+          HealthFamilyMember value;
+          try { value = HealthFamilyMember.fromJson((entry as Map)?.cast<String, dynamic>()); }
+          catch(e) { print(e.toString()); }
+          values.add(value);
+      }
+    }
+    return values;
+  }
+
+  static List<dynamic> listToJson(List<HealthFamilyMember> values) {
+    List<dynamic> json;
+    if (values != null) {
+      json = [];
+      for (HealthFamilyMember value in values) {
+        json.add(value?.toJson());
+      }
+    }
+    return json;
+  }
+
+  static HealthFamilyMember pendingMemberFromList(List<HealthFamilyMember> values) {
+    if (values != null) {
+      for (HealthFamilyMember member in values) {
+        if (member.isPending) {
+          return member;
+        }
+      }
+    }
+    return null;
+  }
+}
+
+///////////////////////////////
 // HealthSymptom
 
 class HealthSymptom {
@@ -1839,6 +1967,7 @@ class HealthRulesSet {
   final Map<String, dynamic> strings;
 
   static const String UserTestMonitorInterval = 'UserTestMonitorInterval';
+  static const String FamilyMemberTestPrice = 'FamilyMemberTestPrice';
 
   HealthRulesSet({this.tests, this.symptoms, this.contactTrace, this.actions, this.defaults, this.statuses, Map<String, dynamic> constants, Map<String, dynamic> strings}) :
     this.constants = constants ?? Map<String, dynamic>(),
@@ -1863,6 +1992,10 @@ class HealthRulesSet {
 
   set userTestMonitorInterval(int value) {
     constants[UserTestMonitorInterval] = value;
+  }
+
+  String get familyMemberTestPrice {
+    return localeString(constants[FamilyMemberTestPrice]);
   }
 
   String localeString(dynamic entry) {
