@@ -146,14 +146,14 @@ class _SettingsPendingFamilyMemberPanelState extends State<SettingsPendingFamily
 
   Widget _buildTermsDialog(BuildContext context) {
     String termsHtml = Localization().getStringEx('panel.health.covid19.pending_family_member.label.text.terms.html', """
-<p>The person named above has self-identified as a family or household member (“Family Member”) and has requested access to the COVID-19 testing services provided by the University of Illinois (“University”). By touching the “AGREE” button below, you agree that:</p>
+<p>The person named above has self-identified as a family or household member (“Family Member”) and has requested access to the COVID-19 testing services provided by the University of Illinois (“University”). By touching the “I Approve” button below, you agree that:</p>
 <p>
 1. You are a University employee currently eligible for COVID-19 testing by the University;<br>
 2. Family Member is a family member in your household; and<br>
 3. You are responsible for any unpaid fees incurred by Family Member in obtaining COVID-19 testing services from the University.
 </p>
 <p>You also agree that you are accepting responsibility on behalf of the Family Member if the Family Member is a minor under age 18 and you are the parent or legal guardian of the Family Member.</p>
-<p>If you believe the person named above is improperly requesting access and/or has improperly obtained your University Identification Number (UIN), please contact [E-MAIL].</p>""");
+<p>If you believe the person named above is improperly requesting access and/or has improperly obtained your University Identification Number (UIN), please contact <a href='mailto:shieldcu@illinois.edu'>shieldcu@illinois.edu</a>.</p>""");
     Style htmlStyle = Style(color: Styles().colors.fillColorPrimary, fontFamily: Styles().fontFamilies.bold, fontSize: FontSize(16));
     return ClipRRect(borderRadius: BorderRadius.all(Radius.circular(8)), child:
       Dialog(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8),), child:
