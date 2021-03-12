@@ -430,36 +430,43 @@
 					{
 						"result": "POSITIVE",
 						"category": "PCR.positive",
+						"disclaimer_html": "disclaimers.covid-19_pcr.positive.html",
 						"status": "PCR.positive"
 					},
 					{
 						"result": "POSITIVE-IP",
 						"category": "PCR.positive",
+						"disclaimer_html": null,
 						"status": "PCR.positive-IP"
 					},
 					{
 						"result": "POSITIVE-NIP",
 						"category": "PCR.negative",
+						"disclaimer_html": null,
 						"status": "PCR.positive-NIP"
 					},
 					{
 						"result": "NEGATIVE",
 						"category": "PCR.negative",
+						"disclaimer_html": "disclaimers.covid-19_pcr.negative.html",
 						"status": "PCR.negative"
 					},
 					{
 						"result": "INVALID",
 						"category": "PCR.invalid",
+						"disclaimer_html": "disclaimers.covid-19_pcr.invalid.html",
 						"status": "PCR.invalid"
 					},
 					{
 						"result": "INCONCLUSIVE",
 						"category": "PCR.invalid",
+						"disclaimer_html": "disclaimers.covid-19_pcr.inconclusive.html",
 						"status": "PCR.invalid"
 					},
 					{
 						"result": "REJECTED",
 						"category": "PCR.invalid",
+						"disclaimer_html": "disclaimers.covid-19_pcr.rejected.html",
 						"status": "PCR.invalid"
 					}
 				]

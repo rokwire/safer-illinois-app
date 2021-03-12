@@ -1791,7 +1791,7 @@ class HealthTestType {
 }
 
 ///////////////////////////////
-// HealthTestRuleResult
+// HealthTestTypeResult
 
 class HealthTestTypeResult {
   final String id;
@@ -2324,6 +2324,10 @@ class HealthRulesSet {
 
     return Localization().localeString(entry) ?? entry;
   }
+
+  String localeDisclaimerHtml(HealthHistoryBlob blob) {
+    return localeString(tests?.matchRuleResult(blob: blob, rules: this)?.disclaimerHtml);
+  }
 }
 
 ///////////////////////////////
@@ -2583,14 +2587,16 @@ class HealthTestRule {
 class HealthTestRuleResult {
   final String testResult;
   final String category;
+  final String disclaimerHtml;
   final _HealthRuleStatus status;
 
-  HealthTestRuleResult({this.testResult, this.category, this.status});
+  HealthTestRuleResult({this.testResult, this.category, this.status, this.disclaimerHtml});
 
   factory HealthTestRuleResult.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthTestRuleResult(
       testResult: json['result'],
       category: json['category'],
+      disclaimerHtml: json['disclaimer_html'],
       status: _HealthRuleStatus.fromJson(json['status']),
     ) : null;
   }
@@ -2599,11 +2605,13 @@ class HealthTestRuleResult {
     (o is HealthTestRuleResult) &&
       (o.testResult == testResult) &&
       (o.category == category) &&
+      (o.disclaimerHtml == disclaimerHtml) &&
       (status == status);
 
   int get hashCode =>
     (testResult?.hashCode ?? 0) ^
     (category?.hashCode ?? 0) ^
+    (disclaimerHtml?.hashCode ?? 0) ^
     (status?.hashCode ?? 0);
 
   static List<HealthTestRuleResult> listFromJson(List<dynamic> json) {
