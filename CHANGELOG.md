@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 - Disable Accept/Revoke buttons initially in Pending Family Members popup.
+- Changed permission request buttons to "Continue" [#560](https://github.com/rokwire/safer-illinois-app/issues/560)
 
 ## [2.9.18] - 2021-03-09
 ### Added
