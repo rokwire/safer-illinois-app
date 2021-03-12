@@ -15,6 +15,7 @@
  */
 
 import 'dart:collection';
+import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +33,7 @@ import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/utils/Crypt.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:illinois/service/Styles.dart';
+import 'package:intl/intl.dart';
 import "package:pointycastle/export.dart" as PointyCastle;
 
 class Covid19DebugCreateEventPanel extends StatefulWidget {
@@ -425,43 +427,101 @@ class _Covid19DebugCreateEventPanelState extends State<Covid19DebugCreateEventPa
   }
 
   String get _sampleTestNegativeBlob {
-    String date = healthDateTimeToString(DateTime.now().toUtc());
+    DateTime nowLocal = DateTime.now();
+    String dateString = healthDateTimeToString(nowLocal.toUtc());
+    String localString = DateFormat("MMMM d, yyyy HH:mm").format(nowLocal);
+    String orderNumber = Random().nextInt(999999).toString().padLeft(6, '0');
     return '''{
-  "Date": "$date",
+  "Date": "$dateString",
   "TestName": "COVID-19 PCR",
-  "Result": "negative"
+  "Result": "negative",
+  "Extra": [
+    {"display_name": "Collected", "display_value": "$localString"},
+    {"display_name": "Resulted", "display_value": "$localString"},
+    {"display_name": "Order #", "display_value": "CU$orderNumber"}
+  ]
 }''';}
 
   String get _sampleTestPositiveBlob {
-    String date = healthDateTimeToString(DateTime.now().toUtc());
+    DateTime nowLocal = DateTime.now();
+    String dateString = healthDateTimeToString(nowLocal.toUtc());
+    String localString = DateFormat("MMMM d, yyyy HH:mm").format(nowLocal);
+    String orderNumber = Random().nextInt(999999).toString().padLeft(6, '0');
     return '''{
-  "Date": "$date",
+  "Date": "$dateString",
   "TestName": "COVID-19 PCR",
-  "Result": "positive"
+  "Result": "positive",
+  "Extra": [
+    {"display_name": "Collected", "display_value": "$localString"},
+    {"display_name": "Resulted", "display_value": "$localString"},
+    {"display_name": "Order #", "display_value": "CU$orderNumber"}
+  ]
 }''';}
 
   String get _sampleActionQuarantineOnBlob {
-    String date = healthDateTimeToString(DateTime.now().toUtc());
+    DateTime nowLocal = DateTime.now();
+    String dateString = healthDateTimeToString(nowLocal.toUtc());
+    String orderNumber = Random().nextInt(999999).toString().padLeft(6, '0');
     return '''{
-  "Date": "$date",
+  "Date": "$dateString",
   "ActionType": "quarantine-on",
+  "ActionTitle": {
+    "en": "Quarantined",
+    "es": "En cuarentena",
+    "zh": "隔離區"
+  },
   "ActionText": {
     "en": "You are in quarantine",
     "es": "Estas en cuarentena",
     "zh": "您正在隔離"
-  }
+  },
+  "Extra": [
+    {
+      "display_name": {"en": "Issued", "es": "Emitido", "zh": "發布" },
+      "display_value": {
+        "en": "${DateFormat("MMMM d, yyyy HH:mm", "en").format(nowLocal)}",
+        "es": "${DateFormat("MMMM d, yyyy HH:mm", "es").format(nowLocal)}",
+        "zh": "${DateFormat("MMMM d, yyyy HH:mm", "zh").format(nowLocal)}"
+      }
+    },
+    {
+      "display_name": {"en": "Order #", "es": "Orden #", "zh": "命令 ＃" },
+      "display_value": "CU$orderNumber"
+    }
+  ]
 }''';}
 
   String get _sampleActionQuarantineOffBlob {
-    String date = healthDateTimeToString(DateTime.now().toUtc());
+    DateTime nowLocal = DateTime.now();
+    String dateString = healthDateTimeToString(nowLocal.toUtc());
+    String orderNumber = Random().nextInt(999999).toString().padLeft(6, '0');
     return '''{
-  "Date": "$date",
+  "Date": "$dateString",
   "ActionType": "quarantine-off",
+  "ActionTitle": {
+    "en": "Released from Quarantine",
+    "es": "Liberado de cuarentena",
+    "zh": "從隔離區釋放"
+  },
   "ActionText": {
     "en": "You are out of quarantine",
     "es": "Estas fuera de cuarentena",
     "zh": "你沒隔離"
-  }
+  },
+  "Extra": [
+    {
+      "display_name": {"en": "Issued", "es": "Emitido", "zh": "發布" },
+      "display_value": {
+        "en": "${DateFormat("MMMM d, yyyy HH:mm", "en").format(nowLocal)}",
+        "es": "${DateFormat("MMMM d, yyyy HH:mm", "es").format(nowLocal)}",
+        "zh": "${DateFormat("MMMM d, yyyy HH:mm", "zh").format(nowLocal)}"
+      }
+    },
+    {
+      "display_name": {"en": "Order #", "es": "Orden #", "zh": "命令 ＃" },
+      "display_value": "CU$orderNumber"
+    }
+  ]
 }''';}
 
   String get _sampleActionOutOfComplianceBlob {
@@ -469,11 +529,8 @@ class _Covid19DebugCreateEventPanelState extends State<Covid19DebugCreateEventPa
     return '''{
   "Date": "$date",
   "ActionType": "out-of-test-compliance",
-  "ActionText": {
-    "en": "You are out of test compliance",
-    "es": "No cumple con las pruebas",
-    "zh": "您沒有符合測試要求"
-  }
+  "ActionTitle": "Out of Compliance",
+  "ActionText": "You are out of test compliance"
 }''';}
 
   String get _sampleActionTestPendingBlob {
@@ -481,11 +538,8 @@ class _Covid19DebugCreateEventPanelState extends State<Covid19DebugCreateEventPa
     return '''{
   "Date": "$date",
   "ActionType": "test_pending",
-  "ActionText": {
-    "en": "Your test is pending",
-    "es": "Tu prueba esta pendiente",
-    "zh": "您的測試正在等待中"
-  }
+  "ActionTitle": "Pending Test",
+  "ActionText": "Your test is pending"
 }''';}
 
   String get _sampleActionForceTestBlob {
@@ -493,11 +547,8 @@ class _Covid19DebugCreateEventPanelState extends State<Covid19DebugCreateEventPa
     return '''{
   "Date": "$date",
   "ActionType": "force-test",
-  "ActionText": {
-    "en": "You are required to have 2 tests separated by 3 days",
-    "es": "Debe tener 2 pruebas separadas por 3 días",
-    "zh": "您需要進行2項測試，每3天間隔一次"
-  }
+  "ActionTitle": "Test Required",
+  "ActionText": "You are required to have 2 tests separated by 3 days"
 }''';}
 
   void _onPopulate(String content) {
