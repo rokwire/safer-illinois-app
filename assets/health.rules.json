@@ -531,7 +531,7 @@
 					{
 						"result": "REJECTED",
 						"category": "PCR.invalid",
-						"disclaimer_html": "disclaimers.covid-19_pcr.inconclusive.html",
+						"disclaimer_html": "disclaimers.covid-19_pcr.rejected.html",
 						"status": "PCR.invalid"
 					}
 				]
