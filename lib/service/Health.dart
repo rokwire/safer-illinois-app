@@ -1128,6 +1128,7 @@ class Health with Service implements NotificationsListener {
           providerId: event?.providerId,
           testType: event?.blob?.testType,
           testResult: event?.blob?.testResult,
+          extras: event?.blob?.extras,
         ),
         publicKey: _user?.publicKey
       ));
@@ -1138,8 +1139,10 @@ class Health with Service implements NotificationsListener {
         type: HealthHistoryType.action,
         blob: HealthHistoryBlob(
           actionType: event?.blob?.actionType,
+          actionTitle: event?.blob?.actionTitle,
           actionText: event?.blob?.actionText,
           actionParams: event?.blob?.actionParams,
+          extras: event?.blob?.extras,
         ),
         publicKey: _user?.publicKey
       ));
@@ -1206,6 +1209,7 @@ class Health with Service implements NotificationsListener {
             prevStatus: _previousStatus?.blob?.code,
             attributes: {
               Analytics.LogHealthActionTypeName: event.blob?.actionType,
+              Analytics.LogHealthActionTitleName: event.blob?.defaultLocaleActionTitle,
               Analytics.LogHealthActionTextName: event.blob?.defaultLocaleActionText,
               Analytics.LogHealthActionParamsName: event.blob?.actionParams,
           });
