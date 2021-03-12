@@ -587,7 +587,7 @@
 	"panel.health.covid19.history.label.contact_trace.details": "seguimiento de contacto: ",
 	"panel.health.covid19.history.label.action.title": "Acción requerida",
 	"panel.health.covid19.history.label.action.details": "acción: ",
-	"panel.health.covid19.history.label.result.title": "Resultado: ",
+	"panel.health.covid19.history.label.result.title": "Resultado",
 	"panel.health.covid19.history.label.location.title": "Lugar de prueba",
 	"panel.health.covid19.history.label.technician_name.title": "Nombre del técnico",
 	"panel.health.covid19.history.label.technician_id.title": "ID del técnico",

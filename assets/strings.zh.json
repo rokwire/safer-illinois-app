@@ -587,7 +587,7 @@
 	"panel.health.covid19.history.label.contact_trace.details": "接触者追踪: ",
 		"panel.health.covid19.history.label.action.title": "需要採取的行動",
 		"panel.health.covid19.history.label.action.details": "行動：",
-	"panel.health.covid19.history.label.result.title": "结果: ",
+	"panel.health.covid19.history.label.result.title": "结果",
 	"panel.health.covid19.history.label.location.title": "测试位置",
 	"panel.health.covid19.history.label.technician_name.title": "技术人员姓名",
 	"panel.health.covid19.history.label.technician_id.title": "技术人员 ID",
