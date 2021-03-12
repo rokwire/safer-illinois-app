@@ -358,8 +358,8 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
       info = isManualTest? Localization().getStringEx("panel.covid19home.label.provider.self_reported", "Self reported"):
             (blob?.provider ?? Localization().getStringEx("app.common.label.other", "Other"));
     } else if(blob.isAction){
-      historyTitle = Localization().getStringEx("panel.covid19home.label.action_required.title", "Action Required");
-      info = blob.actionDisplayString?? "";
+      historyTitle = blob.localeActionTitle ?? Localization().getStringEx("panel.covid19home.label.action_required.title", "Action Required");
+      info = blob.localeActionText ?? "";
     } else if(blob.isContactTrace){
       historyTitle = Localization().getStringEx("panel.covid19home.label.contact_trace.title", "Contact Trace");
       info = blob.traceDurationDisplayString;
