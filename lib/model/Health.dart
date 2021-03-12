@@ -838,7 +838,7 @@ class Covid19EventBlob {
         'Extra': Covid19EventExtra.listToJson(extras),
       };
     }
-    else if ((actionType != null) || (actionText != null)) {
+    else if ((actionType != null) || (actionTitle != null) || (actionText != null)) {
       return {
         'Date': healthDateTimeToString(dateUtc),
         'ActionType': actionType,
@@ -860,7 +860,7 @@ class Covid19EventBlob {
   }
 
   bool get isAction {
-    return AppString.isStringNotEmpty(actionType) || AppString.isStringNotEmpty(actionTitle) || AppString.isStringNotEmpty(actionText);
+    return AppString.isStringNotEmpty(actionType) || AppString.isStringNotEmpty(defaultLocaleActionTitle) || AppString.isStringNotEmpty(defaultLocaleActionText);
   }
 
   String get defaultLocaleActionTitle {
@@ -2159,7 +2159,7 @@ class HealthTestRulesSet {
   }
 
   HealthTestRuleResult matchRuleResult({ Covid19HistoryBlob blob, HealthRulesSet rules }) {
-    if ((_rules != null) && (blob != null)) {
+    if ((_rules != null) && (blob != null) && (blob.testType != null) && (blob.testResult != null)) {
       for (HealthTestRule rule in _rules) {
         if ((rule?.testType != null) && (rule?.testType?.toLowerCase() == blob?.testType?.toLowerCase()) && (rule.results != null)) {
           for (HealthTestRuleResult ruleResult in rule.results) {

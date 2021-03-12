@@ -1197,7 +1197,7 @@ class Health with Service implements NotificationsListener {
       dynamic actionText = action['health.covid19.action.text'];
       List<Covid19EventExtra> extras = Covid19EventExtra.listFromJson(AppJson.listValue(action['health.covid19.action.extra']));
       
-      if ((actionType != null) || (actionText != null)) {
+      if ((actionType != null) || (actionText != null) || (actionTitle != null)) {
         Covid19History history = await _addCovid19History(await Covid19History.encryptedFromBlob(
           dateUtc: dateUtc,
           type: Covid19HistoryType.action,
