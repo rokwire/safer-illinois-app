@@ -401,15 +401,16 @@ class Covid19History {
         (this.blob?.provider == event?.provider) &&
         (this.blob?.providerId == event?.providerId) &&
         (this.blob?.testType == event?.blob?.testType) &&
-        (this.blob?.testResult == event?.blob?.testResult);
+        (this.blob?.testResult == event?.blob?.testResult) &&
+        ListEquality().equals(this.blob.extras, event.blob.extras);
     }
     else if (event.isAction) {
       return this.isAction &&
         (this.dateUtc == event?.blob?.dateUtc) &&
         (this.blob?.actionType == event?.blob?.actionType) &&
-        ((this.blob?.actionText == event?.blob?.actionText) ||
-         ((this.blob?.actionText is Map) && (event?.blob?.actionText is Map) && DeepCollectionEquality().equals(this.blob?.actionText, event?.blob?.actionText))
-        );
+        (DeepCollectionEquality().equals(this.blob?.actionTitle, event?.blob?.actionTitle)) &&
+        (DeepCollectionEquality().equals(this.blob?.actionText, event?.blob?.actionText)) &&
+        ListEquality().equals(this.blob.extras, event.blob.extras);
     }
     else {
       return false;
@@ -539,13 +540,17 @@ class Covid19HistoryBlob {
   final String traceTEK;
   
   final String actionType;
+  final dynamic actionTitle;
   final dynamic actionText;
+
+  final List<Covid19EventExtra> extras;
 
   Covid19HistoryBlob({
     this.provider, this.providerId, this.location, this.locationId, this.countyId, this.testType, this.testResult,
     this.symptoms,
     this.traceDuration, this.traceTEK,
-    this.actionType, this.actionText,
+    this.actionType, this.actionTitle, this.actionText,
+    this.extras,
   });
 
   factory Covid19HistoryBlob.fromJson(Map<String, dynamic> json) {
@@ -564,7 +569,10 @@ class Covid19HistoryBlob {
       traceTEK: json['trace_tek'],
       
       actionType: json['action_type'],
+      actionTitle: json['action_title'],
       actionText: json['action_text'],
+
+      extras: Covid19EventExtra.listFromJson(json['extra']),
     ) : null;
   }
 
@@ -584,7 +592,10 @@ class Covid19HistoryBlob {
       'trace_tek': traceTEK,
       
       'action_type': actionType,
+      'action_title': actionTitle,
       'action_text': actionText,
+
+      'extra': Covid19EventExtra.listToJson(extras),
     };
   }
 
@@ -601,7 +612,7 @@ class Covid19HistoryBlob {
   }
 
   bool get isAction {
-    return (actionType != null);
+    return (actionType != null) || (actionTitle != null) || (actionText != null);
   }
 
   Set<String> get symptomsIds {
@@ -655,12 +666,12 @@ class Covid19HistoryBlob {
     return null;
   }
 
-  String get localeActionText {
-    return Localization().localeString(actionText) ?? actionText;
+  String get localeActionTitle {
+    return Localization().localeString(actionTitle) ?? actionTitle;
   }
 
-  String get actionDisplayString {
-    return localeActionText ?? actionType;
+  String get localeActionText {
+    return Localization().localeString(actionText) ?? actionText;
   }
 }
 
@@ -799,9 +810,12 @@ class Covid19EventBlob {
   final String   testResult;
 
   final String   actionType;
+  final dynamic  actionTitle;
   final dynamic  actionText;
 
-  Covid19EventBlob({this.dateUtc, this.testType, this.testResult, this.actionType, this.actionText});
+  final List<Covid19EventExtra> extras;
+
+  Covid19EventBlob({this.dateUtc, this.testType, this.testResult, this.actionType, this.actionTitle, this.actionText, this.extras});
 
   factory Covid19EventBlob.fromJson(Map<String, dynamic> json) {
     return (json != null) ? Covid19EventBlob(
@@ -809,7 +823,9 @@ class Covid19EventBlob {
       testType:      AppJson.stringValue(json['TestName']),
       testResult:    AppJson.stringValue(json['Result']),
       actionType:    AppJson.stringValue(json['ActionType']),
+      actionTitle:   json['ActionTitle'],
       actionText:    json['ActionText'],
+      extras:        Covid19EventExtra.listFromJson(AppJson.listValue(json['Extra'])),
     ) : null;
   }
 
@@ -819,18 +835,22 @@ class Covid19EventBlob {
         'Date': healthDateTimeToString(dateUtc),
         'TestName': testType,
         'Result': testResult,
+        'Extra': Covid19EventExtra.listToJson(extras),
       };
     }
     else if ((actionType != null) || (actionText != null)) {
       return {
         'Date': healthDateTimeToString(dateUtc),
         'ActionType': actionType,
+        'ActionTitle': actionTitle,
         'ActionText': actionText,
+        'Extra': Covid19EventExtra.listToJson(extras),
       };
     }
     else {
       return {
         'Date': healthDateTimeToString(dateUtc),
+        'Extra': Covid19EventExtra.listToJson(extras),
       };
     }
   }
@@ -840,14 +860,99 @@ class Covid19EventBlob {
   }
 
   bool get isAction {
-    return AppString.isStringNotEmpty(actionType);
+    return AppString.isStringNotEmpty(actionType) || AppString.isStringNotEmpty(actionTitle) || AppString.isStringNotEmpty(actionText);
   }
+
+  String get defaultLocaleActionTitle {
+    return Localization().defaultLocaleString(actionTitle) ?? actionTitle;
+  } 
 
   String get defaultLocaleActionText {
     return Localization().defaultLocaleString(actionText) ?? actionText;
   } 
 }
 
+
+///////////////////////////////
+// Covid19EventExtra
+
+class Covid19EventExtra {
+  final dynamic displayName;
+  final dynamic displayValue;
+
+  Covid19EventExtra({this.displayName, this.displayValue});
+
+  factory Covid19EventExtra.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? Covid19EventExtra(
+      displayName:       json['display_name'],
+      displayValue:      json['display_value'],
+    ) : null;
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'display_name': displayName,
+      'display_value': displayValue,
+    };
+  }
+
+  bool operator ==(o) =>
+    (o is Covid19EventExtra) &&
+    DeepCollectionEquality().equals(o.displayName, displayName) && 
+    DeepCollectionEquality().equals(o.displayValue, displayValue);
+
+  int get hashCode =>
+    (DeepCollectionEquality().hash(displayName) ?? 0) ^
+    (DeepCollectionEquality().hash(displayValue) ?? 0);
+
+  bool get isVisible {
+    return (0 < (localeDisplayName?.length ?? 0));
+  }
+
+  String get localeDisplayName {
+    return Localization().localeString(displayName) ?? displayName;
+  }
+
+  String get localeDisplayValue {
+    return Localization().localeString(displayValue) ?? displayValue;
+  }
+
+  static List<Covid19EventExtra> listFromJson(List<dynamic> json) {
+    List<Covid19EventExtra> values;
+    if (json != null) {
+      values = [];
+      for (dynamic entry in json) {
+        Covid19EventExtra value;
+        try { value = Covid19EventExtra.fromJson((entry as Map)?.cast<String, dynamic>()); }
+        catch(e) { print(e?.toString()); }
+        values.add(value);
+      }
+    }
+    return values;
+  }
+
+  static List<dynamic> listToJson(List<Covid19EventExtra> values) {
+    List<dynamic> json;
+    if (values != null) {
+      json = [];
+      for (Covid19EventExtra value in values) {
+        json.add(value?.toJson());
+      }
+    }
+    return json;
+  }
+
+  static bool listHasVisible(List<Covid19EventExtra> values) {
+    if (values != null) {
+      for (Covid19EventExtra value in values) {
+        if (value?.isVisible ?? false) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+}
 
 ///////////////////////////////
 // Covid19OSFTest
@@ -1431,7 +1536,7 @@ class HealthTestType {
 }
 
 ///////////////////////////////
-// HealthTestRuleResult
+// HealthTestTypeResult
 
 class HealthTestTypeResult {
   String id;
@@ -2017,6 +2122,10 @@ class HealthRulesSet {
 
     return Localization().localeString(entry) ?? entry;
   }
+
+  String localeDisclaimerHtml(Covid19HistoryBlob blob) {
+    return localeString(tests?.matchRuleResult(blob: blob, rules: this)?.disclaimerHtml);
+  }
 }
 
 ///////////////////////////////
@@ -2103,14 +2212,16 @@ class HealthTestRule {
 class HealthTestRuleResult {
   final String testResult;
   final String category;
+  final String disclaimerHtml;
   final _HealthRuleStatus status;
 
-  HealthTestRuleResult({this.testResult, this.category, this.status});
+  HealthTestRuleResult({this.testResult, this.category, this.status, this.disclaimerHtml});
 
   factory HealthTestRuleResult.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthTestRuleResult(
       testResult: json['result'],
       category: json['category'],
+      disclaimerHtml: json['disclaimer_html'],
       status: _HealthRuleStatus.fromJson(json['status']),
     ) : null;
   }

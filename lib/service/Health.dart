@@ -927,6 +927,7 @@ class Health with Service implements NotificationsListener {
             prevStatus: prevStatus,
             attributes: {
               Analytics.LogHealthActionTypeName: event.blob?.actionType,
+              Analytics.LogHealthActionTitleName: event.blob?.defaultLocaleActionTitle,
               Analytics.LogHealthActionTextName: event.blob?.defaultLocaleActionText,
           });
         }
@@ -1014,6 +1015,7 @@ class Health with Service implements NotificationsListener {
           providerId: event?.providerId,
           testType: event?.blob?.testType,
           testResult: event?.blob?.testResult,
+          extras: event?.blob?.extras
         ),
         publicKey: _user?.publicKey
       ));
@@ -1024,7 +1026,9 @@ class Health with Service implements NotificationsListener {
         type: Covid19HistoryType.action,
         blob: Covid19HistoryBlob(
           actionType: event?.blob?.actionType,
+          actionTitle: event?.blob?.actionTitle,
           actionText: event?.blob?.actionText,
+          extras: event?.blob?.extras
         ),
         publicKey: _user?.publicKey
       ));
@@ -1178,7 +1182,9 @@ class Health with Service implements NotificationsListener {
       "type": "health.covid19.action",
       "health.covid19.action.date": "2020-07-30T21:23:47Z",
       "health.covid19.action.type": "require-test-48",
+      "health.covid19.action.title": "Test Required",
       "health.covid19.action.text": "You must take a COVID-19 test in next 48 hours",
+      "health.covid19.action.extra": [...],
     }*/
 
     if (action != null) {
@@ -1187,7 +1193,9 @@ class Health with Service implements NotificationsListener {
         dateUtc = DateTime.now().toUtc();
       }
       String actionType = AppJson.stringValue(action['health.covid19.action.type']);
+      dynamic actionTitle = AppJson.stringValue(action['health.covid19.action.title']);
       dynamic actionText = action['health.covid19.action.text'];
+      List<Covid19EventExtra> extras = Covid19EventExtra.listFromJson(AppJson.listValue(action['health.covid19.action.extra']));
       
       if ((actionType != null) || (actionText != null)) {
         Covid19History history = await _addCovid19History(await Covid19History.encryptedFromBlob(
@@ -1195,7 +1203,9 @@ class Health with Service implements NotificationsListener {
           type: Covid19HistoryType.action,
           blob: Covid19HistoryBlob(
             actionType: actionType,
+            actionTitle: actionTitle,
             actionText: actionText,
+            extras: extras
           ),
           publicKey: _user?.publicKey
         ));
@@ -1216,6 +1226,7 @@ class Health with Service implements NotificationsListener {
             prevStatus: lastHealthStatus,
             attributes: {
               Analytics.LogHealthActionTypeName: actionType,
+              Analytics.LogHealthActionTitleName: actionTitle,
               Analytics.LogHealthActionTextName: actionText,
               Analytics.LogHealthActionTimestampName: dateUtc?.toIso8601String(),
           });
