@@ -32,7 +32,6 @@ import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/widgets/PopupDialog.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/utils/Utils.dart';
-import 'package:sprintf/sprintf.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class HealthHistoryPanel extends StatefulWidget {
