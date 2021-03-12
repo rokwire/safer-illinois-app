@@ -1431,7 +1431,7 @@ class HealthTestType {
 }
 
 ///////////////////////////////
-// HealthTestRuleResult
+// HealthTestTypeResult
 
 class HealthTestTypeResult {
   String id;
@@ -2017,6 +2017,10 @@ class HealthRulesSet {
 
     return Localization().localeString(entry) ?? entry;
   }
+
+  String localeDisclaimerHtml(Covid19HistoryBlob blob) {
+    return localeString(tests?.matchRuleResult(blob: blob, rules: this)?.disclaimerHtml);
+  }
 }
 
 ///////////////////////////////
@@ -2103,14 +2107,16 @@ class HealthTestRule {
 class HealthTestRuleResult {
   final String testResult;
   final String category;
+  final String disclaimerHtml;
   final _HealthRuleStatus status;
 
-  HealthTestRuleResult({this.testResult, this.category, this.status});
+  HealthTestRuleResult({this.testResult, this.category, this.status, this.disclaimerHtml});
 
   factory HealthTestRuleResult.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthTestRuleResult(
       testResult: json['result'],
       category: json['category'],
+      disclaimerHtml: json['disclaimer_html'],
       status: _HealthRuleStatus.fromJson(json['status']),
     ) : null;
   }
