@@ -461,14 +461,17 @@ class HealthHistory implements Comparable<HealthHistory> {
         (this.blob?.provider == event?.provider) &&
         (this.blob?.providerId == event?.providerId) &&
         (this.blob?.testType == event?.blob?.testType) &&
-        (this.blob?.testResult == event?.blob?.testResult);
+        (this.blob?.testResult == event?.blob?.testResult) &&
+        (ListEquality().equals(this.blob.extras, event.blob.extras));
     }
     else if (event.isAction) {
       return this.isAction &&
         (this.dateUtc == event?.blob?.dateUtc) &&
         (this.blob?.actionType == event?.blob?.actionType) &&
+        (DeepCollectionEquality().equals(this.blob?.actionText, event?.blob?.actionText)) &&
+        (DeepCollectionEquality().equals(this.blob?.actionTitle, event?.blob?.actionTitle)) &&
         (MapEquality().equals(this.blob?.actionParams, event?.blob?.actionParams)) &&
-        (DeepCollectionEquality().equals(this.blob?.actionText, event?.blob?.actionText));
+        (ListEquality().equals(this.blob.extras, event.blob.extras));
     }
     else {
       return false;
@@ -641,14 +644,18 @@ class HealthHistoryBlob {
   final String traceTEK;
   
   final String actionType;
+  final dynamic actionTitle;
   final dynamic actionText;
   final Map<String, dynamic> actionParams;
+
+  final List<HealthEventExtra> extras;
 
   HealthHistoryBlob({
     this.provider, this.providerId, this.location, this.locationId, this.countyId, this.testType, this.testResult,
     this.symptoms,
     this.traceDuration, this.traceTEK,
-    this.actionType, this.actionText, this.actionParams,
+    this.actionType, this.actionTitle, this.actionText, this.actionParams,
+    this.extras
   });
 
   factory HealthHistoryBlob.fromJson(Map<String, dynamic> json) {
@@ -667,8 +674,12 @@ class HealthHistoryBlob {
       traceTEK: json['trace_tek'],
       
       actionType: json['action_type'],
+      actionTitle: json['action_title'],
       actionText: json['action_text'],
       actionParams: json['action_params'],
+
+      extras: HealthEventExtra.listFromJson(json['extra'])      
+
     ) : null;
   }
 
@@ -688,8 +699,11 @@ class HealthHistoryBlob {
       'trace_tek': traceTEK,
       
       'action_type': actionType,
+      'action_title': actionTitle,
       'action_text': actionText,
       'action_params': actionParams,
+
+      'extra': HealthEventExtra.listToJson(extras),
     };
   }
 
@@ -709,8 +723,11 @@ class HealthHistoryBlob {
       (o.traceTEK == traceTEK) &&
 
       (o.actionType == actionType) &&
+      DeepCollectionEquality().equals(o.actionTitle, actionTitle) &&
+      DeepCollectionEquality().equals(o.actionText, actionText) &&
       MapEquality().equals(o.actionParams, actionParams) &&
-      DeepCollectionEquality().equals(o.actionText, actionText);
+
+      ListEquality().equals(o.extras, extras);
   }
 
   int get hashCode =>
@@ -728,8 +745,11 @@ class HealthHistoryBlob {
     (traceTEK?.hashCode ?? 0) ^
 
     (actionType?.hashCode ?? 0) ^
+    (DeepCollectionEquality().hash(actionTitle) ?? 0) ^
+    (DeepCollectionEquality().hash(actionText) ?? 0) ^
     (MapEquality().hash(actionParams) ?? 0) ^
-    (DeepCollectionEquality().hash(actionText) ?? 0);
+
+    (ListEquality().hash(extras) ?? 0);
 
   bool get isTest {
     return (providerId != null) || (locationId != null) || (testType != null) || (testResult != null);
@@ -744,7 +764,7 @@ class HealthHistoryBlob {
   }
 
   bool get isAction {
-    return (actionType != null);
+    return (actionType != null) || (actionTitle != null) || (actionText != null) || (actionParams != null);
   }
 
   Set<String> get symptomsIds {
@@ -798,12 +818,12 @@ class HealthHistoryBlob {
     return null;
   }
 
-  String get localeActionText {
-    return Localization().localeString(actionText) ?? actionText;
+  String get localeActionTitle {
+    return Localization().localeString(actionTitle) ?? actionTitle;
   }
 
-  String get actionDisplayString {
-    return localeActionText ?? actionType;
+  String get localeActionText {
+    return Localization().localeString(actionText) ?? actionText;
   }
 }
 
@@ -942,19 +962,30 @@ class HealthPendingEventBlob {
   final String   testResult;
 
   final String   actionType;
+  final dynamic  actionTitle;
   final dynamic  actionText;
   final Map<String, dynamic> actionParams;
 
-  HealthPendingEventBlob({this.dateUtc, this.testType, this.testResult, this.actionType, this.actionParams, this.actionText});
+  final List<HealthEventExtra> extras;
+
+  HealthPendingEventBlob({this.dateUtc,
+    this.testType, this.testResult,
+    this.actionType, this.actionTitle, this.actionText, this.actionParams,
+    this.extras});
 
   factory HealthPendingEventBlob.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthPendingEventBlob(
       dateUtc:       healthDateTimeFromString(AppJson.stringValue(json['Date'])),
+      
       testType:      AppJson.stringValue(json['TestName']),
       testResult:    AppJson.stringValue(json['Result']),
+      
       actionType:    AppJson.stringValue(json['ActionType']),
+      actionTitle:    json['ActionTitle'],
       actionText:    json['ActionText'],
       actionParams:  AppJson.mapValue(json['ActionParams']),
+      
+      extras:        HealthEventExtra.listFromJson(AppJson.listValue(json['Extra'])),
     ) : null;
   }
 
@@ -964,19 +995,23 @@ class HealthPendingEventBlob {
         'Date': healthDateTimeToString(dateUtc),
         'TestName': testType,
         'Result': testResult,
+        'Extra': HealthEventExtra.listToJson(extras),
       };
     }
-    else if ((actionType != null) || (actionText != null) || (actionParams != null)) {
+    else if ((actionType != null) || (actionTitle != null) || (actionText != null) || (actionParams != null)) {
       return {
         'Date': healthDateTimeToString(dateUtc),
         'ActionType': actionType,
+        'ActionTitle': actionTitle,
         'ActionText': actionText,
         'ActionParams': actionParams,
+        'Extra': HealthEventExtra.listToJson(extras),
       };
     }
     else {
       return {
         'Date': healthDateTimeToString(dateUtc),
+        'Extra': HealthEventExtra.listToJson(extras),
       };
     }
   }
@@ -986,14 +1021,98 @@ class HealthPendingEventBlob {
   }
 
   bool get isAction {
-    return AppString.isStringNotEmpty(actionType);
+    return AppString.isStringNotEmpty(actionType) || AppString.isStringNotEmpty(defaultLocaleActionTitle) || AppString.isStringNotEmpty(defaultLocaleActionText);
   }
+
+  String get defaultLocaleActionTitle {
+    return Localization().defaultLocaleString(actionTitle) ?? actionTitle;
+  } 
 
   String get defaultLocaleActionText {
     return Localization().defaultLocaleString(actionText) ?? actionText;
   } 
 }
 
+///////////////////////////////
+// HealthEventExtra
+
+class HealthEventExtra {
+  final dynamic displayName;
+  final dynamic displayValue;
+
+  HealthEventExtra({this.displayName, this.displayValue});
+
+  factory HealthEventExtra.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthEventExtra(
+      displayName:       json['display_name'],
+      displayValue:      json['display_value'],
+    ) : null;
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'display_name': displayName,
+      'display_value': displayValue,
+    };
+  }
+
+  bool operator ==(o) =>
+    (o is HealthEventExtra) &&
+    DeepCollectionEquality().equals(o.displayName, displayName) && 
+    DeepCollectionEquality().equals(o.displayValue, displayValue);
+
+  int get hashCode =>
+    (DeepCollectionEquality().hash(displayName) ?? 0) ^
+    (DeepCollectionEquality().hash(displayValue) ?? 0);
+
+  bool get isVisible {
+    return (0 < (localeDisplayName?.length ?? 0));
+  }
+
+  String get localeDisplayName {
+    return Localization().localeString(displayName) ?? displayName;
+  }
+
+  String get localeDisplayValue {
+    return Localization().localeString(displayValue) ?? displayValue;
+  }
+
+  static List<HealthEventExtra> listFromJson(List<dynamic> json) {
+    List<HealthEventExtra> values;
+    if (json != null) {
+      values = [];
+      for (dynamic entry in json) {
+        HealthEventExtra value;
+        try { value = HealthEventExtra.fromJson((entry as Map)?.cast<String, dynamic>()); }
+        catch(e) { print(e?.toString()); }
+        values.add(value);
+      }
+    }
+    return values;
+  }
+
+  static List<dynamic> listToJson(List<HealthEventExtra> values) {
+    List<dynamic> json;
+    if (values != null) {
+      json = [];
+      for (HealthEventExtra value in values) {
+        json.add(value?.toJson());
+      }
+    }
+    return json;
+  }
+
+  static bool listHasVisible(List<HealthEventExtra> values) {
+    if (values != null) {
+      for (HealthEventExtra value in values) {
+        if (value?.isVisible ?? false) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+}
 
 ///////////////////////////////
 // HealthOSFTest
@@ -1791,7 +1910,7 @@ class HealthTestType {
 }
 
 ///////////////////////////////
-// HealthTestRuleResult
+// HealthTestTypeResult
 
 class HealthTestTypeResult {
   final String id;
@@ -2324,6 +2443,10 @@ class HealthRulesSet {
 
     return Localization().localeString(entry) ?? entry;
   }
+
+  String localeDisclaimerHtml(HealthHistoryBlob blob) {
+    return localeString(tests?.matchRuleResult(blob: blob, rules: this)?.disclaimerHtml);
+  }
 }
 
 ///////////////////////////////
@@ -2519,7 +2642,7 @@ class HealthTestRulesSet {
     ListEquality().hash(_rules);
 
   HealthTestRuleResult matchRuleResult({ HealthHistoryBlob blob, HealthRulesSet rules }) {
-    if ((_rules != null) && (blob != null)) {
+    if ((_rules != null) && (blob != null) && (blob.testType != null) && (blob.testResult != null)) {
       for (HealthTestRule rule in _rules) {
         if ((rule?.testType != null) && (rule?.testType?.toLowerCase() == blob?.testType?.toLowerCase()) && (rule.results != null)) {
           for (HealthTestRuleResult ruleResult in rule.results) {
@@ -2583,14 +2706,16 @@ class HealthTestRule {
 class HealthTestRuleResult {
   final String testResult;
   final String category;
+  final String disclaimerHtml;
   final _HealthRuleStatus status;
 
-  HealthTestRuleResult({this.testResult, this.category, this.status});
+  HealthTestRuleResult({this.testResult, this.category, this.status, this.disclaimerHtml});
 
   factory HealthTestRuleResult.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthTestRuleResult(
       testResult: json['result'],
       category: json['category'],
+      disclaimerHtml: json['disclaimer_html'],
       status: _HealthRuleStatus.fromJson(json['status']),
     ) : null;
   }
@@ -2599,11 +2724,13 @@ class HealthTestRuleResult {
     (o is HealthTestRuleResult) &&
       (o.testResult == testResult) &&
       (o.category == category) &&
+      (o.disclaimerHtml == disclaimerHtml) &&
       (status == status);
 
   int get hashCode =>
     (testResult?.hashCode ?? 0) ^
     (category?.hashCode ?? 0) ^
+    (disclaimerHtml?.hashCode ?? 0) ^
     (status?.hashCode ?? 0);
 
   static List<HealthTestRuleResult> listFromJson(List<dynamic> json) {

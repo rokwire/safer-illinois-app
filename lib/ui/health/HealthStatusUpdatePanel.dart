@@ -225,10 +225,9 @@ class _HealthStatusUpdatePanelState extends State<HealthStatusUpdatePanel> {
             children: <Widget>[
               Image.asset("images/icon-selected.png",excludeFromSemantics: true,),
               Container(width: 7,),
-              Text(Localization().getStringEx("panel.health.status_update.label.reason.action.detail", "Action Required: "), style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.bold)),
+              Text(reasonHistory.localeActionTitle ?? Localization().getStringEx("panel.health.status_update.label.reason.action.detail", "Action Required: "), style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.bold)),
             ],),
-          Text(reasonHistory.actionDisplayString ?? "", style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.regular)),
-          
+          Text(reasonHistory.localeActionText ?? "", style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.regular)),
 
         ],);
 
