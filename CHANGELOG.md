@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated Positive IP & NIP step & explanation strings [#529](https://github.com/rokwire/safer-illinois-app/issues/529).
 - Added camera usage mention in disclosure screen [#530](https://github.com/rokwire/safer-illinois-app/issues/530)
 - Updated PCR.positive-NIP test rule [#532](https://github.com/rokwire/safer-illinois-app/issues/532)
+- Apply WWCL.Disclaimers in Safer app [#562](https://github.com/rokwire/safer-illinois-app/issues/562)
+- Maine health history change [#563](https://github.com/rokwire/safer-illinois-app/issues/563)
 
 ### Added
 - App Up time to exposure logs.
