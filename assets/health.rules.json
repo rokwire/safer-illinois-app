@@ -14,11 +14,11 @@
 	},
 
 	"statuses": {
-    "PCR.xpositive": {
-      "health_status": "red",
-      "priority": 11,
-      "next_step_html": "positive.step.html"
-    },
+		"PCR.xpositive": {
+			"health_status": "red",
+			"priority": 11,
+			"next_step_html": "positive.step.html"
+		},
 		"PCR.positive": {
 			"condition": "timeout",
 			"params": {
@@ -42,7 +42,7 @@
 				"next_step_html": "positive.step.html"
 			}
 		},
-		
+
 		"PCR.positive-IP": {
 			"condition": "timeout",
 			"params": {
@@ -166,7 +166,7 @@
 		},
 
 		"PCR.negative": "test-monitor",
-		
+
 		"PCR.invalid": {
 			"condition": "require-test",
 			"params": {
@@ -257,7 +257,7 @@
 				}
 			}
 		},
-		
+
 		"force-test": {
 			"condition": "require-test",
 			"params": {
@@ -296,7 +296,7 @@
 				"reason": "test.required.reason"
 			}
 		},
-		
+
 		"symptoms-match": {
 			"health_status": "orange",
 			"priority": 1,
@@ -330,7 +330,7 @@
 				"reason": "exposure.reason"
 			}
 		},
-		
+
 		"quarantine-on": {
 			"health_status": "orange",
 			"priority": 10,
@@ -355,7 +355,7 @@
 					"next_step": "test.resume.step",
 					"next_step_interval": "UserTestMonitorInterval",
 					"warning": "test.future.warning"
-					},
+				},
 				"fail": {
 					"health_status": "orange",
 					"priority": -1,
@@ -380,7 +380,7 @@
 						"next_step": "test.resume.step",
 						"next_step_interval": "UndergraduateTestMonitorInterval",
 						"warning": "test.future.warning"
-						},
+					},
 					"fail": {
 						"health_status": "orange",
 						"priority": -1,
@@ -408,7 +408,7 @@
 					}
 				}
 			}
-    },
+		},
 
 		"out-of-test-compliance": {
 			"condition": "require-test",
@@ -430,12 +430,12 @@
 			}
 		},
 
-    "release": {
-      "health_status": "orange",
-      "priority": -1,
-      "next_step": "release.step",
-      "reason": "release.reason"
-    }
+		"release": {
+			"health_status": "orange",
+			"priority": -1,
+			"next_step": "release.step",
+			"reason": "release.reason"
+		}
 	},
 
 	"tests" : {
@@ -495,36 +495,43 @@
 					{
 						"result": "POSITIVE",
 						"category": "PCR.positive",
+						"disclaimer_html": null,
 						"status": "PCR.positive"
 					},
 					{
 						"result": "POSITIVE-IP",
 						"category": "PCR.positive",
+						"disclaimer_html": null,
 						"status": "PCR.positive-IP"
 					},
 					{
 						"result": "POSITIVE-NIP",
 						"category": "PCR.negative",
+						"disclaimer_html": null,
 						"status": "PCR.positive-NIP"
 					},
 					{
 						"result": "NEGATIVE",
 						"category": "PCR.negative",
+						"disclaimer_html": null,
 						"status": "PCR.negative"
 					},
 					{
 						"result": "INVALID",
 						"category": "PCR.invalid",
+						"disclaimer_html": null,
 						"status": "PCR.invalid"
 					},
 					{
 						"result": "INCONCLUSIVE",
 						"category": "PCR.invalid",
+						"disclaimer_html": null,
 						"status": "PCR.invalid"
 					},
 					{
 						"result": "REJECTED",
 						"category": "PCR.invalid",
+						"disclaimer_html": null,
 						"status": "PCR.invalid"
 					}
 				]
@@ -646,7 +653,7 @@
 			}
 		]
 	},
-	
+
 	"symptoms": {
 		"rules": [
 			{
@@ -662,7 +669,7 @@
 				"status": "symptoms-match"
 			}
 		],
-		
+
 		"groups": [
 			{
 				"id": null,
@@ -765,7 +772,7 @@
 			}
 		]
 	},
-	
+
 	"contact_trace": {
 		"rules": [
 			{
@@ -774,7 +781,7 @@
 			}
 		]
 	},
-	
+
 	"actions": {
 		"rules": [
 			{
@@ -823,15 +830,15 @@
 			"test.resume.step": "Resume testing on your assigned days",
 			"test.future.warning": "You will turn orange/access denied if no negative test by {next_step_date}.",
 			"test.past.reason": "Your status changed to Orange because you are past due for another test.",
-      "test.multiple.step.html": "<h3>You must take two on-campus tests by Jan. 25.</h3><ul><li>Separate the tests by three days of quarantine:&nbsp;if the first test is on day one, the second test will be on day five.</li><li>Limit yourself to essential activities until you get the second negative result.</li><li>Your building access will change to Granted (Yellow) with the second negative test result.</li></ul><p>See <a href=https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'> testing schedule and rules</a>.</p>",
+			"test.multiple.step.html": "<h3>You must take two on-campus tests by Jan. 25.</h3><ul><li>Separate the tests by three days of quarantine:&nbsp;if the first test is on day one, the second test will be on day five.</li><li>Limit yourself to essential activities until you get the second negative result.</li><li>Your building access will change to Granted (Yellow) with the second negative test result.</li></ul><p>See <a href=https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'> testing schedule and rules</a>.</p>",
 			"symptoms.step": "Take a COVID-19 test now",
 			"symptoms.reason": "Your status changed to Orange because you self-reported symptoms consistent with the virus.",
 			"exposure.step.html": "<h3>You have likely been exposed to a person who is infected with COVID-19.</h3><ul><h6><li>You must quarantine yourself immediately.</li></h6><h6><li>Stay home. Do not go to work, school, or public areas.</li></h6><h6><li>Separate yourself from others in your home.</li></h6><h6><li>Contact <a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a> for guidance.</li></h6><h6><li>Get tested after {next_step_date} to see if you have developed the disease.</li></h6><h6><li>More Info: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Quarantine and Isolation</a></li></h6></ul>",
 			"exposure.reason": "Your status changed to Orange because you received an exposure notification.",
 			"quarantine-on.step": "Stay at home and avoid contacts",
 			"quarantine-on.reason": "Your status changed to Orange because the Public Health department placed you in Quarantine.",
-      "release.step": "Take a SHIELD Saliva Test",
-      "release.reason": "Your status changed to Orange because the Public Health department requires you to take a test.",
+			"release.step": "Take a SHIELD Saliva Test",
+			"release.reason": "Your status changed to Orange because the Public Health department requires you to take a test.",
 			"symptoms.no-symptoms": "No symptoms",
 			"symptoms.fever": "Fever",
 			"symptoms.chills": "Chills",
@@ -850,7 +857,12 @@
 			"symptoms.sore-throat": "Sore Throat",
 			"symptoms.congestion-or-runny-nose": "Congestion or runny nose",
 			"symptoms.nausea-or-vomiting": "Nausea or vomiting",
-			"symptoms.diarrhea":"Diarrhea"
+			"symptoms.diarrhea":"Diarrhea",
+			"disclaimers.covid-19_pcr.positive.html": "",
+			"disclaimers.covid-19_pcr.negative.html": "",
+			"disclaimers.covid-19_pcr.invalid.html": "",
+			"disclaimers.covid-19_pcr.inconclusive.html": "",
+			"disclaimers.covid-19_pcr.rejected.html": ""
 		},
 		"es": {
 			"default.step": "Realice una prueba de saliva SHIELD cuando regrese al campus.",
@@ -870,15 +882,15 @@
 			"test.resume.step": "Reanudar las pruebas en los días asignados",
 			"test.future.warning": "Se volverá naranja / acceso denegado si no hay una prueba negativa antes del {next_step_date}.",
 			"test.past.reason": "Su estado cambió a Naranja porque está atrasado para otro examen.",
-      "test.multiple.step.html": "<h3>Debes de tomar dos pruebas en el campus antes del 25 de enero.</h3><ul><li>Separe las pruebas con tres d&iacute;as de cuarentena: &nbsp;si la primera prueba es el d&iacute;a uno, la segunda prueba ser&aacute; el d&iacute;a cinco.</li><li>Lim&iacute;tese a las actividades esenciales hasta que obtenga el segundo resultado negativo.</li><li>El acceso al edificio cambiar&aacute; a Concedido (amarillo) con el segundo resultado negativo de la prueba.</li></ul><p>Ver el <a href='https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'>calendario y las reglas de las pruebas</a>.</p>",
+			"test.multiple.step.html": "<h3>Debes de tomar dos pruebas en el campus antes del 25 de enero.</h3><ul><li>Separe las pruebas con tres d&iacute;as de cuarentena: &nbsp;si la primera prueba es el d&iacute;a uno, la segunda prueba ser&aacute; el d&iacute;a cinco.</li><li>Lim&iacute;tese a las actividades esenciales hasta que obtenga el segundo resultado negativo.</li><li>El acceso al edificio cambiar&aacute; a Concedido (amarillo) con el segundo resultado negativo de la prueba.</li></ul><p>Ver el <a href='https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'>calendario y las reglas de las pruebas</a>.</p>",
 			"symptoms.step": "Realice una prueba de COVID-19 ahora",
 			"symptoms.reason": "Su estado cambió a Naranja porque usted mismo informó de síntomas consistentes con el virus.",
 			"exposure.step.html": "<h3>Es probable que haya estado expuesto a una persona infectada con COVID-19.</h3><ul><h6><li>Debe ponerse en cuarentena inmediatamente.</li></h6><h6><li>Quedarse en casa. No vaya al trabajo, la escuela o áreas públicas.</li></h6><h6><li>Sepárate de las demás en tu casa.</li></h6><h6><li>Póngase en contacto con <a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a> para obtener orientación.</li></h6><h6><li>Hágase la prueba después del {next_step_date} para ver si ha desarrollado la enfermedad.</li></h6><h6><li>Más información: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Cuarentena y aislamiento</a></li></h6></ul>",
 			"exposure.reason": "Su estado cambió a Naranja porque recibió una notificación de exposición.",
 			"quarantine-on.step": "Quédese en casa y evite los contactos",
 			"quarantine-on.reason": "Su estado cambió a Orange porque el departamento de Salud Pública lo puso en cuarentena.",
-      "release.step": "Realice una prueba de saliva SHIELD",
-      "release.reason": "Su estado cambió a Orange porque el departamento de Salud Pública requiere que tome una prueba.",
+			"release.step": "Realice una prueba de saliva SHIELD",
+			"release.reason": "Su estado cambió a Orange porque el departamento de Salud Pública requiere que tome una prueba.",
 			"symptoms.no-symptoms": "Sin síntomas",
 			"symptoms.fever": "Fiebre",
 			"symptoms.chills": "Resfriado",
@@ -897,7 +909,12 @@
 			"symptoms.sore-throat": "Dolor de garganta",
 			"symptoms.congestion-or-runny-nose": "Congestión o secreción nasal",
 			"symptoms.nausea-or-vomiting": "Náuseas o vómitos",
-			"symptoms.diarrhea": "Diarrea"
+			"symptoms.diarrhea": "Diarrea",
+			"disclaimers.covid-19_pcr.positive.html": "",
+			"disclaimers.covid-19_pcr.negative.html": "",
+			"disclaimers.covid-19_pcr.invalid.html": "",
+			"disclaimers.covid-19_pcr.inconclusive.html": "",
+			"disclaimers.covid-19_pcr.rejected.html": ""
 		},
 		"zh": {
 			"default.step": "返回校園後，請參加SHIELD唾液測試。",
@@ -944,7 +961,12 @@
 			"symptoms.sore-throat": "咽喉痛",
 			"symptoms.congestion-or-runny-nose": "充血或流鼻涕",
 			"symptoms.nausea-or-vomiting": "噁心或嘔吐",
-			"symptoms.diarrhea":"腹瀉"
+			"symptoms.diarrhea":"腹瀉",
+			"disclaimers.covid-19_pcr.positive.html": "",
+			"disclaimers.covid-19_pcr.negative.html": "",
+			"disclaimers.covid-19_pcr.invalid.html": "",
+			"disclaimers.covid-19_pcr.inconclusive.html": "",
+			"disclaimers.covid-19_pcr.rejected.html": ""
 		}
 	}
 }

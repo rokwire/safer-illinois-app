@@ -17,6 +17,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
+import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_html/style.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Organizations.dart';
@@ -30,7 +32,7 @@ import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/widgets/PopupDialog.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/utils/Utils.dart';
-import 'package:sprintf/sprintf.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Covid19HistoryPanel extends StatefulWidget {
   @override
@@ -468,7 +470,7 @@ class _Covid19HistoryEntryState extends State<_Covid19HistoryEntry> with SingleT
   bool _expanded = false;
   AnimationController _controller;
 
-  bool _isLoading = false;
+  bool _isLoadingLocation = false;
 
   @override
   void initState() {
@@ -483,12 +485,26 @@ class _Covid19HistoryEntryState extends State<_Covid19HistoryEntry> with SingleT
     content.add(Container(height: 16,));
     content.add(_buildCommonInfo(),);
     
-    if (widget.history?.isTestVerified ?? false) {
-      content.addAll(<Widget>[
-        _buildMoreButton(),
-        _buildResult(),
-        _buildAdditionalInfo(),
-      ]);
+    if ((widget.history?.isTestVerified ?? false) || Covid19EventExtra.listHasVisible(widget.history?.blob?.extras)) {
+      content.add(_buildMoreButton());
+      
+      if (_expanded) {
+        
+        Widget testResult = ((widget.history?.isTestVerified ?? false) && (widget.history?.blob?.testResult != null)) ? _buildTestResult() : null;
+        Widget additionalInfo = _buildAdditionalInfo();
+        
+        if (testResult != null) {
+          content.add(testResult);
+        }
+
+        if ((testResult != null) && (additionalInfo != null)) {
+          content.add(_buildSplitter());
+        }
+
+        if (additionalInfo != null) {
+          content.add(additionalInfo);
+        }
+      }
     }
     
     content.add(Container(height: 16,));
@@ -498,142 +514,164 @@ class _Covid19HistoryEntryState extends State<_Covid19HistoryEntry> with SingleT
       child: Column(children: content,),
     );
   }
+
   Widget _buildCommonInfo(){
     String title;
-    Widget details;
-    bool isVerifiedTest = false;
-    bool isTest = false;
-    String dateFormat = kReleaseMode ? 'MMMM d, yyyy' : 'MMMM d, yyyy HH:mm:ss';
+    Widget detailWidget;
+    String dateFormat = 'MMMM d, yyyy H:mm a';
     if (widget.history != null) {
       if (widget.history.isTest) {
-        isTest = true;
         bool isManualTest = widget.history?.isManualTest ?? false;
-        isVerifiedTest = widget.history?.isTestVerified ?? false;
         title = widget.history?.blob?.testType ?? Localization().getStringEx("app.common.label.other", "Other");
-        details = Row(children: <Widget>[
-          Image.asset(isManualTest? "images/u.png": "images/provider.png", excludeFromSemantics: true,),
+        detailWidget = Row(children: <Widget>[
+          Image.asset(isManualTest? "images/u.png": "images/provider.png", color: Styles().colors.fillColorSecondary, excludeFromSemantics: true,),
           Container(width: 11,),
-          Expanded(child:
-            Semantics(label: Localization().getStringEx("panel.health.covid19.history.label.provider.hint", "provider: "), child:
-              Text( isManualTest? Localization().getStringEx("panel.health.covid19.history.label.provider.self_reported", "Self reported"):
-                (widget.history?.blob?.provider ?? Localization().getStringEx("app.common.label.other", "Other")),
-                 style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface,))
-          ))
+          Semantics(label: Localization().getStringEx("panel.health.covid19.history.label.provider.hint", "provider: "), child:
+            Text(isManualTest ? Localization().getStringEx("panel.health.covid19.history.label.provider.self_reported", "Self reported"):
+              (widget.history?.blob?.provider ?? Localization().getStringEx("app.common.label.other", "Other")),
+                style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface,))
+          )
         ],);
       }
       else if (widget.history.isSymptoms) {
         title = Localization().getStringEx("panel.health.covid19.history.label.self_reported.title","Self Reported Symptoms");
-        details =
-          Row(children: <Widget>[
-            Expanded(child:
-              Semantics(label: Localization().getStringEx("panel.health.covid19.history.label.self_reported.symptoms","symptoms: "), child:
-               Text(widget.history.blob?.symptomsDisplayString(rules: widget.rules) ?? '', style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground,))
-              )
-            )
-          ],);
+        detailWidget = Semantics(label: Localization().getStringEx("panel.health.covid19.history.label.self_reported.symptoms","symptoms: "), child:
+          Text(widget.history.blob?.symptomsDisplayString(rules: widget.rules) ?? '', style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground,))
+        );
       }
       else if (widget.history.isContactTrace) {
+        dateFormat = 'MMMM d, yyyy';
         title = Localization().getStringEx("panel.health.covid19.history.label.contact_trace.title","Contact Trace");
-        details =
-          Row(children: <Widget>[
-            Expanded(child:
-              Semantics(label: Localization().getStringEx("panel.health.covid19.history.label.contact_trace.details","contact trace: "), child:
-                Text(widget.history.blob?.traceDurationDisplayString ?? '', style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground,))
-          ))]);
+        detailWidget = Semantics(label: Localization().getStringEx("panel.health.covid19.history.label.contact_trace.details","contact trace: "), child:
+          Text(widget.history.blob?.traceDurationDisplayString ?? '', style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground,))
+        );
       }
       else if (widget.history.isAction) {
-        title = Localization().getStringEx("panel.health.covid19.history.label.action.title","Action Required");
-        details = Semantics(label: Localization().getStringEx("panel.health.covid19.history.label.action.details","action: "), child:
-            Text(widget.history.blob?.actionDisplayString ?? '', style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground,))
-          );
+        title = widget.history.blob?.localeActionTitle ?? Localization().getStringEx("panel.health.covid19.history.label.action.title", "Action Required");
+        detailWidget = Semantics(label: Localization().getStringEx("panel.health.covid19.history.label.action.details","action: "), child:
+          Text(widget.history.blob?.localeActionText ?? '', style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground,))
+        );
       }
     }
 
-      return
-        Semantics(
-          sortKey: OrdinalSortKey(1),
-          container: true,
-          child: Container(color: Styles().colors.white,
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-           children: <Widget>[
-             Text(AppDateTime.formatDateTime(widget.history?.dateUtc?.toLocal(), format:dateFormat, locale: Localization().currentLocale?.languageCode) ?? '',style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface,)),
-             Container(height: 4,),
-             Row(children: <Widget>[
-              Expanded(child:
-                Text(title ?? '', style:TextStyle(fontSize: 20, fontFamily: Styles().fontFamilies.extraBold, color: Styles().colors.fillColorPrimary,)),
-             )]),
-             Container(height: 9,),
-              details ?? Container(),
-              !isTest? Container():
-                Container(height: 9,),
-              !isTest? Container():
-              Row(children: <Widget>[
-               Image.asset(isVerifiedTest? "images/certified-copy.png": "images/pending.png"),
-               Container(width: 10,),
-                Expanded(child:   isVerifiedTest?
-                  Text(Localization().getStringEx("panel.health.covid19.history.label.verified","Verified"),style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface,)):
-                  Text(Localization().getStringEx("panel.health.covid19.history.label.verification_pending","Verification Pending"),style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface,)),
-                )
-             ],),
-           ],
-          )
-      ));
-  }
+    List<Widget> contentList = <Widget>[
+      Padding(padding: EdgeInsets.only(bottom: 4), child: Text(AppDateTime.formatDateTime(widget.history?.dateUtc?.toLocal(), format: dateFormat, locale: Localization().currentLocale?.languageCode) ?? '',style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface,)),),
+      Padding(padding: EdgeInsets.only(), child: Text(title ?? '', style:TextStyle(fontSize: 20, fontFamily: Styles().fontFamilies.extraBold, color: Styles().colors.fillColorPrimary,))),
+    ];
 
-  Widget _buildResult(){
-    return !_expanded || widget.history?.blob?.testResult==null? Container():
-    Semantics(
-        sortKey: OrdinalSortKey(3),
-        container: true,
-        child:
-        Container(color: Styles().colors.white,
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child:
-            Column(children: <Widget>[
-              Container(height: 14,),
-              Row(
-                children: <Widget>[
-                  Image.asset("images/selected-black.png",excludeFromSemantics: true,),
-                  Container(width: 6,),
-                  Text(Localization().getStringEx("panel.health.covid19.history.label.result.title","Result: "),
-                    style: TextStyle(color: Styles().colors.textBackground,fontSize: 14, fontFamily: Styles().fontFamilies.bold,),
-                  ),
-                  Expanded(child:Container()),
-                  Text(widget.history.blob?.testResult,
-                    style: TextStyle(color: Styles().colors.textBackground,fontSize: 14, fontFamily: Styles().fontFamilies.regular,),
-                  )
-                ],
-              ),
-              Container(height: 14,),
-              Container(height:1, color: Styles().colors.surfaceAccent,)
-            ],)
-        )
+    if (detailWidget != null) {
+      contentList.add(Padding(padding: EdgeInsets.only(top: 9), child: detailWidget));
+    }
+
+    if (widget.history?.isTest ?? false) {
+      bool isVerifiedTest = widget.history?.isTestVerified ?? false;
+      contentList.add(
+        Padding(padding: EdgeInsets.only(top: 9), child:
+          Row(children: <Widget>[
+            Image.asset(isVerifiedTest ? "images/certified-copy.png": "images/pending.png", excludeFromSemantics: true,),
+            Container(width: 10,),
+            Expanded(child: isVerifiedTest ? 
+              Text(Localization().getStringEx("panel.health.covid19.history.label.verified", "Verified"), style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface,)):
+              Text(Localization().getStringEx("panel.health.covid19.history.label.verification_pending", "Verification Pending"), style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface,)),
+            )
+          ],),
+        ),
+      );
+    }
+
+    return Semantics(sortKey: OrdinalSortKey(1), container: true, child:
+      Container(color: Styles().colors.white, padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16), child:
+        Row(children: <Widget>[
+          Expanded(child:
+            Column(crossAxisAlignment: CrossAxisAlignment.start, children: contentList,)
+          ),
+        ]),
+      ),
     );
   }
 
-  Widget _buildAdditionalInfo(){
-    return
-      !_expanded ? Container():
-      Semantics(
-        sortKey: OrdinalSortKey(4),
-        container: true,
-        child:
-        Container(color: Styles().colors.white,
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-          child: Column(
-            children: <Widget>[
-              (_isLoading == true) ? Center(child: SizedBox(height: 24, width: 24, child:CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary),))):
-              widget.history?.blob?.location==null? Container():
-                _buildDetail(Localization().getStringEx("panel.health.covid19.history.label.location.title","Test Location"), widget.history?.blob?.location, onTapData: (widget.history?.blob?.location != null) ? (){ _onTapLocation(); } : null, onTapHint: "Double tap to show location"),
+  Widget _buildTestResult() {
+    bool hasDisclaimer = AppString.isStringNotEmpty(widget.rules?.localeDisclaimerHtml(widget.history?.blob));
+    Widget contentData = Row(children: <Widget>[
+      Padding(padding: EdgeInsets.only(left: 16), child:
+        Image.asset("images/selected-black.png",excludeFromSemantics: true,),
+      ),
+      Container(width: 6,),
+      Text(Localization().getStringEx("panel.health.covid19.history.label.result.title", "Result"),
+        style: TextStyle(color: Styles().colors.textBackground,fontSize: 14, fontFamily: Styles().fontFamilies.bold,),
+      ),
+      Expanded(child:Container(height: 48)),
+      Padding(padding: EdgeInsets.only(right: hasDisclaimer ? 36: 16), child:
+        Text(widget.history.blob?.testResult,
+          style: TextStyle(color: Styles().colors.textBackground,fontSize: 14, fontFamily: Styles().fontFamilies.regular,),
+        ),
+      ),
+    ]);
 
-              //_buildDetail(Localization().getStringEx("panel.health.covid19.history.label.technician_name.title","Technician Name"), widget.history?.technician),
-              //_buildDetail(Localization().getStringEx("panel.health.covid19.history.label.technician_id.title","Technician ID"), widget.history?.technicianId),
-            ],
+    Widget contentLine = hasDisclaimer ?
+      Stack(children: <Widget>[
+        contentData,
+        Container(alignment: Alignment.topRight, child: 
+          InkWell(onTap: _onTapDisclaimer, child:
+            Container(/*color: Color(0x20000000),*/ width: 48, height: 48, alignment: Alignment.center, child:
+              Image.asset('images/icon-info-orange.png')
+            ),
+          ),
+        ),
+      ],) :
+      contentData;
+
+    return Semantics(sortKey: OrdinalSortKey(3), container: true, child:
+      Container(color: Styles().colors.white, child:
+        Column(children: <Widget>[
+          contentLine,
+        ],)
+      ),
+    );
+  }
+
+  Widget _buildSplitter() {
+    return Container(color: Styles().colors.white, child:
+      Column(children: <Widget>[
+        Padding(padding: EdgeInsets.symmetric(horizontal: 16), child:
+          Container(height:1, color: Styles().colors.surfaceAccent,)
+        ),
+      ],)
+    );
+  }
+
+  Widget _buildAdditionalInfo() {
+    List<Widget> content = <Widget>[];
+    if (_isLoadingLocation == true) {
+      content.add(Center(child: SizedBox(height: 24, width: 24, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary),))));
+    }
+    else if (widget.history?.blob?.location != null) {
+      content.add(_buildDetail(
+        Localization().getStringEx("panel.health.covid19.history.label.location.title", "Test Location"),
+        widget.history?.blob?.location,
+        onTapData: _onTapLocation,
+        onTapHint: "Double tap to show location"));
+    }
+
+    if (AppCollection.isCollectionNotEmpty(widget.history?.blob?.extras)) {
+      for (Covid19EventExtra extra in widget.history?.blob?.extras) {
+        if (extra.isVisible) {
+          content.add(_buildDetail(
+            extra.localeDisplayName,
+            extra.localeDisplayValue ?? '-'));
+        }
+      }
+    }
+
+    //content.add(_buildDetail(Localization().getStringEx("panel.health.covid19.history.label.technician_name.title","Technician Name"), widget.history?.technician)),
+    //content.add(_buildDetail(Localization().getStringEx("panel.health.covid19.history.label.technician_id.title","Technician ID"), widget.history?.technicianId)),
+
+    return  (0 < content.length) ? Semantics(sortKey: OrdinalSortKey(4), container: true, child:
+      Container(color: Styles().colors.white, padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6), child:
+        Column(children: content,
           )
         )
-      );
+      ) : null;
   }
 
   Widget _buildMoreButton(){
@@ -668,7 +706,7 @@ class _Covid19HistoryEntryState extends State<_Covid19HistoryEntry> with SingleT
               Container(width: 4,),
               RotationTransition(
                   turns: _iconTurns,
-                  child: Image.asset("images/icon-down-orange.png")),
+                  child: Image.asset("images/icon-down-orange.png", color: Styles().colors.fillColorSecondary, excludeFromSemantics: true,)),
 
             ],)
       )));
@@ -693,7 +731,7 @@ class _Covid19HistoryEntryState extends State<_Covid19HistoryEntry> with SingleT
       Row(crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Padding(padding: EdgeInsets.symmetric(vertical: 4), child:
-            Text(sprintf("%s: ",[title],),
+            Text(title,
               style: TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.bold, color: Styles().colors.textBackground),
             ),
           ),
@@ -707,9 +745,9 @@ class _Covid19HistoryEntryState extends State<_Covid19HistoryEntry> with SingleT
     Analytics().logSelect(target: widget.history?.blob?.locationId);
     String locationId = widget.history?.blob?.locationId;
     if(locationId!=null){
-      setState(() => _isLoading = true);
+      setState(() => _isLoadingLocation = true);
       Health().loadHealthServiceLocation(locationId: locationId).then((location){
-        setState(() => _isLoading = false);
+        setState(() => _isLoadingLocation = false);
         if(location!=null){
           NativeCommunicator().launchMap(
               target: {
@@ -733,5 +771,34 @@ class _Covid19HistoryEntryState extends State<_Covid19HistoryEntry> with SingleT
       //missing location id
       AppToast.show("Missing location id");
     }
+  }
+
+  void _onTapDisclaimer() {
+    Analytics.instance.logSelect(target: "Disclaimer");
+    String disclaimerHtml = widget.rules?.localeDisclaimerHtml(widget.history?.blob);
+    if (AppString.isStringNotEmpty(disclaimerHtml)) {
+      showDialog(context: context, builder: (context) => _buildDisclaimerDialog(context, disclaimerHtml));
+    }
+  }
+
+  Widget _buildDisclaimerDialog(BuildContext context, String htmlContent) {
+    Style htmlStyle = Style(color: Styles().colors.fillColorPrimary, fontFamily: Styles().fontFamilies.bold, fontSize: FontSize(16));
+    return ClipRRect(borderRadius: BorderRadius.all(Radius.circular(8)), child:
+      Dialog(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8),), child:
+        Stack(children: [
+          Padding(padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16), child:
+            SingleChildScrollView(child: 
+              Html(data: htmlContent, style: { 'body': htmlStyle }, onLinkTap: (url) => launch(url)),
+            ),
+          ),
+          Container(alignment: Alignment.topRight, height: 42, child: InkWell(onTap: _onCloseDisclaimerDialog, child: Container(width: 42, height: 42, alignment: Alignment.center, child: Image.asset('images/close-orange.png')))),
+        ],),
+      ),
+    );
+  }
+
+  void _onCloseDisclaimerDialog() {
+    Analytics.instance.logSelect(target: "Close Disclaimer");
+    Navigator.of(context).pop();
   }
 }

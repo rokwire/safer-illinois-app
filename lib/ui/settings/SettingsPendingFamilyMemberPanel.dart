@@ -24,7 +24,7 @@ class SettingsPendingFamilyMemberPanel extends StatefulWidget {
 class _SettingsPendingFamilyMemberPanelState extends State<SettingsPendingFamilyMemberPanel> {
 
   bool _hasProgress = false;
-  bool _buttonsEnabled = true;
+  bool _buttonsEnabled = false;
   bool _termsAccepted = false;
   String _errorMessage;
   HealthRulesSet _rules;

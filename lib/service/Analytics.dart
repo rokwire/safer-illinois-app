@@ -210,6 +210,7 @@ class Analytics with Service implements NotificationsListener {
   static const String   LogHealthDurationName                = "duration";
   static const String   LogHealthExposureTimestampName       = "exposure_timestamp";
   static const String   LogHealthActionTypeName              = "action_type";
+  static const String   LogHealthActionTitleName             = "action_title";
   static const String   LogHealthActionTextName              = "action_text";
   static const String   LogHealthActionTimestampName         = "action_timestamp";
   static const String   LogHealthExposureScore               = "exposure_score";
