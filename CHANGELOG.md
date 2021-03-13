@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Apply WWCL.Disclaimers in Safer app [#562](https://github.com/rokwire/safer-illinois-app/issues/562)
 - Maine health history change [#563](https://github.com/rokwire/safer-illinois-app/issues/563)
 
+### Fixed
+- Health rules file. [#567](https://github.com/rokwire/safer-illinois-app/issues/567)
+
 ## [2.9.18] - 2021-03-09
 ### Added
 - Fire Analytics events in Pending Family Members popup.
