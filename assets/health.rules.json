@@ -14,11 +14,11 @@
 	},
 
 	"statuses": {
-    "PCR.xpositive": {
-      "health_status": "red",
-      "priority": 11,
-      "next_step_html": "positive.step.html"
-    },
+		"PCR.xpositive": {
+			"health_status": "red",
+			"priority": 11,
+			"next_step_html": "positive.step.html"
+		},
 		"PCR.positive": {
 			"condition": "timeout",
 			"params": {
@@ -42,7 +42,7 @@
 				"next_step_html": "positive.step.html"
 			}
 		},
-		
+
 		"PCR.positive-IP": {
 			"condition": "timeout",
 			"params": {
@@ -166,7 +166,7 @@
 		},
 
 		"PCR.negative": "test-monitor",
-		
+
 		"PCR.invalid": {
 			"condition": "require-test",
 			"params": {
@@ -257,7 +257,7 @@
 				}
 			}
 		},
-		
+
 		"force-test": {
 			"condition": "require-test",
 			"params": {
@@ -296,7 +296,7 @@
 				"reason": "test.required.reason"
 			}
 		},
-		
+
 		"symptoms-match": {
 			"health_status": "orange",
 			"priority": 1,
@@ -330,7 +330,7 @@
 				"reason": "exposure.reason"
 			}
 		},
-		
+
 		"quarantine-on": {
 			"health_status": "orange",
 			"priority": 10,
@@ -355,7 +355,7 @@
 					"next_step": "test.resume.step",
 					"next_step_interval": "UserTestMonitorInterval",
 					"warning": "test.future.warning"
-					},
+				},
 				"fail": {
 					"health_status": "orange",
 					"priority": -1,
@@ -380,7 +380,7 @@
 						"next_step": "test.resume.step",
 						"next_step_interval": "UndergraduateTestMonitorInterval",
 						"warning": "test.future.warning"
-						},
+					},
 					"fail": {
 						"health_status": "orange",
 						"priority": -1,
@@ -408,7 +408,7 @@
 					}
 				}
 			}
-    },
+		},
 
 		"out-of-test-compliance": {
 			"condition": "require-test",
@@ -430,12 +430,12 @@
 			}
 		},
 
-    "release": {
-      "health_status": "orange",
-      "priority": -1,
-      "next_step": "release.step",
-      "reason": "release.reason"
-    }
+		"release": {
+			"health_status": "orange",
+			"priority": -1,
+			"next_step": "release.step",
+			"reason": "release.reason"
+		}
 	},
 
 	"tests" : {
@@ -495,7 +495,7 @@
 					{
 						"result": "POSITIVE",
 						"category": "PCR.positive",
-						"disclaimer_html": "disclaimers.covid-19_pcr.positive.html",
+						"disclaimer_html": null,
 						"status": "PCR.positive"
 					},
 					{
@@ -513,25 +513,25 @@
 					{
 						"result": "NEGATIVE",
 						"category": "PCR.negative",
-						"disclaimer_html": "disclaimers.covid-19_pcr.negative.html",
+						"disclaimer_html": null,
 						"status": "PCR.negative"
 					},
 					{
 						"result": "INVALID",
 						"category": "PCR.invalid",
-						"disclaimer_html": "disclaimers.covid-19_pcr.invalid.html",
+						"disclaimer_html": null,
 						"status": "PCR.invalid"
 					},
 					{
 						"result": "INCONCLUSIVE",
 						"category": "PCR.invalid",
-						"disclaimer_html": "disclaimers.covid-19_pcr.inconclusive.html",
+						"disclaimer_html": null,
 						"status": "PCR.invalid"
 					},
 					{
 						"result": "REJECTED",
 						"category": "PCR.invalid",
-						"disclaimer_html": "disclaimers.covid-19_pcr.rejected.html",
+						"disclaimer_html": null,
 						"status": "PCR.invalid"
 					}
 				]
@@ -653,7 +653,7 @@
 			}
 		]
 	},
-	
+
 	"symptoms": {
 		"rules": [
 			{
@@ -669,7 +669,7 @@
 				"status": "symptoms-match"
 			}
 		],
-		
+
 		"groups": [
 			{
 				"id": null,
@@ -772,7 +772,7 @@
 			}
 		]
 	},
-	
+
 	"contact_trace": {
 		"rules": [
 			{
@@ -781,7 +781,7 @@
 			}
 		]
 	},
-	
+
 	"actions": {
 		"rules": [
 			{
@@ -830,15 +830,15 @@
 			"test.resume.step": "Resume testing on your assigned days",
 			"test.future.warning": "You will turn orange/access denied if no negative test by {next_step_date}.",
 			"test.past.reason": "Your status changed to Orange because you are past due for another test.",
-      "test.multiple.step.html": "<h3>You must take two on-campus tests by Jan. 25.</h3><ul><li>Separate the tests by three days of quarantine:&nbsp;if the first test is on day one, the second test will be on day five.</li><li>Limit yourself to essential activities until you get the second negative result.</li><li>Your building access will change to Granted (Yellow) with the second negative test result.</li></ul><p>See <a href=https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'> testing schedule and rules</a>.</p>",
+			"test.multiple.step.html": "<h3>You must take two on-campus tests by Jan. 25.</h3><ul><li>Separate the tests by three days of quarantine:&nbsp;if the first test is on day one, the second test will be on day five.</li><li>Limit yourself to essential activities until you get the second negative result.</li><li>Your building access will change to Granted (Yellow) with the second negative test result.</li></ul><p>See <a href=https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'> testing schedule and rules</a>.</p>",
 			"symptoms.step": "Take a COVID-19 test now",
 			"symptoms.reason": "Your status changed to Orange because you self-reported symptoms consistent with the virus.",
 			"exposure.step.html": "<h3>You have likely been exposed to a person who is infected with COVID-19.</h3><ul><h6><li>You must quarantine yourself immediately.</li></h6><h6><li>Stay home. Do not go to work, school, or public areas.</li></h6><h6><li>Separate yourself from others in your home.</li></h6><h6><li>Contact <a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a> for guidance.</li></h6><h6><li>Get tested after {next_step_date} to see if you have developed the disease.</li></h6><h6><li>More Info: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Quarantine and Isolation</a></li></h6></ul>",
 			"exposure.reason": "Your status changed to Orange because you received an exposure notification.",
 			"quarantine-on.step": "Stay at home and avoid contacts",
 			"quarantine-on.reason": "Your status changed to Orange because the Public Health department placed you in Quarantine.",
-      "release.step": "Take a SHIELD Saliva Test",
-      "release.reason": "Your status changed to Orange because the Public Health department requires you to take a test.",
+			"release.step": "Take a SHIELD Saliva Test",
+			"release.reason": "Your status changed to Orange because the Public Health department requires you to take a test.",
 			"symptoms.no-symptoms": "No symptoms",
 			"symptoms.fever": "Fever",
 			"symptoms.chills": "Chills",
@@ -858,11 +858,11 @@
 			"symptoms.congestion-or-runny-nose": "Congestion or runny nose",
 			"symptoms.nausea-or-vomiting": "Nausea or vomiting",
 			"symptoms.diarrhea":"Diarrhea",
-      "disclaimers.covid-19_pcr.positive.html": "<p><b><u>POSITIVE for COVID-19</u></b></p><p>Test result is positive for SARS-CoV-2.</p><p>This is a real-time PCR assay for the qualitative detection of SARS-CoV-2, the virus that causes COVID-19 disease. This is a laboratory-developed test based on a test developed at the Centers for Disease Control and Prevention, and its performance characteristics have been validated at the WVDL-WSLH COVID-19 Laboratory. It has not been cleared or approved by the US Food and Drug Administration. Testing for this specimen was performed by the WVDL-WSLH COVID-19 Laboratory, Madison, WI under the direction of Errin C. Rider, Ph.D., D(ABMM), M(ASCP)CM, Director of Clinical Laboratory Services.</p>",
-      "disclaimers.covid-19_pcr.negative.html": "<p><b><u>NEGATIVE for COVID-19.</u></b></p><p>A negative test result does not preclude SARS-CoV-2 infection and should not be used as the sole basis for patient management decisions. Clinical observations, patient history, and epidemiologic information must also be considered.</p><p>This is a real-time PCR assay for the qualitative detection of SARS-CoV-2, the virus that causes COVID-19 disease. This is a laboratory-developed test based on a test developed at the Centers for Disease Control and Prevention, and its performance characteristics have been validated at the WVDL-WSLH COVID-19 Laboratory. It has not been cleared or approved by the US Food and Drug Administration. Testing for this specimen was performed by the WVDL-WSLH COVID-19 Laboratory, Madison, WI under the direction of Errin C. Rider, Ph.D., D(ABMM), M(ASCP)CM, Director of Clinical Laboratory Services.</p>",
-      "disclaimers.covid-19_pcr.invalid.html": "<p>Repeat testing is suggested.</p><p>This specimen exhibited inhibition in the PCR assay or the specimen contained an inadequate amount of clinical material. If clinically warranted, re-collecting a specimen for follow-up testing is recommended.</p><p>This is a real-time PCR assay for the qualitative detection of SARS-CoV-2, the virus that causes COVID-19 disease. This is a laboratory-developed test based on a test developed at the Centers for Disease Control and Prevention, and its performance characteristics have been validated at the WVDL-WSLH COVID-19 Laboratory. It has not been cleared or approved by the US Food and Drug Administration. Testing for this specimen was performed by the WVDL-WSLH COVID-19 Laboratory, Madison, WI under the direction of Errin C. Rider, Ph.D., D(ABMM), M(ASCP)CM, Director of Clinical Laboratory Services.</p>",
-      "disclaimers.covid-19_pcr.inconclusive.html": "<p>Repeat testing is suggested.</p><p>The test result did not meet the full criteria for the presence of SARS-CoV-2. If clinically warranted, repeat testing is suggested.</p><p>This is a real-time PCR assay for the qualitative detection of SARS-CoV-2, the virus that causes COVID-19 disease. This is a laboratory-developed test based on a test developed at the Centers for Disease Control and Prevention, and its performance characteristics have been validated at the WVDL-WSLH COVID-19 Laboratory. It has not been cleared or approved by the US Food and Drug Administration. Testing for this specimen was performed by the WVDL-WSLH COVID-19 Laboratory, Madison, WI under the direction of Errin C. Rider, Ph.D., D(ABMM), M(ASCP)CM, Director of Clinical Laboratory Services.</p>",
-      "disclaimers.covid-19_pcr.rejected.html": "<p>This is a real-time PCR assay for the qualitative detection of SARS-CoV-2, the virus that causes COVID-19 disease. This is a laboratory-developed test based on a test developed at the Centers for Disease Control and Prevention, and its performance characteristics have been validated at the WVDL-WSLH COVID-19 Laboratory. It has not been cleared or approved by the US Food and Drug Administration. Testing for this specimen was performed by the WVDL-WSLH COVID-19 Laboratory, Madison, WI under the direction of Errin C. Rider, Ph.D., D(ABMM), M(ASCP)CM, Director of Clinical Laboratory Services.</p>"
+			"disclaimers.covid-19_pcr.positive.html": "",
+			"disclaimers.covid-19_pcr.negative.html": "",
+			"disclaimers.covid-19_pcr.invalid.html": "",
+			"disclaimers.covid-19_pcr.inconclusive.html": "",
+			"disclaimers.covid-19_pcr.rejected.html": ""
 		},
 		"es": {
 			"default.step": "Realice una prueba de saliva SHIELD cuando regrese al campus.",
@@ -882,15 +882,15 @@
 			"test.resume.step": "Reanudar las pruebas en los días asignados",
 			"test.future.warning": "Se volverá naranja / acceso denegado si no hay una prueba negativa antes del {next_step_date}.",
 			"test.past.reason": "Su estado cambió a Naranja porque está atrasado para otro examen.",
-      "test.multiple.step.html": "<h3>Debes de tomar dos pruebas en el campus antes del 25 de enero.</h3><ul><li>Separe las pruebas con tres d&iacute;as de cuarentena: &nbsp;si la primera prueba es el d&iacute;a uno, la segunda prueba ser&aacute; el d&iacute;a cinco.</li><li>Lim&iacute;tese a las actividades esenciales hasta que obtenga el segundo resultado negativo.</li><li>El acceso al edificio cambiar&aacute; a Concedido (amarillo) con el segundo resultado negativo de la prueba.</li></ul><p>Ver el <a href='https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'>calendario y las reglas de las pruebas</a>.</p>",
+			"test.multiple.step.html": "<h3>Debes de tomar dos pruebas en el campus antes del 25 de enero.</h3><ul><li>Separe las pruebas con tres d&iacute;as de cuarentena: &nbsp;si la primera prueba es el d&iacute;a uno, la segunda prueba ser&aacute; el d&iacute;a cinco.</li><li>Lim&iacute;tese a las actividades esenciales hasta que obtenga el segundo resultado negativo.</li><li>El acceso al edificio cambiar&aacute; a Concedido (amarillo) con el segundo resultado negativo de la prueba.</li></ul><p>Ver el <a href='https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'>calendario y las reglas de las pruebas</a>.</p>",
 			"symptoms.step": "Realice una prueba de COVID-19 ahora",
 			"symptoms.reason": "Su estado cambió a Naranja porque usted mismo informó de síntomas consistentes con el virus.",
 			"exposure.step.html": "<h3>Es probable que haya estado expuesto a una persona infectada con COVID-19.</h3><ul><h6><li>Debe ponerse en cuarentena inmediatamente.</li></h6><h6><li>Quedarse en casa. No vaya al trabajo, la escuela o áreas públicas.</li></h6><h6><li>Sepárate de las demás en tu casa.</li></h6><h6><li>Póngase en contacto con <a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a> para obtener orientación.</li></h6><h6><li>Hágase la prueba después del {next_step_date} para ver si ha desarrollado la enfermedad.</li></h6><h6><li>Más información: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Cuarentena y aislamiento</a></li></h6></ul>",
 			"exposure.reason": "Su estado cambió a Naranja porque recibió una notificación de exposición.",
 			"quarantine-on.step": "Quédese en casa y evite los contactos",
 			"quarantine-on.reason": "Su estado cambió a Orange porque el departamento de Salud Pública lo puso en cuarentena.",
-      "release.step": "Realice una prueba de saliva SHIELD",
-      "release.reason": "Su estado cambió a Orange porque el departamento de Salud Pública requiere que tome una prueba.",
+			"release.step": "Realice una prueba de saliva SHIELD",
+			"release.reason": "Su estado cambió a Orange porque el departamento de Salud Pública requiere que tome una prueba.",
 			"symptoms.no-symptoms": "Sin síntomas",
 			"symptoms.fever": "Fiebre",
 			"symptoms.chills": "Resfriado",
@@ -910,11 +910,11 @@
 			"symptoms.congestion-or-runny-nose": "Congestión o secreción nasal",
 			"symptoms.nausea-or-vomiting": "Náuseas o vómitos",
 			"symptoms.diarrhea": "Diarrea",
-      "disclaimers.covid-19_pcr.positive.html": "<p><b><u>POSITIVO para COVID-19</u></b></p><p>El resultado de la prueba es positivo para el SARS-CoV-2. </p> <p> Este es un ensayo de PCR en tiempo real para la detección cualitativa del SARS-CoV-2, el virus que causa la enfermedad COVID-19. Esta es una prueba desarrollada en laboratorio basada en una prueba desarrollada en los Centros para el Control y la Prevención de Enfermedades, y sus características de rendimiento han sido validadas en el Laboratorio WVDL-WSLH COVID-19. No ha sido autorizado ni aprobado por la Administración de Drogas y Alimentos de EE. UU. La prueba para esta muestra fue realizada por el Laboratorio WVDL-WSLH COVID-19, Madison, WI bajo la dirección de Errin C. Rider, Ph.D., D (ABMM), M (ASCP) CM, Director de Servicios de Laboratorio Clínico.</p>",
-      "disclaimers.covid-19_pcr.negative.html": "<p><b><u>NEGATIVO para COVID-19.</u></b></p><p>Un resultado negativo de la prueba no excluye la infección por SARS-CoV-2 y no debe usarse como la única base para las decisiones de manejo del paciente. También se deben considerar las observaciones clínicas, el historial del paciente y la información epidemiológica. </p> <p> Este es un ensayo de PCR en tiempo real para la detección cualitativa del SARS-CoV-2, el virus que causa la enfermedad COVID-19. Esta es una prueba desarrollada en laboratorio basada en una prueba desarrollada en los Centros para el Control y la Prevención de Enfermedades, y sus características de rendimiento han sido validadas en el Laboratorio WVDL-WSLH COVID-19. No ha sido autorizado ni aprobado por la Administración de Drogas y Alimentos de EE. UU. La prueba para esta muestra fue realizada por el Laboratorio WVDL-WSLH COVID-19, Madison, WI bajo la dirección de Errin C. Rider, Ph.D., D (ABMM), M (ASCP) CM, Director de Servicios de Laboratorio Clínico.</p>",
-      "disclaimers.covid-19_pcr.invalid.html": "<p>Se sugiere repetir la prueba.</p><p>Esta muestra mostró inhibición en el ensayo de PCR o la muestra contenía una cantidad inadecuada de material clínico. Si está clínicamente justificado, se recomienda volver a recolectar una muestra para las pruebas de seguimiento. </p> <p> Este es un ensayo de PCR en tiempo real para la detección cualitativa de SARS-CoV-2, el virus que causa COVID-19 enfermedad. Esta es una prueba desarrollada en laboratorio basada en una prueba desarrollada en los Centros para el Control y la Prevención de Enfermedades, y sus características de rendimiento han sido validadas en el Laboratorio WVDL-WSLH COVID-19. No ha sido autorizado ni aprobado por la Administración de Drogas y Alimentos de EE. UU. La prueba para esta muestra fue realizada por el Laboratorio WVDL-WSLH COVID-19, Madison, WI bajo la dirección de Errin C. Rider, Ph.D., D (ABMM), M (ASCP) CM, Director de Servicios de Laboratorio Clínico.</p>",
-      "disclaimers.covid-19_pcr.inconclusive.html": "<p>Se sugiere repetir la prueba.</p><p>El resultado de la prueba no cumplió con los criterios completos para la presencia de SARS-CoV-2. Si está clínicamente justificado, se sugiere repetir la prueba. </p> <p> Este es un ensayo de PCR en tiempo real para la detección cualitativa del SARS-CoV-2, el virus que causa la enfermedad COVID-19. Esta es una prueba desarrollada en laboratorio basada en una prueba desarrollada en los Centros para el Control y la Prevención de Enfermedades, y sus características de rendimiento han sido validadas en el Laboratorio WVDL-WSLH COVID-19. No ha sido autorizado ni aprobado por la Administración de Drogas y Alimentos de EE. UU. La prueba para esta muestra fue realizada por el Laboratorio WVDL-WSLH COVID-19, Madison, WI bajo la dirección de Errin C. Rider, Ph.D., D (ABMM), M (ASCP) CM, Director de Servicios de Laboratorio Clínico.</p>",
-      "disclaimers.covid-19_pcr.rejected.html": "<p>Este es un ensayo de PCR en tiempo real para la detección cualitativa de SARS-CoV-2, el virus que causa la enfermedad COVID-19. Esta es una prueba desarrollada en laboratorio basada en una prueba desarrollada en los Centros para el Control y la Prevención de Enfermedades, y sus características de rendimiento han sido validadas en el Laboratorio WVDL-WSLH COVID-19. No ha sido autorizado ni aprobado por la Administración de Drogas y Alimentos de EE. UU. La prueba para esta muestra fue realizada por el Laboratorio WVDL-WSLH COVID-19, Madison, WI bajo la dirección de Errin C. Rider, Ph.D., D (ABMM), M (ASCP) CM, Director de Servicios de Laboratorio Clínico.</p>"
+			"disclaimers.covid-19_pcr.positive.html": "",
+			"disclaimers.covid-19_pcr.negative.html": "",
+			"disclaimers.covid-19_pcr.invalid.html": "",
+			"disclaimers.covid-19_pcr.inconclusive.html": "",
+			"disclaimers.covid-19_pcr.rejected.html": ""
 		},
 		"zh": {
 			"default.step": "返回校園後，請參加SHIELD唾液測試。",
@@ -962,11 +962,11 @@
 			"symptoms.congestion-or-runny-nose": "充血或流鼻涕",
 			"symptoms.nausea-or-vomiting": "噁心或嘔吐",
 			"symptoms.diarrhea":"腹瀉",
-      "disclaimers.covid-19_pcr.positive.html": "<p><b><u>對COVID-19有利</u></b></p><p>測試結果為SARS-CoV-2陽性。</p><p>這是用於定性檢測SARS-CoV-2（一種引起COVID-19疾病的病毒）的實時PCR分析方法。 這是一項基於實驗室開發的測試，基於疾病控制與預防中心開發的測試，並且其性能特徵已在WVDL-WSLH COVID-19實驗室進行了驗證。 它尚未被美國食品和藥物管理局清除或批准。 由威斯康星州麥迪遜市的WVDL-WSLH COVID-19實驗室在臨床實驗室服務總監Errin C. Rider博士，D（ABMM），M（ASCP）CM的指導下對該樣品進行了測試。</p>",
-      "disclaimers.covid-19_pcr.negative.html": "<p><b><u>負于COVID-19</u></b></p><p>檢測結果陰性並不排除SARS-CoV-2感染，因此不應作為患者管理決策的唯一依據。 還必須考慮臨床觀察，患者病史和流行病學信息。</ p> <p>這是一種實時PCR檢測方法，用於定性檢測導致COVID-19疾病的病毒SARS-CoV-2。 這是一項基於實驗室開發的測試，基於疾病控制與預防中心開發的測試，並且其性能特徵已在WVDL-WSLH COVID-19實驗室進行了驗證。 它尚未被美國食品和藥物管理局清除或批准。 由威斯康星州麥迪遜市的WVDL-WSLH COVID-19實驗室在臨床實驗室服務總監Errin C. Rider博士，D（ABMM），M（ASCP）CM的指導下對該樣品進行了測試。</p>",
-      "disclaimers.covid-19_pcr.invalid.html": "<p>建議重複測試。</p><p>該標本在PCR分析中表現出抑製作用，或者標本中臨床物質的含量不足。 如果臨床需要，建議重新收集標本以進行後續測試。</ p> <p>這是一種實時PCR檢測方法，用於定性檢測SARS-CoV-2（引起COVID-19的病毒） 疾病。 這是一項基於實驗室開發的測試，基於疾病控制與預防中心開發的測試，並且其性能特徵已在WVDL-WSLH COVID-19實驗室進行了驗證。 它尚未被美國食品和藥物管理局清除或批准。 由威斯康星州麥迪遜市的WVDL-WSLH COVID-19實驗室在臨床實驗室服務總監Errin C. Rider博士，D（ABMM），M（ASCP）CM的指導下對該樣品進行了測試。</p>",
-      "disclaimers.covid-19_pcr.inconclusive.html": "<p>建議重複測試。</p><p>測試結果不符合SARS-CoV-2存在的完整標準。 如果臨床上需要，建議重複測試。</ p> <p>這是一種實時PCR檢測方法，用於定性檢測SARS-CoV-2（一種引起COVID-19疾病的病毒）。 這是一項基於實驗室開發的測試，基於疾病控制與預防中心開發的測試，並且其性能特徵已在WVDL-WSLH COVID-19實驗室進行了驗證。 它尚未被美國食品和藥物管理局清除或批准。 由威斯康星州麥迪遜市的WVDL-WSLH COVID-19實驗室在臨床實驗室服務總監Errin C. Rider博士，D（ABMM），M（ASCP）CM的指導下對該樣品進行了測試。</p>",
-      "disclaimers.covid-19_pcr.rejected.html": "<p>這是用於定性檢測SARS-CoV-2（一種引起COVID-19疾病的病毒）的實時PCR分析方法。 這是一項基於實驗室開發的測試，基於疾病控制與預防中心開發的測試，並且其性能特徵已在WVDL-WSLH COVID-19實驗室進行了驗證。 它尚未被美國食品和藥物管理局清除或批准。 由威斯康星州麥迪遜市的WVDL-WSLH COVID-19實驗室在臨床實驗室服務總監Errin C. Rider博士，D（ABMM），M（ASCP）CM的指導下對該樣品進行了測試。</p>"
+			"disclaimers.covid-19_pcr.positive.html": "",
+			"disclaimers.covid-19_pcr.negative.html": "",
+			"disclaimers.covid-19_pcr.invalid.html": "",
+			"disclaimers.covid-19_pcr.inconclusive.html": "",
+			"disclaimers.covid-19_pcr.rejected.html": ""
 		}
 	}
 }
