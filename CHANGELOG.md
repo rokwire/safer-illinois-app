@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.9.20] - 2021-03-13
+### Changed
+- Updated version number to 2.9.20+920 for resubmission.
+
 ## [2.9.19] - 2021-03-12
 ### Changed
 - Disable Accept/Revoke buttons initially in Pending Family Members popup.
