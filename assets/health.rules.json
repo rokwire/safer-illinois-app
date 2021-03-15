@@ -857,12 +857,7 @@
 			"symptoms.sore-throat": "Sore Throat",
 			"symptoms.congestion-or-runny-nose": "Congestion or runny nose",
 			"symptoms.nausea-or-vomiting": "Nausea or vomiting",
-			"symptoms.diarrhea":"Diarrhea",
-			"disclaimers.covid-19_pcr.positive.html": "",
-			"disclaimers.covid-19_pcr.negative.html": "",
-			"disclaimers.covid-19_pcr.invalid.html": "",
-			"disclaimers.covid-19_pcr.inconclusive.html": "",
-			"disclaimers.covid-19_pcr.rejected.html": ""
+			"symptoms.diarrhea":"Diarrhea"
 		},
 		"es": {
 			"default.step": "Realice una prueba de saliva SHIELD cuando regrese al campus.",
@@ -909,12 +904,7 @@
 			"symptoms.sore-throat": "Dolor de garganta",
 			"symptoms.congestion-or-runny-nose": "Congestión o secreción nasal",
 			"symptoms.nausea-or-vomiting": "Náuseas o vómitos",
-			"symptoms.diarrhea": "Diarrea",
-			"disclaimers.covid-19_pcr.positive.html": "",
-			"disclaimers.covid-19_pcr.negative.html": "",
-			"disclaimers.covid-19_pcr.invalid.html": "",
-			"disclaimers.covid-19_pcr.inconclusive.html": "",
-			"disclaimers.covid-19_pcr.rejected.html": ""
+			"symptoms.diarrhea": "Diarrea"
 		},
 		"zh": {
 			"default.step": "返回校園後，請參加SHIELD唾液測試。",
@@ -961,12 +951,7 @@
 			"symptoms.sore-throat": "咽喉痛",
 			"symptoms.congestion-or-runny-nose": "充血或流鼻涕",
 			"symptoms.nausea-or-vomiting": "噁心或嘔吐",
-			"symptoms.diarrhea":"腹瀉",
-			"disclaimers.covid-19_pcr.positive.html": "",
-			"disclaimers.covid-19_pcr.negative.html": "",
-			"disclaimers.covid-19_pcr.invalid.html": "",
-			"disclaimers.covid-19_pcr.inconclusive.html": "",
-			"disclaimers.covid-19_pcr.rejected.html": ""
+			"symptoms.diarrhea":"腹瀉"
 		}
 	}
 }
