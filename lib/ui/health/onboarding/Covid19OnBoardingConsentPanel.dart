@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Auth.dart';
+import 'package:illinois/service/BluetoothServices.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
+import 'package:illinois/service/LocationServices.dart';
 import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/onboarding/OnboardingBackButton.dart';
@@ -47,6 +51,7 @@ class _Covid19OnBoardingConsentPanelState extends State<Covid19OnBoardingConsent
   bool _exposureNotification = false;
   bool _consent = true;
   bool _canContinue = false;
+  bool _permissionsRequested = false;
   ScrollController _scrollController;
 
   @override
@@ -54,7 +59,7 @@ class _Covid19OnBoardingConsentPanelState extends State<Covid19OnBoardingConsent
     super.initState();
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
-    //19.06 - 5.1 Covid setup flow consents should be off by default
+//    19.06 - 5.1 Covid setup flow consents should be off by default
 //    Health().loadUser().then((HealthUser user) {
 //      setState(() {
 //        _exposureNotification = user?.consent ?? false;
@@ -267,10 +272,19 @@ class _Covid19OnBoardingConsentPanelState extends State<Covid19OnBoardingConsent
 
   void _onParticipateTap(){
     Analytics.instance.logSelect(target: "concent to participate");
-    setState(() {
-      _exposureNotification = !_exposureNotification;
-    });
-
+    if (Platform.isIOS && (_exposureNotification != true) && (_permissionsRequested != true)) {
+      _permissionsRequested = true;
+      _requestPermisions().then((_) {
+        setState(() {
+          _exposureNotification = !_exposureNotification;
+        });
+      });
+    }
+    else {
+      setState(() {
+        _exposureNotification = !_exposureNotification;
+      });
+    }
   }
 
   void _onAllowTap(){
@@ -286,6 +300,16 @@ class _Covid19OnBoardingConsentPanelState extends State<Covid19OnBoardingConsent
       setState(() {
         _canContinue = true;
       });
+    }
+  }
+
+  Future<void> _requestPermisions() async {
+    if (BluetoothServices().status == BluetoothStatus.PermissionNotDetermined) {
+      await BluetoothServices().requestStatus();
+    }
+
+    if (await LocationServices().status == LocationServicesStatus.PermissionNotDetermined) {
+      await LocationServices().requestPermission();
     }
   }
 }
