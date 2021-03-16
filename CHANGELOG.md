@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## [2.9.21] - 2021-03-16
 ### Changed
 - Check for start/stop exposure native service on revoking from background.
 - Ask for Bluetooth and Location services permisions in iOS when the user selects to participate to Exposure Notification system. Exclude the relevant onboarding panels from onboarding flow in iOS [#573](https://github.com/rokwire/safer-illinois-app/issues/573).
