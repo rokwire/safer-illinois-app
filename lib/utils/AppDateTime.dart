@@ -82,6 +82,18 @@ class AppDateTime {
   static DateTime get yesterdayMidnightLocal {
     return midnight(DateTime.now()).add(Duration(days: -1));
   }
+
+  static int midnightsDifferenceInDays(DateTime startMidnightTime, [DateTime endMidnightTime]) {
+    if (startMidnightTime != null) {
+      if (endMidnightTime == null) {
+        endMidnightTime = todayMidnightLocal;
+      }
+      return (endMidnightTime.difference(startMidnightTime).inMilliseconds / (24 * 3600 * 1000)).round();
+    }
+    else {
+      return null;
+    }
+  }
 }
 
 enum AppTimeOfDay {
