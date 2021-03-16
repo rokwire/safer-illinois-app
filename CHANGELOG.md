@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Check for start/stop exposure native service on revoking from background.
 - Ask for Bluetooth and Location services permisions in iOS when the user selects to participate to Exposure Notification system. Exclude the relevant onboarding panels from onboarding flow in iOS [#573](https://github.com/rokwire/safer-illinois-app/issues/573).
 
+### Fixed
+- Fixed days interval calculation when daylight saving is changed [#572](https://github.com/rokwire/safer-illinois-app/issues/572).
 
 ## [2.9.19] - 2021-03-12
 ### Changed
