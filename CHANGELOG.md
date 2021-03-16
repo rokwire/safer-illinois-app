@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+- Check for start/stop exposure native service on revoking from background.
 
 ## [2.9.19] - 2021-03-12
 ### Changed
