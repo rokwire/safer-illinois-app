@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:illinois/service/Analytics.dart';
@@ -39,7 +37,10 @@ class OnboardingAuthBluetoothPanel extends StatefulWidget with OnboardingPanel {
 
   @override
   bool get onboardingCanDisplay {
-    return Platform.isIOS && (BluetoothServices().status != BluetoothStatus.PermissionAllowed);
+    // Android does not support Bluetooth permisions.
+    // Bluetooth permisions in iOS should be prompted when "Consent to participate in the Exposure Notification system" is selected.
+    // return Platform.isIOS && (BluetoothServices().status != BluetoothStatus.PermissionAllowed);
+    return false;
   }
 }
 
