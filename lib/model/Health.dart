@@ -2705,7 +2705,9 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
   static bool _evalRequireTestEntryFulfills(Covid19History entry, { DateTime originDateMidnightLocal,  _HealthRuleInterval interval, HealthRulesSet rules, dynamic category }) {
     if (entry.isTest && entry.canTestUpdateStatus) {
       DateTime entryDateMidnightLocal = entry.dateMidnightLocal;
-      final difference = entryDateMidnightLocal.difference(originDateMidnightLocal).inDays;
+      //#572 Building access calculation issue 
+      //int difference = entryDateMidnightLocal.difference(originDateMidnightLocal).inDays;
+      int difference = AppDateTime.midnightsDifferenceInDays(originDateMidnightLocal, entryDateMidnightLocal);
       if (interval.match(difference, rules: rules)) {
         if (category == null) {
           return true; // any test matches
@@ -2771,7 +2773,9 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
   static bool _evalRequireSymptomsEntryFulfills(Covid19History entry, { DateTime originDateMidnightLocal,  _HealthRuleInterval interval, HealthRulesSet rules }) {
     if (entry.isSymptoms) {
       DateTime entryDateMidnightLocal = entry.dateMidnightLocal;
-      final difference = entryDateMidnightLocal.difference(originDateMidnightLocal).inDays;
+      // #572 Building access calculation issue 
+      //int difference = entryDateMidnightLocal.difference(originDateMidnightLocal).inDays;
+      int difference = AppDateTime.midnightsDifferenceInDays(originDateMidnightLocal, entryDateMidnightLocal);
       if (interval.match(difference, rules: rules)) {
         return true;
       }
@@ -2798,7 +2802,9 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
 
   static bool _evalCurrentIntervalFulfills(_HealthRuleInterval currentInterval, { DateTime originDateMidnightLocal, HealthRulesSet rules } ) {
     if (currentInterval != null) {
-      final difference = AppDateTime.todayMidnightLocal.difference(originDateMidnightLocal).inDays;
+      //#572 Building access calculation issue 
+      //int difference = AppDateTime.todayMidnightLocal.difference(originDateMidnightLocal).inDays;
+      int difference = AppDateTime.midnightsDifferenceInDays(originDateMidnightLocal, AppDateTime.todayMidnightLocal);
       if (currentInterval.match(difference, rules: rules)) {
         return true;
       }

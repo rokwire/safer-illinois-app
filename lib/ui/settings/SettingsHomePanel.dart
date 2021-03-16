@@ -15,6 +15,7 @@
  */
 
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
@@ -24,7 +25,9 @@ import 'package:flutter/foundation.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/AppNavigation.dart';
 import 'package:illinois/service/Auth.dart';
+import 'package:illinois/service/BluetoothServices.dart';
 import 'package:illinois/service/Connectivity.dart';
+import 'package:illinois/service/LocationServices.dart';
 import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginPhoneVerifyPanel.dart';
 import 'package:illinois/ui/settings/SettingsFamilyMembersPanel.dart';
@@ -78,6 +81,8 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   bool _checkingHealthUserKeysPaired;
 
   bool _refreshingHealthUserKeys;
+
+  bool _permissionsRequested;
 
   @override
   void initState() {
@@ -850,9 +855,27 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
     if (Connectivity().isNotOffline) {
       Analytics.instance.logSelect(target: "Exposure Notifications");
       bool exposureNotification = _healthUser?.exposureNotification ?? false;
-      _updateHealthUser(exposureNotification: !exposureNotification);
+      if (Platform.isIOS && (exposureNotification != true) && (_permissionsRequested != true)) {
+        _permissionsRequested = true;
+        _requestPermisions().then((_) {
+          _updateHealthUser(exposureNotification: !exposureNotification);
+        });
+      }
+      else {
+        _updateHealthUser(exposureNotification: !exposureNotification);
+      }
     } else {
       AppAlert.showOfflineMessage(context);
+    }
+  }
+
+  Future<void> _requestPermisions() async {
+    if (BluetoothServices().status == BluetoothStatus.PermissionNotDetermined) {
+      await BluetoothServices().requestStatus();
+    }
+
+    if (await LocationServices().status == LocationServicesStatus.PermissionNotDetermined) {
+      await LocationServices().requestPermission();
     }
   }
 

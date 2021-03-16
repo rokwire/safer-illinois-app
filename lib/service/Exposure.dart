@@ -246,9 +246,11 @@ class Exposure with Service implements NotificationsListener {
     else if (state == AppLifecycleState.resumed) {
       Duration pausedDuration = (_pausedDateTime != null) ? DateTime.now().difference(_pausedDateTime) : null;
       if ((pausedDuration != null) && (Config().refreshTimeout < pausedDuration.inSeconds)) {
-        checkReport();
-        checkExposures().then((_){
-          _startExposuresMonitor();
+        _updatePlugin().then((_) {
+          checkReport();
+          checkExposures().then((_){
+            _startExposuresMonitor();
+          });
         });
       }
       else {
