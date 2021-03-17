@@ -3320,7 +3320,9 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
   static bool _evalRequireTestEntryFulfills(HealthHistory entry, { DateTime originDateMidnightLocal,  _HealthRuleInterval interval, dynamic category, HealthRulesSet rules, Map<String, dynamic> params }) {
     if (entry.isTest && entry.canTestUpdateStatus) {
       DateTime entryDateMidnightLocal = entry.dateMidnightLocal;
-      final difference = entryDateMidnightLocal.difference(originDateMidnightLocal).inDays;
+      //#572 Building access calculation issue 
+      //int difference = entryDateMidnightLocal.difference(originDateMidnightLocal).inDays;
+      int difference = AppDateTime.midnightsDifferenceInDays(originDateMidnightLocal, entryDateMidnightLocal);
       if (interval.match(difference, rules: rules, params: params)) {
         if (category == null) {
           return true; // any test matches
@@ -3386,7 +3388,9 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
   static bool _evalRequireSymptomsEntryFulfills(HealthHistory entry, { DateTime originDateMidnightLocal,  _HealthRuleInterval interval, HealthRulesSet rules, Map<String, dynamic> params }) {
     if (entry.isSymptoms) {
       DateTime entryDateMidnightLocal = entry.dateMidnightLocal;
-      final difference = entryDateMidnightLocal.difference(originDateMidnightLocal).inDays;
+      //#572 Building access calculation issue 
+      //int difference = entryDateMidnightLocal.difference(originDateMidnightLocal).inDays;
+      int difference = AppDateTime.midnightsDifferenceInDays(originDateMidnightLocal, entryDateMidnightLocal);
       if (interval.match(difference, rules: rules, params: params)) {
         return true;
       }
@@ -3413,7 +3417,9 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
 
   static bool _evalCurrentIntervalFulfills(_HealthRuleInterval currentInterval, { DateTime originDateMidnightLocal, HealthRulesSet rules, Map<String, dynamic> params } ) {
     if (currentInterval != null) {
-      final difference = AppDateTime.todayMidnightLocal.difference(originDateMidnightLocal).inDays;
+      //#572 Building access calculation issue 
+      //int difference = AppDateTime.todayMidnightLocal.difference(originDateMidnightLocal).inDays;
+      int difference = AppDateTime.midnightsDifferenceInDays(originDateMidnightLocal, AppDateTime.todayMidnightLocal);
       if (currentInterval.match(difference, rules: rules, params: params)) {
         return true;
       }

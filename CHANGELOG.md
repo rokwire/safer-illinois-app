@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Maine health history change [#563](https://github.com/rokwire/safer-illinois-app/issues/563)
 - Check for start/stop exposure native service on revoking from background.
 
+### Fixed
+- Fixed days interval calculation when daylight saving is changed [#572](https://github.com/rokwire/safer-illinois-app/issues/572).
+
 ## [2.10.12] - 2021-03-05
 ### Fixed
 - Explore Shibboleth login failure due to deleted UUID [#508](https://github.com/rokwire/safer-illinois-app/issues/508)
