@@ -55,6 +55,7 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
   static const String HEALTH_STATUS_URI = 'edu.illinois.covid://covid.illinois.edu/health/status';
 
   HealthFamilyMember _pendingFamilyMember;
+  Set<String> _promptedPendingFamilyMembers = Set<String>();
   DateTime _pausedDateTime;
 
   @override
@@ -124,6 +125,7 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
       if (_pausedDateTime != null) {
         Duration pausedDuration = DateTime.now().difference(_pausedDateTime);
         if (Config().refreshTimeout < pausedDuration.inSeconds) {
+          _promptedPendingFamilyMembers.clear();
           Health().refreshNone().then((_) => _checkForPendingFamilyMembers());
         }
       }
@@ -266,8 +268,9 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
   }
 
   void _processPendingFamilyMember(HealthFamilyMember pendingFamilyMember) {
-    if ((_pendingFamilyMember == null) && (pendingFamilyMember != null)) {
+    if ((_pendingFamilyMember == null) && (pendingFamilyMember != null) && !_promptedPendingFamilyMembers.contains(pendingFamilyMember.id)) {
       _pendingFamilyMember = pendingFamilyMember;
+      _promptedPendingFamilyMembers.add(pendingFamilyMember.id);
       Navigator.push(context, PageRouteBuilder(opaque: false, pageBuilder: (context, _, __) => SettingsPendingFamilyMemberPanel(familyMember: _pendingFamilyMember))).then((_) {
         _pendingFamilyMember = null;
         
