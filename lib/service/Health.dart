@@ -233,6 +233,10 @@ class Health with Service implements NotificationsListener {
     return _refresh(_RefreshOptions.fromList([_RefreshOption.user, _RefreshOption.userPrivateKey]));
   }
 
+  Future<void> refreshFamilyMembers() async {
+    return _refresh(_RefreshOptions.fromList([_RefreshOption.familyMembers]));
+  }
+
   Future<void> refreshNone() async {
     return _refresh(_RefreshOptions.none());
   }
@@ -1646,10 +1650,10 @@ class Health with Service implements NotificationsListener {
       String responseBody = (response?.statusCode == 200) ? response.body : null;
       List<dynamic> responseJson = (responseBody != null) ? AppJson.decodeList(responseBody) : null;
       /* TMP: responseJson = [
-        { "id": "1234", "first_name": "Petyo", "last_name": "Stoyanov", "date_created": "2021-02-19T10:27:43.679Z", "group_name": "U of Illinois employee family member", "external_approver_id": "68572", "external_approver_last_name": "Varbanov", "status":"pending" },
-        { "id": "4567", "first_name": "Dobromir", "last_name": "Dobrev", "date_created": "2021-02-19T10:27:43.679Z", "group_name": "U of Illinois employee family member", "external_approver_id": "68572", "external_approver_last_name": "Varbanov", "status":"pending" },
-        { "id": "8901", "first_name": "Mladen", "last_name": "Dryankov", "date_created": "2021-02-19T10:27:43.679Z", "group_name": "U of Illinois employee family member", "external_approver_id": "68572", "external_approver_last_name": "Varbanov", "status":"accepted" },
-        { "id": "2345", "first_name": "Todor", "last_name": "Bachvarov", "date_created": "2021-02-19T10:27:43.679Z", "group_name": "U of Illinois employee family member", "external_approver_id": "68572", "external_approver_last_name": "Varbanov", "status":"rejected" },
+        { "id": "1234", "first_name": "Petyo", "last_name": "Stoyanov", "email": "petyo@inabyte.com", "date_created": "2021-02-19T10:27:43.679Z", "group_name": "U of Illinois employee family member", "external_approver_id": "68572", "external_approver_last_name": "Varbanov", "status":"pending" },
+        { "id": "4567", "first_name": "Dobromir", "last_name": "Dobrev", "email": "dobromir@inabyte.com", "date_created": "2021-02-19T10:27:43.679Z", "group_name": "U of Illinois employee family member", "external_approver_id": "68572", "external_approver_last_name": "Varbanov", "status":"pending" },
+        { "id": "8901", "first_name": "Mladen", "last_name": "Dryankov", "email": "mladen@inabyte.com", "date_created": "2021-02-19T10:27:43.679Z", "group_name": "U of Illinois employee family member", "external_approver_id": "68572", "external_approver_last_name": "Varbanov", "status":"accepted" },
+        { "id": "2345", "first_name": "Todor", "last_name": "Bachvarov", "email": "toshko@inabyte.com", "date_created": "2021-02-19T10:27:43.679Z", "group_name": "U of Illinois employee family member", "external_approver_id": "68572", "external_approver_last_name": "Varbanov", "status":"rejected" },
       ];*/
       return  (responseJson != null) ? HealthFamilyMember.listFromJson(responseJson) : null;
     }
