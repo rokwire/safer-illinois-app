@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:illinois/service/Analytics.dart';
@@ -31,8 +33,9 @@ class OnboardingAuthLocationPanel extends StatelessWidget with OnboardingPanel {
   OnboardingAuthLocationPanel({this.onboardingContext});
 
   Future<bool> get onboardingCanDisplayAsync async {
+    // Location permisions in iOS should be prompted when "Consent to participate in the Exposure Notification system" is selected.
     LocationServicesStatus status = await LocationServices.instance.status;
-    return (status != LocationServicesStatus.PermissionAllowed);
+    return Platform.isAndroid && (status != LocationServicesStatus.PermissionAllowed);
   }
 
   @override

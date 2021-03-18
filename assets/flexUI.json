@@ -52,9 +52,10 @@
 			"settings.connected.phone.disconnect" : { "phoneLoggedIn": true }
 		},
 		"platform":{
-			"onboarding.bluetooth_auth"     : { "os": "ios" }
+			"onboarding.location_auth"     : { "os": "android" }
 		},
 		"enable" : {
+			"onboarding.bluetooth_auth"     : false
 		}
 	}
 }

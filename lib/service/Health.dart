@@ -500,12 +500,12 @@ class Health with Service implements NotificationsListener {
     }
 
     if (exposureNotification == true) {
-      if (await LocationServices().status == LocationServicesStatus.PermissionNotDetermined) {
-        await LocationServices().requestPermission();
-      }
-
       if (BluetoothServices().status == BluetoothStatus.PermissionNotDetermined) {
         await BluetoothServices().requestStatus();
+      }
+
+      if (await LocationServices().status == LocationServicesStatus.PermissionNotDetermined) {
+        await LocationServices().requestPermission();
       }
     }
 
