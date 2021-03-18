@@ -22,6 +22,10 @@
 		}
 	},
 
+	"constants": {
+		"FamilyMemberTestPrice": null
+	},
+
 	"codes": {
 		"list": [
 			{

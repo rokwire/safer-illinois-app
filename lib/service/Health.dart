@@ -49,6 +49,7 @@ class Health with Service implements NotificationsListener {
   static const String notifyCountyChanged              = "edu.illinois.rokwire.health.county.changed";
   static const String notifyRulesChanged               = "edu.illinois.rokwire.health.rules.changed";
   static const String notifyBuildingAccessRulesChanged = "edu.illinois.rokwire.health.building_access_rules.changed";
+  static const String notifyFamilyMembersChanged       = "edu.illinois.rokwire.health.family_members.changed";
   static const String notifyRefreshing                 = "edu.illinois.rokwire.health.refreshing.updated";
 
   static const String _rulesFileName                   = "rules.json";
@@ -67,6 +68,8 @@ class Health with Service implements NotificationsListener {
   HealthCounty _county;
   HealthRulesSet _rules;
   Map<String, dynamic> _buildingAccessRules;
+
+  List<HealthFamilyMember> _familyMembers;
 
   Directory _appDocumentsDir;
   PublicKey _servicePublicKey;
@@ -121,6 +124,8 @@ class Health with Service implements NotificationsListener {
     _rules = await _loadRulesFromCache();
     _buildingAccessRules = _loadBuildingAccessRulesFromStorage();
 
+    _familyMembers = _loadFamilyMembersFromStorage();
+
     _exposureStatisticsLogTimer = Timer.periodic(Duration(milliseconds: _exposureStatisticsLogInterval), (_) {
       _logExposureStatistics();
     });
@@ -129,6 +134,10 @@ class Health with Service implements NotificationsListener {
       _logExposureStatistics();
     });
 
+  }
+
+  @override
+  void initServiceUI() {
   }
 
   @override
@@ -145,6 +154,8 @@ class Health with Service implements NotificationsListener {
     _county = null;
     _rules = null;
     _buildingAccessRules = null;
+
+    _familyMembers = null;
 
     _exposureStatisticsLogTimer.cancel();
     _exposureStatisticsLogTimer = null;
@@ -190,7 +201,7 @@ class Health with Service implements NotificationsListener {
 
     if (this._isUserAuthenticated) {
       _refreshUserPrivateKey().then((_) {
-        _refresh(_RefreshOptions.fromList([_RefreshOption.user, _RefreshOption.userInterval, _RefreshOption.history]));
+        _refresh(_RefreshOptions.fromList([_RefreshOption.user, _RefreshOption.userInterval, _RefreshOption.history, _RefreshOption.familyMembers]));
       });
     }
     else {
@@ -200,6 +211,7 @@ class Health with Service implements NotificationsListener {
       _clearUserTestMonitorInterval();
       _clearStatus();
       _clearHistory();
+      _clearFamilyMembers();
     }
   }
 
@@ -219,6 +231,10 @@ class Health with Service implements NotificationsListener {
 
   Future<void> refreshUser() async {
     return _refresh(_RefreshOptions.fromList([_RefreshOption.user, _RefreshOption.userPrivateKey]));
+  }
+
+  Future<void> refreshNone() async {
+    return _refresh(_RefreshOptions.none());
   }
 
   Future<void> _refresh(_RefreshOptions options) async {
@@ -251,6 +267,8 @@ class Health with Service implements NotificationsListener {
       options.county ? _refreshCounty() : Future<void>.value(),
       options.rules ? _refreshRules() : Future<void>.value(),
       options.buildingAccessRules ? _refreshBuildingAccessRules() : Future<void>.value(),
+
+      options.familyMembers ? _refreshFamilyMembers() : Future<void>.value(),
     ]);
     
     if (options.history || options.rules || options.userInterval) {
@@ -501,6 +519,7 @@ class Health with Service implements NotificationsListener {
       _clearStatus();
       _clearUserAccountId();
       _clearUserTestMonitorInterval();
+      _clearFamilyMembers();
       return true;
     }
     return false;
@@ -628,8 +647,9 @@ class Health with Service implements NotificationsListener {
       _beginNotificationsCache();
       _clearStatus();
       _clearUserTestMonitorInterval();
+      _clearFamilyMembers();
       await _clearHistory();
-      await _refresh(_RefreshOptions.fromList([_RefreshOption.userInterval, _RefreshOption.history]));
+      await _refresh(_RefreshOptions.fromList([_RefreshOption.userInterval, _RefreshOption.history, _RefreshOption.familyMembers]));
       _endNotificationsCache();
     }
   }
@@ -1601,6 +1621,75 @@ class Health with Service implements NotificationsListener {
     Storage().healthBuildingAccessRules = AppJson.encode(buildingAccessRules);
   }
 
+  // Health Family Members
+
+  List<HealthFamilyMember> get familyMembers {
+    return _familyMembers;
+  }
+
+  HealthFamilyMember get pendingFamilyMember {
+    return HealthFamilyMember.pendingMemberFromList(_familyMembers);
+  }
+
+  Future<void> _refreshFamilyMembers() async {
+    List<HealthFamilyMember> familyMembers = await _loadFamilyMembers();
+    if ((familyMembers != null) && !ListEquality().equals(_familyMembers, familyMembers)) {
+      _saveFamilyMembersToStorage(_familyMembers = familyMembers);
+      _notify(notifyFamilyMembersChanged);
+   }
+  }
+
+  Future<List<HealthFamilyMember>> _loadFamilyMembers() async {
+    if (this._isUserAuthenticated && (Config().healthUrl != null)) {
+      String url = "${Config().healthUrl}/covid19/join-external-approvements";
+      Response response = await Network().get(url, auth: Network.HealthUserAuth);
+      String responseBody = (response?.statusCode == 200) ? response.body : null;
+      List<dynamic> responseJson = (responseBody != null) ? AppJson.decodeList(responseBody) : null;
+      /* TMP: responseJson = [
+        { "id": "1234", "first_name": "Petyo", "last_name": "Stoyanov", "date_created": "2021-02-19T10:27:43.679Z", "group_name": "U of Illinois employee family member", "external_approver_id": "68572", "external_approver_last_name": "Varbanov", "status":"pending" },
+        { "id": "4567", "first_name": "Dobromir", "last_name": "Dobrev", "date_created": "2021-02-19T10:27:43.679Z", "group_name": "U of Illinois employee family member", "external_approver_id": "68572", "external_approver_last_name": "Varbanov", "status":"pending" },
+        { "id": "8901", "first_name": "Mladen", "last_name": "Dryankov", "date_created": "2021-02-19T10:27:43.679Z", "group_name": "U of Illinois employee family member", "external_approver_id": "68572", "external_approver_last_name": "Varbanov", "status":"accepted" },
+        { "id": "2345", "first_name": "Todor", "last_name": "Bachvarov", "date_created": "2021-02-19T10:27:43.679Z", "group_name": "U of Illinois employee family member", "external_approver_id": "68572", "external_approver_last_name": "Varbanov", "status":"rejected" },
+      ];*/
+      return  (responseJson != null) ? HealthFamilyMember.listFromJson(responseJson) : null;
+    }
+    return null;
+  }
+
+  void _clearFamilyMembers() {
+    Storage().healthFamilyMembers = _familyMembers = null;
+  }
+
+  static List<HealthFamilyMember> _loadFamilyMembersFromStorage() {
+    return HealthFamilyMember.listFromJson(AppJson.decodeList(Storage().healthFamilyMembers));
+  }
+
+  static void _saveFamilyMembersToStorage(List<HealthFamilyMember> familyMembers) {
+    Storage().healthFamilyMembers = AppJson.encode(HealthFamilyMember.listToJson(familyMembers));
+  }
+
+  Future<bool> applyFamilyMemberStatus(HealthFamilyMember member, String status) async {
+    if (this._isUserAuthenticated && (Config().healthUrl != null) && (member != null)) {
+      String url = "${Config().healthUrl}/covid19/join-external-approvements/${member?.id}";
+      String post = AppJson.encode({'status': status });
+      Response response = await Network().put(url, body: post, auth: Network.HealthUserAuth);
+      if (response?.statusCode == 200) {
+        _updateFamilyMemberStatus(member.id, status);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  void _updateFamilyMemberStatus(String memberId, String status) {
+    HealthFamilyMember member = HealthFamilyMember.memberFromList(_familyMembers, memberId);
+    if ((member != null) && (member.status != status)) {
+      member.status = status;
+      _saveFamilyMembersToStorage(_familyMembers);
+      _notify(notifyFamilyMembersChanged);
+    }
+  }
+
   // Network API: HealthTestType
 
   Future<List<HealthTestType>> loadTestTypes({List<String> typeIds})async{
@@ -1751,6 +1840,10 @@ class _RefreshOptions {
     return _RefreshOptions.fromList(_RefreshOption.values);
   }
 
+  factory _RefreshOptions.none() {
+    return _RefreshOptions();
+  }
+
   bool get isEmpty { return options.isEmpty; }
   bool get isNotEmpty { return options.isNotEmpty; }
 
@@ -1764,6 +1857,8 @@ class _RefreshOptions {
   bool get county { return options.contains(_RefreshOption.county); }
   bool get rules { return options.contains(_RefreshOption.rules); }
   bool get buildingAccessRules { return options.contains(_RefreshOption.buildingAccessRules); }
+
+  bool get familyMembers { return options.contains(_RefreshOption.familyMembers); }
 
   _RefreshOptions difference(_RefreshOptions other) {
     return _RefreshOptions.fromSet(options?.difference(other?.options));
@@ -1781,4 +1876,6 @@ enum _RefreshOption {
   county,
   rules,
   buildingAccessRules,
+
+  familyMembers
 }
