@@ -18,6 +18,9 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:illinois/model/Health.dart';
+import 'package:illinois/service/AppLivecycle.dart';
+import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/DeepLink.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/Health.dart';
@@ -30,6 +33,7 @@ import 'package:illinois/ui/health/HealthHistoryPanel.dart';
 import 'package:illinois/ui/health/HealthHomePanel.dart';
 import 'package:illinois/ui/health/HealthStatusPanel.dart';
 import 'package:illinois/ui/health/HealthStatusUpdatePanel.dart';
+import 'package:illinois/ui/settings/SettingsPendingFamilyMemberPanel.dart';
 import 'package:illinois/ui/widgets/PopupDialog.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/service/Styles.dart';
@@ -50,20 +54,28 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
 
   static const String HEALTH_STATUS_URI = 'edu.illinois.covid://covid.illinois.edu/health/status';
 
+  HealthFamilyMember _pendingFamilyMember;
+  Set<String> _promptedPendingFamilyMembers = Set<String>();
+  DateTime _pausedDateTime;
+
   @override
   void initState() {
     super.initState();
     NotificationService().subscribe(this, [
+      AppLivecycle.notifyStateChanged,
       FirebaseMessaging.notifyPopupMessage,
       FirebaseMessaging.notifyCovid19Notification,
       Localization.notifyStringsUpdated,
       Organizations.notifyOrganizationChanged,
       Organizations.notifyEnvironmentChanged,
       Health.notifyStatusUpdated,
+      Health.notifyFamilyMembersChanged,
       DeepLink.notifyUri,
     ]);
 
     Services().initUI();
+
+    Health().refreshNone().then((_) => _checkForPendingFamilyMembers());
   }
 
   @override
@@ -76,7 +88,10 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
 
   @override
   void onNotification(String name, dynamic param) {
-    if (name == FirebaseMessaging.notifyPopupMessage) {
+    if (name == AppLivecycle.notifyStateChanged) {
+      _onAppLivecycleStateChanged(param); 
+    }
+    else if (name == FirebaseMessaging.notifyPopupMessage) {
       _onFirebasePopupMessage(param);
     }
     else if (name == Localization.notifyStringsUpdated) {
@@ -91,11 +106,29 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
     else if (name == Health.notifyStatusUpdated) {
       _presentHealthStatusUpdate();
     }
+    else if (name == Health.notifyFamilyMembersChanged) {
+      _checkForPendingFamilyMembers();
+    }
     else if (name == FirebaseMessaging.notifyCovid19Notification) {
       _onFirebaseCovid19Notification(param);
     }
     else if(name == DeepLink.notifyUri) {
       _onDeeplinkUri(param);
+    }
+  }
+
+  void _onAppLivecycleStateChanged(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      _pausedDateTime = DateTime.now();
+    }
+    else if (state == AppLifecycleState.resumed) {
+      if (_pausedDateTime != null) {
+        Duration pausedDuration = DateTime.now().difference(_pausedDateTime);
+        if (Config().refreshTimeout < pausedDuration.inSeconds) {
+          _promptedPendingFamilyMembers.clear();
+          Health().refreshNone().then((_) => _checkForPendingFamilyMembers());
+        }
+      }
     }
   }
 
@@ -226,6 +259,25 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
     if ((oldStatusCode != null) && (newStatusCode != null) && (oldStatusCode != newStatusCode)) {
       Timer(Duration(milliseconds: 100), () {
         Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthStatusUpdatePanel(status: Health().status, previousStatusCode: oldStatusCode,)));
+      });
+    }
+  }
+
+  void _checkForPendingFamilyMembers() {
+    _processPendingFamilyMember(Health().pendingFamilyMember);
+  }
+
+  void _processPendingFamilyMember(HealthFamilyMember pendingFamilyMember) {
+    if ((_pendingFamilyMember == null) && (pendingFamilyMember != null) && !_promptedPendingFamilyMembers.contains(pendingFamilyMember.id)) {
+      _pendingFamilyMember = pendingFamilyMember;
+      _promptedPendingFamilyMembers.add(pendingFamilyMember.id);
+      Navigator.push(context, PageRouteBuilder(opaque: false, pageBuilder: (context, _, __) => SettingsPendingFamilyMemberPanel(familyMember: _pendingFamilyMember))).then((_) {
+        _pendingFamilyMember = null;
+        
+        HealthFamilyMember nextPendingFamilyMember = Health().pendingFamilyMember;
+        if ((nextPendingFamilyMember != null) && (nextPendingFamilyMember != pendingFamilyMember)) {
+          _processPendingFamilyMember(nextPendingFamilyMember);
+        }
       });
     }
   }

@@ -2197,6 +2197,170 @@ class HealthGuidelineItem {
 }
 
 ///////////////////////////////
+// HealthFamilyMember
+
+class HealthFamilyMember {
+  final String        id;
+  final DateTime      dateCreated;
+  final String        groupName;
+        String        status;
+  final String        applicantFirstName;
+  final String        applicantLastName;
+  final String        applicantEmail;
+  final String        applicantPhone;
+  final String        approverId;
+  final String        approverLastName;
+
+  static const String StatusAccepted = 'accepted';
+  static const String StatusRevoked  = 'rejected';
+  static const String StatusPending  = 'pending';
+
+  HealthFamilyMember({this.id, this.dateCreated, this.groupName, this.status,
+    this.applicantFirstName, this.applicantLastName, this.applicantEmail, this.applicantPhone,
+    this.approverId, this.approverLastName});
+
+  factory HealthFamilyMember.fromJson(Map<String, dynamic> json){
+    return (json != null) ? HealthFamilyMember(
+      id: json['id'],
+      dateCreated: healthDateTimeFromString(json['date_created']),
+      groupName: json['group_name'],
+      status: json['status'],
+      applicantFirstName: json['first_name'],
+      applicantLastName: json['last_name'],
+      applicantEmail: json['email'],
+      applicantPhone: json['phone'],
+      approverId: json['external_approver_id'],
+      approverLastName: json['external_approver_last_name'],
+    ) : null;
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'date_created': healthDateTimeToString(dateCreated),
+      'group_name': groupName,
+      'status': status,
+      'first_name': applicantFirstName,
+      'last_name': applicantLastName,
+      'email': applicantEmail,
+      'phone': applicantPhone,
+      'external_approver_id': approverId,
+      'external_approver_last_name': approverLastName,
+    };
+  }
+
+  bool operator ==(o) =>
+    (o is HealthFamilyMember) &&
+      (o.id == id) &&
+      (o.dateCreated == dateCreated) &&
+      (o.groupName == groupName) &&
+      (o.status == status) &&
+      (o.applicantFirstName == applicantFirstName) &&
+      (o.applicantLastName == applicantLastName) &&
+      (o.applicantEmail == applicantEmail) &&
+      (o.applicantPhone == applicantPhone) &&
+      (o.approverId == approverId) &&
+      (o.approverLastName == approverLastName);
+
+  int get hashCode =>
+    (id?.hashCode ?? 0) ^
+    (dateCreated?.hashCode ?? 0) ^
+    (groupName?.hashCode ?? 0) ^
+    (status?.hashCode ?? 0) ^
+    (applicantFirstName?.hashCode ?? 0) ^
+    (applicantLastName?.hashCode ?? 0) ^
+    (applicantEmail?.hashCode ?? 0) ^
+    (applicantPhone?.hashCode ?? 0) ^
+    (approverId?.hashCode ?? 0) ^
+    (approverLastName?.hashCode ?? 0);
+
+  String get applicantFullName {
+    if (AppString.isStringNotEmpty(applicantFirstName)) {
+      if (AppString.isStringNotEmpty(applicantLastName)) {
+        return "$applicantFirstName $applicantLastName";
+      }
+      else {
+        return "$applicantFirstName";
+      }
+    }
+    else {
+      return "$applicantLastName";
+    }
+  }
+
+  String get applicantEmailOrPhone {
+    if (AppString.isStringNotEmpty(applicantEmail)) {
+      return applicantEmail;
+    }
+    else if (AppString.isStringNotEmpty(applicantPhone)) {
+      return applicantPhone;
+    }
+    else {
+      return null;
+    }
+  }
+
+  bool get isPending {
+    return status == StatusPending;
+  }
+
+  bool get isAcepted {
+    return status == StatusAccepted;
+  }
+
+  bool get isRevoked {
+    return status == StatusRevoked;
+  }
+
+  static List<HealthFamilyMember> listFromJson(List<dynamic> json) {
+    List<HealthFamilyMember> values;
+    if (json != null) {
+      values = [];
+      for (dynamic entry in json) {
+          HealthFamilyMember value;
+          try { value = HealthFamilyMember.fromJson((entry as Map)?.cast<String, dynamic>()); }
+          catch(e) { print(e.toString()); }
+          values.add(value);
+      }
+    }
+    return values;
+  }
+
+  static List<dynamic> listToJson(List<HealthFamilyMember> values) {
+    List<dynamic> json;
+    if (values != null) {
+      json = [];
+      for (HealthFamilyMember value in values) {
+        json.add(value?.toJson());
+      }
+    }
+    return json;
+  }
+
+  static HealthFamilyMember pendingMemberFromList(List<HealthFamilyMember> values) {
+    if (values != null) {
+      for (HealthFamilyMember member in values) {
+        if (member.isPending) {
+          return member;
+        }
+      }
+    }
+    return null;
+  }
+
+  static HealthFamilyMember memberFromList(List<HealthFamilyMember> values, String memberId) {
+    if (values != null) {
+      for (HealthFamilyMember member in values) {
+        if (member.id == memberId) {
+          return member;
+        }
+      }
+    }
+    return null;
+  }
+}
+
+///////////////////////////////
 // HealthSymptom
 
 class HealthSymptom {
@@ -2373,14 +2537,17 @@ class HealthRulesSet {
   final HealthCodesSet codes;
   final Map<String, _HealthRuleStatus> statuses;
   final Map<String, _HealthRuleInterval> intervals;
+  final Map<String, dynamic> constants;
   final Map<String, dynamic> strings;
 
 
   static const String UserTestMonitorInterval = 'UserTestMonitorInterval';
+  static const String FamilyMemberTestPrice = 'FamilyMemberTestPrice';
 
-  HealthRulesSet({this.tests, this.symptoms, this.contactTrace, this.actions, this.defaults, HealthCodesSet codes, this.statuses, this.intervals, Map<String, dynamic> strings}) :
+  HealthRulesSet({this.tests, this.symptoms, this.contactTrace, this.actions, this.defaults, HealthCodesSet codes, this.statuses, this.intervals, Map<String, dynamic> constants, Map<String, dynamic> strings}) :
     this.codes = codes ?? HealthCodesSet(),
-    this.strings = strings ?? Map<String, dynamic>();
+    this.strings = strings ?? Map<String, dynamic>(),
+    this.constants = constants ?? Map<String, dynamic>();
 
   factory HealthRulesSet.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthRulesSet(
@@ -2420,8 +2587,12 @@ class HealthRulesSet {
     MapEquality().hash(intervals) ^
     DeepCollectionEquality().hash(strings);
 
-  _HealthRuleInterval getInterval(String name) {
+  _HealthRuleInterval _getInterval(String name) {
     return (intervals != null) ? intervals[name] : null; 
+  }
+
+  String get familyMemberTestPrice {
+    return localeString(constants[FamilyMemberTestPrice]);
   }
 
   String localeString(dynamic entry) {
@@ -3642,7 +3813,7 @@ class HealthRuleIntervalReference extends _HealthRuleInterval {
 
   _HealthRuleInterval _referenceInterval({ HealthRulesSet rules, Map<String, dynamic> params }) {
     _HealthRuleInterval referenceParamInterval = (params != null) ? _HealthRuleInterval.fromJson(params[_reference]) : null;
-    return (referenceParamInterval != null) ? referenceParamInterval : rules?.getInterval(_reference);
+    return (referenceParamInterval != null) ? referenceParamInterval : rules?._getInterval(_reference);
   }
 
   @override

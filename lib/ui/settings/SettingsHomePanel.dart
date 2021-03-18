@@ -23,6 +23,7 @@ import 'package:illinois/service/Connectivity.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginPhoneVerifyPanel.dart';
+import 'package:illinois/ui/settings/SettingsFamilyMembersPanel.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
@@ -1045,6 +1046,14 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
           label: Localization().getStringEx("panel.settings.home.account.personal_info.title", "Personal Info"),
           onTap: _onPersonalInfoClicked));
       }
+      else if (code == 'family_members') {
+        contentList.add(RibbonButton(
+          height: null,
+          border: Border.all(color: Styles().colors.surfaceAccent, width: 0),
+          borderRadius: borderRadius,
+          label: Localization().getStringEx("panel.settings.home.account.family_members.title", "Family Members"),
+          onTap: _onFamilyMembersClicked));
+      }
     }
 
     return _OptionsSection(
@@ -1058,6 +1067,17 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
       Analytics.instance.logSelect(target: "Personal Info");
       if (Auth().isLoggedIn) {
         Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsPersonalInfoPanel()));
+      }
+    } else {
+      AppAlert.showOfflineMessage(context);
+    }
+  }
+
+  void _onFamilyMembersClicked() {
+    if (Connectivity().isNotOffline) {
+      Analytics.instance.logSelect(target: "Family Members");
+      if (Auth().isLoggedIn) {
+        Navigator.push(context, CupertinoPageRoute(builder: (context) => SettingsFamilyMembersPanel()));
       }
     } else {
       AppAlert.showOfflineMessage(context);

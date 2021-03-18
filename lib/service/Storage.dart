@@ -498,6 +498,15 @@ class Storage with Service {
     setString(_healthBuildingAccessRulesKey, value);
   }
 
+  static const String _healthFamilyMembersKey = 'health_family_members';
+  
+  String get healthFamilyMembers {
+    return getString(_healthFamilyMembersKey);
+  }
+
+  set healthFamilyMembers(String value) {
+    setString(_healthFamilyMembersKey, value);
+  }
   /////////////
   // Exposure
 
