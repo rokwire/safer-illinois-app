@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+- Added family members support [#578](https://github.com/rokwire/safer-illinois-app/issues/578)
+
 ### Changed
 - Apply WWCL.Disclaimers in Safer app [#562](https://github.com/rokwire/safer-illinois-app/issues/562)
 - Maine health history change [#563](https://github.com/rokwire/safer-illinois-app/issues/563)
