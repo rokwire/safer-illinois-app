@@ -43,6 +43,7 @@ class _HealthTestLocationsPanelState extends State<HealthTestLocationsPanel>{
   ProviderDropDownItem _selectedProviderItem;
   
   List<HealthServiceLocation> _locations;
+  Core.LocationData _currentLocation;
 
   int _loadingCount = 0;
   String _countyError, _providersError, _locationsError;
@@ -316,34 +317,40 @@ class _HealthTestLocationsPanelState extends State<HealthTestLocationsPanel>{
   Future<void> _sortLocations(List<HealthServiceLocation> locations) async {
     
     if ((locations != null) && (1 < locations.length)) {
-      LocationServicesStatus status = await LocationServices.instance.status;
-      if (status == LocationServicesStatus.PermissionNotDetermined) {
-        status = await LocationServices.instance.requestPermission();
+      
+      // Ensure current location, if available
+      if (_currentLocation == null) {
+        LocationServicesStatus status = await LocationServices.instance.status;
+        if (status == LocationServicesStatus.PermissionNotDetermined) {
+          status = await LocationServices.instance.requestPermission();
+        }
+        if (status == LocationServicesStatus.PermissionAllowed) {
+          _currentLocation = await LocationServices.instance.location;
+        }
       }
-      if (status == LocationServicesStatus.PermissionAllowed) {
-        Core.LocationData locationData = await LocationServices.instance.location;
-        if(locationData != null) {
-          locations.sort((fistLocation, secondLocation) {
-            if ((fistLocation.latitude != null) && (fistLocation.longitude != null)) {
-              if ((secondLocation.latitude != null) && (secondLocation.longitude != null)) {
-                double firstDistance = AppLocation.distance(fistLocation.latitude, fistLocation.longitude, locationData.latitude, locationData.longitude);
-                double secondDistance = AppLocation.distance(secondLocation.latitude, secondLocation.longitude, locationData.latitude, locationData.longitude);
-                return firstDistance.compareTo(secondDistance);
-              }
-              else {
-                return 1; // (fistLocation > secondLocation)
-              }
+
+      // Sort by current location, if available
+      if (_currentLocation != null) {
+        locations.sort((fistLocation, secondLocation) {
+          if ((fistLocation.latitude != null) && (fistLocation.longitude != null)) {
+            if ((secondLocation.latitude != null) && (secondLocation.longitude != null)) {
+              double firstDistance = AppLocation.distance(fistLocation.latitude, fistLocation.longitude, _currentLocation.latitude, _currentLocation.longitude);
+              double secondDistance = AppLocation.distance(secondLocation.latitude, secondLocation.longitude, _currentLocation.latitude, _currentLocation.longitude);
+              return firstDistance.compareTo(secondDistance);
             }
             else {
-              if ((secondLocation.latitude != null) && (secondLocation.longitude != null)) {
-                return -1; // (fistLocation < secondLocation)
-              }
-              else {
-                return 0; // fistLocation == secondLocation == null
-              }
+              return 1; // (fistLocation > secondLocation)
             }
-          });
-        }
+          }
+          else {
+            if ((secondLocation.latitude != null) && (secondLocation.longitude != null)) {
+              return -1; // (fistLocation < secondLocation)
+            }
+            else {
+              return 0; // fistLocation == secondLocation == null
+            }
+          }
+        });
       }
     }
   }
