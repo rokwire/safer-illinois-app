@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 - Undo changing permission request buttons to "Continue" [#560](https://github.com/rokwire/safer-illinois-app/issues/560).
+- Unload web page when the app is in background [#580](https://github.com/rokwire/safer-illinois-app/issues/580).
+- Cleaned up Covid19TestLocationsPanel.
 
 ## [2.9.21] - 2021-03-16
 ### Changed

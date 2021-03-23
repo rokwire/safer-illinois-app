@@ -35,52 +35,53 @@ class Covid19TestLocationsPanel extends StatefulWidget {
 
 class _Covid19TestLocationsPanelState extends State<Covid19TestLocationsPanel>{
 
-  LinkedHashMap<String,HealthCounty> _counties;
+  LinkedHashMap<String, HealthCounty> _counties;
+  String _selectedCountyId;
+
   List<ProviderDropDownItem> _providerItems;
   ProviderDropDownItem _selectedProviderItem;
-  String _initialProviderId;
-
-
-  Core.LocationData _locationData;
-  LocationServicesStatus _locationServicesStatus;
-
-  bool _isLoading = false;
+  
   List<HealthServiceLocation> _locations;
+
+  int _loadingCount = 0;
+  String _countyError, _providersError, _locationsError;
 
   @override
   void initState() {
-    _initialProviderId = Storage().lastHealthProvider?.id;
-    _loadLocationsServicesData();
+    
+    _selectedCountyId = Health().currentCountyId;
+    
     _loadCounties();
-
-    if (Health().currentCountyId != null) {
-      _loadProviders();
-    } else {
-      _loadLocations(); //load all by default
+    
+    if (_selectedCountyId != null) {
+      _loadProviders(countyId: _selectedCountyId);
     }
 
     super.initState();
   }
 
-  _loadLocations(){
-  _isLoading = true;
-  Health().loadHealthServiceLocations(countyId: Health().currentCountyId, providerId: _selectedProviderItem?.providerId).then((List<HealthServiceLocation> locations){
-    setState(() {
-      try {
-        _locations = locations;
-      } catch(e){
-        print(e);
-      }
-      _isLoading = false;
-    });
-  });
-
-  }
-
   @override
   Widget build(BuildContext context) {
-    int itemsLength = _locations?.length ?? 0;
-    itemsLength+= 2; // for dropdowns
+    Widget contentWidget;
+    
+    if (0 < _loadingCount) {
+      contentWidget = _buildLoading();
+    }
+    else if (_errorText != null) {
+      contentWidget = _buildStatus(_errorText);
+    }
+    else if (AppCollection.isCollectionEmpty(_locations)) {
+      contentWidget = _buildStatus(Localization().getStringEx("panel.covid19_test_locations.no_locations.text", "No Locations found for selected provider and county") );
+    }
+    else {
+      contentWidget = ListView.builder(
+        itemCount: _locations.length,
+        itemBuilder: (BuildContext context, int index) {
+          return _TestLocation(testLocation: _locations[index], /*distance: distance,*/);
+        },
+      );
+    }
+
     return Scaffold(
       backgroundColor: Styles().colors.background,
       appBar: SimpleHeaderBarWithBack(
@@ -89,122 +90,96 @@ class _Covid19TestLocationsPanelState extends State<Covid19TestLocationsPanel>{
           style: TextStyle(color: Colors.white, fontSize: 16, fontFamily: Styles().fontFamilies.extraBold),
         ),
       ),
-      body: _isLoading
-        ? Center(child: CircularProgressIndicator(),)
-        : Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child:
-              itemsLength>0? ListView.builder(
-                itemCount: itemsLength,
-                itemBuilder: (BuildContext context, int index) {
-                  if(index == 0)
-                    return _buildCountyField();
-                  if(index == 1)
-                    return _buildProviderField();
-
-                  index -= 2; //for dropdowns
-                  HealthServiceLocation location = (_locations?.isNotEmpty ?? false)? _locations[index] : null;
-                  //double distance = _locationData!=null && location!=null? AppLocation.distance(location.latitude, location.longitude, _locationData.latitude, _locationData.longitude) : 0;
-                  return location!=null? _TestLocation(testLocation: location, /*distance: distance,*/): Container();
-                },
-              ) :Container(),
+      body: SafeArea(child:
+        Padding(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32), child:
+          Column(children: [
+            _buildCountyField(),
+            Container(height: 32),
+            _buildProviderField(),
+            Container(height: 32),
+            Expanded(child: contentWidget),
+          ],),
         ),
+      ),
     );
   }
 
-  void _sortLocations() async{
-    _locationData = _userLocationEnabled ? await LocationServices.instance.location : null;
-    if((_locations?.isNotEmpty?? false) && _locationData!=null){
-      _locations.sort((fistLocation, secondLocation) {
-          double firstDistance = AppLocation.distance(fistLocation.latitude, fistLocation.longitude, _locationData.latitude, _locationData.longitude);
-          double secondDistance = AppLocation.distance(secondLocation.latitude, secondLocation.longitude, _locationData.latitude, _locationData.longitude);
-          return  (firstDistance - secondDistance)?.toInt();
-      });
-      setState(() {});
-    }
+  Widget _buildLoading() {
+    return Padding(padding: const EdgeInsets.symmetric(horizontal: 32), child:
+      Column(children: [
+        Expanded(flex: 1, child: Container()),
+        Center(child: CircularProgressIndicator(),),
+        Expanded(flex: 3, child: Container()),
+      ],),);
   }
 
-  void _loadLocationsServicesData(){
-
-    LocationServices.instance.status.then((LocationServicesStatus locationServicesStatus) {
-      _locationServicesStatus = locationServicesStatus;
-
-      if (_locationServicesStatus == LocationServicesStatus.PermissionNotDetermined) {
-        LocationServices.instance.requestPermission().then((LocationServicesStatus locationServicesStatus) {
-          _locationServicesStatus = locationServicesStatus;
-          _sortLocations();
-        });
-      } else {
-        _sortLocations();
-      }
-    });
+  Widget _buildStatus(String text) {
+    return Padding(padding: const EdgeInsets.symmetric(horizontal: 32), child:
+      Column(children: [
+        Expanded(flex: 1, child: Container()),
+        Text(text, textAlign: TextAlign.center, style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 20, color: Styles().colors.fillColorPrimary,)),
+        Expanded(flex: 3, child: Container()),
+      ],),);
   }
 
-  Widget _buildCountyField(){
-    return Semantics(label: "County dropdown", container: true, child:
-    Container(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Container(height: 8,),
-          _dropDownMenu("Select County…",_counties!=null? _counties[Health().currentCountyId]: null, _counties?.values,
-              onChanged: (HealthCounty selectedValue) {
-                Health().switchCounty(selectedValue.id);
-                //_selectedCountyId = Storage().currentHealthCountyId = selectedValue.id;
-                _loadProviders();
-              },
-              getLabel: (HealthCounty county){
-                return "${county?.name} County";
-              }
-          ),
-          Container(height: 26,)
-        ],),
-    ));
-  }
-
-  Widget _buildProviderField(){
-    return Semantics(label: "Provider dropdown", container: true, child:
-    Container(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Container(height: 8,),
+  Widget _buildCountyField() {
+    HealthCounty selectedCounty = (_counties != null) ? _counties[_selectedCountyId] : null;
+    return Semantics(label: Localization().getStringEx("panel.covid19_test_locations.county_dropdown.text", "County dropdown") , container: true, child:
+      Container(
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
           Container(
             decoration: BoxDecoration(
-                border: Border.all(
-                    color: Styles().colors.surfaceAccent,
-                    width: 1),
-                borderRadius:
-                BorderRadius.all(Radius.circular(4))),
-            child: Padding(
-              padding: EdgeInsets.only(left: 12, right: 16),
+                border: Border.all(color: Styles().colors.surfaceAccent, width: 1),
+                borderRadius: BorderRadius.all(Radius.circular(4))),
+            child: Padding(padding: EdgeInsets.only(left: 12, right: 16),
               child: DropdownButtonHideUnderline(
                   child: DropdownButton(
-                    icon: Image.asset(
-                        'images/icon-down-orange.png', excludeFromSemantics: true,),
+                    icon: Image.asset('images/icon-down-orange.png', excludeFromSemantics: true,),
                     isExpanded: true,
-                    style: TextStyle(
-                        color: Styles().colors.mediumGray,
-                        fontSize: 16,
-                        fontFamily:
-                        Styles().fontFamilies.regular),
-                    hint: Text(_selectedProviderItem == null? Localization().getStringEx("panel.health.covid19.add_test.label.provider.empty_hint","Select a provider") :
-                      _selectedProviderItem.title),
-                    items: _buildProviderDropDownItems(),
-                    onChanged: (ProviderDropDownItem value)=>setState((){
-                      Analytics.instance.logSelect(target: "Selected provider: "+value?.title);
-                      _selectedProviderItem = value;
-                      if(value!= null && ProviderDropDownItemType.provider == value.type ){
-                        Storage().lastHealthProvider = value.provider;
-                      }
-                      _loadLocations();
-                    }),
-                  )),
+                    style: TextStyle(color: Styles().colors.mediumGray, fontSize: 16, fontFamily: Styles().fontFamilies.regular),
+                    hint: Text(selectedCounty == null ? Localization().getStringEx("panel.covid19_test_locations.select_county.text", "Select a county") : selectedCounty.name),
+                    items: (_loadingCount == 0) ? _buildCountyDropDownItems() : null,
+                    onChanged: (_loadingCount == 0) ? _switchCounty : null,
+                  ),
+              ),
             ),
           ),
-          Container(height: 26,)
         ],),
-    ));
+      ));
+  }
+
+  List<DropdownMenuItem<HealthCounty>> _buildCountyDropDownItems() {
+    int itemsCount = _counties?.values?.length ?? 0;
+    if (itemsCount == 0) {
+      return null;
+    }
+    return _counties.values.map((HealthCounty item) {
+      return DropdownMenuItem<HealthCounty>(value: item, child: Text(item.name));
+    }).toList();
+  }
+
+  Widget _buildProviderField() {
+    return Semantics(label: Localization().getStringEx("panel.covid19_test_locations.provider_dropdown.text", "Provider dropdown"), container: true, child:
+      Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+        Container(
+          decoration: BoxDecoration(
+              border: Border.all(color: Styles().colors.surfaceAccent, width: 1),
+              borderRadius: BorderRadius.all(Radius.circular(4))),
+          child: Padding(
+            padding: EdgeInsets.only(left: 12, right: 16),
+            child: DropdownButtonHideUnderline(
+                child: DropdownButton(
+                  icon: Image.asset('images/icon-down-orange.png', excludeFromSemantics: true,),
+                  isExpanded: true,
+                  style: TextStyle(color: Styles().colors.mediumGray, fontSize: 16, fontFamily: Styles().fontFamilies.regular),
+                  hint: Text(_selectedProviderItem == null ? Localization().getStringEx("panel.covid19_test_locations.select_provider.text", "Select a provider") : _selectedProviderItem.title),
+                  items: _buildProviderDropDownItems(),
+                  onChanged: (_loadingCount == 0) ? _switchProvider : null,
+                )),
+          ),
+        ),
+      ],),
+    );
   }
 
   List<DropdownMenuItem<ProviderDropDownItem>> _buildProviderDropDownItems() {
@@ -224,106 +199,184 @@ class _Covid19TestLocationsPanelState extends State<Covid19TestLocationsPanel>{
     return items;
   }
 
-
-  Widget _dropDownMenu(String hint, dynamic selectedValue, Iterable<dynamic> values ,{Function onChanged, Function getLabel, bool enabled=true}){
-    return Container(
-      decoration: BoxDecoration(
-          border: Border.all(
-              color: Styles().colors.surfaceAccent,
-              width: 1),
-          borderRadius:
-          BorderRadius.all(Radius.circular(4))),
-      child: Padding(
-        padding:
-        EdgeInsets.only(left: 12, right: 16),
-        child: DropdownButtonHideUnderline(
-            child: DropdownButton(
-
-              icon: enabled? Image.asset(
-                  'images/icon-down-orange.png', excludeFromSemantics: true,) : Container(),
-              isExpanded: true,
-              style: TextStyle(
-                  color: Styles().colors.mediumGray,
-                  fontSize: 16,
-                  fontFamily:
-                  Styles().fontFamilies.regular),
-              hint: Text(selectedValue!=null ? _getLabel(selectedValue, getLabel) : hint),
-              items: enabled?_buildDropDownItems(values, getLabel): null,
-              onChanged: (value)=>setState(()=>onChanged(value)),
-            )),
-      ),
-    );
-  }
-
-  List<DropdownMenuItem<dynamic>> _buildDropDownItems(Iterable<dynamic> items, Function getLabel) {
-    int itemsCount = items?.length ?? 0;
-    if (itemsCount == 0) {
-      return null;
-    }
-    return items.map((dynamic item) {
-      return DropdownMenuItem<dynamic>(
-        value: item,
-        child: Text(
-            _getLabel(item, getLabel)
-        ),
-      );
-    }).toList();
-  }
-
-  String _getLabel(dynamic item ,Function getLabel){
-    return getLabel!=null?
-    getLabel(item) : item?.toString()??"";
-  }
-
-  //loading
-  void _loadCounties(){
-    setState(()=> _isLoading = true);
+  void _loadCounties() {
+    setState(() {
+      _loadingCount++;
+    });
     Health().loadCounties().then((List<HealthCounty> counties) {
-      if (counties != null) {
-        _counties = LinkedHashMap<String, HealthCounty>();
-        for (HealthCounty county in counties) {
-          _counties[county.id] = county;
+      if (mounted) {
+        String countyError;
+        LinkedHashMap<String, HealthCounty> countiesMap;
+        String selectedCountyId = _selectedCountyId;
+
+        if (counties != null) {
+          countiesMap = LinkedHashMap<String, HealthCounty>();
+          for (HealthCounty county in counties) {
+            countiesMap[county.id] = county;
+          }
+          if (selectedCountyId == null) {
+            HealthCounty defaultCounty = HealthCounty.defaultCounty(counties);
+            if ((defaultCounty == null) && (0 < _counties.length)) {
+              defaultCounty = counties.first;
+            }
+            selectedCountyId = defaultCounty?.id;
+          }
+        }
+        else {
+          countyError = Localization().getStringEx("panel.covid19_test_locations.error.counties.text", "Failed to load counties");
+        }
+
+        bool loadProviders = (_selectedCountyId == null);
+
+        setState(() {
+          _counties = countiesMap;
+          _selectedCountyId = selectedCountyId;
+          _countyError = countyError;
+          _loadingCount--;
+        });
+
+        if (loadProviders) {
+          _loadProviders(countyId: _selectedCountyId);
         }
       }
-      setState(()=> _isLoading = false);
     });
   }
 
-  void _loadProviders(){
-    setState(()=> _isLoading = true);
-    Health().loadHealthServiceProviders().then((List<HealthServiceProvider> providers){
-        _isLoading = false;
-        _providerItems = List<ProviderDropDownItem>();
-        ProviderDropDownItem allProvidersItem = ProviderDropDownItem(type: ProviderDropDownItemType.all, provider: null);
-        _providerItems.add(allProvidersItem);
-        if(_selectedProviderItem==null && _initialProviderId == null){
-          //If there was no previously selected provider select All by default
-          _selectedProviderItem = allProvidersItem;
+  void _loadProviders({String countyId}) {
+    setState(() {
+      _loadingCount++;
+    });
+
+    Health().loadHealthServiceProviders(countyId: countyId).then((List<HealthServiceProvider> providers){
+      if (mounted) {
+        List<ProviderDropDownItem> providerItems;
+        ProviderDropDownItem selectedProviderItem;
+        String providersError;
+        
+        if (providers != null) {
+
+          // init providers list
+          providerItems = List<ProviderDropDownItem>();
+          providerItems.add(ProviderDropDownItem(type: ProviderDropDownItemType.all));
+          for (HealthServiceProvider provider in providers) {
+            providerItems.add(ProviderDropDownItem(provider: provider));
+          }
+
+          // init selected provider
+          if ((_selectedProviderItem != null) && providerItems.contains(_selectedProviderItem)) {
+            selectedProviderItem = _selectedProviderItem;
+          }
+          if (selectedProviderItem == null) {
+            HealthServiceProvider lastProvicer = Storage().lastHealthProvider;
+            if ((lastProvicer != null) && providerItems.contains(ProviderDropDownItem(provider: lastProvicer))) {
+              selectedProviderItem = ProviderDropDownItem(provider: lastProvicer);
+            }
+          }
+          if (selectedProviderItem == null) {
+            selectedProviderItem = ProviderDropDownItem(type: ProviderDropDownItemType.all);
+          }
         }
-        if(providers?.isNotEmpty?? false) {
-          _providerItems.addAll(providers?.map((HealthServiceProvider provider) {
-            ProviderDropDownItem item = ProviderDropDownItem(type: ProviderDropDownItemType.provider, provider: provider);
-            //Initial selection
-            if (_selectedProviderItem == null && _initialProviderId != null) {
-              // If we don't have selection but have previously selected providerId
-              if (provider?.id == _initialProviderId) {
-                _selectedProviderItem = item;
+        else {
+          providersError = Localization().getStringEx("panel.covid19_test_locations.error.providers.text", "Failed to load providers");
+        }
+
+        setState((){
+          _providerItems = providerItems;
+          _selectedProviderItem = selectedProviderItem;
+          _providersError = providersError;
+          _loadingCount--;
+        });
+        
+        _loadLocations(countyId: countyId, providerId: _selectedProviderItem?.provider?.id);
+      }
+    });
+  }
+
+  void _loadLocations({String countyId, String providerId}) {
+    setState(() {
+      _loadingCount++;
+    });
+
+    Health().loadHealthServiceLocations(countyId: countyId, providerId: providerId).then((List<HealthServiceLocation> locations) {
+      if (mounted) {
+        _sortLocations(locations).then((_) {
+          if (mounted) {
+            setState(() {
+              _locations = locations;
+              _locationsError = (locations == null) ? "Failed to load locations" : null;
+              _loadingCount--;
+            });
+          }
+        });
+      }
+    });
+  }
+
+
+  Future<void> _sortLocations(List<HealthServiceLocation> locations) async {
+    
+    if ((locations != null) && (1 < locations.length)) {
+      LocationServicesStatus status = await LocationServices.instance.status;
+      if (status == LocationServicesStatus.PermissionNotDetermined) {
+        status = await LocationServices.instance.requestPermission();
+      }
+      if (status == LocationServicesStatus.PermissionAllowed) {
+        Core.LocationData locationData = await LocationServices.instance.location;
+        if(locationData != null) {
+          locations.sort((fistLocation, secondLocation) {
+            if ((fistLocation.latitude != null) && (fistLocation.longitude != null)) {
+              if ((secondLocation.latitude != null) && (secondLocation.longitude != null)) {
+                double firstDistance = AppLocation.distance(fistLocation.latitude, fistLocation.longitude, locationData.latitude, locationData.longitude);
+                double secondDistance = AppLocation.distance(secondLocation.latitude, secondLocation.longitude, locationData.latitude, locationData.longitude);
+                return firstDistance.compareTo(secondDistance);
+              }
+              else {
+                return 1; // (fistLocation > secondLocation)
               }
             }
-            return item;
-          })?.toList());
+            else {
+              if ((secondLocation.latitude != null) && (secondLocation.longitude != null)) {
+                return -1; // (fistLocation < secondLocation)
+              }
+              else {
+                return 0; // fistLocation == secondLocation == null
+              }
+            }
+          });
         }
-        setState((){});
-        _loadLocations();
-    });
+      }
+    }
   }
 
-  bool get _userLocationEnabled {
-    return (_locationServicesStatus == LocationServicesStatus.PermissionAllowed);
+  void _switchCounty(HealthCounty selectedValue) {
+    Analytics.instance.logSelect(target: "Selected county: " + selectedValue?.name);
+    setState(() {
+      _selectedCountyId = selectedValue?.id;
+    });
+    Health().switchCounty(selectedValue?.id);
+    _loadProviders(countyId: selectedValue?.id);
+  }
+
+  void _switchProvider(ProviderDropDownItem selectedValue) {
+    Analytics.instance.logSelect(target: "Selected provider: " + selectedValue?.title);
+    
+    setState((){
+      _selectedProviderItem = selectedValue;
+    });
+    
+    //if (selectedValue?.provider != null) {
+      Storage().lastHealthProvider = selectedValue?.provider;
+    //}
+    
+    _loadLocations(countyId: _selectedCountyId, providerId: selectedValue?.provider?.id);
+  }
+
+  String get _errorText {
+    return _countyError ?? _providersError ?? _locationsError;
   }
 }
 
-class _TestLocation extends StatelessWidget{
+class _TestLocation extends StatelessWidget {
   final HealthServiceLocation testLocation;
   final double distance;
 
@@ -348,13 +401,7 @@ class _TestLocation extends StatelessWidget{
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(
-              testLocation?.name ?? "",
-              style: TextStyle(
-                fontFamily: Styles().fontFamilies.extraBold,
-                fontSize: 20,
-                color: Styles().colors.fillColorPrimary,
-              ),
+            Text(testLocation?.name ?? "", style: TextStyle(fontFamily: Styles().fontFamilies.extraBold, fontSize: 20, color: Styles().colors.fillColorPrimary, ),
             ),
             Semantics(button: true,
             child: GestureDetector(
@@ -367,13 +414,9 @@ class _TestLocation extends StatelessWidget{
                       Container(width: 8,),
                       Expanded(child:
                         Text(
-                          distance>0? '$distanceText' + distanceSufix:
+                          distance > 0 ? '$distanceText' + distanceSufix:
                           (testLocation?.fullAddress?? Localization().getStringEx("panel.covid19_test_locations.distance.unknown","unknown distance")),
-                          style: TextStyle(
-                            fontFamily: Styles().fontFamilies.regular,
-                            fontSize: 16,
-                            color: Styles().colors.textSurface,
-                          ),
+                          style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textSurface, ),
                         )
                       )
                     ],
@@ -626,21 +669,23 @@ class ProviderDropDownItem{
   final ProviderDropDownItemType type;
   final HealthServiceProvider provider;
 
-  ProviderDropDownItem({this.type, this.provider});
+  ProviderDropDownItem({ProviderDropDownItemType type, this.provider}) :
+    this.type = (type != null) ? type : ((provider != null) ? ProviderDropDownItemType.provider : null);
 
-  String get title{
+  bool operator ==(o) =>
+      o is ProviderDropDownItem &&
+          o.type == type &&
+          o.provider?.id == provider?.id;
+
+  int get hashCode =>
+      (type?.hashCode ?? 0) ^
+      (provider?.hashCode ?? 0);
+
+  String get title {
     if(type == ProviderDropDownItemType.all){
       return Localization().getStringEx("panel.covid19_test_locations.all_providers.text" ,"All Providers");
     } else {
       return provider?.name ?? "";
-    }
-  }
-
-  String get providerId{
-    if(type == ProviderDropDownItemType.all){
-      return null;
-    } else {
-      return provider?.id;
     }
   }
 }
