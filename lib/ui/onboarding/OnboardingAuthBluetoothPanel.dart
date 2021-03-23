@@ -134,7 +134,7 @@ class _OnboardingAuthBluetoothPanelState extends State<OnboardingAuthBluetoothPa
                       ScalableRoundedButton(
                         label: Localization().getStringEx(
                             'panel.onboarding.bluetooth.button.allow.title',
-                            'Continue'),
+                            'Enable Bluetooth'),
                         hint: Localization().getStringEx(
                             'panel.onboarding.bluetooth.button.allow.hint',
                             ''),

@@ -121,7 +121,7 @@ class OnboardingAuthNotificationsPanel extends StatelessWidget with OnboardingPa
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: <Widget>[
                     ScalableRoundedButton(
-                      label: Localization().getStringEx('panel.onboarding.notifications.button.allow.title', 'Continue'),
+                      label: Localization().getStringEx('panel.onboarding.notifications.button.allow.title', 'Enable Notifications'),
                       hint: Localization().getStringEx('panel.onboarding.notifications.button.allow.hint', ''),
                       borderColor: Styles().colors.fillColorSecondary,
                       backgroundColor: Styles().colors.background,
