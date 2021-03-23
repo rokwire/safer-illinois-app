@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added family members support [#578](https://github.com/rokwire/safer-illinois-app/issues/578)
 
 ### Changed
+- Unload web page when the app is in background [#580](https://github.com/rokwire/safer-illinois-app/issues/580).
+- Cleaned up Covid19TestLocationsPanel.
+
+### Changed
 - Apply WWCL.Disclaimers in Safer app [#562](https://github.com/rokwire/safer-illinois-app/issues/562)
 - Maine health history change [#563](https://github.com/rokwire/safer-illinois-app/issues/563)
 - Check for start/stop exposure native service on revoking from background.
