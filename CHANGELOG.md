@@ -11,14 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Unload web page when the app is in background [#580](https://github.com/rokwire/safer-illinois-app/issues/580).
 - Cleaned up Covid19TestLocationsPanel.
-
-### Changed
 - Apply WWCL.Disclaimers in Safer app [#562](https://github.com/rokwire/safer-illinois-app/issues/562)
 - Maine health history change [#563](https://github.com/rokwire/safer-illinois-app/issues/563)
 - Check for start/stop exposure native service on revoking from background.
 - Ask for Bluetooth and Location services permisions in iOS when the user selects to participate to Exposure Notification system. Exclude the relevant onboarding panels from onboarding flow in iOS [#573](https://github.com/rokwire/safer-illinois-app/issues/573).
 
 ### Fixed
+- YouTube videos plays when screen locked [#580](https://github.com/rokwire/safer-illinois-app/issues/580).
 - Fixed days interval calculation when daylight saving is changed [#572](https://github.com/rokwire/safer-illinois-app/issues/572).
 
 ## [2.10.12] - 2021-03-05
