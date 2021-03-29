@@ -77,13 +77,14 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
       }
     });
 
-      Health().loadProviders().then((List<HealthServiceProvider> providers){
-        if (mounted) {
+      Health().loadProviders().then((List<HealthServiceProvider> providers) {
+        if ((providers != null) && mounted) {
           setState(() {
-            try {
-              _providers = (providers != null) ? Map<String,HealthServiceProvider>.fromIterable(providers, key: ((provider) => provider.id)): null;
+            try { _providers = Map<String,HealthServiceProvider>.fromIterable(providers, key: ((provider) => provider.id)); }
+            catch(e) { print(e?.toString()); }
+            if ((_providers != null) && (0 < _providers.length) && ((_selectedProviderId == null) || (_providers[_selectedProviderId] == null))) {
+              _selectedProviderId = (Storage().lastHealthProvider = providers.first).id;
             }
-            catch(e) {}
           });
         }
       });
