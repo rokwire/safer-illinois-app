@@ -541,8 +541,8 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
   "Vaccinated": true,
   "Extra": [
     {"display_name": "Vaccine", "display_value": "Sputnik V"},
-    {"display_name": "1st Dose", "display_value": "$dose1String"},
-    {"display_name": "2nd Dose", "display_value": "$dose2String"}
+    {"display_name": "2nd Dose", "display_value": "$dose2String"},
+    {"display_name": "1st Dose", "display_value": "$dose1String"}
   ]
 }''';}
 
@@ -560,8 +560,8 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
   "Vaccinated": false,
   "Extra": [
     {"display_name": "Vaccine", "display_value": "Sputnik V"},
-    {"display_name": "1st Dose", "display_value": "$dose1String"},
-    {"display_name": "2nd Dose", "display_value": "$dose2String"}
+    {"display_name": "2nd Dose", "display_value": "$dose2String"},
+    {"display_name": "1st Dose", "display_value": "$dose1String"}
   ]
 }''';}
 
