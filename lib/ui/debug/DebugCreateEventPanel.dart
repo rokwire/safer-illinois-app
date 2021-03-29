@@ -291,7 +291,33 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
               ),
             ],),
 
-            Container(height: 16,),
+            Container(height: 4,),
+
+            Row(children: <Widget>[
+              Expanded(child:
+                RoundedButton(label: "Vaccinated",
+                  textColor: Styles().colors.fillColorPrimary,
+                  borderColor: Styles().colors.fillColorSecondary,
+                  backgroundColor: Styles().colors.white,
+                  fontFamily: Styles().fontFamilies.bold,
+                  fontSize: 16, borderWidth: 2, height: 42,
+                  onTap:() { _onPopulate(this._sampleVacinatedBlob);  }
+                ),
+              ),
+              Container(width: 4,),
+              Expanded(child:
+                RoundedButton(label: "Vaccination",
+                  textColor: Styles().colors.fillColorPrimary,
+                  borderColor: Styles().colors.fillColorSecondary,
+                  backgroundColor: Styles().colors.white,
+                  fontFamily: Styles().fontFamilies.bold,
+                  fontSize: 16, borderWidth: 2, height: 42,
+                  onTap:() { _onPopulate(this._sampleVacinationBlob);  }
+                ),
+              ),
+            ],),
+
+            Container(height: 12,),
 
             Row(children: <Widget>[
               Expanded(child:
@@ -497,6 +523,45 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
     {"display_name": "Collected", "display_value": "$localString"},
     {"display_name": "Resulted", "display_value": "$localString"},
     {"display_name": "Order #", "display_value": "CU$orderNumber"}
+  ]
+}''';}
+
+  String get _sampleVacinatedBlob {
+    DateTime nowLocal = DateTime.now();
+    String dateString = healthDateTimeToString(nowLocal.toUtc());
+
+    DateTime dose2Local = nowLocal.subtract(Duration(days: 14));
+    String dose2String = DateFormat("MMMM d, yyyy HH:mm").format(dose2Local);
+
+    DateTime dose1Local = dose2Local.subtract(Duration(days: 21));
+    String dose1String = DateFormat("MMMM d, yyyy HH:mm").format(dose1Local);
+
+    return '''{
+  "Date": "$dateString",
+  "Vaccinated": true,
+  "Extra": [
+    {"display_name": "Vaccine", "display_value": "Sputnik V"},
+    {"display_name": "1st Dose", "display_value": "$dose1String"},
+    {"display_name": "2nd Dose", "display_value": "$dose2String"}
+  ]
+}''';}
+
+  String get _sampleVacinationBlob {
+    DateTime nowLocal = DateTime.now();
+    String dateString = healthDateTimeToString(nowLocal.toUtc());
+
+    String dose2String = DateFormat("MMMM d, yyyy HH:mm").format(nowLocal);
+
+    DateTime dose1Local = nowLocal.subtract(Duration(days: 21));
+    String dose1String = DateFormat("MMMM d, yyyy HH:mm").format(dose1Local);
+
+    return '''{
+  "Date": "$dateString",
+  "Vaccinated": false,
+  "Extra": [
+    {"display_name": "Vaccine", "display_value": "Sputnik V"},
+    {"display_name": "1st Dose", "display_value": "$dose1String"},
+    {"display_name": "2nd Dose", "display_value": "$dose2String"}
   ]
 }''';}
 

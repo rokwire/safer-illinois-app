@@ -446,6 +446,10 @@ class HealthHistory implements Comparable<HealthHistory> {
     return (type == HealthHistoryType.contactTrace);
   }
 
+  bool get isVaccine {
+    return (type == HealthHistoryType.vaccine);
+  }
+
   bool get isAction {
     return (type == HealthHistoryType.action);
   }
@@ -463,6 +467,13 @@ class HealthHistory implements Comparable<HealthHistory> {
         (this.blob?.testType == event?.blob?.testType) &&
         (this.blob?.testResult == event?.blob?.testResult) &&
         (ListEquality().equals(this.blob.extras, event.blob.extras));
+    }
+    else if (event.isVaccine) {
+      return this.isVaccine &&
+        (this.dateUtc == event?.blob?.dateUtc) &&
+        (this.blob?.provider == event?.provider) &&
+        (this.blob?.providerId == event?.providerId) &&
+        (this.blob?.vaccinated == event?.blob?.vaccinated);
     }
     else if (event.isAction) {
       return this.isAction &&
@@ -642,6 +653,8 @@ class HealthHistoryBlob {
   
   final int traceDuration;
   final String traceTEK;
+
+  final bool vaccinated;
   
   final String actionType;
   final dynamic actionTitle;
@@ -654,6 +667,7 @@ class HealthHistoryBlob {
     this.provider, this.providerId, this.location, this.locationId, this.countyId, this.testType, this.testResult,
     this.symptoms,
     this.traceDuration, this.traceTEK,
+    this.vaccinated,
     this.actionType, this.actionTitle, this.actionText, this.actionParams,
     this.extras
   });
@@ -672,6 +686,8 @@ class HealthHistoryBlob {
       
       traceDuration: json['trace_duration'],
       traceTEK: json['trace_tek'],
+
+      vaccinated: json['vaccinated'],
       
       actionType: json['action_type'],
       actionTitle: json['action_title'],
@@ -697,6 +713,8 @@ class HealthHistoryBlob {
       
       'trace_duration': traceDuration,
       'trace_tek': traceTEK,
+
+      'vaccinated': vaccinated,
       
       'action_type': actionType,
       'action_title': actionTitle,
@@ -722,6 +740,8 @@ class HealthHistoryBlob {
       (o.traceDuration == traceDuration) &&
       (o.traceTEK == traceTEK) &&
 
+      (o.vaccinated == vaccinated) &&
+
       (o.actionType == actionType) &&
       DeepCollectionEquality().equals(o.actionTitle, actionTitle) &&
       DeepCollectionEquality().equals(o.actionText, actionText) &&
@@ -744,6 +764,8 @@ class HealthHistoryBlob {
     (traceDuration?.hashCode ?? 0) ^
     (traceTEK?.hashCode ?? 0) ^
 
+    (vaccinated?.hashCode ?? 0) ^
+
     (actionType?.hashCode ?? 0) ^
     (DeepCollectionEquality().hash(actionTitle) ?? 0) ^
     (DeepCollectionEquality().hash(actionText) ?? 0) ^
@@ -761,6 +783,10 @@ class HealthHistoryBlob {
 
   bool get isContactTrace {
     return ((traceDuration != null) /*&& (traceTEK != null)*/);
+  }
+
+  bool get isVaccine {
+    return (vaccinated != null);
   }
 
   bool get isAction {
@@ -830,7 +856,7 @@ class HealthHistoryBlob {
 ////////////////////////////////
 // HealthHistoryType
 
-enum HealthHistoryType { test, manualTestVerified, manualTestNotVerified, symptoms, contactTrace, action }
+enum HealthHistoryType { test, manualTestVerified, manualTestNotVerified, symptoms, contactTrace, vaccine, action }
 
 HealthHistoryType healthHistoryTypeFromString(String value) {
   if (value == 'received_test') {
@@ -848,6 +874,9 @@ HealthHistoryType healthHistoryTypeFromString(String value) {
   else if (value == 'trace') {
     return HealthHistoryType.contactTrace;
   }
+  else if (value == 'vaccine') {
+    return HealthHistoryType.vaccine;
+  }
   else if (value == 'action') {
     return HealthHistoryType.action;
   }
@@ -863,6 +892,7 @@ String healthHistoryTypeToString(HealthHistoryType value) {
     case HealthHistoryType.manualTestNotVerified: return 'unverified_manual_test';
     case HealthHistoryType.symptoms: return 'symptoms';
     case HealthHistoryType.contactTrace: return 'trace';
+    case HealthHistoryType.vaccine: return 'vaccine';
     case HealthHistoryType.action: return 'action';
   }
   return null;
@@ -873,9 +903,9 @@ String healthHistoryTypeToString(HealthHistoryType value) {
 
 class HealthPendingEvent {
   final String   id;
+  final String   accountId;
   final String   provider;
   final String   providerId;
-  final String   accountId;
   final String   encryptedKey;
   final String   encryptedBlob;
   final bool     processed;
@@ -884,14 +914,14 @@ class HealthPendingEvent {
 
   HealthPendingEventBlob blob;
 
-  HealthPendingEvent({this.id, this.provider, this.providerId, this.accountId, this.encryptedKey, this.encryptedBlob, this.processed, this.dateCreated, this.dateUpdated});
+  HealthPendingEvent({this.id, this.accountId, this.provider, this.providerId, this.encryptedKey, this.encryptedBlob, this.processed, this.dateCreated, this.dateUpdated});
 
   factory HealthPendingEvent.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthPendingEvent(
       id:            AppJson.stringValue(json['id']),
+      accountId:     AppJson.stringValue(json['account_id']),
       provider:      AppJson.stringValue(json['provider']),
       providerId:    AppJson.stringValue(json['provider_id']),
-      accountId:     AppJson.stringValue(json['account_id']),
       encryptedKey:  AppJson.stringValue(json['encrypted_key']),
       encryptedBlob: AppJson.stringValue(json['encrypted_blob']),
       processed:     AppJson.boolValue(json['processed']),
@@ -903,9 +933,9 @@ class HealthPendingEvent {
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
     json['id']              = id;
+    json['account_id']      = accountId;
     json['provider']        = provider;
     json['provider_id']     = providerId;
-    json['account_id']         = accountId;
     json['encrypted_key']   = encryptedKey;
     json['encrypted_blob']  = encryptedBlob;
     json['processed']       = processed;
@@ -947,6 +977,10 @@ class HealthPendingEvent {
     return (blob != null) && blob.isTest && (providerId != null);
   }
 
+  bool get isVaccine {
+    return (blob != null) && blob.isVaccine;
+  }
+
   bool get isAction {
     return (blob != null) && blob.isAction;
   }
@@ -961,6 +995,8 @@ class HealthPendingEventBlob {
   final String   testType;
   final String   testResult;
 
+  final bool     vaccinated;
+
   final String   actionType;
   final dynamic  actionTitle;
   final dynamic  actionText;
@@ -970,6 +1006,7 @@ class HealthPendingEventBlob {
 
   HealthPendingEventBlob({this.dateUtc,
     this.testType, this.testResult,
+    this.vaccinated,
     this.actionType, this.actionTitle, this.actionText, this.actionParams,
     this.extras});
 
@@ -979,6 +1016,8 @@ class HealthPendingEventBlob {
       
       testType:      AppJson.stringValue(json['TestName']),
       testResult:    AppJson.stringValue(json['Result']),
+
+      vaccinated:    AppJson.boolValue(json['Vaccinated']),
       
       actionType:    AppJson.stringValue(json['ActionType']),
       actionTitle:    json['ActionTitle'],
@@ -995,6 +1034,13 @@ class HealthPendingEventBlob {
         'Date': healthDateTimeToString(dateUtc),
         'TestName': testType,
         'Result': testResult,
+        'Extra': HealthEventExtra.listToJson(extras),
+      };
+    }
+    else if (vaccinated != null) {
+      return {
+        'Date': healthDateTimeToString(dateUtc),
+        'Vaccinated': vaccinated,
         'Extra': HealthEventExtra.listToJson(extras),
       };
     }
@@ -1018,6 +1064,10 @@ class HealthPendingEventBlob {
 
   bool get isTest {
     return AppString.isStringNotEmpty(testType) && AppString.isStringNotEmpty(testResult);
+  }
+
+  bool get isVaccine {
+    return (vaccinated != null);
   }
 
   bool get isAction {

@@ -1046,6 +1046,7 @@ class Health with Service implements NotificationsListener {
       HealthHistoryType.manualTestNotVerified : null, // unencrypted
       HealthHistoryType.symptoms : _userPrivateKey,
       HealthHistoryType.contactTrace : _userPrivateKey,
+      HealthHistoryType.vaccine : _userPrivateKey,
       HealthHistoryType.action : _userPrivateKey,
     };
   }
@@ -1152,6 +1153,19 @@ class Health with Service implements NotificationsListener {
           providerId: event?.providerId,
           testType: event?.blob?.testType,
           testResult: event?.blob?.testResult,
+          extras: event?.blob?.extras,
+        ),
+        publicKey: _user?.publicKey
+      ));
+    }
+    else if (event.isVaccine) {
+      historyEntry = await _addHistory(await HealthHistory.encryptedFromBlob(
+        dateUtc: event?.blob?.dateUtc,
+        type: HealthHistoryType.vaccine,
+        blob: HealthHistoryBlob(
+          provider: event?.provider,
+          providerId: event?.providerId,
+          vaccinated: event?.blob?.vaccinated,
           extras: event?.blob?.extras,
         ),
         publicKey: _user?.publicKey
