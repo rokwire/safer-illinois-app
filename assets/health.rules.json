@@ -9,15 +9,21 @@
 	"intervals": {
 		"DefaultTestMonitorInterval": 8,
 		"UndergraduateTestMonitorInterval": 4,
+		"VaccinatedTestMonitorInterval": 30,
 		"UserTestMonitorInterval": null,
 
 		"TestMonitorInterval": {
-			"condition": "test-interval", "params": { "interval": "UserTestMonitorInterval" },
-			"success": "UserTestMonitorInterval",
+			"condition": "require-vaccine",
+			"params": { "interval": { "scope": "past" }, "vacinated": true },
+			"success": "VaccinatedTestMonitorInterval",
 			"fail": {
-				"condition": "test-user", "params": { "card.role": "Undergraduate", "card.student_level": "1U" },
-				"success": "UndergraduateTestMonitorInterval",
-				"fail": "DefaultTestMonitorInterval"
+				"condition": "test-interval", "params": { "interval": "UserTestMonitorInterval" },
+				"success": "UserTestMonitorInterval",
+				"fail": {
+					"condition": "test-user", "params": { "card.role": "Undergraduate", "card.student_level": "1U" },
+					"success": "UndergraduateTestMonitorInterval",
+					"fail": "DefaultTestMonitorInterval"
+				}
 			}
 		}
 	},
@@ -145,23 +151,50 @@
 		},
 
 		"PCR.positive-NIP": {
-			"condition": "require-test",
+			"condition": "require-vaccine",
 			"params": {
-				"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
+				"interval": { "scope": "past" },
+				"vacinated": true
 			},
 			"success": {
-				"code": "yellow",
-				"priority": 1,
-				"next_step_html": "positive-nip.step.html",
-				"next_step_interval": "TestMonitorInterval",
-				"event_explanation": "positive-nip.explanation",
-				"warning": "test.future.warning"
+				"condition": "require-test",
+				"params": {
+					"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
+				},
+				"success": {
+					"code": "yellow",
+					"priority": 3,
+					"next_step_html": "positive-nip.step.html",
+					"next_step_interval": "TestMonitorInterval",
+					"event_explanation": "positive-nip.explanation",
+					"warning": "test.future.warning"
+				},
+				"fail": {
+					"code": "orange",
+					"priority": 1,
+					"next_step": "test.now.step",
+					"reason": "test.now.reason"
+				}
 			},
 			"fail": {
-				"code": "orange",
-				"priority": 1,
-				"next_step": "test.now.step",
-				"reason": "test.now.reason"
+				"condition": "require-test",
+				"params": {
+					"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
+				},
+				"success": {
+					"code": "yellow",
+					"priority": 1,
+					"next_step_html": "positive-nip.step.html",
+					"next_step_interval": "TestMonitorInterval",
+					"event_explanation": "positive-nip.explanation",
+					"warning": "test.future.warning"
+				},
+				"fail": {
+					"code": "orange",
+					"priority": 1,
+					"next_step": "test.now.step",
+					"reason": "test.now.reason"
+				}
 			}
 		},
 
@@ -188,6 +221,16 @@
 		},
 
 		"test-monitor": {
+			"condition": "require-vaccine",
+			"params": {
+				"interval": { "scope": "past" },
+				"vacinated": true
+			},
+			"success": "test-monitor-vaccinated",
+			"fail": "test-monitor-default"
+		},
+
+		"test-monitor-default": {
 			"condition": "require-test",
 			"params": {
 				"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
@@ -195,6 +238,25 @@
 			"success": {
 				"code": "yellow",
 				"priority": 1,
+				"next_step": "test.monitor.step",
+				"next_step_interval": "TestMonitorInterval",
+				"warning": "test.future.warning"
+			},
+			"fail": {
+				"code": "orange",
+				"priority": 1,
+				"next_step": "test.now.step",
+				"reason": "test.now.reason"
+			}
+		},
+		"test-monitor-vaccinated": {
+			"condition": "require-test",
+			"params": {
+				"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
+			},
+			"success": {
+				"code": "yellow",
+				"priority": 3,
 				"next_step": "test.monitor.step",
 				"next_step_interval": "TestMonitorInterval",
 				"warning": "test.future.warning"
@@ -225,14 +287,14 @@
 					"success": null,
 					"fail": {
 						"code": "orange",
-						"priority": 2,
+						"priority": 4,
 						"next_step_html": "test.another.now.step.html",
 						"reason": "test.past.reason"
 					}
 				},
 				"fail": {
 					"code": "orange",
-					"priority": 2,
+					"priority": 4,
 					"next_step_html": "test.after.step.html",
 					"next_step_interval": { "value": 3, "origin": "referenceDate" },
 					"reason": "test.after.reason"
@@ -240,7 +302,7 @@
 			},
 			"fail": {
 				"code": "orange",
-				"priority": 2,
+				"priority": 4,
 				"next_step_html": "test.multiple.step.html",
 				"reason": "test.required.reason"
 			}
@@ -289,22 +351,48 @@
 		},
 
 		"quarantine-off": {
-			"condition": "require-test",
+			"condition": "require-vaccine",
 			"params": {
-				"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
+				"interval": { "scope": "past" },
+				"vacinated": true
 			},
 			"success": {
-				"code": "yellow",
-				"priority": -1,
-				"next_step": "test.resume.step",
-				"next_step_interval": "TestMonitorInterval",
-				"warning": "test.future.warning"
+				"condition": "require-test",
+				"params": {
+					"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
 				},
+				"success": {
+					"code": "yellow",
+					"priority": -3,
+					"next_step": "test.resume.step",
+					"next_step_interval": "TestMonitorInterval",
+					"warning": "test.future.warning"
+					},
+				"fail": {
+					"code": "orange",
+					"priority": -1,
+					"next_step": "test.now.step",
+					"reason": "test.now.reason"
+				}
+			},
 			"fail": {
-				"code": "orange",
-				"priority": -1,
-				"next_step": "test.now.step",
-				"reason": "test.now.reason"
+				"condition": "require-test",
+				"params": {
+					"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
+				},
+				"success": {
+					"code": "yellow",
+					"priority": -1,
+					"next_step": "test.resume.step",
+					"next_step_interval": "TestMonitorInterval",
+					"warning": "test.future.warning"
+					},
+				"fail": {
+					"code": "orange",
+					"priority": -1,
+					"next_step": "test.now.step",
+					"reason": "test.now.reason"
+				}
 			}
 		},
 
@@ -754,6 +842,15 @@
 			{
 				"type": "release",
 				"status": "release"
+			}
+		]
+	},
+
+	"vaccines": {
+		"rules": [
+			{
+				"vaccinated": true,
+				"status": "test-monitor-vaccinated"
 			}
 		]
 	},
