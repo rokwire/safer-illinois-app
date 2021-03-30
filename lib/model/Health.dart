@@ -3414,17 +3414,16 @@ class HealthRuleReferenceStatus extends _HealthRuleStatus {
 
 class HealthRuleConditionalStatus extends _HealthRuleStatus {
   final String condition;
-  final Map<String, dynamic> _params; // Defferentiate from params parameter
+  final Map<String, dynamic> conditionParams; // Defferentiate from params parameter
   final _HealthRuleStatus successStatus;
   final _HealthRuleStatus failStatus;
 
-  HealthRuleConditionalStatus({this.condition, Map<String, dynamic> params, this.successStatus, this.failStatus}) :
-    _params = params;
+  HealthRuleConditionalStatus({this.condition, this.conditionParams, this.successStatus, this.failStatus});
 
   factory HealthRuleConditionalStatus.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthRuleConditionalStatus(
       condition: json['condition'],
-      params: json['params'],
+      conditionParams: json['params'],
       successStatus: _HealthRuleStatus.fromJson(json['success']) ,
       failStatus: _HealthRuleStatus.fromJson(json['fail']),
     ) : null;
@@ -3437,13 +3436,13 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
   bool operator ==(o) =>
     (o is HealthRuleConditionalStatus) &&
       (o.condition == condition) &&
-      (MapEquality().equals(o._params, _params)) &&
+      (MapEquality().equals(o.conditionParams, conditionParams)) &&
       (o.successStatus == successStatus) &&
       (o.failStatus == failStatus);
 
   int get hashCode =>
     (condition?.hashCode ?? 0) ^
-    (MapEquality().hash(_params)) ^
+    (MapEquality().hash(conditionParams)) ^
     (successStatus?.hashCode ?? 0) ^
     (failStatus?.hashCode ?? 0);
 
@@ -3476,11 +3475,11 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
     }
     else if (condition == 'test-user') {
       // true / false
-      result = HealthRuleIntervalCondition._evalTestUser(_params, rules: rules, params: params);
+      result = HealthRuleIntervalCondition._evalTestUser(conditionParams, rules: rules, params: params);
     }
     else if (condition == 'test-interval') {
       // true / false
-      result = HealthRuleIntervalCondition._evalTestInterval(_params, rules: rules, params: params);
+      result = HealthRuleIntervalCondition._evalTestInterval(conditionParams, rules: rules, params: params);
     }
     
     _HealthRuleStatus status;
@@ -3501,7 +3500,7 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
   }
 
   dynamic _evalRequireEntry(dynamic historyType, { List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
-    _HealthRuleInterval interval = (_params != null) ? _HealthRuleInterval.fromJson(_params['interval']) : null;
+    _HealthRuleInterval interval = (conditionParams != null) ? _HealthRuleInterval.fromJson(conditionParams['interval']) : null;
     if (interval == null) {
       return null;
     }
@@ -3555,20 +3554,20 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
 
         // check filters before returning successfull match
         if (_matchValue(historyType, HealthHistoryType.test)) {
-          dynamic category = (_params != null) ? _params['category'] : null;
+          dynamic category = (conditionParams != null) ? conditionParams['category'] : null;
           if (category != null) {
             HealthTestRuleResult entryRuleResult = rules?.tests?.matchRuleResult(blob: entry?.blob);
             return _matchValue(category, entryRuleResult?.category);
           }
         }
         else if (_matchValue(historyType, HealthHistoryType.action)) {
-          dynamic type = (_params != null) ? _params['type'] : null;
+          dynamic type = (conditionParams != null) ? conditionParams['type'] : null;
           if ((type != null) && !_matchValue(entry, entry?.blob?.actionType)) {
             return false;
           }
         }
         else if (_matchValue(historyType, HealthHistoryType.vaccine)) {
-          dynamic vaccinated = (_params != null) ? _params['vaccinated'] : null;
+          dynamic vaccinated = (conditionParams != null) ? conditionParams['vaccinated'] : null;
           if ((vaccinated != null) && (entry?.blob?.vaccinated != vaccinated)) {
             return false;
           }
@@ -3585,7 +3584,7 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
   }
 
   dynamic _evalTimeout({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
-    _HealthRuleInterval interval = (_params != null) ? _HealthRuleInterval.fromJson(_params['interval']) : null;
+    _HealthRuleInterval interval = (conditionParams != null) ? _HealthRuleInterval.fromJson(conditionParams['interval']) : null;
     if (interval == null) {
       return null;
     }
@@ -3848,17 +3847,16 @@ class HealthRuleIntervalReference extends _HealthRuleInterval {
 
 class HealthRuleIntervalCondition extends _HealthRuleInterval {
   final String condition;
-  final Map<String, dynamic> _params; // Defferentiate from params parameter
+  final Map<String, dynamic> conditionParams; // Defferentiate from params parameter
   final _HealthRuleInterval successInterval;
   final _HealthRuleInterval failInterval;
   
-  HealthRuleIntervalCondition({this.condition, Map<String, dynamic> params, this.successInterval, this.failInterval}) :
-    _params = params;
+  HealthRuleIntervalCondition({this.condition, this.conditionParams, this.successInterval, this.failInterval});
 
   factory HealthRuleIntervalCondition.fromJson(Map<String, dynamic> json) {
     return (json is Map) ? HealthRuleIntervalCondition(
       condition: json['condition'],
-      params: json['params'],
+      conditionParams: json['params'],
       successInterval: _HealthRuleInterval.fromJson(json['success']) ,
       failInterval: _HealthRuleInterval.fromJson(json['fail']),
     ) : null;
@@ -3871,13 +3869,13 @@ class HealthRuleIntervalCondition extends _HealthRuleInterval {
   bool operator ==(o) =>
     (o is HealthRuleIntervalCondition) &&
       (o.condition == condition) &&
-      (MapEquality().equals(o._params, _params)) &&
+      (MapEquality().equals(o.conditionParams, conditionParams)) &&
       (o.successInterval == successInterval) &&
       (o.failInterval == failInterval);
 
   int get hashCode =>
     (condition?.hashCode ?? 0) ^
-    (MapEquality().hash(_params)) ^
+    (MapEquality().hash(conditionParams)) ^
     (successInterval?.hashCode ?? 0) ^
     (failInterval?.hashCode ?? 0);
 
@@ -3896,11 +3894,11 @@ class HealthRuleIntervalCondition extends _HealthRuleInterval {
     dynamic result;
     if (condition == 'test-user') {
       // true / false
-      result = _evalTestUser(_params, rules: rules, params: params);
+      result = _evalTestUser(conditionParams, rules: rules, params: params);
     }
     else if (condition == 'test-interval') {
       // true / false
-      result = _evalTestInterval(_params, rules: rules, params: params);
+      result = _evalTestInterval(conditionParams, rules: rules, params: params);
     }
   
     _HealthRuleInterval interval;
