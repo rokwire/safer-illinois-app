@@ -3452,11 +3452,23 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
     dynamic result;
     if (condition == 'require-test') {
       // (index >= 0) / -1 / null
-      result = _evalRequireTest(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+      result = _evalRequireEntry([HealthHistoryType.test, HealthHistoryType.manualTestVerified], history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
     }
     else if (condition == 'require-symptoms') {
       // (index >= 0) / -1 / null
-      result = _evalRequireSymptoms(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+      result = _evalRequireEntry(HealthHistoryType.symptoms, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+    }
+    else if (condition == 'require-contact-trace') {
+      // (index >= 0) / -1 / null
+      result = _evalRequireEntry(HealthHistoryType.contactTrace, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+    }
+    else if (condition == 'require-vaccine') {
+      // (index >= 0) / -1 / null
+      result = _evalRequireEntry(HealthHistoryType.vaccine, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+    }
+    else if (condition == 'require-action') {
+      // (index >= 0) / -1 / null
+      result = _evalRequireEntry(HealthHistoryType.action, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
     }
     else if (condition == 'timeout') {
       // true / false / null
@@ -3488,8 +3500,7 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
     return status?.eval(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
   }
 
-  dynamic _evalRequireTest({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
-    
+  dynamic _evalRequireEntry(dynamic historyType, { List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
     _HealthRuleInterval interval = (_params != null) ? _HealthRuleInterval.fromJson(_params['interval']) : null;
     if (interval == null) {
       return null;
@@ -3502,29 +3513,24 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
       return null;
     }
 
-    dynamic category = (_params != null) ? _params['category'] : null;
-    if (category is List) {
-      category = Set.from(category);
-    }
-
     int scope = interval.scope(rules: rules, params: params) ?? 0;
     if (0 < scope) { // check only newer items than the current
       for (int index = originIndex - 1; 0 <= index; index--) {
-        if (_evalRequireTestEntryFulfills(history[index], originDateMidnightLocal: originDateMidnightLocal, interval: interval, category: category, rules: rules, params: params)) {
+        if (_evalRequireEntryFulfills(history[index], historyType, originDateMidnightLocal: originDateMidnightLocal, interval: interval, rules: rules, params: params)) {
           return index;
         }
       }
     }
     else if (0 < scope) { // check only older items than the current
       for (int index = originIndex + 1; index < history.length; index++) {
-        if (_evalRequireTestEntryFulfills(history[index], originDateMidnightLocal: originDateMidnightLocal, interval: interval, category: category, rules: rules, params: params)) {
+        if (_evalRequireEntryFulfills(history[index], historyType, originDateMidnightLocal: originDateMidnightLocal, interval: interval, rules: rules, params: params)) {
           return index;
         }
       }
     }
     else { // check all history items
       for (int index = 0; index < history.length; index++) {
-        if ((index != originIndex) && _evalRequireTestEntryFulfills(history[index], originDateMidnightLocal: originDateMidnightLocal, interval: interval, category: category, rules: rules, params: params)) {
+        if ((index != originIndex) && _evalRequireEntryFulfills(history[index], historyType, originDateMidnightLocal: originDateMidnightLocal, interval: interval, rules: rules, params: params)) {
           return index;
         }
       }
@@ -3538,85 +3544,44 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
     return -1;
   }
 
-  static bool _evalRequireTestEntryFulfills(HealthHistory entry, { DateTime originDateMidnightLocal,  _HealthRuleInterval interval, dynamic category, HealthRulesSet rules, Map<String, dynamic> params }) {
-    if (entry.isTest && entry.canTestUpdateStatus) {
+  bool _evalRequireEntryFulfills(HealthHistory entry, dynamic historyType, { DateTime originDateMidnightLocal, _HealthRuleInterval interval, HealthRulesSet rules, Map<String, dynamic> params }) {
+    if (_matchValue(historyType, entry.type)) {
       DateTime entryDateMidnightLocal = entry.dateMidnightLocal;
+      
       //#572 Building access calculation issue 
       //int difference = entryDateMidnightLocal.difference(originDateMidnightLocal).inDays;
       int difference = AppDateTime.midnightsDifferenceInDays(originDateMidnightLocal, entryDateMidnightLocal);
       if (interval.match(difference, rules: rules, params: params)) {
-        if (category == null) {
-          return true; // any test matches
-        }
-        else {
-          HealthTestRuleResult entryRuleResult = rules?.tests?.matchRuleResult(blob: entry?.blob);
-          if ((entryRuleResult != null) && (entryRuleResult.category != null) &&
-              (((category is String) && (category == entryRuleResult.category)) ||
-                ((category is Set) && category.contains(entryRuleResult.category))))
-          {
-            return true; // only tests from given category matches
+
+        // check filters before returning successfull match
+        if (_matchValue(historyType, HealthHistoryType.test)) {
+          dynamic category = (_params != null) ? _params['category'] : null;
+          if (category != null) {
+            HealthTestRuleResult entryRuleResult = rules?.tests?.matchRuleResult(blob: entry?.blob);
+            return _matchValue(category, entryRuleResult?.category);
           }
         }
-      }
-    }
-    return false;
-  }
-
-  dynamic _evalRequireSymptoms({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
-    _HealthRuleInterval interval = (_params != null) ? _HealthRuleInterval.fromJson(_params['interval']) : null;
-    if (interval == null) {
-      return null;
-    }
-
-    int originIndex = (interval.origin(rules: rules, params: params) == HealthRuleIntervalOrigin.referenceDate) ? referenceIndex : historyIndex;
-    HealthHistory originEntry = ((history != null) && (originIndex != null) && (0 <= originIndex) && (originIndex < history.length)) ? history[originIndex] : null;
-    DateTime originDateMidnightLocal = originEntry?.dateMidnightLocal;
-    if (originDateMidnightLocal == null) {
-      return null;
-    }
-
-    int scope = interval.scope(rules: rules, params: params) ?? 0;
-    if (0 < scope) { // check only newer items than the current
-      for (int index = originIndex - 1; 0 <= index; index--) {
-        if (_evalRequireSymptomsEntryFulfills(history[index], originDateMidnightLocal: originDateMidnightLocal, interval: interval, rules: rules, params: params)) {
-          return index;
+        else if (_matchValue(historyType, HealthHistoryType.action)) {
+          dynamic type = (_params != null) ? _params['type'] : null;
+          if ((type != null) && !_matchValue(entry, entry?.blob?.actionType)) {
+            return false;
+          }
         }
-      }
-    }
-    else if (0 < scope) { // check only older items than the current
-      for (int index = originIndex + 1; index < history.length; index++) {
-        if (_evalRequireSymptomsEntryFulfills(history[index], originDateMidnightLocal: originDateMidnightLocal, interval: interval, rules: rules, params: params)) {
-          return index;
+        else if (_matchValue(historyType, HealthHistoryType.vaccine)) {
+          dynamic vaccinated = (_params != null) ? _params['vaccinated'] : null;
+          if ((vaccinated != null) && (entry?.blob?.vaccinated != vaccinated)) {
+            return false;
+          }
         }
-      }
-    }
-    else { // check all history items
-      for (int index = 0; index < history.length; index++) {
-        if ((index != originIndex) && _evalRequireSymptomsEntryFulfills(history[index], originDateMidnightLocal: originDateMidnightLocal, interval: interval, rules: rules, params: params)) {
-          return index;
-        }
-      }
-    }
 
-    // If positive time interval is not already expired - do not return failed status yet.
-    if ((interval.current(rules: rules, params: params) == true) && _evalCurrentIntervalFulfills(interval, originDateMidnightLocal: originDateMidnightLocal, rules: rules, params: params)) {
-      return originIndex;
-    }
-
-    return -1;
-  }
-
-  static bool _evalRequireSymptomsEntryFulfills(HealthHistory entry, { DateTime originDateMidnightLocal,  _HealthRuleInterval interval, HealthRulesSet rules, Map<String, dynamic> params }) {
-    if (entry.isSymptoms) {
-      DateTime entryDateMidnightLocal = entry.dateMidnightLocal;
-      //#572 Building access calculation issue 
-      //int difference = entryDateMidnightLocal.difference(originDateMidnightLocal).inDays;
-      int difference = AppDateTime.midnightsDifferenceInDays(originDateMidnightLocal, entryDateMidnightLocal);
-      if (interval.match(difference, rules: rules, params: params)) {
         return true;
       }
     }
     return false;
+  }
+
+  static bool _matchValue(dynamic values, dynamic value) {
+    return (values == value) || ((values is List) && values.contains(value)) || ((values is Set) && values.contains(value));
   }
 
   dynamic _evalTimeout({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
