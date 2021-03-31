@@ -291,7 +291,8 @@ class Storage with Service {
     setInt(authCardTimeKey, value);
   }
 
-  static const String rokmetroTokenKey  = '_rokmetro_token';
+  // Disable Rokmetro auth
+  /*static const String rokmetroTokenKey  = '_rokmetro_token';
 
   RokmetroToken get rokmetroToken {
     try {
@@ -304,9 +305,10 @@ class Storage with Service {
 
   set rokmetroToken(RokmetroToken value) {
     setString(rokmetroTokenKey, AppJson.encode(value?.toJson()));
-  }
+  }*/
 
-  static const String rokmetroUserKey  = '_rokmetro_user';
+  // Disable Rokmetro auth
+  /*static const String rokmetroUserKey  = '_rokmetro_user';
 
   RokmetroUser get rokmetroUser {
     try {
@@ -319,7 +321,7 @@ class Storage with Service {
 
   set rokmetroUser(RokmetroUser value) {
     setString(rokmetroUserKey, AppJson.encode(value?.toJson()));
-  }
+  }*/
 
   /////////////////
   // Language
