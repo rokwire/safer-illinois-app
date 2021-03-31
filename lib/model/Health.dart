@@ -786,7 +786,7 @@ class HealthHistoryBlob {
     (ListEquality().hash(extras) ?? 0);
 
   bool get isTest {
-    return (providerId != null) || (locationId != null) || (testType != null) || (testResult != null);
+    return (testType != null) && (testResult != null);
   }
 
   bool get isSymptoms {
