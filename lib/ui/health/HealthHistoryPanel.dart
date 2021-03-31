@@ -557,7 +557,7 @@ class _HealthHistoryEntryState extends State<_HealthHistoryEntry> with SingleTic
     }
 
     List<Widget> contentList = <Widget>[
-      Padding(padding: EdgeInsets.only(bottom: 4), child: Text(AppDateTime.formatDateTime(widget.historyEntry?.dateUtc?.toLocal(), format: dateFormat, locale: Localization().currentLocale?.languageCode) ?? '',style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface,)),),
+      Padding(padding: EdgeInsets.only(bottom: 4), child: Text(AppDateTime.formatDateTime(widget.historyEntry?.dateUtc?.toLocal(), format: dateFormat, locale: Localization().currentLocale?.languageCode) ?? '', style:TextStyle(fontSize: 14, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface,)),),
       Padding(padding: EdgeInsets.only(), child: Text(title ?? '', style:TextStyle(fontSize: 20, fontFamily: Styles().fontFamilies.extraBold, color: Styles().colors.fillColorPrimary,))),
     ];
 
