@@ -324,6 +324,8 @@
 	"panel.covid19home.label.action_required.title": "Acción requerida",
 	"panel.covid19home.label.contact_trace.title": "Seguimiento de contacto",
 	"panel.covid19home.label.reported_symptoms.title": "Síntomas autoinformados",
+	"panel.covid19home.label.vaccinated.title": "VACUNADO",
+	"panel.covid19home.label.vaccination.title": "VACUNACIÓN",
 	"panel.covid19home.button.info.title": "Información ",
 	"panel.covid19home.label.access.granted": "Acceso al edificio concedido",
 	"panel.covid19home.label.access.denied": "Acceso al edificio denegado",
@@ -697,7 +699,8 @@
 	"panel.health.status_update.label.reason.symptoms.title": "Reportaste nuevos síntomas",
 	"panel.health.status_update.label.reason.exposed.title": "Estuvo expuesto a alguien que probablemente estaba infectado",
 	"panel.health.status_update.label.reason.exposure.detail": "Duración de exposición:",
-	"panel.health.status_update.label.reason.action.title": "Health authorities require you to take an action.",
+	"panel.health.status_update.label.reason.vaccinated.title": "Tu vacuna ya es eficaz.",
+	"panel.health.status_update.label.reason.action.title": "Las autoridades sanitarias le exigen que actúe.",
 	"panel.health.status_update.label.reason.action.detail": "Acción requerida:",
 	"panel.health.status_update.button.info.title": "Info ",
 

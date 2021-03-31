@@ -80,7 +80,7 @@ class _HealthStatusUpdatePanelState extends State<HealthStatusUpdatePanel> {
               Container(
                 padding: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
                 child: ScalableRoundedButton(
-                  label: Localization().getStringEx("panel.health.status_update.button.continue.title","See Next Steps"),
+                  label: Localization().getStringEx("panel.health.status_update.button.continue.title", "See Next Steps"),
                   backgroundColor: Styles().colors.fillColorPrimary,
                   borderColor: Styles().colors.fillColorSecondary,
                   textColor: Styles().colors.white,
@@ -104,7 +104,7 @@ class _HealthStatusUpdatePanelState extends State<HealthStatusUpdatePanel> {
         Container(height: 90,),
         Text(_updateDate,textAlign: TextAlign.center,style: TextStyle(color: Colors.white, fontSize: 16, fontFamily: Styles().fontFamilies.regular),),
         Container(height: 12,),
-        Text(Localization().getStringEx("panel.health.status_update.heading.title","Status Update"),textAlign: TextAlign.center,style: TextStyle(color: Colors.white, fontSize: 28, fontFamily: Styles().fontFamilies.regular),),
+        Text(Localization().getStringEx("panel.health.status_update.heading.title", "Status Update"),textAlign: TextAlign.center,style: TextStyle(color: Colors.white, fontSize: 28, fontFamily: Styles().fontFamilies.regular),),
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -115,7 +115,7 @@ class _HealthStatusUpdatePanelState extends State<HealthStatusUpdatePanel> {
             Semantics(
               explicitChildNodes: true,
               child: Semantics(
-                  label: Localization().getStringEx("panel.health.status_update.button.info.title","Info "),
+                  label: Localization().getStringEx("panel.health.status_update.button.info.title", "Info "),
                   button: true,
                   excludeSemantics: true,
                   child:  IconButton(icon: Image.asset('images/icon-info-orange.png', excludeFromSemantics: true,), onPressed: () =>  StatusInfoDialog.show(context, Health().county?.displayName), padding: EdgeInsets.all(10),)
@@ -171,16 +171,13 @@ class _HealthStatusUpdatePanelState extends State<HealthStatusUpdatePanel> {
       if (reasonHistory.isTest) {
         reasonHistoryName = reasonHistory.testType;
         
-        reasonHistoryDetail = Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Image.asset("images/icon-selected.png",excludeFromSemantics: true,),
-              Container(width: 7,),
-              Text(Localization().getStringEx("panel.health.status_update.label.reason.result", "Result:"), style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.bold)),
-              Container(width: 5,),
-              Text(reasonHistory.testResult ?? '', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.regular)),
-          ],);
-
+        reasonHistoryDetail = Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+          Image.asset("images/icon-selected.png", excludeFromSemantics: true,),
+          Container(width: 7,),
+          Text(Localization().getStringEx("panel.health.status_update.label.reason.result", "Result:"), style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.bold)),
+          Container(width: 5,),
+          Text(reasonHistory.testResult ?? '', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.regular)),
+        ],);
       }
       else if (reasonHistory.isSymptoms) {
         reasonHistoryName = Localization().getStringEx("panel.health.status_update.label.reason.symptoms.title", "You reported new symptoms");
@@ -196,41 +193,33 @@ class _HealthStatusUpdatePanelState extends State<HealthStatusUpdatePanel> {
           });
         }
 
-        reasonHistoryDetail = Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: symptomLayouts,
-        );
+        reasonHistoryDetail = Column(mainAxisAlignment: MainAxisAlignment.center, children: symptomLayouts,);
       }
       else if (reasonHistory.isContactTrace) {
-        reasonHistoryName = Localization().getStringEx("panel.health.status_update.label.reason.exposed.title","You were exposed to someone who was likely infected");
+        reasonHistoryName = Localization().getStringEx("panel.health.status_update.label.reason.exposed.title", "You were exposed to someone who was likely infected");
 
-        reasonHistoryDetail = Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Image.asset("images/icon-selected.png",excludeFromSemantics: true,),
-            Container(width: 7,),
-            Text(Localization().getStringEx("panel.health.status_update.label.reason.exposure.detail","Duration of exposure: "), style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.bold)),
-            Container(width: 5,),
-            Text(reasonHistory.traceDurationDisplayString ?? "", style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.regular)),
-          ],);
+        reasonHistoryDetail = Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+          Image.asset("images/icon-selected.png", excludeFromSemantics: true,),
+          Container(width: 7,),
+          Text(Localization().getStringEx("panel.health.status_update.label.reason.exposure.detail", "Duration of exposure: "), style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.bold)),
+          Container(width: 5,),
+          Text(reasonHistory.traceDurationDisplayString ?? "", style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.regular)),
+        ],);
+      }
+      else if (reasonHistory.isVaccine) {
+        reasonHistoryName = Localization().getStringEx("panel.health.status_update.label.reason.vaccinated.title", "Your vaccine is already effective.");
       }
       else if (reasonHistory.isAction) {
         reasonHistoryName = Localization().getStringEx("panel.health.status_update.label.reason.action.title", "Health authorities require you to take an action.");
 
-        reasonHistoryDetail = Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Image.asset("images/icon-selected.png",excludeFromSemantics: true,),
-              Container(width: 7,),
-              Text(reasonHistory.localeActionTitle ?? Localization().getStringEx("panel.health.status_update.label.reason.action.detail", "Action Required: "), style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.bold)),
-            ],),
+        reasonHistoryDetail = Column(crossAxisAlignment: CrossAxisAlignment.center, children: <Widget>[
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+            Image.asset("images/icon-selected.png", excludeFromSemantics: true,),
+            Container(width: 7,),
+            Text(reasonHistory.localeActionTitle ?? Localization().getStringEx("panel.health.status_update.label.reason.action.detail", "Action Required: "), style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.bold)),
+          ],),
           Text(reasonHistory.localeActionText ?? "", style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.regular)),
-
         ],);
-
       }
     }
 
@@ -296,7 +285,7 @@ class _HealthStatusUpdatePanelState extends State<HealthStatusUpdatePanel> {
                   children: <Widget>[
                   Row(children: <Widget>[
                     Expanded(child:
-                    Text(Localization().getStringEx("panel.health.status_update.label.loading","Hang tight while we update your status"),textAlign: TextAlign.center,style: TextStyle(color: Colors.white, fontSize: 28, fontFamily: Styles().fontFamilies.bold),),)
+                    Text(Localization().getStringEx("panel.health.status_update.label.loading", "Hang tight while we update your status"),textAlign: TextAlign.center,style: TextStyle(color: Colors.white, fontSize: 28, fontFamily: Styles().fontFamilies.bold),),)
                   ],),
                   Container(height: 23,),
                   CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary), strokeWidth: 3,),

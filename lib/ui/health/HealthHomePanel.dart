@@ -130,7 +130,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
     );
   }
 
-  Widget _buildMainContent(){
+  Widget _buildMainContent() {
     List<Widget> contentList = [];
 
     List<dynamic> codes = FlexUI()['info_center'] ?? [];
@@ -159,7 +159,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
       }
     }
 
-    if (AppCollection.isCollectionNotEmpty(contentList)){
+    if (AppCollection.isCollectionNotEmpty(contentList)) {
       List<Widget> content = <Widget>[];
       for (Widget entry in contentList) {
         if (entry != null) {
@@ -179,7 +179,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
         iconPath: 'images/icon-member.png',
         children: content,);
     }
-    else{
+    else {
       return Container();
     }
   }
@@ -268,7 +268,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
       }
     }
 
-    if (AppCollection.isCollectionNotEmpty(contentList)){
+    if (AppCollection.isCollectionNotEmpty(contentList)) {
       List<Widget> content = <Widget>[];
       for (Widget entry in contentList) {
         if (entry != null) {
@@ -288,7 +288,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
         iconPath: 'images/icon-health.png',
         children: content,);
     }
-    else{
+    else {
       return Container();
     }
   }
@@ -316,7 +316,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
 
     }
 
-    if(AppCollection.isCollectionNotEmpty(contentList)){
+    if (AppCollection.isCollectionNotEmpty(contentList)) {
       List<Widget> content = <Widget>[];
       for (Widget entry in contentList) {
         if (entry != null) {
@@ -336,14 +336,14 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
         iconPath: 'images/icon-member.png',
         children: content,);
     }
-    else{
+    else {
       return Container();
     }
   }
 
-  Widget _buildMostRecentEvent(){
-  HealthHistory lastHistory = HealthHistory.mostRecent(Health().history);
-    if(lastHistory?.blob == null) {
+  Widget _buildMostRecentEvent() {
+    HealthHistory lastHistory = HealthHistory.mostRecent(Health().history);
+    if (lastHistory?.blob == null) {
       return null;
     }
     String headingText = Localization().getStringEx("panel.covid19home.label.most_recent_event.title", "MOST RECENT EVENT");
@@ -352,35 +352,37 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
     String eventExplanationHtml = Health().status?.blob?.displayEventExplanationHtml;
     String historyTitle = "", info = "";
     HealthHistoryBlob blob = lastHistory.blob;
-    if(blob.isTest){
+    
+    if (blob.isTest) {
       bool isManualTest = lastHistory.isManualTest ?? false;
       historyTitle = blob?.testType ?? Localization().getStringEx("app.common.label.other", "Other");
       info = isManualTest? Localization().getStringEx("panel.covid19home.label.provider.self_reported", "Self reported"):
             (blob?.provider ?? Localization().getStringEx("app.common.label.other", "Other"));
-    } else if(blob.isAction){
-      historyTitle = blob.localeActionTitle ?? Localization().getStringEx("panel.covid19home.label.action_required.title", "Action Required");
-      info = blob.localeActionText ?? "";
-    } else if(blob.isContactTrace){
+    }
+    else if (blob.isContactTrace) {
       historyTitle = Localization().getStringEx("panel.covid19home.label.contact_trace.title", "Contact Trace");
       info = blob.traceDurationDisplayString;
-    } else if(blob.isSymptoms){
+    }
+    else if (blob.isSymptoms) {
       historyTitle = Localization().getStringEx("panel.covid19home.label.reported_symptoms.title", "Self Reported Symptoms");
       info = blob.symptomsDisplayString(rules: Health().rules);
+    }
+    else if (blob.isVaccine) {
+      historyTitle = blob.vaccinated ?
+        Localization().getStringEx("panel.covid19home.label.vaccinated.title", "VACCINATED") :
+        Localization().getStringEx("panel.covid19home.label.vaccination.title", "VACCINATION");
+      info = (blob?.provider ?? Localization().getStringEx("app.common.label.other", "Other"));
+    }
+    else if (blob.isAction) {
+      historyTitle = blob.localeActionTitle ?? Localization().getStringEx("panel.covid19home.label.action_required.title", "Action Required");
+      info = blob.localeActionText ?? "";
     }
 
     List <Widget> content = <Widget>[
       Row(children: <Widget>[
-        Flexible(
-          flex: 3,
-          fit: FlexFit.tight,
-          child: Text(headingText, style: TextStyle(letterSpacing: 0.5, fontFamily: Styles().fontFamilies.bold, fontSize: 12, color: Styles().colors.fillColorPrimary),),
-        ),
-        Flexible(
-          flex: 2,
-          fit: FlexFit.loose,
-          child:
-          Text(dateText, style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 12, color: Styles().colors.textSurface),)
-        )
+        Text(headingText, style: TextStyle(letterSpacing: 0.5, fontFamily: Styles().fontFamilies.bold, fontSize: 12, color: Styles().colors.fillColorPrimary),),
+        Expanded(child: Container(),),
+        Text(dateText, style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 12, color: Styles().colors.textSurface),)
       ],),
       Container(height: 12,),
       Text(historyTitle, style: TextStyle(fontFamily: Styles().fontFamilies.extraBold, fontSize: 20, color: Styles().colors.fillColorPrimary),),
@@ -670,7 +672,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
     ));
   }
 
-  Widget _buildTileButtons(){
+  Widget _buildTileButtons() {
     List<Widget> contentList = [];
 
     List<dynamic> codes = FlexUI()['info_center.your_health.tiles'] ?? [];
@@ -698,7 +700,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
       }
     }
 
-    if(AppCollection.isCollectionNotEmpty(contentList)) {
+    if (AppCollection.isCollectionNotEmpty(contentList)) {
       List<Widget> content = <Widget>[];
       for (Widget entry in contentList) {
         if (entry != null) {
@@ -719,7 +721,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
         ],
       );
     }
-    else{
+    else {
       return Container();
     }
   }
@@ -878,7 +880,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
 
   void _onUserAccountChnaged(HealthUserAccount account) {
     setState(() { _isRefreshing = true; });
-    Health().setUserAccountId(account.accountId).then((_){
+    Health().setUserAccountId(account.accountId).then((_) {
       if (mounted) {
         setState(() { _isRefreshing = false; });
       }
@@ -886,82 +888,82 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
   }
 
   void _onTapCountryGuidelines() {
-    if(Connectivity().isNotOffline) {
+    if (Connectivity().isNotOffline) {
       Analytics.instance.logSelect(target: "COVID-19 County Guidlines");
       Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthGuidelinesPanel()));
-    } else{
+    } else {
       AppAlert.showOfflineMessage(context);
     }
   }
 
   void _onTapCareTeam() {
-    if(Connectivity().isNotOffline) {
+    if (Connectivity().isNotOffline) {
       Analytics.instance.logSelect(target: "Your Care Team");
       Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthCareTeamPanel()));
-    } else{
+    } else {
       AppAlert.showOfflineMessage(context);
     }
   }
 
-  void _onTapReportTest(){
-    if(Connectivity().isNotOffline) {
+  void _onTapReportTest() {
+    if (Connectivity().isNotOffline) {
       Analytics.instance.logSelect(target: "COVID-19 Report Test");
       Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthAddTestResultPanel()));
-    } else{
+    } else {
       AppAlert.showOfflineMessage(context);
     }
   }
 
-  void _onTapTestHistory(){
-    if(Connectivity().isNotOffline) {
+  void _onTapTestHistory() {
+    if (Connectivity().isNotOffline) {
       Analytics.instance.logSelect(target: "COVID-19 Test History");
       Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthHistoryPanel()));
-    } else{
+    } else {
       AppAlert.showOfflineMessage(context);
     }
   }
 
-  void _onTapFindLocations(){
-    if(Connectivity().isNotOffline) {
+  void _onTapFindLocations() {
+    if (Connectivity().isNotOffline) {
       Analytics.instance.logSelect(target: "COVID-19 Find Test Locations");
       Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthTestLocationsPanel()));
-    } else{
+    } else {
       AppAlert.showOfflineMessage(context);
     }
   }
 
-  void _onTapGroups(){
-    if(Connectivity().isNotOffline) {
+  void _onTapGroups() {
+    if (Connectivity().isNotOffline) {
       Analytics.instance.logSelect(target: "COVID-19 Groups");
       Navigator.push(context, CupertinoPageRoute(builder: (context) => GroupsHomePanel()));
-    } else{
+    } else {
       AppAlert.showOfflineMessage(context);
     }
   }
 
-  void _onTapShowStatusCard(){
-    if(Connectivity().isNotOffline) {
+  void _onTapShowStatusCard() {
+    if (Connectivity().isNotOffline) {
       Analytics.instance.logSelect(target: "Show Status Card");
       Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthStatusPanel()));
-    } else{
+    } else {
       AppAlert.showOfflineMessage(context);
     }
   }
 
   void _onTapSymptomCheckIn() {
-    if(Connectivity().isNotOffline) {
+    if (Connectivity().isNotOffline) {
       Analytics.instance.logSelect(target: "Symptom Check-in");
       Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthSymptomsReportPanel()));
-    } else{
+    } else {
       AppAlert.showOfflineMessage(context);
     }
   }
 
-  void _onTapCovidWellnessCenter(){
-    if(Connectivity().isNotOffline) {
+  void _onTapCovidWellnessCenter() {
+    if (Connectivity().isNotOffline) {
       Analytics.instance.logSelect(target: "Wellness Center");
       Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthWellnessCenterPanel()));
-    } else{
+    } else {
       AppAlert.showOfflineMessage(context);
     }
   }
