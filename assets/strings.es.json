@@ -284,6 +284,7 @@
 	"panel.covid19_passport.label.resident": "Residente",
 	"panel.covid19_passport.label.capitol_staff": "Non University Member",
 	"panel.covid19_passport.button.info.title": "Info ",
+	"panel.covid19_passport.icon.vaccinated.title": "Vaccinated ",
 
 	"panel.covid19_guidelines.header.title": "Pautas del condado",
 	"panel.covid19_guidelines.description.title": "Ayude a detener la propagación de COVID-19 siguiendo estas pautas actuales.",

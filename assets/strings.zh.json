@@ -284,6 +284,7 @@
 	"panel.covid19_passport.label.resident": "居民",
 	"panel.covid19_passport.label.capitol_staff": "Non University Member",
 	"panel.covid19_passport.button.info.title": "Info ",
+	"panel.covid19_passport.icon.vaccinated.title": "Vaccinated ",
 
 	"panel.covid19_guidelines.header.title": "縣準則",
 	"panel.covid19_guidelines.description.title": "遵循這些當前準則，有助於阻止COVID-19的傳播。",

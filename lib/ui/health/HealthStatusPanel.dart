@@ -418,7 +418,9 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
           Container(width: screenWidth, height: _photoSize, child:
             Align(alignment: Alignment.bottomRight, child:
               Padding(padding: EdgeInsets.only(right: vaccinatedPaddingWidth), child:
-                Image.asset('images/vaccinated_icon.png', width: vaccinatedIconWidth, excludeFromSemantics: true,)
+                Semantics(label: Localization().getStringEx("panel.covid19_passport.icon.vaccinated.title", "Vaccinated "), excludeSemantics: true, child:  
+                  Image.asset('images/vaccinated_icon.png', width: vaccinatedIconWidth, excludeFromSemantics: true,)
+                ),
               ),
             ),
           ),
