@@ -446,6 +446,10 @@ class HealthHistory implements Comparable<HealthHistory> {
     return (type == HealthHistoryType.contactTrace);
   }
 
+  bool get isVaccine {
+    return (type == HealthHistoryType.vaccine);
+  }
+
   bool get isAction {
     return (type == HealthHistoryType.action);
   }
@@ -463,6 +467,13 @@ class HealthHistory implements Comparable<HealthHistory> {
         (this.blob?.testType == event?.blob?.testType) &&
         (this.blob?.testResult == event?.blob?.testResult) &&
         (ListEquality().equals(this.blob.extras, event.blob.extras));
+    }
+    else if (event.isVaccine) {
+      return this.isVaccine &&
+        (this.dateUtc == event?.blob?.dateUtc) &&
+        (this.blob?.provider == event?.provider) &&
+        (this.blob?.providerId == event?.providerId) &&
+        (this.blob?.vaccinated == event?.blob?.vaccinated);
     }
     else if (event.isAction) {
       return this.isAction &&
@@ -624,6 +635,18 @@ class HealthHistory implements Comparable<HealthHistory> {
     }
     return null;
   }
+
+  static HealthHistory mostRecentVaccine(List<HealthHistory> history, { bool vaccinated }) {
+    if (history != null) {
+      for (int index = 0; index < history.length; index++) {
+        HealthHistory historyEntry = history[index];
+        if (historyEntry.isVaccine && ((vaccinated == null) || (historyEntry.blob?.vaccinated == vaccinated))) {
+          return historyEntry;
+        }
+      }
+    }
+    return null;
+  }
 }
 
 ////////////////////////////////
@@ -642,6 +665,8 @@ class HealthHistoryBlob {
   
   final int traceDuration;
   final String traceTEK;
+
+  final bool vaccinated;
   
   final String actionType;
   final dynamic actionTitle;
@@ -654,6 +679,7 @@ class HealthHistoryBlob {
     this.provider, this.providerId, this.location, this.locationId, this.countyId, this.testType, this.testResult,
     this.symptoms,
     this.traceDuration, this.traceTEK,
+    this.vaccinated,
     this.actionType, this.actionTitle, this.actionText, this.actionParams,
     this.extras
   });
@@ -672,6 +698,8 @@ class HealthHistoryBlob {
       
       traceDuration: json['trace_duration'],
       traceTEK: json['trace_tek'],
+
+      vaccinated: json['vaccinated'],
       
       actionType: json['action_type'],
       actionTitle: json['action_title'],
@@ -697,6 +725,8 @@ class HealthHistoryBlob {
       
       'trace_duration': traceDuration,
       'trace_tek': traceTEK,
+
+      'vaccinated': vaccinated,
       
       'action_type': actionType,
       'action_title': actionTitle,
@@ -722,6 +752,8 @@ class HealthHistoryBlob {
       (o.traceDuration == traceDuration) &&
       (o.traceTEK == traceTEK) &&
 
+      (o.vaccinated == vaccinated) &&
+
       (o.actionType == actionType) &&
       DeepCollectionEquality().equals(o.actionTitle, actionTitle) &&
       DeepCollectionEquality().equals(o.actionText, actionText) &&
@@ -744,6 +776,8 @@ class HealthHistoryBlob {
     (traceDuration?.hashCode ?? 0) ^
     (traceTEK?.hashCode ?? 0) ^
 
+    (vaccinated?.hashCode ?? 0) ^
+
     (actionType?.hashCode ?? 0) ^
     (DeepCollectionEquality().hash(actionTitle) ?? 0) ^
     (DeepCollectionEquality().hash(actionText) ?? 0) ^
@@ -752,7 +786,7 @@ class HealthHistoryBlob {
     (ListEquality().hash(extras) ?? 0);
 
   bool get isTest {
-    return (providerId != null) || (locationId != null) || (testType != null) || (testResult != null);
+    return (testType != null) && (testResult != null);
   }
 
   bool get isSymptoms {
@@ -761,6 +795,10 @@ class HealthHistoryBlob {
 
   bool get isContactTrace {
     return ((traceDuration != null) /*&& (traceTEK != null)*/);
+  }
+
+  bool get isVaccine {
+    return (vaccinated != null);
   }
 
   bool get isAction {
@@ -830,7 +868,7 @@ class HealthHistoryBlob {
 ////////////////////////////////
 // HealthHistoryType
 
-enum HealthHistoryType { test, manualTestVerified, manualTestNotVerified, symptoms, contactTrace, action }
+enum HealthHistoryType { test, manualTestVerified, manualTestNotVerified, symptoms, contactTrace, vaccine, action }
 
 HealthHistoryType healthHistoryTypeFromString(String value) {
   if (value == 'received_test') {
@@ -848,6 +886,9 @@ HealthHistoryType healthHistoryTypeFromString(String value) {
   else if (value == 'trace') {
     return HealthHistoryType.contactTrace;
   }
+  else if (value == 'vaccine') {
+    return HealthHistoryType.vaccine;
+  }
   else if (value == 'action') {
     return HealthHistoryType.action;
   }
@@ -863,6 +904,7 @@ String healthHistoryTypeToString(HealthHistoryType value) {
     case HealthHistoryType.manualTestNotVerified: return 'unverified_manual_test';
     case HealthHistoryType.symptoms: return 'symptoms';
     case HealthHistoryType.contactTrace: return 'trace';
+    case HealthHistoryType.vaccine: return 'vaccine';
     case HealthHistoryType.action: return 'action';
   }
   return null;
@@ -873,9 +915,9 @@ String healthHistoryTypeToString(HealthHistoryType value) {
 
 class HealthPendingEvent {
   final String   id;
+  final String   accountId;
   final String   provider;
   final String   providerId;
-  final String   accountId;
   final String   encryptedKey;
   final String   encryptedBlob;
   final bool     processed;
@@ -884,14 +926,14 @@ class HealthPendingEvent {
 
   HealthPendingEventBlob blob;
 
-  HealthPendingEvent({this.id, this.provider, this.providerId, this.accountId, this.encryptedKey, this.encryptedBlob, this.processed, this.dateCreated, this.dateUpdated});
+  HealthPendingEvent({this.id, this.accountId, this.provider, this.providerId, this.encryptedKey, this.encryptedBlob, this.processed, this.dateCreated, this.dateUpdated});
 
   factory HealthPendingEvent.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthPendingEvent(
       id:            AppJson.stringValue(json['id']),
+      accountId:     AppJson.stringValue(json['account_id']),
       provider:      AppJson.stringValue(json['provider']),
       providerId:    AppJson.stringValue(json['provider_id']),
-      accountId:     AppJson.stringValue(json['account_id']),
       encryptedKey:  AppJson.stringValue(json['encrypted_key']),
       encryptedBlob: AppJson.stringValue(json['encrypted_blob']),
       processed:     AppJson.boolValue(json['processed']),
@@ -903,9 +945,9 @@ class HealthPendingEvent {
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
     json['id']              = id;
+    json['account_id']      = accountId;
     json['provider']        = provider;
     json['provider_id']     = providerId;
-    json['account_id']         = accountId;
     json['encrypted_key']   = encryptedKey;
     json['encrypted_blob']  = encryptedBlob;
     json['processed']       = processed;
@@ -947,6 +989,10 @@ class HealthPendingEvent {
     return (blob != null) && blob.isTest && (providerId != null);
   }
 
+  bool get isVaccine {
+    return (blob != null) && blob.isVaccine;
+  }
+
   bool get isAction {
     return (blob != null) && blob.isAction;
   }
@@ -961,6 +1007,8 @@ class HealthPendingEventBlob {
   final String   testType;
   final String   testResult;
 
+  final bool     vaccinated;
+
   final String   actionType;
   final dynamic  actionTitle;
   final dynamic  actionText;
@@ -970,6 +1018,7 @@ class HealthPendingEventBlob {
 
   HealthPendingEventBlob({this.dateUtc,
     this.testType, this.testResult,
+    this.vaccinated,
     this.actionType, this.actionTitle, this.actionText, this.actionParams,
     this.extras});
 
@@ -979,6 +1028,8 @@ class HealthPendingEventBlob {
       
       testType:      AppJson.stringValue(json['TestName']),
       testResult:    AppJson.stringValue(json['Result']),
+
+      vaccinated:    AppJson.boolValue(json['Vaccinated']),
       
       actionType:    AppJson.stringValue(json['ActionType']),
       actionTitle:    json['ActionTitle'],
@@ -995,6 +1046,13 @@ class HealthPendingEventBlob {
         'Date': healthDateTimeToString(dateUtc),
         'TestName': testType,
         'Result': testResult,
+        'Extra': HealthEventExtra.listToJson(extras),
+      };
+    }
+    else if (vaccinated != null) {
+      return {
+        'Date': healthDateTimeToString(dateUtc),
+        'Vaccinated': vaccinated,
         'Extra': HealthEventExtra.listToJson(extras),
       };
     }
@@ -1018,6 +1076,10 @@ class HealthPendingEventBlob {
 
   bool get isTest {
     return AppString.isStringNotEmpty(testType) && AppString.isStringNotEmpty(testResult);
+  }
+
+  bool get isVaccine {
+    return (vaccinated != null);
   }
 
   bool get isAction {
@@ -2532,6 +2594,7 @@ class HealthRulesSet {
   final HealthTestRulesSet tests;
   final HealthSymptomsRulesSet symptoms;
   final HealthContactTraceRulesSet contactTrace;
+  final HealthVaccineRulesSet vaccines;
   final HealthActionRulesSet actions;
   final HealthDefaultsSet defaults;
   final HealthCodesSet codes;
@@ -2544,7 +2607,7 @@ class HealthRulesSet {
   static const String UserTestMonitorInterval = 'UserTestMonitorInterval';
   static const String FamilyMemberTestPrice = 'FamilyMemberTestPrice';
 
-  HealthRulesSet({this.tests, this.symptoms, this.contactTrace, this.actions, this.defaults, HealthCodesSet codes, this.statuses, this.intervals, Map<String, dynamic> constants, Map<String, dynamic> strings}) :
+  HealthRulesSet({this.tests, this.symptoms, this.contactTrace, this.vaccines, this.actions, this.defaults, HealthCodesSet codes, this.statuses, this.intervals, Map<String, dynamic> constants, Map<String, dynamic> strings}) :
     this.codes = codes ?? HealthCodesSet(),
     this.strings = strings ?? Map<String, dynamic>(),
     this.constants = constants ?? Map<String, dynamic>();
@@ -2554,6 +2617,7 @@ class HealthRulesSet {
       tests: HealthTestRulesSet.fromJson(json['tests']),
       symptoms: HealthSymptomsRulesSet.fromJson(json['symptoms']),
       contactTrace: HealthContactTraceRulesSet.fromJson(json['contact_trace']),
+      vaccines: HealthVaccineRulesSet.fromJson(json['vaccines']), 
       actions: HealthActionRulesSet.fromJson(json['actions']),
       defaults: HealthDefaultsSet.fromJson(json['defaults']),
       codes: HealthCodesSet.fromJson(json['codes']),
@@ -2568,6 +2632,7 @@ class HealthRulesSet {
       (o.tests == tests) &&
       (o.symptoms == symptoms) &&
       (o.contactTrace == contactTrace) &&
+      (o.vaccines == vaccines) &&
       (o.actions == actions) &&
       (o.defaults == defaults) &&
       (o.codes == codes) &&
@@ -2580,6 +2645,7 @@ class HealthRulesSet {
     (tests?.hashCode ?? 0) ^
     (symptoms?.hashCode ?? 0) ^
     (contactTrace?.hashCode ?? 0) ^
+    (vaccines?.hashCode ?? 0) ^
     (actions?.hashCode ?? 0) ^
     (defaults?.hashCode ?? 0) ^
     (codes?.hashCode ?? 0) ^
@@ -3099,6 +3165,81 @@ class HealthContactTraceRule {
 }
 
 ///////////////////////////////
+// HealthVaccineRulesSet
+
+class HealthVaccineRulesSet {
+  final List<HealthVaccineRule> _rules;
+
+  HealthVaccineRulesSet({List<HealthVaccineRule> rules}) : _rules = rules;
+
+  factory HealthVaccineRulesSet.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthVaccineRulesSet(
+      rules: HealthVaccineRule.listFromJson(json['rules']),
+    ) : null;
+  }
+
+  bool operator ==(o) =>
+    (o is HealthVaccineRulesSet) &&
+      ListEquality().equals(o._rules, _rules);
+
+  int get hashCode =>
+    ListEquality().hash(_rules);
+
+  HealthVaccineRule matchRule({ HealthHistoryBlob blob, HealthRulesSet rules }) {
+    if (_rules != null) {
+      for (HealthVaccineRule rule in _rules) {
+        if (rule._matchBlob(blob, rules: rules)) {
+          return rule;
+        }
+      }
+    }
+    return null;
+  }
+}
+
+///////////////////////////////
+// HealthVaccineRule
+
+class HealthVaccineRule {
+  final bool vaccinated;
+  final _HealthRuleStatus status;
+
+  HealthVaccineRule({this.vaccinated, this.status});
+
+  factory HealthVaccineRule.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthVaccineRule(
+      vaccinated: json['vaccinated'],
+      status: _HealthRuleStatus.fromJson(json['status']),
+    ) : null;
+  }
+
+  bool operator ==(o) =>
+    (o is HealthVaccineRule) &&
+      (o.vaccinated == vaccinated) &&
+      (o.status == status);
+
+  int get hashCode =>
+    (vaccinated?.hashCode ?? 0) ^
+    (status?.hashCode ?? 0);
+
+  static List<HealthVaccineRule> listFromJson(List<dynamic> json) {
+    List<HealthVaccineRule> values;
+    if (json != null) {
+      values = [];
+      for (dynamic entry in json) {
+          try { values.add(HealthVaccineRule.fromJson((entry as Map)?.cast<String, dynamic>())); }
+          catch(e) { print(e?.toString()); }
+      }
+    }
+    return values;
+  }
+
+  bool _matchBlob(HealthHistoryBlob blob, {HealthRulesSet rules}) {
+    return (vaccinated != null) && (vaccinated == blob?.vaccinated);
+  }
+}
+
+///////////////////////////////
 // HealthActionRulesSet
 
 class HealthActionRulesSet {
@@ -3315,10 +3456,10 @@ class HealthRuleStatus extends _HealthRuleStatus {
 
   @override
   HealthRuleStatus eval({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
-    int originIndex = (nextStepInterval?.origin(rules: rules, params: params) == HealthRuleIntervalOrigin.referenceDate) ? referenceIndex : historyIndex;
+    int originIndex = (nextStepInterval?.origin(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params) == HealthRuleIntervalOrigin.referenceDate) ? referenceIndex : historyIndex;
     HealthHistory originEntry = ((history != null) && (originIndex != null) && (0 <= originIndex) && (originIndex < history.length)) ? history[originIndex] : null;
     DateTime originDateUtc = originEntry?.dateUtc;
-    int numberOfDays = nextStepInterval?.value(rules: rules, params: params);
+    int numberOfDays = nextStepInterval?.value(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
 
     return HealthRuleStatus.fromStatus(this,
       nextStepDateUtc: ((originDateUtc != null) && (numberOfDays != null)) ? originDateUtc.add(Duration(days: numberOfDays)) : null,
@@ -3362,19 +3503,18 @@ class HealthRuleReferenceStatus extends _HealthRuleStatus {
 ///////////////////////////////
 // HealthRuleConditionalStatus
 
-class HealthRuleConditionalStatus extends _HealthRuleStatus {
+class HealthRuleConditionalStatus extends _HealthRuleStatus with HealthRuleCondition {
   final String condition;
-  final Map<String, dynamic> _params; // Defferentiate from params parameter
+  final Map<String, dynamic> conditionParams;
   final _HealthRuleStatus successStatus;
   final _HealthRuleStatus failStatus;
 
-  HealthRuleConditionalStatus({this.condition, Map<String, dynamic> params, this.successStatus, this.failStatus}) :
-    _params = params;
+  HealthRuleConditionalStatus({this.condition, this.conditionParams, this.successStatus, this.failStatus});
 
   factory HealthRuleConditionalStatus.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthRuleConditionalStatus(
       condition: json['condition'],
-      params: json['params'],
+      conditionParams: json['params'],
       successStatus: _HealthRuleStatus.fromJson(json['success']) ,
       failStatus: _HealthRuleStatus.fromJson(json['fail']),
     ) : null;
@@ -3387,215 +3527,21 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus {
   bool operator ==(o) =>
     (o is HealthRuleConditionalStatus) &&
       (o.condition == condition) &&
-      (MapEquality().equals(o._params, _params)) &&
+      (MapEquality().equals(o.conditionParams, conditionParams)) &&
       (o.successStatus == successStatus) &&
       (o.failStatus == failStatus);
 
   int get hashCode =>
     (condition?.hashCode ?? 0) ^
-    (MapEquality().hash(_params)) ^
+    (MapEquality().hash(conditionParams)) ^
     (successStatus?.hashCode ?? 0) ^
     (failStatus?.hashCode ?? 0);
 
   @override
   HealthRuleStatus eval({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
-    dynamic result;
-    if (condition == 'require-test') {
-      // (index >= 0) / -1 / null
-      result = _evalRequireTest(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
-    }
-    else if (condition == 'require-symptoms') {
-      // (index >= 0) / -1 / null
-      result = _evalRequireSymptoms(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
-    }
-    else if (condition == 'timeout') {
-      // true / false / null
-      result = _evalTimeout(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
-    }
-    else if (condition == 'test-user') {
-      // true / false
-      result = HealthRuleIntervalCondition._evalTestUser(_params, rules: rules, params: params);
-    }
-    else if (condition == 'test-interval') {
-      // true / false
-      result = HealthRuleIntervalCondition._evalTestInterval(_params, rules: rules, params: params);
-    }
-    
-    _HealthRuleStatus status;
-    if (result is bool) {
-      status = result ? successStatus : failStatus;
-    }
-    else if (result is int) {
-      if (0 <= result) {
-        status = successStatus;
-        referenceIndex = result;
-      }
-      else {
-        status = failStatus;
-      }
-    }
-
-    return status?.eval(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
-  }
-
-  dynamic _evalRequireTest({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
-    
-    _HealthRuleInterval interval = (_params != null) ? _HealthRuleInterval.fromJson(_params['interval']) : null;
-    if (interval == null) {
-      return null;
-    }
-
-    int originIndex = (interval.origin(rules: rules, params: params) == HealthRuleIntervalOrigin.referenceDate) ? referenceIndex : historyIndex;
-    HealthHistory originEntry = ((history != null) && (originIndex != null) && (0 <= originIndex) && (originIndex < history.length)) ? history[originIndex] : null;
-    DateTime originDateMidnightLocal = originEntry?.dateMidnightLocal;
-    if (originDateMidnightLocal == null) {
-      return null;
-    }
-
-    dynamic category = (_params != null) ? _params['category'] : null;
-    if (category is List) {
-      category = Set.from(category);
-    }
-
-    int scope = interval.scope(rules: rules, params: params) ?? 0;
-    if (0 < scope) { // check only newer items than the current
-      for (int index = originIndex - 1; 0 <= index; index--) {
-        if (_evalRequireTestEntryFulfills(history[index], originDateMidnightLocal: originDateMidnightLocal, interval: interval, category: category, rules: rules, params: params)) {
-          return index;
-        }
-      }
-    }
-    else if (0 < scope) { // check only older items than the current
-      for (int index = originIndex + 1; index < history.length; index++) {
-        if (_evalRequireTestEntryFulfills(history[index], originDateMidnightLocal: originDateMidnightLocal, interval: interval, category: category, rules: rules, params: params)) {
-          return index;
-        }
-      }
-    }
-    else { // check all history items
-      for (int index = 0; index < history.length; index++) {
-        if ((index != originIndex) && _evalRequireTestEntryFulfills(history[index], originDateMidnightLocal: originDateMidnightLocal, interval: interval, category: category, rules: rules, params: params)) {
-          return index;
-        }
-      }
-    }
-
-    // If positive time interval is not already expired - do not return failed status yet.
-    if ((interval.current(rules: rules, params: params) == true) && _evalCurrentIntervalFulfills(interval, originDateMidnightLocal: originDateMidnightLocal, rules: rules, params: params)) {
-      return originIndex;
-    }
-
-    return -1;
-  }
-
-  static bool _evalRequireTestEntryFulfills(HealthHistory entry, { DateTime originDateMidnightLocal,  _HealthRuleInterval interval, dynamic category, HealthRulesSet rules, Map<String, dynamic> params }) {
-    if (entry.isTest && entry.canTestUpdateStatus) {
-      DateTime entryDateMidnightLocal = entry.dateMidnightLocal;
-      //#572 Building access calculation issue 
-      //int difference = entryDateMidnightLocal.difference(originDateMidnightLocal).inDays;
-      int difference = AppDateTime.midnightsDifferenceInDays(originDateMidnightLocal, entryDateMidnightLocal);
-      if (interval.match(difference, rules: rules, params: params)) {
-        if (category == null) {
-          return true; // any test matches
-        }
-        else {
-          HealthTestRuleResult entryRuleResult = rules?.tests?.matchRuleResult(blob: entry?.blob);
-          if ((entryRuleResult != null) && (entryRuleResult.category != null) &&
-              (((category is String) && (category == entryRuleResult.category)) ||
-                ((category is Set) && category.contains(entryRuleResult.category))))
-          {
-            return true; // only tests from given category matches
-          }
-        }
-      }
-    }
-    return false;
-  }
-
-  dynamic _evalRequireSymptoms({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
-    _HealthRuleInterval interval = (_params != null) ? _HealthRuleInterval.fromJson(_params['interval']) : null;
-    if (interval == null) {
-      return null;
-    }
-
-    int originIndex = (interval.origin(rules: rules, params: params) == HealthRuleIntervalOrigin.referenceDate) ? referenceIndex : historyIndex;
-    HealthHistory originEntry = ((history != null) && (originIndex != null) && (0 <= originIndex) && (originIndex < history.length)) ? history[originIndex] : null;
-    DateTime originDateMidnightLocal = originEntry?.dateMidnightLocal;
-    if (originDateMidnightLocal == null) {
-      return null;
-    }
-
-    int scope = interval.scope(rules: rules, params: params) ?? 0;
-    if (0 < scope) { // check only newer items than the current
-      for (int index = originIndex - 1; 0 <= index; index--) {
-        if (_evalRequireSymptomsEntryFulfills(history[index], originDateMidnightLocal: originDateMidnightLocal, interval: interval, rules: rules, params: params)) {
-          return index;
-        }
-      }
-    }
-    else if (0 < scope) { // check only older items than the current
-      for (int index = originIndex + 1; index < history.length; index++) {
-        if (_evalRequireSymptomsEntryFulfills(history[index], originDateMidnightLocal: originDateMidnightLocal, interval: interval, rules: rules, params: params)) {
-          return index;
-        }
-      }
-    }
-    else { // check all history items
-      for (int index = 0; index < history.length; index++) {
-        if ((index != originIndex) && _evalRequireSymptomsEntryFulfills(history[index], originDateMidnightLocal: originDateMidnightLocal, interval: interval, rules: rules, params: params)) {
-          return index;
-        }
-      }
-    }
-
-    // If positive time interval is not already expired - do not return failed status yet.
-    if ((interval.current(rules: rules, params: params) == true) && _evalCurrentIntervalFulfills(interval, originDateMidnightLocal: originDateMidnightLocal, rules: rules, params: params)) {
-      return originIndex;
-    }
-
-    return -1;
-  }
-
-  static bool _evalRequireSymptomsEntryFulfills(HealthHistory entry, { DateTime originDateMidnightLocal,  _HealthRuleInterval interval, HealthRulesSet rules, Map<String, dynamic> params }) {
-    if (entry.isSymptoms) {
-      DateTime entryDateMidnightLocal = entry.dateMidnightLocal;
-      //#572 Building access calculation issue 
-      //int difference = entryDateMidnightLocal.difference(originDateMidnightLocal).inDays;
-      int difference = AppDateTime.midnightsDifferenceInDays(originDateMidnightLocal, entryDateMidnightLocal);
-      if (interval.match(difference, rules: rules, params: params)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  dynamic _evalTimeout({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
-    _HealthRuleInterval interval = (_params != null) ? _HealthRuleInterval.fromJson(_params['interval']) : null;
-    if (interval == null) {
-      return null;
-    }
-
-    int originIndex = (interval.origin(rules: rules, params: params) == HealthRuleIntervalOrigin.referenceDate) ? referenceIndex : historyIndex;
-    HealthHistory originEntry = ((history != null) && (originIndex != null) && (0 <= originIndex) && (originIndex < history.length)) ? history[originIndex] : null;
-    DateTime originDateMidnightLocal = originEntry?.dateMidnightLocal;
-    if (originDateMidnightLocal == null) {
-      return null;
-    }
-
-    // while current time is within interval 'timeout' condition fails
-    return !_evalCurrentIntervalFulfills(interval, originDateMidnightLocal: originDateMidnightLocal, rules: rules, params: params);
-  }
-
-  static bool _evalCurrentIntervalFulfills(_HealthRuleInterval currentInterval, { DateTime originDateMidnightLocal, HealthRulesSet rules, Map<String, dynamic> params } ) {
-    if (currentInterval != null) {
-      //#572 Building access calculation issue 
-      //int difference = AppDateTime.todayMidnightLocal.difference(originDateMidnightLocal).inDays;
-      int difference = AppDateTime.midnightsDifferenceInDays(originDateMidnightLocal, AppDateTime.todayMidnightLocal);
-      if (currentInterval.match(difference, rules: rules, params: params)) {
-        return true;
-      }
-    }
-    return false;
+    HealthRuleConditionResult conditionResult = evalCondition(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+    _HealthRuleStatus status = (conditionResult?.result != null) ? (conditionResult.result ? successStatus : failStatus) : null;
+    return status?.eval(history: history, historyIndex: historyIndex, referenceIndex: conditionResult?.referenceIndex ?? referenceIndex, rules: rules, params: params);
   }
 }
 
@@ -3625,12 +3571,12 @@ abstract class _HealthRuleInterval {
     return null;
   }
 
-  bool match(int value, { HealthRulesSet rules, Map<String, dynamic> params });
-  int  value({ HealthRulesSet rules, Map<String, dynamic> params });
-  bool valid({ HealthRulesSet rules, Map<String, dynamic> params });
-  int  scope({ HealthRulesSet rules, Map<String, dynamic> params });
-  bool current({ HealthRulesSet rules, Map<String, dynamic> params });
-  HealthRuleIntervalOrigin origin({ HealthRulesSet rules, Map<String, dynamic> params });
+  bool match(int value, { List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params });
+  int  value({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params });
+  bool valid({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params });
+  int  scope({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params });
+  bool current({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params });
+  HealthRuleIntervalOrigin origin({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params });
 
   static Map<String, _HealthRuleInterval> mapFromJson(Map<String, dynamic> json) {
     Map<String, _HealthRuleInterval> result;
@@ -3666,12 +3612,12 @@ class HealthRuleIntervalValue extends _HealthRuleInterval {
   int get hashCode =>
     (_value?.hashCode ?? 0);
 
-  @override bool match(int value, { HealthRulesSet rules, Map<String, dynamic> params }) { return (_value == value); }
-  @override int  value({ HealthRulesSet rules, Map<String, dynamic> params })            { return _value; }
-  @override bool valid({ HealthRulesSet rules, Map<String, dynamic> params })            { return (_value != null); }
-  @override int  scope({ HealthRulesSet rules, Map<String, dynamic> params })            { return null; }
-  @override bool current({ HealthRulesSet rules, Map<String, dynamic> params })          { return null; }
-  @override HealthRuleIntervalOrigin origin({ HealthRulesSet rules, Map<String, dynamic> params }) { return null; }
+  @override bool match(int value, { List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {return (_value == value); }
+  @override int  value({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params })            { return _value; }
+  @override bool valid({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params })            { return (_value != null); }
+  @override int  scope({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params })            { return null; }
+  @override bool current({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params })          { return null; }
+  @override HealthRuleIntervalOrigin origin({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) { return null; }
 }
 
 ///////////////////////////////
@@ -3722,22 +3668,22 @@ class HealthRuleInterval extends _HealthRuleInterval {
     (_origin?.hashCode ?? 0);
 
   @override
-  bool match(int value, { HealthRulesSet rules, Map<String, dynamic> params }) {
+  bool match(int value, { List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
     if (value != null) {
       if (_min != null) {
-        int minValue = _min.value(rules: rules, params: params);
+        int minValue = _min.value(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
         if ((minValue == null) || (minValue > value)) {
           return false;
         }
       }
       if (_max != null) {
-        int maxValue = _max.value(rules: rules, params: params);
+        int maxValue = _max.value(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
         if ((maxValue == null) || (maxValue < value)) {
           return false;
         }
       }
       if (_value != null) {
-        int valueValue = _value.value(rules: rules, params: params);
+        int valueValue = _value.value(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
         if ((valueValue == null) || (valueValue != value)) {
           return false;
         }
@@ -3747,16 +3693,16 @@ class HealthRuleInterval extends _HealthRuleInterval {
     return false;
   }
 
-  @override bool valid({ HealthRulesSet rules, Map<String, dynamic> params })   {
-    return ((_min == null) || _min.valid(rules: rules, params: params)) &&
-           ((_max == null) || _max.valid(rules: rules, params: params)) &&
-           ((_value == null) || _value.valid(rules: rules, params: params));
+  @override bool valid({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params })   {
+    return ((_min == null) || _min.valid(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params)) &&
+           ((_max == null) || _max.valid(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params)) &&
+           ((_value == null) || _value.valid(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params));
   }
 
-  @override int  value({ HealthRulesSet rules, Map<String, dynamic> params })   { return _value?.value(rules: rules, params: params); }
-  @override int  scope({ HealthRulesSet rules, Map<String, dynamic> params })   { return _scope; }
-  @override bool current({ HealthRulesSet rules, Map<String, dynamic> params }) { return _current; }
-  @override HealthRuleIntervalOrigin origin({ HealthRulesSet rules, Map<String, dynamic> params }) { return _origin; }
+  @override int  value({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params })   { return _value?.value(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params); }
+  @override int  scope({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params })   { return _scope; }
+  @override bool current({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) { return _current; }
+  @override HealthRuleIntervalOrigin origin({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) { return _origin; }
 
   static int _scopeFromJson(dynamic value) {
     if (value is String) {
@@ -3811,39 +3757,38 @@ class HealthRuleIntervalReference extends _HealthRuleInterval {
   int get hashCode =>
     (_reference?.hashCode ?? 0);
 
-  _HealthRuleInterval _referenceInterval({ HealthRulesSet rules, Map<String, dynamic> params }) {
+  _HealthRuleInterval _referenceInterval({HealthRulesSet rules, Map<String, dynamic> params }) {
     _HealthRuleInterval referenceParamInterval = (params != null) ? _HealthRuleInterval.fromJson(params[_reference]) : null;
     return (referenceParamInterval != null) ? referenceParamInterval : rules?._getInterval(_reference);
   }
 
   @override
-  bool match(int value, { HealthRulesSet rules, Map<String, dynamic> params }) {
-    return _referenceInterval(rules: rules, params: params)?.match(value, rules: rules, params: params) ?? false;
+  bool match(int value, { List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
+    return _referenceInterval(rules: rules, params: params)?.match(value, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params) ?? false;
   }
   
-  @override bool valid({ HealthRulesSet rules, Map<String, dynamic> params })   { return _referenceInterval(rules: rules, params: params)?.valid(rules: rules, params: params) ?? false; }
-  @override int  value({ HealthRulesSet rules, Map<String, dynamic> params })   { return _referenceInterval(rules: rules, params: params)?.value(rules: rules, params: params); }
-  @override int  scope({ HealthRulesSet rules, Map<String, dynamic> params })   { return _referenceInterval(rules: rules, params: params)?.scope(rules: rules, params: params); }
-  @override bool current({ HealthRulesSet rules, Map<String, dynamic> params }) { return _referenceInterval(rules: rules, params: params)?.current(rules: rules, params: params); }
-  @override HealthRuleIntervalOrigin origin({ HealthRulesSet rules, Map<String, dynamic> params }) { return _referenceInterval(rules: rules, params: params)?.origin(rules: rules, params: params); }
+  @override bool valid({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params })   { return _referenceInterval(rules: rules, params: params)?.valid(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params) ?? false; }
+  @override int  value({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params })   { return _referenceInterval(rules: rules, params: params)?.value(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params); }
+  @override int  scope({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params })   { return _referenceInterval(rules: rules, params: params)?.scope(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params); }
+  @override bool current({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) { return _referenceInterval(rules: rules, params: params)?.current(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params); }
+  @override HealthRuleIntervalOrigin origin({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) { return _referenceInterval(rules: rules, params: params)?.origin(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params); }
 }
 
 ///////////////////////////////
 // HealthRuleIntervalCondition
 
-class HealthRuleIntervalCondition extends _HealthRuleInterval {
+class HealthRuleIntervalCondition extends _HealthRuleInterval with HealthRuleCondition {
   final String condition;
-  final Map<String, dynamic> _params; // Defferentiate from params parameter
+  final Map<String, dynamic> conditionParams;
   final _HealthRuleInterval successInterval;
   final _HealthRuleInterval failInterval;
   
-  HealthRuleIntervalCondition({this.condition, Map<String, dynamic> params, this.successInterval, this.failInterval}) :
-    _params = params;
+  HealthRuleIntervalCondition({this.condition, this.conditionParams, this.successInterval, this.failInterval});
 
   factory HealthRuleIntervalCondition.fromJson(Map<String, dynamic> json) {
     return (json is Map) ? HealthRuleIntervalCondition(
       condition: json['condition'],
-      params: json['params'],
+      conditionParams: json['params'],
       successInterval: _HealthRuleInterval.fromJson(json['success']) ,
       failInterval: _HealthRuleInterval.fromJson(json['fail']),
     ) : null;
@@ -3856,51 +3801,232 @@ class HealthRuleIntervalCondition extends _HealthRuleInterval {
   bool operator ==(o) =>
     (o is HealthRuleIntervalCondition) &&
       (o.condition == condition) &&
-      (MapEquality().equals(o._params, _params)) &&
+      (MapEquality().equals(o.conditionParams, conditionParams)) &&
       (o.successInterval == successInterval) &&
       (o.failInterval == failInterval);
 
   int get hashCode =>
     (condition?.hashCode ?? 0) ^
-    (MapEquality().hash(_params)) ^
+    (MapEquality().hash(conditionParams)) ^
     (successInterval?.hashCode ?? 0) ^
     (failInterval?.hashCode ?? 0);
 
   @override
-  bool match(int value, { HealthRulesSet rules, Map<String, dynamic> params }) {
-    return _referenceInterval(rules: rules, params: params)?.match(value, rules: rules, params: params) ?? false;
+  bool match(int value, { List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
+    HealthRuleConditionResult conditionResult = evalCondition(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+    _HealthRuleInterval interval = (conditionResult?.result != null) ? (conditionResult.result ? successInterval : failInterval) : null;
+    return interval?.match(value, history: history, historyIndex: historyIndex, referenceIndex: conditionResult?.referenceIndex ?? referenceIndex, rules: rules, params: params) ?? false;
   }
   
-  @override bool valid({ HealthRulesSet rules, Map<String, dynamic> params })   { return _referenceInterval(rules: rules, params: params)?.valid(rules: rules, params: params) ?? false; }
-  @override int  value({ HealthRulesSet rules, Map<String, dynamic> params })   { return _referenceInterval(rules: rules, params: params)?.value(rules: rules, params: params); }
-  @override int  scope({ HealthRulesSet rules, Map<String, dynamic> params })   { return _referenceInterval(rules: rules, params: params)?.scope(rules: rules, params: params); }
-  @override bool current({ HealthRulesSet rules, Map<String, dynamic> params }) { return _referenceInterval(rules: rules, params: params)?.current(rules: rules, params: params); }
-  @override HealthRuleIntervalOrigin origin({ HealthRulesSet rules, Map<String, dynamic> params }) { return _referenceInterval(rules: rules, params: params)?.origin(rules: rules, params: params); }
-
-  _HealthRuleInterval _referenceInterval({ HealthRulesSet rules, Map<String, dynamic> params }) {
-    dynamic result;
-    if (condition == 'test-user') {
-      // true / false
-      result = _evalTestUser(_params, rules: rules, params: params);
-    }
-    else if (condition == 'test-interval') {
-      // true / false
-      result = _evalTestInterval(_params, rules: rules, params: params);
-    }
+  @override
+  bool valid({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
+    HealthRuleConditionResult conditionResult = evalCondition(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+    _HealthRuleInterval interval = (conditionResult?.result != null) ? (conditionResult.result ? successInterval : failInterval) : null;
+    return interval?.valid(history: history, historyIndex: historyIndex, referenceIndex: conditionResult?.referenceIndex ?? referenceIndex, rules: rules, params: params) ?? false;
+  }
   
-    _HealthRuleInterval interval;
-    if (result is bool) {
-      interval = result ? successInterval : failInterval;
-    }
-    return interval;
+  @override
+  int value({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
+    HealthRuleConditionResult conditionResult = evalCondition(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+    _HealthRuleInterval interval = (conditionResult?.result != null) ? (conditionResult.result ? successInterval : failInterval) : null;
+    return interval?.value(history: history, historyIndex: historyIndex, referenceIndex: conditionResult?.referenceIndex ?? referenceIndex, rules: rules, params: params);
+  }
+  
+  @override
+  int scope({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
+    HealthRuleConditionResult conditionResult = evalCondition(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+    _HealthRuleInterval interval = (conditionResult?.result != null) ? (conditionResult.result ? successInterval : failInterval) : null;
+    return interval?.scope(history: history, historyIndex: historyIndex, referenceIndex: conditionResult?.referenceIndex ?? referenceIndex, rules: rules, params: params);
+  }
+  
+  @override
+  bool current({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
+    HealthRuleConditionResult conditionResult = evalCondition(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+    _HealthRuleInterval interval = (conditionResult?.result != null) ? (conditionResult.result ? successInterval : failInterval) : null;
+    return interval?.current(history: history, historyIndex: historyIndex, referenceIndex: conditionResult?.referenceIndex ?? referenceIndex, rules: rules, params: params);
+  }
+  
+  @override
+  HealthRuleIntervalOrigin origin({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
+    HealthRuleConditionResult conditionResult = evalCondition(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+    _HealthRuleInterval interval = (conditionResult?.result != null) ? (conditionResult.result ? successInterval : failInterval) : null;
+    return interval?.origin(history: history, historyIndex: historyIndex, referenceIndex: conditionResult?.referenceIndex ?? referenceIndex, rules: rules, params: params);
+  }
 }
 
-  static dynamic _evalTestInterval(Map<String, dynamic> conditionParams, { HealthRulesSet rules, Map<String, dynamic> params }) {
-    dynamic interval = (conditionParams != null) ? _HealthRuleInterval.fromJson(conditionParams['interval']) : null;
-    return (interval?.valid(rules: rules, params: params) ?? false);
+///////////////////////////////
+// HealthRuleCondition
+
+abstract class HealthRuleCondition {
+  String get condition;
+  Map<String, dynamic> get conditionParams;
+
+  HealthRuleConditionResult evalCondition({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
+    dynamic result;
+    if (condition == 'require-test') {
+      // (index >= 0) / -1 / null
+      result = _evalRequireEntry([HealthHistoryType.test, HealthHistoryType.manualTestVerified], history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+    }
+    else if (condition == 'require-symptoms') {
+      // (index >= 0) / -1 / null
+      result = _evalRequireEntry(HealthHistoryType.symptoms, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+    }
+    else if (condition == 'require-contact-trace') {
+      // (index >= 0) / -1 / null
+      result = _evalRequireEntry(HealthHistoryType.contactTrace, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+    }
+    else if (condition == 'require-vaccine') {
+      // (index >= 0) / -1 / null
+      result = _evalRequireEntry(HealthHistoryType.vaccine, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+    }
+    else if (condition == 'require-action') {
+      // (index >= 0) / -1 / null
+      result = _evalRequireEntry(HealthHistoryType.action, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+    }
+    else if (condition == 'timeout') {
+      // true / false / null
+      result = _evalTimeout(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+    }
+    else if (condition == 'test-user') {
+      // true / false / null
+      result = _evalTestUser(conditionParams, rules: rules, params: params);
+    }
+    else if (condition == 'test-interval') {
+      // true / false / null
+      result = _evalTestInterval(conditionParams, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+    }
+  
+    if (result is bool) {
+      return HealthRuleConditionResult(result: result);
+    }
+    else if (result is int) {
+      if (0 <= result) {
+        return HealthRuleConditionResult(result: true, referenceIndex: result);
+      }
+      else {
+        return HealthRuleConditionResult(result: false);
+      }
+    }
+    else {
+      return null;
+    }
   }
 
-  static dynamic _evalTestUser(Map<String, dynamic> conditionParams, { HealthRulesSet rules, Map<String, dynamic> params }) {
+  dynamic _evalRequireEntry(dynamic historyType, { List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
+    _HealthRuleInterval interval = (conditionParams != null) ? _HealthRuleInterval.fromJson(conditionParams['interval']) : null;
+    if (interval == null) {
+      return null;
+    }
+
+    int originIndex = (interval.origin(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params) == HealthRuleIntervalOrigin.referenceDate) ? referenceIndex : historyIndex;
+    HealthHistory originEntry = ((history != null) && (originIndex != null) && (0 <= originIndex) && (originIndex < history.length)) ? history[originIndex] : null;
+    DateTime originDateMidnightLocal = originEntry?.dateMidnightLocal;
+    if (originDateMidnightLocal == null) {
+      return null;
+    }
+
+    int scope = interval.scope(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params) ?? 0;
+    if (0 < scope) { // check only newer items than the current
+      for (int index = originIndex - 1; 0 <= index; index--) {
+        if (_evalRequireEntryFulfills(history[index], historyType, originDateMidnightLocal: originDateMidnightLocal, interval: interval, rules: rules, params: params)) {
+          return index;
+        }
+      }
+    }
+    else if (0 < scope) { // check only older items than the current
+      for (int index = originIndex + 1; index < history.length; index++) {
+        if (_evalRequireEntryFulfills(history[index], historyType, originDateMidnightLocal: originDateMidnightLocal, interval: interval, rules: rules, params: params)) {
+          return index;
+        }
+      }
+    }
+    else { // check all history items
+      for (int index = 0; index < history.length; index++) {
+        if ((index != originIndex) && _evalRequireEntryFulfills(history[index], historyType, originDateMidnightLocal: originDateMidnightLocal, interval: interval, rules: rules, params: params)) {
+          return index;
+        }
+      }
+    }
+
+    // If positive time interval is not already expired - do not return failed status yet.
+    if ((interval.current(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params) == true) && _evalCurrentIntervalFulfills(interval, originDateMidnightLocal, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params)) {
+      return originIndex;
+    }
+
+    return -1;
+  }
+
+  bool _evalRequireEntryFulfills(HealthHistory entry, dynamic historyType, { DateTime originDateMidnightLocal, _HealthRuleInterval interval, List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
+    if (_matchValue(historyType, entry.type)) {
+      DateTime entryDateMidnightLocal = entry.dateMidnightLocal;
+      
+      //#572 Building access calculation issue 
+      //int difference = entryDateMidnightLocal.difference(originDateMidnightLocal).inDays;
+      int difference = AppDateTime.midnightsDifferenceInDays(originDateMidnightLocal, entryDateMidnightLocal);
+      if (interval.match(difference, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params)) {
+
+        // check filters before returning successfull match
+        if (_matchValue(historyType, HealthHistoryType.test)) {
+          dynamic category = (conditionParams != null) ? conditionParams['category'] : null;
+          if (category != null) {
+            HealthTestRuleResult entryRuleResult = rules?.tests?.matchRuleResult(blob: entry?.blob);
+            return _matchValue(category, entryRuleResult?.category);
+          }
+        }
+        else if (_matchValue(historyType, HealthHistoryType.action)) {
+          dynamic type = (conditionParams != null) ? conditionParams['type'] : null;
+          if ((type != null) && !_matchValue(entry, entry?.blob?.actionType)) {
+            return false;
+          }
+        }
+        else if (_matchValue(historyType, HealthHistoryType.vaccine)) {
+          dynamic vaccinated = (conditionParams != null) ? conditionParams['vaccinated'] : null;
+          if ((vaccinated != null) && (entry?.blob?.vaccinated != vaccinated)) {
+            return false;
+          }
+        }
+
+        return true;
+      }
+    }
+    return false;
+  }
+
+  dynamic _evalTimeout({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
+    _HealthRuleInterval interval = (conditionParams != null) ? _HealthRuleInterval.fromJson(conditionParams['interval']) : null;
+    if (interval == null) {
+      return null;
+    }
+
+    int originIndex = (interval.origin(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params) == HealthRuleIntervalOrigin.referenceDate) ? referenceIndex : historyIndex;
+    HealthHistory originEntry = ((history != null) && (originIndex != null) && (0 <= originIndex) && (originIndex < history.length)) ? history[originIndex] : null;
+    DateTime originDateMidnightLocal = originEntry?.dateMidnightLocal;
+    if (originDateMidnightLocal == null) {
+      return null;
+    }
+
+    // while current time is within interval 'timeout' condition fails
+    return !_evalCurrentIntervalFulfills(interval, originDateMidnightLocal, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+  }
+
+  static bool _evalCurrentIntervalFulfills(_HealthRuleInterval currentInterval, DateTime originDateMidnightLocal, { List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params } ) {
+    if (currentInterval != null) {
+      //#572 Building access calculation issue 
+      //int difference = AppDateTime.todayMidnightLocal.difference(originDateMidnightLocal).inDays;
+      int difference = AppDateTime.midnightsDifferenceInDays(originDateMidnightLocal, AppDateTime.todayMidnightLocal);
+      if (currentInterval.match(difference, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static bool _evalTestInterval(Map<String, dynamic> conditionParams, { List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
+    dynamic interval = (conditionParams != null) ? _HealthRuleInterval.fromJson(conditionParams['interval']) : null;
+    return interval?.valid(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+  }
+
+  static bool _evalTestUser(Map<String, dynamic> conditionParams, { HealthRulesSet rules, Map<String, dynamic> params }) {
     
     dynamic role = (conditionParams != null) ? conditionParams['role'] : null;
     if ((role != null) && !_matchStringTarget(target: UserRole.userRolesToList(UserProfile().roles), source: role)) {
@@ -3944,6 +4070,10 @@ class HealthRuleIntervalCondition extends _HealthRuleInterval {
     return true;
   }
 
+  static bool _matchValue(dynamic values, dynamic value) {
+    return (values == value) || ((values is List) && values.contains(value)) || ((values is Set) && values.contains(value));
+  }
+
   static bool _matchStringTarget({dynamic source, dynamic target}) {
     if (target is String) {
       if (source is String) {
@@ -3966,6 +4096,12 @@ class HealthRuleIntervalCondition extends _HealthRuleInterval {
     }
     return false;
   }
+}
+
+class HealthRuleConditionResult {
+  final bool result;
+  final int  referenceIndex;
+  HealthRuleConditionResult({this.result, this.referenceIndex});
 }
 
 ///////////////////////////////

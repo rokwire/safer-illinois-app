@@ -834,40 +834,24 @@ class Health with Service implements NotificationsListener {
 
         HealthRuleStatus ruleStatus;
         if (historyEntry.isTest && historyEntry.canTestUpdateStatus) {
-          if (rules.tests != null) {
-            HealthTestRuleResult testRuleResult = rules.tests?.matchRuleResult(blob: historyEntry?.blob, rules: rules);
-            ruleStatus = testRuleResult?.status?.eval(history: history, historyIndex: index, rules: rules, params: params);
-          }
-          else {
-            return null;
-          }
+          HealthTestRuleResult testRuleResult = rules.tests?.matchRuleResult(blob: historyEntry?.blob, rules: rules);
+          ruleStatus = testRuleResult?.status?.eval(history: history, historyIndex: index, rules: rules, params: params);
         }
         else if (historyEntry.isSymptoms) {
-          if (rules.symptoms != null) {
-            HealthSymptomsRule symptomsRule = rules.symptoms.matchRule(blob: historyEntry?.blob, rules: rules);
-            ruleStatus = symptomsRule?.status?.eval(history: history, historyIndex: index, rules: rules, params: params);
-          }
-          else {
-            return null;
-          }
+          HealthSymptomsRule symptomsRule = rules.symptoms.matchRule(blob: historyEntry?.blob, rules: rules);
+          ruleStatus = symptomsRule?.status?.eval(history: history, historyIndex: index, rules: rules, params: params);
         }
         else if (historyEntry.isContactTrace) {
-          if (rules.contactTrace != null) {
-            HealthContactTraceRule contactTraceRule = rules.contactTrace.matchRule(blob: historyEntry?.blob, rules: rules);
-            ruleStatus = contactTraceRule?.status?.eval(history: history, historyIndex: index, rules: rules, params: params);
-          }
-          else {
-            return null;
-          }
+          HealthContactTraceRule contactTraceRule = rules.contactTrace.matchRule(blob: historyEntry?.blob, rules: rules);
+          ruleStatus = contactTraceRule?.status?.eval(history: history, historyIndex: index, rules: rules, params: params);
+        }
+        else if (historyEntry.isVaccine) {
+          HealthVaccineRule vaccineRule = rules.vaccines.matchRule(blob: historyEntry?.blob, rules: rules);
+          ruleStatus = vaccineRule?.status?.eval(history: history, historyIndex: index, rules: rules, params: _buildParams(params, historyEntry.blob?.actionParams));
         }
         else if (historyEntry.isAction) {
-          if (rules.actions != null) {
-            HealthActionRule actionRule = rules.actions.matchRule(blob: historyEntry?.blob, rules: rules);
-            ruleStatus = actionRule?.status?.eval(history: history, historyIndex: index, rules: rules, params: _buildParams(params, historyEntry.blob?.actionParams));
-          }
-          else {
-            return null;
-          }
+          HealthActionRule actionRule = rules.actions.matchRule(blob: historyEntry?.blob, rules: rules);
+          ruleStatus = actionRule?.status?.eval(history: history, historyIndex: index, rules: rules, params: _buildParams(params, historyEntry.blob?.actionParams));
         }
 
         if ((ruleStatus != null) && ruleStatus.canUpdateStatus(blob: status.blob)) {
@@ -1046,6 +1030,7 @@ class Health with Service implements NotificationsListener {
       HealthHistoryType.manualTestNotVerified : null, // unencrypted
       HealthHistoryType.symptoms : _userPrivateKey,
       HealthHistoryType.contactTrace : _userPrivateKey,
+      HealthHistoryType.vaccine : _userPrivateKey,
       HealthHistoryType.action : _userPrivateKey,
     };
   }
@@ -1157,6 +1142,19 @@ class Health with Service implements NotificationsListener {
         publicKey: _user?.publicKey
       ));
     }
+    else if (event.isVaccine) {
+      historyEntry = await _addHistory(await HealthHistory.encryptedFromBlob(
+        dateUtc: event?.blob?.dateUtc,
+        type: HealthHistoryType.vaccine,
+        blob: HealthHistoryBlob(
+          provider: event?.provider,
+          providerId: event?.providerId,
+          vaccinated: event?.blob?.vaccinated,
+          extras: event?.blob?.extras,
+        ),
+        publicKey: _user?.publicKey
+      ));
+    }
     else if (event.isAction) {
       historyEntry = await _addHistory(await HealthHistory.encryptedFromBlob(
         dateUtc: event?.blob?.dateUtc,
@@ -1225,6 +1223,15 @@ class Health with Service implements NotificationsListener {
               }
             }
           }
+        }
+        else if (event.isVaccine) {
+          Analytics().logHealth(
+            action: Analytics.LogHealthVaccinationAction,
+            status: _status?.blob?.code,
+            prevStatus: _previousStatus?.blob?.code,
+            attributes: {
+              Analytics.LogHealthVaccinatedName: event.blob?.vaccinated,
+          });
         }
         else if (event.isAction) {
           Analytics().logHealth(
@@ -1623,6 +1630,12 @@ class Health with Service implements NotificationsListener {
 
   static void _saveBuildingAccessRulesToStorage(Map<String, dynamic> buildingAccessRules) {
     Storage().healthBuildingAccessRules = AppJson.encode(buildingAccessRules);
+  }
+
+  // Vaccinated
+
+  bool get isVaccinated {
+    return (HealthHistory.mostRecentVaccine(_history, vaccinated: true) != null);
   }
 
   // Health Family Members

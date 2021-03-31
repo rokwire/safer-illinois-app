@@ -6,7 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added
-- Added family members support [#578](https://github.com/rokwire/safer-illinois-app/issues/578)
+- Added vaccination event [#583](https://github.com/rokwire/safer-illinois-app/issues/583).
+
+## [2.10.13] - 2021-03-30
+### Added
+- Added family members support [#578](https://github.com/rokwire/safer-illinois-app/issues/578).
 
 ### Changed
 - Unload web page when the app is in background [#580](https://github.com/rokwire/safer-illinois-app/issues/580).

@@ -78,27 +78,23 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
   }
 
   void _initData() {
-    setState(() { _loading = true; });
-
-    _loadData().then((_) {
-      if (mounted) {
-        setState(() { _loading = false; });
-        _checkNetIdStatus();
-      }
-    });
-  }
-
-  Future<void> _loadData() async {
-    List<dynamic> results = await Future.wait([
+    _loading = true;
+    Future.wait([
       Health().refreshStatusAndUser(),
       Health().loadCounties(),
       _loadColorOfTheDay(),
       _loadPhotoBytes(),
-    ]);
-
-    _counties = ((results != null) && (1 < results.length)) ? results[1]  : null;
-    _colorOfTheDay = ((results != null) && (2 < results.length)) ? results[2] : null;
-    _photoImage = ((results != null) && (3 < results.length)) ? results[3] : null;
+    ]).then((List<dynamic> results) {
+      if (mounted) {
+        setState(() {
+          _counties = ((results != null) && (1 < results.length)) ? results[1]  : null;
+          _colorOfTheDay = ((results != null) && (2 < results.length)) ? results[2] : null;
+          _photoImage = ((results != null) && (3 < results.length)) ? results[3] : null;
+          _loading = false;
+        });
+        _checkNetIdStatus();
+      }
+    });
   }
 
   static Future<Color> _loadColorOfTheDay() async {
@@ -121,83 +117,51 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: <Widget>[
-          Column(
-            children: <Widget>[
-              Container(
-                height: _headingH1,
-                color: _colorOfTheDay,
-              ),
-              Container(
-                height: _headingH2,
-                color: _colorOfTheDay,
-                child: CustomPaint(
-                  painter: TrianglePainter(painterColor: _backgroundColor),
-                  child: Container(),
+    return Scaffold(body:
+      Stack(children: <Widget>[
+        Column(children: <Widget>[
+          Container(height: _headingH1, color: _colorOfTheDay,),
+          Container(height: _headingH2, color: _colorOfTheDay, child:
+            CustomPaint(painter: TrianglePainter(painterColor: _backgroundColor), child: Container(),),
+          ),
+          Expanded(child: Container(color: _backgroundColor,))
+        ],),
+        Column(crossAxisAlignment: CrossAxisAlignment.center, children: <Widget>[
+          Expanded(child: _userDetails()),
+          SafeArea(child:
+            Padding(padding: EdgeInsets.only(bottom: 10), child:
+              Semantics(button: true, label: Localization().getStringEx("panel.covid19_passport.button.close.title", "Close"), child:
+                InkWell(onTap: _onTapClose, child:
+                  Image.asset('images/close-orange-large.png', excludeFromSemantics: true,)
                 ),
-              ),
-              Expanded(child: Container(color: _backgroundColor,))
-            ],
-          ),
-          Column(crossAxisAlignment: CrossAxisAlignment.center, children: <Widget>[
-            Expanded(child: _userDetails()),
-            Container(
-              child: SafeArea(
-                bottom: true,
-              child:
-              Padding(
-                  padding: EdgeInsets.only(bottom: 10),
-                  child:Semantics(button: true,label: Localization().getStringEx("panel.covid19_passport.button.close.title", "Close"), child:
-                  InkWell(
-                      onTap: _onTapClose,
-                      child:  Image.asset('images/close-orange-large.png', excludeFromSemantics: true,)
-                  ),
-                  ))),
+          ))),
+        ]),
+        SafeArea(child:
+            Padding(padding: EdgeInsets.all(16), child:
+              Semantics(header: true, child:
+                Text(Localization().getStringEx("panel.covid19_passport.header.title", "COVID-19"), style: TextStyle(color: Styles().colors.white, fontFamily: Styles().fontFamilies.extraBold, fontSize: 16, shadows: [Shadow(offset: Offset(2, 2), blurRadius: 4.0, color: Styles().colors.blackTransparent018,)]),),
+              )
             ),
-          ]),
-          SafeArea(
-            child: Stack(
-              children: <Widget>[
-                Padding(
-                    padding: EdgeInsets.all(16),
-                    child:Semantics(header: true, child: Text(
-                      Localization().getStringEx("panel.covid19_passport.header.title", "COVID-19"),
-                      style: TextStyle(
-                          color: Styles().colors.white, fontFamily: Styles().fontFamilies.extraBold, fontSize: 16,
-                          shadows: [
-                           Shadow(
-                               offset: Offset(2, 2),
-                               blurRadius: 4.0,
-                               color: Styles().colors.blackTransparent018,
-                           )
-                          ]
-                      ),),
-                    )),
-              ],
-            ),
+        ),
+        Visibility(visible: (_loading == true), child:
+          Container(width: MediaQuery.of(context).size.width, height: MediaQuery.of(context).size.height, color: Styles().colors.fillColorPrimaryTransparent09, child:
+            Center(child: CircularProgressIndicator(),),
           ),
-          Visibility(visible: (_loading == true), child: Container(width: MediaQuery.of(context).size.width, height: MediaQuery.of(context).size.height, color: Styles().colors.fillColorPrimaryTransparent09,
-            child: Center(child: CircularProgressIndicator(),),),)
-        ],
-      ),
+        ),
+      ],),
     );
   }
 
   Widget _userDetails() {
     return SingleChildScrollView(scrollDirection: Axis.vertical, child:
-    Column(crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
+      Column(crossAxisAlignment: CrossAxisAlignment.center, children: <Widget>[
         _userAvatarWidget(),
-        Padding(padding: EdgeInsets.only(top: 8, bottom: 1), child: Text(
-          AppString.getDefaultEmptyString(value: _userNameString),
-          textAlign: TextAlign.center,
-          style: TextStyle(fontFamily: Styles().fontFamilies.extraBold, fontSize: 24, color: Styles().colors.fillColorPrimary),
-        ),),
-        Padding(padding: EdgeInsets.only(bottom: 10),
-          child: Text(AppString.getDefaultEmptyString(value: _userRoleString),
-            style: TextStyle(color: Styles().colors.mediumGray1, fontSize: 16, fontFamily: Styles().fontFamilies.regular, letterSpacing: 1),),),
+        Padding(padding: EdgeInsets.only(top: 8, bottom: 1), child:
+          Text(AppString.getDefaultEmptyString(value: _userNameString), textAlign: TextAlign.center, style: TextStyle(fontFamily: Styles().fontFamilies.extraBold, fontSize: 24, color: Styles().colors.fillColorPrimary),),
+        ),
+        Padding(padding: EdgeInsets.only(bottom: 10), child:
+          Text(AppString.getDefaultEmptyString(value: _userRoleString), style: TextStyle(color: Styles().colors.mediumGray1, fontSize: 16, fontFamily: Styles().fontFamilies.regular, letterSpacing: 1),),
+        ),
         _buildCountyDropdown(),
         _buildStatusDetails(),
       ],
@@ -206,111 +170,61 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
   }
 
   Widget _buildStatusDetails(){
-    return Container(
-      child:
-        Column(children: <Widget>[
-          SizedBox(
-            width: 300,
-            height: 240,
-            child:
-            Swiper(
-              containerHeight: 240, // Distance from SwiperIndicator
-              itemHeight: 200,
-              itemCount: 2,
-              loop: false,
-              controller: _swiperController,
-              pagination:SwiperCustomPagination(
-                  builder:(BuildContext context, SwiperPluginConfig config){
-                    return Container(padding: EdgeInsets.only(top: 200),child:_buildPageIndicator(config.activeIndex));
-                  }),
-              itemBuilder: (BuildContext context, int index) {
-                if(0==index){
-                  return _buildAccesLayout();
-                } else if(1== index){
-                  return _buildQrCode();
-                }
-                return Container();
-              },
-            )
+    return Column(children: <Widget>[
+      SizedBox(width: 300, height: 240, child:
+        Swiper(containerHeight: 240, itemHeight: 200, itemCount: 2, loop: false, controller: _swiperController,
+          pagination: SwiperCustomPagination(
+            builder: (BuildContext context, SwiperPluginConfig config) {
+              return Container(padding: EdgeInsets.only(top: 200),child: _buildPageIndicator(config.activeIndex));
+            }
           ),
-          Container(height: 10,),
-//          _buildPageIndicator()
-        ],),
-    );
+          itemBuilder: (BuildContext context, int index) {
+            switch(index) {
+              case 0: return _buildAccesLayout();
+              case 1: return _buildQrCode();
+              default: return Container();
+            }
+          },
+        ),
+      ),
+      // Container(height: 10,),
+      // _buildPageIndicator()
+    ],);
   }
 
 
   Widget _buildPageIndicator(int index){
-    return
-      Container(
-        alignment: Alignment.center,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Semantics(
-              label: Localization().getStringEx("panel.covid19_passport.button.show_page_1.title", "Show page 1 of 2"),
-              hint: Localization().getStringEx("panel.covid19_passport.button.show_page_1.hint", ""),
-              button: true,
-              selected: 0==index,
-              child: GestureDetector(
-                onTap: (){
-                  _swiperController.previous();
-                },
-                child: Container(
-                  height: 12,
-                  width: 12,
-                  decoration: BoxDecoration(
-                    color: 0==index? Styles().colors.fillColorSecondary : Styles().colors.background,
-                    borderRadius: BorderRadius.all(Radius.circular(100)),
-                    border: Border.all(color: Styles().colors.fillColorSecondary, width: 2),
-                  ),
-                ),
-              ),
-            ),
-            Container(width: 8,),
-            GestureDetector(
-              onTap: (){
-                _swiperController.next();
-              },
-              child: Semantics(
-                label: Localization().getStringEx("panel.covid19_passport.button.show_page_2.title", "Show page 2 of 2"),
-                hint: Localization().getStringEx("panel.covid19_passport.button.show_page_2.hint", ""),
-                button: true,
-                selected: 1==index,
-                child: Container(
-                  height: 12,
-                  width: 12,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(100)),
-                    color: 1==index? Styles().colors.fillColorSecondary : Styles().colors.background,
-                    border: Border.all(color: Styles().colors.fillColorSecondary, width: 2),
-                  ),
-                ),
-              ),
-            ),
-          ],),
-      );
+    return  Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+      Semantics(label: Localization().getStringEx("panel.covid19_passport.button.show_page_1.title", "Show page 1 of 2"), hint: Localization().getStringEx("panel.covid19_passport.button.show_page_1.hint", ""), button: true, selected: (0 == index), child:
+        GestureDetector( onTap: () { _swiperController.previous(); }, child:
+          Container(height: 12, width: 12, decoration: BoxDecoration(color: (0 == index) ? Styles().colors.fillColorSecondary : Styles().colors.background, borderRadius: BorderRadius.all(Radius.circular(100)), border: Border.all(color: Styles().colors.fillColorSecondary, width: 2), ), ),
+        ),
+      ),
+      Container(width: 8,),
+      GestureDetector(onTap: () { _swiperController.next(); }, child:
+        Semantics(label: Localization().getStringEx("panel.covid19_passport.button.show_page_2.title", "Show page 2 of 2"), hint: Localization().getStringEx("panel.covid19_passport.button.show_page_2.hint", ""), button: true, selected: (1 == index), child:
+          Container(height: 12, width: 12, decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(100)), color: (1 == index) ? Styles().colors.fillColorSecondary : Styles().colors.background, border: Border.all(color: Styles().colors.fillColorSecondary, width: 2), ), ),
+        ),
+      ),
+    ],);
   }
 
   Widget _buildAccesLayout() {
     String imageAsset = (Health().buildingAccessGranted == true) ? 'images/group-20.png' : 'images/group-28.png';
-    String accessText = '';
+    String accessText;
     switch (Health().buildingAccessGranted) {
-      case true: accessText = Localization().getStringEx("panel.covid19_passport.label.access.granted","GRANTED"); break;
-      case false: accessText = Localization().getStringEx("panel.covid19_passport.label.access.denied","DENIED"); break;
+      case true:  accessText = Localization().getStringEx("panel.covid19_passport.label.access.granted", "GRANTED"); break;
+      case false: accessText = Localization().getStringEx("panel.covid19_passport.label.access.denied", "DENIED"); break;
     }
-    return Semantics(
-      label: Localization().getStringEx("panel.covid19_passport.label.page_1", "Page 1"),
-      explicitChildNodes: true,
-      child: SingleChildScrollView(child:Container(
-        child: Column(children: <Widget>[
+    return Semantics(label: Localization().getStringEx("panel.covid19_passport.label.page_1", "Page 1"), explicitChildNodes: true, child:
+      SingleChildScrollView(child:Container(child:
+        Column(children: <Widget>[
           Container(height: 15,),
           Image.asset(imageAsset, excludeFromSemantics: true,),
           Container(height: 7,),
-          Text(Localization().getStringEx("panel.covid19_passport.label.access.heading","Building Access"),
-            style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Styles().colors.fillColorPrimary),),
+          Text(Localization().getStringEx("panel.covid19_passport.label.access.heading", "Building Access"), style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Styles().colors.fillColorPrimary),),
           Container(height: 6,),
-          Text(accessText, style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 28, color: Styles().colors.fillColorPrimary),),
+          Text(accessText ?? '', style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 28, color: Styles().colors.fillColorPrimary),),
         ],),
       )),
     );
@@ -325,79 +239,83 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
     String noStatusDescription = (_counties?.isNotEmpty ?? false) ? 
       Localization().getStringEx('panel.covid19_passport.label.status.empty', "No available status for this County") :
       Localization().getStringEx('panel.covid19_passport.label.counties.empty', "No counties available");
-
-    return Semantics(
-      label: Localization().getStringEx("panel.covid19_passport.label.page_2", "Page 2"),
-      explicitChildNodes: true,
-      child: SingleChildScrollView(child:Column(children: <Widget>[
-        Visibility(visible: (statusCode != null), child:
-          Container(width: 176, height: 176, padding: EdgeInsets.all(13), decoration: BoxDecoration(color: statusColor, borderRadius: BorderRadius.circular(4)), child:
-            Container(decoration: BoxDecoration(color: Styles().colors.white, borderRadius: BorderRadius.circular(4)), child:
-              Column(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-                Visibility(visible: AppString.isStringNotEmpty(authCardOrPhone), child:
-                  QrImage(data: AppString.getDefaultEmptyString(value: authCardOrPhone), version: QrVersions.auto, size: MediaQuery.of(context).size.width / 4 + 10, padding: EdgeInsets.all(5),),),
-                Visibility(visible: AppString.isStringNotEmpty(textAuthCardOrPhone), child:
-                  Padding(padding: EdgeInsets.only(top: 5), child: 
-                    Text(AppString.getDefaultEmptyString(value: textAuthCardOrPhone), style: TextStyle(color: Colors.black, fontSize: 12, fontFamily: Styles().fontFamilies.regular),),
-                  ),
+    
+    List<Widget> contentList;
+    if (statusCode != null) {
+      contentList = <Widget>[
+        Container(width: 176, height: 176, padding: EdgeInsets.all(13), decoration: BoxDecoration(color: statusColor, borderRadius: BorderRadius.circular(4)), child:
+          Container(decoration: BoxDecoration(color: Styles().colors.white, borderRadius: BorderRadius.circular(4)), child:
+            Column(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+              Visibility(visible: AppString.isStringNotEmpty(authCardOrPhone), child:
+                QrImage(data: AppString.getDefaultEmptyString(value: authCardOrPhone), version: QrVersions.auto, size: MediaQuery.of(context).size.width / 4 + 10, padding: EdgeInsets.all(5),),),
+              Visibility(visible: AppString.isStringNotEmpty(textAuthCardOrPhone), child:
+                Padding(padding: EdgeInsets.only(top: 5), child: 
+                  Text(AppString.getDefaultEmptyString(value: textAuthCardOrPhone), style: TextStyle(color: Colors.black, fontSize: 12, fontFamily: Styles().fontFamilies.regular),),
                 ),
-              ],),
-            ),
+              ),
+            ],),
           ),
         ),
-        (statusCode != null) ?
-          Padding(padding: const EdgeInsets.only(bottom: 16), child:
-            Row(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.center, children: <Widget>[
-              Expanded(child:
-                Text(statusName, style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Styles().colors.textSurface),maxLines: 1, overflow: TextOverflow.ellipsis,),
-              ),
-              Container(width: 6,),
-              Semantics( explicitChildNodes: true, child: 
-                Semantics(label: Localization().getStringEx("panel.covid19_passport.button.info.title","Info "), button: true, excludeSemantics: true, child:  
-                  IconButton(icon: Image.asset('images/icon-info-orange.png', excludeFromSemantics: true,), onPressed: () =>  StatusInfoDialog.show(context, Health().county?.displayName ?? ""), padding: EdgeInsets.all(10),)
-                )
+        Padding(padding: const EdgeInsets.only(bottom: 16), child:
+          Row(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.center, children: <Widget>[
+            Expanded(child:
+              Text(statusName, style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Styles().colors.textSurface),maxLines: 1, overflow: TextOverflow.ellipsis,),
+            ),
+            Container(width: 6,),
+            Semantics( explicitChildNodes: true, child: 
+              Semantics(label: Localization().getStringEx("panel.covid19_passport.button.info.title","Info "), button: true, excludeSemantics: true, child:  
+                IconButton(icon: Image.asset('images/icon-info-orange.png', excludeFromSemantics: true,), onPressed: () =>  StatusInfoDialog.show(context, Health().county?.displayName ?? ""), padding: EdgeInsets.all(10),)
               )
-            ],)
-          ):
-          Container(padding: EdgeInsets.only(bottom: 8), child:
-             Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-              Expanded(child: 
-                Text(noStatusDescription, style:TextStyle(color: Colors.black, fontSize: 18, fontFamily: Styles().fontFamilies.regular)),
-              ),
-            ]),
-          ),
-      ],)),
+            )
+          ],)
+        ),
+      ];
+    }
+    else {
+      contentList = <Widget>[
+        Container(padding: EdgeInsets.only(bottom: 8), child:
+          Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+            Expanded(child: 
+              Text(noStatusDescription, style:TextStyle(color: Colors.black, fontSize: 18, fontFamily: Styles().fontFamilies.regular)),
+            ),
+          ]),
+        ),
+      ];
+    }
+
+    return Semantics(label: Localization().getStringEx("panel.covid19_passport.label.page_2", "Page 2"), explicitChildNodes: true, child:
+      SingleChildScrollView(child:
+        Column(children: contentList,),
+      ),
     );
   }
 
   Widget _buildCountyDropdown(){
-    return Visibility(visible: _counties?.isNotEmpty ?? false,
-      child: Padding(padding: EdgeInsets.symmetric(horizontal: 32, vertical: 0),
-        child: Column(crossAxisAlignment:CrossAxisAlignment.center, children: <Widget>[
+    return Visibility(visible: _counties?.isNotEmpty ?? false, child:
+      Padding(padding: EdgeInsets.symmetric(horizontal: 32, vertical: 0), child:
+        Column(crossAxisAlignment:CrossAxisAlignment.center, children: <Widget>[
           Semantics(container: true, child:
-            Padding(padding: EdgeInsets.only(bottom: 0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center, children: <Widget>[
-              Container(
-              child: Padding(padding: EdgeInsets.only(left: 12, right: 16),
-                child: DropdownButtonHideUnderline(
-                    child:DropdownButton(
+            Padding(padding: EdgeInsets.only(bottom: 0), child:
+              Column(crossAxisAlignment: CrossAxisAlignment.center, children: <Widget>[
+                Padding(padding: EdgeInsets.only(left: 12, right: 16), child:
+                  DropdownButtonHideUnderline(child:
+                    DropdownButton(
                       icon: Icon(Icons.arrow_drop_down, color:Styles().colors.fillColorPrimary, semanticLabel: null,),
                       isExpanded: true,
                       style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.fillColorPrimary,),
-                      hint: Text(Health().county?.displayName ?? Localization().getStringEx('panel.covid19_passport.label.county.empty.hint',"Select a county...",),
-                        style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.fillColorPrimary,),overflow: TextOverflow.ellipsis,),
+                      hint: Text(Health().county?.displayName ?? Localization().getStringEx('panel.covid19_passport.label.county.empty.hint',"Select a county...",), style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.fillColorPrimary,),overflow: TextOverflow.ellipsis,),
                       items: _buildCountyDropdownItems(),
                       onChanged: (value) { _switchCounty(value); },
                     )
-                )
-              ),
-              )
+                  )
+                ),
             ],),
           ),
         ),
         Container(height: 12,)
-        ])));
+        ]),
+      ),
+    );
   }
 
   List <DropdownMenuItem> _buildCountyDropdownItems(){
@@ -484,37 +402,39 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
   }
 
   Widget _userAvatarWidget() {
-    return Padding(
-      padding: EdgeInsets.only(top: _headingH1 + (_headingH2 - _photoSize) / 2),
-      child: _RotatingBorder(
-          activeColor: _colorOfTheDay ?? Colors.transparent,
-          child: Padding(
-              padding: EdgeInsets.all(16),
-              child: _userPhotoImageWidget()
-          )),
+    double screenWidth = MediaQuery.of(context).size.width;
+    double vaccinatedPaddingWidth = 20;
+    double vaccinatedIconWidth = (screenWidth - _photoSize) / 2 - (3 * vaccinatedPaddingWidth / 2);
+    return Padding(padding: EdgeInsets.only(top: _headingH1 + (_headingH2 - _photoSize) / 2), child:
+      Stack(children: [
+        Align(alignment: Alignment.center, child:
+          _RotatingBorder(activeColor: _colorOfTheDay ?? Colors.transparent, child:
+            Padding(padding: EdgeInsets.all(16), child:
+              _userPhotoImageWidget()
+            ),
+          ),
+        ),
+        Visibility(visible: Health().isVaccinated, child:
+          Container(width: screenWidth, height: _photoSize, child:
+            Align(alignment: Alignment.bottomRight, child:
+              Padding(padding: EdgeInsets.only(right: vaccinatedPaddingWidth), child:
+                Semantics(label: Localization().getStringEx("panel.covid19_passport.icon.vaccinated.title", "Vaccinated "), excludeSemantics: true, child:  
+                  Image.asset('images/vaccinated_icon.png', width: vaccinatedIconWidth, excludeFromSemantics: true,)
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],),
     );
   }
 
   Widget _userPhotoImageWidget() {
-    if (_userPhotoImage != null) {
-      return Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.white,
-            image: DecorationImage(
-              fit: BoxFit.cover,
-              alignment: Alignment.center,
-              image: _userPhotoImage,
-            ),
-          ));
-    } else {
-      return Container(
-          decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Styles().colors.fillColorPrimary,
-              image: DecorationImage(image: ExactAssetImage('images/3.0x/icon-avatar-placeholder.png'), fit: BoxFit.cover)
-          ));
-    }
+    return Container(decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      color: (_userPhotoImage != null) ? Colors.white : Styles().colors.fillColorPrimary,
+      image: DecorationImage(fit: BoxFit.cover, alignment: Alignment.center, image: _userPhotoImage ?? ExactAssetImage('images/3.0x/icon-avatar-placeholder.png'),),
+    ),);
   }
 
   void _switchCounty(HealthCounty county) {
@@ -584,23 +504,19 @@ class _RotatingBorderState extends State<_RotatingBorder>
   @override
   Widget build(BuildContext context) {
     double angle = animation.value;
-    return Container( width: _photoSize, height: _photoSize,
-        child:Stack(children: <Widget>[
-          Transform.rotate(
-              angle: angle,
-              child:Container(
-                height: _photoSize,
-                width: _photoSize,
-                decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: [widget.activeColor, widget.baseGradientColor ?? Styles().colors.fillColorSecondary],
-                      stops:  [0.0, 1.0],
-                    )
-                ),
-              )),
-          widget.child,
-        ], ));
+    return Container( width: _photoSize, height: _photoSize, child:
+      Stack(children: <Widget>[
+        Transform.rotate(angle: angle, child:
+          Container(height: _photoSize, width: _photoSize, decoration:
+            BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(colors: [widget.activeColor, widget.baseGradientColor ?? Styles().colors.fillColorSecondary], stops:  [0.0, 1.0],),
+            ),
+          )
+        ),
+        widget.child,
+      ],
+    ));
   }
 
 }
