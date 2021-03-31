@@ -15,6 +15,7 @@
  */
 
 import 'dart:collection';
+import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
@@ -3624,6 +3625,12 @@ class HealthRuleIntervalValue extends _HealthRuleInterval {
 // HealthRuleInterval
 
 class HealthRuleInterval extends _HealthRuleInterval {
+  static const int FutureScope           =  1;
+  static const int FutureAndCurrentScope =  2;
+  static const int NoScope               =  0;
+  static const int PastScope             = -1;
+  static const int PastAndCurrentScope   = -2;
+
   final _HealthRuleInterval _min;
   final _HealthRuleInterval _max;
   final _HealthRuleInterval _value;
@@ -3707,18 +3714,24 @@ class HealthRuleInterval extends _HealthRuleInterval {
   static int _scopeFromJson(dynamic value) {
     if (value is String) {
       if (value == 'future') {
-        return 1;
+        return FutureScope;
+      }
+      else if (value == 'future-and-current') {
+        return FutureAndCurrentScope;
       }
       else if (value == 'past') {
-        return -1;
+        return PastScope;
+      }
+      else if (value == 'past-and-current') {
+        return PastAndCurrentScope;
       }
     }
     else if (value is int) {
       if (0 < value) {
-        return 1;
+        return min(value, FutureAndCurrentScope);
       }
       else if (value < 0) {
-        return -1;
+        return max(value, PastAndCurrentScope);
       }
     }
     return null;
@@ -3925,16 +3938,18 @@ abstract class HealthRuleCondition {
       return null;
     }
 
-    int scope = interval.scope(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params) ?? 0;
-    if (0 < scope) { // check only newer items than the current
-      for (int index = originIndex - 1; 0 <= index; index--) {
+    int scope = interval.scope(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params) ?? HealthRuleInterval.NoScope;
+    if (HealthRuleInterval.NoScope < scope) { // check only newer items than the current
+      int startIndex = (HealthRuleInterval.FutureScope < scope) ? originIndex : (originIndex - 1);
+      for (int index = startIndex; 0 <= index; index--) {
         if (_evalRequireEntryFulfills(history[index], historyType, originDateMidnightLocal: originDateMidnightLocal, interval: interval, rules: rules, params: params)) {
           return index;
         }
       }
     }
-    else if (0 < scope) { // check only older items than the current
-      for (int index = originIndex + 1; index < history.length; index++) {
+    else if (scope < HealthRuleInterval.NoScope) { // check only older items than the current
+      int startIndex = (scope < HealthRuleInterval.PastScope) ? originIndex : (originIndex + 1);
+      for (int index = startIndex; index < history.length; index++) {
         if (_evalRequireEntryFulfills(history[index], historyType, originDateMidnightLocal: originDateMidnightLocal, interval: interval, rules: rules, params: params)) {
           return index;
         }
