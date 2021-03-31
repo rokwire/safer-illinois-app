@@ -1632,6 +1632,12 @@ class Health with Service implements NotificationsListener {
     Storage().healthBuildingAccessRules = AppJson.encode(buildingAccessRules);
   }
 
+  // Vaccinated
+
+  bool get isVaccinated {
+    return (HealthHistory.mostRecentVaccine(_history, vaccinated: true) != null);
+  }
+
   // Health Family Members
 
   List<HealthFamilyMember> get familyMembers {

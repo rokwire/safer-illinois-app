@@ -402,12 +402,28 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
   }
 
   Widget _userAvatarWidget() {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double vaccinatedPaddingWidth = 20;
+    double vaccinatedIconWidth = (screenWidth - _photoSize) / 2 - (3 * vaccinatedPaddingWidth / 2);
     return Padding(padding: EdgeInsets.only(top: _headingH1 + (_headingH2 - _photoSize) / 2), child:
-      _RotatingBorder(activeColor: _colorOfTheDay ?? Colors.transparent, child:
-        Padding(padding: EdgeInsets.all(16), child:
-          _userPhotoImageWidget()
+      Stack(children: [
+        Align(alignment: Alignment.center, child:
+          _RotatingBorder(activeColor: _colorOfTheDay ?? Colors.transparent, child:
+            Padding(padding: EdgeInsets.all(16), child:
+              _userPhotoImageWidget()
+            ),
+          ),
         ),
-      ),
+        Visibility(visible: Health().isVaccinated, child:
+          Container(width: screenWidth, height: _photoSize, child:
+            Align(alignment: Alignment.bottomRight, child:
+              Padding(padding: EdgeInsets.only(right: vaccinatedPaddingWidth), child:
+                Image.asset('images/vaccinated_icon.png', width: vaccinatedIconWidth, excludeFromSemantics: true,)
+              ),
+            ),
+          ),
+        ),
+      ],),
     );
   }
 
@@ -486,23 +502,19 @@ class _RotatingBorderState extends State<_RotatingBorder>
   @override
   Widget build(BuildContext context) {
     double angle = animation.value;
-    return Container( width: _photoSize, height: _photoSize,
-        child:Stack(children: <Widget>[
-          Transform.rotate(
-              angle: angle,
-              child:Container(
-                height: _photoSize,
-                width: _photoSize,
-                decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: [widget.activeColor, widget.baseGradientColor ?? Styles().colors.fillColorSecondary],
-                      stops:  [0.0, 1.0],
-                    )
-                ),
-              )),
-          widget.child,
-        ], ));
+    return Container( width: _photoSize, height: _photoSize, child:
+      Stack(children: <Widget>[
+        Transform.rotate(angle: angle, child:
+          Container(height: _photoSize, width: _photoSize, decoration:
+            BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(colors: [widget.activeColor, widget.baseGradientColor ?? Styles().colors.fillColorSecondary], stops:  [0.0, 1.0],),
+            ),
+          )
+        ),
+        widget.child,
+      ],
+    ));
   }
 
 }

@@ -635,6 +635,18 @@ class HealthHistory implements Comparable<HealthHistory> {
     }
     return null;
   }
+
+  static HealthHistory mostRecentVaccine(List<HealthHistory> history, { bool vaccinated }) {
+    if (history != null) {
+      for (int index = 0; index < history.length; index++) {
+        HealthHistory historyEntry = history[index];
+        if (historyEntry.isVaccine && ((vaccinated == null) || (historyEntry.blob?.vaccinated == vaccinated))) {
+          return historyEntry;
+        }
+      }
+    }
+    return null;
+  }
 }
 
 ////////////////////////////////
