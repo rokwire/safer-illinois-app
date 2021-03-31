@@ -50,7 +50,8 @@ class Network  {
   // Auth
   static const int AppAuth            = 1;
   static const int ShibbolethUserAuth = 2;
-  static const int RokmetroUserAuth   = 4;
+//static const int RokmetroUserAuth   = 4; // Disable Rokmetro auth
+  static const int RokmetroUserAuth   = ShibbolethUserAuth;
   static const int HealthAccountAuth  = 8;
 
   static const int HealthUserAuth     = RokmetroUserAuth | HealthAccountAuth;
@@ -354,7 +355,8 @@ class Network  {
           result[HttpHeaders.authorizationHeader] = authorizationHeader;
         }
       }
-      else if ((auth & RokmetroUserAuth) != 0) {
+      // Disable Rokmetro auth
+      /*else if ((auth & RokmetroUserAuth) != 0) {
         String authorizationHeader = Auth().rokmetroToken?.authIdTokenHeader;
         if ((authorizationHeader != null) && authorizationHeader.isNotEmpty) {
           if (result == null) {
@@ -362,7 +364,7 @@ class Network  {
           }
           result[HttpHeaders.authorizationHeader] = authorizationHeader;
         }
-      }
+      }*/
 
       if ((auth & HealthAccountAuth) != 0) {
         String rokwireAccountId = Health().userAccountId;
@@ -399,9 +401,10 @@ class Network  {
       if ((auth & ShibbolethUserAuth) != 0) {
         return await Auth().refreshAuthToken();
       }
-      else if ((auth & RokmetroUserAuth) != 0) {
+      // Disable Rokmetro auth
+      /*else if ((auth & RokmetroUserAuth) != 0) {
         return await Auth().refreshRokmetroToken();
-      }
+      }*/
     }
     return null;
   }

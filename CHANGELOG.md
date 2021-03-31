@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added vaccination event [#583](https://github.com/rokwire/safer-illinois-app/issues/583).
 
+### Changed
+- Disabled the new auth system [#586](https://github.com/rokwire/safer-illinois-app/issues/586).
+
 ## [2.10.13] - 2021-03-30
 ### Added
 - Added family members support [#578](https://github.com/rokwire/safer-illinois-app/issues/578).
