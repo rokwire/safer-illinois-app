@@ -14,7 +14,7 @@
 
 		"TestMonitorInterval": {
 			"condition": "require-vaccine",
-			"params": { "interval": { "scope": "past" }, "vacinated": true },
+			"params": { "interval": { "scope": "past-and-current" }, "vacinated": true },
 			"success": "VaccinatedTestMonitorInterval",
 			"fail": {
 				"condition": "test-interval", "params": { "interval": "UserTestMonitorInterval" },
