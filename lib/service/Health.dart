@@ -999,9 +999,14 @@ class Health with Service implements NotificationsListener {
       String post = AppJson.encode(history?.toJson());
       Response response = await Network().post(url, body: post, auth: Network.HealthUserAuth);
       HealthHistory historyEntry = (response?.statusCode == 200) ? await HealthHistory.decryptedFromJson(AppJson.decode(response.body), _historyPrivateKeys) : null;
-      if ((_history != null) && (historyEntry != null)) {
-        _history.add(historyEntry);
-        HealthHistory.sortListDescending(_history);
+      if (historyEntry != null) {
+        if (_history != null) {
+          _history.add(historyEntry);
+          HealthHistory.sortListDescending(_history);
+        }
+        else {
+          _history = <HealthHistory>[historyEntry];
+        }
         await _saveHistoryJsonStringToCache(AppJson.encode(HealthHistory.listToJson(_history)));
       }
       return historyEntry;
