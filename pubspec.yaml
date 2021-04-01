@@ -57,6 +57,8 @@ dependencies:
   dotted_border: ^1.0.5
   flutter_image_compress: ^0.7.0
   barcode_scan: 2.0.2 # Explicitly use older version of the plugin. The latest one does not work!
+  flutter_html_to_pdf: ^0.5.2
+  share: ^0.6.5+4
 
 dev_dependencies:
   flutter_test:

@@ -265,6 +265,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.2"
+  flutter_html_to_pdf:
+    dependency: "direct main"
+    description:
+      name: flutter_html_to_pdf
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.5.2"
   flutter_image_compress:
     dependency: "direct main"
     description:
@@ -427,6 +434,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.3.0-nullsafety.3"
+  mime:
+    dependency: transitive
+    description:
+      name: mime
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.9.7"
   mime_type:
     dependency: "direct main"
     description:
@@ -574,6 +588,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.0.5"
+  share:
+    dependency: "direct main"
+    description:
+      name: share
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.6.5+4"
   shared_preferences:
     dependency: "direct main"
     description:

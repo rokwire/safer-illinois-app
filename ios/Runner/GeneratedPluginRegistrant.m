@@ -46,6 +46,12 @@
 @import firebase_ml_vision;
 #endif
 
+#if __has_include(<flutter_html_to_pdf/FlutterHtmlToPdfPlugin.h>)
+#import <flutter_html_to_pdf/FlutterHtmlToPdfPlugin.h>
+#else
+@import flutter_html_to_pdf;
+#endif
+
 #if __has_include(<flutter_image_compress/FlutterImageCompressPlugin.h>)
 #import <flutter_image_compress/FlutterImageCompressPlugin.h>
 #else
@@ -92,6 +98,12 @@
 #import <screen/ScreenPlugin.h>
 #else
 @import screen;
+#endif
+
+#if __has_include(<share/FLTSharePlugin.h>)
+#import <share/FLTSharePlugin.h>
+#else
+@import share;
 #endif
 
 #if __has_include(<shared_preferences/FLTSharedPreferencesPlugin.h>)
@@ -146,6 +158,7 @@
   [FLTFirebaseCrashlyticsPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTFirebaseCrashlyticsPlugin"]];
   [FLTFirebaseMessagingPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTFirebaseMessagingPlugin"]];
   [FLTFirebaseMlVisionPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTFirebaseMlVisionPlugin"]];
+  [FlutterHtmlToPdfPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterHtmlToPdfPlugin"]];
   [FlutterImageCompressPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterImageCompressPlugin"]];
   [FlutterLocalNotificationsPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterLocalNotificationsPlugin"]];
   [FluttertoastPlugin registerWithRegistrar:[registry registrarForPlugin:@"FluttertoastPlugin"]];
@@ -154,6 +167,7 @@
   [FLTPackageInfoPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTPackageInfoPlugin"]];
   [FLTPathProviderPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTPathProviderPlugin"]];
   [ScreenPlugin registerWithRegistrar:[registry registrarForPlugin:@"ScreenPlugin"]];
+  [FLTSharePlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTSharePlugin"]];
   [FLTSharedPreferencesPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTSharedPreferencesPlugin"]];
   [SqflitePlugin registerWithRegistrar:[registry registrarForPlugin:@"SqflitePlugin"]];
   [UniLinksPlugin registerWithRegistrar:[registry registrarForPlugin:@"UniLinksPlugin"]];
