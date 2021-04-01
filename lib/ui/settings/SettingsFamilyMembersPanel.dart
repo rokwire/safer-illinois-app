@@ -31,6 +31,8 @@ class _SettingsFamilyMembersPanelState extends State<SettingsFamilyMembersPanel>
         setState(() {
           _refreshing = false;
         });
+        
+        NotificationService().notify(Health.notifyCheckPendingFamilyMember);
       }
     });
   }
@@ -46,7 +48,7 @@ class _SettingsFamilyMembersPanelState extends State<SettingsFamilyMembersPanel>
   @override
   void onNotification(String name, dynamic param) {
     if (name == Health.notifyFamilyMembersChanged) {
-      if (mounted) {
+      if (mounted && (_refreshing != true)) {
         setState(() {});
       }
     }

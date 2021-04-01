@@ -50,6 +50,7 @@ class Health with Service implements NotificationsListener {
   static const String notifyRulesChanged               = "edu.illinois.rokwire.health.rules.changed";
   static const String notifyBuildingAccessRulesChanged = "edu.illinois.rokwire.health.building_access_rules.changed";
   static const String notifyFamilyMembersChanged       = "edu.illinois.rokwire.health.family_members.changed";
+  static const String notifyCheckPendingFamilyMember   = "edu.illinois.rokwire.health.family_members.check_pending";
   static const String notifyRefreshing                 = "edu.illinois.rokwire.health.refreshing.updated";
 
   static const String _rulesFileName                   = "rules.json";
