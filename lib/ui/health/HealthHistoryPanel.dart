@@ -21,8 +21,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html/style.dart';
+import 'package:intl/intl.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
+import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/utils/AppDateTime.dart';
@@ -856,6 +858,14 @@ class _HealthHistoryEntryState extends State<_HealthHistoryEntry> with SingleTic
   Future<File> _createTestResultPdf() async {
     String htmlSource = await rootBundle.loadString('assets/test.result.html');
 
+    DateTime testTime = widget?.historyEntry?.dateUtc?.toLocal();
+    htmlSource = htmlSource.replaceAll('{USER_NAME}', Auth().fullUserName?.toUpperCase() ?? '');
+    htmlSource = htmlSource.replaceAll('{PROVIDER_NAME}', widget?.historyEntry?.blob?.provider ?? '');
+    htmlSource = htmlSource.replaceAll('{TEST_NAME}', widget?.historyEntry?.blob?.testType?.toUpperCase() ?? '');
+    htmlSource = htmlSource.replaceAll('{TEST_RESULT}', widget?.historyEntry?.blob?.testResult?.toUpperCase() ?? '');
+    htmlSource = htmlSource.replaceAll('{TEST_DATE}', (testTime != null) ? DateFormat("M/d/yy").format(testTime) : '-');
+    htmlSource = htmlSource.replaceAll('{TEST_TIME}', (testTime != null) ? DateFormat("H:mm a").format(testTime) : '');
+    
     Directory appDocDir = await getTemporaryDirectory();
     String targetPath = appDocDir.path;
     String targetFileName = "test-result";
