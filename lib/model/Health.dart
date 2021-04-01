@@ -496,7 +496,8 @@ class HealthHistory implements Comparable<HealthHistory> {
       for (dynamic entry in json) {
         futures.add(HealthHistory.decryptedFromJson((entry as Map)?.cast<String, dynamic>(), privateKeys));
       }
-      return await Future.wait(futures);
+      List<HealthHistory> results = await Future.wait(futures);
+      return (results != null) ? List.from(results) : null;
     }
     return null;
   }
