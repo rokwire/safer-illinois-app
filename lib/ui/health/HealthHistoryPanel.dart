@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
@@ -33,6 +35,10 @@ import 'package:illinois/ui/widgets/PopupDialog.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/utils/Utils.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter_html_to_pdf/flutter_html_to_pdf.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share/share.dart';
 
 class HealthHistoryPanel extends StatefulWidget {
   @override
@@ -433,6 +439,7 @@ class _HealthHistoryEntryState extends State<_HealthHistoryEntry> with SingleTic
   bool _expanded = false;
   AnimationController _controller;
 
+  bool _sharing = false;
   bool _isLoadingLocation = false;
 
   @override
@@ -472,10 +479,7 @@ class _HealthHistoryEntryState extends State<_HealthHistoryEntry> with SingleTic
     
     content.add(Container(height: 16,));
     
-    return Container(
-      padding: EdgeInsets.symmetric(),
-      child: Column(children: content,),
-    );
+    return Column(children: content,);
   }
 
   Widget _buildCommonInfo(){
@@ -566,13 +570,16 @@ class _HealthHistoryEntryState extends State<_HealthHistoryEntry> with SingleTic
     }
 
     return Semantics(sortKey: OrdinalSortKey(1), container: true, child:
-      Container(color: Styles().colors.white, padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16), child:
-        Row(children: <Widget>[
-          Expanded(child:
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: contentList,)
-          ),
-        ]),
-      ),
+      Stack(children: [
+        Container(color: Styles().colors.white, padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16), child:
+          Row(children: <Widget>[
+            Expanded(child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: contentList,),
+            ),
+          ]),
+        ),
+        _buildShareButton(),
+      ]),
     );
   }
 
@@ -727,6 +734,33 @@ class _HealthHistoryEntryState extends State<_HealthHistoryEntry> with SingleTic
     );
   }
 
+  Widget _buildShareButton() {
+    return Visibility(visible: (widget.historyEntry.isTest == true), child:
+      Align(alignment: Alignment.topRight, child:
+        Semantics (button: true, label: "Share", child:
+          GestureDetector(onTap: () { _onTapShare(); }, child:
+            Container(width: 36, height: 36, child:
+              Stack(children: [
+                Align(alignment: Alignment.center, child:
+                  Semantics(excludeSemantics: true, child:
+                    Image.asset('images/icon-share.png')
+                  ),
+                ),
+                Visibility(visible: _sharing, child:
+                  Align(alignment: Alignment.center, child:
+                    Container(width: 16, height: 16, child:
+                      CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary), strokeWidth: 2,)
+                    ),
+                  ),
+                ),
+              ],),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   void _onTapLocation() {
     Analytics().logSelect(target: widget.historyEntry?.blob?.locationId);
     String locationId = widget.historyEntry?.blob?.locationId;
@@ -787,4 +821,48 @@ class _HealthHistoryEntryState extends State<_HealthHistoryEntry> with SingleTic
     Analytics.instance.logSelect(target: "Close Disclaimer");
     Navigator.of(context).pop();
   }
+
+  void _onTapShare() {
+    if (!_sharing) {
+      setState(() {
+        _sharing = true;
+      });
+      _createTestResultPdf().then((File pdfFile) {
+        if (mounted) {
+          setState(() {
+            _sharing = false;
+          });
+          if (pdfFile != null) {
+            String subject = "${widget?.historyEntry?.blob?.testType} test result";
+            String text = "${widget?.historyEntry?.blob?.testType} test result";
+            String mimeType = "application/pdf";
+            String pdfFilePath = pdfFile.path;
+            try {
+              Share.shareFiles([pdfFilePath], subject: subject, text: text, mimeTypes: [mimeType]);
+            }
+            catch(e) {
+              print(e?.toString());
+              AppAlert.showDialogResult(context, "Unable to share test result document");
+            }
+          }
+          else {
+            AppAlert.showDialogResult(context, "Unable to prepare test result document");
+          }
+        }
+      });
+    }
+  }
+
+  Future<File> _createTestResultPdf() async {
+    String htmlSource = await rootBundle.loadString('assets/test.result.html');
+
+    Directory appDocDir = await getTemporaryDirectory();
+    String targetPath = appDocDir.path;
+    String targetFileName = "test-result";
+
+    try { return await FlutterHtmlToPdf.convertFromHtmlContent(htmlSource, targetPath, targetFileName); }
+    catch(e) { print(e?.toString()); }
+    return null;
+  }
+
 }
