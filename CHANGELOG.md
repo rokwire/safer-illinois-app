@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Fixed
-- Many students and employees using phone verification [#584](https://github.com/rokwire/safer-illinois-app/issues/560).
+- Many students and employees using phone verification [#584](https://github.com/rokwire/safer-illinois-app/issues/584).
 
 ## [2.9.22] - 2021-03-22
 ### Fixed
