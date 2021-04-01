@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Fixed
+- Many students and employees using phone verification [#584](https://github.com/rokwire/safer-illinois-app/issues/560).
 
 ## [2.9.22] - 2021-03-22
 ### Fixed
