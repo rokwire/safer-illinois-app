@@ -70,6 +70,7 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
       Organizations.notifyEnvironmentChanged,
       Health.notifyStatusUpdated,
       Health.notifyFamilyMembersChanged,
+      Health.notifyCheckPendingFamilyMember,
       DeepLink.notifyUri,
     ]);
 
@@ -107,6 +108,10 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
       _presentHealthStatusUpdate();
     }
     else if (name == Health.notifyFamilyMembersChanged) {
+      _checkForPendingFamilyMembers();
+    }
+    else if (name == Health.notifyCheckPendingFamilyMember) {
+      _promptedPendingFamilyMembers.clear();
       _checkForPendingFamilyMembers();
     }
     else if (name == FirebaseMessaging.notifyCovid19Notification) {

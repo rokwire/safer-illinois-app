@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+- Show Pending Family Member popup when loading FamilyMembers Settings panel [#589](https://github.com/rokwire/safer-illinois-app/issues/589).
+
 ### Fixed
 - Many students and employees using phone verification [#584](https://github.com/rokwire/safer-illinois-app/issues/584).
 
