@@ -369,8 +369,8 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
     }
     else if (blob.isVaccine) {
       historyTitle = blob.vaccinated ?
-        Localization().getStringEx("panel.covid19home.label.vaccinated.title", "VACCINATED") :
-        Localization().getStringEx("panel.covid19home.label.vaccination.title", "VACCINATION");
+        Localization().getStringEx("panel.covid19home.label.vaccinated.title", "Vaccine Effective") :
+        Localization().getStringEx("panel.covid19home.label.vaccination.title", "Vaccine Taken");
       info = (blob?.provider ?? Localization().getStringEx("app.common.label.other", "Other"));
     }
     else if (blob.isAction) {

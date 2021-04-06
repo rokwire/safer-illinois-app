@@ -295,7 +295,7 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
 
             Row(children: <Widget>[
               Expanded(child:
-                RoundedButton(label: "Vaccinated",
+                RoundedButton(label: "Vaccine Effective",
                   textColor: Styles().colors.fillColorPrimary,
                   borderColor: Styles().colors.fillColorSecondary,
                   backgroundColor: Styles().colors.white,
@@ -306,7 +306,7 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
               ),
               Container(width: 4,),
               Expanded(child:
-                RoundedButton(label: "Vaccination",
+                RoundedButton(label: "Vaccine Taken",
                   textColor: Styles().colors.fillColorPrimary,
                   borderColor: Styles().colors.fillColorSecondary,
                   backgroundColor: Styles().colors.white,
