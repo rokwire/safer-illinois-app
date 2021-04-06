@@ -474,7 +474,7 @@ class HealthHistory implements Comparable<HealthHistory> {
         (this.dateUtc == event?.blob?.dateUtc) &&
         (this.blob?.provider == event?.provider) &&
         (this.blob?.providerId == event?.providerId) &&
-        (this.blob?.vaccinated == event?.blob?.vaccinated);
+        (this.blob?.vaccine == event?.blob?.vaccine);
     }
     else if (event.isAction) {
       return this.isAction &&
@@ -638,11 +638,11 @@ class HealthHistory implements Comparable<HealthHistory> {
     return null;
   }
 
-  static HealthHistory mostRecentVaccine(List<HealthHistory> history, { bool vaccinated }) {
+  static HealthHistory mostRecentVaccine(List<HealthHistory> history, { String vaccine }) {
     if (history != null) {
       for (int index = 0; index < history.length; index++) {
         HealthHistory historyEntry = history[index];
-        if (historyEntry.isVaccine && ((vaccinated == null) || (historyEntry.blob?.vaccinated == vaccinated))) {
+        if (historyEntry.isVaccine && ((vaccine == null) || (historyEntry.blob?.vaccine?.toLowerCase() == vaccine?.toLowerCase()))) {
           return historyEntry;
         }
       }
@@ -668,7 +668,7 @@ class HealthHistoryBlob {
   final int traceDuration;
   final String traceTEK;
 
-  final bool vaccinated;
+  final String vaccine;
   
   final String actionType;
   final dynamic actionTitle;
@@ -677,11 +677,14 @@ class HealthHistoryBlob {
 
   final List<HealthEventExtra> extras;
 
+  static const String VaccineEffective = "Effective";
+  static const String VaccineTaken = "Taken";
+
   HealthHistoryBlob({
     this.provider, this.providerId, this.location, this.locationId, this.countyId, this.testType, this.testResult,
     this.symptoms,
     this.traceDuration, this.traceTEK,
-    this.vaccinated,
+    this.vaccine,
     this.actionType, this.actionTitle, this.actionText, this.actionParams,
     this.extras
   });
@@ -701,7 +704,7 @@ class HealthHistoryBlob {
       traceDuration: json['trace_duration'],
       traceTEK: json['trace_tek'],
 
-      vaccinated: json['vaccinated'],
+      vaccine: json['vaccine'],
       
       actionType: json['action_type'],
       actionTitle: json['action_title'],
@@ -728,7 +731,7 @@ class HealthHistoryBlob {
       'trace_duration': traceDuration,
       'trace_tek': traceTEK,
 
-      'vaccinated': vaccinated,
+      'vaccine': vaccine,
       
       'action_type': actionType,
       'action_title': actionTitle,
@@ -754,7 +757,7 @@ class HealthHistoryBlob {
       (o.traceDuration == traceDuration) &&
       (o.traceTEK == traceTEK) &&
 
-      (o.vaccinated == vaccinated) &&
+      (o.vaccine == vaccine) &&
 
       (o.actionType == actionType) &&
       DeepCollectionEquality().equals(o.actionTitle, actionTitle) &&
@@ -778,7 +781,7 @@ class HealthHistoryBlob {
     (traceDuration?.hashCode ?? 0) ^
     (traceTEK?.hashCode ?? 0) ^
 
-    (vaccinated?.hashCode ?? 0) ^
+    (vaccine?.hashCode ?? 0) ^
 
     (actionType?.hashCode ?? 0) ^
     (DeepCollectionEquality().hash(actionTitle) ?? 0) ^
@@ -800,7 +803,15 @@ class HealthHistoryBlob {
   }
 
   bool get isVaccine {
-    return (vaccinated != null);
+    return (vaccine != null);
+  }
+
+  bool get isVaccineEffective {
+    return (vaccine != null) && (vaccine.toLowerCase() == VaccineEffective.toLowerCase());
+  }
+
+  bool get isVaccineTaken {
+    return (vaccine != null) && (vaccine.toLowerCase() == VaccineTaken.toLowerCase());
   }
 
   bool get isAction {
@@ -1009,7 +1020,7 @@ class HealthPendingEventBlob {
   final String   testType;
   final String   testResult;
 
-  final bool     vaccinated;
+  final String   vaccine;
 
   final String   actionType;
   final dynamic  actionTitle;
@@ -1020,7 +1031,7 @@ class HealthPendingEventBlob {
 
   HealthPendingEventBlob({this.dateUtc,
     this.testType, this.testResult,
-    this.vaccinated,
+    this.vaccine,
     this.actionType, this.actionTitle, this.actionText, this.actionParams,
     this.extras});
 
@@ -1031,7 +1042,7 @@ class HealthPendingEventBlob {
       testType:      AppJson.stringValue(json['TestName']),
       testResult:    AppJson.stringValue(json['Result']),
 
-      vaccinated:    AppJson.boolValue(json['Vaccinated']),
+      vaccine:       AppJson.stringValue(json['Vaccine']),
       
       actionType:    AppJson.stringValue(json['ActionType']),
       actionTitle:    json['ActionTitle'],
@@ -1051,10 +1062,10 @@ class HealthPendingEventBlob {
         'Extra': HealthEventExtra.listToJson(extras),
       };
     }
-    else if (vaccinated != null) {
+    else if (vaccine != null) {
       return {
         'Date': healthDateTimeToString(dateUtc),
-        'Vaccinated': vaccinated,
+        'Vaccine': vaccine,
         'Extra': HealthEventExtra.listToJson(extras),
       };
     }
@@ -1081,7 +1092,7 @@ class HealthPendingEventBlob {
   }
 
   bool get isVaccine {
-    return (vaccinated != null);
+    return (vaccine != null);
   }
 
   bool get isAction {
@@ -3203,25 +3214,25 @@ class HealthVaccineRulesSet {
 // HealthVaccineRule
 
 class HealthVaccineRule {
-  final bool vaccinated;
+  final String vaccine;
   final _HealthRuleStatus status;
 
-  HealthVaccineRule({this.vaccinated, this.status});
+  HealthVaccineRule({this.vaccine, this.status});
 
   factory HealthVaccineRule.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthVaccineRule(
-      vaccinated: json['vaccinated'],
+      vaccine: json['vaccine'],
       status: _HealthRuleStatus.fromJson(json['status']),
     ) : null;
   }
 
   bool operator ==(o) =>
     (o is HealthVaccineRule) &&
-      (o.vaccinated == vaccinated) &&
+      (o.vaccine == vaccine) &&
       (o.status == status);
 
   int get hashCode =>
-    (vaccinated?.hashCode ?? 0) ^
+    (vaccine?.hashCode ?? 0) ^
     (status?.hashCode ?? 0);
 
   static List<HealthVaccineRule> listFromJson(List<dynamic> json) {
@@ -3237,7 +3248,7 @@ class HealthVaccineRule {
   }
 
   bool _matchBlob(HealthHistoryBlob blob, {HealthRulesSet rules}) {
-    return (vaccinated != null) && (vaccinated == blob?.vaccinated);
+    return (vaccine != null) && (vaccine.toLowerCase() == blob?.vaccine?.toLowerCase());
   }
 }
 
@@ -3996,8 +4007,8 @@ abstract class HealthRuleCondition {
           }
         }
         else if (_matchValue(historyType, HealthHistoryType.vaccine)) {
-          dynamic vaccinated = (conditionParams != null) ? conditionParams['vaccinated'] : null;
-          if ((vaccinated != null) && (entry?.blob?.vaccinated != vaccinated)) {
+          dynamic vaccine = (conditionParams != null) ? conditionParams['vaccine'] : null;
+          if ((vaccine != null) && (entry?.blob?.vaccine != vaccine)) {
             return false;
           }
         }

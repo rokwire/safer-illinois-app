@@ -533,9 +533,15 @@ class _HealthHistoryEntryState extends State<_HealthHistoryEntry> with SingleTic
         ),);
       }
       else if (widget.historyEntry.isVaccine) {
-        title = (widget.historyEntry?.blob?.vaccinated == true) ?
-          Localization().getStringEx("panel.health.covid19.history.label.vaccinated.title", "VACCINATED") :
-          Localization().getStringEx("panel.health.covid19.history.label.vaccination.title", "VACCINATION");
+        if (widget.historyEntry?.blob?.isVaccineEffective ?? false) {
+          title = Localization().getStringEx("panel.health.covid19.history.label.vaccine.effective.title", "Vaccine Effective");
+        }
+        else if (widget.historyEntry?.blob?.isVaccineTaken ?? false) {
+          title = Localization().getStringEx("panel.health.covid19.history.label.vaccine.taken.title", "Vaccine Taken");
+        }
+        else {
+          title = Localization().getStringEx("panel.health.covid19.history.label.vaccine.title", "Vaccine Taken");
+        }
         String providerTitle = widget.historyEntry?.blob?.provider ?? Localization().getStringEx("app.common.label.other", "Other");
         details.addAll(<Widget>[
           Row(children: <Widget>[
