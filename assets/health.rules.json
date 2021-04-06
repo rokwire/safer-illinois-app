@@ -14,7 +14,7 @@
 
 		"TestMonitorInterval": {
 			"condition": "require-vaccine",
-			"params": { "interval": { "scope": "past-and-current" }, "vacinated": true },
+			"params": { "interval": { "scope": "past-and-current" }, "vaccine": "effective" },
 			"success": "VaccinatedTestMonitorInterval",
 			"fail": {
 				"condition": "test-interval", "params": { "interval": "UserTestMonitorInterval" },
@@ -154,7 +154,7 @@
 			"condition": "require-vaccine",
 			"params": {
 				"interval": { "scope": "past" },
-				"vacinated": true
+				"vaccine": "effective"
 			},
 			"success": {
 				"condition": "require-test",
@@ -224,7 +224,7 @@
 			"condition": "require-vaccine",
 			"params": {
 				"interval": { "scope": "past" },
-				"vacinated": true
+				"vaccine": "effective"
 			},
 			"success": "test-monitor-vaccinated",
 			"fail": "test-monitor-default"
@@ -354,7 +354,7 @@
 			"condition": "require-vaccine",
 			"params": {
 				"interval": { "scope": "past" },
-				"vacinated": true
+				"vaccine": "effective"
 			},
 			"success": {
 				"condition": "require-test",
@@ -849,7 +849,7 @@
 	"vaccines": {
 		"rules": [
 			{
-				"vaccinated": true,
+				"vaccine": "effective",
 				"status": "test-monitor-vaccinated"
 			}
 		]

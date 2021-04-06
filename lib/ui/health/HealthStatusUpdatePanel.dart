@@ -207,7 +207,15 @@ class _HealthStatusUpdatePanelState extends State<HealthStatusUpdatePanel> {
         ],);
       }
       else if (reasonHistory.isVaccine) {
-        reasonHistoryName = Localization().getStringEx("panel.health.status_update.label.reason.vaccinated.title", "Your vaccine is already effective.");
+        if (reasonHistory.isVaccineEffective) {
+          reasonHistoryName = Localization().getStringEx("panel.health.status_update.label.reason.vaccine.effective.title", "Your vaccine is already effective.");
+        }
+        else if (reasonHistory.isVaccineTaken) {
+          reasonHistoryName = Localization().getStringEx("panel.health.status_update.label.reason.vaccine.taken.title", "Your vaccine is taken.");
+        }
+        else {
+          reasonHistoryName = Localization().getStringEx("panel.health.status_update.label.reason.vaccine.title", "Your vaccine is applied.");
+        }
       }
       else if (reasonHistory.isAction) {
         reasonHistoryName = Localization().getStringEx("panel.health.status_update.label.reason.action.title", "Health authorities require you to take an action.");
