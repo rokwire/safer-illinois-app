@@ -1155,7 +1155,7 @@ class Health with Service implements NotificationsListener {
         blob: HealthHistoryBlob(
           provider: event?.provider,
           providerId: event?.providerId,
-          vaccinated: event?.blob?.vaccinated,
+          vaccine: event?.blob?.vaccine,
           extras: event?.blob?.extras,
         ),
         publicKey: _user?.publicKey
@@ -1236,7 +1236,7 @@ class Health with Service implements NotificationsListener {
             status: _status?.blob?.code,
             prevStatus: _previousStatus?.blob?.code,
             attributes: {
-              Analytics.LogHealthVaccinatedName: event.blob?.vaccinated,
+              Analytics.LogHealthVaccineName: event.blob?.vaccine
           });
         }
         else if (event.isAction) {
@@ -1638,10 +1638,10 @@ class Health with Service implements NotificationsListener {
     Storage().healthBuildingAccessRules = AppJson.encode(buildingAccessRules);
   }
 
-  // Vaccinated
+  // Vaccination
 
   bool get isVaccinated {
-    return (HealthHistory.mostRecentVaccine(_history, vaccinated: true) != null);
+    return (HealthHistory.mostRecentVaccine(_history, vaccine: HealthHistoryBlob.VaccineEffective) != null);
   }
 
   // Health Family Members

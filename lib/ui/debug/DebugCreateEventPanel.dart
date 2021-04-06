@@ -301,7 +301,7 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
                   backgroundColor: Styles().colors.white,
                   fontFamily: Styles().fontFamilies.bold,
                   fontSize: 16, borderWidth: 2, height: 42,
-                  onTap:() { _onPopulate(this._sampleVacinatedBlob);  }
+                  onTap:() { _onPopulate(this._sampleVacineEffectiveBlob);  }
                 ),
               ),
               Container(width: 4,),
@@ -312,7 +312,7 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
                   backgroundColor: Styles().colors.white,
                   fontFamily: Styles().fontFamilies.bold,
                   fontSize: 16, borderWidth: 2, height: 42,
-                  onTap:() { _onPopulate(this._sampleVacinationBlob);  }
+                  onTap:() { _onPopulate(this._sampleVacineTakenBlob);  }
                 ),
               ),
             ],),
@@ -526,7 +526,7 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
   ]
 }''';}
 
-  String get _sampleVacinatedBlob {
+  String get _sampleVacineEffectiveBlob {
     DateTime nowLocal = DateTime.now();
     String dateString = healthDateTimeToString(nowLocal.toUtc());
 
@@ -538,7 +538,7 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
 
     return '''{
   "Date": "$dateString",
-  "Vaccinated": true,
+  "Vaccine": "${HealthHistoryBlob.VaccineEffective}",
   "Extra": [
     {"display_name": "Vaccine", "display_value": "Sputnik V"},
     {"display_name": "2nd Dose", "display_value": "$dose2String"},
@@ -546,7 +546,7 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
   ]
 }''';}
 
-  String get _sampleVacinationBlob {
+  String get _sampleVacineTakenBlob {
     DateTime nowLocal = DateTime.now();
     String dateString = healthDateTimeToString(nowLocal.toUtc());
 
@@ -557,7 +557,7 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
 
     return '''{
   "Date": "$dateString",
-  "Vaccinated": false,
+  "Vaccine": "${HealthHistoryBlob.VaccineTaken}",
   "Extra": [
     {"display_name": "Vaccine", "display_value": "Sputnik V"},
     {"display_name": "2nd Dose", "display_value": "$dose2String"},

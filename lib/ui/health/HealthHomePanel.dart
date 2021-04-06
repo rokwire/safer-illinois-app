@@ -353,27 +353,33 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
     String historyTitle = "", info = "";
     HealthHistoryBlob blob = lastHistory.blob;
     
-    if (blob.isTest) {
+    if (lastHistory.isTest) {
       bool isManualTest = lastHistory.isManualTest ?? false;
       historyTitle = blob?.testType ?? Localization().getStringEx("app.common.label.other", "Other");
       info = isManualTest? Localization().getStringEx("panel.covid19home.label.provider.self_reported", "Self reported"):
             (blob?.provider ?? Localization().getStringEx("app.common.label.other", "Other"));
     }
-    else if (blob.isContactTrace) {
+    else if (lastHistory.isContactTrace) {
       historyTitle = Localization().getStringEx("panel.covid19home.label.contact_trace.title", "Contact Trace");
       info = blob.traceDurationDisplayString;
     }
-    else if (blob.isSymptoms) {
+    else if (lastHistory.isSymptoms) {
       historyTitle = Localization().getStringEx("panel.covid19home.label.reported_symptoms.title", "Self Reported Symptoms");
       info = blob.symptomsDisplayString(rules: Health().rules);
     }
-    else if (blob.isVaccine) {
-      historyTitle = blob.vaccinated ?
-        Localization().getStringEx("panel.covid19home.label.vaccinated.title", "Vaccine Effective") :
-        Localization().getStringEx("panel.covid19home.label.vaccination.title", "Vaccine Taken");
+    else if (lastHistory.isVaccine) {
+      if (blob.isVaccineEffective) {
+        historyTitle = Localization().getStringEx("panel.covid19home.label.vaccine.effective.title", "Vaccine Effective");
+      }
+      else if (blob.isVaccineTaken) {
+        historyTitle = Localization().getStringEx("panel.covid19home.label.vaccine.taken.title", "Vaccine Taken");
+      }
+      else {
+        historyTitle = Localization().getStringEx("panel.covid19home.label.vaccine.title", "Vaccine");
+      }
       info = (blob?.provider ?? Localization().getStringEx("app.common.label.other", "Other"));
     }
-    else if (blob.isAction) {
+    else if (lastHistory.isAction) {
       historyTitle = blob.localeActionTitle ?? Localization().getStringEx("panel.covid19home.label.action_required.title", "Action Required");
       info = blob.localeActionText ?? "";
     }
