@@ -110,9 +110,10 @@ class _SettingsFamilyMembersPanelState extends State<SettingsFamilyMembersPanel>
     for (HealthFamilyMember member in Health().familyMembers) {
       content.add(Padding(padding: EdgeInsets.only(top: content.isNotEmpty ? 8 : 0), child: _FamilyMemberWidget(member: member),));
     }
-    return Padding(padding: EdgeInsets.symmetric(horizontal: 16, vertical: 32), child:
-      Column(children: content),
-    );
+    return SingleChildScrollView(child: 
+      Padding(padding: EdgeInsets.symmetric(horizontal: 16, vertical: 32), child:
+        Column(children: content),
+      ),);
   }
 
 }
