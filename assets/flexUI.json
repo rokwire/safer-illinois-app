@@ -5,6 +5,12 @@
 			"roles", "login_netid", "login_phone", "verify_phone", "confirm_phone",
 			"health_intro", "health_how_it_works", "health_consent", "health_qrcode", "health_final"],
 
+		"home": ["connect", "stay_healthy", "your_health"],
+		"home.connect": ["netid", "phone"],
+		"home.stay_healthy" : ["recent_event", "next_step", "symptom_checkin", "add_test_result"],
+		"home.your_health" : [ "health_status", "tiles", "health_history", "find_test_location", "wellness_center", "_groups", "switch_account"],
+		"home.your_health.tiles": ["county_guidelines", "care_team"],
+	
 		"settings": ["user_info", "connect", "customizations", "connected", "notifications", "covid19", "privacy", "account", "feedback"],
 		"settings.connect": ["netid", "phone"],
 		"settings.customizations": ["roles"],
@@ -14,36 +20,30 @@
 		"settings.notifications": ["covid19"],
 		"settings.covid19": ["exposure_notifications", "provider_test_result", "qr_code"],
 		"settings.privacy": ["statement"],
-		"settings.account": ["personal_info", "family_members"],
-
-		"info_center": ["connect", "stay_healthy", "your_health"],
-		"info_center.connect": ["netid", "phone"],
-		"info_center.stay_healthy" : ["recent_event", "next_step", "symptom_checkin", "add_test_result"],
-		"info_center.your_health" : [ "health_status", "tiles", "health_history", "find_test_location", "wellness_center", "_groups", "switch_account"],
-		"info_center.your_health.tiles": ["county_guidelines", "care_team"]
+		"settings.account": ["personal_info", "family_members"]
 	},
 	"rules": {
 		"roles" : {
-			"onboarding.login_netid"          : ["student", "OR", "employee"],
-			"onboarding.login_phone"          : ["NOT", ["employee", "OR", "student"]],
-			"onboarding.verify_phone"         : ["NOT", ["employee", "OR", "student"]],
-			"onboarding.confirm_phone"        : ["NOT", ["employee", "OR", "student"]]
+			"onboarding.login_netid"              : ["student", "OR", "employee"],
+			"onboarding.login_phone"              : ["NOT", ["employee", "OR", "student"]],
+			"onboarding.verify_phone"             : ["NOT", ["employee", "OR", "student"]],
+			"onboarding.confirm_phone"            : ["NOT", ["employee", "OR", "student"]]
 		},
 		"auth": {
-			"info_center.connect" 		               		: { "healthLoggedIn": false },
-			"info_center.stay_healthy" 						: { "healthLoggedIn": true },
-			"info_center.your_health.health_status"  		: { "healthLoggedIn": true },
-			"info_center.your_health.health_history" 		: { "healthLoggedIn": true },
-			"info_center.your_health.find_test_location" 	: { "healthLoggedIn": false },
-			"info_center.your_health.switch_account" 		: { "healthMultipleAccounts": true },
-			"info_center.your_health.groups" 				: { "healthLoggedIn": true },
+			"home.connect" 		               		  : { "healthLoggedIn": false },
+			"home.stay_healthy"                   : { "healthLoggedIn": true },
+			"home.your_health.health_status"      : { "healthLoggedIn": true },
+			"home.your_health.health_history"     : { "healthLoggedIn": true },
+			"home.your_health.find_test_location" : { "healthLoggedIn": false },
+			"home.your_health.switch_account"     : { "healthMultipleAccounts": true },
+			"home.your_health.groups" 				    : { "healthLoggedIn": true },
 
-			"settings.user_info"              : { "loggedIn": true },
-			"settings.connect"                : { "loggedIn": false },
-			"settings.connected"              : { "loggedIn": true },
-			"settings.account"                : { "loggedIn": true },
-			"settings.connected.netid"        : { "shibbolethLoggedIn": true },
-			"settings.connected.phone"        : { "phoneLoggedIn": true },
+			"settings.user_info"                  : { "loggedIn": true },
+			"settings.connect"                    : { "loggedIn": false },
+			"settings.connected"                  : { "loggedIn": true },
+			"settings.account"                    : { "loggedIn": true },
+			"settings.connected.netid"            : { "shibbolethLoggedIn": true },
+			"settings.connected.phone"            : { "phoneLoggedIn": true },
 			"settings.connected.netid.info"       : { "shibbolethLoggedIn": true },
 			"settings.connected.netid.disconnect" : { "shibbolethLoggedIn": true },
 			"settings.connected.netid.connect"    : { "shibbolethLoggedIn": false },
@@ -52,10 +52,10 @@
 			"settings.connected.phone.disconnect" : { "phoneLoggedIn": true }
 		},
 		"platform":{
-			"onboarding.location_auth"     : { "os": "android" }
+			"onboarding.location_auth"            : { "os": "android" }
 		},
 		"enable" : {
-			"onboarding.bluetooth_auth"     : false
+			"onboarding.bluetooth_auth"           : false
 		}
 	}
 }

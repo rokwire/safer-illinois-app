@@ -259,13 +259,8 @@ class _OnboardingRoleSelectionPanelState extends State<OnboardingRolesPanel> {
     Analytics.instance.logSelect(target:"Confirm");
     if (_selectedRoles != null && _selectedRoles.isNotEmpty && !_updating) {
       UserProfile().roles = _selectedRoles;
-      setState(() { _updating = true; });
-      FlexUI().update().then((_){
-        if (mounted) {
-          setState(() { _updating = false; });
-          Onboarding().next(context, widget);
-        }
-      });
+      FlexUI().update();
+      Onboarding().next(context, widget);
     }
   }
 }

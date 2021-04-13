@@ -133,7 +133,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
   Widget _buildMainContent() {
     List<Widget> contentList = [];
 
-    List<dynamic> codes = FlexUI()['info_center'] ?? [];
+    List<dynamic> codes = FlexUI()['home'] ?? [];
     for (String code in codes) {
       if (code == 'connect') {
         contentList.add(_buildConnectPrimarySection());
@@ -150,7 +150,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
   Widget _buildConnectPrimarySection() {
     List<Widget> contentList = [];
 
-    List<dynamic> codes = FlexUI()['info_center.connect'] ?? [];
+    List<dynamic> codes = FlexUI()['home.connect'] ?? [];
     for (String code in codes) {
       if (code == 'netid') {
         contentList.add(_buildConnectNetIdSection());
@@ -255,7 +255,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
   Widget _buildNextStepPrimarySection() {
     List<Widget> contentList = [];
 
-    List<dynamic> codes = FlexUI()['info_center.stay_healthy'] ?? [];
+    List<dynamic> codes = FlexUI()['home.stay_healthy'] ?? [];
     for (String code in codes) {
       if (code == 'recent_event') {
         contentList.add(_buildMostRecentEvent());
@@ -296,7 +296,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
   Widget _buildHealthPrimarySection() {
     List<Widget> contentList = [];
 
-    List<dynamic> codes = FlexUI()['info_center.your_health'] ?? [];
+    List<dynamic> codes = FlexUI()['home.your_health'] ?? [];
     for (String code in codes) {
       if (code == 'health_status') {
         contentList.add(_buildStatusSection());
@@ -681,7 +681,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
   Widget _buildTileButtons() {
     List<Widget> contentList = [];
 
-    List<dynamic> codes = FlexUI()['info_center.your_health.tiles'] ?? [];
+    List<dynamic> codes = FlexUI()['home.your_health.tiles'] ?? [];
     for (String code in codes) {
       if (code == 'care_team') {
         contentList.add(Expanded(
