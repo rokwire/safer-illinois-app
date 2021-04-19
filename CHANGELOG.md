@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## [2.10.18] - 2021-04-19
 ### Changed
 - Update FlexUI content from app assets [#595](https://github.com/rokwire/safer-illinois-app/issues/595).
 
@@ -142,6 +144,73 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Health service reworked to permanantly cache all data necessary for status build.
 - Use better naming in internal classes.
+
+## [2.9.22] - 2021-03-22
+### Fixed
+- Undo changing permission request buttons to "Continue" [#560](https://github.com/rokwire/safer-illinois-app/issues/560).
+- YouTube videos plays when screen locked [#580](https://github.com/rokwire/safer-illinois-app/issues/580).
+
+## [2.9.21] - 2021-03-16
+### Changed
+- Check for start/stop exposure native service on revoking from background.
+- Ask for Bluetooth and Location services permisions in iOS when the user selects to participate to Exposure Notification system. Exclude the relevant onboarding panels from onboarding flow in iOS [#573](https://github.com/rokwire/safer-illinois-app/issues/573).
+
+### Fixed
+- Fixed days interval calculation when daylight saving is changed [#572](https://github.com/rokwire/safer-illinois-app/issues/572).
+
+## [2.9.20] - 2021-03-13
+### Changed
+- Updated version number to 2.9.20+920 for resubmission.
+
+## [2.9.19] - 2021-03-12
+### Changed
+- Disable Accept/Revoke buttons initially in Pending Family Members popup.
+- Changed permission request buttons to "Continue" [#560](https://github.com/rokwire/safer-illinois-app/issues/560)
+- Apply WWCL.Disclaimers in Safer app [#562](https://github.com/rokwire/safer-illinois-app/issues/562)
+- Maine health history change [#563](https://github.com/rokwire/safer-illinois-app/issues/563)
+
+### Fixed
+- Health rules file. [#567](https://github.com/rokwire/safer-illinois-app/issues/567)
+
+## [2.9.18] - 2021-03-09
+### Added
+- Fire Analytics events in Pending Family Members popup.
+- Added terms and conditions to Pending Family Members popup [#557](https://github.com/rokwire/safer-illinois-app/issues/557).
+
+### Changed
+- Minor text changes in Pending Family Members popup.
+
+## [2.9.17] - 2021-03-04
+### Added
+- Added email or phone in Family Members list entry [#549](https://github.com/rokwire/safer-illinois-app/issues/549).
+
+### Changed
+- Renamed all occurences of "Reject" with "Revoke" in Family Members panel [#553](https://github.com/rokwire/safer-illinois-app/issues/553).
+
+## [2.9.16] - 2021-03-02
+### Fixed
+- Fixed "Remove My Information" processing [#547](https://github.com/rokwire/safer-illinois-app/issues/547).
+
+## [2.9.15] - 2021-02-26
+### Added
+- Implemented PullToRefresh feature in Home panel [#544](https://github.com/rokwire/safer-illinois-app/issues/544).
+
+### Changed
+- Load family member test price from health rules constants [#542](https://github.com/rokwire/safer-illinois-app/issues/542).
+
+## [2.9.14] - 2021-02-23
+### Added
+- Introduced Family members panel [#537](https://github.com/rokwire/safer-illinois-app/issues/537).
+
+## [2.9.13] - 2021-02-22
+### Changed
+- Updated Positive IP & NIP step & explanation strings [#529](https://github.com/rokwire/safer-illinois-app/issues/529).
+- Make POSITIVE-NIP COVID-19 PCR test result like the regular "PCR.negative" test result [#532](https://github.com/rokwire/safer-illinois-app/issues/532).
+- Introduced Approve Family member panel [#534](https://github.com/rokwire/safer-illinois-app/issues/534).
+
+### Added
+- Added camera usage mention in disclosure screen [#530](https://github.com/rokwire/safer-illinois-app/issues/530).
+- Handled family members requests [#534](https://github.com/rokwire/safer-illinois-app/issues/534).
 
 ## [2.9.12] - 2021-02-09
 ### Changed
