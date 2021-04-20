@@ -19,6 +19,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import "package:asn1lib/asn1lib.dart";
+import 'package:archive/archive.dart';
 import 'package:flutter/foundation.dart';
 import 'package:illinois/service/Log.dart';
 import "package:pointycastle/export.dart";
@@ -489,6 +490,20 @@ class RsaKeyHelper {
   static Future<bool> verifyRsaKeyPair(AsymmetricKeyPair<PublicKey, PrivateKey> rsaKeyPair) async {
     return await compute(_verifyRSAKeyPair, rsaKeyPair);
   }
+
+  /// Decompess a [PrivateKey]
+  ///
+  /// Returns a private key decoded from base64 encoded string
+  static Future<PrivateKey> decompressRsaPrivateKey(String data) async {
+    return await compute(_decompressRsaPrivateKey, data);
+  }
+
+  /// Compess a [PrivateKey]
+  ///
+  /// Returns a base64 encoded string of compressed key content
+  static Future<String> compressRsaPrivateKey(PrivateKey privateKey) async {
+    return await compute(_compressRsaPrivateKey, privateKey);
+  }
 }
 
 bool _verifyRSAKeyPair(AsymmetricKeyPair<PublicKey, PrivateKey> rsaKeyPair) {
@@ -505,4 +520,30 @@ bool _verifyRSAKeyPair(AsymmetricKeyPair<PublicKey, PrivateKey> rsaKeyPair) {
     }
   }
   return null;
+}
+
+PrivateKey _decompressRsaPrivateKey(String data) {
+  PrivateKey privateKey;
+  try {
+    Uint8List pemCompressedData = (data != null) ? base64.decode(data) : null;
+    List<int> pemData = (pemCompressedData != null) ? GZipDecoder().decodeBytes(pemCompressedData) : null;
+    privateKey = (pemData != null) ? RsaKeyHelper.parsePrivateKeyFromPemData(pemData) : null;
+  }
+  catch (e) {
+    print(e?.toString());
+  }
+  return privateKey;
+}
+
+String _compressRsaPrivateKey(PrivateKey privateKey) {
+  String privateKeyString;
+  try {
+    Uint8List privateKeyData = (privateKey != null) ? RsaKeyHelper.encodePrivateKeyToPEMDataPKCS1(privateKey) : null;
+    List<int> privateKeyCompressedData = (privateKeyData != null) ? GZipEncoder().encode(privateKeyData) : null;
+    privateKeyString = (privateKeyData != null) ? base64.encode(privateKeyCompressedData) : null;
+  }
+  catch (e) {
+    print(e?.toString());
+  }
+  return privateKeyString;
 }

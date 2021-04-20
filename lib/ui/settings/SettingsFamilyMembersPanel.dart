@@ -16,16 +16,25 @@ class SettingsFamilyMembersPanel extends StatefulWidget {
 
 class _SettingsFamilyMembersPanelState extends State<SettingsFamilyMembersPanel> implements NotificationsListener {
 
-  bool _loading;
-  List<HealthFamilyMember> _members;
+  bool _refreshing;
 
   @override
   void initState() {
     super.initState();
     NotificationService().subscribe(this, [
-      Health.notifyFamilyMembersAvailable,
+      Health.notifyFamilyMembersChanged,
     ]);
-    _loadMembers();
+    
+    _refreshing = true;
+    Health().refreshFamilyMembers().then((_) {
+      if (mounted) {
+        setState(() {
+          _refreshing = false;
+        });
+        
+        NotificationService().notify(Health.notifyCheckPendingFamilyMember);
+      }
+    });
   }
 
   @override
@@ -38,11 +47,9 @@ class _SettingsFamilyMembersPanelState extends State<SettingsFamilyMembersPanel>
 
   @override
   void onNotification(String name, dynamic param) {
-    if (name == Health.notifyFamilyMembersAvailable) {
-      if (mounted && (param != null)) {
-        setState(() {
-          _members = param;
-        });
+    if (name == Health.notifyFamilyMembersChanged) {
+      if (mounted && (_refreshing != true)) {
+        setState(() {});
       }
     }
   }
@@ -51,44 +58,40 @@ class _SettingsFamilyMembersPanelState extends State<SettingsFamilyMembersPanel>
   Widget build(BuildContext context) {
     return Scaffold(backgroundColor: Styles().colors.background,
       appBar: SimpleHeaderBarWithBack(context: context,
-        titleWidget: Text(Localization().getStringEx('panel.health.covid19.family_members.heading.title', 'Family Members'),
+        titleWidget: Text(Localization().getStringEx('panel.settings.family_members.heading.title', 'Family Members'),
           style: TextStyle(color: Colors.white, fontSize: 16, fontFamily: Styles().fontFamilies.extraBold),),),
-      body: SafeArea(child: _buildContent())
+      body: SafeArea(child: //_buildContent()
+        Stack(children: [
+          _buildContent(),
+          _buildProgress()
+        ],),
+      )
     );
   }
 
   Widget _buildContent() {
-    if (_loading == true) {
-      return _buildLoading();
+    if (Health().familyMembers == null) {
+      return _buildStatusText(Localization().getStringEx('panel.settings.family_members.label.load_failed', 'Failed to load family members'));
     }
-    else if (_members == null) {
-      return _buildStatusText(Localization().getStringEx('panel.health.covid19.family_members.label.load_failed', 'Failed to load family members'));
-    }
-    else if (_members.length == 0) {
-      return _buildStatusText(Localization().getStringEx('panel.health.covid19.family_members.label.empty', 'No family members'));
+    else if (Health().familyMembers.length == 0) {
+      return _buildStatusText(Localization().getStringEx('panel.settings.family_members.label.empty', 'No family members'));
     }
     else {
       return _buildMembers();
     }
   }
 
-  void _loadMembers() {
-    setState(() {
-      _loading = true;
-    });
-    Health().loadFamilyMembers().then((List<HealthFamilyMember> result) {
-      if (mounted) {
-        setState(() {
-          _loading = false;
-          _members = result;
-        });
-      }
-    });
-  }
-
-  Widget _buildLoading() {
-    return Align(alignment: Alignment.center, child:
-      CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary), strokeWidth: 3,),
+  Widget _buildProgress() {
+    return Visibility(visible: (_refreshing == true), child:
+      Padding(padding: EdgeInsets.all(30), child:
+        Column(children: [
+          Expanded(flex: 1, child: Container()),
+          Align(alignment: Alignment.center, child:
+            CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary), strokeWidth: 3,),
+          ),
+          Expanded(flex: 2, child: Container()),
+        ],),
+      ),
     );
   }
 
@@ -104,12 +107,13 @@ class _SettingsFamilyMembersPanelState extends State<SettingsFamilyMembersPanel>
 
   Widget _buildMembers() {
     List<Widget> content = <Widget>[];
-    for (HealthFamilyMember member in _members) {
+    for (HealthFamilyMember member in Health().familyMembers) {
       content.add(Padding(padding: EdgeInsets.only(top: content.isNotEmpty ? 8 : 0), child: _FamilyMemberWidget(member: member),));
     }
-    return Padding(padding: EdgeInsets.symmetric(horizontal: 16, vertical: 32), child:
-      Column(children: content),
-    );
+    return SingleChildScrollView(child: 
+      Padding(padding: EdgeInsets.symmetric(horizontal: 16, vertical: 32), child:
+        Column(children: content),
+      ),);
   }
 
 }
@@ -142,23 +146,23 @@ class _FamilyMemberWidgetState extends State<_FamilyMemberWidget> {
     String status;
     List<Widget> buttons = <Widget>[];
     if (widget.member.isAcepted) {
-      status = Localization().getStringEx('panel.health.covid19.family_members.label.status.accepted', 'ACCEPTED');
-      buttons.add(_buildCommandButton(Localization().getStringEx('panel.health.covid19.family_members.button.revoke.title', 'Revoke'), _onRevoke));
+      status = Localization().getStringEx('panel.settings.family_members.label.status.accepted', 'ACCEPTED');
+      buttons.add(_buildCommandButton(Localization().getStringEx('panel.settings.family_members.button.revoke.title', 'Revoke'), _onRevoke));
     }
     else if (widget.member.isRevoked) {
-      status = Localization().getStringEx('panel.health.covid19.family_members.label.status.revoked', 'REVOKED');
-      buttons.add(_buildCommandButton(Localization().getStringEx('panel.health.covid19.family_members.button.accept.title', 'Accept'), _onAccept));
+      status = Localization().getStringEx('panel.settings.family_members.label.status.revoked', 'REVOKED');
+      buttons.add(_buildCommandButton(Localization().getStringEx('panel.settings.family_members.button.accept.title', 'Accept'), _onAccept));
     }
     else if (widget.member.isPending) {
-      status = Localization().getStringEx('panel.health.covid19.family_members.label.status.pending', 'PENDING');
+      status = Localization().getStringEx('panel.settings.family_members.label.status.pending', 'PENDING');
       buttons.addAll(<Widget>[
-        _buildCommandButton(Localization().getStringEx('panel.health.covid19.family_members.button.accept.title', 'Accept'), _onAccept),
+        _buildCommandButton(Localization().getStringEx('panel.settings.family_members.button.accept.title', 'Accept'), _onAccept),
         Container(width: 8,),
-        _buildCommandButton(Localization().getStringEx('panel.health.covid19.family_members.button.revoke.title', 'Revoke'), _onRevoke),
+        _buildCommandButton(Localization().getStringEx('panel.settings.family_members.button.revoke.title', 'Revoke'), _onRevoke),
       ]);
     }
     else {
-      status = widget.member.status?.toUpperCase() ?? Localization().getStringEx('panel.health.covid19.family_members.label.status.unknown', 'UNKNOWN');
+      status = widget.member.status?.toUpperCase() ?? Localization().getStringEx('panel.settings.family_members.label.status.unknown', 'UNKNOWN');
     }
 
     buttons.addAll(<Widget>[
@@ -252,7 +256,7 @@ class _FamilyMemberWidgetState extends State<_FamilyMemberWidget> {
           setState(() {
             _hasProgress = false;
           });
-          String errorMessage = (result is String) ? result : Localization().getStringEx('panel.health.covid19.family_members.label.submit_failed', 'Failed to update status');
+          String errorMessage = (result is String) ? result : Localization().getStringEx('panel.settings.family_members.label.submit_failed', 'Failed to update status');
           AppAlert.showDialogResult(context, errorMessage).then((_) {
             setState(() {
               _buttonsEnabled = true;

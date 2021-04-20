@@ -24,12 +24,14 @@ class ExpandableText extends StatefulWidget {
         Key key,
         this.trimLines = 3,
         this.style,
+        this.iconColor,
       })  : assert(text != null),
         super(key: key);
 
   final String text;
   final int trimLines;
   final TextStyle style;
+  final Color iconColor;
 
   @override
   ExpandableTextState createState() => ExpandableTextState();
@@ -44,6 +46,7 @@ class ExpandableTextState extends State<ExpandableText> {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         TextPainter textPainter = TextPainter(
+          textScaleFactor: MediaQuery.of(context).textScaleFactor,
           text: TextSpan(
             text: "...",
             style: widget.style,
@@ -69,7 +72,7 @@ class ExpandableTextState extends State<ExpandableText> {
           return Column(
             children: <Widget>[
               RichText(
-                textScaleFactor: MediaQuery.textScaleFactorOf(context),
+                textScaleFactor: MediaQuery.of(context).textScaleFactor,
                 softWrap: true,
                 overflow: TextOverflow.clip,
                 text: TextSpan(
@@ -93,7 +96,7 @@ class ExpandableTextState extends State<ExpandableText> {
                           fontFamily: Styles().fontFamilies.bold,
                           color: Styles().colors.fillColorPrimary),),
                       Padding(
-                        padding: EdgeInsets.only(left: 7), child: Image.asset('images/icon-down-orange.png'),),
+                        padding: EdgeInsets.only(left: 7), child: Image.asset('images/icon-down-orange.png', color: widget.iconColor,),),
                     ],),
                   ),
                 ),

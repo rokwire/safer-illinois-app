@@ -1,25 +1,84 @@
 {
 	"defaults": {
 		"status": {
-			"health_status": "orange",
+			"code": "orange",
 			"next_step": "default.step"
 		}
 	},
 
-	"constants": {
-		"UserTestMonitorInterval": null,
+	"intervals": {
+		"DefaultTestMonitorInterval": 8,
 		"UndergraduateTestMonitorInterval": 4,
-		"DefaultTestMonitorInterval": 4,
+		"VaccinatedTestMonitorInterval": 30,
+		"UserTestMonitorInterval": null,
+
+		"TestMonitorInterval": {
+			"condition": "require-vaccine",
+			"params": { "interval": { "scope": "past-and-current" }, "vaccine": "effective" },
+			"success": "VaccinatedTestMonitorInterval",
+			"fail": {
+				"condition": "test-interval", "params": { "interval": "UserTestMonitorInterval" },
+				"success": "UserTestMonitorInterval",
+				"fail": {
+					"condition": "test-user", "params": { "card.role": "Undergraduate", "card.student_level": "1U" },
+					"success": "UndergraduateTestMonitorInterval",
+					"fail": "DefaultTestMonitorInterval"
+				}
+			}
+		}
+	},
+
+	"constants": {
 		"FamilyMemberTestPrice": null
 	},
 
+	"codes": {
+		"list": [
+			{
+				"code": "green",
+				"color": "#1ACD00",
+				"name": "code.green.name",
+				"description": "code.green.description",
+				"long_description": "code.green.long_description",
+				"visible": false
+			},
+			{
+				"code": "yellow",
+				"color": "#FFCF1C",
+				"name": "code.yellow.name",
+				"description": "code.yellow.description",
+				"long_description": "code.yellow.long_description"
+			},
+			{
+				"code": "orange",
+				"color": "#F29835",
+				"name": "code.orange.name",
+				"description": "code.orange.description",
+				"long_description": "code.orange.long_description"
+			},
+			{
+				"code": "red",
+				"color": "#FF4F4F",
+				"name": "code.red.name",
+				"description": "code.red.description",
+				"long_description": "code.red.long_description",
+				"reports_exposures": true
+			}
+		],
+		"info": [
+			"code.general.info.1",
+			"code.general.info.2"
+		]
+	},
+
 	"statuses": {
-		"PCR.xpositive": {
-			"health_status": "red",
-			"priority": 11,
-			"next_step_html": "positive.step.html"
+    "PCR.positive.0": {
+      "code": "red",
+      "priority": 11,
+      "next_step_html": "positive.step.html"
 		},
-		"PCR.positive": {
+		
+    "PCR.positive": {
 			"condition": "timeout",
 			"params": {
 				"interval": { "min": 0, "max": 10, "scope": "future" }
@@ -27,22 +86,22 @@
 			"success": {
 				"condition": "require-test",
 				"params": {
-					"interval": { "min": 9, "max": null, "scope": "future" }
+					"interval": { "min": 11, "max": null, "scope": "future" }
 				},
 				"success": null,
 				"fail": {
-					"health_status": "red",
+					"code": "red",
 					"priority": 11,
 					"next_step": "test.now.step"
 				}
 			},
 			"fail": {
-				"health_status": "red",
+				"code": "red",
 				"priority": 11,
 				"next_step_html": "positive.step.html"
 			}
 		},
-
+		
 		"PCR.positive-IP": {
 			"condition": "timeout",
 			"params": {
@@ -55,14 +114,14 @@
 				},
 				"success": null,
 				"fail": {
-					"health_status": "red",
+					"code": "red",
 					"priority": 11,
 					"next_step": "test.now.step",
 					"fcm_topic": "PCR.positive-IP"
 				}
 			},
 			"fail": {
-				"health_status": "red",
+				"code": "red",
 				"priority": 11,
 				"next_step_html": "positive-ip.step.html",
 				"event_explanation": "positive-ip.explanation",
@@ -76,13 +135,13 @@
 				"interval": { "min": 0, "max": 60, "scope": "future" }
 			},
 			"success": {
-				"health_status": "orange",
+				"code": "orange",
 				"priority": 1,
 				"next_step": "test.now.step",
 				"reason": "test.now.reason"
 			},
 			"fail": {
-				"health_status": "yellow",
+				"code": "yellow",
 				"priority": 3,
 				"next_step_html": "positive-nip.step.html",
 				"next_step_interval": 60,
@@ -92,95 +151,69 @@
 		},
 
 		"PCR.positive-NIP": {
-			"condition": "test-interval",
+			"condition": "require-vaccine",
 			"params": {
-				"interval": "UserTestMonitorInterval"
+				"interval": { "scope": "past" },
+				"vaccine": "effective"
 			},
 			"success": {
 				"condition": "require-test",
 				"params": {
-					"interval": { "min": 0, "max": "UserTestMonitorInterval", "scope": "future", "current": true }
+					"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
 				},
 				"success": {
-					"health_status": "yellow",
-					"priority": 1,
+					"code": "yellow",
+					"priority": 3,
 					"next_step_html": "positive-nip.step.html",
-					"next_step_interval": "UserTestMonitorInterval",
+					"next_step_interval": "TestMonitorInterval",
 					"event_explanation": "positive-nip.explanation",
 					"warning": "test.future.warning"
 				},
 				"fail": {
-					"health_status": "orange",
+					"code": "orange",
 					"priority": 1,
 					"next_step": "test.now.step",
 					"reason": "test.now.reason"
 				}
 			},
 			"fail": {
-				"condition": "test-user",
+				"condition": "require-test",
 				"params": {
-					"card.role": "Undergraduate",
-					"card.student_level": "1U"
+					"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
 				},
 				"success": {
-					"condition": "require-test",
-					"params": {
-						"interval": { "min": 0, "max": "UndergraduateTestMonitorInterval", "scope": "future", "current": true }
-					},
-					"success": {
-						"health_status": "yellow",
-						"priority": 1,
-						"next_step_html": "positive-nip.step.html",
-						"next_step_interval": "UndergraduateTestMonitorInterval",
-						"event_explanation": "positive-nip.explanation",
-						"warning": "test.future.warning"
-					},
-					"fail": {
-						"health_status": "orange",
-						"priority": 1,
-						"next_step": "test.now.step",
-						"reason": "test.now.reason"
-					}
+					"code": "yellow",
+					"priority": 1,
+					"next_step_html": "positive-nip.step.html",
+					"next_step_interval": "TestMonitorInterval",
+					"event_explanation": "positive-nip.explanation",
+					"warning": "test.future.warning"
 				},
 				"fail": {
-					"condition": "require-test",
-					"params": {
-						"interval": { "min": 0, "max": "DefaultTestMonitorInterval", "scope": "future", "current": true }
-					},
-					"success": {
-						"health_status": "yellow",
-						"priority": 1,
-						"next_step_html": "positive-nip.step.html",
-						"next_step_interval": "DefaultTestMonitorInterval",
-						"event_explanation": "positive-nip.explanation",
-						"warning": "test.future.warning"
-					},
-					"fail": {
-						"health_status": "orange",
-						"priority": 1,
-						"next_step": "test.now.step",
-						"reason": "test.now.reason"
-					}
+					"code": "orange",
+					"priority": 1,
+					"next_step": "test.now.step",
+					"reason": "test.now.reason"
 				}
 			}
 		},
 
 		"PCR.negative": "test-monitor",
-
+		
 		"PCR.invalid": {
 			"condition": "require-test",
 			"params": {
 				"interval": { "min": 0, "max": 1, "scope": "future", "current": true }
 			},
 			"success": {
-				"health_status": null,
-				"priority": null,
+				"code": null,
+				"priority": 1,
 				"next_step": "test.another.asap.step",
 				"next_step_interval": 1,
 				"warning": "test.future.warning"
 			},
 			"fail": {
-				"health_status": "orange",
+				"code": "orange",
 				"priority": 1,
 				"next_step": "test.now.step",
 				"reason": "test.now.reason"
@@ -188,73 +221,51 @@
 		},
 
 		"test-monitor": {
-			"condition": "test-interval",
+			"condition": "require-vaccine",
 			"params": {
-				"interval": "UserTestMonitorInterval"
+				"interval": { "scope": "past" },
+				"vaccine": "effective"
+			},
+			"success": "test-monitor-vaccinated",
+			"fail": "test-monitor-default"
+		},
+
+		"test-monitor-default": {
+			"condition": "require-test",
+			"params": {
+				"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
 			},
 			"success": {
-				"condition": "require-test",
-				"params": {
-					"interval": { "min": 0, "max": "UserTestMonitorInterval", "scope": "future", "current": true }
-				},
-				"success": {
-					"health_status": "yellow",
-					"priority": 1,
-					"next_step": "test.monitor.step",
-					"next_step_interval": "UserTestMonitorInterval",
-					"warning": "test.future.warning"
-				},
-				"fail": {
-					"health_status": "orange",
-					"priority": 1,
-					"next_step": "test.now.step",
-					"reason": "test.now.reason"
-				}
+				"code": "yellow",
+				"priority": 1,
+				"next_step": "test.monitor.step",
+				"next_step_interval": "TestMonitorInterval",
+				"warning": "test.future.warning"
 			},
 			"fail": {
-				"condition": "test-user",
-				"params": {
-					"card.role": "Undergraduate",
-					"card.student_level": "1U"
-				},
-				"success": {
-					"condition": "require-test",
-					"params": {
-						"interval": { "min": 0, "max": "UndergraduateTestMonitorInterval", "scope": "future", "current": true }
-					},
-					"success": {
-						"health_status": "yellow",
-						"priority": 1,
-						"next_step": "test.monitor.step",
-						"next_step_interval": "UndergraduateTestMonitorInterval",
-						"warning": "test.future.warning"
-					},
-					"fail": {
-						"health_status": "orange",
-						"priority": 1,
-						"next_step": "test.now.step",
-						"reason": "test.now.reason"
-					}
-				},
-				"fail": {
-					"condition": "require-test",
-					"params": {
-						"interval": { "min": 0, "max": "DefaultTestMonitorInterval", "scope": "future", "current": true }
-					},
-					"success": {
-						"health_status": "yellow",
-						"priority": 1,
-						"next_step": "test.monitor.step",
-						"next_step_interval": "DefaultTestMonitorInterval",
-						"warning": "test.future.warning"
-					},
-					"fail": {
-						"health_status": "orange",
-						"priority": 1,
-						"next_step": "test.now.step",
-						"reason": "test.now.reason"
-					}
-				}
+				"code": "orange",
+				"priority": 1,
+				"next_step": "test.now.step",
+				"reason": "test.now.reason"
+			}
+		},
+		"test-monitor-vaccinated": {
+			"condition": "require-test",
+			"params": {
+				"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
+			},
+			"success": {
+				"code": "yellow",
+				"priority": 3,
+				"next_step": "test.monitor.step",
+				"next_step_interval": "TestMonitorInterval",
+				"warning": "test.future.warning"
+			},
+			"fail": {
+				"code": "orange",
+				"priority": 1,
+				"next_step": "test.now.step",
+				"reason": "test.now.reason"
 			}
 		},
 
@@ -275,30 +286,30 @@
 					},
 					"success": null,
 					"fail": {
-						"health_status": "orange",
-						"priority": 2,
+						"code": "orange",
+						"priority": 4,
 						"next_step_html": "test.another.now.step.html",
 						"reason": "test.past.reason"
 					}
 				},
 				"fail": {
-					"health_status": "orange",
-					"priority": 2,
+					"code": "orange",
+					"priority": 4,
 					"next_step_html": "test.after.step.html",
 					"next_step_interval": { "value": 3, "origin": "referenceDate" },
 					"reason": "test.after.reason"
 				}
 			},
 			"fail": {
-				"health_status": "orange",
-				"priority": 2,
+				"code": "orange",
+				"priority": 4,
 				"next_step_html": "test.multiple.step.html",
 				"reason": "test.required.reason"
 			}
 		},
-
+		
 		"symptoms-match": {
-			"health_status": "orange",
+			"code": "orange",
 			"priority": 1,
 			"next_step": "symptoms.step",
 			"reason": "symptoms.reason"
@@ -316,23 +327,23 @@
 				},
 				"success": null,
 				"fail": {
-					"health_status": "orange",
+					"code": "orange",
 					"priority": 1,
 					"next_step": "test.now.step",
 					"reason": "test.now.reason"
 				}
 			},
 			"fail": {
-				"health_status": "orange",
+				"code": "orange",
 				"priority": 2,
 				"next_step_html": "exposure.step.html",
 				"next_step_interval": 4,
 				"reason": "exposure.reason"
 			}
 		},
-
+		
 		"quarantine-on": {
-			"health_status": "orange",
+			"code": "orange",
 			"priority": 10,
 			"next_step": "quarantine-on.step",
 			"reason": "quarantine-on.reason",
@@ -340,72 +351,47 @@
 		},
 
 		"quarantine-off": {
-			"condition": "test-interval",
+			"condition": "require-vaccine",
 			"params": {
-				"interval": "UserTestMonitorInterval"
+				"interval": { "scope": "past" },
+				"vaccine": "effective"
 			},
 			"success": {
 				"condition": "require-test",
 				"params": {
-					"interval": { "min": 0, "max": "UserTestMonitorInterval", "scope": "future", "current": true }
+					"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
 				},
 				"success": {
-					"health_status": "yellow",
-					"priority": -1,
+					"code": "yellow",
+					"priority": -3,
 					"next_step": "test.resume.step",
-					"next_step_interval": "UserTestMonitorInterval",
+					"next_step_interval": "TestMonitorInterval",
 					"warning": "test.future.warning"
-				},
+					},
 				"fail": {
-					"health_status": "orange",
+					"code": "orange",
 					"priority": -1,
 					"next_step": "test.now.step",
 					"reason": "test.now.reason"
 				}
 			},
 			"fail": {
-				"condition": "test-user",
+				"condition": "require-test",
 				"params": {
-					"card.role": "Undergraduate",
-					"card.student_level": "1U"
+					"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
 				},
 				"success": {
-					"condition": "require-test",
-					"params": {
-						"interval": { "min": 0, "max": "UndergraduateTestMonitorInterval", "scope": "future", "current": true }
+					"code": "yellow",
+					"priority": -1,
+					"next_step": "test.resume.step",
+					"next_step_interval": "TestMonitorInterval",
+					"warning": "test.future.warning"
 					},
-					"success": {
-						"health_status": "yellow",
-						"priority": -1,
-						"next_step": "test.resume.step",
-						"next_step_interval": "UndergraduateTestMonitorInterval",
-						"warning": "test.future.warning"
-					},
-					"fail": {
-						"health_status": "orange",
-						"priority": -1,
-						"next_step": "test.now.step",
-						"reason": "test.now.reason"
-					}
-				},
 				"fail": {
-					"condition": "require-test",
-					"params": {
-						"interval": { "min": 0, "max": "DefaultTestMonitorInterval", "scope": "future", "current": true }
-					},
-					"success": {
-						"health_status": "yellow",
-						"priority": -1,
-						"next_step": "test.resume.step",
-						"next_step_interval": "DefaultTestMonitorInterval",
-						"warning": "test.future.warning"
-					},
-					"fail": {
-						"health_status": "orange",
-						"priority": -1,
-						"next_step": "test.now.step",
-						"reason": "test.now.reason"
-					}
+					"code": "orange",
+					"priority": -1,
+					"next_step": "test.now.step",
+					"reason": "test.now.reason"
 				}
 			}
 		},
@@ -416,22 +402,63 @@
 				"interval": { "min": -1, "max": 1, "current": true }
 			},
 			"success": {
-				"health_status": null,
-				"priority": null,
+				"code": null,
+				"priority": 1,
 				"next_step": "test.monitor.step",
 				"next_step_interval": 1,
 				"warning": "test.future.warning"
 			},
 			"fail": {
-				"health_status": "orange",
+				"code": "orange",
 				"priority": 1,
 				"next_step": "test.now.step",
 				"reason": "test.now.reason"
 			}
 		},
 
+		"exempt-on": {
+			"condition": "test-interval",
+			"params": {
+				"interval": "ExemptInterval"
+			},
+			"success": {
+				"condition": "timeout",
+				"params": {
+					"interval": { "min": 0, "max": "ExemptInterval", "scope": "future" }
+				},
+				"success": {
+					"code": "orange",
+					"priority": 1,
+					"next_step": "test.now.step",
+					"reason": "test.now.reason"
+				},
+				"fail": {
+					"code": "yellow",
+					"priority": 12,
+					"next_step": "You are exempted from testing until {next_step_date}",
+					"next_step_interval": "ExemptInterval",
+					"reason": "Your status changed to Yellow because you are exempted from testing until {next_step_date}",
+					"fcm_topic": "exempt"
+				}
+			},
+			"fail": {
+				"code": "yellow",
+				"priority": 12,
+				"next_step": "You are exempted from testing",
+				"reason": "Your status changed to Yellow because you are exempted from testing",
+				"fcm_topic": "exempt"
+			}
+		},
+
+    "exempt-off": {
+      "code": "orange",
+      "priority": -1,
+      "next_step": "test.now.step",
+      "reason": "Your status changed to Orange because your exempt from testing status was canceled"
+		},
+		
 		"release": {
-			"health_status": "orange",
+			"code": "orange",
 			"priority": -1,
 			"next_step": "release.step",
 			"reason": "release.reason"
@@ -495,7 +522,7 @@
 					{
 						"result": "POSITIVE",
 						"category": "PCR.positive",
-						"disclaimer_html": null,
+						"disclaimer_html": "disclaimers.covid-19_pcr.positive.html",
 						"status": "PCR.positive"
 					},
 					{
@@ -513,25 +540,25 @@
 					{
 						"result": "NEGATIVE",
 						"category": "PCR.negative",
-						"disclaimer_html": null,
+						"disclaimer_html": "disclaimers.covid-19_pcr.negative.html",
 						"status": "PCR.negative"
 					},
 					{
 						"result": "INVALID",
 						"category": "PCR.invalid",
-						"disclaimer_html": null,
+						"disclaimer_html": "disclaimers.covid-19_pcr.invalid.html",
 						"status": "PCR.invalid"
 					},
 					{
 						"result": "INCONCLUSIVE",
 						"category": "PCR.invalid",
-						"disclaimer_html": null,
+						"disclaimer_html": "disclaimers.covid-19_pcr.inconclusive.html",
 						"status": "PCR.invalid"
 					},
 					{
 						"result": "REJECTED",
 						"category": "PCR.invalid",
-						"disclaimer_html": null,
+						"disclaimer_html": "disclaimers.covid-19_pcr.rejected.html",
 						"status": "PCR.invalid"
 					}
 				]
@@ -653,7 +680,7 @@
 			}
 		]
 	},
-
+	
 	"symptoms": {
 		"rules": [
 			{
@@ -669,7 +696,7 @@
 				"status": "symptoms-match"
 			}
 		],
-
+		
 		"groups": [
 			{
 				"id": null,
@@ -772,7 +799,7 @@
 			}
 		]
 	},
-
+	
 	"contact_trace": {
 		"rules": [
 			{
@@ -781,7 +808,7 @@
 			}
 		]
 	},
-
+	
 	"actions": {
 		"rules": [
 			{
@@ -791,6 +818,14 @@
 			{
 				"type": "quarantine-off",
 				"status": "quarantine-off"
+			},
+			{
+				"type": "exempt-on",
+				"status": "exempt-on"
+			},
+			{
+				"type": "exempt-off",
+				"status": "exempt-off"
 			},
 			{
 				"type": "out-of-test-compliance",
@@ -807,6 +842,15 @@
 			{
 				"type": "release",
 				"status": "release"
+			}
+		]
+	},
+
+	"vaccines": {
+		"rules": [
+			{
+				"vaccine": "effective",
+				"status": "test-monitor-vaccinated"
 			}
 		]
 	},
@@ -839,6 +883,7 @@
 			"quarantine-on.reason": "Your status changed to Orange because the Public Health department placed you in Quarantine.",
 			"release.step": "Take a SHIELD Saliva Test",
 			"release.reason": "Your status changed to Orange because the Public Health department requires you to take a test.",
+
 			"symptoms.no-symptoms": "No symptoms",
 			"symptoms.fever": "Fever",
 			"symptoms.chills": "Chills",
@@ -857,7 +902,28 @@
 			"symptoms.sore-throat": "Sore Throat",
 			"symptoms.congestion-or-runny-nose": "Congestion or runny nose",
 			"symptoms.nausea-or-vomiting": "Nausea or vomiting",
-			"symptoms.diarrhea":"Diarrhea"
+			"symptoms.diarrhea": "Diarrhea",
+			
+			"disclaimers.covid-19_pcr.positive.html": "<p><b><u>POSITIVE for COVID-19</u></b></p><p>Test result is positive for SARS-CoV-2.</p><p>This is a real-time PCR assay for the qualitative detection of SARS-CoV-2, the virus that causes COVID-19 disease. This is a laboratory-developed test based on a test developed at the Centers for Disease Control and Prevention, and its performance characteristics have been validated at the WVDL-WSLH COVID-19 Laboratory. It has not been cleared or approved by the US Food and Drug Administration. Testing for this specimen was performed by the WVDL-WSLH COVID-19 Laboratory, Madison, WI under the direction of Errin C. Rider, Ph.D., D(ABMM), M(ASCP)CM, Director of Clinical Laboratory Services.</p>",
+			"disclaimers.covid-19_pcr.negative.html": "<p><b><u>NEGATIVE for COVID-19.</u></b></p><p>A negative test result does not preclude SARS-CoV-2 infection and should not be used as the sole basis for patient management decisions. Clinical observations, patient history, and epidemiologic information must also be considered.</p><p>This is a real-time PCR assay for the qualitative detection of SARS-CoV-2, the virus that causes COVID-19 disease. This is a laboratory-developed test based on a test developed at the Centers for Disease Control and Prevention, and its performance characteristics have been validated at the WVDL-WSLH COVID-19 Laboratory. It has not been cleared or approved by the US Food and Drug Administration. Testing for this specimen was performed by the WVDL-WSLH COVID-19 Laboratory, Madison, WI under the direction of Errin C. Rider, Ph.D., D(ABMM), M(ASCP)CM, Director of Clinical Laboratory Services.</p>",
+			"disclaimers.covid-19_pcr.invalid.html": "<p>Repeat testing is suggested.</p><p>This specimen exhibited inhibition in the PCR assay or the specimen contained an inadequate amount of clinical material. If clinically warranted, re-collecting a specimen for follow-up testing is recommended.</p><p>This is a real-time PCR assay for the qualitative detection of SARS-CoV-2, the virus that causes COVID-19 disease. This is a laboratory-developed test based on a test developed at the Centers for Disease Control and Prevention, and its performance characteristics have been validated at the WVDL-WSLH COVID-19 Laboratory. It has not been cleared or approved by the US Food and Drug Administration. Testing for this specimen was performed by the WVDL-WSLH COVID-19 Laboratory, Madison, WI under the direction of Errin C. Rider, Ph.D., D(ABMM), M(ASCP)CM, Director of Clinical Laboratory Services.</p>",
+			"disclaimers.covid-19_pcr.inconclusive.html": "<p>Repeat testing is suggested.</p><p>The test result did not meet the full criteria for the presence of SARS-CoV-2. If clinically warranted, repeat testing is suggested.</p><p>This is a real-time PCR assay for the qualitative detection of SARS-CoV-2, the virus that causes COVID-19 disease. This is a laboratory-developed test based on a test developed at the Centers for Disease Control and Prevention, and its performance characteristics have been validated at the WVDL-WSLH COVID-19 Laboratory. It has not been cleared or approved by the US Food and Drug Administration. Testing for this specimen was performed by the WVDL-WSLH COVID-19 Laboratory, Madison, WI under the direction of Errin C. Rider, Ph.D., D(ABMM), M(ASCP)CM, Director of Clinical Laboratory Services.</p>",
+			"disclaimers.covid-19_pcr.rejected.html": "<p>This is a real-time PCR assay for the qualitative detection of SARS-CoV-2, the virus that causes COVID-19 disease. This is a laboratory-developed test based on a test developed at the Centers for Disease Control and Prevention, and its performance characteristics have been validated at the WVDL-WSLH COVID-19 Laboratory. It has not been cleared or approved by the US Food and Drug Administration. Testing for this specimen was performed by the WVDL-WSLH COVID-19 Laboratory, Madison, WI under the direction of Errin C. Rider, Ph.D., D(ABMM), M(ASCP)CM, Director of Clinical Laboratory Services.</p>",
+
+			"code.green.name": "Green",
+			"code.green.description": "Recent Antibodies",
+			"code.green.long_description": "Green: Recent antibodies",
+			"code.yellow.name": "Yellow",
+			"code.yellow.description": "Recent Negative Test",
+			"code.yellow.long_description": "Yellow: Recent negative test",
+			"code.orange.name": "Orange",
+			"code.orange.description": "Test Required",
+			"code.orange.long_description": "Orange: First time user, Past due for test, Self-reported symptoms, Received exposure notification or Quarantined",
+			"code.red.name": "Red",
+			"code.red.description": "Positive Test",
+			"code.red.long_description": "Red: Positive test",
+			"code.general.info.1": "Default status for new users is set to Orange.",
+			"code.general.info.2": "An up-to-date on-campus negative test result will reset your COVID-19 status to Yellow, and Building Entry will change to Granted."
 		},
 		"es": {
 			"default.step": "Realice una prueba de saliva SHIELD cuando regrese al campus.",
@@ -886,6 +952,7 @@
 			"quarantine-on.reason": "Su estado cambió a Orange porque el departamento de Salud Pública lo puso en cuarentena.",
 			"release.step": "Realice una prueba de saliva SHIELD",
 			"release.reason": "Su estado cambió a Orange porque el departamento de Salud Pública requiere que tome una prueba.",
+
 			"symptoms.no-symptoms": "Sin síntomas",
 			"symptoms.fever": "Fiebre",
 			"symptoms.chills": "Resfriado",
@@ -904,7 +971,28 @@
 			"symptoms.sore-throat": "Dolor de garganta",
 			"symptoms.congestion-or-runny-nose": "Congestión o secreción nasal",
 			"symptoms.nausea-or-vomiting": "Náuseas o vómitos",
-			"symptoms.diarrhea": "Diarrea"
+			"symptoms.diarrhea": "Diarrea",
+
+			"disclaimers.covid-19_pcr.positive.html": "<p><b><u>POSITIVO para COVID-19</u></b></p><p>El resultado de la prueba es positivo para el SARS-CoV-2. </p> <p> Este es un ensayo de PCR en tiempo real para la detección cualitativa del SARS-CoV-2, el virus que causa la enfermedad COVID-19. Esta es una prueba desarrollada en laboratorio basada en una prueba desarrollada en los Centros para el Control y la Prevención de Enfermedades, y sus características de rendimiento han sido validadas en el Laboratorio WVDL-WSLH COVID-19. No ha sido autorizado ni aprobado por la Administración de Drogas y Alimentos de EE. UU. La prueba para esta muestra fue realizada por el Laboratorio WVDL-WSLH COVID-19, Madison, WI bajo la dirección de Errin C. Rider, Ph.D., D (ABMM), M (ASCP) CM, Director de Servicios de Laboratorio Clínico.</p>",
+			"disclaimers.covid-19_pcr.negative.html": "<p><b><u>NEGATIVO para COVID-19.</u></b></p><p>Un resultado negativo de la prueba no excluye la infección por SARS-CoV-2 y no debe usarse como la única base para las decisiones de manejo del paciente. También se deben considerar las observaciones clínicas, el historial del paciente y la información epidemiológica. </p> <p> Este es un ensayo de PCR en tiempo real para la detección cualitativa del SARS-CoV-2, el virus que causa la enfermedad COVID-19. Esta es una prueba desarrollada en laboratorio basada en una prueba desarrollada en los Centros para el Control y la Prevención de Enfermedades, y sus características de rendimiento han sido validadas en el Laboratorio WVDL-WSLH COVID-19. No ha sido autorizado ni aprobado por la Administración de Drogas y Alimentos de EE. UU. La prueba para esta muestra fue realizada por el Laboratorio WVDL-WSLH COVID-19, Madison, WI bajo la dirección de Errin C. Rider, Ph.D., D (ABMM), M (ASCP) CM, Director de Servicios de Laboratorio Clínico.</p>",
+			"disclaimers.covid-19_pcr.invalid.html": "<p>Se sugiere repetir la prueba.</p><p>Esta muestra mostró inhibición en el ensayo de PCR o la muestra contenía una cantidad inadecuada de material clínico. Si está clínicamente justificado, se recomienda volver a recolectar una muestra para las pruebas de seguimiento. </p> <p> Este es un ensayo de PCR en tiempo real para la detección cualitativa de SARS-CoV-2, el virus que causa COVID-19 enfermedad. Esta es una prueba desarrollada en laboratorio basada en una prueba desarrollada en los Centros para el Control y la Prevención de Enfermedades, y sus características de rendimiento han sido validadas en el Laboratorio WVDL-WSLH COVID-19. No ha sido autorizado ni aprobado por la Administración de Drogas y Alimentos de EE. UU. La prueba para esta muestra fue realizada por el Laboratorio WVDL-WSLH COVID-19, Madison, WI bajo la dirección de Errin C. Rider, Ph.D., D (ABMM), M (ASCP) CM, Director de Servicios de Laboratorio Clínico.</p>",
+			"disclaimers.covid-19_pcr.inconclusive.html": "<p>Se sugiere repetir la prueba.</p><p>El resultado de la prueba no cumplió con los criterios completos para la presencia de SARS-CoV-2. Si está clínicamente justificado, se sugiere repetir la prueba. </p> <p> Este es un ensayo de PCR en tiempo real para la detección cualitativa del SARS-CoV-2, el virus que causa la enfermedad COVID-19. Esta es una prueba desarrollada en laboratorio basada en una prueba desarrollada en los Centros para el Control y la Prevención de Enfermedades, y sus características de rendimiento han sido validadas en el Laboratorio WVDL-WSLH COVID-19. No ha sido autorizado ni aprobado por la Administración de Drogas y Alimentos de EE. UU. La prueba para esta muestra fue realizada por el Laboratorio WVDL-WSLH COVID-19, Madison, WI bajo la dirección de Errin C. Rider, Ph.D., D (ABMM), M (ASCP) CM, Director de Servicios de Laboratorio Clínico.</p>",
+			"disclaimers.covid-19_pcr.rejected.html": "<p>Este es un ensayo de PCR en tiempo real para la detección cualitativa de SARS-CoV-2, el virus que causa la enfermedad COVID-19. Esta es una prueba desarrollada en laboratorio basada en una prueba desarrollada en los Centros para el Control y la Prevención de Enfermedades, y sus características de rendimiento han sido validadas en el Laboratorio WVDL-WSLH COVID-19. No ha sido autorizado ni aprobado por la Administración de Drogas y Alimentos de EE. UU. La prueba para esta muestra fue realizada por el Laboratorio WVDL-WSLH COVID-19, Madison, WI bajo la dirección de Errin C. Rider, Ph.D., D (ABMM), M (ASCP) CM, Director de Servicios de Laboratorio Clínico.</p>",
+
+			"code.green.name": "Verde",
+			"code.green.description": "Anticuerpos recientes",
+			"code.green.long_description": "Verde: anticuerpos recientes",
+			"code.yellow.name": "Amarillo",
+			"code.yellow.description": "Prueba negativa reciente",
+			"code.yellow.long_description": "Amarillo: prueba negativa reciente",
+			"code.orange.name": "Naranja",
+			"code.orange.description": "Prueba requerida",
+			"code.orange.long_description": "Naranja: usuario por primera vez, atrasado para la prueba, síntomas autoinformados, notificación de exposición recibida o en cuarentena",
+			"code.red.name": "Rojo",
+			"code.red.description": "Prueba positiva",
+			"code.red.long_description": "Rojo: prueba positiva",
+			"code.general.info.1": "El estado predeterminado para los nuevos usuarios se establece en naranja.",
+			"code.general.info.2": "Un resultado de prueba negativo en el campus actualizado restablecerá su estado de COVID-19 a amarillo y la entrada al edificio cambiará a otorgada."
 		},
 		"zh": {
 			"default.step": "返回校園後，請參加SHIELD唾液測試。",
@@ -933,6 +1021,7 @@
 			"quarantine-on.reason": "您的狀態更改為“橙色”，因為公共衛生部門已將您隔離。",
 			"release.step": "參加SHIELD唾液測試",
 			"release.reason": "您的狀態更改為“橙色”，因為公共衛生部門要求您進行測試。",
+
 			"symptoms.no-symptoms": "無症狀",
 			"symptoms.fever": "發熱",
 			"symptoms.chills": "寒意",
@@ -951,7 +1040,28 @@
 			"symptoms.sore-throat": "咽喉痛",
 			"symptoms.congestion-or-runny-nose": "充血或流鼻涕",
 			"symptoms.nausea-or-vomiting": "噁心或嘔吐",
-			"symptoms.diarrhea":"腹瀉"
+			"symptoms.diarrhea":"腹瀉",
+
+			"disclaimers.covid-19_pcr.positive.html": "<p><b><u>對COVID-19有利</u></b></p><p>測試結果為SARS-CoV-2陽性。</p><p>這是用於定性檢測SARS-CoV-2（一種引起COVID-19疾病的病毒）的實時PCR分析方法。 這是一項基於實驗室開發的測試，基於疾病控制與預防中心開發的測試，並且其性能特徵已在WVDL-WSLH COVID-19實驗室進行了驗證。 它尚未被美國食品和藥物管理局清除或批准。 由威斯康星州麥迪遜市的WVDL-WSLH COVID-19實驗室在臨床實驗室服務總監Errin C. Rider博士，D（ABMM），M（ASCP）CM的指導下對該樣品進行了測試。</p>",
+			"disclaimers.covid-19_pcr.negative.html": "<p><b><u>負于COVID-19</u></b></p><p>檢測結果陰性並不排除SARS-CoV-2感染，因此不應作為患者管理決策的唯一依據。 還必須考慮臨床觀察，患者病史和流行病學信息。</ p> <p>這是一種實時PCR檢測方法，用於定性檢測導致COVID-19疾病的病毒SARS-CoV-2。 這是一項基於實驗室開發的測試，基於疾病控制與預防中心開發的測試，並且其性能特徵已在WVDL-WSLH COVID-19實驗室進行了驗證。 它尚未被美國食品和藥物管理局清除或批准。 由威斯康星州麥迪遜市的WVDL-WSLH COVID-19實驗室在臨床實驗室服務總監Errin C. Rider博士，D（ABMM），M（ASCP）CM的指導下對該樣品進行了測試。</p>",
+			"disclaimers.covid-19_pcr.invalid.html": "<p>建議重複測試。</p><p>該標本在PCR分析中表現出抑製作用，或者標本中臨床物質的含量不足。 如果臨床需要，建議重新收集標本以進行後續測試。</ p> <p>這是一種實時PCR檢測方法，用於定性檢測SARS-CoV-2（引起COVID-19的病毒） 疾病。 這是一項基於實驗室開發的測試，基於疾病控制與預防中心開發的測試，並且其性能特徵已在WVDL-WSLH COVID-19實驗室進行了驗證。 它尚未被美國食品和藥物管理局清除或批准。 由威斯康星州麥迪遜市的WVDL-WSLH COVID-19實驗室在臨床實驗室服務總監Errin C. Rider博士，D（ABMM），M（ASCP）CM的指導下對該樣品進行了測試。</p>",
+			"disclaimers.covid-19_pcr.inconclusive.html": "<p>建議重複測試。</p><p>測試結果不符合SARS-CoV-2存在的完整標準。 如果臨床上需要，建議重複測試。</ p> <p>這是一種實時PCR檢測方法，用於定性檢測SARS-CoV-2（一種引起COVID-19疾病的病毒）。 這是一項基於實驗室開發的測試，基於疾病控制與預防中心開發的測試，並且其性能特徵已在WVDL-WSLH COVID-19實驗室進行了驗證。 它尚未被美國食品和藥物管理局清除或批准。 由威斯康星州麥迪遜市的WVDL-WSLH COVID-19實驗室在臨床實驗室服務總監Errin C. Rider博士，D（ABMM），M（ASCP）CM的指導下對該樣品進行了測試。</p>",
+			"disclaimers.covid-19_pcr.rejected.html": "<p>這是用於定性檢測SARS-CoV-2（一種引起COVID-19疾病的病毒）的實時PCR分析方法。 這是一項基於實驗室開發的測試，基於疾病控制與預防中心開發的測試，並且其性能特徵已在WVDL-WSLH COVID-19實驗室進行了驗證。 它尚未被美國食品和藥物管理局清除或批准。 由威斯康星州麥迪遜市的WVDL-WSLH COVID-19實驗室在臨床實驗室服務總監Errin C. Rider博士，D（ABMM），M（ASCP）CM的指導下對該樣品進行了測試。</p>",
+
+			"code.green.name": "绿色",
+			"code.green.description": "最近抗體",
+			"code.green.long_description": "绿色：最近抗体",
+			"code.yellow.name": "黄色",
+			"code.yellow.description": "最近的陰性測試",
+			"code.yellow.long_description": "黄色：最近阴性测试",
+			"code.orange.name": "橙色",
+			"code.orange.description": "需要测试",
+			"code.orange.long_description": "橙色：首次使用、过期检测、自我报告症状、收到接触通知或隔离",
+			"code.red.name": "红色",
+			"code.red.description": "正面測試",
+			"code.red.long_description": "红色：阳性",
+			"code.general.info.1": "新用户的默认状态设置为橙色.",
+			"code.general.info.2": "最新的校园阴性测试结果会将您的COVID-19状态重置为黄色，而建筑物入口将更改为已批准."
 		}
 	}
 }

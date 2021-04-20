@@ -20,27 +20,41 @@ import 'dart:typed_data';
 
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:http/http.dart' as Http;
+import 'package:illinois/model/Auth.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Connectivity.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Config.dart';
+import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Log.dart';
 import 'package:illinois/utils/Utils.dart';
 
 import 'FirebaseCrashlytics.dart';
 
-enum NetworkAuth {
+/*enum NetworkAuth {
   App,
-  User,
-  Access,
-}
+  AuthUser,
+  RokmetroUser,
+  HealthUserAccount
+}*/
 
 class Network  {
 
+  // Headers
   static const String RokwireApiKey = 'ROKWIRE-API-KEY';
   static const String RokwireHSApiKey = 'ROKWIRE-HS-API-KEY';
+  static const String RokwireAccountId = 'ROKWIRE-ACC-ID';
   static const String RokwireAppId = 'APP';
   static const String RokwireAppVersion = 'V';
+
+  // Auth
+  static const int AppAuth            = 1;
+  static const int ShibbolethUserAuth = 2;
+//static const int RokmetroUserAuth   = 4; // Disable Rokmetro auth
+  static const int RokmetroUserAuth   = ShibbolethUserAuth;
+  static const int HealthAccountAuth  = 8;
+
+  static const int HealthUserAuth     = RokmetroUserAuth | HealthAccountAuth;
 
   static final Network _network = new Network._internal();
   factory Network() {
@@ -103,7 +117,7 @@ class Network  {
     return null;
   }
 
-  Future<Http.Response> _get(url, { String body, Encoding encoding, Map<String, String> headers, NetworkAuth auth, int timeout, Http.Client client} ) async {
+  Future<Http.Response> _get(url, { String body, Encoding encoding, Map<String, String> headers, int auth, int timeout, Http.Client client} ) async {
     if (Connectivity().isNotOffline) {
       try {
         if (url != null) {
@@ -135,24 +149,25 @@ class Network  {
     return null;
   }
 
-  Future<Http.Response> get(url, { String body, Encoding encoding, Map<String, String> headers, NetworkAuth auth, Http.Client client, int timeout = 60, bool refreshToken = true, bool sendAnalytics = true, String analyticsUrl, bool analyticsAnonymous }) async {
+  Future<Http.Response> get(url, { String body, Encoding encoding, Map<String, String> headers, int auth, Http.Client client, int timeout = 60, bool sendAnalytics = true, String analyticsUrl, bool analyticsAnonymous }) async {
     Http.Response response = await _get(url, headers: headers, body: body, encoding: encoding, auth: auth, client: client, timeout: timeout);
+    
+    if (_requiresTokenRefresh(response, auth)) {
+      if (await _refreshToken(auth) != null) {
+        response = await _get(url, headers: headers, body: body, encoding: encoding, auth: auth, client: client, timeout: timeout);
+      }
+    }
+
     if (sendAnalytics) {
       Analytics().logHttpResponse(response, requestMethod:'GET', requestUrl: analyticsUrl ?? url, anonymous: analyticsAnonymous);
     }
 
     _saveCookiesFromResponse(url, response);
 
-    if (refreshToken && (response is Http.Response) && _requiresRefreshToken(response, auth)) {
-      await Auth().doRefreshToken();
-      return _get(url, body: body, headers: headers, auth: auth, client: client, timeout: timeout);
-    }
-    else {
-      return response;
-    }
+    return response;
   }
 
-  Future<Http.Response> _post(url, { body, Encoding encoding, Map<String, String> headers, NetworkAuth auth, int timeout}) async{
+  Future<Http.Response> _post(url, { body, Encoding encoding, Map<String, String> headers, int auth, int timeout}) async{
     if (Connectivity().isNotOffline) {
       try {
         Future<Http.Response> response = (url != null) ? Http.post(url, headers: _prepareHeaders(headers, auth, url), body: body, encoding: encoding) : null;
@@ -165,24 +180,25 @@ class Network  {
     return null;
   }
 
-  Future<Http.Response> post(url, { body, Encoding encoding, Map<String, String> headers, NetworkAuth auth, int timeout = 60, bool refreshToken = true, bool sendAnalytics = true, String analyticsUrl, bool analyticsAnonymous }) async{
+  Future<Http.Response> post(url, { body, Encoding encoding, Map<String, String> headers, int auth, int timeout = 60, bool sendAnalytics = true, String analyticsUrl, bool analyticsAnonymous }) async{
     Http.Response response = await _post(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout);
+
+    if (_requiresTokenRefresh(response, auth)) {
+      if (await _refreshToken(auth) != null) {
+        response = await _post(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout);
+      }
+    }
+
     if (sendAnalytics) {
       Analytics().logHttpResponse(response, requestMethod:'POST', requestUrl: analyticsUrl ?? url, anonymous: analyticsAnonymous);
     }
 
     _saveCookiesFromResponse(url, response);
 
-    if (refreshToken && (response is Http.Response) && _requiresRefreshToken(response, auth)) {
-      await Auth().doRefreshToken();
-      return _post(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout);
-    }
-    else {
-      return response;
-    }
+    return response;
   }
 
-  Future<Http.Response> _put(url, { body, Encoding encoding, Map<String, String> headers, NetworkAuth auth, int timeout, Http.Client client }) async {
+  Future<Http.Response> _put(url, { body, Encoding encoding, Map<String, String> headers, int auth, int timeout, Http.Client client }) async {
     if (Connectivity().isNotOffline) {
       try {
         Future<Http.Response> response = (url != null) ?
@@ -201,24 +217,25 @@ class Network  {
     return null;
   }
 
-  Future<Http.Response> put(url, { body, Encoding encoding, Map<String, String> headers, NetworkAuth auth, int timeout = 60, Http.Client client, bool refreshToken = true, bool sendAnalytics = true, String analyticsUrl, bool analyticsAnonymous }) async {
+  Future<Http.Response> put(url, { body, Encoding encoding, Map<String, String> headers, int auth, int timeout = 60, Http.Client client, bool sendAnalytics = true, String analyticsUrl, bool analyticsAnonymous }) async {
     Http.Response response = await _put(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout, client: client);
+
+    if (_requiresTokenRefresh(response, auth)) {
+      if (await _refreshToken(auth) != null) {
+        response = await _put(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout, client: client);
+      }
+    }
+
     if (sendAnalytics) {
       Analytics().logHttpResponse(response, requestMethod:'PUT', requestUrl: analyticsUrl ?? url, anonymous: analyticsAnonymous);
     }
 
     _saveCookiesFromResponse(url, response);
 
-    if (refreshToken && (response is Http.Response) && _requiresRefreshToken(response, auth)) {
-      await Auth().doRefreshToken();
-      return _put(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout, client: client);
-    }
-    else {
-      return response;
-    }
+    return response;
   }
 
-  Future<Http.Response> _patch(url, { body, Encoding encoding, Map<String, String> headers, NetworkAuth auth, int timeout }) async {
+  Future<Http.Response> _patch(url, { body, Encoding encoding, Map<String, String> headers, int auth, int timeout }) async {
     if (Connectivity().isNotOffline) {
       try {
         Future<Http.Response> response = (url != null) ? Http.patch(url, headers: _prepareHeaders(headers, auth, url), body: body, encoding: encoding) : null;
@@ -231,24 +248,25 @@ class Network  {
     return null;
   }
 
-  Future<Http.Response> patch(url, { body, Encoding encoding, Map<String, String> headers, NetworkAuth auth, int timeout = 60, bool refreshToken = true, bool sendAnalytics = true, String analyticsUrl, bool analyticsAnonymous }) async {
+  Future<Http.Response> patch(url, { body, Encoding encoding, Map<String, String> headers, int auth, int timeout = 60, bool sendAnalytics = true, String analyticsUrl, bool analyticsAnonymous }) async {
     Http.Response response = await _patch(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout);
+
+    if (_requiresTokenRefresh(response, auth)) {
+      if (await _refreshToken(auth) != null) {
+        response = await _patch(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout);
+      }
+    }
+
     if (sendAnalytics) {
       Analytics().logHttpResponse(response, requestMethod:'PATCH', requestUrl: analyticsUrl ?? url, anonymous: analyticsAnonymous);
     }
 
     _saveCookiesFromResponse(url, response);
 
-    if (refreshToken && (response is Http.Response) && _requiresRefreshToken(response, auth)) {
-      await Auth().doRefreshToken();
-      return _patch(url, body: body, encoding: encoding, headers: headers, auth: auth, timeout: timeout);
-    }
-    else {
-      return response;
-    }
+    return response;
   }
 
-  Future<Http.Response> _delete(url, { Map<String, String> headers, NetworkAuth auth, int timeout }) async {
+  Future<Http.Response> _delete(url, { Map<String, String> headers, int auth, int timeout }) async {
     if (Connectivity().isNotOffline) {
       try {
         Future<Http.Response> response = (url != null) ? Http.delete(url, headers: _prepareHeaders(headers, auth, url)) : null;
@@ -261,24 +279,25 @@ class Network  {
     return null;
   }
 
-  Future<Http.Response> delete(url, { Map<String, String> headers, NetworkAuth auth, int timeout = 60, bool refreshToken = true, bool sendAnalytics = true, String analyticsUrl, bool analyticsAnonymous }) async {
+  Future<Http.Response> delete(url, { Map<String, String> headers, int auth, int timeout = 60, bool sendAnalytics = true, String analyticsUrl, bool analyticsAnonymous }) async {
     Http.Response response = await _delete(url, headers: headers, auth: auth, timeout: timeout);
+
+    if (_requiresTokenRefresh(response, auth)) {
+      if (await _refreshToken(auth) != null) {
+        response = await _delete(url, headers: headers, auth: auth, timeout: timeout);
+      }
+    }
+
     if (sendAnalytics) {
       Analytics().logHttpResponse(response, requestMethod:'DELETE', requestUrl: analyticsUrl ?? url, anonymous: analyticsAnonymous);
     }
 
     _saveCookiesFromResponse(url, response);
 
-    if (refreshToken && (response is Http.Response) && _requiresRefreshToken(response, auth)) {
-      await Auth().doRefreshToken();
-      return _delete(url, headers: headers, auth: auth, timeout: timeout);
-    }
-    else {
-      return response;
-    }
+    return response;
   }
 
-  Future<String> _read(url, { Map<String, String> headers, NetworkAuth auth, int timeout = 60 }) async {
+  Future<String> _read(url, { Map<String, String> headers, int auth, int timeout = 60 }) async {
     if (Connectivity().isNotOffline) {
       try {
         Future<String> response = (url != null) ? Http.read(url, headers: _prepareHeaders(headers, auth, url)) : null;
@@ -291,11 +310,11 @@ class Network  {
     return null;
   }
 
-  Future<String> read(url, { Map<String, String> headers, NetworkAuth auth, int timeout = 60 }) async {
+  Future<String> read(url, { Map<String, String> headers, int auth, int timeout = 60 }) async {
     return _read(url, headers: headers, auth: auth, timeout: timeout);
   }
 
-  Future<Uint8List> _readBytes(url, { Map<String, String> headers, NetworkAuth auth, int timeout = 60 }) async{
+  Future<Uint8List> _readBytes(url, { Map<String, String> headers, int auth, int timeout = 60 }) async{
     if (Connectivity().isNotOffline) {
       try {
         Future<Uint8List> response = (url != null) ? Http.readBytes(url, headers: _prepareHeaders(headers, auth, url)) : null;
@@ -308,62 +327,88 @@ class Network  {
     return null;
   }
 
-  Future<Uint8List> readBytes(url, { Map<String, String> headers, NetworkAuth auth, int timeout = 60 }) async {
+  Future<Uint8List> readBytes(url, { Map<String, String> headers, int auth, int timeout = 60 }) async {
     return _readBytes(url, headers: headers, auth: auth, timeout: timeout);
   }
 
-  Map<String, String> _prepareHeaders(Map<String, String> headers, NetworkAuth auth, String url) {
+  Map<String, String> _prepareHeaders(Map<String, String> headers, int auth, String url) {
 
-    if (auth == NetworkAuth.App) {
-      String rokwireApiKey = Config().rokwireApiKey;
-      if ((rokwireApiKey != null) && rokwireApiKey.isNotEmpty) {
-        if (headers == null) {
-          headers = new Map();
+    Map<String, String> result;
+
+    if (auth != null) {
+      if ((auth & AppAuth) != 0) {
+        String rokwireApiKey = Config().rokwireApiKey;
+        if ((rokwireApiKey != null) && rokwireApiKey.isNotEmpty) {
+          if (result == null) {
+            result = (headers != null) ? Map.from(headers) : Map();
+          }
+          result[RokwireApiKey] = rokwireApiKey;
         }
-        headers[RokwireApiKey] = rokwireApiKey;
+      }
+      
+      if ((auth & ShibbolethUserAuth) != 0) {
+        String authorizationHeader = Auth().authToken?.authIdTokenHeader;
+        if ((authorizationHeader != null) && authorizationHeader.isNotEmpty) {
+          if (result == null) {
+            result = (headers != null) ? Map.from(headers) : Map();
+          }
+          result[HttpHeaders.authorizationHeader] = authorizationHeader;
+        }
+      }
+      // Disable Rokmetro auth
+      /*else if ((auth & RokmetroUserAuth) != 0) {
+        String authorizationHeader = Auth().rokmetroToken?.authIdTokenHeader;
+        if ((authorizationHeader != null) && authorizationHeader.isNotEmpty) {
+          if (result == null) {
+            result = (headers != null) ? Map.from(headers) : Map();
+          }
+          result[HttpHeaders.authorizationHeader] = authorizationHeader;
+        }
+      }*/
+
+      if ((auth & HealthAccountAuth) != 0) {
+        String rokwireAccountId = Health().userAccountId;
+        if ((rokwireAccountId != null) && rokwireAccountId.isNotEmpty) {
+          if (result == null) {
+            result = (headers != null) ? Map.from(headers) : Map();
+          }
+          result[RokwireAccountId] = rokwireAccountId;
+        }
       }
     }
-    else if (auth == NetworkAuth.User) {
-      String idToken = Auth().authToken?.idToken;
-      String tokenType = Auth().authToken?.tokenType ?? 'Bearer';
-      if ((idToken != null) && idToken.isNotEmpty) {
-        if (headers == null) {
-          headers = new Map();
-        }
-        headers[HttpHeaders.authorizationHeader] = "$tokenType $idToken";
-      }
-    }
-    else if (auth == NetworkAuth.Access) {
-      String accessToken = Auth().authToken?.accessToken;
-      if ((accessToken != null) && accessToken.isNotEmpty) {
-        if (headers == null) {
-          headers = new Map();
-        }
-        headers['access_token'] = accessToken;
-      }
-    }
+    
 
     //cookies
-    String cookies = _loadCookiesForRequest(url);
-    if (AppString.isStringNotEmpty(cookies)) {
-      if (headers == null) {
-        headers = new Map();
+    if (url != null) {
+      String cookies = _loadCookiesForRequest(url);
+      if (AppString.isStringNotEmpty(cookies)) {
+        if (result == null) {
+          result = (headers != null) ? Map.from(headers) : Map();
+        }
+        result["Cookie"] = cookies;
       }
-      headers["Cookie"] = cookies;
     }
 
-    return headers;
+    return (result != null) ? result : headers;
   }
 
-  bool _requiresRefreshToken(Http.Response response, NetworkAuth auth){
-    return (response != null
-       && (
-//          response.statusCode == 400 || 
-            response.statusCode == 401
-        )
-        && Auth().isLoggedIn
-        && (NetworkAuth.User == auth || NetworkAuth.Access == auth));
+  bool _requiresTokenRefresh(Http.Response response, int auth) {
+    return (response?.statusCode == 401) && (auth != null) && ((auth & (ShibbolethUserAuth | RokmetroUserAuth)) != 0) && (Auth().authToken != null);
   }
+
+  Future<AuthToken> _refreshToken(int auth) async {
+    if (auth != null) {
+      if ((auth & ShibbolethUserAuth) != 0) {
+        return await Auth().refreshAuthToken();
+      }
+      // Disable Rokmetro auth
+      /*else if ((auth & RokmetroUserAuth) != 0) {
+        return await Auth().refreshRokmetroToken();
+      }*/
+    }
+    return null;
+  }
+
 
   void _saveCookiesFromResponse(String url, Http.Response response) {
     if (AppString.isStringEmpty(url) || response == null)

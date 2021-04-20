@@ -18,6 +18,9 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:illinois/model/Health.dart';
+import 'package:illinois/service/AppLivecycle.dart';
+import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/DeepLink.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/Health.dart';
@@ -26,11 +29,11 @@ import 'package:illinois/service/Service.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/NotificationService.dart';
+import 'package:illinois/ui/health/HealthHistoryPanel.dart';
+import 'package:illinois/ui/health/HealthHomePanel.dart';
+import 'package:illinois/ui/health/HealthStatusPanel.dart';
+import 'package:illinois/ui/health/HealthStatusUpdatePanel.dart';
 import 'package:illinois/ui/settings/SettingsPendingFamilyMemberPanel.dart';
-import 'package:illinois/ui/health/Covid19HistoryPanel.dart';
-import 'package:illinois/ui/health/Covid19InfoCenterPanel.dart';
-import 'package:illinois/ui/health/Covid19StatusPanel.dart';
-import 'package:illinois/ui/health/Covid19StatusUpdatePanel.dart';
 import 'package:illinois/ui/widgets/PopupDialog.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/service/Styles.dart';
@@ -51,23 +54,29 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
 
   static const String HEALTH_STATUS_URI = 'edu.illinois.covid://covid.illinois.edu/health/status';
 
-  bool _presentingMemberApplication;
+  HealthFamilyMember _pendingFamilyMember;
+  Set<String> _promptedPendingFamilyMembers = Set<String>();
+  DateTime _pausedDateTime;
 
   @override
   void initState() {
     super.initState();
     NotificationService().subscribe(this, [
+      AppLivecycle.notifyStateChanged,
       FirebaseMessaging.notifyPopupMessage,
       FirebaseMessaging.notifyCovid19Notification,
       Localization.notifyStringsUpdated,
       Organizations.notifyOrganizationChanged,
       Organizations.notifyEnvironmentChanged,
       Health.notifyStatusUpdated,
-      Health.notifyPendingFamilyMember,
+      Health.notifyFamilyMembersChanged,
+      Health.notifyCheckPendingFamilyMember,
       DeepLink.notifyUri,
     ]);
 
     Services().initUI();
+
+    Health().refreshNone().then((_) => _checkForPendingFamilyMembers());
   }
 
   @override
@@ -80,7 +89,10 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
 
   @override
   void onNotification(String name, dynamic param) {
-    if (name == FirebaseMessaging.notifyPopupMessage) {
+    if (name == AppLivecycle.notifyStateChanged) {
+      _onAppLivecycleStateChanged(param); 
+    }
+    else if (name == FirebaseMessaging.notifyPopupMessage) {
       _onFirebasePopupMessage(param);
     }
     else if (name == Localization.notifyStringsUpdated) {
@@ -93,10 +105,14 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
       setState(() { });
     }
     else if (name == Health.notifyStatusUpdated) {
-      _presentHealthStatusUpdate(param);
+      _presentHealthStatusUpdate();
     }
-    else if (name == Health.notifyPendingFamilyMember) {
-      _presentPedningFamilyMember(param);
+    else if (name == Health.notifyFamilyMembersChanged) {
+      _checkForPendingFamilyMembers();
+    }
+    else if (name == Health.notifyCheckPendingFamilyMember) {
+      _promptedPendingFamilyMembers.clear();
+      _checkForPendingFamilyMembers();
     }
     else if (name == FirebaseMessaging.notifyCovid19Notification) {
       _onFirebaseCovid19Notification(param);
@@ -106,12 +122,27 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
     }
   }
 
+  void _onAppLivecycleStateChanged(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      _pausedDateTime = DateTime.now();
+    }
+    else if (state == AppLifecycleState.resumed) {
+      if (_pausedDateTime != null) {
+        Duration pausedDuration = DateTime.now().difference(_pausedDateTime);
+        if (Config().refreshTimeout < pausedDuration.inSeconds) {
+          _promptedPendingFamilyMembers.clear();
+          Health().refreshNone().then((_) => _checkForPendingFamilyMembers());
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Analytics().accessibilityState = MediaQuery.of(context).accessibleNavigation;
 
     return WillPopScope(
-        child: Covid19InfoCenterPanel(),
+        child: HealthHomePanel(),
         onWillPop: _onWillPop);
   }
 
@@ -221,28 +252,41 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
 
     String notificationType = AppJson.stringValue(notification['health.covid19.notification.type']);
     if (notificationType == 'process-pending-tests') {
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19HistoryPanel()));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthHistoryPanel()));
     } else if(notificationType == 'status-changed'){
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19StatusPanel()));
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthStatusPanel()));
     }
   }
 
-  void _presentHealthStatusUpdate(Map<String, dynamic> params) {
-    Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19StatusUpdatePanel(status: params['status'], previousHealthStatus: params['lastHealthStatus'],)));
+  void _presentHealthStatusUpdate() {
+    String oldStatusCode = Health().previousStatus?.blob?.code;
+    String newStatusCode = Health().status?.blob?.code;
+    if ((oldStatusCode != null) && (newStatusCode != null) && (oldStatusCode != newStatusCode)) {
+      Timer(Duration(milliseconds: 100), () {
+        Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthStatusUpdatePanel(status: Health().status, previousStatusCode: oldStatusCode,)));
+      });
+    }
   }
 
-  void _presentPedningFamilyMember(dynamic param) {
-    if (_presentingMemberApplication != true) {
-      _presentingMemberApplication = true;
-      Navigator.push(context, PageRouteBuilder( opaque: false, pageBuilder: (context, _, __) => SettingsPendingFamilyMemberPanel(pendingMember: param))).then((result) {
-        _presentingMemberApplication = false;
-        if (result == true) {
-          Health().checkPendingFamilyMembers();
+  void _checkForPendingFamilyMembers() {
+    _processPendingFamilyMember(Health().pendingFamilyMember);
+  }
+
+  void _processPendingFamilyMember(HealthFamilyMember pendingFamilyMember) {
+    if ((_pendingFamilyMember == null) && (pendingFamilyMember != null) && !_promptedPendingFamilyMembers.contains(pendingFamilyMember.id)) {
+      _pendingFamilyMember = pendingFamilyMember;
+      _promptedPendingFamilyMembers.add(pendingFamilyMember.id);
+      Navigator.push(context, PageRouteBuilder(opaque: false, pageBuilder: (context, _, __) => SettingsPendingFamilyMemberPanel(familyMember: _pendingFamilyMember))).then((_) {
+        _pendingFamilyMember = null;
+        
+        HealthFamilyMember nextPendingFamilyMember = Health().pendingFamilyMember;
+        if ((nextPendingFamilyMember != null) && (nextPendingFamilyMember != pendingFamilyMember)) {
+          _processPendingFamilyMember(nextPendingFamilyMember);
         }
       });
     }
   }
-  
+
   void _onDeeplinkUri(Uri uri) {
     if (uri != null) {
       Uri healthStatusUri;
@@ -254,7 +298,7 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
           (healthStatusUri.authority == uri.authority) &&
           (healthStatusUri.path == uri.path))
       {
-        Navigator.push(context, CupertinoPageRoute(builder: (context) => Covid19StatusPanel()));
+        Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthStatusPanel()));
       }
     }
   }

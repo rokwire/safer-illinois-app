@@ -60,6 +60,12 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.IOException;
 
 import androidx.annotation.NonNull;
 import at.favre.lib.crypto.HKDF;
@@ -115,6 +121,10 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
     private static final String CCC_DESCRIPTOR_UUID = "00002902-0000-1000-8000-00805f9b34fb"; // characteristic notification
     private Runnable iosBgScanTimeoutRunnable; // for restarting scan in android 9
 
+    private Timer expUpTimeTimer;
+    private Map<Integer, Integer> expUpTimeMap;
+    private long expStartTime = 0;
+
     // RPI
     private byte[] rpi;
     private Timer rpiTimer;
@@ -158,6 +168,8 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
 
         this.i_TEK_map = loadTeksFromStorage();
         this.peripherals_bg = new HashMap<>();
+
+        loadExpUpTimeFromStorage();
     }
 
     //region Public APIs Implementation
@@ -181,6 +193,7 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
         refreshRpi();
         startAdvertise();
         startRpiTimer();
+        startExpUpTimeTimer();
         startScan();
     }
 
@@ -191,6 +204,8 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
         clearRpi();
         clearExposures();
         stopRpiTimer();
+        stopExpUpTimeTimer();
+        expUpTimeHit();
         unBindExposureServer();
         unBindExposureClient();
     }
@@ -1191,6 +1206,102 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
 
     //endregion
 
+    private void startExpUpTimeTimer() {
+        expStartTime = (long) Utils.DateTime.getCurrentTimeMillisSince1970() / 1000;
+        long refreshIntervalInMillis = 60 * 1000;
+        stopExpUpTimeTimer();
+        expUpTimeTimer = new Timer();
+        expUpTimeTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                expUpTimeHit();
+            }
+        }, refreshIntervalInMillis, refreshIntervalInMillis);
+    }
+
+    private void stopExpUpTimeTimer() {
+        if (expUpTimeTimer != null) {
+            expUpTimeTimer.cancel();
+        }
+        expUpTimeTimer = null;
+        if (expStartTime != 0) {
+            long currentTime = (long) Utils.DateTime.getCurrentTimeMillisSince1970() / 1000;
+            this.expUpTimeMap.put(new Integer((int)expStartTime), new Integer((int)(currentTime - expStartTime)));
+            saveExpUpTimeToStorage();
+        }
+    }
+
+    private void expUpTimeHit() {
+        if (expStartTime != 0 && expUpTimeTimer != null) {
+            long currentTime = (long) Utils.DateTime.getCurrentTimeMillisSince1970() / 1000;
+            this.expUpTimeMap.put(new Integer((int)expStartTime), new Integer((int)(currentTime - expStartTime)));
+            saveExpUpTimeToStorage();
+        }
+    }
+
+    private void removeExpiredTime() {
+        if (expUpTimeMap != null) {
+            long currentTime = (long) Utils.DateTime.getCurrentTimeMillisSince1970() / 1000;
+            long _expireTimestamp = currentTime - 168 * 60 * 60;
+            for (Integer _time : expUpTimeMap.keySet()) {
+                if ((_time.intValue() + expUpTimeMap.get(_time).intValue()) < (int)_expireTimestamp) {
+                    expUpTimeMap.remove(_time);
+                }
+            }
+        }
+    }
+    
+    private void loadExpUpTimeFromStorage() {
+        try
+        {
+            File file = new File(activityContext.getFilesDir()+"/exposureUpTime.map");
+            if (!file.exists())
+                file.createNewFile();
+            FileInputStream fileInputStream = new FileInputStream(new File(activityContext.getFilesDir()+"/exposureUpTime.map"));
+            ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+            this.expUpTimeMap = new HashMap<Integer, Integer>((Map)objectInputStream.readObject());
+        }
+        catch(ClassNotFoundException | IOException | ClassCastException e) {
+            this.expUpTimeMap = new HashMap<Integer, Integer>();
+            e.printStackTrace();
+        }
+    }
+
+    private void saveExpUpTimeToStorage() {
+        try
+        {
+            removeExpiredTime();
+            FileOutputStream fos = activityContext.openFileOutput("exposureUpTime.map", Context.MODE_PRIVATE);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(this.expUpTimeMap);
+            oos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Integer expUpDurationInWindow (long upTimeWindow) {
+        int durationInWindow = 0;
+        long currentTime = (long) Utils.DateTime.getCurrentTimeMillisSince1970() / 1000;
+        long _timeWindowInSeconds = upTimeWindow * 60 * 60;
+        long _expireTimestamp = currentTime - 168 * 60 * 60;
+        long _startTimestamp = currentTime - _timeWindowInSeconds;
+        if (expUpTimeMap != null) {
+            for (Integer _time : expUpTimeMap.keySet()) {
+                if (_time.intValue() + expUpTimeMap.get(_time).intValue() >= _startTimestamp) {
+                    if (_time.intValue() >= _startTimestamp) {
+                        durationInWindow += expUpTimeMap.get(_time);
+                    } else {
+                        durationInWindow += expUpTimeMap.get(_time).intValue() + _time.intValue() - (int) _startTimestamp;
+                    }
+                } else if ((_time.intValue() + expUpTimeMap.get(_time).intValue()) < (int)_expireTimestamp) {
+                    expUpTimeMap.remove(_time);
+                }
+            }
+        }
+        return new Integer(durationInWindow);
+    }
+
     //region RPI timer
 
     private void startRpiTimer() {
@@ -1267,6 +1378,11 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
                     long expireTime = Utils.Map.getValueFromPath(parameters, Constants.EXPOSURE_PLUGIN_TEK_EXPIRE_PARAM_NAME, -1L);
                     Map<String, Long> rpis = getRpisForTek(tek, timestamp, expireTime);
                     result.success(rpis);
+                    break;
+                case Constants.EXPOSURE_PLUGIN_METHOD_EXP_UP_TIME:
+                    long upTimeWindow = Utils.Map.getValueFromPath(call.arguments, Constants.EXPOSURE_PLUGIN_UP_TIME_WIN_PARAM_NAME, 0);
+                    Integer upTimeWindowResult = expUpDurationInWindow(upTimeWindow);
+                    result.success(upTimeWindowResult);
                     break;
                 case Constants.EXPOSURE_PLUGIN_METHOD_NAME_EXPIRE_TEK:
                     changeTekExpireTime();

@@ -69,11 +69,13 @@ public class Constants {
     public static final String EXPOSURE_PLUGIN_METHOD_NAME_THICK = "exposureThick";
     public static final String EXPOSURE_PLUGIN_METHOD_NAME_RSSI_LOG = "exposureRSSILog";
     public static final String EXPOSURE_PLUGIN_METHOD_NAME_EXPIRE_TEK = "expireTEK";
+    public static final String EXPOSURE_PLUGIN_METHOD_EXP_UP_TIME = "exposureUpTime";
     public static final String EXPOSURE_PLUGIN_SETTINGS_PARAM_NAME = "settings";
     public static final String EXPOSURE_PLUGIN_RPI_PARAM_NAME = "rpi";
     public static final String EXPOSURE_PLUGIN_TEK_METHOD_NAME = "tek";
     public static final String EXPOSURE_PLUGIN_TEK_PARAM_NAME = "tek";
     public static final String EXPOSURE_PLUGIN_TIMESTAMP_PARAM_NAME = "timestamp";
+    public static final String EXPOSURE_PLUGIN_UP_TIME_WIN_PARAM_NAME = "upTimeWindow";
     public static final String EXPOSURE_PLUGIN_EXPOSURE_METHOD_NAME = "exposure";
     public static final String EXPOSURE_PLUGIN_DURATION_PARAM_NAME = "duration";
     public static final String EXPOSURE_PLUGIN_RSSI_PARAM_NAME = "rssi";

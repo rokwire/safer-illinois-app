@@ -20,15 +20,15 @@ import 'package:illinois/service/FlexUI.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
 import 'package:illinois/service/Storage.dart';
-import 'package:illinois/ui/health/onboarding/Covid19OnBoardingConsentPanel.dart';
-import 'package:illinois/ui/health/onboarding/Covid19OnBoardingFinalPanel.dart';
-import 'package:illinois/ui/health/onboarding/Covid19OnBoardingHowItWorks.dart';
-import 'package:illinois/ui/health/onboarding/Covid19OnBoardingIntroPanel.dart';
-import 'package:illinois/ui/health/onboarding/Covid19OnBoardingQrCodePanel.dart';
-import 'package:illinois/ui/health/onboarding/Covid19OnBoardingResidentInfoPanel.dart';
-import 'package:illinois/ui/health/onboarding/Covid19OnBoardingReviewScanPanel.dart';
-import 'package:illinois/ui/onboarding/OnboardingAuthBluetoothPanel.dart';
+import 'package:illinois/ui/onboarding/OnboardingHealthConsentPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingHealthDisclosurePanel.dart';
+import 'package:illinois/ui/onboarding/OnboardingHealthFinalPanel.dart';
+import 'package:illinois/ui/onboarding/OnboardingHealthHowItWorksPanel.dart';
+import 'package:illinois/ui/onboarding/OnboardingHealthIntroPanel.dart';
+import 'package:illinois/ui/onboarding/OnboardingHealthQrCodePanel.dart';
+import 'package:illinois/ui/onboarding/OnboardingResidentInfoPanel.dart';
+import 'package:illinois/ui/onboarding/OnboardingReviewScanPanel.dart';
+import 'package:illinois/ui/onboarding/OnboardingAuthBluetoothPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginPhoneConfirmPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingGetStartedPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingAuthLocationPanel.dart';
@@ -164,14 +164,14 @@ class Onboarding extends Service implements NotificationsListener{
       case "login_phone": return OnboardingLoginPhonePanel(onboardingContext: context);
       case "verify_phone": return OnboardingLoginPhoneVerifyPanel(onboardingContext: context);
       case "confirm_phone": return OnboardingLoginPhoneConfirmPanel(onboardingContext: context);
-      case "covid19_resident_info": return Covid19OnBoardingResidentInfoPanel(onboardingContext: context);
-      case "covid19_review_scan": return Covid19OnBoardingReviewScanPanel(onboardingContext: context);
-      case "covid19_intro": return Covid19OnBoardingIntroPanel(onboardingContext: context);
-      case "covid19_how_it_works": return Covid19OnBoardingHowItWorks(onboardingContext: context);
+      case "resident_info": return OnboardingResidentInfoPanel(onboardingContext: context);
+      case "review_scan": return OnboardingReviewScanPanel(onboardingContext: context);
+      case "health_intro": return OnboardingHealthIntroPanel(onboardingContext: context);
+      case "health_how_it_works": return OnboardingHealthHowItWorksPanel(onboardingContext: context);
       case "health_disclosure": return OnBoardingHealthDisclosurePanel(onboardingContext: context);
-      case "covid19_consent": return Covid19OnBoardingConsentPanel(onboardingContext: context);
-      case "covid19_qrcode": return Covid19OnBoardingQrCodePanel(onboardingContext: context);
-      case "covid19_final": return Covid19OnBoardingFinalPanel(onboardingContext: context);
+      case "health_consent": return OnboardingHealthConsentPanel(onboardingContext: context);
+      case "health_qrcode": return OnboardingHealthQrCodePanel(onboardingContext: context);
+      case "health_final": return OnboardingHealthFinalPanel(onboardingContext: context);
     }
     return null;
   }
@@ -207,29 +207,29 @@ class Onboarding extends Service implements NotificationsListener{
     else if (panel is OnboardingLoginPhoneConfirmPanel) {
       return 'confirm_phone';
     }
-    else if (panel is Covid19OnBoardingResidentInfoPanel) {
-      return 'covid19_resident_info';
+    else if (panel is OnboardingResidentInfoPanel) {
+      return 'resident_info';
     }
-    else if (panel is Covid19OnBoardingReviewScanPanel) {
-      return 'covid19_review_scan';
+    else if (panel is OnboardingReviewScanPanel) {
+      return 'review_scan';
     }
-    else if (panel is Covid19OnBoardingIntroPanel) {
-      return 'covid19_intro';
+    else if (panel is OnboardingHealthIntroPanel) {
+      return 'health_intro';
     }
-    else if (panel is Covid19OnBoardingHowItWorks) {
-      return 'covid19_how_it_works';
+    else if (panel is OnboardingHealthHowItWorksPanel) {
+      return 'health_how_it_works';
     }
     else if (panel is OnBoardingHealthDisclosurePanel) {
       return 'health_disclosure';
     }
-    else if (panel is Covid19OnBoardingConsentPanel) {
-      return 'covid19_consent';
+    else if (panel is OnboardingHealthConsentPanel) {
+      return 'health_consent';
     }
-    else if (panel is Covid19OnBoardingQrCodePanel) {
-      return 'covid19_qrcode';
+    else if (panel is OnboardingHealthQrCodePanel) {
+      return 'health_qrcode';
     }
-    else if (panel is Covid19OnBoardingFinalPanel) {
-      return 'covid19_final';
+    else if (panel is OnboardingHealthFinalPanel) {
+      return 'health_final';
     }
     return null;
   }

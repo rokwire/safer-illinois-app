@@ -7,43 +7,51 @@ import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
+import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SettingsPendingFamilyMemberPanel extends StatefulWidget {
-  final HealthFamilyMember pendingMember;
+  final HealthFamilyMember familyMember;
 
-  SettingsPendingFamilyMemberPanel({this.pendingMember});
+  SettingsPendingFamilyMemberPanel({this.familyMember});
 
   @override
   _SettingsPendingFamilyMemberPanelState createState() => _SettingsPendingFamilyMemberPanelState();
 }
 
-class _SettingsPendingFamilyMemberPanelState extends State<SettingsPendingFamilyMemberPanel> {
+class _SettingsPendingFamilyMemberPanelState extends State<SettingsPendingFamilyMemberPanel> implements NotificationsListener {
 
   bool _hasProgress = false;
   bool _buttonsEnabled = false;
   bool _termsAccepted = false;
   String _errorMessage;
-  HealthRulesSet _rules;
 
   @override
   void initState() {
-    Health().loadRules2().then((HealthRulesSet rules) {
-      if (mounted) {
-        setState(() {
-          _rules = rules;
-        });
-      }
-    });
+    NotificationService().subscribe(this, [
+      Health.notifyRulesChanged
+    ]);
     super.initState();
   }
 
   @override
   void dispose() {
+    NotificationService().unsubscribe(this);
     super.dispose();
+  }
+
+  // NotificationsListener
+
+  @override
+  void onNotification(String name, dynamic param) {
+    if (name == Health.notifyRulesChanged) {
+      if (mounted) {
+        setState(() {});
+      }
+    }
   }
 
   @override
@@ -67,9 +75,9 @@ class _SettingsPendingFamilyMemberPanelState extends State<SettingsPendingFamily
   }
 
   Widget _buildContent() {
-    String statement1Text = sprintf(Localization().getStringEx('panel.health.covid19.pending_family_member.label.text.statement1', '%s seeks your authorization to participate in Shield CU COVID-19 testing.'), [widget.pendingMember.applicantFullName]);
-    String statement2Text = sprintf(Localization().getStringEx('panel.health.covid19.pending_family_member.label.text.statement2', 'If you approve, your University account will be billed %s for each test taken.'), [_rules?.familyMemberTestPrice ?? '\$xx']);
-    String termsText = Localization().getStringEx('panel.health.covid19.pending_family_member.label.text.terms.title', 'Terms and Conditions');
+    String statement1Text = sprintf(Localization().getStringEx('panel.settings.pending_family_member.label.text.statement1', '%s seeks your authorization to participate in Shield CU COVID-19 testing.'), [widget.familyMember?.applicantFullName ?? '']);
+    String statement2Text = sprintf(Localization().getStringEx('panel.settings.pending_family_member.label.text.statement2', 'If you approve, your University account will be billed %s for each test taken.'), [Health().rules?.familyMemberTestPrice ?? '\$xx']);
+    String termsText = Localization().getStringEx('panel.settings.pending_family_member.label.text.terms.title', 'Terms and Conditions');
     String checkImageText = _termsAccepted ? '\u2611' : '\u2610';
 
     Color termsColor = Styles().colors.fillColorSecondary, errorColor = Colors.yellow;
@@ -109,8 +117,8 @@ class _SettingsPendingFamilyMemberPanelState extends State<SettingsPendingFamily
         ),
         Align(alignment: Alignment.center, child: 
           Wrap(runSpacing: 8, spacing: 12, children: <Widget>[
-            _buildCommandButton(Localization().getStringEx('panel.health.covid19.pending_family_member.button.approve.title', 'I Approve'), _onApprove),
-            _buildCommandButton(Localization().getStringEx('panel.health.covid19.pending_family_member.button.disapprove.title', 'I Disapprove'), _onDisapprove),
+            _buildCommandButton(Localization().getStringEx('panel.settings.pending_family_member.button.approve.title', 'I Approve'), _onApprove),
+            _buildCommandButton(Localization().getStringEx('panel.settings.pending_family_member.button.disapprove.title', 'I Disapprove'), _onDisapprove),
           ]),
         ),
     ]));
@@ -145,7 +153,7 @@ class _SettingsPendingFamilyMemberPanelState extends State<SettingsPendingFamily
   }
 
   Widget _buildTermsDialog(BuildContext context) {
-    String termsHtml = Localization().getStringEx('panel.health.covid19.pending_family_member.label.text.terms.html', """
+    String termsHtml = Localization().getStringEx('panel.settings.pending_family_member.label.text.terms.html', """
 <p>The person named above has self-identified as a family or household member (“Family Member”) and has requested access to the COVID-19 testing services provided by the University of Illinois (“University”). By touching the “I Approve” button below, you agree that:</p>
 <p>
 1. You are a University employee currently eligible for COVID-19 testing by the University;<br>
@@ -191,7 +199,7 @@ class _SettingsPendingFamilyMemberPanelState extends State<SettingsPendingFamily
 
   void _onClose() {
     Analytics.instance.logSelect(target: "Close");
-    Navigator.of(context).pop(false);
+    Navigator.of(context).pop();
   }
 
   void _onApprove() {
@@ -211,19 +219,19 @@ class _SettingsPendingFamilyMemberPanelState extends State<SettingsPendingFamily
         _buttonsEnabled = false;
         _errorMessage = (_errorMessage != null) ? '' : null;
       });
-      Health().applyFamilyMemberStatus(widget.pendingMember, status).then((dynamic result) {
+      Health().applyFamilyMemberStatus(widget.familyMember, status).then((bool result) {
         if (mounted) {
           if (result == true) {
             setState(() {
               _hasProgress = false;
             });
-            Navigator.of(context).pop(true);
+            Navigator.of(context).pop();
           }
           else {
             setState(() {
               _hasProgress = false;
               _buttonsEnabled = true;
-              _errorMessage = (result is String) ? result : Localization().getStringEx('panel.health.covid19.pending_family_member.label.text.error', 'Failed to submit.');
+              _errorMessage = Localization().getStringEx('panel.settings.pending_family_member.label.text.error', 'Failed to submit.');
             });
           }
         }

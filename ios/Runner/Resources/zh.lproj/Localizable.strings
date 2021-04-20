@@ -1,4 +1,3 @@
-
 //  File.strings
 //  Runner
 //
@@ -18,22 +17,19 @@
 // limitations under the License.
 //
 
-
 // Chinese
 
-"Directions" = "Directions";
-"Detecting current location..." = "Detecting current location...";
-"Resolving target address ..." = "Resolving target address ...";
-"Failed to resolve target address." = "Failed to resolve target address.";
-"Detecting current location..." = "Detecting current location...";
-"Failed to detect current location." = "Failed to detect current location.";
-"Looking for route..." = "Looking for route...";
-"Failed to find route." = "Failed to find route.";
-"START" = "START";
-"FINISH" = "FINISH";
-"Pick Location" = "Pick Location";
-"Location" = "Location";
-"Please select a location." = "Please select a location.";
-"CUSTOM" = "CUSTOM";
-"Today" = "Today";
-"Tomorrow" = "Tomorrow";
+"Directions" = "方向";
+"Internal Error Occured" = "發生內部錯誤";
+"Missing target location" = "缺少目標位置";
+"Requesting permisions" = "請求權限";
+"Requesting location" = "要求位置";
+"Building route" = "建設路線";
+"<b>Arrival</b> at the destination" = "<b>到達/b>目的地";
+"mi" = "英里";
+"h" = "小時";
+"min" = "分鐘";
+"START" = "開始";
+"FINISH" = "完";
+"Today" = "今天";
+"Tomorrow" = "明天";

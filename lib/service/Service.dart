@@ -17,7 +17,6 @@
 
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/AppLivecycle.dart';
-import 'package:illinois/service/Assets.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/BluetoothServices.dart';
 import 'package:illinois/service/Config.dart';
@@ -39,7 +38,7 @@ import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/Storage.dart';
 import 'package:illinois/service/LocalNotifications.dart';
 import 'package:illinois/service/Styles.dart';
-import 'package:illinois/service/User.dart';
+import 'package:illinois/service/UserProfile.dart';
 
 abstract class Service {
   
@@ -93,19 +92,20 @@ class Services {
     LocalNotifications(),
     DeepLink(),
 
-    FlexUI(),
-    Onboarding(),
     Localization(),
-    Assets(),
     Styles(),
+
     Auth(),
-    User(),
+    UserProfile(),
     Analytics(),
     FirebaseMessaging(),
     Health(),
     Exposure(),
     OSFHealth(),
     
+    FlexUI(),
+    Onboarding(),
+
     // These do not rely on Service initialization API so they are not registered as services.
     // ...
   ];

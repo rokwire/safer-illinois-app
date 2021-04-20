@@ -19,7 +19,7 @@ import 'dart:typed_data';
 import 'package:illinois/model/Auth.dart';
 import 'package:illinois/model/Health.dart';
 import 'package:illinois/model/Organization.dart';
-import 'package:illinois/model/UserData.dart';
+import 'package:illinois/model/UserProfile.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
@@ -60,106 +60,128 @@ class Storage with Service {
     }
   }
 
-  String _getStringWithName(String name, {String defaultValue}) {
-    return _sharedPreferences.getString(name) ?? defaultValue;
+  String getString(String key, {String defaultValue}) {
+    return _sharedPreferences.getString(key) ?? defaultValue;
   }
 
-  void _setStringWithName(String name, String value) {
-    _sharedPreferences.setString(name, value);
-    NotificationService().notify(notifySettingChanged, name);
+  void setString(String key, String value) {
+    _sharedPreferences.setString(key, value);
+    NotificationService().notify(notifySettingChanged, key);
   }
 
-  String _getEncryptedStringWithName(String name, {String defaultValue}) {
-    String value = _sharedPreferences.getString(name);
+  String getEncryptedString(String key, {String defaultValue}) {
+    String value = _sharedPreferences.getString(key);
     if ((_encryptionKey != null) && (value != null)) {
       value = AESCrypt.decrypt(value, keyBytes: _encryptionKey);
     }
     return value ?? defaultValue;
   }
 
-  void _setEncryptedStringWithName(String name, String value) {
+  void setEncryptedString(String key, String value) {
     if ((_encryptionKey != null) && (value != null)) {
       value = AESCrypt.encrypt(value, keyBytes: _encryptionKey);
     }
-    _sharedPreferences.setString(name, value);
-    NotificationService().notify(notifySettingChanged, name);
+    _sharedPreferences.setString(key, value);
+    NotificationService().notify(notifySettingChanged, key);
   }
 
-  List<String> _getStringListWithName(String name, {List<String> defaultValue}) {
-    return _sharedPreferences.getStringList(name) ?? defaultValue;
+  List<String> getStringList(String key, {List<String> defaultValue}) {
+    return _sharedPreferences.getStringList(key) ?? defaultValue;
   }
 
-  void _setStringListWithName(String name, List<String> value) {
-    _sharedPreferences.setStringList(name, value);
-    NotificationService().notify(notifySettingChanged, name);
+  void setStringList(String key, List<String> value) {
+    _sharedPreferences.setStringList(key, value);
+    NotificationService().notify(notifySettingChanged, key);
   }
 
-  bool _getBoolWithName(String name, {bool defaultValue = false}) {
-    return _sharedPreferences.getBool(name) ?? defaultValue;
+  bool getBool(String key, {bool defaultValue = false}) {
+    return _sharedPreferences.getBool(key) ?? defaultValue;
   }
 
-  void _setBoolWithName(String name, bool value) {
-    _sharedPreferences.setBool(name, value);
-    NotificationService().notify(notifySettingChanged, name);
+  void setBool(String key, bool value) {
+    _sharedPreferences.setBool(key, value);
+    NotificationService().notify(notifySettingChanged, key);
   }
 
-  int _getIntWithName(String name, {int defaultValue = 0}) {
-    return _sharedPreferences.getInt(name) ?? defaultValue;
+  int getInt(String key, {int defaultValue = 0}) {
+    return _sharedPreferences.getInt(key) ?? defaultValue;
   }
 
-  void _setIntWithName(String name, int value) {
-    _sharedPreferences.setInt(name, value);
-    NotificationService().notify(notifySettingChanged, name);
+  void setInt(String key, int value) {
+    _sharedPreferences.setInt(key, value);
+    NotificationService().notify(notifySettingChanged, key);
   }
 
-  /*double _getDoubleWithName(String name, {double defaultValue = 0.0}) {
-    return _sharedPreferences.getDouble(name) ?? defaultValue;
+  double getDouble(String key, {double defaultValue = 0.0}) {
+    return _sharedPreferences.getDouble(key) ?? defaultValue;
   }
 
-  void _setDoubleWithName(String name, double value) {
-    _sharedPreferences.setDouble(name, value);
-    NotificationService().notify(notifySettingChanged, name);
-  }*/
-
-
-  dynamic operator [](String name) {
-    return _sharedPreferences.get(name);
+  void setDouble(String key, double value) {
+    _sharedPreferences.setDouble(key, value);
+    NotificationService().notify(notifySettingChanged, key);
   }
+
+
+  dynamic operator [](String key) {
+    return _sharedPreferences.get(key);
+  }
+
+  void operator []=(String key, dynamic value) {
+    if (value is String) {
+      _sharedPreferences.setString(key, value);
+    }
+    else if (value is int) {
+      _sharedPreferences.setInt(key, value);
+    }
+    else if (value is double) {
+      _sharedPreferences.setDouble(key, value);
+    }
+    else if (value is bool) {
+      _sharedPreferences.setBool(key, value);
+    }
+    else if (value is List) {
+      _sharedPreferences.setStringList(key, value.cast<String>());
+    }
+    else if (value == null) {
+      _sharedPreferences.remove(key);
+    }
+}
+
 
   // Notifications
 
   bool getNotifySetting(String name) {
-    return _getBoolWithName(name, defaultValue: null);
+    return getBool(name, defaultValue: null);
   }
 
   void setNotifySetting(String name, bool value) {
-    return _setBoolWithName(name, value);
+    return setBool(name, value);
   }
 
   /////////////
   // User
 
-  static const String userKey  = 'user';
+  static const String userProfileKey  = 'user';
 
-  UserData get userData {
-    final String userToString = _getStringWithName(userKey);
+  UserProfileData get userProfile {
+    final String userToString = getString(userProfileKey);
     final Map<String, dynamic> userToJson = AppJson.decode(userToString);
-    return (userToJson != null) ? UserData.fromJson(userToJson) : null;
+    return (userToJson != null) ? UserProfileData.fromJson(userToJson) : null;
   }
 
-  set userData(UserData user) {
+  set userProfile(UserProfileData user) {
     String userToString = (user != null) ? json.encode(user) : null;
-    _setStringWithName(userKey, userToString);
+    setString(userProfileKey, userToString);
   }
 
-  static const String localUserUuidKey  = 'user_local_uuid';
+  static const String localProfileUuidKey  = 'user_local_uuid';
 
-  String get localUserUuid {
-    return _getStringWithName(localUserUuidKey);
+  String get localProfileUuid {
+    return getString(localProfileUuidKey);
   }
 
-  set localUserUuid(String value) {
-    _setStringWithName(localUserUuidKey, value);
+  set localProfileUuid(String value) {
+    setString(localProfileUuidKey, value);
   }
 
   /////////////
@@ -168,21 +190,21 @@ class Storage with Service {
   static const String userPidKey  = 'user_pid';
 
   String get userPid {
-    return _getStringWithName(userPidKey);
+    return getString(userPidKey);
   }
 
   set userPid(String userPid) {
-    _setStringWithName(userPidKey, userPid);
+    setString(userPidKey, userPid);
   }
 
   static const String userPiiDataTimeKey  = '_user_pii_data_time';
 
   int get userPiiDataTime {
-    return _getIntWithName(userPiiDataTimeKey);
+    return getInt(userPiiDataTimeKey);
   }
 
   set userPiiDataTime(int value) {
-    _setIntWithName(userPiiDataTimeKey, value);
+    setInt(userPiiDataTimeKey, value);
   }
 
   ///////////////
@@ -191,11 +213,11 @@ class Storage with Service {
   static const String onBoardingPassedKey  = 'on_boarding_passed';
 
   bool get onBoardingPassed {
-    return _getBoolWithName(onBoardingPassedKey, defaultValue: false);
+    return getBool(onBoardingPassedKey, defaultValue: false);
   }
 
   set onBoardingPassed(bool showOnBoarding) {
-    _setBoolWithName(onBoardingPassedKey, showOnBoarding);
+    setBool(onBoardingPassedKey, showOnBoarding);
   }
 
   ////////////////
@@ -204,7 +226,7 @@ class Storage with Service {
   static const String reportedUpgradeVersionsKey  = 'reported_upgrade_versions';
 
   Set<String> get reportedUpgradeVersions {
-    List<String> list = _getStringListWithName(reportedUpgradeVersionsKey);
+    List<String> list = getStringList(reportedUpgradeVersionsKey);
     return (list != null) ? Set.from(list) : Set<String>();
   }
 
@@ -212,7 +234,7 @@ class Storage with Service {
     if (version != null) {
       Set<String> versions = reportedUpgradeVersions;
       versions.add(version);
-      _setStringListWithName(reportedUpgradeVersionsKey, versions.toList());
+      setStringList(reportedUpgradeVersionsKey, versions.toList());
     }
   }
 
@@ -222,11 +244,11 @@ class Storage with Service {
   static const String lastRunVersionKey  = 'last_run_version';
 
   String get lastRunVersion {
-    return _getStringWithName(lastRunVersionKey);
+    return getString(lastRunVersionKey);
   }
 
   set lastRunVersion(String value) {
-    _setStringWithName(lastRunVersionKey, value);
+    setString(lastRunVersionKey, value);
   }
 
   ////////////////
@@ -236,7 +258,7 @@ class Storage with Service {
 
   AuthToken get authToken {
     try {
-      String jsonString = _getStringWithName(authTokenKey);
+      String jsonString = getString(authTokenKey);
       dynamic jsonData = AppJson.decode(jsonString);
       return (jsonData != null) ? AuthToken.fromJson(jsonData) : null;
     } on Exception catch (e) { print(e.toString()); }
@@ -244,30 +266,62 @@ class Storage with Service {
   }
 
   set authToken(AuthToken value) {
-    _setStringWithName(authTokenKey, value != null ? json.encode(value.toJson()) : null);
+    setString(authTokenKey, value != null ? json.encode(value.toJson()) : null);
   }
 
-  static const String authInfoKey  = '_auth_info';
+  static const String authUserKey  = '_auth_info';
 
-  AuthInfo get authInfo {
-    final String authInfoToString = _getStringWithName(authInfoKey);
-    AuthInfo authInfo = AuthInfo.fromJson(AppJson.decode(authInfoToString));
-    return authInfo;
+  AuthUser get authUser {
+    final String authUserToString = getString(authUserKey);
+    AuthUser authUser = AuthUser.fromJson(AppJson.decode(authUserToString));
+    return authUser;
   }
 
-  set authInfo(AuthInfo value) {
-    _setStringWithName(authInfoKey, value != null ? json.encode(value.toJson()) : null);
+  set authUser(AuthUser value) {
+    setString(authUserKey, value != null ? json.encode(value.toJson()) : null);
   }
 
   static const String authCardTimeKey  = '_auth_card_time';
 
   int get authCardTime {
-    return _getIntWithName(authCardTimeKey);
+    return getInt(authCardTimeKey);
   }
 
   set authCardTime(int value) {
-    _setIntWithName(authCardTimeKey, value);
+    setInt(authCardTimeKey, value);
   }
+
+  // Disable Rokmetro auth
+  /*static const String rokmetroTokenKey  = '_rokmetro_token';
+
+  RokmetroToken get rokmetroToken {
+    try {
+      String jsonString = getString(rokmetroTokenKey);
+      Map<String, dynamic> jsonData = AppJson.decodeMap(jsonString);
+      return (jsonData != null) ? RokmetroToken.fromJson(jsonData) : null;
+    } on Exception catch (e) { print(e.toString()); }
+    return null;
+  }
+
+  set rokmetroToken(RokmetroToken value) {
+    setString(rokmetroTokenKey, AppJson.encode(value?.toJson()));
+  }*/
+
+  // Disable Rokmetro auth
+  /*static const String rokmetroUserKey  = '_rokmetro_user';
+
+  RokmetroUser get rokmetroUser {
+    try {
+      String jsonString = getString(rokmetroUserKey);
+      Map<String, dynamic> jsonData = AppJson.decodeMap(jsonString);
+      return (jsonData != null) ? RokmetroUser.fromJson(jsonData) : null;
+    } on Exception catch (e) { print(e.toString()); }
+    return null;
+  }
+
+  set rokmetroUser(RokmetroUser value) {
+    setString(rokmetroUserKey, AppJson.encode(value?.toJson()));
+  }*/
 
   /////////////////
   // Language
@@ -275,11 +329,11 @@ class Storage with Service {
   static const String currentLanguageKey  = 'current_language';
 
   String get currentLanguage {
-    return _getStringWithName(currentLanguageKey);
+    return getString(currentLanguageKey);
   }
 
   set currentLanguage(String value) {
-    _setStringWithName(currentLanguageKey, value);
+    setString(currentLanguageKey, value);
   }
 
   //////////////
@@ -288,13 +342,13 @@ class Storage with Service {
   static const String firebaseSubscriptionTopisKey  = 'firebase_subscription_topis';
 
   Set<String> get firebaseSubscriptionTopis {
-    List<String> topicsList = _getStringListWithName(firebaseSubscriptionTopisKey);
+    List<String> topicsList = getStringList(firebaseSubscriptionTopisKey);
     return (topicsList != null) ? Set.from(topicsList) : null;
   }
 
   set firebaseSubscriptionTopis(Set<String> value) {
     List<String> topicsList = (value != null) ? List.from(value) : null;
-    _setStringListWithName(firebaseSubscriptionTopisKey, topicsList);
+    setStringList(firebaseSubscriptionTopisKey, topicsList);
   }
 
   void addFirebaseSubscriptionTopic(String value) {
@@ -317,11 +371,11 @@ class Storage with Service {
   static const String _organiationKey = 'organization';
 
   Organization get organization {
-    return Organization.fromJson(AppJson.decode(_getEncryptedStringWithName(_organiationKey)));
+    return Organization.fromJson(AppJson.decode(getEncryptedString(_organiationKey)));
   }
 
   set organization(Organization organization) {
-    _setEncryptedStringWithName(_organiationKey, AppJson.encode(organization.toJson()));
+    setEncryptedString(_organiationKey, AppJson.encode(organization?.toJson()));
   }
 
   /////////////
@@ -330,113 +384,162 @@ class Storage with Service {
   static const String _configEnvKey = 'config_environment';
 
   String get configEnvironment {
-    return _getStringWithName(_configEnvKey);
+    return getString(_configEnvKey);
   }
 
   set configEnvironment(String value) {
-    _setStringWithName(_configEnvKey, value);
+    setString(_configEnvKey, value);
   }
 
   /////////////
   // Health
 
+  // Obsolete
   static const String _currentHealthCountyIdKey = 'health_current_county_id';
   
   String get currentHealthCountyId {
-    return _getStringWithName(_currentHealthCountyIdKey);
+    return getString(_currentHealthCountyIdKey);
   }
 
   set currentHealthCountyId(String value) {
-    _setStringWithName(_currentHealthCountyIdKey, value);
+    setString(_currentHealthCountyIdKey, value);
   }
 
   static const String _lastHealthProviderKey = 'health_last_provider';
 
   HealthServiceProvider get lastHealthProvider {
-    String storedProviderJson = _sharedPreferences.getString(_lastHealthProviderKey);
+    String storedProviderJson = getString(_lastHealthProviderKey);
     return  HealthServiceProvider.fromJson(storedProviderJson!=null ? json.decode(storedProviderJson) : null);
   }
 
   set lastHealthProvider(HealthServiceProvider value) {
-    _sharedPreferences.setString(_lastHealthProviderKey, value!=null? json.encode(value.toJson()) :value);
+    setString(_lastHealthProviderKey, value!=null? json.encode(value.toJson()) :value);
   }
 
-  static const String lastHealthCovid19StatusKey = 'health_last_covid19_status';
+  static const String _lastHealthCovid19StatusKey = 'health_last_covid19_status';
 
   String get lastHealthCovid19Status {
-    return _getStringWithName(lastHealthCovid19StatusKey);
+    return getString(_lastHealthCovid19StatusKey);
   }
 
   set lastHealthCovid19Status(String value) {
-    _setStringWithName(lastHealthCovid19StatusKey, value);
+    setString(_lastHealthCovid19StatusKey, value);
   }
 
-  static const String healthUserKey = 'health_user';
+  static const String _lastHealthOsfTestDateKey = 'health_last_covid19_osf_test_date';
 
-  String get healthUser {
-    return _getStringWithName(healthUserKey);
-  }
-
-  set healthUser(String value) {
-    _setStringWithName(healthUserKey, value);
-  }
-
-  static const String lastHealthCovid19OsfTestDateKey = 'health_last_covid19_osf_test_date';
-
-  DateTime get lastHealthCovid19OsfTestDateUtc {
-    String dateString = _getStringWithName(lastHealthCovid19OsfTestDateKey);
+  DateTime get lastHealthOsfTestDateUtc {
+    String dateString = getString(_lastHealthOsfTestDateKey);
     try { return (dateString != null) ? DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dateString) : null; }
     catch (e) { print(e?.toString()); }
     return null;
   }
 
-  set lastHealthCovid19OsfTestDateUtc(DateTime value) {
+  set lastHealthOsfTestDateUtc(DateTime value) {
     String dateString = (value != null) ? DateFormat('yyyy-MM-ddTHH:mm:ss').format(value) : null;
-    _setStringWithName(lastHealthCovid19OsfTestDateKey, dateString);
+    setString(_lastHealthOsfTestDateKey, dateString);
   }
 
-  static const String lastHealthStatusEvalKey  = '_health_last_status_eval';
+  static const String _healthUserKey = 'health_user';
 
-  int get lastHealthStatusEval {
-    return _getIntWithName(lastHealthStatusEvalKey, defaultValue: null);
+  String get healthUser {
+    return getString(_healthUserKey);
   }
 
-  set lastHealthStatusEval(int value) {
-    _setIntWithName(lastHealthStatusEvalKey, value);
+  set healthUser(String value) {
+    setString(_healthUserKey, value);
   }
 
+  static const String _healthUserStatusKey = 'health_user_status';
 
+  String get healthUserStatus {
+    return getString(_healthUserStatusKey);
+  }
+
+  set healthUserStatus(String value) {
+    setString(_healthUserStatusKey, value);
+  }
+
+  static const String _healthUserTestMonitorIntervalKey = 'health_user_test_monitor_interval';
+
+  int get healthUserTestMonitorInterval {
+    return getInt(_healthUserTestMonitorIntervalKey);
+  }
+
+  set healthUserTestMonitorInterval(int value) {
+    setInt(_healthUserTestMonitorIntervalKey, value);
+  }
+
+  static const String _healthUserAccountIdKey = 'health_user_account_id';
+
+  String get healthUserAccountId {
+    return getString(_healthUserAccountIdKey);
+  }
+
+  set healthUserAccountId(String value) {
+    setString(_healthUserAccountIdKey, value);
+  }
+
+  static const String _healthCountyKey = 'health_county';
+  
+  String get healthCounty {
+    return getString(_healthCountyKey);
+  }
+
+  set healthCounty(String value) {
+    setString(_healthCountyKey, value);
+  }
+
+  static const String _healthBuildingAccessRulesKey = 'health_building_access_rules';
+  
+  String get healthBuildingAccessRules {
+    return getString(_healthBuildingAccessRulesKey);
+  }
+
+  set healthBuildingAccessRules(String value) {
+    setString(_healthBuildingAccessRulesKey, value);
+  }
+
+  static const String _healthFamilyMembersKey = 'health_family_members';
+  
+  String get healthFamilyMembers {
+    return getString(_healthFamilyMembersKey);
+  }
+
+  set healthFamilyMembers(String value) {
+    setString(_healthFamilyMembersKey, value);
+  }
   /////////////
   // Exposure
 
   static const String _exposureStartedKey = 'exposure_started';
 
   bool get exposureStarted {
-    return _getBoolWithName(_exposureStartedKey, defaultValue: true);
+    return getBool(_exposureStartedKey, defaultValue: true);
   }
 
   set exposureStarted(bool value) {
-    _setBoolWithName(_exposureStartedKey, value);
+    setBool(_exposureStartedKey, value);
   }
 
   static const String _exposureReportTargetTimestampKey = 'exposure_report_target_timestamp';
 
   int get exposureReportTargetTimestamp {
-    return _getIntWithName(_exposureReportTargetTimestampKey, defaultValue: null);
+    return getInt(_exposureReportTargetTimestampKey, defaultValue: null);
   }
 
   set exposureReportTargetTimestamp(int value) {
-    _setIntWithName(_exposureReportTargetTimestampKey, value);
+    setInt(_exposureReportTargetTimestampKey, value);
   }
 
   static const String _exposureLastReportedTimestampKey = 'exposure_last_reported_timestamp';
 
   int get exposureLastReportedTimestamp {
-    return _getIntWithName(_exposureLastReportedTimestampKey, defaultValue: null);
+    return getInt(_exposureLastReportedTimestampKey, defaultValue: null);
   }
 
   set exposureLastReportedTimestamp(int value) {
-    _setIntWithName(_exposureLastReportedTimestampKey, value);
+    setInt(_exposureLastReportedTimestampKey, value);
   }
 
   /////////////
@@ -445,31 +548,31 @@ class Storage with Service {
   static const String _httpProxyEnabledKey = 'http_proxy_enabled';
 
   bool get httpProxyEnabled {
-    return _getBoolWithName(_httpProxyEnabledKey, defaultValue: false);
+    return getBool(_httpProxyEnabledKey, defaultValue: false);
   }
 
   set httpProxyEnabled(bool value) {
-    _setBoolWithName(_httpProxyEnabledKey, value);
+    setBool(_httpProxyEnabledKey, value);
   }
 
   static const String _httpProxyHostKey = 'http_proxy_host';
 
   String get httpProxyHost {
-    return _getStringWithName(_httpProxyHostKey);
+    return getString(_httpProxyHostKey);
   }
 
   set httpProxyHost(String value) {
-    _setStringWithName(_httpProxyHostKey, value);
+    setString(_httpProxyHostKey, value);
   }
 
   static const String _httpProxyPortKey = 'http_proxy_port';
 
   String get httpProxyPort {
-    return _getStringWithName(_httpProxyPortKey);
+    return getString(_httpProxyPortKey);
   }
 
   set httpProxyPort(String value) {
-    _setStringWithName(_httpProxyPortKey, value);
+    setString(_httpProxyPortKey, value);
   }
 
   /////////////
@@ -478,11 +581,11 @@ class Storage with Service {
   static const String _testEncryptionStringKey = 'test_encryption';
   
   String get testEncryptionString {
-    return _getEncryptedStringWithName(_testEncryptionStringKey);
+    return getEncryptedString(_testEncryptionStringKey);
   }
 
   set testEncryptionString(String value) {
-    _setEncryptedStringWithName(_testEncryptionStringKey, value);
+    setEncryptedString(_testEncryptionStringKey, value);
   }
 
   /////////////

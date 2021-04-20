@@ -5,6 +5,146 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## [2.10.18] - 2021-04-19
+### Changed
+- Update FlexUI content from app assets [#595](https://github.com/rokwire/safer-illinois-app/issues/595).
+
+## [2.10.17] - 2021-04-12
+### Fixed
+- Fixed family members scrolling [#0](https://github.com/rokwire/safer-illinois-app/issues/0).
+
+## [2.10.16] - 2021-04-06
+### Changed
+- Updated vaccination event fields, updated vaccination display strings [#583](https://github.com/rokwire/safer-illinois-app/issues/583).
+
+## [2.10.15] - 2021-04-01
+### Added
+- Show Pending Family Member popup when loading FamilyMembers Settings panel [#589](https://github.com/rokwire/safer-illinois-app/issues/589).
+
+### Fixed
+- Many students and employees using phone verification [#584](https://github.com/rokwire/safer-illinois-app/issues/584).
+
+## [2.10.14] - 2021-03-31
+### Added
+- Added vaccination event [#583](https://github.com/rokwire/safer-illinois-app/issues/583).
+
+### Changed
+- Disabled the new auth system [#586](https://github.com/rokwire/safer-illinois-app/issues/586).
+
+## [2.10.13] - 2021-03-30
+### Added
+- Added family members support [#578](https://github.com/rokwire/safer-illinois-app/issues/578).
+
+### Changed
+- Unload web page when the app is in background [#580](https://github.com/rokwire/safer-illinois-app/issues/580).
+- Cleaned up Covid19TestLocationsPanel.
+- Apply WWCL.Disclaimers in Safer app [#562](https://github.com/rokwire/safer-illinois-app/issues/562)
+- Maine health history change [#563](https://github.com/rokwire/safer-illinois-app/issues/563)
+- Check for start/stop exposure native service on revoking from background.
+- Ask for Bluetooth and Location services permisions in iOS when the user selects to participate to Exposure Notification system. Exclude the relevant onboarding panels from onboarding flow in iOS [#573](https://github.com/rokwire/safer-illinois-app/issues/573).
+
+### Fixed
+- YouTube videos plays when screen locked [#580](https://github.com/rokwire/safer-illinois-app/issues/580).
+- Fixed days interval calculation when daylight saving is changed [#572](https://github.com/rokwire/safer-illinois-app/issues/572).
+
+## [2.10.12] - 2021-03-05
+### Fixed
+- Explore Shibboleth login failure due to deleted UUID [#508](https://github.com/rokwire/safer-illinois-app/issues/508)
+- OnBoardingHealthDisclosurePanel duplicated text [#490](https://github.com/rokwire/safer-illinois-app/issues/490)
+- Apply nextStepDate in local time when making the calculations for displayNextStepDate.
+- Extend Auth OIDC processing to handle external configurations.
+- Fixed Counseling Center url [#512](https://github.com/rokwire/safer-illinois-app/issues/512).
+- Fixed priority of "PCR.invalid" and "out-of-test-compliance" rules [#526](https://github.com/rokwire/safer-illinois-app/issues/526).
+- Fixed passing status param in Connectivity.notifyStatusChanged notification.
+- Fixed "Remove My Information" processing [#547](https://github.com/rokwire/safer-illinois-app/issues/547).
+
+### Changed
+- Updated app config format to refer 'oidc' instead of 'shibboleth', merge shibboleth url entries in app config into single one [#501](https://github.com/rokwire/safer-illinois-app/issues/501)
+- Do not edit straightly roles from user data [#229](https://github.com/rokwire/illinois-app/issues/229).
+- Increased connectivity plugin version [#519](https://github.com/rokwire/safer-illinois-app/issues/519).
+- Updated spaces between texts in OnBoardingHealthDisclosurePanel [#488](https://github.com/rokwire/safer-illinois-app/issues/488).
+- Make the points from the first section from OnBoardingHealthDisclosurePanel panel bold [#489](https://github.com/rokwire/safer-illinois-app/issues/489),
+- Updated Positive IP & NIP step & explanation strings [#529](https://github.com/rokwire/safer-illinois-app/issues/529).
+- Added camera usage mention in disclosure screen [#530](https://github.com/rokwire/safer-illinois-app/issues/530)
+- Updated PCR.positive-NIP test rule [#532](https://github.com/rokwire/safer-illinois-app/issues/532)
+
+### Added
+- App Up time to exposure logs.
+- Added progress indictors when processing QR image code from load/scan [#495](https://github.com/rokwire/safer-illinois-app/issues/495).
+- Implemented PullToRefresh feature in Home panel [#544](https://github.com/rokwire/safer-illinois-app/issues/544).
+
+## [2.10.11] - 2021-01-19
+### Changed
+- Changed interval between first and second test for Spring 2021 [#482](https://github.com/rokwire/safer-illinois-app/issues/482)
+- Updated Next Steps for Two Test Spring 2021 event [#480](https://github.com/rokwire/safer-illinois-app/issues/480).
+- Updated PCR.positive rule [#485](https://github.com/rokwire/safer-illinois-app/issues/485).
+
+## [2.10.10] - 2021-01-18
+### Changed
+- Hide groups in Safer Illinois 2.10 [#475](https://github.com/rokwire/safer-illinois-app/issues/475).
+
+### Added
+- Added Onboarding Disclosure Panel [#477](https://github.com/rokwire/safer-illinois-app/issues/477]).
+
+## [2.10.9] - 2021-01-15
+### Added
+- Added 'warningHtml' field to HealthStatus [#467](https://github.com/rokwire/safer-illinois-app/issues/467).
+- Added 'release' action and status to health rules [#470](https://github.com/rokwire/safer-illinois-app/issues/470).
+
+## [2.10.8] - 2020-12-23
+### Added
+- Added support of both authentication methods, use Rokmetro auth in Health BB API calls [#396](https://github.com/rokwire/safer-illinois-app/issues/396).
+
+### Fixed
+- Integrate Groups UI into the Safer app - Additional Fixes [#455](https://github.com/rokwire/safer-illinois-app/issues/455).
+
+## [2.10.7] - 2020-12-22
+### Changed
+- Integrate Groups UI into the Safer app - Additional Fixes [#455](https://github.com/rokwire/safer-illinois-app/issues/455).
+
+## [2.10.6] - 2020-12-21
+### Added
+- Integrate Groups UI into the Safer app [#455](https://github.com/rokwire/safer-illinois-app/issues/455).
+
+## [2.10.5] - 2020-12-16
+### Changed
+- Speed up user history load [#449](https://github.com/rokwire/safer-illinois-app/issues/449).
+- Encode health statuses in rules [#452](https://github.com/rokwire/safer-illinois-app/issues/452).
+
+### Fixed
+- Do not translate symptoms names transmitted to analytics [#447](https://github.com/rokwire/safer-illinois-app/issues/447).
+
+## [2.10.4] - 2020-12-11
+### Added
+- Added map directions feature in iOS app [#446](https://github.com/rokwire/safer-illinois-app/issues/446).
+
+## [2.10.3] - 2020-12-04
+### Fixed
+- Pass the right user UIN when creating debug events. [#441](https://github.com/rokwire/safer-illinois-app/issues/441).
+- Fixed user details in Status panel when subaccount is selected. [#442](https://github.com/rokwire/safer-illinois-app/issues/442).
+
+## [2.10.2] - 2020-12-03
+### Added
+- Added user subaccounts feature [#437](https://github.com/rokwire/safer-illinois-app/issues/437).
+
+## [2.10.1] - 2020-12-01
+### Changed
+- Update user PII data from authentication/roster data [#432](https://github.com/rokwire/safer-illinois-app/issues/432).
+- Added login widget in Home panel when user is not connected [#434](https://github.com/rokwire/safer-illinois-app/issues/434).
+
+## [2.10.0] - 2020-11-30
+### Fixed
+- Fix FirebaseCrashlytics [#428](https://github.com/rokwire/safer-illinois-app/issues/428).
+- CareTeamPanel fix semantics pronauncement for Mental Health button [#422](https://github.com/rokwire/safer-illinois-app/issues/422)
+
+### Deleted
+- Removed unused images from application project [#419](https://github.com/rokwire/safer-illinois-app/issues/419).
+
+### Changed
+- Health service reworked to permanantly cache all data necessary for status build.
+- Use better naming in internal classes.
+
 ## [2.9.22] - 2021-03-22
 ### Fixed
 - Undo changing permission request buttons to "Continue" [#560](https://github.com/rokwire/safer-illinois-app/issues/560).
@@ -508,7 +648,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
  - Latest content from the private repository.
  - GitHub Issue templates.
-
-### Changed
- - Update README and repository description.
- - Clean up CHANGELOG.

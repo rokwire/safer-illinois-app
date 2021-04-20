@@ -17,6 +17,7 @@
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:illinois/service/Localization.dart';
+import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/utils/Utils.dart';
 
 abstract class AuthToken {
@@ -27,11 +28,11 @@ abstract class AuthToken {
   int get expiresIn => null;
 
   factory AuthToken.fromJson(Map<String, dynamic> json) {
-    if(json != null){
-      if(json.containsKey("phone")){
+    if (json != null) {
+      if (json.containsKey("phone")) {
         return PhoneToken.fromJson(json);
       }
-      else{
+      else {
         return ShibbolethToken.fromJson(json);
       }
     }
@@ -39,6 +40,14 @@ abstract class AuthToken {
   }
 
   toJson() => {};
+
+  String get authIdTokenHeader {
+    return (idToken != null) ? "${tokenType ?? 'Bearer'} $idToken" : null;
+  }
+
+  String get authAccessTokenHeader {
+    return (accessToken != null) ? "${tokenType ?? 'Bearer'} $accessToken" : null;
+  }
 }
 
 class ShibbolethToken with AuthToken {
@@ -52,13 +61,13 @@ class ShibbolethToken with AuthToken {
   ShibbolethToken({this.idToken, this.accessToken, this.refreshToken, this.tokenType, this.expiresIn});
 
   factory ShibbolethToken.fromJson(Map<String, dynamic> json) {
-    return ShibbolethToken(
+    return (json != null) ? ShibbolethToken(
       idToken: json['id_token'],
       accessToken: json['access_token'],
       refreshToken: json['refresh_token'],
       tokenType: json['token_type'],
       expiresIn: json['expires_in'],
-    );
+    ) : null;
   }
 
   toJson() {
@@ -87,18 +96,18 @@ class ShibbolethToken with AuthToken {
       expiresIn.hashCode;
 }
 
-class PhoneToken with AuthToken{
+class PhoneToken with AuthToken {
   final String phone;
   final String idToken;
-  final String tokenType = "Bearer"; // missing data from the phone validation
+  final String tokenType;
 
-  PhoneToken({this.phone, this.idToken});
+  PhoneToken({this.phone, this.idToken, this.tokenType});
 
   factory PhoneToken.fromJson(Map<String, dynamic> json) {
-    return PhoneToken(
+    return (json != null) ? PhoneToken(
       phone: json['phone'],
       idToken: json['id_token'],
-    );
+    ) : null;
   }
 
   toJson() {
@@ -111,96 +120,182 @@ class PhoneToken with AuthToken{
   bool operator ==(o) =>
       o is PhoneToken &&
           o.phone == phone &&
-          o.accessToken == accessToken;
+          o.idToken == idToken;
 
   int get hashCode =>
       phone.hashCode ^
-      accessToken.hashCode;
+      idToken.hashCode;
 }
 
-class AuthInfo {
+abstract class AuthUser {
+  
+  String get uin => null;
+  String get netId => null;
+  String get email => null;
+  String get phone => null;
 
-  String fullName;
-  String firstName;
-  String middleName;
-  String lastName;
-  String username;
-  String uin;
-  String sub;
-  String email;
-  Set<String> userGroupMembership;
+  String get firstName => null;
+  String get middleName => null;
+  String get lastName => null;
+  String get fullName => null;
+
+  Set<String> get groupMembership => null;
 
   static const analyticsUin = 'UINxxxxxx';
   static const analyticsFirstName = 'FirstNameXXXXXX';
   static const analyticsLastName = 'LastNameXXXXXX';
 
-  AuthInfo({this.fullName, this.firstName, this.middleName, this.lastName,
-    this.username, this.uin, this.sub, this.email, this.userGroupMembership});
+  factory AuthUser.fromJson(Map<String, dynamic> json) {
+    if (json != null) {
+      if (json.containsKey('phone')) {
+       return PhoneAuthUser.fromJson(json);
+      }
+      else {
+       return ShibbolethAuthUser.fromJson(json);
+      }
+    }
+    else {
+      return null;
+    }
+  }
 
-  factory AuthInfo.fromJson(Map<String, dynamic> json) {
-    dynamic groupMembershipJson = json != null
-        ? json['uiucedu_is_member_of']
-        : null;
-    Set<String> userGroupMembership = groupMembershipJson != null ? Set.from(
-        groupMembershipJson) : null;
+  Map<String, dynamic> toJson();
+}
 
-    return (json != null) ? AuthInfo(
-        fullName: AppString.isStringNotEmpty(json["name"]) ? json["name"] : "",
-        firstName: AppString.isStringNotEmpty(json["given_name"]) ? json["given_name"] : "",
-        middleName: AppString.isStringNotEmpty(json["middle_name"]) ? json["middle_name"] : "",
-        lastName: AppString.isStringNotEmpty(json["family_name"]) ? json["family_name"] : "",
-        username: AppString.isStringNotEmpty(json["preferred_username"]) ? json["preferred_username"] : "",
-        uin: AppString.isStringNotEmpty(json["uiucedu_uin"]) ? json["uiucedu_uin"] : "",
-        sub: AppString.isStringNotEmpty(json["sub"]) ? json["sub"] : "",
-        email: AppString.isStringNotEmpty(json["email"]) ? json["email"] : "",
-        userGroupMembership: userGroupMembership
+class ShibbolethAuthUser with AuthUser {
+
+  final String uin;
+  final String sub;
+  final String email;
+  final String netId;
+
+  final String firstName;
+  final String middleName;
+  final String lastName;
+  final String _fullName;
+
+  final Set<String> groupMembership;
+
+  ShibbolethAuthUser({String fullName, this.firstName, this.middleName, this.lastName,
+    this.netId, this.uin, this.sub, this.email, this.groupMembership}) :
+    _fullName = fullName;
+
+  factory ShibbolethAuthUser.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? ShibbolethAuthUser(
+        uin: json['uiucedu_uin'],
+        sub: json['sub'],
+        email: json['email'],
+        netId: json['preferred_username'],
+
+        firstName: json['given_name'],
+        middleName: json['middle_name'],
+        lastName: json['family_name'],
+        fullName: json['name'],
+
+        groupMembership: (json['uiucedu_is_member_of'] != null) ? Set.from(json['uiucedu_is_member_of']) : null,
     ) : null;
   }
 
-  factory AuthInfo.fromRosterJson(Map<String, dynamic> json) {
-    if(json != null) {
-      String firstName = AppString.isStringNotEmpty(json["first_name"]) ? json["first_name"] : "";
-      String middleName = AppString.isStringNotEmpty(json["middle_name"]) ? json["middle_name"] : "";
-      String lastName = AppString.isStringNotEmpty(json["last_name"]) ? json["last_name"] : "";
-      String uin = AppString.isStringNotEmpty(json["uin"]) ? json["uin"] : "";
-
-      String fullName = "";
-      List<String> fullNameList = [firstName, middleName, lastName];
-      fullNameList.forEach((name) {
-        if (AppString.isStringNotEmpty(name)) {
-          if (fullName.isNotEmpty) {
-            fullName += " ";
-          }
-          fullName += name;
-        }
-      });
-
-      return AppString.isStringNotEmpty(uin) ? AuthInfo(
-          firstName: firstName,
-          middleName: middleName,
-          lastName: lastName,
-          fullName: fullName,
-          uin: uin
-      ) : null;
-    }
-    return null;
-  }
-
-  toJson() {
-    List<dynamic> userGroupsToJson = (userGroupMembership != null) ?
-    userGroupMembership.toList() : null;
-
+  Map<String, dynamic> toJson() {
     return {
-      "name": fullName,
-      "given_name": firstName,
-      "middle_name": middleName,
-      "family_name": lastName,
-      "preferred_username": username,
       "uiucedu_uin": uin,
       "sub": sub,
       "email": email,
-      "uiucedu_is_member_of": userGroupsToJson
+      "preferred_username": netId,
+
+      "given_name": firstName,
+      "middle_name": middleName,
+      "family_name": lastName,
+      "name": _fullName,
+
+      "uiucedu_is_member_of": groupMembership?.toList()
     };
+  }
+
+  String get fullName {
+    return AppString.isStringNotEmpty(_fullName) ? _fullName : AppString.fullName([firstName, middleName, lastName]);
+  }
+}
+
+class PhoneAuthUser with AuthUser {
+  final String uin;
+  final String email;
+  final String phone;
+
+  final String firstName;
+  final String middleName;
+  final String lastName;
+
+  final String gender;
+  final String birthDateString;
+  final String badgeType;
+
+  final String address1;
+  final String address2;
+  final String address3;
+  final String city;
+  final String state;
+  final String zip;
+
+  PhoneAuthUser({this.uin, this.email, this.phone,
+    this.firstName, this.middleName, this.lastName,
+    this.gender, this.birthDateString, this.badgeType,
+    this.address1, this.address2, this.address3,
+    this.city, this.state, this.zip
+  });
+
+  factory PhoneAuthUser.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? PhoneAuthUser(
+        uin: json['uin'],
+        email: json['email'],
+        phone: json['phone'],
+
+        firstName: json['first_name'],
+        middleName: json['middle_name'],
+        lastName: json['last_name'],
+        
+        gender: json['gender'],
+        birthDateString: json['birth_date'],
+        badgeType: json['badge_type'],
+
+        address1: json['address1'],
+        address2: json['address2'],
+        address3: json['address3'],
+        city: json['city'],
+        state: json['state'],
+        zip: json['zip'],
+    ) : null;
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+        'uin': uin,
+        'email': email,
+        'phone': phone,
+
+        'first_name': firstName,
+        'middle_name': middleName,
+        'last_name': lastName,
+        
+        'gender': gender,
+        'birth_date': birthDateString,
+        'badge_type': badgeType,
+
+        'address1': address1,
+        'address2': address2,
+        'address3': address3,
+        'city': city,
+        'state': state,
+        'zip': zip,
+    };
+  }
+
+  String get fullName {
+    return AppString.fullName([firstName, middleName, lastName]);
+  }
+
+  DateTime get birthDate {
+    return AppDateTime.parseDateTime(birthDateString, format: "MM/dd/yy");
   }
 }
 
@@ -219,7 +314,7 @@ class AuthCard {
   AuthCard({this.uin, this.cardNumber, this.libraryNumber, this.expirationDate, this.fullName, this.role, this.studentLevel, this.magTrack2, this.photoBase64});
 
   factory AuthCard.fromJson(Map<String, dynamic> json) {
-    return AuthCard(
+    return (json != null) ? AuthCard(
       uin: json['UIN'],
       fullName: json['full_name'],
       role: json['role'],
@@ -229,7 +324,7 @@ class AuthCard {
       libraryNumber: json['library_number'],
       magTrack2: json['mag_track2'],
       photoBase64: json['photo_base64'],
-    );
+    ) : null;
   }
 
   toJson() {
@@ -295,3 +390,70 @@ class AuthCard {
   }
 }
 
+class RokmetroToken with AuthToken {
+  final String idToken;
+  final String tokenType;
+
+  RokmetroToken({this.idToken, this.tokenType});
+
+  factory RokmetroToken.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? RokmetroToken(
+      idToken: json['id_token'],
+    ) : null;
+  }
+
+  toJson() {
+    return {
+      'id_token': idToken,
+    };
+  }
+
+  bool operator ==(o) =>
+      o is RokmetroToken &&
+          o.idToken == idToken;
+
+  int get hashCode =>
+      idToken.hashCode;
+}
+
+class RokmetroUser {
+  final String uid;
+  final String name;
+  final String email;
+  final String phone;
+  final String groups;
+  final String auth;
+  final String type;
+  final String iss;
+  final int exp;
+
+  RokmetroUser({this.uid, this.name, this.email, this.phone, this.groups, this.auth, this.type, this.iss, this.exp});  
+
+  factory RokmetroUser.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? RokmetroUser(
+      uid: AppJson.stringValue(json['uid']),
+      name: AppJson.stringValue(json['name']),
+      email: AppJson.stringValue(json['email']),
+      phone: AppJson.stringValue(json['phone']),
+      groups: AppJson.stringValue(json['groups']),
+      auth: AppJson.stringValue(json['auth']),
+      type: AppJson.stringValue(json['type']),
+      iss: AppJson.stringValue(json['iss']),
+      exp: AppJson.intValue(json['exp']),
+    ) : null;
+  }
+
+  dynamic toJson() {
+    return {
+      "uid" : uid,
+      "name" : name,
+      "email" : email,
+      "phone" : phone,
+      "groups" : groups,
+      "auth" : auth,
+      "type" : type,
+      "iss" : iss,
+      "exp" : exp,
+    };
+  }
+}

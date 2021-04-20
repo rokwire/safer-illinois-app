@@ -21,7 +21,7 @@ import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Exposure.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
-import 'package:illinois/service/User.dart';
+import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/ui/widgets/HeaderBar.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/service/Styles.dart';
@@ -47,8 +47,8 @@ class _SettingsPersonalInfoPanelState extends State<SettingsPersonalInfoPanel> {
     if(piiDeleted) {
       await Health().deleteUser();
       await Exposure().deleteUser();
-      await User().deleteUser();
-      // Auth().logout() - invoked by User().deleteUser()
+      await UserProfile().deleteProfile();
+      // Auth().logout() - invoked by UserProfile().deleteProfile()
     }
     else {
       AppAlert.showDialogResult(context, Localization().getStringEx("panel.profile_info.header.title", "Failed to remove your information"));

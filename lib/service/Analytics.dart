@@ -23,7 +23,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as Http;
-import 'package:illinois/model/UserData.dart';
+import 'package:illinois/model/UserProfile.dart';
 import 'package:illinois/service/AppNavigation.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/Config.dart';
@@ -38,7 +38,7 @@ import 'package:package_info/package_info.dart';
 import 'package:device_info/device_info.dart';
 import 'package:uuid/uuid.dart';
 
-import 'package:illinois/service/User.dart';
+import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/LocationServices.dart';
@@ -196,8 +196,10 @@ class Analytics with Service implements NotificationsListener {
   static const String   LogHealthContactTraceProcessedAction = "contact_trace_processed";
   static const String   LogHealthContactTraceTestAction      = "contact_trace_test";
   static const String   LogHealthActionProcessedAction       = "action_processed";
+  static const String   LogHealthVaccinationAction           = "vaccination";
   static const String   LogHealthReportExposuresAction       = "report_exposures";
   static const String   LogHealthCheckExposuresAction        = "check_exposures";
+  static const String   LogHealthExposureStatisticsAction    = "exposure_statistics";
   static const String   LogHealthStatusName                  = "status";
   static const String   LogHealthPrevStatusName              = "previous_status";
   static const String   LogHealthSettingNotifyExposuresName  = "notify_exposures";
@@ -209,11 +211,26 @@ class Analytics with Service implements NotificationsListener {
   static const String   LogHealthSymptomsName                = "symptoms";
   static const String   LogHealthDurationName                = "duration";
   static const String   LogHealthExposureTimestampName       = "exposure_timestamp";
+  static const String   LogHealthVaccineName                 = "vaccine";
   static const String   LogHealthActionTypeName              = "action_type";
   static const String   LogHealthActionTitleName             = "action_title";
   static const String   LogHealthActionTextName              = "action_text";
+  static const String   LogHealthActionParamsName            = "action_params";
   static const String   LogHealthActionTimestampName         = "action_timestamp";
-  static const String   LogHealthExposureScore               = "exposure_score";
+  static const String   LogHealthExposureScoreName           = "exposure_score";
+  static const String   LogRpiSeen6HoursName                 = "rpi_seen_6_hour";
+  static const String   LogRpiSeen24HoursName                = "rpi_seen_24_hour";
+  static const String   LogRpiSeen168HoursName               = "rpi_seen_168_hour";
+  static const String   LogRpiMatches6HoursName              = "rpi_matches_6_hour";
+  static const String   LogRpiMatches24HoursName             = "rpi_matches_24_hour";
+  static const String   LogRpiMatches168HoursName            = "rpi_matches_168_hour";
+  static const String   LogExposureUpTime6HoursName          = "exposure_uptime_6_hour";
+  static const String   LogExposureUpTime24HoursName         = "exposure_uptime_24_hour";
+  static const String   LogExposureUpTime168HoursName        = "exposure_uptime_168_hour";
+  static const String   LogTestFrequency168HoursName         = "test_frequency_168_hour";
+  static const String   LogExposureNotification168HoursName  = "exposure_notification_168_hour";
+  static const String   LogTestResult168HoursName            = "test_result_168_hour";
+  static const String   LogEpochName                         = "epoch";
 
   // Event Attributes
   static const String   LogAttributeUrl                    = "url";
@@ -279,9 +296,9 @@ class Analytics with Service implements NotificationsListener {
       AppLivecycle.notifyStateChanged,
       AppNavigation.notifyEvent,
       LocationServices.notifyStatusChanged,
-      User.notifyRolesUpdated,
-      User.notifyUserUpdated,
-      User.notifyUserDeleted,
+      UserProfile.notifyRolesUpdated,
+      UserProfile.notifyProfileUpdated,
+      UserProfile.notifyProfileDeleted,
       NativeCommunicator.notifyMapRouteStart,
       NativeCommunicator.notifyMapRouteFinish,
     ]);
@@ -340,7 +357,7 @@ class Analytics with Service implements NotificationsListener {
 
   @override
   Set<Service> get serviceDependsOn {
-    return Set.from([Config(), User(), LocationServices(), Connectivity() ]);
+    return Set.from([Config(), UserProfile(), LocationServices(), Connectivity() ]);
   }
 
   // Database
@@ -403,13 +420,13 @@ class Analytics with Service implements NotificationsListener {
     else if (name == AppNavigation.notifyEvent) {
       _onAppNavigationEvent(param);
     }
-    else if (name == User.notifyRolesUpdated) {
+    else if (name == UserProfile.notifyRolesUpdated) {
       _updateUserRoles();
     }
-    else if (name == User.notifyUserUpdated) {
+    else if (name == UserProfile.notifyProfileUpdated) {
       _updateUserRoles();
     }
-    else if (name == User.notifyUserDeleted) {
+    else if (name == UserProfile.notifyProfileDeleted) {
       _updateSessionUuid();
       _updateUserRoles();
     }
@@ -554,10 +571,10 @@ class Analytics with Service implements NotificationsListener {
     _accessibilityState = (value != null) ? value.toString() : null;
   }
 
-  // User Roles Service
+  // UserProfile Roles Service
 
   void _updateUserRoles() {
-    Set<UserRole> roles = User().roles;
+    Set<UserRole> roles = UserProfile().roles;
     _userRoles = UserRole.userRolesToList(roles);
   }
 
@@ -622,7 +639,7 @@ class Analytics with Service implements NotificationsListener {
   Future<bool>_sendPacket(String packet) async {
     if (packet != null) {
       try {
-        final response = (Config().loggingUrl != null) ? await Network().post(Config().loggingUrl, body: packet, headers: { "Accept": "application/json", "Content-type":"application/json" }, auth: NetworkAuth.App, sendAnalytics: false) : null;
+        final response = (Config().loggingUrl != null) ? await Network().post(Config().loggingUrl, body: packet, headers: { "Accept": "application/json", "Content-type":"application/json" }, auth: Network.AppAuth, sendAnalytics: false) : null;
         return (response != null) && ((response.statusCode == 200) || (response.statusCode == 201));
       }
       catch (e) {
@@ -679,7 +696,7 @@ class Analytics with Service implements NotificationsListener {
           analyticsEvent[LogStdSessionUuidName] = _sessionUuid;
         }
         else if (attributeName == LogStdUserUuidName) {
-          analyticsEvent[LogStdUserUuidName] = ((User().uuid != null) && (anonymous != false)) ? User.analyticsUuid : User().uuid;
+          analyticsEvent[LogStdUserUuidName] = ((UserProfile().uuid != null) && (anonymous != false)) ? UserProfile.analyticsUuid : UserProfile().uuid;
         }
         else if (attributeName == LogStdUserRolesName) {
           analyticsEvent[LogStdUserRolesName] = _userRoles;

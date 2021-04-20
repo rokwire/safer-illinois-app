@@ -81,6 +81,34 @@ class AppString {
       return "${value[0].toUpperCase()}${value.substring(1).toLowerCase()}";
     }
   }
+
+  static String fullName(List<String> names) {
+    String fullName;
+    if (names != null) {
+      for (String name in names) {
+        if ((name != null) && (0 < name.length)) {
+          if (fullName == null) {
+            fullName = '$name';
+          }
+          else {
+            fullName += ' $name';
+          }
+        }
+      }
+    }
+    return fullName;
+  }
+
+  static String firstNotEmpty(List<String> values) {
+    if (values != null) {
+      for (String value in values) {
+        if ((value != null) && (0 < value.length)) {
+          return value;
+        }
+      }
+    }
+    return null;
+  }
 }
 
 class AppCollection {
@@ -289,19 +317,15 @@ class AppJson {
     }
   }
 
-  static List<dynamic> listValue (dynamic value) {
-    if (value is List) {
-      try { return value.cast<dynamic>(); }
-      catch(e) { print(e?.toString()); }
-    }
+  static Map<String, dynamic> mapValue(dynamic value) {
+    try { return (value is Map) ? value.cast<String, dynamic>() : null; }
+    catch(e) { print(e?.toString()); }
     return null;
   }
 
-  static Map<String, dynamic> mapValue (dynamic value) {
-    if (value is Map) {
-      try { return value.cast<String, dynamic>(); }
-      catch(e) { print(e?.toString()); }
-    }
+  static List<dynamic> listValue(dynamic value) {
+    try { return (value is List) ? value.cast<dynamic>() : null; }
+    catch(e) { print(e?.toString()); }
     return null;
   }
 }
@@ -566,5 +590,11 @@ class AppGeometry {
     else if(ratioH < ratioW)
   		fitW = (0.0 < size.height) ? (size.width * boundsSize.height / size.height) : boundsSize.width;
     return Size(fitW, fitH);
+  }
+}
+
+class AppProgressIndicator{
+  static CircularProgressIndicator create([Color color]){
+    return CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(color != null ? color : Styles().colors.fillColorPrimary));
   }
 }
