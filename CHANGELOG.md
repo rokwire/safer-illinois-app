@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+- On Setting screen, Disable Covid-19 section for the user who didn't verify the identity [#602](https://github.com/rokwire/safer-illinois-app/issues/602).
 
 ## [2.10.18] - 2021-04-19
 ### Changed

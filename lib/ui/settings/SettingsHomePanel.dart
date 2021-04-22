@@ -661,19 +661,9 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            Container(height: 10,),
             Text(Localization().getStringEx('panel.settings.home.covid19.text.user.fail', 'Unable to retrieve user COVID-19 settings.') , style: TextStyle(color: Styles().colors.textBackground, fontFamily: Styles().fontFamilies.regular, fontSize: 16)),
-            Container(height: 4,),
-//            Row(children: <Widget>[
-              ScalableRoundedButton(
-                label: Localization().getStringEx('panel.settings.home.covid19.button.retry.title', 'Retry'),
-                backgroundColor: Styles().colors.background,
-                fontSize: 16.0,
-                padding: EdgeInsets.symmetric(horizontal: 24),
-                textColor: Styles().colors.fillColorPrimary,
-                borderColor: Styles().colors.fillColorPrimary,
-                onTap: _onTapCovid19Login
-              ),
-//            ],)
+            Container(height: 10,),
         ],)
       ));
     }
@@ -895,15 +885,6 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
       Analytics.instance.logSelect(target: "Health Provider Test Results");
       bool consent = Health().user?.consent ?? false;
       _updateHealthUser(consent: !consent);
-    } else {
-      AppAlert.showOfflineMessage(context);
-    }
-  }
-
-  void _onTapCovid19Login() {
-    if (Connectivity().isNotOffline) {
-      Analytics.instance.logSelect(target: "Retry");
-      _refreshHealthUser();
     } else {
       AppAlert.showOfflineMessage(context);
     }
