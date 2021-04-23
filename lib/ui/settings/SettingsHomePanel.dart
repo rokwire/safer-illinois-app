@@ -90,6 +90,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
       Auth.notifyUserPiiDataChanged,
       UserProfile.notifyProfileUpdated,
       Health.notifyUserUpdated,
+      Health.notifyRefreshing,
       FirebaseMessaging.notifySettingUpdated,
       FlexUI.notifyChanged,
     ]);
@@ -116,6 +117,8 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
       _updateState();
     } else if (name == Health.notifyUserUpdated) {
       _verifyHealthUserKeys();
+    } else if (name == Health.notifyRefreshing) {
+      _updateState();
     } else if (name == FirebaseMessaging.notifySettingUpdated) {
       _updateState();
     } else if (name == FlexUI.notifyChanged) {
@@ -645,29 +648,27 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   
 
   Widget _buildCovid19Settings() {
-    List<Widget> contentList = new List();
+    List<Widget> contentList = List();
 
-    if (_refreshingHealthUser == true) {
-      contentList.add(Container(
-        padding: EdgeInsets.all(16),
-        child: Center(child:
-          CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary), strokeWidth: 2,)
-        ,),
-      ));
-    }
-    else if (Health().user == null) {
-      contentList.add(Container(
-        padding: EdgeInsets.only(left: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Container(height: 10,),
-            Text(Localization().getStringEx('panel.settings.home.covid19.text.user.fail', 'Unable to retrieve user COVID-19 settings.') , style: TextStyle(color: Styles().colors.textBackground, fontFamily: Styles().fontFamilies.regular, fontSize: 16)),
-            Container(height: 10,),
-            Visibility(
-              visible: Auth().isLoggedIn,
-              child: Column(
-                children: [
+    if (Auth().isLoggedIn) {
+      if ((_refreshingHealthUser == true) || Health().refreshingUser) {
+        contentList.add(Container(
+          padding: EdgeInsets.all(16),
+          child: Center(child:
+            CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary), strokeWidth: 2,)
+          ,),
+        ));
+      }
+      else if (Health().user == null) {
+        contentList.add(Container(
+          padding: EdgeInsets.only(left: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Container(height: 10,),
+              Text(Localization().getStringEx('panel.settings.home.covid19.text.user.fail', 'Unable to retrieve user COVID-19 settings.') , style: TextStyle(color: Styles().colors.textBackground, fontFamily: Styles().fontFamilies.regular, fontSize: 16)),
+              Container(height: 10,),
+                Column(children: [
                   ScalableRoundedButton(
                     label: Localization().getStringEx('panel.settings.home.covid19.button.retry.title', 'Retry'),
                     backgroundColor: Styles().colors.background,
@@ -680,42 +681,44 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
                   Container(height: 10,),
                 ],
               ),
-            ),
-        ],)
-      ));
-    }
-    else {
-      List<dynamic> codes = FlexUI()['settings.covid19'] ?? [];
-      for (int index = 0; index < codes.length; index++) {
-        String code = codes[index];
-        BorderRadius borderRadius = _borderRadiusFromIndex(index, codes.length);
-        if (code == 'exposure_notifications') {
-          contentList.add(ToggleRibbonButton(
-              height: null,
-              borderRadius: borderRadius,
-              label: Localization().getStringEx("panel.settings.home.covid19.exposure_notifications", "Exposure Notifications"),
-              toggled: (Health().user?.exposureNotification == true),
-              context: context,
-              onTap: _onExposureNotifications));
-        }
-        else if (code == 'provider_test_result') {
-          contentList.add(ToggleRibbonButton(
-              height: null,
-              borderRadius: borderRadius,
-              label: Localization().getStringEx("panel.settings.home.covid19.provider_test_result", "Health Provider Test Results"),
-              toggled: (Health().user?.consent == true),
-              context: context,
-              onTap: _onProviderTestResult));
-        }
-        else if (code == 'qr_code') {
-          contentList.add(Padding(padding: EdgeInsets.only(left: 8, top: 16), child: _buildCovid19KeysSection(),));
+          ],)
+        ));
+      }
+      else {
+        List<dynamic> codes = FlexUI()['settings.covid19'] ?? [];
+        for (int index = 0; index < codes.length; index++) {
+          String code = codes[index];
+          BorderRadius borderRadius = _borderRadiusFromIndex(index, codes.length);
+          if (code == 'exposure_notifications') {
+            contentList.add(ToggleRibbonButton(
+                height: null,
+                borderRadius: borderRadius,
+                label: Localization().getStringEx("panel.settings.home.covid19.exposure_notifications", "Exposure Notifications"),
+                toggled: (Health().user?.exposureNotification == true),
+                context: context,
+                onTap: _onExposureNotifications));
+          }
+          else if (code == 'provider_test_result') {
+            contentList.add(ToggleRibbonButton(
+                height: null,
+                borderRadius: borderRadius,
+                label: Localization().getStringEx("panel.settings.home.covid19.provider_test_result", "Health Provider Test Results"),
+                toggled: (Health().user?.consent == true),
+                context: context,
+                onTap: _onProviderTestResult));
+          }
+          else if (code == 'qr_code') {
+            contentList.add(Padding(padding: EdgeInsets.only(left: 8, top: 16), child: _buildCovid19KeysSection(),));
+          }
         }
       }
     }
 
-    return _OptionsSection(
+    return (0 < contentList.length) ?
+      _OptionsSection(
         title: Localization().getStringEx("panel.settings.home.covid19.title", "COVID-19"),
-        widgets: contentList);
+        widgets: contentList) :
+      Container();
   }
 
   Widget _buildCovid19KeysSection() {
