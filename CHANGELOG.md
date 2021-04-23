@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 - Fixed mailto and tel URLs in Wellness Center Panel [#601](https://github.com/rokwire/safer-illinois-app/issues/601).
-- On Setting screen, Disable Covid-19 section for the user who didn't verify the identity [#602](https://github.com/rokwire/safer-illinois-app/issues/602).
+- Remove Covid-19 section from Settings panel if the user is not logged in, improved control of progress indicator inside [#602](https://github.com/rokwire/safer-illinois-app/issues/602).
 
 ## [2.10.18] - 2021-04-19
 ### Changed
