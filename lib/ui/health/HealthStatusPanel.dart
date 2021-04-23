@@ -15,6 +15,7 @@
  */
 
 import 'dart:typed_data';
+import 'package:intl/intl.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -211,6 +212,7 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
 
   Widget _buildAccesLayout() {
     String imageAsset = (Health().buildingAccessGranted == true) ? 'images/group-20.png' : 'images/group-28.png';
+    String currentDateTime = DateFormat("MMM d, yyyy HH:mm a").format(DateTime.now());
     String accessText;
     switch (Health().buildingAccessGranted) {
       case true:  accessText = Localization().getStringEx("panel.covid19_passport.label.access.granted", "GRANTED"); break;
@@ -221,9 +223,10 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
         Column(children: <Widget>[
           Container(height: 15,),
           Image.asset(imageAsset, excludeFromSemantics: true,),
-          Container(height: 7,),
+          Container(height: 5,),
           Text(Localization().getStringEx("panel.covid19_passport.label.access.heading", "Building Access"), style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Styles().colors.fillColorPrimary),),
-          Container(height: 6,),
+          Text(currentDateTime, style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.fillColorPrimary),),
+          Container(height: 15,),
           Text(accessText ?? '', style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 28, color: Styles().colors.fillColorPrimary),),
         ],),
       )),
