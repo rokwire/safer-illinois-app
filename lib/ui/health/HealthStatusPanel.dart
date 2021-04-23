@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
+import 'dart:async';
 import 'dart:typed_data';
+import 'package:intl/intl.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -47,6 +49,8 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
 
   List<HealthCounty> _counties;
   Color _colorOfTheDay;
+  String _currentDateTime;
+  Timer _currentDateTimeTimer;
   MemoryImage _photoImage;
   bool _netIdStatusChecked;
   bool _loading;
@@ -56,9 +60,14 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
   @override
   void initState() {
     super.initState();
+
     NotificationService().subscribe(this, [
       Health.notifyStatusUpdated,
     ]);
+
+    _currentDateTime = _getCurrentDateTime();
+    _currentDateTimeTimer = Timer.periodic(const Duration(seconds: 1), _updateCurrentDateTime);
+
     _initData();
   }
 
@@ -66,6 +75,11 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
   void dispose() {
     super.dispose();
     NotificationService().unsubscribe(this);
+
+    if (_currentDateTimeTimer != null) {
+      _currentDateTimeTimer.cancel();
+      _currentDateTimeTimer = null;
+    }
   }
 
   @override
@@ -211,6 +225,7 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
 
   Widget _buildAccesLayout() {
     String imageAsset = (Health().buildingAccessGranted == true) ? 'images/group-20.png' : 'images/group-28.png';
+    String currentDateTime = DateFormat("MMM d, yyyy HH:mm a").format(DateTime.now());
     String accessText;
     switch (Health().buildingAccessGranted) {
       case true:  accessText = Localization().getStringEx("panel.covid19_passport.label.access.granted", "GRANTED"); break;
@@ -221,9 +236,10 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
         Column(children: <Widget>[
           Container(height: 15,),
           Image.asset(imageAsset, excludeFromSemantics: true,),
-          Container(height: 7,),
+          Container(height: 5,),
           Text(Localization().getStringEx("panel.covid19_passport.label.access.heading", "Building Access"), style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Styles().colors.fillColorPrimary),),
-          Container(height: 6,),
+          Text(currentDateTime, style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Styles().colors.fillColorPrimary),),
+          Container(height: 15,),
           Text(accessText ?? '', style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 28, color: Styles().colors.fillColorPrimary),),
         ],),
       )),
@@ -457,6 +473,22 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
   Color get _backgroundColor {
     return Styles().colors.background;
   }
+
+  static String _getCurrentDateTime() {
+    return DateFormat("MMM d, yyyy HH:mm a").format(DateTime.now());
+  }
+
+  void _updateCurrentDateTime(_) {
+    if (mounted && (_loading != true)) {
+      String currentDateTime = _getCurrentDateTime();
+      if (currentDateTime != _currentDateTime) {
+        setState(() {
+          _currentDateTime = currentDateTime;
+        });
+      }
+    }
+  }
+
 }
 
 class _RotatingBorder extends StatefulWidget{

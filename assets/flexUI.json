@@ -42,6 +42,7 @@
 			"settings.connect"                    : { "loggedIn": false },
 			"settings.connected"                  : { "loggedIn": true },
 			"settings.account"                    : { "loggedIn": true },
+			"settings.covid19"                    : { "loggedIn": true },
 			"settings.connected.netid"            : { "shibbolethLoggedIn": true },
 			"settings.connected.phone"            : { "phoneLoggedIn": true },
 			"settings.connected.netid.info"       : { "shibbolethLoggedIn": true },
