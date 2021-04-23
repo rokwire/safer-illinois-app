@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import 'dart:async';
 import 'dart:typed_data';
 import 'package:intl/intl.dart';
 
@@ -48,6 +49,8 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
 
   List<HealthCounty> _counties;
   Color _colorOfTheDay;
+  String _currentDateTime;
+  Timer _currentDateTimeTimer;
   MemoryImage _photoImage;
   bool _netIdStatusChecked;
   bool _loading;
@@ -57,9 +60,14 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
   @override
   void initState() {
     super.initState();
+
     NotificationService().subscribe(this, [
       Health.notifyStatusUpdated,
     ]);
+
+    _currentDateTime = _getCurrentDateTime();
+    _currentDateTimeTimer = Timer.periodic(const Duration(seconds: 1), _updateCurrentDateTime);
+
     _initData();
   }
 
@@ -67,6 +75,11 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
   void dispose() {
     super.dispose();
     NotificationService().unsubscribe(this);
+
+    if (_currentDateTimeTimer != null) {
+      _currentDateTimeTimer.cancel();
+      _currentDateTimeTimer = null;
+    }
   }
 
   @override
@@ -460,6 +473,22 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
   Color get _backgroundColor {
     return Styles().colors.background;
   }
+
+  static String _getCurrentDateTime() {
+    return DateFormat("MMM d, yyyy HH:mm a").format(DateTime.now());
+  }
+
+  void _updateCurrentDateTime(_) {
+    if (mounted && (_loading != true)) {
+      String currentDateTime = _getCurrentDateTime();
+      if (currentDateTime != _currentDateTime) {
+        setState(() {
+          _currentDateTime = currentDateTime;
+        });
+      }
+    }
+  }
+
 }
 
 class _RotatingBorder extends StatefulWidget{
