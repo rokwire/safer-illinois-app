@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Show current date time under Building Access Status [#604](https://github.com/rokwire/safer-illinois-app/issues/604).
 - Fixed mailto and tel URLs in Wellness Center Panel [#601](https://github.com/rokwire/safer-illinois-app/issues/601).
 - Remove Covid-19 section from Settings panel if the user is not logged in, improved control of progress indicator inside [#602](https://github.com/rokwire/safer-illinois-app/issues/602).
+- Indicate that location text is clickable in TestLocations panel [#597](https://github.com/rokwire/safer-illinois-app/issues/597).
 
 ## [2.10.18] - 2021-04-19
 ### Changed

@@ -338,8 +338,9 @@
 
 	"panel.covid19_test_locations.header.title": "测试位置",
 	"panel.covid19_test_locations.label.contact.title": "联系人",
-	"panel.covid19_test_locations.distance.text": "寻路",
-	"panel.covid19_test_locations.distance.unknown": "未知距离",
+	"panel.covid19_test_locations.distance.text": "英里遠",
+	"panel.covid19_test_locations.distance.directions.text": "獲取路線",
+	"panel.covid19_test_locations.location.unknown": "未知的位置",
 	"panel.covid19_test_locations.work_time.unknown": "未知工作时间",
 	"panel.covid19_test_locations.work_time.open_until": "打开到",
 	"panel.covid19_test_locations.work_time.closed_until": "关闭到",

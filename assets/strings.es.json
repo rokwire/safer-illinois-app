@@ -338,8 +338,9 @@
 
 	"panel.covid19_test_locations.header.title": "Lugares de prueba",
 	"panel.covid19_test_locations.label.contact.title": "Contacto",
-	"panel.covid19_test_locations.distance.text": "mi distancia y obtener direcciones",
-	"panel.covid19_test_locations.distance.unknown": "distancia desconocida",
+	"panel.covid19_test_locations.distance.text": "mi distancia",
+	"panel.covid19_test_locations.distance.directions.text": "obtener las direcciones",
+	"panel.covid19_test_locations.location.unknown": "ubicación desconocida",
 	"panel.covid19_test_locations.work_time.unknown": "Tiempo de trabajo desconocido",
 	"panel.covid19_test_locations.work_time.open_until": "Abierto hasta",
 	"panel.covid19_test_locations.work_time.closed_until": "Cerrado hasta",

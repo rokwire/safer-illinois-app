@@ -338,8 +338,9 @@
 
 	"panel.covid19_test_locations.header.title": "Test Locations",
 	"panel.covid19_test_locations.label.contact.title": "Contact",
-	"panel.covid19_test_locations.distance.text": "mi away get directions",
-	"panel.covid19_test_locations.distance.unknown": "unknown distance",
+	"panel.covid19_test_locations.distance.text": "mi away",
+	"panel.covid19_test_locations.distance.directions.text": "get directions",
+	"panel.covid19_test_locations.location.unknown": "unknown location",
 	"panel.covid19_test_locations.work_time.unknown": "Unknown working time",
 	"panel.covid19_test_locations.work_time.open_until": "Open until",
 	"panel.covid19_test_locations.work_time.closed_until": "Closed until",
