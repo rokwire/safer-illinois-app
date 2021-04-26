@@ -274,6 +274,7 @@
 	"panel.covid19_passport.label.access.granted": "CONCEDIDO",
 	"panel.covid19_passport.label.access.denied": "NEGADO",
 	"panel.covid19_passport.message.missing_id_info": "No se encontró información de identificación de Illini. Es posible que tenga una i-card vencida. Comuníquese con el Centro de identificación.",
+	"panel.covid19_passport.message.incorrect_time": "Tu fecha y hora son incorrectas.",
 	"panel.covid19_passport.button.show_page_1.title": "Mostrar página 1 de 2",
 	"panel.covid19_passport.button.show_page_1.hint": "",
 	"panel.covid19_passport.button.show_page_2.title": "Mostrar página 2 de 2",

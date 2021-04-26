@@ -274,6 +274,7 @@
 	"panel.covid19_passport.label.access.granted": "授予",
 	"panel.covid19_passport.label.access.denied": "否认",
 	"panel.covid19_passport.message.missing_id_info": "找不到Illini ID信息. 您的I-Card可能已过期。请与ID中心联系.",
+	"panel.covid19_passport.message.incorrect_time": "您的日期和時間不正確。",
 	"panel.covid19_passport.button.show_page_1.title": "Show page 1 of 2",
 	"panel.covid19_passport.button.show_page_1.hint": "",
 	"panel.covid19_passport.button.show_page_2.title": "Show page 2 of 2",
