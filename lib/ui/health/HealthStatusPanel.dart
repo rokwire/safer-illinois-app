@@ -16,6 +16,7 @@
 
 import 'dart:async';
 import 'dart:typed_data';
+import 'package:illinois/service/Config.dart';
 import 'package:intl/intl.dart';
 
 import 'package:flutter/cupertino.dart';
@@ -49,10 +50,10 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
 
   List<HealthCounty> _counties;
   Color _colorOfTheDay;
+  DateTime _serverTimeUtc;
   String _currentDateTime;
   Timer _currentDateTimeTimer;
   MemoryImage _photoImage;
-  bool _netIdStatusChecked;
   bool _loading;
 
   final SwiperController _swiperController = SwiperController();
@@ -97,16 +98,28 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
       Health().refreshStatusAndUser(),
       Health().loadCounties(),
       _loadColorOfTheDay(),
+      _loadServerTimeUtc(),
       _loadPhotoBytes(),
     ]).then((List<dynamic> results) {
       if (mounted) {
         setState(() {
           _counties = ((results != null) && (1 < results.length)) ? results[1]  : null;
           _colorOfTheDay = ((results != null) && (2 < results.length)) ? results[2] : null;
-          _photoImage = ((results != null) && (3 < results.length)) ? results[3] : null;
+          _serverTimeUtc = ((results != null) && (3 < results.length)) ? results[3] : null;
+          _photoImage = ((results != null) && (4 < results.length)) ? results[4] : null;
           _loading = false;
         });
-        _checkNetIdStatus();
+
+        _checkServerTime().then((bool timeValid) {
+          if (mounted) {
+            if (timeValid) {
+              _checkNetIdStatus();
+            }
+            else {
+              Navigator.of(context).pop();
+            }
+          }
+        });
       }
     });
   }
@@ -115,18 +128,31 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
     return await TransportationService().loadBussColor(deviceId: await NativeCommunicator().getDeviceId(), userId: UserProfile().uuid);
   }
 
+  static Future<DateTime> _loadServerTimeUtc() async {
+    return await Health().getServerTimeUtc();
+  }
+
   static Future<MemoryImage> _loadPhotoBytes() async {
     Uint8List photoBytes = await Auth().photoImageBytes;
     return AppCollection.isCollectionNotEmpty(photoBytes) ? await compute(AppImage.memoryImageWithBytes, photoBytes) : null;
   }
 
-  void _checkNetIdStatus() {
-    if ((_loading != true) && (_netIdStatusChecked != true)) {
-      _netIdStatusChecked = true;
-      if (Auth().isShibbolethLoggedIn && (Auth().authCard?.photoBase64?.length ?? 0) == 0) {
-        AppAlert.showDialogResult(context, Localization().getStringEx('panel.covid19_passport.message.missing_id_info', 'No Illini ID information found. You may have an expired i-card. Please contact the ID Center.'));
-      }
+  Future<bool> _checkNetIdStatus() async {
+    if (Auth().isShibbolethLoggedIn && (Auth().authCard?.photoBase64?.length ?? 0) == 0) {
+      await AppAlert.showDialogResult(context, Localization().getStringEx('panel.covid19_passport.message.missing_id_info', 'No Illini ID information found. You may have an expired i-card. Please contact the ID Center.'));
+      return false;
     }
+    return true;
+  }
+
+  Future<bool> _checkServerTime() async {
+    int offsetInSecs = _serverTimeUtc?.difference(DateTime.now().toUtc())?.inSeconds?.abs();
+    int maximumOffsetInSecs = (Config().settings['covid19MaximumServerTimeOffset'] ?? 300);
+    if ((offsetInSecs == null) || (maximumOffsetInSecs < offsetInSecs)) {
+      await AppAlert.showDialogResult(context, Localization().getStringEx('panel.covid19_passport.message.incorrect_time', 'Your Date & Time is incorrect.'));
+      return false;
+    }
+    return true;
   }
 
   @override
