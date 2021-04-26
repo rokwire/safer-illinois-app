@@ -222,6 +222,10 @@ class Health with Service implements NotificationsListener {
     return (_refreshFuture != null);
   }
 
+  bool get refreshingUser {
+    return (_refreshFuture != null) && (_refreshOptions?.user == true);
+  }
+
   Future<void> refreshStatus() async {
     return _refresh(_RefreshOptions.fromList([_RefreshOption.userInterval, _RefreshOption.history, _RefreshOption.rules, _RefreshOption.buildingAccessRules]));
   }
@@ -1642,6 +1646,20 @@ class Health with Service implements NotificationsListener {
 
   bool get isVaccinated {
     return (HealthHistory.mostRecentVaccine(_history, vaccine: HealthHistoryBlob.VaccineEffective) != null);
+  }
+
+  // Current Server Time
+
+  Future<DateTime> getServerTimeUtc() async {
+    //TMP: return DateTime.now().toUtc();
+    String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/time" : null;
+    Response response = (url != null) ? await Network().get(url, auth: Network.AppAuth) : null;
+    String responseBody = (response?.statusCode == 200) ? response.body : null;
+    Map<String, dynamic> responseJson = (responseBody != null) ? AppJson.decodeMap(responseBody) : null;
+    String timeString = (responseJson != null) ? AppJson.stringValue(responseJson['time']) : null;
+    try { return (timeString != null) ? DateTime.parse(timeString) : null; }
+    catch (e) { print(e?.toString()); }
+    return null;
   }
 
   // Health Family Members

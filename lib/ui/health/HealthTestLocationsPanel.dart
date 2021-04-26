@@ -387,13 +387,43 @@ class _TestLocation extends StatelessWidget {
   final HealthServiceLocation testLocation;
   final double distance;
 
-  _TestLocation({this.testLocation, this.distance = 0});
+  _TestLocation({this.testLocation, this.distance});
 
   @override
   Widget build(BuildContext context) {
+    
+    bool canLocation = (testLocation?.latitude != null) && (testLocation?.longitude != null);
+    TextStyle textStyle = TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textSurface,);
+    TextStyle linkStyle = TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.accentColor3, decoration: TextDecoration.underline);
 
-    String distanceSufix = Localization().getStringEx("panel.covid19_test_locations.distance.text","mi away get directions");
-    String distanceText = distance?.toStringAsFixed(2);
+    List<Widget> locationContent = <Widget>[
+      Image.asset('images/icon-location.png',excludeFromSemantics: true),
+      Container(width: 8),
+    ];
+
+    if ((distance != null) && (distance > 0)) {
+      String distanceText = distance.toStringAsFixed(2) + Localization().getStringEx("panel.covid19_test_locations.distance.text", "mi away");
+      locationContent.add(Text(distanceText, style: textStyle,));
+      if (canLocation) {
+        String directionsText = Localization().getStringEx("panel.covid19_test_locations.distance.directions.text", "get directions");
+        locationContent.addAll(<Widget>[
+          Text(" (", style: textStyle,),
+          Text(directionsText, style: linkStyle,),
+          Text(")", style: textStyle,),
+        ]);
+      }
+    }
+    else if (testLocation?.fullAddress != null) {
+      locationContent.add(
+        Text(testLocation.fullAddress, style: canLocation ? linkStyle : textStyle,
+      ));
+    }
+    else {
+      String unknownLocationText = Localization().getStringEx("panel.covid19_test_locations.location.unknown", "unknown location");
+      locationContent.add(
+        Text(unknownLocationText, style: canLocation ? linkStyle : textStyle,
+      ));
+    }
 
     return
       Semantics(button: false, container: true, child:
@@ -413,21 +443,12 @@ class _TestLocation extends StatelessWidget {
             Semantics(button: true,
             child: GestureDetector(
               onTap: _onTapAddress,
-              child: Container(
-                  padding: EdgeInsets.only(top: 8, bottom: 4),
-                  child: Row(
-                    children: <Widget>[
-                      Image.asset('images/icon-location.png',excludeFromSemantics: true),
-                      Container(width: 8,),
-                      Expanded(child:
-                        Text(
-                          distance > 0 ? '$distanceText' + distanceSufix:
-                          (testLocation?.fullAddress?? Localization().getStringEx("panel.covid19_test_locations.distance.unknown","unknown distance")),
-                          style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color: Styles().colors.textSurface, ),
-                        )
-                      )
-                    ],
-                  )),
+              child: Padding(
+                padding: EdgeInsets.only(top: 8, bottom: 4),
+                child: Row(
+                    children: locationContent,
+                  )
+                ),
             )),
             /*Semantics(label: Localization().getStringEx("panel.covid19_test_locations.call.hint","Call"), button: true, child:
             GestureDetector(
