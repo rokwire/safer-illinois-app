@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## [2.10.22] - 2021-04-27
 ### Fixed
 - Fixed app misbehavior when system date time is much behind the current date time [#615](https://github.com/rokwire/safer-illinois-app/issues/615).
 
