@@ -400,7 +400,7 @@ class Health with Service implements NotificationsListener {
       String url = "${Config().healthUrl}/covid19/login";
       String post = AppJson.encode(user?.toJson());
       Response response = await Network().post(url, body: post, auth: Network.RokmetroUserAuth);
-      if ((response != null) && (response.statusCode == 200)) {
+      if (response?.statusCode == 200) {
         return true;
       }
     }
