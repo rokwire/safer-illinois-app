@@ -295,7 +295,7 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
 
             Row(children: <Widget>[
               Expanded(child:
-                RoundedButton(label: "Vaccine Effective",
+                RoundedButton(label: "Vacc Effective",
                   textColor: Styles().colors.fillColorPrimary,
                   borderColor: Styles().colors.fillColorSecondary,
                   backgroundColor: Styles().colors.white,
@@ -306,7 +306,7 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
               ),
               Container(width: 4,),
               Expanded(child:
-                RoundedButton(label: "Vaccine Taken",
+                RoundedButton(label: "Vacc Taken",
                   textColor: Styles().colors.fillColorPrimary,
                   borderColor: Styles().colors.fillColorSecondary,
                   backgroundColor: Styles().colors.white,
@@ -373,7 +373,7 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
 
             Row(children: <Widget>[
               Expanded(child:
-                RoundedButton(label: "Out Of Compliance",
+                RoundedButton(label: "Out Of Compl",
                   textColor: Styles().colors.fillColorPrimary,
                   borderColor: Styles().colors.fillColorSecondary,
                   backgroundColor: Styles().colors.white,
