@@ -342,7 +342,13 @@ class Network  {
   }
 
   Future<String> read(url, { Map<String, String> headers, int auth, int timeout = 60 }) async {
-    return _read(url, headers: headers, auth: auth, timeout: timeout);
+    try {
+      return await _read(url, headers: headers, auth: auth, timeout: timeout);
+    } catch (e) {
+      Log.d(e?.toString());
+      FirebaseCrashlytics().recordError(e, null);
+    }
+    return null;
   }
 
   Future<Uint8List> _readBytes(url, { Map<String, String> headers, int auth, int timeout = 60 }) async{
@@ -359,7 +365,13 @@ class Network  {
   }
 
   Future<Uint8List> readBytes(url, { Map<String, String> headers, int auth, int timeout = 60 }) async {
-    return _readBytes(url, headers: headers, auth: auth, timeout: timeout);
+    try {
+      return _readBytes(url, headers: headers, auth: auth, timeout: timeout);
+    } catch (e) {
+      Log.d(e?.toString());
+      FirebaseCrashlytics().recordError(e, null);
+    }
+    return null;    
   }
 
   Map<String, String> _prepareHeaders(Map<String, String> headers, int auth, String url) {
