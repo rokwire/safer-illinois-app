@@ -90,10 +90,10 @@ class HealthWellnessCenterPanel extends StatelessWidget{
   }
 
   void onEmailTapped(){
-    launch('mailto: covidwellness@illinois.edu');
+    launch('mailto:covidwellness@illinois.edu');
   }
 
   void onCallTapped(){
-    launch('tel://+12173331900');
+    launch('tel:+12173331900');
   }
 }
