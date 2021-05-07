@@ -575,24 +575,27 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
   "ActionTitle": {
     "en": "Quarantined",
     "es": "En cuarentena",
-    "zh": "隔離區"
+    "zh": "隔離區",
+    "ja": "隔離された"
   },
   "ActionText": {
     "en": "You are in quarantine",
     "es": "Estas en cuarentena",
-    "zh": "您正在隔離"
+    "zh": "您正在隔離",
+    "ja": "あなたは検疫中です"
   },
   "Extra": [
     {
       "display_name": {"en": "Issued", "es": "Emitido", "zh": "發布" },
       "display_value": {
-        "en": "${DateFormat("MMMM d, yyyy HH:mm", "en").format(nowLocal)}",
-        "es": "${DateFormat("MMMM d, yyyy HH:mm", "es").format(nowLocal)}",
-        "zh": "${DateFormat("MMMM d, yyyy HH:mm", "zh").format(nowLocal)}"
+        "en": "${DateFormat('MMMM d, yyyy HH:mm', 'en').format(nowLocal)}",
+        "es": "${DateFormat('MMMM d, yyyy HH:mm', 'es').format(nowLocal)}",
+        "zh": "${DateFormat('MMMM d, yyyy HH:mm', 'zh').format(nowLocal)}",
+        "ja": "${DateFormat('MMMM d, yyyy HH:mm', 'ja').format(nowLocal)}"
       }
     },
     {
-      "display_name": {"en": "Order #", "es": "Orden #", "zh": "命令 ＃" },
+      "display_name": {"en": "Order #", "es": "Orden #", "zh": "命令 ＃", "ja": "注文番号" },
       "display_value": "CU$orderNumber"
     }
   ]
@@ -608,24 +611,27 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
   "ActionTitle": {
     "en": "Released from Quarantine",
     "es": "Liberado de cuarentena",
-    "zh": "從隔離區釋放"
+    "zh": "從隔離區釋放",
+    "ja": "検疫から解放されました"
   },
   "ActionText": {
     "en": "You are out of quarantine",
     "es": "Estas fuera de cuarentena",
-    "zh": "你沒隔離"
+    "zh": "你沒隔離",
+    "ja": "検疫が切れています"
   },
   "Extra": [
     {
-      "display_name": {"en": "Issued", "es": "Emitido", "zh": "發布" },
+      "display_name": {"en": "Issued", "es": "Emitido", "zh": "發布", "ja": "発行済み" },
       "display_value": {
-        "en": "${DateFormat("MMMM d, yyyy HH:mm", "en").format(nowLocal)}",
-        "es": "${DateFormat("MMMM d, yyyy HH:mm", "es").format(nowLocal)}",
-        "zh": "${DateFormat("MMMM d, yyyy HH:mm", "zh").format(nowLocal)}"
+        "en": "${DateFormat('MMMM d, yyyy HH:mm', 'en').format(nowLocal)}",
+        "es": "${DateFormat('MMMM d, yyyy HH:mm', 'es').format(nowLocal)}",
+        "zh": "${DateFormat('MMMM d, yyyy HH:mm', 'zh').format(nowLocal)}",
+        "ja": "${DateFormat('MMMM d, yyyy HH:mm', 'ja').format(nowLocal)}"
       }
     },
     {
-      "display_name": {"en": "Order #", "es": "Orden #", "zh": "命令 ＃" },
+      "display_name": {"en": "Order #", "es": "Orden #", "zh": "命令 ＃", "ja": "注文番号" },
       "display_value": "CU$orderNumber"
     }
   ]

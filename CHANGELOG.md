@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed DefaultTestMonitorInterval to reflect production [#624](https://github.com/rokwire/safer-illinois-app/issues/624).
 - Removed test result explanation disclaimers [#626](https://github.com/rokwire/safer-illinois-app/issues/626)
 - Android: Fix crash in exposures - removeExpiredTime [#629](https://github.com/rokwire/safer-illinois-app/issues/629).
+- Added Japanese language translation provided by @kamya-k
 
 ## [2.10.22] - 2021-04-27
 ### Fixed
