@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Android: Fix crash in exposures - removeExpiredTime [#629](https://github.com/rokwire/safer-illinois-app/issues/629).
 - Added Japanese language translation provided by @kamya-k
 - Android: Fix crash in exposures - processExposures [#631](https://github.com/rokwire/safer-illinois-app/issues/631).
+- Android: Fix crash in exposures - onReceive [#633](https://github.com/rokwire/safer-illinois-app/issues/633).
 
 ## [2.10.22] - 2021-04-27
 ### Fixed

@@ -57,6 +57,8 @@ public class ExposureClient extends Service {
     }
     private final IBinder mBinder = new LocalBinder();
 
+    private static ExposureClient instance;
+
     private BluetoothAdapter mBluetoothAdapter;
 
     private PreOreoScanner preOreoScanner;
@@ -70,6 +72,10 @@ public class ExposureClient extends Service {
     private AtomicBoolean isScanning = new AtomicBoolean(false);
 
     private Object settings;
+
+    public static ExposureClient getInstance() {
+        return instance;
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -91,6 +97,7 @@ public class ExposureClient extends Service {
             preOreoScanner = new PreOreoScanner(mBluetoothAdapter);
         }
         startForegroundClientService();
+        instance = this;
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(bluetoothReceiver, filter);
     }
@@ -98,6 +105,11 @@ public class ExposureClient extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand - " + startId);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // This call is required to be made after startForegroundService() since API 26
+            startForegroundClientService();
+        }
 
         if (intent != null) {
             Bundle extras = intent.getExtras();
@@ -124,8 +136,7 @@ public class ExposureClient extends Service {
 
     @Override
     public void onDestroy() {
-        stopForeground(true);
-        stopSelf();
+        stopService();
         unregisterReceiver(bluetoothReceiver);
     }
 
@@ -170,6 +181,10 @@ public class ExposureClient extends Service {
         }
     }
 
+    public boolean exposureServiceLocalNotificationEnabled() {
+        return Utils.Map.getValueFromPath(settings, "covid19ExposureServiceLocalNotificationEnabledAndroid", false);
+    }
+
     private boolean needsWaitBluetooth() {
         if ((mBluetoothAdapter == null) || !mBluetoothAdapter.isEnabled()) {
             Log.d(TAG, "processBluetoothCheck needs to wait for bluetooth");
@@ -204,8 +219,7 @@ public class ExposureClient extends Service {
         waitBluetoothOn.set(false);
         waitLocationPermissionGranted.set(false);
 
-        stopForeground(true);
-        stopSelf();
+        stopService();
         isScanning.set(false);
     }
 
@@ -257,6 +271,11 @@ public class ExposureClient extends Service {
         }
     }
 
+    private void stopService() {
+        stopForeground(true);
+        stopSelf();
+    }
+
     //region BroadcastReceiver
 
     private final BroadcastReceiver bluetoothReceiver = new BroadcastReceiver() {
@@ -304,7 +323,7 @@ public class ExposureClient extends Service {
     }
 
     private void startForegroundClientService() {
-        boolean exposureServiceLocalNotificationEnabled = Utils.Map.getValueFromPath(settings, "covid19ExposureServiceLocalNotificationEnabledAndroid", false);
+        boolean exposureServiceLocalNotificationEnabled = exposureServiceLocalNotificationEnabled();
         if (exposureServiceLocalNotificationEnabled) {
             createNotificationChannelIfNeeded();
             startForeground(NotificationCreator.getOngoingNotificationId(),
