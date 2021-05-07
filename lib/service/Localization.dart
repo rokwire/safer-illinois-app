@@ -44,7 +44,7 @@ class Localization with Service implements NotificationsListener {
   Localization._internal();
 
   // Multilanguage support
-  final List<String> supportedLanguages = ['en', 'es','zh'];
+  final List<String> supportedLanguages = ['en', 'es', 'zh', 'ja'];
   Iterable<Locale> supportedLocales() => supportedLanguages.map<Locale>((language) => Locale(language, ""));  
 
   // Data

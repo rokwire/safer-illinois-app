@@ -5,6 +5,30 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+- Changed DefaultTestMonitorInterval to reflect production [#624](https://github.com/rokwire/safer-illinois-app/issues/624).
+- Removed test result explanation disclaimers [#626](https://github.com/rokwire/safer-illinois-app/issues/626)
+- Android: Fix crash in exposures - removeExpiredTime [#629](https://github.com/rokwire/safer-illinois-app/issues/629).
+- Added Japanese language translation provided by @kamya-k
+
+## [2.10.22] - 2021-04-27
+### Fixed
+- Fixed app misbehavior when system date time is much behind the current date time [#615](https://github.com/rokwire/safer-illinois-app/issues/615).
+
+## [2.10.21] - 2021-04-26
+### Added
+- Check server time before displaying StatusCardPanel [#611](https://github.com/rokwire/safer-illinois-app/issues/611).
+
+## [2.10.20] - 2021-04-23
+### Changed
+- Show current date time under Building Access Status [#604](https://github.com/rokwire/safer-illinois-app/issues/604).
+- Remove Covid-19 section from Settings panel if the user is not logged in, improved control of progress indicator inside [#602](https://github.com/rokwire/safer-illinois-app/issues/602).
+- Indicate that location text is clickable in TestLocations panel [#597](https://github.com/rokwire/safer-illinois-app/issues/597).
+
+### Fixed
+- Fixed mailto and tel URLs in Wellness Center Panel [#601](https://github.com/rokwire/safer-illinois-app/issues/601).
+
+## [2.10.19] - 2021-04-21
+Build number 1019 was taken by 2.9.22 release
 
 ## [2.10.18] - 2021-04-19
 ### Changed

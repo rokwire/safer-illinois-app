@@ -359,9 +359,7 @@ class Config with Service implements NotificationsListener {
   String get rokmetroAuthUrl        { return platformBuildingBlocks['rokmetro_auth_url']; }   // "https://api-dev.rokwire.illinois.edu/authbb/77779"
   String get sportsServiceUrl       { return platformBuildingBlocks['sports_service_url']; }  // "https://api-dev.rokwire.illinois.edu/sports-service";
   String get healthUrl              { return platformBuildingBlocks['health_url']; }          // "https://api-dev.rokwire.illinois.edu/health"
-  String get talentChooserUrl       { return platformBuildingBlocks['talent_chooser_url']; }  // "https://api-dev.rokwire.illinois.edu/talent-chooser/api/ui-content"
   String get transportationUrl      { return platformBuildingBlocks["transportation_url"]; }  // "https://api-dev.rokwire.illinois.edu/transportation"
-  String get locationsUrl           { return platformBuildingBlocks["locations_url"]; }       // "https://api-dev.rokwire.illinois.edu/location/api";
   String get imagesServiceUrl       { return platformBuildingBlocks['images_service_url']; }  // "https://api-dev.rokwire.illinois.edu/images-service";
   
   String get osfBaseUrl             { return thirdPartyServices['osf_base_url']; }            // "https://ssproxy.osfhealthcare.org/fhir-proxy"
