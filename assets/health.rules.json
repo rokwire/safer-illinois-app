@@ -7,7 +7,7 @@
 	},
 
 	"intervals": {
-		"DefaultTestMonitorInterval": 8,
+		"DefaultTestMonitorInterval": 4,
 		"UndergraduateTestMonitorInterval": 4,
 		"VaccinatedTestMonitorInterval": 30,
 		"UserTestMonitorInterval": null,
