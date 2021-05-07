@@ -17,7 +17,6 @@
 package edu.illinois.covid.exposure.ble.scan;
 
 import android.annotation.TargetApi;
-import android.app.ActivityManager;
 import android.bluetooth.le.ScanResult;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -27,7 +26,6 @@ import android.os.Bundle;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import edu.illinois.covid.Constants;
 import edu.illinois.covid.exposure.ble.ExposureClient;
@@ -51,8 +49,13 @@ public class ExposureBleReceiver extends BroadcastReceiver {
             }
             Intent bleClientIntent = new Intent(context, ExposureClient.class);
             bleClientIntent.putExtra(Constants.EXPOSURE_BLE_DEVICE_FOUND, scanResult);
-            boolean exposureClientRunning = isExposureClientServiceRunning(context);
-            if (exposureClientRunning) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                // Check if local notifications are enabled for Android. We can start foreground service only if they are enabled. Required for API >= 26
+                boolean canStartClientService = (ExposureClient.getInstance() != null) && ExposureClient.getInstance().exposureServiceLocalNotificationEnabled();
+                if (canStartClientService) {
+                    context.startForegroundService(bleClientIntent);
+                }
+            } else {
                 context.startService(bleClientIntent);
             }
         }
@@ -80,20 +83,5 @@ public class ExposureBleReceiver extends BroadcastReceiver {
             Log.d(TAG, "extras are null");
         }
         return null;
-    }
-
-    private boolean isExposureClientServiceRunning(Context context) {
-        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        if (manager != null) {
-            List<ActivityManager.RunningServiceInfo> runningServices = manager.getRunningServices(Integer.MAX_VALUE);
-            if ((runningServices != null) && !runningServices.isEmpty()) {
-                for (ActivityManager.RunningServiceInfo service : runningServices) {
-                    if (ExposureClient.class.getName().equals(service.service.getClassName())) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
     }
 }
