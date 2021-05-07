@@ -515,7 +515,9 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
         }
 
         if ((expiredPeripheralAddress != null) && !expiredPeripheralAddress.isEmpty()) {
-            for (String address : expiredPeripheralAddress) {
+            // Create copy so that to prevent crash with ConcurrentModificationException.
+            Set<String> expiredPeripheralAddressCopy = new HashSet<>(expiredPeripheralAddress);
+            for (String address : expiredPeripheralAddressCopy) {
                 // remove expired records from iosExposures
                 disconnectIosPeripheral(address);
             }
@@ -540,8 +542,10 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
         }
 
         if (expiredRPIs != null) {
+            // Create copy so that to prevent crash with ConcurrentModificationException.
+            Set<String> expiredRPIsCopy = new HashSet<>(expiredRPIs);
             // remove expired records from androidExposures
-            for (String encodedRpi : expiredRPIs) {
+            for (String encodedRpi : expiredRPIsCopy) {
                 removeAndroidRpi(encodedRpi);
             }
         }
