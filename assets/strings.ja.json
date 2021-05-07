@@ -1,7 +1,7 @@
 {
 	"app.title": "Safer Illinois",
 	"app.offline.message.title": "オフラインのようです。",
-	
+
 	"dialog.yes.title": "はい",
 	"dialog.yes.hint": "",
 	"dialog.no.title": "いいえ",
@@ -14,7 +14,7 @@
 	"dialog.continue.hint": "",
 	"dialog.close.title": "閉じる",
 	"dialog.close.hint": "",
-	
+
 	"tabbar.home.title": "ホーム",
 	"tabbar.home.hint": "ホームページ",
 	"tabbar.explore.title": "Explore",
@@ -25,7 +25,7 @@
 	"tabbar.browse.hint": "ブラウズページ",
 	"tabbar.wallet.title": "ウォレット",
 	"tabbar.wallet.hint": "Wallet Page",
-	
+
 	"headerbar.home.title": "ホーム",
 	"headerbar.home.hint": "ホームページ",
 	"headerbar.menu.title": "メニュー",
@@ -42,21 +42,21 @@
 	"headerbar.saved.title": "Saved",
 	"headerbar.saved.hint": "",
 	"headerbar.teams.title": "チーム",
-	
+
 	"toggle_button.status.checked": "checked",
 	"toggle_button.status.unchecked": "unchecked",
 	"toggle_button.status.checkbox": "checkbox",
-	
+
 	"panel.onboarding.button.continue.title": "続ける",
 	"panel.onboarding.button.continue.hint": "",
-	
+
 	"panel.onboarding.get_started.image.welcome.title": "Welcome to Illinois",
 	"panel.onboarding.get_started.image.welcome.hint": "",
 	"panel.onboarding.get_started.button.get_started.title": "始める",
 	"panel.onboarding.get_started.button.get_started.hint": "",
 	"panel.onboarding.get_started.image.safer_in_illinois.title": "Safer Illinois",
 	"panel.onboarding.get_started.image.powered.title": "Powered by Rokwire",
-	
+
 	"panel.onboarding.location.label.title": "位置情報サービスをオンにする",
 	"panel.onboarding.location.label.title.hint": "見出し１",
 	"panel.onboarding.location.label.description": "Bluetoothに基づく接続通知をスマホで有効にするためにバックグラウンド位置は必要です",
@@ -66,7 +66,7 @@
 	"panel.onboarding.location.button.dont_allow.hint": "Skip sharing location",
 	"panel.onboarding.location.label.access_granted": "You have already granted access to this app.",
 	"panel.onboarding.location.label.access_denied": "You have already denied access to this app.",
-	
+
 	"panel.onboarding.bluetooth.label.title": "Bluetoothを有効にする",
 	"panel.onboarding.bluetooth.label.title.hint": "見出し１",
 	"panel.onboarding.bluetooth.label.description": "COVID-19へ接触した可能性がある警告をBluetoothで受け取る。",
@@ -76,7 +76,7 @@
 	"panel.onboarding.bluetooth.button.dont_allow.hint": "Skip enabling Bluetooth",
 	"panel.onboarding.bluetooth.label.access_granted": "You have already granted access to this app.",
 	"panel.onboarding.bluetooth.label.access_denied": "You have already denied access to this app.",
-	
+
 	"panel.onboarding.notifications.label.title": "必要な時に情報をもらう",
 	"panel.onboarding.notifications.label.title.hint": "見出し１",
 	"panel.onboarding.notifications.label.description1": "COVID-19情報の通知を受け取る",
@@ -86,7 +86,7 @@
 	"panel.onboarding.notifications.button.dont_allow.title": "今はしない",
 	"panel.onboarding.notifications.button.dont_allow.hint": "Skip receiving notifications",
 	"panel.onboarding.notifications.label.access_granted": "Your settings have been changed.",
-	
+
 	"panel.onboarding.roles.label.title": "どちら様ですか？",
 	"panel.onboarding.roles.label.title.hint": "見出し１",
 	"panel.onboarding.roles.label.description": "Select one",
@@ -101,7 +101,7 @@
 	"panel.onboarding.roles.button.continue.enabled.title": "確認する",
 	"panel.onboarding.roles.button.continue.disabled.title": "Select one",
 	"panel.onboarding.roles.button.continue.hint": "",
-	
+
 	"panel.onboarding.login.netid.label.title": "NetIDを接続する",
 	"panel.onboarding.login.phone.label.title": "Verify your phone number",
 	"panel.onboarding.login.netid.label.title.hint": "見出し１",
@@ -117,7 +117,7 @@
 	"panel.onboarding.login.phone.button.dont_continue.title": "今はしない",
 	"panel.onboarding.login.netid.button.dont_continue.hint": "後で確認する",
 	"panel.onboarding.login.phone.button.dont_continue.hint": "後で確認する",
-	
+
 	"panel.onboarding.verify_phone.title": "Verify your phone number",
 	"panel.onboarding.verify_phone.title.hint": "",
 	"panel.onboarding.verify_phone.description": "To verify your phone number, choose your preferred contact channel, and we'll send you a one-time authentication code.",
@@ -133,7 +133,7 @@
 	"panel.onboarding.verify_phone.validation.phone_number.text": "Please, type your phone number",
 	"panel.onboarding.verify_phone.validation.channel_selection.text": "Please, select verification method",
 	"panel.onboarding.verify_phone.validation.server_error.text": "Please enter a valid phone number",
-	
+
 	"panel.onboarding.confirm_phone.title": "Confirm your code",
 	"panel.onboarding.confirm_phone.title.hint": "",
 	"panel.onboarding.confirm_phone.description.send": "A one time code has been sent to %s. Enter your code below to continue.",
@@ -149,7 +149,7 @@
 	"panel.onboarding.confirm_phone.validation.phone_number.text": "Please, fill your code",
 	"panel.onboarding.confirm_phone.validation.server_error.text": "Failed to verify code",
 	"panel.onboarding.confirm_phone.validation.has_not_uin.text": "Your phone number was verified but does not exist in the authorized users list. You will need to contact your organization's administrator and have them update their roster with your phone number.",
-	
+
 	"panel.onboarding.upgrade.required.label.title": "Upgrade Required",
 	"panel.onboarding.upgrade.required.label.description": "%s app version %s requires an upgrade to version %s or later.",
 	"panel.onboarding.upgrade.available.label.title": "Upgrade Available",
@@ -160,16 +160,16 @@
 	"panel.onboarding.upgrade.button.not_now.hint": "",
 	"panel.onboarding.upgrade.button.dont_show.title": "Don't show again",
 	"panel.onboarding.upgrade.button.dont_show.hint": "",
-	
+
 	"panel.onboarding.base.not_now.hint": "",
 	"panel.onboarding.base.not_now.title": "今はしない",
-	
+
 	"panel.settings.feedback.label.title": "Provide Feedback",
-	
+
 	"panel.settings.privacy_statement.label.title": "Privacy Statement",
-	
+
 	"panel.settings.label.offline.feedback": "Providing a feedback is not available while offline.",
-	
+
 	"panel.settings.home.settings.header": "設定",
 	"panel.settings.home.connect.not_logged_in.title": "Connect to Illinois",
 	"panel.settings.home.connect.not_logged_in.netid.description.part_1": "Are you a ",
@@ -243,9 +243,9 @@
 	"panel.settings.home.covid19.button.load.title": "Load",
 	"panel.settings.home.covid19.button.scan.title": "Scan",
 	"panel.settings.home.covid19.button.qr_code.title": "QR Code",
-	
+
 	"panel.settings.label.offline.phone_ver": "Verify Your Phone Number is not available while offline.",
-	
+
 	"panel.profile_info.header.title": "個人情報",
 	"panel.profile_info.net_id.title": "NetID",
 	"panel.profile_info.full_name.title": "氏名",
@@ -292,7 +292,7 @@
 	"panel.covid19_guidelines.status.title": "以下の郡の%sステータスに基づいています。",
 	"panel.covid19_guidelines.label.county.empty": "Select a county...",
 	"panel.covid19_guidelines.no.status": "There are no specific guidelines for your status in this county.",
-	
+
 	"panel.covid19home.header.title": "Safer Illinoisホーム",
 	"panel.covid19home.top_heading.title": "健康を保つ",
 	"panel.covid19home.label.next_step.title": "次のステップ",
@@ -359,17 +359,17 @@
 	"panel.covid19_test_locations.wait_time.status.label.red": "長い待ち時間",
 	"panel.covid19_test_locations.wait_time.status.label.yellow": "中程の待ち時間",
 	"panel.covid19_test_locations.wait_time.status.label.green": "短い待ち時間",
-	
+
 	"panel.covid19.button.health_history.title": "病歴を表示する",
 	"panel.covid19.button.health_history.hint": "",
 	"panel.covid19.button.covid_wellness_center.title": "COVID-19 Wellness Answer Center",
 	"panel.covid19.button.covid_wellness_center.hint": "",
-	
+
 	"panel.covid19_wellness_center.header.title": "COVID-19 Wellness Center",
 	"panel.covid19_wellness_center.label.description": "検査結果の受け取りまたはアプリの操作に問題がある場合、COVID Wellness Answer Centerにお問い合わせください。",
 	"panel.covid19_wellness_center.label.email": "COVID Wellness Answer Centerへのメールは下記のアドレスに送って下さい。 ",
 	"panel.covid19_wellness_center.label.phone": "下記の番号でAnswer Centerに電話してください。 ",
-	
+
 	"panel.covid19.qr_code.title": "COVID-19 QRコード",
 	"panel.covid19.qr_code.description.heading.1": "Safer Illinoisアプリを複数の端末で使用する場合、このQRコードを使うことでCOVID-19健康情報を解読するために必要な秘密が転送されます。",
 	"panel.covid19.qr_code.description.heading.2": "このQRコードを保存しておくべきです。スマホを紛失するまたは取り替えた場合、新しいスマホでCOVID-19の病歴情報を取得することができます。",
@@ -382,7 +382,7 @@
 	"panel.covid19.qr_code.description.on_boarding.heading.2": "You can always skip this step for now and do it later in Settings",
 	"panel.covid19.qr_code.button.skip.title.": "Skip",
 	"panel.covid19.qr_code.button.skip.hint.": "Skip saving",
-	
+
 	"panel.covid19.transfer.title": "Transfer Encryption Key",
 	"panel.covid19.transfer.label.qr_image_label": "Safer Illinois COVID-19 Code",
 	"panel.covid19.transfer.label.save_error": "Unable to save the QR code.",
@@ -407,18 +407,18 @@
 	"panel.covid19.transfer.alert.qr_code.not_match.msg": "COVID-19 secret key does not match existing public RSA key.",
 	"panel.covid19.transfer.alert.qr_code.transfer.succeeded.msg": "COVID-19 secret transferred successfully.",
 	"panel.covid19.transfer.alert.qr_code.transfer.failed.msg": "Failed to transfer COVID-19 secret.",
-	
+
 	"panel.debug.header.title": "Debug",
-	
+
 	"panel.debug_messaging.header.title": "Messaging",
-	
+
 	"panel.web.offline.message": "You need to be online in order to perform this operation. Please check your Internet connection.",
-	
+
 	"panel.health.onboarding.covid19.intro.label.title": "COVID-19との闘いに参加しましょう",
 	"panel.health.onboarding.covid19.intro.label.description": "Illinoisコミュニティを安全に保つために健康管理する",
 	"panel.health.onboarding.covid19.intro.button.continue.title": "続ける",
 	"panel.health.onboarding.covid19.intro.button.continue.hint": "",
-	
+
 	"panel.health.onboarding.covid19.how_it_works.heading.title": "行われる方法",
 	"panel.health.onboarding.covid19.how_it_works.line1.title": "COVID-19の感染拡大を遅らせるためには、検査と感染源への接触を制限することが重要です。",
 	"panel.health.onboarding.covid19.how_it_works.line2.title": "このアプリでは以下のことができます。",
@@ -427,7 +427,7 @@
 	"panel.health.onboarding.covid19.how_it_works.line5.title": "検査陽性が出た人に濃厚接触した場合、接続通知を送らせようにする。",
 	"panel.health.onboarding.covid19.how_it_works.button.next.title": "次へ",
 	"panel.health.onboarding.covid19.how_it_works.button.next.hint": "",
-	
+
 	"panel.health.onboarding.covid19.disclosure.label.title": "個人情報利用の提供",
 	"panel.health.onboarding.covid19.disclosure.label.description1": "Safer Illinois アプリは:",
 	"panel.health.onboarding.covid19.disclosure.label.splitter1": ". ",
@@ -457,7 +457,7 @@
 	"panel.health.onboarding.covid19.disclosure.button.disclosure.title": "次へ",
 	"panel.health.onboarding.covid19.disclosure.button.scroll_to_continue.title": "スクロールして続ける",
 	"panel.health.onboarding.covid19.disclosure.button.disclosure.hint": "",
-	
+
 	"panel.health.onboarding.covid19.consent.label.title": "COVID-19機能に承諾",
 	"panel.health.onboarding.covid19.consent.label.description": "接続通知",
 	"panel.health.onboarding.covid19.consent.label.content1": "接続通知に承諾した場合は、スマホがこの機能を使用している近くのSafer Illinoisアプリのユーザーに匿名のBluetooth信号を送信するようになります。同様にスマホは、他のユーザーからの信号を受信して記録します。次の14日以内に他のユーザーがCOVID-19の陽性となった場合、アプリは曝露された可能性があることを警告して次のステップについてアドバイスします。すべてのユーザーの身元と健康ステータスは匿名となります。",
@@ -470,7 +470,7 @@
 	"panel.health.onboarding.covid19.consent.button.consent.hint": "",
 	"panel.health.onboarding.covid19.consent.button.scroll_to_continue.title": "スクロールして続ける",
 	"panel.health.onboarding.covid19.consent.label.error.login": "Unable to login in Health",
-	
+
 	"panel.health.onboarding.covid19.resident_info.label.title": "Verify your identity with a government-issued ID",
 	"panel.health.onboarding.covid19.resident_info.label.description": "After verifying you will receive a color-coded health status based on your county guidelines, symptoms, and any COVID-19 related tests.",
 	"panel.health.onboarding.covid19.resident_info.button.passport.title": "Passport",
@@ -478,7 +478,7 @@
 	"panel.health.onboarding.covid19.resident_info.button.drivers_license.title": "Driver's License",
 	"panel.health.onboarding.covid19.resident_info.button.drivers_license.hint": "",
 	"panel.health.onboarding.covid19.resident_info.button.verify_later.title": "Verify later",
-	
+
 	"panel.health.onboarding.covid19.review_scan.label.title": "Review your scan",
 	"panel.health.onboarding.covid19.review_scan.label.name.title": "Name",
 	"panel.health.onboarding.covid19.review_scan.label.birth_year.title": "Birth Year",
@@ -487,7 +487,7 @@
 	"panel.health.onboarding.covid19.review_scan.button.rescan.hint": "",
 	"panel.health.onboarding.covid19.review_scan.button.use_scan.title": "Use This Scan",
 	"panel.health.onboarding.covid19.review_scan.button.use_scan.hint": "",
-	
+
 	"panel.health.onboarding.covid19.county.label.title": "What counties do you live and work in?",
 	"panel.health.onboarding.covid19.county.label.description": "該当するものをすべて選択してください",
 	"panel.health.onboarding.covid19.county.button.add_county.label": "Add Another County",
@@ -497,12 +497,12 @@
 	"panel.health.onboarding.covid19.county.select.label": "SELECT A COUNTY",
 	"panel.health.onboarding.covid19.county.dropdown.select.default.label": "Select a county...",
 	"panel.health.onboarding.covid19.county.alert.unique.message": "Please, select different county in each field!",
-	
+
 	"panel.health.onboarding.covid19.providers.label.title": "Who are your current healthcare providers?",
 	"panel.health.onboarding.covid19.providers.label.description": "該当するものをすべて選択してください",
 	"panel.health.onboarding.covid19.providers.button.next.title": "次へ",
 	"panel.health.onboarding.covid19.providers.button.next.hint": "",
-	
+
 	"panel.health.onboarding.covid19.final.label.title": "You’re all set!",
 	"panel.health.onboarding.covid19.final.label.description": "You've been verified, and a status card has been added to your profile.",
 	"panel.health.onboarding.covid19.final.label.bottom.description": "You can now use this app as your companion in the fight against COVID-19.",
@@ -510,7 +510,7 @@
 	"panel.health.onboarding.covid19.final.label.unverified.bottom.description": "To access your COVID-19 status, you will need to upload a Government ID. You can add this any time in the COVID-19 settings.",
 	"panel.health.onboarding.covid19.final.button.continue.title": "始めましょう",
 	"panel.health.onboarding.covid19.final.button.continue.hint": "",
-	
+
 	"panel.health.onboarding.covid19.login.netid.label.title": "NetIDを接続する",
 	"panel.health.onboarding.covid19.login.phone.label.title": "Verify your phone number",
 	"panel.health.onboarding.covid19.login.netid.label.title.hint": "見出し１",
@@ -527,9 +527,9 @@
 	"panel.health.onboarding.covid19.login.netid.button.dont_continue.hint": "後で確認",
 	"panel.health.onboarding.covid19.login.phone.button.dont_continue.hint": "後で確認",
 	"panel.health.onboarding.covid19.login.label.error.login": "Unable to login in Health",
-	
+
 	"panel.health.covid19.about.heading.title": "About",
-	
+
 	"panel.health.covid19.add_test.heading.title": "検査結果を加える",
 	"panel.health.covid19.add_test.label.where_question": "検査をどこで受けましたか？",
 	"panel.health.covid19.add_test.label.information": "この情報はどうして必要ですか？",
@@ -545,7 +545,7 @@
 	"panel.health.covid19.add_test.label.info.manually.text3": "公共の医療従事者によって確認されます。確認が完了すると、ステータスが変更される可能性があります。",
 	"panel.health.covid19.add_test.label.manual_tests_disabled": "Test results from this health care provider will automatically appear if you have consented to Health Provider Test Results in settings and you are connected with your NetID.",
 	"panel.health.covid19.add_test.message.no_result_found": "No results found",
-	
+
 	"panel.health.covid19.care_team.heading.title": "ケアチーム",
 	"panel.health.covid19.care_team.label.question": "Help When You Need It",
 	"panel.health.covid19.care_team.label.description": "Reach out to someone on your COVID-19 care team. They’re here to help.",
@@ -571,7 +571,7 @@
 	"panel.health.covid19.care_team.label.mc_kiney.link": "McKinley メンタルヘルスプログラム",
 	"panel.health.covid19.care_team.label.virtual_counseling.link": "バーチャルカウンセリング",
 	"panel.health.covid19.care_team.label.virtual_counseling.description": "（UnitedHealthcare Student Resourcesの健康保険が必要です。）",
-	
+
 	"panel.health.covid19.debug.keys.heading.title.": "COVID-19 Keys",
 	"panel.health.covid19.debug.keys.label.public_key": "RSA Public Key:",
 	"panel.health.covid19.debug.keys.label.private_key": "RSA Private Key:",
@@ -586,7 +586,7 @@
 	"panel.health.covid19.debug.keys.button.encript.title": "Encrypt",
 	"panel.health.covid19.debug.keys.button.decript.title": "Decrypt",
 	"panel.health.covid19.debug.keys.label.error.refres.title": "Refresh Failed",
-	
+
 	"panel.health.covid19.debug.trace.heading.title": "COVID-19 Contact Trace",
 	"panel.health.covid19.debug.trace.label.contact": "Trace COVID-19 Contact",
 	"panel.health.covid19.debug.trace.label.date": "Date",
@@ -595,7 +595,7 @@
 	"panel.health.covid19.debug.trace.message.date.text": "Please select a date",
 	"panel.health.covid19.debug.trace.message.duration.text": "Please enter an integer duration",
 	"panel.health.covid19.debug.trace.error.submit.text": "Failed to submit contact trace data.",
-	
+
 	"panel.health.covid19.history.header.title": "COVID-19病歴情報",
 	"panel.health.covid19.history.label.empty.title": "No History",
 	"panel.health.covid19.history.label.description": "COVID-19病歴情報を表示する。",
@@ -625,7 +625,7 @@
 	"panel.health.covid19.history.button.repost_history.title": "最新の検査結果を再度要求する",
 	"panel.health.covid19.history.button.repost_history.hint": "",
 	"panel.health.covid19.history.message.request_tests": "要求は提出されました。1時間以内に最新の検査結果を受け取るはずです",
-	
+
 	"panel.health.covid19.qr_code.label.qr_image_label": "Safer Illinois COVID-19 Code",
 	"panel.health.covid19.qr_code.label.save_error": "Unable to save the QR code.",
 	"panel.health.covid19.qr_code.button.continue.hint": "",
@@ -647,7 +647,7 @@
 	"panel.health.covid19.qr_code.dialog.refresh_qr_code.title": "Reset my COVID-19 Secret QRcode",
 	"panel.health.covid19.qr_code.dialog.refresh_qr_code.description": "Doing this will provide you a new COVID-19 Secret QRcode but your previous COVID-19 event history will be lost, continue?",
 	"panel.health.covid19.qr_code.dialog.refresh_qr_code.confirm": "Are you sure?",
-	
+
 	"panel.health.covid19.alert.no_qr_code.msg": "There is no QR Code",
 	"panel.health.covid19.alert.save.success.msg": "Successfully saved qr code in ",
 	"panel.health.covid19.alert.save.success.pictures": "Pictures",
@@ -660,7 +660,7 @@
 	"panel.health.covid19.alert.qr_code.transfer.failed.msg": "Failed to transfer COVID-19 secret.",
 	"panel.health.covid19.qr_code.button.continue.title": "続ける",
 	"panel.health.covid19.qr_code.button.transfer_later.title": "Transfer Later",
-	
+
 	"panel.health.report_test.heading.title": "Manually Enter Result",
 	"panel.health.report_test.label.date": "TEST DATE AND TIME",
 	"panel.health.report_test.label.provider": "HEALTHCARE PROVIDER",
@@ -683,9 +683,9 @@
 	"panel.health.report_test.error.create.message": "Unable to create test",
 	"panel.health.report_test.missing.image.message": "Please upload image",
 	"panel.health.report_test.future_date.forbidden.message": "You cannot submit a test in the future",
-	
+
 	"widget.health.onboarding.indicator9.label.hint": "Covid-19 Onboarding process",
-	
+
 	"panel.health.status_update.heading.title": "Status Update",
 	"panel.health.status_update.label.status_change": "Based on your results, your status has changed from ",
 	"panel.health.status_update.label.status_change.to": " to ",
@@ -710,18 +710,18 @@
 	"panel.health.status_update.label.reason.action.title": "Health authorities require you to take an action.",
 	"panel.health.status_update.label.reason.action.detail": "Action Required: ",
 	"panel.health.status_update.button.info.title": "情報 ",
-	
+
 	"panel.health.next_steps.button.continue.title.find_locatio": "Find location",
 	"panel.health.next_steps.button.continue.title.care_team": "Get in Touch with Care Team",
 	"panel.health.next_steps.label.next_steps": "Your Next Steps",
-	
+
 	"panel.health.symptoms.heading.title": "次のような症状がありますか？",
 	"panel.health.symptoms.label.error.loading": "Failed to load symptoms.",
 	"panel.health.symptoms.button.submit.title": "提出する",
 	"panel.health.symptoms.label.success.submit.message": "症状は処理されました。",
 	"panel.health.symptoms.label.error.submit": "症状の提出に失敗しました。",
 	"panel.health.symptoms.label.error.no_selection": "Please select at least one symptom",
-	
+
 	"panel.settings.pending_family_member.label.text.statement1": "%s seeks your authorization to participate in Shield CU COVID-19 testing",
 	"panel.settings.pending_family_member.label.text.statement2": "If you approve, your University account will be billed %s for each test taken.",
 	"panel.settings.pending_family_member.label.text.terms.title": "Terms and Conditions",
@@ -891,40 +891,40 @@
 	"panel.groups_settings.membership.button.question.title": "メンバシップについて質問",
 	"panel.groups_settings.button.update.title": "設定を更新します",
 	"panel.groups_create.tags.label.update_error": "グループの更新はできません",
-	
+
 	"model.explore.time.today": "今日",
 	"model.explore.time.tomorrow": "明日",
 	"model.explore.time.at": "at",
 	"model.explore.time.all_day": "一日中",
-	
+
 	"logic.date_time.greeting.morning": "おはようございます。",
 	"logic.date_time.greeting.afternoon": "こんにちは",
 	"logic.date_time.greeting.evening": "こんばんは",
 	"logic.date_time.greeting.day": "こんにちは",
-	
+
 	"logic.polls.unable_to_load_poll": "Unable to load poll",
 	"logic.polls.no_polls_with_pin": "There are no polls with this 4 Digit Poll #",
 	"logic.polls.multiple_polls_with_pin": "There are multiple opened polls with this 4 Digit Poll #",
-	
+
 	"logic.general.internal_error": "Internal Error Occured",
 	"logic.general.invalid_response": "Invalid server responce",
 	"logic.general.response_error": "Response Error: %s %s",
-	
+
 	"app.exit_dialog.message": "Are you sure you want to exit?",
-	
+
 	"app.common.heading.hint": "見出し ",
 	"app.common.heading.one.hint": "見出し１",
 	"app.common.heading.two.hint": "見出し2",
 	"app.common.heading.three.hint": "見出し3",
-	
+
 	"app.common.label.cancelled": "Cancelled",
 	"app.common.label.other": "Other",
 	"app.common.label.county": "County",
 	"app.common.label.read_more": "Read more",
-	
+
 	"app.common.yes": "はい",
 	"app.common.no": "いいえ",
-	
+
 	"com.illinois.features2.entry.disable_location_awareness": "Disable location awareness",
 	"com.illinois.features2.entry.dont_store_location": "Don't store your location",
 	"com.illinois.features2.entry.remove_preferences": "Remove your preferences",
