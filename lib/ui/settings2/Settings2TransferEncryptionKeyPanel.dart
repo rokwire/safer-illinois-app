@@ -281,11 +281,11 @@ class _Settings2TransferEncryptionKeyPanelState extends State<Settings2TransferE
     Analytics.instance.logSelect(target: "Scan Your QR Code");
     BarcodeScanner.scan().then((result) {
     // barcode_scan plugin returns 8 digits when it cannot read the qr code. Prevent it from storing such values
-      if (AppString.isStringEmpty(result) || (result.length <= 8)) {
+      if (AppString.isStringEmpty(result?.rawContent) || ((result?.rawContent?.length ?? 0) <= 8)) {
         AppAlert.showDialogResult(context, Localization().getStringEx('panel.covid19.transfer.alert.qr_code.scan.failed.msg', 'Failed to read QR code.'));
       }
       else {
-        _onCovid19QrCodeScanSucceeded(result);
+        _onCovid19QrCodeScanSucceeded(result?.rawContent);
       }
     });
   }

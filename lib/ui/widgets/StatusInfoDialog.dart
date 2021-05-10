@@ -28,7 +28,7 @@ class StatusInfoDialog extends StatelessWidget{
   const StatusInfoDialog({Key key, this.currentCountyName}) : super(key: key);
 
   static show(BuildContext context, countyName){
-    showDialog(context: context,child: StatusInfoDialog(currentCountyName: countyName,));
+    showDialog(context: context, builder: (context) => StatusInfoDialog(currentCountyName: countyName,));
   }
 
   @override

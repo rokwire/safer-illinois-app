@@ -395,13 +395,13 @@ class _DebugHealthKeysPanelState extends State<DebugHealthKeysPanel> {
   }
 
   void _onScanPrivateRSAKey() {
-    BarcodeScanner.scan().then((String result) {
+    BarcodeScanner.scan().then((result) {
       // barcode_scan plugin returns 8 digits when it cannot read the qr code. Prevent it from storing such values
-      if (AppString.isStringEmpty(result) || (result.length <= 8)) {
+      if (AppString.isStringEmpty(result?.rawContent) || ((result?.rawContent?.length ?? 0) <= 8)) {
         AppAlert.showDialogResult(context, 'Failed to read QR code.');
       }
       else {
-        _applyPrivateRsaKeyString(result);
+        _applyPrivateRsaKeyString(result?.rawContent);
       }
     });
   }
