@@ -925,6 +925,8 @@
 	"app.common.yes": "是",
 	"app.common.no": "否",
 
+	"app.common.hint.external_link": "External link",
+
 	"com.illinois.features2.entry.disable_location_awareness": "禁用地点感知",
 	"com.illinois.features2.entry.dont_store_location": "不要存储的我的地点",
 	"com.illinois.features2.entry.remove_preferences": "删除偏好设置",
