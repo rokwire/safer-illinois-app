@@ -222,13 +222,20 @@ class _HealthCareTeamPanelState extends State<HealthCareTeamPanel> with TickerPr
                       children: <Widget>[
                         Text(Localization().getStringEx("panel.health.covid19.care_team.label.more_info.description", "Members of the OSF OnCall Connect care team are trained OSF HealthCare Mission Partners who connect with you to provide support and work with you and health care providers as you recover from COVID-19, decreasing the risk of further exposure. OSF OnCall Connect team members check on you daily and should your condition worsen, you will be referred to the Acute COVID@Home program where you will receive monitoring equipment that allows us to evaluate your blood pressure, heart rate and pulse ox."),
                          style: TextStyle(color: Styles().colors.textSurface, fontSize: 14, fontFamily: Styles().fontFamilies.regular),),
-                        GestureDetector(
-                          onTap: _onLearnMoreTapped,
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 0, right: 20, top: 20, bottom: 20),
-                            child: Text(Localization().getStringEx("panel.health.covid19.care_team.label.more_info.link", "Learn more"),
-                              style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 14, fontFamily: Styles().fontFamilies.bold, decoration: TextDecoration.underline),),
-                          ),
+                        Semantics(
+                          hint: Localization().getStringEx("app.common.hint.external_link", "External link"),
+                          child: GestureDetector(
+                            onTap: _onLearnMoreTapped,
+                            child:
+                            Row(children: [
+                              Padding(
+                                padding: const EdgeInsets.only(left: 0, right: 5, top: 20, bottom: 20),
+                                child: Text(Localization().getStringEx("panel.health.covid19.care_team.label.more_info.link", "Learn more"),
+                                  style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 14, fontFamily: Styles().fontFamilies.bold, decoration: TextDecoration.underline),),
+                              ),
+                              Image.asset('images/external-link.png', excludeFromSemantics: true,),
+                            ],)
+                          )
                         ),
                       ],
                     ),
@@ -338,12 +345,25 @@ class _HealthCareTeamPanelState extends State<HealthCareTeamPanel> with TickerPr
         child: Padding(
           padding: const EdgeInsets.only(
               left: 0, right: 0, top: 0, bottom: 0),
-          child: Text(title,
-            style: TextStyle(
-                color: Styles().colors.fillColorPrimary,
-                fontSize: 14,
-                fontFamily: Styles().fontFamilies.bold,
-                decoration: TextDecoration.underline),),
+          child: Semantics(
+              hint: Localization().getStringEx("app.common.hint.external_link", "External link"),
+              child: GestureDetector(
+                  onTap: _onLearnMoreTapped,
+                  child:
+                  Row(children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 0, right: 5, top: 0, bottom: 0),
+                      child:  Text(title,
+                        style: TextStyle(
+                            color: Styles().colors.fillColorPrimary,
+                            fontSize: 14,
+                            fontFamily: Styles().fontFamilies.bold,
+                            decoration: TextDecoration.underline),),
+                    ),
+                    Image.asset('images/external-link.png', excludeFromSemantics: true,),
+                  ],)
+              )
+          ),
         ),
       );
   }
