@@ -921,6 +921,8 @@
 	"app.common.yes": "Yes",
 	"app.common.no": "No",
 
+	"app.common.hint.external_link": "External link",
+
 	"com.illinois.features2.entry.disable_location_awareness": "Deshabilitar reconocimiento de ubicación",
 	"com.illinois.features2.entry.dont_store_location": "No guardes tu ubicación",
 	"com.illinois.features2.entry.remove_preferences": "Elimina tus preferencias",
