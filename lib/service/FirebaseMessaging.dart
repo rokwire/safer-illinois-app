@@ -21,7 +21,6 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:firebase_messaging/firebase_messaging.dart' as firebase_messaging;
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart';
 import 'package:illinois/model/Health.dart';
@@ -138,11 +137,11 @@ class FirebaseMessaging with Service implements NotificationsListener {
       sound: true,
     );
 
-    firebase_messaging.FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    firebase_messaging.FirebaseMessaging.onMessage.listen((firebase_messaging.RemoteMessage message) {
       _onFirebaseMessage(message.data);
     });
 
-    firebase_messaging.FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    firebase_messaging.FirebaseMessaging.onMessageOpenedApp.listen((firebase_messaging.RemoteMessage message) {
       print('A new onMessageOpenedApp event was published!');
       _onFirebaseMessage(message.data);
     });
