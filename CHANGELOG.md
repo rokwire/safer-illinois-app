@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.10.25] - 2021-05-14
+- Add the External link icon to External links [#635](https://github.com/rokwire/safer-illinois-app/issues/635).
+- Android: Fix for frequent notifications [#641](https://github.com/rokwire/safer-illinois-app/issues/641).
+
 ## [2.10.23] - 2021-05-07
 - Changed DefaultTestMonitorInterval to reflect production [#624](https://github.com/rokwire/safer-illinois-app/issues/624).
 - Removed test result explanation disclaimers [#626](https://github.com/rokwire/safer-illinois-app/issues/626)
