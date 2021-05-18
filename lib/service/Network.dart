@@ -71,7 +71,7 @@ class Network  {
         uri = url;
       }
       else if (url is String) {
-        uri = Uri.parse(url);
+        uri = Uri.tryParse(url);
       }
 
       if (uri != null) {
@@ -126,13 +126,13 @@ class Network  {
           
           Future<Http.Response> response;
           if (body != null) {
-            response = _get2((url is Uri) ? url : Uri.parse(url.toString()), headers: requestHeaders, body: body, encoding: encoding, timeout: timeout, client: client);
+            response = _get2((url is Uri) ? url : Uri.tryParse(url.toString()), headers: requestHeaders, body: body, encoding: encoding, timeout: timeout, client: client);
           }
           else if (client != null) {
-            response = client.get((url is Uri) ? url : Uri.parse(url.toString()), headers: requestHeaders);
+            response = client.get((url is Uri) ? url : Uri.tryParse(url.toString()), headers: requestHeaders);
           }
           else {
-            response = Http.get((url is Uri) ? url : Uri.parse(url.toString()), headers: requestHeaders);
+            response = Http.get((url is Uri) ? url : Uri.tryParse(url.toString()), headers: requestHeaders);
           }
           
           if ((response != null) && (timeout != null)) {
@@ -176,7 +176,7 @@ class Network  {
   Future<Http.Response> _post(url, { body, Encoding encoding, Map<String, String> headers, int auth, int timeout}) async{
     if (Connectivity().isNotOffline) {
       try {
-        Future<Http.Response> response = (url != null) ? Http.post((url is Uri) ? url : Uri.parse(url.toString()), headers: await _prepareHeaders(headers, auth, url), body: body, encoding: encoding) : null;
+        Future<Http.Response> response = (url != null) ? Http.post((url is Uri) ? url : Uri.tryParse(url.toString()), headers: await _prepareHeaders(headers, auth, url), body: body, encoding: encoding) : null;
         return ((response != null) && (timeout != null)) ? response.timeout(Duration(seconds: timeout), onTimeout: _responseTimeoutHandler) : response;
       } catch (e) {
         Log.d(e?.toString());
@@ -216,8 +216,8 @@ class Network  {
       try {
         Future<Http.Response> response = (url != null) ?
           ((client != null) ?
-            client.put((url is Uri) ? url : Uri.parse(url.toString()), headers: await _prepareHeaders(headers, auth, url), body: body, encoding: encoding) :
-              Http.put((url is Uri) ? url : Uri.parse(url.toString()), headers: await _prepareHeaders(headers, auth, url), body: body, encoding: encoding)) :
+            client.put((url is Uri) ? url : Uri.tryParse(url.toString()), headers: await _prepareHeaders(headers, auth, url), body: body, encoding: encoding) :
+              Http.put((url is Uri) ? url : Uri.tryParse(url.toString()), headers: await _prepareHeaders(headers, auth, url), body: body, encoding: encoding)) :
             null;
 
         return ((response != null) && (timeout != null)) ? response.timeout(Duration(seconds: timeout), onTimeout: _responseTimeoutHandler) : response;
@@ -257,7 +257,7 @@ class Network  {
   Future<Http.Response> _patch(url, { body, Encoding encoding, Map<String, String> headers, int auth, int timeout }) async {
     if (Connectivity().isNotOffline) {
       try {
-        Future<Http.Response> response = (url != null) ? Http.patch((url is Uri) ? url : Uri.parse(url.toString()), headers: await _prepareHeaders(headers, auth, url), body: body, encoding: encoding) : null;
+        Future<Http.Response> response = (url != null) ? Http.patch((url is Uri) ? url : Uri.tryParse(url.toString()), headers: await _prepareHeaders(headers, auth, url), body: body, encoding: encoding) : null;
         return ((response != null) && (timeout != null)) ? response.timeout(Duration(seconds: timeout), onTimeout: _responseTimeoutHandler) : response;
       } catch (e) {
         Log.d(e?.toString());
@@ -294,7 +294,7 @@ class Network  {
   Future<Http.Response> _delete(url, { Map<String, String> headers, int auth, int timeout }) async {
     if (Connectivity().isNotOffline) {
       try {
-        Future<Http.Response> response = (url != null) ? Http.delete((url is Uri) ? url : Uri.parse(url.toString()), headers: await _prepareHeaders(headers, auth, url)) : null;
+        Future<Http.Response> response = (url != null) ? Http.delete((url is Uri) ? url : Uri.tryParse(url.toString()), headers: await _prepareHeaders(headers, auth, url)) : null;
         return ((response != null) && (timeout != null)) ? response.timeout(Duration(seconds: timeout), onTimeout: _responseTimeoutHandler) : response;
       } catch (e) {
         Log.d(e?.toString());
@@ -331,7 +331,7 @@ class Network  {
   Future<String> _read(url, { Map<String, String> headers, int auth, int timeout = 60 }) async {
     if (Connectivity().isNotOffline) {
       try {
-        Future<String> response = (url != null) ? Http.read((url is Uri) ? url : Uri.parse(url.toString()), headers: await _prepareHeaders(headers, auth, url)) : null;
+        Future<String> response = (url != null) ? Http.read((url is Uri) ? url : Uri.tryParse(url.toString()), headers: await _prepareHeaders(headers, auth, url)) : null;
         return ((response != null) && (timeout != null)) ? response.timeout(Duration(seconds: timeout)) : response;
       } catch (e) {
         Log.d(e?.toString());
@@ -354,7 +354,7 @@ class Network  {
   Future<Uint8List> _readBytes(url, { Map<String, String> headers, int auth, int timeout = 60 }) async{
     if (Connectivity().isNotOffline) {
       try {
-        Future<Uint8List> response = (url != null) ? Http.readBytes((url is Uri) ? url : Uri.parse(url.toString()), headers: await _prepareHeaders(headers, auth, url)) : null;
+        Future<Uint8List> response = (url != null) ? Http.readBytes((url is Uri) ? url : Uri.tryParse(url.toString()), headers: await _prepareHeaders(headers, auth, url)) : null;
         return ((response != null) && (timeout != null)) ? response.timeout(Duration(seconds: timeout), onTimeout: _responseBytesHandler) : response;
       } catch (e) {
         Log.d(e?.toString());
@@ -477,12 +477,12 @@ class Network  {
     }
 
     var cj = new CookieJar();
-    cj.saveFromResponse(Uri.parse(url), cookies);
+    cj.saveFromResponse(Uri.tryParse(url), cookies);
   }
 
   Future<String> _loadCookiesForRequest(String url) async{
     var cj = new CookieJar();
-    List<Cookie> cookies = await cj.loadForRequest(Uri.parse(url));
+    List<Cookie> cookies = await cj.loadForRequest(Uri.tryParse(url));
     if (cookies == null || cookies.length == 0)
       return null;
 
