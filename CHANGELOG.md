@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## [2.10.26] - 2021-05-18
 - Flutter 2.0 Integration [#637](https://github.com/rokwire/safer-illinois-app/issues/637).
 
 ## [2.10.25] - 2021-05-14
