@@ -79,10 +79,8 @@ import edu.illinois.covid.exposure.crypto.AES;
 import edu.illinois.covid.exposure.crypto.AES_CTR;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.BinaryMessenger;
-import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
-import io.flutter.plugin.common.PluginRegistry;
 
 public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterPlugin {
 
@@ -517,7 +515,9 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
         }
 
         if ((expiredPeripheralAddress != null) && !expiredPeripheralAddress.isEmpty()) {
-            for (String address : expiredPeripheralAddress) {
+            // Create copy so that to prevent crash with ConcurrentModificationException.
+            Set<String> expiredPeripheralAddressCopy = new HashSet<>(expiredPeripheralAddress);
+            for (String address : expiredPeripheralAddressCopy) {
                 // remove expired records from iosExposures
                 disconnectIosPeripheral(address);
             }
@@ -542,8 +542,10 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
         }
 
         if (expiredRPIs != null) {
+            // Create copy so that to prevent crash with ConcurrentModificationException.
+            Set<String> expiredRPIsCopy = new HashSet<>(expiredRPIs);
             // remove expired records from androidExposures
-            for (String encodedRpi : expiredRPIs) {
+            for (String encodedRpi : expiredRPIsCopy) {
                 removeAndroidRpi(encodedRpi);
             }
         }
@@ -1243,9 +1245,11 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
         if (expUpTimeMap != null) {
             long currentTime = (long) Utils.DateTime.getCurrentTimeMillisSince1970() / 1000;
             long _expireTimestamp = currentTime - 168 * 60 * 60;
-            for (Integer _time : expUpTimeMap.keySet()) {
-                if ((_time.intValue() + expUpTimeMap.get(_time).intValue()) < (int)_expireTimestamp) {
-                    expUpTimeMap.remove(_time);
+            Iterator<Integer> it = expUpTimeMap.keySet().iterator();
+            while (it.hasNext()) {
+                Integer _time = it.next();
+                if ((_time.intValue() + expUpTimeMap.get(_time).intValue()) < (int) _expireTimestamp) {
+                    it.remove();
                 }
             }
         }
