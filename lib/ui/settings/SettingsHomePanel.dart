@@ -253,7 +253,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   // Connect
 
   Widget _buildConnect() {
-    List<Widget> contentList = new List();
+    List<Widget> contentList = [];
     contentList.add(Padding(
         padding: EdgeInsets.only(left: 8, right: 8, top: 12, bottom: 2),
         child: Text(
@@ -354,7 +354,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   // Customizations
 
   Widget _buildCustomizations() {
-    List<Widget> customizationOptions = new List();
+    List<Widget> customizationOptions = [];
     List<dynamic> codes = FlexUI()['settings.customizations'] ?? [];
     for (int index = 0; index < codes.length; index++) {
       String code = codes[index];
@@ -389,7 +389,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   // Connected
 
   Widget _buildConnected() {
-    List<Widget> contentList = new List();
+    List<Widget> contentList = [];
 
     List<dynamic> codes = FlexUI()['settings.connected'] ?? [];
     for (String code in codes) {
@@ -409,7 +409,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   }
 
   List<Widget> _buildConnectedNetIdLayout() {
-    List<Widget> contentList = List();
+    List<Widget> contentList = [];
 
     List<dynamic> codes = FlexUI()['settings.connected.netid'] ?? [];
     for (int index = 0; index < codes.length; index++) {
@@ -452,7 +452,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   }
 
   List<Widget> _buildConnectedPhoneLayout() {
-    List<Widget> contentList = List();
+    List<Widget> contentList = [];
 
     String fullName = Auth().fullUserName ?? '';
     bool hasFullName = AppString.isStringNotEmpty(fullName);
@@ -524,14 +524,14 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                FlatButton(
+                TextButton(
                     onPressed: () {
                       Analytics.instance.logAlert(text: "Sign out", selection: "Yes");
                       Navigator.pop(context);
                       Auth().logout();
                     },
                     child: Text(Localization().getStringEx("panel.settings.home.logout.button.yes", "Yes"))),
-                FlatButton(
+                TextButton(
                     onPressed: () {
                       Analytics.instance.logAlert(text: "Sign out", selection: "No");
                       Navigator.pop(context);
@@ -548,7 +548,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   // NotificationsOptions
 
   Widget _buildNotifications() {
-    List<Widget> contentList = new List();
+    List<Widget> contentList = [];
 
     List<dynamic> codes = FlexUI()['settings.notifications'] ?? [];
     for (int index = 0; index < codes.length; index++) {
@@ -648,7 +648,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   
 
   Widget _buildCovid19Settings() {
-    List<Widget> contentList = List();
+    List<Widget> contentList = [];
 
     if (Auth().isLoggedIn) {
       if ((_refreshingHealthUser == true) || Health().refreshingUser) {
@@ -931,7 +931,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
               return AlertDialog(
                 content: Text(message, style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 16, fontFamily: Styles().fontFamilies.bold)),
                 actions: <Widget>[
-                  FlatButton(
+                  TextButton(
                       child: Text(
                           Localization().getStringEx("dialog.yes.title", "Yes"), style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 16, fontFamily: Styles().fontFamilies.bold)),
                       onPressed: () {
@@ -939,7 +939,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
                         Navigator.pop(buildContext, true);
                       }
                   ),
-                  FlatButton(
+                  TextButton(
                       child: Text(Localization().getStringEx("dialog.no.title", "No"), style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 16, fontFamily: Styles().fontFamilies.bold)),
                       onPressed: () {
                         Analytics.instance.logAlert(text: message, selection: "No");
@@ -1030,7 +1030,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   // Privacy
 
   Widget _buildPrivacy() {
-    List<Widget> contentList = new List();
+    List<Widget> contentList = [];
 
     List<dynamic> codes = FlexUI()['settings.privacy'] ?? [];
     for (int index = 0; index < codes.length; index++) {
@@ -1066,7 +1066,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   // Account
 
   Widget _buildAccount() {
-    List<Widget> contentList = new List();
+    List<Widget> contentList = [];
 
     List<dynamic> codes = FlexUI()['settings.account'] ?? [];
     for (int index = 0; index < codes.length; index++) {

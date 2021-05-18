@@ -612,7 +612,7 @@ class HealthHistory implements Comparable<HealthHistory> {
   static List<HealthHistory> pastList(List<HealthHistory> history) {
     List<HealthHistory> result;
     if (history != null) {
-      result = List<HealthHistory>();
+      result = [];
       DateTime nowUtc = DateTime.now().toUtc();
       for (int index = 0; index < history.length; index++) {
         HealthHistory historyEntry =  history[index];
@@ -2191,7 +2191,7 @@ class HealthGuideline {
   static List<HealthGuideline> fromJsonList(List<dynamic> jsonList) {
     List<HealthGuideline> sections;
     if (jsonList != null) {
-      sections = List();
+      sections = [];
       for (dynamic jsonEntry in jsonList) {
         sections.add(HealthGuideline.fromJson(jsonEntry));
       }
@@ -2243,7 +2243,7 @@ class HealthGuidelineItem {
   static List<HealthGuidelineItem> fromJsonList(List<dynamic> jsonList) {
     List<HealthGuidelineItem> guidelineItems;
     if (jsonList != null) {
-      guidelineItems = List();
+      guidelineItems = [];
       for (dynamic jsonEntry in jsonList) {
         guidelineItems.add(HealthGuidelineItem.fromJson(jsonEntry));
       }
@@ -2559,7 +2559,7 @@ class HealthSymptomsGroup {
   }
 
   static List<HealthSymptom> getSymptoms(List<HealthSymptomsGroup> groups, Set<String> selected) {
-    List<HealthSymptom> symptoms = List<HealthSymptom>();
+    List<HealthSymptom> symptoms = [];
     if ((groups != null) && (selected != null)) {
       for (HealthSymptomsGroup group in groups) {
         if ((group.symptoms != null)) {

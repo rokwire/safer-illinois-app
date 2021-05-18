@@ -38,7 +38,7 @@ class DeepLink with Service {
     // Differentiate initial uri from updated uri
 
     // Cache uris until UI is displayed
-    _urisCache = List<Uri>();
+    _urisCache = [];
 
     // 1. Initial Uri
     getInitialUri().then((uri) {
@@ -46,7 +46,7 @@ class DeepLink with Service {
     });
 
     // 2. Updated uri
-    getUriLinksStream().listen((Uri uri) async {
+    uriLinkStream.listen((Uri uri) async {
       NotificationService().notify(notifyUri, uri);
     });
   }

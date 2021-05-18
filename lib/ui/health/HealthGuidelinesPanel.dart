@@ -211,7 +211,7 @@ class _HealthGuidelinesPanelState extends State<HealthGuidelinesPanel> {
   List <DropdownMenuItem> _buildCountyDropdownItems(){
     List <DropdownMenuItem> result;
     if (_counties?.isNotEmpty ?? false) {
-      result = List <DropdownMenuItem>();
+      result = [];
       for (HealthCounty county in _counties.values) {
         result.add(DropdownMenuItem<dynamic>(
           value: county.id,

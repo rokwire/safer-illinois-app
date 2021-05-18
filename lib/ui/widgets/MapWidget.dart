@@ -73,7 +73,7 @@ class MapController {
   int get mapId { return _mapId; }
 
   Future<void> placePOIs(List<dynamic> explores) async {
-    List<dynamic> jsonData = List<dynamic>();
+    List<dynamic> jsonData = [];
     if (AppCollection.isCollectionNotEmpty(explores)) {
       for (dynamic explore in explores) {
         jsonData.add(explore.toJson());

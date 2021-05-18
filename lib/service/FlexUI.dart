@@ -259,7 +259,7 @@ class FlexUI with Service implements NotificationsListener {
       result = Map();
       contents.forEach((String key, dynamic list) {
         if (list is List) {
-          List<String> resultList = List();
+          List<String> resultList = [];
           for (String entry in list) {
             if (_localeIsEntryAvailable(entry, group: key, rules: rules)) {
               resultList.add(entry);

@@ -1125,7 +1125,7 @@ class _DebugExposureLogsPanelState extends State<DebugExposureLogsPanel>
         //         title: const Text('Thanks!'),
         //         content: Text('You typed "$value".'),
         //         actions: <Widget>[
-        //           FlatButton(
+        //           TextButton(
         //             onPressed: () {
         //               Navigator.pop(context);
         //             },
@@ -1517,7 +1517,7 @@ class _DebugExposureLogsPanelState extends State<DebugExposureLogsPanel>
     //       title: const Text('Thanks!'),
     //       content: Text(url),
     //       actions: <Widget>[
-    //         FlatButton(
+    //         TextButton(
     //           onPressed: () {
     //             Navigator.pop(context);
     //           },

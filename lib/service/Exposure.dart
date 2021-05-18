@@ -1030,7 +1030,7 @@ class Exposure with Service implements NotificationsListener {
           if (result != null) {
             _markLocalExposureProcessed(detectedExposures);
             if (results == null) {
-              results = List<HealthHistory>();
+              results = [];
             }
             results.add(result);
           }

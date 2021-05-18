@@ -129,7 +129,7 @@ class _GroupsHomePanelState extends State<GroupsHomePanel> implements Notificati
     setState(() {
       _isFilterLoading = true;
     });
-    List<String> categories = List<String>();
+    List<String> categories = [];
     categories.add(_allCategoriesValue);
     categories.addAll(await Groups().categories);
     _categories = categories;
@@ -353,7 +353,7 @@ class _GroupsHomePanelState extends State<GroupsHomePanel> implements Notificati
         ),
       );
     } else {
-      List<Widget> widgets = List<Widget>();
+      List<Widget> widgets = [];
       if(AppCollection.isCollectionNotEmpty(_myGroups)) {
         widgets.add(Container(height: 8,));
         for (Group group in _myGroups) {
@@ -371,7 +371,7 @@ class _GroupsHomePanelState extends State<GroupsHomePanel> implements Notificati
 
   Widget _buildMyPendingGroupsSection(){
     if(AppCollection.isCollectionNotEmpty(_myPendingGroups)) {
-      List<Widget> widgets = List<Widget>();
+      List<Widget> widgets = [];
       widgets.add(Container(height: 16,));
       widgets.add(
         Container(
@@ -419,7 +419,7 @@ class _GroupsHomePanelState extends State<GroupsHomePanel> implements Notificati
 
   Widget _buildAllGroupsContent(){
     if(AppCollection.isCollectionNotEmpty(_allFilteredGroups)){
-      List<Widget> widgets = List<Widget>();
+      List<Widget> widgets = [];
       widgets.add(Container(height: 8,));
       for(Group group in _allFilteredGroups){
         widgets.add(Padding(

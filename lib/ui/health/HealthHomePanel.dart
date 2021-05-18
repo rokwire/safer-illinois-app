@@ -842,7 +842,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
       for (HealthUserAccount account in Health().user.accounts) {
         if (account.isActive) {
           if (items == null) {
-            items = items = List<DropdownMenuItem<HealthUserAccount>>();
+            items = items = [];
           }
           items.add(DropdownMenuItem<HealthUserAccount>(
             value: account, child: _userAccountsDropDownItem(account)
