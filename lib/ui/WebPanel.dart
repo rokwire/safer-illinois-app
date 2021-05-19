@@ -87,7 +87,7 @@ class _WebPanelState extends State<WebPanel> implements NotificationsListener{
   }
 
   List<Widget> _buildWebView() {
-    List<Widget> list = List<Widget>();
+    List<Widget> list = <Widget>[];
     list.add(Visibility(
       visible: _isForeground,
       child: WebView(

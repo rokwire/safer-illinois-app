@@ -81,7 +81,7 @@ class Groups /* with Service */ {
     } catch (e) {
       print(e);
     }
-    return [];
+    return <String>[];
   }
 
 
@@ -100,7 +100,7 @@ class Groups /* with Service */ {
     } catch (e) {
       print(e);
     }
-    return [];
+    return <Group>[];
   }
 
   Future<Group>loadGroup(String groupId) async {
@@ -172,7 +172,7 @@ class Groups /* with Service */ {
         json["email"] = Auth()?.authUser?.email ?? "";
         json["name"] = Auth()?.authUser?.fullName ?? "";
         json["creator_photo_url"] = "";
-        json["member_answers"] = AppCollection.isCollectionNotEmpty(answers) ? answers.map((e) => e.toJson()).toList() : [];
+        json["member_answers"] = AppCollection.isCollectionNotEmpty(answers) ? answers.map((e) => e.toJson()).toList() : <GroupMembershipAnswer>[];
 
         String body = jsonEncode(json);
         Response response = await Network().post(url, auth: Network.ShibbolethUserAuth, body: body, headers: _apiHeader);

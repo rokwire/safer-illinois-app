@@ -299,7 +299,7 @@ class _SettingsPersonalInfoPanelState extends State<SettingsPersonalInfoPanel> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                FlatButton(
+                TextButton(
                     onPressed: () {
                       Analytics.instance.logAlert(text: "Sign out", selection: "Yes");
                       Auth().logout();
@@ -307,7 +307,7 @@ class _SettingsPersonalInfoPanelState extends State<SettingsPersonalInfoPanel> {
                       Navigator.pop(context);
                     },
                     child: Text(Localization().getStringEx("panel.profile_info.logout.button.yes", "Yes"))),
-                FlatButton(
+                TextButton(
                     onPressed: () {
                       Analytics.instance.logAlert(text: "Sign out", selection: "No");
                       Navigator.pop(context);

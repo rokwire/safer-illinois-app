@@ -36,7 +36,8 @@ target 'Runner' do
     pod 'ZXingObjC', '3.6.4'
     pod 'PPBlinkID', '~> 5.3.0'
     pod 'HKDFKit', '0.0.3'
-    pod 'Firebase/MLVisionBarcodeModel'
+    pod 'GoogleMLKit/BarcodeScanning'
+
 
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))

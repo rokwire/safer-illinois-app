@@ -114,7 +114,7 @@ class OSFHealth with Service implements NotificationsListener {
             if (observationResponse?.statusCode == 200) {
               String observationBody = (observationResponse?.statusCode == 200) ? observationResponse.body : null;
               print(observationBody);
-              List<HealthOSFTest> osfTests = List<HealthOSFTest>();
+              List<HealthOSFTest> osfTests = <HealthOSFTest>[];
               Map<String, dynamic> observJson = (observationBody != null) ? AppJson.decode(observationBody) : null;
               if(observJson != null){
                 List<dynamic> resultsList = observJson["entry"];

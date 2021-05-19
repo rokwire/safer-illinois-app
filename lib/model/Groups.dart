@@ -127,7 +127,7 @@ class Group {
     if(AppCollection.isCollectionNotEmpty(members) && status != null){
       return members.where((member) => member.status == status).toList();
     }
-    return [];
+    return <Member>[];
   }
 
   Member getMembersById(String id){
@@ -499,7 +499,7 @@ class GroupMembershipStep {
   static List<GroupMembershipStep> listFromJson(List<dynamic> json) {
     List<GroupMembershipStep> values;
     if (json != null) {
-      values = [];
+      values = <GroupMembershipStep>[];
       for (dynamic entry in json) {
           GroupMembershipStep value;
           try { value = GroupMembershipStep.fromJson((entry as Map)?.cast<String, dynamic>()); }
@@ -513,7 +513,7 @@ class GroupMembershipStep {
   static List<dynamic> listToJson(List<GroupMembershipStep> values) {
     List<dynamic> json;
     if (values != null) {
-      json = [];
+      json = <dynamic>[];
       for (GroupMembershipStep value in values) {
         json.add(value?.toJson());
       }
@@ -524,7 +524,7 @@ class GroupMembershipStep {
   static List<GroupMembershipStep> listFromOthers(List<GroupMembershipStep> others) {
     List<GroupMembershipStep> values;
     if (others != null) {
-      values = [];
+      values = <GroupMembershipStep>[];
       for (GroupMembershipStep other in others) {
           values.add(GroupMembershipStep.fromOther(other));
       }
@@ -548,7 +548,7 @@ class GroupMembershipQuestion {
   static List<GroupMembershipQuestion> listFromOthers(List<GroupMembershipQuestion> others) {
     List<GroupMembershipQuestion> values;
     if (others != null) {
-      values = [];
+      values = <GroupMembershipQuestion>[];
       for (GroupMembershipQuestion other in others) {
         values.add(GroupMembershipQuestion.fromString(other.question));
       }
@@ -581,7 +581,7 @@ class GroupMembershipAnswer {
   static List<GroupMembershipAnswer> listFromJson(List<dynamic> json) {
     List<GroupMembershipAnswer> values;
     if (json != null) {
-      values = [];
+      values = <GroupMembershipAnswer>[];
       for (dynamic entry in json) {
           GroupMembershipAnswer value;
           try { value = GroupMembershipAnswer.fromJson((entry as Map)?.cast<String, dynamic>()); }
@@ -595,7 +595,7 @@ class GroupMembershipAnswer {
   static List<dynamic> listToJson(List<GroupMembershipAnswer> values) {
     List<dynamic> json;
     if (values != null) {
-      json = [];
+      json = <dynamic>[];
       for (GroupMembershipAnswer value in values) {
         json.add(value?.toJson());
       }

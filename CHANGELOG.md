@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.10.26] - 2021-05-18
+- Flutter 2.0 Integration [#637](https://github.com/rokwire/safer-illinois-app/issues/637).
+
 ## [2.10.25] - 2021-05-14
 - Add the External link icon to External links [#635](https://github.com/rokwire/safer-illinois-app/issues/635).
 - Android: Fix for frequent notifications [#641](https://github.com/rokwire/safer-illinois-app/issues/641).

@@ -182,7 +182,7 @@ class _HealthStatusUpdatePanelState extends State<HealthStatusUpdatePanel> {
       else if (reasonHistory.isSymptoms) {
         reasonHistoryName = Localization().getStringEx("panel.health.status_update.label.reason.symptoms.title", "You reported new symptoms");
         
-        List<Widget> symptomLayouts = List();
+        List<Widget> symptomLayouts = [];
         List<HealthSymptom> symptoms = reasonHistory.symptoms;
         if (symptoms?.isNotEmpty ?? false) {
           symptoms.forEach((HealthSymptom symptom){
