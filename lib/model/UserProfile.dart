@@ -148,7 +148,7 @@ class UserRole {
   static List<dynamic> userRolesToList(Set<UserRole> userRoles) {
     List<String> userRolesList;
     if (userRoles != null) {
-      userRolesList = [];
+      userRolesList = <String>[];
       for (UserRole userRole in userRoles) {
         userRolesList.add(userRole.toString());
       }
@@ -433,7 +433,7 @@ class UserPiiData {
     if (list != null) {
       
       if (uuidList == null) {
-        uuidList = [];
+        uuidList = <String>[];
       }
 
       if (uuidRegExp == null) {

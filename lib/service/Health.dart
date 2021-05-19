@@ -1126,7 +1126,7 @@ class Health with Service implements NotificationsListener {
           if (await _applyPendingEventInHistory(event)) {
             await _markPendingEventAsProcessed(event);
             if (result == null) {
-              result = [];
+              result = <HealthPendingEvent>[];
             }
             result.add(event);
           }
@@ -1269,7 +1269,7 @@ class Health with Service implements NotificationsListener {
     List<HealthTestType> testTypes = await loadTestTypes();
     Set<String> testTypeSet = testTypes != null ? testTypes.map((entry) => entry.name).toSet() : null;
     if (osfTests != null) {
-      List<HealthOSFTest> processed = [];
+      List<HealthOSFTest> processed = <HealthOSFTest>[];
       DateTime lastOsfTestDateUtc = Storage().lastHealthOsfTestDateUtc;
       DateTime latestOsfTestDateUtc;
 
@@ -1390,7 +1390,7 @@ class Health with Service implements NotificationsListener {
       HealthStatus previousStatus = _status;
       await _rebuildStatus();
 
-      List<String> analyticsSymptoms = [];
+      List<String> analyticsSymptoms = <String>[];
       symptoms?.forEach((HealthSymptom symptom) {
         if (AppString.isStringNotEmpty(symptom?.name)) {
           analyticsSymptoms.add(symptom.name);

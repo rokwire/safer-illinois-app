@@ -125,7 +125,7 @@ class FirebaseMessaging with Service implements NotificationsListener {
   Future<void> initService() async {
     
     // Cache messages until UI is displayed
-    _messagesCache = [];
+    _messagesCache = <Map<String, dynamic>>[];
 
     //firebase_messaging.FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 

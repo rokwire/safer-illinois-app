@@ -492,7 +492,7 @@ class HealthHistory implements Comparable<HealthHistory> {
 
   static Future<List<HealthHistory>> listFromJson(List<dynamic> json, Map<HealthHistoryType, PrivateKey> privateKeys) async {
     if (json != null) {
-      List<Future<HealthHistory>> futures = [];
+      List<Future<HealthHistory>> futures = <Future<HealthHistory>>[];
       for (dynamic entry in json) {
         futures.add(HealthHistory.decryptedFromJson((entry as Map)?.cast<String, dynamic>(), privateKeys));
       }
@@ -505,7 +505,7 @@ class HealthHistory implements Comparable<HealthHistory> {
   static List<dynamic> listToJson(List<HealthHistory> values) {
     List<dynamic> json;
     if (values != null) {
-      json = [];
+      json = <dynamic>[];
       for (HealthHistory value in values) {
         json.add(value?.toJson());
       }
@@ -612,7 +612,7 @@ class HealthHistory implements Comparable<HealthHistory> {
   static List<HealthHistory> pastList(List<HealthHistory> history) {
     List<HealthHistory> result;
     if (history != null) {
-      result = [];
+      result = <HealthHistory>[];
       DateTime nowUtc = DateTime.now().toUtc();
       for (int index = 0; index < history.length; index++) {
         HealthHistory historyEntry =  history[index];
@@ -989,7 +989,7 @@ class HealthPendingEvent {
   static Future<List<HealthPendingEvent>> listFromJson(List<dynamic> json, PrivateKey privateKey) async {
     List<HealthPendingEvent> values;
     if (json != null) {
-      values = [];
+      values = <HealthPendingEvent>[];
       for (dynamic entry in json) {
           HealthPendingEvent value = await HealthPendingEvent.decryptedFromJson(entry, privateKey);
           values.add(value);
@@ -1155,7 +1155,7 @@ class HealthEventExtra {
   static List<HealthEventExtra> listFromJson(List<dynamic> json) {
     List<HealthEventExtra> values;
     if (json != null) {
-      values = [];
+      values = <HealthEventExtra>[];
       for (dynamic entry in json) {
         HealthEventExtra value;
         try { value = HealthEventExtra.fromJson((entry as Map)?.cast<String, dynamic>()); }
@@ -1169,7 +1169,7 @@ class HealthEventExtra {
   static List<dynamic> listToJson(List<HealthEventExtra> values) {
     List<dynamic> json;
     if (values != null) {
-      json = [];
+      json = <dynamic>[];
       for (HealthEventExtra value in values) {
         json.add(value?.toJson());
       }
@@ -1482,7 +1482,7 @@ class HealthUserAccount {
   static List<HealthUserAccount> listFromJson(List<dynamic> json) {
     List<HealthUserAccount> values;
     if (json != null) {
-      values = [];
+      values = <HealthUserAccount>[];
       for (dynamic entry in json) {
           HealthUserAccount value;
           try { value = HealthUserAccount.fromJson((entry as Map)?.cast<String, dynamic>()); }
@@ -1506,7 +1506,7 @@ class HealthUserAccount {
   static List<dynamic> listToJson(List<HealthUserAccount> values) {
     List<dynamic> json;
     if (values != null) {
-      json = [];
+      json = <dynamic>[];
       for (HealthUserAccount value in values) {
         json.add(value?.toJson());
       }
@@ -1604,7 +1604,7 @@ class HealthServiceProvider {
   static List<HealthServiceProvider> listFromJson(List<dynamic> json) {
     List<HealthServiceProvider> values;
     if (json != null) {
-      values = [];
+      values = <HealthServiceProvider>[];
       for (dynamic entry in json) {
           HealthServiceProvider value;
           try { value = HealthServiceProvider.fromJson((entry as Map)?.cast<String, dynamic>()); }
@@ -1618,7 +1618,7 @@ class HealthServiceProvider {
   static List<dynamic> listToJson(List<HealthServiceProvider> values) {
     List<dynamic> json;
     if (values != null) {
-      json = [];
+      json = <dynamic>[];
       for (HealthServiceProvider value in values) {
         json.add(value?.toJson());
       }
@@ -1676,7 +1676,7 @@ String healthServiceMechanismToString(HealthServiceMechanism value) {
 List<HealthServiceMechanism> healthServiceMechanismListFromJson(List<dynamic> json) {
   List<HealthServiceMechanism> values;
   if (json != null) {
-    values = [];
+    values = <HealthServiceMechanism>[];
     for (dynamic entry in json) {
       HealthServiceMechanism value;
       try { value = healthServiceMechanismFromString((entry as String)); }
@@ -1690,7 +1690,7 @@ List<HealthServiceMechanism> healthServiceMechanismListFromJson(List<dynamic> js
 List<dynamic>  healthServiceMechanismListToJson(List<HealthServiceMechanism> values) {
   List<dynamic> json;
   if (values != null) {
-    json = [];
+    json = <dynamic>[];
     for (HealthServiceMechanism value in values) {
       json.add(healthServiceMechanismToString(value));
     }
@@ -1787,7 +1787,7 @@ class HealthServiceLocation {
   static List<HealthServiceLocation> listFromJson(List<dynamic> json) {
     List<HealthServiceLocation> values;
     if (json != null) {
-      values = [];
+      values = <HealthServiceLocation>[];
       for (dynamic entry in json) {
         HealthServiceLocation value;
         try { value = HealthServiceLocation.fromJson((entry as Map)?.cast<String, dynamic>()); }
@@ -1801,7 +1801,7 @@ class HealthServiceLocation {
   static List<dynamic> listToJson(List<HealthServiceLocation> values) {
     List<dynamic> json;
     if (values != null) {
-      json = [];
+      json = <dynamic>[];
       for (HealthServiceLocation value in values) {
         json.add(value?.toJson());
       }
@@ -1903,7 +1903,7 @@ class HealthLocationDayOfOperation {
   static List<HealthLocationDayOfOperation> listFromJson(List<dynamic> json) {
     List<HealthLocationDayOfOperation> values;
     if (json != null) {
-      values = [];
+      values = <HealthLocationDayOfOperation>[];
       for (dynamic entry in json) {
         HealthLocationDayOfOperation value;
         try { value = HealthLocationDayOfOperation.fromJson((entry as Map)?.cast<String, dynamic>()); }
@@ -1961,7 +1961,7 @@ class HealthTestType {
   static List<HealthTestType> listFromJson(List<dynamic> json) {
     List<HealthTestType> values;
     if (json != null) {
-      values = [];
+      values = <HealthTestType>[];
       for (dynamic entry in json) {
         HealthTestType value;
         try { value = HealthTestType.fromJson((entry as Map)?.cast<String, dynamic>()); }
@@ -1975,7 +1975,7 @@ class HealthTestType {
   static List<dynamic> listToJson(List<HealthTestType> values) {
     List<dynamic> json;
     if (values != null) {
-      json = [];
+      json = <dynamic>[];
       for (HealthTestType value in values) {
         json.add(value?.toJson());
       }
@@ -2024,7 +2024,7 @@ class HealthTestTypeResult {
   static List<HealthTestTypeResult> listFromJson(List<dynamic> json) {
     List<HealthTestTypeResult> values;
     if (json != null) {
-      values = [];
+      values = <HealthTestTypeResult>[];
       for (dynamic entry in json) {
         HealthTestTypeResult value;
         try { value = HealthTestTypeResult.fromJson((entry as Map)?.cast<String, dynamic>()); }
@@ -2038,7 +2038,7 @@ class HealthTestTypeResult {
   static List<dynamic> listToJson(List<HealthTestTypeResult> values) {
     List<dynamic> json;
     if (values != null) {
-      json = [];
+      json = <dynamic>[];
       for (HealthTestTypeResult value in values) {
         json.add(value?.toJson());
       }
@@ -2143,7 +2143,7 @@ class HealthCounty {
   static List<HealthCounty> listFromJson(List<dynamic> json, { bool guidelines }) {
     List<HealthCounty> values;
     if (json != null) {
-      values = [];
+      values = <HealthCounty>[];
       for (dynamic entry in json) {
           HealthCounty value;
           try { value = HealthCounty.fromJson((entry as Map)?.cast<String, dynamic>(), guidelines: guidelines); }
@@ -2157,7 +2157,7 @@ class HealthCounty {
   static List<dynamic> listToJson(List<HealthCounty> values, { bool guidelines }) {
     List<dynamic> json;
     if (values != null) {
-      json = [];
+      json = <dynamic>[];
       for (HealthCounty value in values) {
         json.add(value?.toJson(guidelines : guidelines));
       }
@@ -2191,7 +2191,7 @@ class HealthGuideline {
   static List<HealthGuideline> fromJsonList(List<dynamic> jsonList) {
     List<HealthGuideline> sections;
     if (jsonList != null) {
-      sections = [];
+      sections = <HealthGuideline>[];
       for (dynamic jsonEntry in jsonList) {
         sections.add(HealthGuideline.fromJson(jsonEntry));
       }
@@ -2202,7 +2202,7 @@ class HealthGuideline {
   static List<dynamic> listToJson(List<HealthGuideline> values) {
     List<dynamic> json;
     if (values != null) {
-      json = [];
+      json = <dynamic>[];
       for (HealthGuideline value in values) {
         json.add(value?.toJson());
       }
@@ -2243,7 +2243,7 @@ class HealthGuidelineItem {
   static List<HealthGuidelineItem> fromJsonList(List<dynamic> jsonList) {
     List<HealthGuidelineItem> guidelineItems;
     if (jsonList != null) {
-      guidelineItems = [];
+      guidelineItems = <HealthGuidelineItem>[];
       for (dynamic jsonEntry in jsonList) {
         guidelineItems.add(HealthGuidelineItem.fromJson(jsonEntry));
       }
@@ -2254,7 +2254,7 @@ class HealthGuidelineItem {
   static List<dynamic> listToJson(List<HealthGuidelineItem> values) {
     List<dynamic> json;
     if (values != null) {
-      json = [];
+      json = <dynamic>[];
       for (HealthGuidelineItem value in values) {
         json.add(value?.toJson());
       }
@@ -2390,7 +2390,7 @@ class HealthFamilyMember {
   static List<HealthFamilyMember> listFromJson(List<dynamic> json) {
     List<HealthFamilyMember> values;
     if (json != null) {
-      values = [];
+      values = <HealthFamilyMember>[];
       for (dynamic entry in json) {
           HealthFamilyMember value;
           try { value = HealthFamilyMember.fromJson((entry as Map)?.cast<String, dynamic>()); }
@@ -2404,7 +2404,7 @@ class HealthFamilyMember {
   static List<dynamic> listToJson(List<HealthFamilyMember> values) {
     List<dynamic> json;
     if (values != null) {
-      json = [];
+      json = <dynamic>[];
       for (HealthFamilyMember value in values) {
         json.add(value?.toJson());
       }
@@ -2470,7 +2470,7 @@ class HealthSymptom {
   static List<HealthSymptom> listFromJson(List<dynamic> json) {
     List<HealthSymptom> values;
     if (json != null) {
-      values = [];
+      values = <HealthSymptom>[];
       for (dynamic entry in json) {
           HealthSymptom value;
           try { value = HealthSymptom.fromJson((entry as Map)?.cast<String, dynamic>()); }
@@ -2484,7 +2484,7 @@ class HealthSymptom {
   static List<dynamic> listToJson(List<HealthSymptom> values) {
     List<dynamic> json;
     if (values != null) {
-      json = [];
+      json = <dynamic>[];
       for (HealthSymptom value in values) {
         json.add(value?.toJson());
       }
@@ -2559,7 +2559,7 @@ class HealthSymptomsGroup {
   }
 
   static List<HealthSymptom> getSymptoms(List<HealthSymptomsGroup> groups, Set<String> selected) {
-    List<HealthSymptom> symptoms = [];
+    List<HealthSymptom> symptoms = <HealthSymptom>[];
     if ((groups != null) && (selected != null)) {
       for (HealthSymptomsGroup group in groups) {
         if ((group.symptoms != null)) {
@@ -2577,7 +2577,7 @@ class HealthSymptomsGroup {
   static List<HealthSymptomsGroup> listFromJson(List<dynamic> json) {
     List<HealthSymptomsGroup> values;
     if (json != null) {
-      values = [];
+      values = <HealthSymptomsGroup>[];
       for (dynamic entry in json) {
           HealthSymptomsGroup value;
           try { value = HealthSymptomsGroup.fromJson((entry as Map)?.cast<String, dynamic>()); }
@@ -2591,7 +2591,7 @@ class HealthSymptomsGroup {
   static List<dynamic> listToJson(List<HealthSymptomsGroup> values) {
     List<dynamic> json;
     if (values != null) {
-      json = [];
+      json = <dynamic>[];
       for (HealthSymptomsGroup value in values) {
         json.add(value?.toJson());
       }
@@ -2847,7 +2847,7 @@ class HealthCodeData {
   static List<HealthCodeData> listFromJson(List<dynamic> json) {
     List<HealthCodeData> values;
     if (json != null) {
-      values = [];
+      values = <HealthCodeData>[];
       for (dynamic entry in json) {
           try { values.add(HealthCodeData.fromJson((entry as Map)?.cast<String, dynamic>())); }
           catch(e) { print(e?.toString()); }
@@ -2940,7 +2940,7 @@ class HealthTestRule {
   static List<HealthTestRule> listFromJson(List<dynamic> json) {
     List<HealthTestRule> values;
     if (json != null) {
-      values = [];
+      values = <HealthTestRule>[];
       for (dynamic entry in json) {
           try { values.add(HealthTestRule.fromJson((entry as Map)?.cast<String, dynamic>())); }
           catch(e) { print(e?.toString()); }
@@ -2986,7 +2986,7 @@ class HealthTestRuleResult {
   static List<HealthTestRuleResult> listFromJson(List<dynamic> json) {
     List<HealthTestRuleResult> values;
     if (json != null) {
-      values = [];
+      values = <HealthTestRuleResult>[];
       for (dynamic entry in json) {
           try { values.add(HealthTestRuleResult.fromJson((entry as Map)?.cast<String, dynamic>())); }
           catch(e) { print(e?.toString()); }
@@ -3077,7 +3077,7 @@ class HealthSymptomsRule {
   static List<HealthSymptomsRule> listFromJson(List<dynamic> json) {
     List<HealthSymptomsRule> values;
     if (json != null) {
-      values = [];
+      values = <HealthSymptomsRule>[];
       for (dynamic entry in json) {
           try { values.add(HealthSymptomsRule.fromJson((entry as Map)?.cast<String, dynamic>())); }
           catch(e) { print(e?.toString()); }
@@ -3163,7 +3163,7 @@ class HealthContactTraceRule {
   static List<HealthContactTraceRule> listFromJson(List<dynamic> json) {
     List<HealthContactTraceRule> values;
     if (json != null) {
-      values = [];
+      values = <HealthContactTraceRule>[];
       for (dynamic entry in json) {
           try { values.add(HealthContactTraceRule.fromJson((entry as Map)?.cast<String, dynamic>())); }
           catch(e) { print(e?.toString()); }
@@ -3238,7 +3238,7 @@ class HealthVaccineRule {
   static List<HealthVaccineRule> listFromJson(List<dynamic> json) {
     List<HealthVaccineRule> values;
     if (json != null) {
-      values = [];
+      values = <HealthVaccineRule>[];
       for (dynamic entry in json) {
           try { values.add(HealthVaccineRule.fromJson((entry as Map)?.cast<String, dynamic>())); }
           catch(e) { print(e?.toString()); }
@@ -3313,7 +3313,7 @@ class HealthActionRule {
   static List<HealthActionRule> listFromJson(List<dynamic> json) {
     List<HealthActionRule> values;
     if (json != null) {
-      values = [];
+      values = <HealthActionRule>[];
       for (dynamic entry in json) {
           try { values.add(HealthActionRule.fromJson((entry as Map)?.cast<String, dynamic>())); }
           catch(e) { print(e?.toString()); }

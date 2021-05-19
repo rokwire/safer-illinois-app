@@ -38,7 +38,7 @@ class DeepLink with Service {
     // Differentiate initial uri from updated uri
 
     // Cache uris until UI is displayed
-    _urisCache = [];
+    _urisCache = <Uri>[];
 
     // 1. Initial Uri
     getInitialUri().then((uri) {
