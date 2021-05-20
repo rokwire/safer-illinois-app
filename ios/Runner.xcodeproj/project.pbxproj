@@ -12,6 +12,7 @@
 		2605FF55236C13A6002F71BE /* GoogleService-Info-Prod.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2605FF53236C13A6002F71BE /* GoogleService-Info-Prod.plist */; };
 		2626D94B22DC99C800F6BC2F /* NSString+InaJson.m in Sources */ = {isa = PBXBuildFile; fileRef = 2626D94922DC99C700F6BC2F /* NSString+InaJson.m */; };
 		2626D94E22DCB80000F6BC2F /* MapMarkerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2626D94D22DCB80000F6BC2F /* MapMarkerView.m */; };
+		2639CC3B2656607100D8469A /* FirebaseMLVisionBarcodeModel.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2639CC3A2656607100D8469A /* FirebaseMLVisionBarcodeModel.framework */; };
 		266FA50323E0388B00F800F5 /* MapController.m in Sources */ = {isa = PBXBuildFile; fileRef = 266FA50223E0388B00F800F5 /* MapController.m */; };
 		268F30F122E5DD7900547FE1 /* travel-mode-walk@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 268F30ED22E5DD7900547FE1 /* travel-mode-walk@2x.png */; };
 		268F30F222E5DD7900547FE1 /* travel-mode-transit@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 268F30EE22E5DD7900547FE1 /* travel-mode-transit@2x.png */; };
@@ -92,6 +93,7 @@
 		2626D94A22DC99C700F6BC2F /* NSString+InaJson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+InaJson.h"; sourceTree = "<group>"; };
 		2626D94C22DCB80000F6BC2F /* MapMarkerView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapMarkerView.h; sourceTree = "<group>"; };
 		2626D94D22DCB80000F6BC2F /* MapMarkerView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MapMarkerView.m; sourceTree = "<group>"; };
+		2639CC3A2656607100D8469A /* FirebaseMLVisionBarcodeModel.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = FirebaseMLVisionBarcodeModel.framework; sourceTree = "<group>"; };
 		2668953022E1E074003CAB94 /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 		266FA50123E0388B00F800F5 /* MapController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapController.h; sourceTree = "<group>"; };
 		266FA50223E0388B00F800F5 /* MapController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapController.m; sourceTree = "<group>"; };
@@ -200,12 +202,21 @@
 			buildActionMask = 2147483647;
 			files = (
 				BB7BF12F5D3356D25889D23A /* Pods_Runner.framework in Frameworks */,
+				2639CC3B2656607100D8469A /* FirebaseMLVisionBarcodeModel.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2639CC392656604500D8469A /* Libraries */ = {
+			isa = PBXGroup;
+			children = (
+				2639CC3A2656607100D8469A /* FirebaseMLVisionBarcodeModel.framework */,
+			);
+			path = Libraries;
+			sourceTree = "<group>";
+		};
 		2696995822C38A7F00B3290E /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -327,6 +338,7 @@
 				97C146F01CF9000F007C117D /* Runner */,
 				97C146EF1CF9000F007C117D /* Products */,
 				A4FE37309F85C78E8A871D27 /* Pods */,
+				2639CC392656604500D8469A /* Libraries */,
 				F8180DF05DB99BBF17C34614 /* Frameworks */,
 				26E0DD772525C5BF002B7B11 /* build.sh */,
 			);
@@ -842,6 +854,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
+					"$(PROJECT_DIR)/Libraries",
 				);
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -921,6 +934,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
+					"$(PROJECT_DIR)/Libraries",
 				);
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -1006,6 +1020,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
+					"$(PROJECT_DIR)/Libraries",
 				);
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -1085,6 +1100,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
+					"$(PROJECT_DIR)/Libraries",
 				);
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -1220,6 +1236,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
+					"$(PROJECT_DIR)/Libraries",
 				);
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -1250,6 +1267,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
+					"$(PROJECT_DIR)/Libraries",
 				);
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
