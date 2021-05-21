@@ -20,7 +20,9 @@
 		"settings.notifications": ["covid19"],
 		"settings.covid19": ["exposure_notifications", "provider_test_result", "qr_code"],
 		"settings.privacy": ["statement"],
-		"settings.account": ["personal_info", "family_members"]
+		"settings.account": ["personal_info", "family_members"],
+
+		"features": ["vaccination_badge"]
 	},
 	"rules": {
 		"roles" : {
@@ -56,7 +58,8 @@
 			"onboarding.location_auth"            : { "os": "android" }
 		},
 		"enable" : {
-			"onboarding.bluetooth_auth"           : false
+			"onboarding.bluetooth_auth"           : false,
+			"features.vaccination_badge"          : false
 		}
 	}
 }
