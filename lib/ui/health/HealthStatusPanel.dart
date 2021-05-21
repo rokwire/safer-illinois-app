@@ -17,6 +17,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:illinois/service/Config.dart';
+import 'package:illinois/service/FlexUI.dart';
 import 'package:intl/intl.dart';
 
 import 'package:flutter/cupertino.dart';
@@ -456,7 +457,7 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
             ),
           ),
         ),
-        Visibility(visible: Health().isVaccinated, child:
+        Visibility(visible: Health().isVaccinated && FlexUI().hasFeature('vaccination_badge'), child:
           Container(width: screenWidth, height: _photoSize, child:
             Align(alignment: Alignment.bottomRight, child:
               Padding(padding: EdgeInsets.only(right: vaccinatedPaddingWidth), child:
