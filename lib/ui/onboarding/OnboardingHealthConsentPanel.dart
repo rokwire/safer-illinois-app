@@ -158,7 +158,7 @@ class _OnboardingHealthConsentPanelState extends State<OnboardingHealthConsentPa
                     ),
                     Container(height: 8,),
                     ToggleRibbonButton(
-                      label: Localization().getStringEx("panel.health.onboarding.covid19.consent.check_box.label.allow","I consent to allow my healthcare provider to provide my test results."),
+                      label: Localization().getStringEx("panel.health.onboarding.covid19.consent.check_box.label.allow", "I consent to allow my healthcare provider to provide my test results and vaccine information."),
                       toggled: _consent,
                       context: context,
                       onTap: _onAllowTap,
