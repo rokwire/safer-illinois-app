@@ -728,7 +728,7 @@ class _GroupSettingsPanelState extends State<GroupSettingsPanel> {
       });
 
       Navigator.pop(context);
-    }).catchError((e){
+    }).catchError((_){
       AppAlert.showDialogResult(context, Localization().getStringEx("panel.groups_create.tags.label.update_error", "Unable to update the group"));
       //error
       setState(() {

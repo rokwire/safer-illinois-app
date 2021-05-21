@@ -220,7 +220,7 @@ class _GroupCreatePanelState extends State<GroupCreatePanel> {
 
         Navigator.pop(context);
       }
-    }).catchError((e){
+    }).catchError((_){
       //error
       setState(() {
         _creating = false;
