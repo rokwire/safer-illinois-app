@@ -86,6 +86,8 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   @override
   void initState() {
 
+    super.initState();
+
     NotificationService().subscribe(this, [
       Auth.notifyUserPiiDataChanged,
       UserProfile.notifyProfileUpdated,
@@ -98,7 +100,6 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
     _loadVersionInfo();
     _refreshHealthUser();
 
-    super.initState();
   }
 
   @override
@@ -1246,9 +1247,11 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   }
 
   void _updateState() {
-    if (mounted) {
-      setState(() {});
-    }
+    Future.delayed(Duration(), () {
+      if (mounted) {
+        setState(() {});
+      }
+    });
   }
 
 }
