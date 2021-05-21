@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Added
 - Control visibility of vaccination badge in HealthStatusPanel from FlexUI, set it currently disabled [#647](https://github.com/rokwire/safer-illinois-app/issues/647).
+- Added vaccination information to consent texts for text results [#649](https://github.com/rokwire/safer-illinois-app/issues/649).
 
 ## [2.10.26] - 2021-05-18
 ### Changed

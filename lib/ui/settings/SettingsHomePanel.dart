@@ -703,7 +703,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
             contentList.add(ToggleRibbonButton(
                 height: null,
                 borderRadius: borderRadius,
-                label: Localization().getStringEx("panel.settings.home.covid19.provider_test_result", "Health Provider Test Results"),
+                label: Localization().getStringEx("panel.settings.home.covid19.provider_test_result", "Health Provider Test Results and Vaccine Information"),
                 toggled: (Health().user?.consent == true),
                 context: context,
                 onTap: _onProviderTestResult));
