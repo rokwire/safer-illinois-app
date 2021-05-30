@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.10.28] - 2021-05-28
+### Changed
+- Vaccination event processing updated in health rules [#651](https://github.com/rokwire/safer-illinois-app/issues/651).
+### Added
+- Force onboarding if we are upgrading version lower than 2.10.28 [#651](https://github.com/rokwire/safer-illinois-app/issues/651).
+
+
 ## [2.10.27] - 2021-05-21
 ### Added
 - Control visibility of vaccination badge in HealthStatusPanel from FlexUI, set it currently disabled [#647](https://github.com/rokwire/safer-illinois-app/issues/647).

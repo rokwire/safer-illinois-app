@@ -9,21 +9,15 @@
 	"intervals": {
 		"DefaultTestMonitorInterval": 4,
 		"UndergraduateTestMonitorInterval": 4,
-		"VaccinatedTestMonitorInterval": 30,
 		"UserTestMonitorInterval": null,
 
 		"TestMonitorInterval": {
-			"condition": "require-vaccine",
-			"params": { "interval": { "scope": "past-and-current" }, "vaccine": "effective" },
-			"success": "VaccinatedTestMonitorInterval",
+			"condition": "test-interval", "params": { "interval": "UserTestMonitorInterval" },
+			"success": "UserTestMonitorInterval",
 			"fail": {
-				"condition": "test-interval", "params": { "interval": "UserTestMonitorInterval" },
-				"success": "UserTestMonitorInterval",
-				"fail": {
-					"condition": "test-user", "params": { "card.role": "Undergraduate", "card.student_level": "1U" },
-					"success": "UndergraduateTestMonitorInterval",
-					"fail": "DefaultTestMonitorInterval"
-				}
+				"condition": "test-user", "params": { "card.role": "Undergraduate", "card.student_level": "1U" },
+				"success": "UndergraduateTestMonitorInterval",
+				"fail": "DefaultTestMonitorInterval"
 			}
 		}
 	},
@@ -39,8 +33,7 @@
 				"color": "#1ACD00",
 				"name": "code.green.name",
 				"description": "code.green.description",
-				"long_description": "code.green.long_description",
-				"visible": false
+				"long_description": "code.green.long_description"
 			},
 			{
 				"code": "yellow",
@@ -134,12 +127,7 @@
 			"params": {
 				"interval": { "min": 0, "max": 60, "scope": "future" }
 			},
-			"success": {
-				"code": "orange",
-				"priority": 1,
-				"next_step": "test.now.step",
-				"reason": "test.now.reason"
-			},
+			"success": "test-required",
 			"fail": {
 				"code": "yellow",
 				"priority": 3,
@@ -151,52 +139,20 @@
 		},
 
 		"PCR.positive-NIP": {
-			"condition": "require-vaccine",
+			"condition": "require-test",
 			"params": {
-				"interval": { "scope": "past" },
-				"vaccine": "effective"
+				"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
 			},
 			"success": {
-				"condition": "require-test",
-				"params": {
-					"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
-				},
-				"success": {
-					"code": "yellow",
-					"priority": 3,
-					"next_step_html": "positive-nip.step.html",
-					"next_step_interval": "TestMonitorInterval",
-					"event_explanation": "positive-nip.explanation",
-					"warning": "test.future.warning"
-				},
-				"fail": {
-					"code": "orange",
-					"priority": 1,
-					"next_step": "test.now.step",
-					"reason": "test.now.reason"
-				}
+				"code": "yellow",
+				"priority": 1,
+				"next_step_html": "positive-nip.step.html",
+				"next_step_interval": "TestMonitorInterval",
+				"event_explanation": "positive-nip.explanation",
+				"warning": "test.future.warning"
 			},
-			"fail": {
-				"condition": "require-test",
-				"params": {
-					"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
-				},
-				"success": {
-					"code": "yellow",
-					"priority": 1,
-					"next_step_html": "positive-nip.step.html",
-					"next_step_interval": "TestMonitorInterval",
-					"event_explanation": "positive-nip.explanation",
-					"warning": "test.future.warning"
-				},
-				"fail": {
-					"code": "orange",
-					"priority": 1,
-					"next_step": "test.now.step",
-					"reason": "test.now.reason"
-				}
-			}
-		},
+			"fail": "test-required"
+	},
 
 		"PCR.negative": "test-monitor",
 		
@@ -212,60 +168,101 @@
 				"next_step_interval": 1,
 				"warning": "test.future.warning"
 			},
-			"fail": {
-				"code": "orange",
-				"priority": 1,
-				"next_step": "test.now.step",
-				"reason": "test.now.reason"
-			}
+			"fail": "test-required"
 		},
 
 		"test-monitor": {
+			"condition": "require-test",
+			"params": {
+				"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
+			},
+			"success": {
+				"code": "yellow",
+				"priority": 1,
+				"next_step": "test.monitor.step",
+				"next_step_interval": "TestMonitorInterval",
+				"warning": "test.future.warning"
+			},
+			"fail": "test-required"
+		},
+
+		"test-required": {
+			"code": "orange",
+			"priority": 1,
+			"next_step": "test.now.step",
+			"reason": "test.now.reason"
+		},
+
+		"symptoms-match": {
+			"code": "orange",
+			"priority": 1,
+			"next_step": "symptoms.step",
+			"reason": "symptoms.reason"
+		},
+
+		"exposure-match": {
+			"condition": "timeout",
+			"params": {
+				"interval": { "min": 0, "max": 3, "scope": "future" }
+			},
+			"success": {
+				"condition": "require-test",
+				"params": {
+					"interval": { "min": 4, "max": null, "scope": "future" }
+				},
+				"success": null,
+				"fail": "test-required"
+			},
+			"fail": {
+				"code": "orange",
+				"priority": 2,
+				"next_step_html": "exposure.step.html",
+				"next_step_interval": 4,
+				"reason": "exposure.reason"
+			}
+		},
+
+		"vaccinated": {
+			"code": "green",
+			"priority": 4,
+			"next_step_html": "vaccinated.step.html",
+			"reason": "vaccinated.reason",
+			"fcm_topic": "vaccinated"
+		},
+		
+		"quarantine-on": {
+			"code": "orange",
+			"priority": 10,
+			"next_step": "quarantine-on.step",
+			"reason": "quarantine-on.reason",
+			"fcm_topic": "quarantine-on"
+		},
+
+		"quarantine-off": {
 			"condition": "require-vaccine",
 			"params": {
 				"interval": { "scope": "past" },
 				"vaccine": "effective"
 			},
-			"success": "test-monitor-vaccinated",
-			"fail": "test-monitor-default"
-		},
-
-		"test-monitor-default": {
-			"condition": "require-test",
-			"params": {
-				"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
-			},
-			"success": {
-				"code": "yellow",
-				"priority": 1,
-				"next_step": "test.monitor.step",
-				"next_step_interval": "TestMonitorInterval",
-				"warning": "test.future.warning"
-			},
+			"success": "vaccinated",
 			"fail": {
-				"code": "orange",
-				"priority": 1,
-				"next_step": "test.now.step",
-				"reason": "test.now.reason"
-			}
-		},
-		"test-monitor-vaccinated": {
-			"condition": "require-test",
-			"params": {
-				"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
-			},
-			"success": {
-				"code": "yellow",
-				"priority": 3,
-				"next_step": "test.monitor.step",
-				"next_step_interval": "TestMonitorInterval",
-				"warning": "test.future.warning"
-			},
-			"fail": {
-				"code": "orange",
-				"priority": 1,
-				"next_step": "test.now.step",
-				"reason": "test.now.reason"
+				"condition": "require-test",
+				"params": {
+					"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
+				},
+				"success": {
+					"code": "yellow",
+					"priority": -1,
+					"next_step": "test.resume.step",
+					"next_step_interval": "TestMonitorInterval",
+					"warning": "test.future.warning"
+					},
+				"fail": {
+					"code": "orange",
+					"priority": -1,
+					"next_step": "test.now.step",
+					"reason": "test.now.reason"
+				}
 			}
 		},
 
@@ -308,94 +305,6 @@
 			}
 		},
 		
-		"symptoms-match": {
-			"code": "orange",
-			"priority": 1,
-			"next_step": "symptoms.step",
-			"reason": "symptoms.reason"
-		},
-
-		"exposure-match": {
-			"condition": "timeout",
-			"params": {
-				"interval": { "min": 0, "max": 3, "scope": "future" }
-			},
-			"success": {
-				"condition": "require-test",
-				"params": {
-					"interval": { "min": 4, "max": null, "scope": "future" }
-				},
-				"success": null,
-				"fail": {
-					"code": "orange",
-					"priority": 1,
-					"next_step": "test.now.step",
-					"reason": "test.now.reason"
-				}
-			},
-			"fail": {
-				"code": "orange",
-				"priority": 2,
-				"next_step_html": "exposure.step.html",
-				"next_step_interval": 4,
-				"reason": "exposure.reason"
-			}
-		},
-		
-		"quarantine-on": {
-			"code": "orange",
-			"priority": 10,
-			"next_step": "quarantine-on.step",
-			"reason": "quarantine-on.reason",
-			"fcm_topic": "quarantine-on"
-		},
-
-		"quarantine-off": {
-			"condition": "require-vaccine",
-			"params": {
-				"interval": { "scope": "past" },
-				"vaccine": "effective"
-			},
-			"success": {
-				"condition": "require-test",
-				"params": {
-					"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
-				},
-				"success": {
-					"code": "yellow",
-					"priority": -3,
-					"next_step": "test.resume.step",
-					"next_step_interval": "TestMonitorInterval",
-					"warning": "test.future.warning"
-					},
-				"fail": {
-					"code": "orange",
-					"priority": -1,
-					"next_step": "test.now.step",
-					"reason": "test.now.reason"
-				}
-			},
-			"fail": {
-				"condition": "require-test",
-				"params": {
-					"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
-				},
-				"success": {
-					"code": "yellow",
-					"priority": -1,
-					"next_step": "test.resume.step",
-					"next_step_interval": "TestMonitorInterval",
-					"warning": "test.future.warning"
-					},
-				"fail": {
-					"code": "orange",
-					"priority": -1,
-					"next_step": "test.now.step",
-					"reason": "test.now.reason"
-				}
-			}
-		},
-
 		"out-of-test-compliance": {
 			"condition": "require-test",
 			"params": {
@@ -408,12 +317,7 @@
 				"next_step_interval": 1,
 				"warning": "test.future.warning"
 			},
-			"fail": {
-				"code": "orange",
-				"priority": 1,
-				"next_step": "test.now.step",
-				"reason": "test.now.reason"
-			}
+			"fail": "test-required"
 		},
 
 		"exempt-on": {
@@ -427,10 +331,13 @@
 					"interval": { "min": 0, "max": "ExemptInterval", "scope": "future" }
 				},
 				"success": {
-					"code": "orange",
-					"priority": 1,
-					"next_step": "test.now.step",
-					"reason": "test.now.reason"
+					"condition": "require-vaccine",
+					"params": {
+						"interval": { "scope": "past" },
+						"vaccine": "effective"
+					},
+					"success": "vaccinated",
+					"fail": "test-required"
 				},
 				"fail": {
 					"code": "yellow",
@@ -451,17 +358,45 @@
 		},
 
     "exempt-off": {
-      "code": "orange",
-      "priority": -1,
-      "next_step": "test.now.step",
-      "reason": "Your status changed to Orange because your exempt from testing status was canceled"
+			"condition": "require-vaccine",
+			"params": {
+				"interval": { "scope": "past" },
+				"vaccine": "effective"
+			},
+			"success": {
+				"code": "green",
+				"priority": -4,
+				"next_step_html": "vaccinated.step.html",
+				"reason": "Your status changed to Green because your exempt from testing status was canceled",
+				"fcm_topic": "vaccinated"
+			},
+			"fail": {
+				"code": "orange",
+				"priority": -1,
+				"next_step": "test.now.step",
+				"reason": "Your status changed to Orange because your exempt from testing status was canceled"
+			}
 		},
 		
 		"release": {
-			"code": "orange",
-			"priority": -1,
-			"next_step": "release.step",
-			"reason": "release.reason"
+			"condition": "require-vaccine",
+			"params": {
+				"interval": { "scope": "past" },
+				"vaccine": "effective"
+			},
+			"success": {
+				"code": "green",
+				"priority": -4,
+				"next_step_html": "vaccinated.step.html",
+				"reason": "Your status changed to Green because your exempt from testing status was canceled",
+				"fcm_topic": "vaccinated"
+			},
+			"fail": {
+				"code": "orange",
+				"priority": -1,
+				"next_step": "release.step",
+				"reason": "release.reason"
+			}
 		}
 	},
 
@@ -850,7 +785,7 @@
 		"rules": [
 			{
 				"vaccine": "effective",
-				"status": "test-monitor-vaccinated"
+				"status": "vaccinated"
 			}
 		]
 	},
@@ -879,6 +814,8 @@
 			"symptoms.reason": "Your status changed to Orange because you self-reported symptoms consistent with the virus.",
 			"exposure.step.html": "<h3>You have likely been exposed to a person who is infected with COVID-19.</h3><ul><h6><li>You must quarantine yourself immediately.</li></h6><h6><li>Stay home. Do not go to work, school, or public areas.</li></h6><h6><li>Separate yourself from others in your home.</li></h6><h6><li>Contact <a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a> for guidance.</li></h6><h6><li>Get tested after {next_step_date} to see if you have developed the disease.</li></h6><h6><li>More Info: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Quarantine and Isolation</a></li></h6></ul>",
 			"exposure.reason": "Your status changed to Orange because you received an exposure notification.",
+			"vaccinated.step.html": "<h3>We have a verified record of your completed COVID-19 vaccination on file.</h3><h3>Your vaccination status replaces testing for compliance and building access until further notice.</h3><h3>Please get an on-campus COVID-19 test if you experience symptoms.</h3><h3>Continue to monitor university communications for any changes to your testing policy.</h3>",
+			"vaccinated.reason": "Your status changed to Green because your vaccination is already effective.",
 			"quarantine-on.step": "Stay at home and avoid contacts",
 			"quarantine-on.reason": "Your status changed to Orange because the Public Health department placed you in Quarantine.",
 			"release.step": "Take a SHIELD Saliva Test",
@@ -905,8 +842,8 @@
 			"symptoms.diarrhea": "Diarrhea",
 			
 			"code.green.name": "Green",
-			"code.green.description": "Recent Antibodies",
-			"code.green.long_description": "Green: Recent antibodies",
+			"code.green.description": "Vaccine Effective",
+			"code.green.long_description": "Green: Vaccine Effective",
 			"code.yellow.name": "Yellow",
 			"code.yellow.description": "Recent Negative Test",
 			"code.yellow.long_description": "Yellow: Recent negative test",
@@ -942,6 +879,8 @@
 			"symptoms.reason": "Su estado cambió a Naranja porque usted mismo informó de síntomas consistentes con el virus.",
 			"exposure.step.html": "<h3>Es probable que haya estado expuesto a una persona infectada con COVID-19.</h3><ul><h6><li>Debe ponerse en cuarentena inmediatamente.</li></h6><h6><li>Quedarse en casa. No vaya al trabajo, la escuela o áreas públicas.</li></h6><h6><li>Sepárate de las demás en tu casa.</li></h6><h6><li>Póngase en contacto con <a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a> para obtener orientación.</li></h6><h6><li>Hágase la prueba después del {next_step_date} para ver si ha desarrollado la enfermedad.</li></h6><h6><li>Más información: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Cuarentena y aislamiento</a></li></h6></ul>",
 			"exposure.reason": "Su estado cambió a Naranja porque recibió una notificación de exposición.",
+			"vaccinated.step.html": "<h3>Tenemos un registro verificado de su vacunación COVID-19 completa en el archivo.</h3><h3>Su estado de vacunación reemplaza las pruebas de cumplimiento y acceso al edificio hasta nuevo aviso.</h3><h3>Hágase una prueba de COVID-19 en el campus si experimenta síntomas.</h3><h3>Continúe monitoreando las comunicaciones de la universidad para detectar cualquier cambio en su política de exámenes.</h3>",
+			"vaccinated.reason": "Su estado cambió a Verde porque su vacunación ya es efectiva.",
 			"quarantine-on.step": "Quédese en casa y evite los contactos",
 			"quarantine-on.reason": "Su estado cambió a Orange porque el departamento de Salud Pública lo puso en cuarentena.",
 			"release.step": "Realice una prueba de saliva SHIELD",
@@ -968,8 +907,8 @@
 			"symptoms.diarrhea": "Diarrea",
 
 			"code.green.name": "Verde",
-			"code.green.description": "Anticuerpos recientes",
-			"code.green.long_description": "Verde: anticuerpos recientes",
+			"code.green.description": "Vacuna eficaz",
+			"code.green.long_description": "Verde: vacuna eficaz",
 			"code.yellow.name": "Amarillo",
 			"code.yellow.description": "Prueba negativa reciente",
 			"code.yellow.long_description": "Amarillo: prueba negativa reciente",
@@ -1005,6 +944,8 @@
 			"symptoms.reason": "您的狀態更改為橙色，因為您自我報告的症狀與病毒一致。",
 			"exposure.step.html": "<h3>您可能已經接觸了感染了COVID-19的人。</h3><ul><h6><li>您必須立即隔離自己。</li></h6><h6><li>您已被強制隔離。</li></h6><h6><li>與家中的其他人分開。</li></h6><h6><li>請與<a href='mailto:covidwellness@illinois.edu'> covidwellness@illinois.edu </a>聯繫以獲取指導。</li></h6><h6><li>在{next_step_date}之後進行測試，看看您是否已患上這種疾病。</li></h6><h6><li>更多信息: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>隔離與隔離</a></li></h6></ul>",
 			"exposure.reason": "您的狀態更改為橙色，因為您收到了曝光通知。",
+			"vaccinated.step.html": "<h3>我們記錄了您完成的COVID-19疫苗接種的經過驗證的記錄。</h3><h3>您的疫苗接種狀態將取代合規性測試和建立訪問權限，直至另行通知。</h3><h3>如果您出現症狀，請進行校園 COVID-19 測試。</h3><h3>繼續監控大學通訊，了解您的考試政策是否有任何變化。</h3>",
+			"vaccinated.reason": "您的狀態已更改為“綠色”，因為您的疫苗接種已經有效。",
 			"quarantine-on.step": "呆在家裡，避免接觸",
 			"quarantine-on.reason": "您的狀態更改為“橙色”，因為公共衛生部門已將您隔離。",
 			"release.step": "參加SHIELD唾液測試",
@@ -1031,8 +972,8 @@
 			"symptoms.diarrhea":"腹瀉",
 
 			"code.green.name": "绿色",
-			"code.green.description": "最近抗體",
-			"code.green.long_description": "绿色：最近抗体",
+			"code.green.description": "疫苗有效",
+			"code.green.long_description": "绿色：疫苗有效",
 			"code.yellow.name": "黄色",
 			"code.yellow.description": "最近的陰性測試",
 			"code.yellow.long_description": "黄色：最近阴性测试",
@@ -1068,6 +1009,8 @@
 			"symptoms.reason": "COVID-19の症状と一致する症状を自己申告したため、ステータスがオレンジに変わりました。",
 			"exposure.step.html": "<h3>ＣＯＶＩＤ-１９に感染している人と接触した可能性があります。</h3><ul><h6><li>直ちに隔離してください。</li></h6><h6><li>家にいてください。仕事や学校や公共の場へ行かないでください。</li></h6><h6><li>家にいる人から離れてください。</li></h6><h6><li>ガイダンスを受けるには<a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a>に連絡してください。</li></h6><h6><li>{next_step_date}の後で検査を受けて、自分が発症しているかどうかを確認してください。</li></h6><h6><li>より詳しい情報: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>隔離と孤立</a></li></h6></ul>",
 			"exposure.reason": "接触通知を受信したため、ステータスがオレンジに変更されました。",
+			"vaccinated.step.html": "<h3>完了したCOVID-19ワクチン接種の確認済みの記録がファイルにあります。</h3><h3>あなたのワクチン接種状況は、追って通知があるまで、コンプライアンスと建物へのアクセスのテストに取って代わります。</h3><h3>症状が出た場合は、キャンパス内のCOVID-19検査を受けてください。</h3><h3>テストポリシーに変更がないか、大学のコミュニケーションを引き続き監視します。</h3>",
+			"vaccinated.reason": "予防接種がすでに有効になっているため、ステータスが緑に変わりました。",
 			"quarantine-on.step": "家にいて、他の人との接触を避けてください。",
 			"quarantine-on.reason": "Public Health departmentにより隔離状態に置かれているため、ステータスがオレンジに変更されました。",
 			"release.step": "SHIELD唾液検査を受けてください",
@@ -1094,8 +1037,8 @@
 			"symptoms.diarrhea": "下痢",
 
 			"code.green.name": "緑",
-			"code.green.description": "抗体が検収されました",
-			"code.green.long_description": "緑抗体が検収されました",
+			"code.green.description": "ワクチン効果",
+			"code.green.long_description": "緑：ワクチン効果",
 			"code.yellow.name": "黄：",
 			"code.yellow.description": "最近の陰性結果",
 			"code.yellow.long_description": "黄：最近の陰性結果",
