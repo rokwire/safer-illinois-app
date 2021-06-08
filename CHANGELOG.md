@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+- Changed testing interval to once-weekly for building access [#655](https://github.com/rokwire/safer-illinois-app/issues/655).
+
 ## [2.10.28] - 2021-05-28
 ### Changed
 - Vaccination event processing updated in health rules [#651](https://github.com/rokwire/safer-illinois-app/issues/651).
