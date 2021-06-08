@@ -56,7 +56,7 @@ class ExposureTEK {
   static List<ExposureTEK> listFromJson(List<dynamic> json) {
     List<ExposureTEK> values;
     if (json != null) {
-      values = [];
+      values = <ExposureTEK>[];
       for (dynamic entry in json) {
         ExposureTEK value;
         try { value = ExposureTEK.fromJson((entry as Map)?.cast<String, dynamic>()); }
@@ -70,7 +70,7 @@ class ExposureTEK {
   static List<dynamic> listToJson(List<ExposureTEK> values) {
     List<dynamic> json;
     if (values != null) {
-      json = [];
+      json = <dynamic>[];
       for (ExposureTEK value in values) {
         json.add(value?.toJson());
       }
@@ -97,7 +97,7 @@ class ExposureTEK {
   static List<dynamic> mapToJson(Map<String, ExposureTEK> entries) {
     List<dynamic> json;
     if (entries != null) {
-      json = [];
+      json = <dynamic>[];
       for (ExposureTEK value in entries.values) {
         json.add(value?.toJson());
       }

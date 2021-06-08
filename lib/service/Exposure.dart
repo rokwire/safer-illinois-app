@@ -331,7 +331,7 @@ class Exposure with Service implements NotificationsListener {
     List<ExposureTEK> teks;
     List<dynamic> json = await _methodChannel.invokeMethod(_teksMethodName);
     if (json != null) {
-      teks = [];
+      teks = <ExposureTEK>[];
       for (dynamic entry in json) {
         ExposureTEK tek;
         try { tek = ExposureTEK.fromJson((entry as Map)?.cast<String, dynamic>()); }
@@ -516,7 +516,7 @@ class Exposure with Service implements NotificationsListener {
     List<Map<String, dynamic>> records;
     try { records = (_database != null) ? await _database.rawQuery(query) : null; } catch (e) { print(e?.toString()); }
     if (records != null) {
-      result = [];
+      result = <ExposureRecord>[];
       for (Map<String, dynamic> record in records) {
         result.add(ExposureRecord(
           id:        record['$_databaseRowID'],
@@ -1030,7 +1030,7 @@ class Exposure with Service implements NotificationsListener {
           if (result != null) {
             _markLocalExposureProcessed(detectedExposures);
             if (results == null) {
-              results = List<HealthHistory>();
+              results = <HealthHistory>[];
             }
             results.add(result);
           }

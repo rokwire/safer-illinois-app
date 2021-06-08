@@ -365,7 +365,7 @@ class AppAlert {
           return AlertDialog(
             content: Text(message),
             actions: <Widget>[
-              FlatButton(
+              TextButton(
                   child: Text(Localization().getStringEx("dialog.ok.title", "OK")),
                   onPressed: () {
                     Analytics.instance.logAlert(text: message, selection: "Ok");
@@ -401,7 +401,7 @@ class AppAlert {
           AppString.isStringNotEmpty(message) ? Text(message, textAlign: TextAlign.center,) : Container(),
         ],),
         actions: <Widget>[
-          FlatButton(
+          TextButton(
               child: Text(Localization().getStringEx("dialog.ok.title", "OK")),
               onPressed: (){
                 Analytics.instance.logAlert(text: message, selection: "OK");
@@ -536,7 +536,7 @@ class AppDeviceOrientation {
     
     List<DeviceOrientation> orientationsList;
     if (stringsList != null) {
-      orientationsList = List();
+      orientationsList = [];
       for (dynamic string in stringsList) {
         if (string is String) {
           DeviceOrientation orientation = fromStr(string);
@@ -553,7 +553,7 @@ class AppDeviceOrientation {
     
     List<String> stringsList;
     if (orientationsList != null) {
-      stringsList = List();
+      stringsList = [];
       for (DeviceOrientation orientation in orientationsList) {
         String orientationString = toStr(orientation);
         if (orientationString != null) {

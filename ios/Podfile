@@ -36,8 +36,11 @@ target 'Runner' do
     pod 'ZXingObjC', '3.6.4'
     pod 'PPBlinkID', '~> 5.3.0'
     pod 'HKDFKit', '0.0.3'
-    pod 'Firebase/MLVisionBarcodeModel'
 
+#   'Firebase/MLVisionBarcodeModel' is required by 'firebase_ml_vision' plugin from pubspec.yaml.
+#   Unable to include it in the podfile due to a conflict with FirebaseCore version number.
+#   Temporarly add 'FirebaseMLVisionBarcodeModel.framework' to the project and link it explicitely.
+#   pod 'Firebase/MLVisionBarcodeModel'
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end

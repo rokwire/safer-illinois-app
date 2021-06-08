@@ -188,7 +188,7 @@ class _HealthTestLocationsPanelState extends State<HealthTestLocationsPanel>{
     if (itemsCount == 0) {
       return null;
     }
-    List<DropdownMenuItem<ProviderDropDownItem>> items = List<DropdownMenuItem<ProviderDropDownItem>>();
+    List<DropdownMenuItem<ProviderDropDownItem>> items = [];
 
     items.addAll(_providerItems.map((ProviderDropDownItem providerItem){
         return DropdownMenuItem(
@@ -257,7 +257,7 @@ class _HealthTestLocationsPanelState extends State<HealthTestLocationsPanel>{
         if (providers != null) {
 
           // init providers list
-          providerItems = List<ProviderDropDownItem>();
+          providerItems = [];
           providerItems.add(ProviderDropDownItem(type: ProviderDropDownItemType.all));
           for (HealthServiceProvider provider in providers) {
             providerItems.add(ProviderDropDownItem(provider: provider));
@@ -546,13 +546,13 @@ class _TestLocation extends StatelessWidget {
   }
 
   Widget _buildWorkTime(){
-    List<HealthLocationDayOfOperation> items = List();
+    List<HealthLocationDayOfOperation> items = [];
     HealthLocationDayOfOperation period;
     LinkedHashMap<int,HealthLocationDayOfOperation> workingPeriods;
     List<HealthLocationDayOfOperation> workTimes = testLocation?.daysOfOperation;
     if(workTimes?.isNotEmpty ?? false){
       workingPeriods = Map<int,HealthLocationDayOfOperation>.fromIterable(workTimes, key: (period) => period?.weekDay);
-      items = workingPeriods?.values?.toList()?? List();
+      items = workingPeriods?.values?.toList()?? [];
       period = _determineTodayPeriod(workingPeriods);
       if ((period == null) || !period.isOpen) {
         period = _findNextPeriod(workingPeriods);  

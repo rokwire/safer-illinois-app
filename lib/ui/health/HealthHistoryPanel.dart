@@ -41,7 +41,7 @@ class HealthHistoryPanel extends StatefulWidget {
 
 class _HealthHistoryPanelState extends State<HealthHistoryPanel> implements NotificationsListener {
   
-  List<HealthHistory> _history = List();
+  List<HealthHistory> _history = [];
   bool _isRefreshing = false;
   bool _isDeleting = false;
   bool _isReposting = false;

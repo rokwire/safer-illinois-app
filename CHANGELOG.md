@@ -6,17 +6,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.10.28] - 2021-05-28
+### Changed
+- Vaccination event processing updated in health rules [#651](https://github.com/rokwire/safer-illinois-app/issues/651).
+### Added
+- Force onboarding if we are upgrading version lower than 2.10.28 [#651](https://github.com/rokwire/safer-illinois-app/issues/651).
+
+
+## [2.10.27] - 2021-05-21
+### Added
+- Control visibility of vaccination badge in HealthStatusPanel from FlexUI, set it currently disabled [#647](https://github.com/rokwire/safer-illinois-app/issues/647).
+- Added vaccination information to consent texts for text results [#649](https://github.com/rokwire/safer-illinois-app/issues/649).
+
+## [2.10.26] - 2021-05-18
+### Changed
+- Flutter 2.0 Integration [#637](https://github.com/rokwire/safer-illinois-app/issues/637).
+
 ## [2.10.25] - 2021-05-14
+### Added
 - Add the External link icon to External links [#635](https://github.com/rokwire/safer-illinois-app/issues/635).
+
+### Fixed
 - Android: Fix for frequent notifications [#641](https://github.com/rokwire/safer-illinois-app/issues/641).
 
 ## [2.10.23] - 2021-05-07
+### Added
+- Added Japanese language translation provided by @kamya-k
+
+### Changed
 - Changed DefaultTestMonitorInterval to reflect production [#624](https://github.com/rokwire/safer-illinois-app/issues/624).
 - Removed test result explanation disclaimers [#626](https://github.com/rokwire/safer-illinois-app/issues/626)
-- Android: Fix crash in exposures - removeExpiredTime [#629](https://github.com/rokwire/safer-illinois-app/issues/629).
-- Added Japanese language translation provided by @kamya-k
+
+### Fixed
 - Android: Fix crash in exposures - processExposures [#631](https://github.com/rokwire/safer-illinois-app/issues/631).
 - Android: Fix crash in exposures - onReceive [#633](https://github.com/rokwire/safer-illinois-app/issues/633).
+- Android: Fix crash in exposures - removeExpiredTime [#629](https://github.com/rokwire/safer-illinois-app/issues/629).
 
 ## [2.10.22] - 2021-04-27
 ### Fixed

@@ -37,6 +37,7 @@ import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/ui/RootPanel.dart';
 import 'package:illinois/service/Styles.dart';
+import 'package:illinois/utils/Utils.dart';
 
 final AppExitListener appExitListener = AppExitListener();
 
@@ -140,6 +141,12 @@ class _AppState extends State<App> implements NotificationsListener {
     // This is just a placeholder to take some action on app upgrade.
     String lastRunVersion = Storage().lastRunVersion;
     if ((lastRunVersion == null) || (lastRunVersion != Config().appVersion)) {
+      
+      // Force unboarding to concent vaccination (#651)
+      if (AppVersion.compareVersions(lastRunVersion, '2.10.28') < 0) {
+        Storage().onBoardingPassed = false;
+      }
+      
       Storage().lastRunVersion = Config().appVersion;
     }
 
