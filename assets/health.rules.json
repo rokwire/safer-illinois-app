@@ -842,8 +842,8 @@
 			"symptoms.diarrhea": "Diarrhea",
 			
 			"code.green.name": "Green",
-			"code.green.description": "Vaccine Effective",
-			"code.green.long_description": "Green: Vaccine Effective",
+			"code.green.description": "Fully vaccinated",
+			"code.green.long_description": "Green: Fully vaccinated",
 			"code.yellow.name": "Yellow",
 			"code.yellow.description": "Recent Negative Test",
 			"code.yellow.long_description": "Yellow: Recent negative test",
@@ -907,8 +907,8 @@
 			"symptoms.diarrhea": "Diarrea",
 
 			"code.green.name": "Verde",
-			"code.green.description": "Vacuna eficaz",
-			"code.green.long_description": "Verde: vacuna eficaz",
+			"code.green.description": "Totalmente vacunado",
+			"code.green.long_description": "Verde: totalmente vacunado",
 			"code.yellow.name": "Amarillo",
 			"code.yellow.description": "Prueba negativa reciente",
 			"code.yellow.long_description": "Amarillo: prueba negativa reciente",
@@ -972,8 +972,8 @@
 			"symptoms.diarrhea":"腹瀉",
 
 			"code.green.name": "绿色",
-			"code.green.description": "疫苗有效",
-			"code.green.long_description": "绿色：疫苗有效",
+			"code.green.description": "全面接種",
+			"code.green.long_description": "绿色：全面接種",
 			"code.yellow.name": "黄色",
 			"code.yellow.description": "最近的陰性測試",
 			"code.yellow.long_description": "黄色：最近阴性测试",
@@ -1037,8 +1037,8 @@
 			"symptoms.diarrhea": "下痢",
 
 			"code.green.name": "緑",
-			"code.green.description": "ワクチン効果",
-			"code.green.long_description": "緑：ワクチン効果",
+			"code.green.description": "完全に予防接種済み",
+			"code.green.long_description": "緑：完全に予防接種済み",
 			"code.yellow.name": "黄：",
 			"code.yellow.description": "最近の陰性結果",
 			"code.yellow.long_description": "黄：最近の陰性結果",
