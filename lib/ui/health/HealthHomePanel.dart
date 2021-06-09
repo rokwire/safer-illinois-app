@@ -413,7 +413,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
           Container(height: 12,),
           Html(data: eventExplanationHtml, onLinkTap: (url) => _onTapLink(url),
             style: {
-              "body": Style(fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground),
+              "body": Style(fontFamily: Styles().fontFamilies.medium, fontSize: FontSize(16), color: Styles().colors.fillColorPrimary, padding: EdgeInsets.zero, margin: EdgeInsets.zero),
             },
           ),
       ]);
@@ -487,7 +487,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
           Container(height: 12,),
           Html(data: nextStepHtml, onLinkTap: (url) => _onTapLink(url),
             style: {
-              "body": Style(fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textBackground)
+              "body": Style(fontFamily: Styles().fontFamilies.medium, fontSize: FontSize(16), color: Styles().colors.fillColorPrimary, padding: EdgeInsets.zero, margin: EdgeInsets.zero)
             },
           ),
       ]);
@@ -505,7 +505,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
           Container(height: 12,),
           Html(data: warningHtml, onLinkTap: (url) => _onTapLink(url),
             style: {
-              "body": Style(fontFamily: Styles().fontFamilies.medium, color: Styles().colors.fillColorPrimary)
+              "body": Style(fontFamily: Styles().fontFamilies.medium, fontSize: FontSize(16), color: Styles().colors.fillColorPrimary, padding: EdgeInsets.zero, margin: EdgeInsets.zero)
             },
           ),
       ]);
