@@ -5,8 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
-
+### Changed
 - Changed testing interval to once-weekly for building access [#655](https://github.com/rokwire/safer-illinois-app/issues/655).
+- Updated test.monitor.step to test.monitor.step.html with vaccination recommendation. Standardized Html widgets display used for health status content. [#657](https://github.com/rokwire/safer-illinois-app/issues/657).
 
 ## [2.10.28] - 2021-05-28
 ### Changed
