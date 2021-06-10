@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.10.29] - 2021-06-09
+### Changed
+- Changed testing interval to once-weekly for building access [#655](https://github.com/rokwire/safer-illinois-app/issues/655).
+- Updated test.monitor.step to test.monitor.step.html with vaccination recommendation. Standardized Html widgets display used for health status content. [#657](https://github.com/rokwire/safer-illinois-app/issues/657).
+
 ## [2.10.28] - 2021-05-28
 ### Changed
 - Vaccination event processing updated in health rules [#651](https://github.com/rokwire/safer-illinois-app/issues/651).
