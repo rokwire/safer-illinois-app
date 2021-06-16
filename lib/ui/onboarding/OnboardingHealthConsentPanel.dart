@@ -48,7 +48,7 @@ class OnboardingHealthConsentPanel extends StatefulWidget with OnboardingPanel {
 
 class _OnboardingHealthConsentPanelState extends State<OnboardingHealthConsentPanel>{
   bool _loading = false;
-  bool _exposureNotification = false;
+  bool _consentExposureNotification = false;
   bool _consentTestResults = true;
   bool _canContinue = false;
   bool _permissionsRequested = false;
@@ -60,7 +60,7 @@ class _OnboardingHealthConsentPanelState extends State<OnboardingHealthConsentPa
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
     //19.06 - 5.1 Covid setup flow consents should be off by default
-    //_exposureNotification = Health().user?.exposureNotification ?? false;
+    //_consentExposureNotification = Health().user?.consentExposureNotification ?? false;
     //_consentTestResults = Health().user?.consentTestResults ?? true;
   }
 
@@ -139,7 +139,7 @@ class _OnboardingHealthConsentPanelState extends State<OnboardingHealthConsentPa
                     Container(height: 8,),
                     ToggleRibbonButton(
                       label:  Localization().getStringEx("panel.health.onboarding.covid19.consent.check_box.label.participate","I consent to participate in the Exposure Notification System (requires Bluetooth to be ON)."),
-                      toggled: _exposureNotification,
+                      toggled: _consentExposureNotification,
                       onTap: _onParticipateTap,
                       context: context,
                       height: null),
@@ -234,7 +234,7 @@ class _OnboardingHealthConsentPanelState extends State<OnboardingHealthConsentPa
     setState(() {
       _loading = true;
     });
-    Health().loginUser(consentTestResults: _consentTestResults, exposureNotification: _exposureNotification).then((user) {
+    Health().loginUser(consentTestResults: _consentTestResults, consentExposureNotification: _consentExposureNotification).then((user) {
       if (mounted) {
         setState(() {
           _loading = false;
@@ -268,17 +268,17 @@ class _OnboardingHealthConsentPanelState extends State<OnboardingHealthConsentPa
 
   void _onParticipateTap(){
     Analytics.instance.logSelect(target: "concent to participate");
-    if (Platform.isIOS && (_exposureNotification != true) && (_permissionsRequested != true)) {
+    if (Platform.isIOS && (_consentExposureNotification != true) && (_permissionsRequested != true)) {
       _permissionsRequested = true;
       _requestPermisions().then((_) {
         setState(() {
-          _exposureNotification = !_exposureNotification;
+          _consentExposureNotification = !_consentExposureNotification;
         });
       });
     }
     else {
       setState(() {
-        _exposureNotification = !_exposureNotification;
+        _consentExposureNotification = !_consentExposureNotification;
       });
     }
   }

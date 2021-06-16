@@ -1228,7 +1228,7 @@ class HealthUser {
   String publicKeyString;
   PublicKey _publicKey;
   bool consentTestResults;
-  bool exposureNotification;
+  bool consentExposureNotification;
   bool repost;
   List<HealthUserAccount> accounts;
   String encryptedKey;
@@ -1237,7 +1237,7 @@ class HealthUser {
   HealthUserAccount defaultAccount;
   Map<String, HealthUserAccount> accountsMap;
 
-  HealthUser({this.uuid, this.publicKeyString, PublicKey publicKey, this.consentTestResults, this.exposureNotification, this.repost, this.accounts, this.encryptedKey, this.encryptedBlob}) {
+  HealthUser({this.uuid, this.publicKeyString, PublicKey publicKey, this.consentTestResults, this.consentExposureNotification, this.repost, this.accounts, this.encryptedKey, this.encryptedBlob}) {
     _publicKey = publicKey;
     accountsMap = HealthUserAccount.mapFromList(accounts);
     defaultAccount = HealthUserAccount.defaultInList(accounts);
@@ -1248,7 +1248,7 @@ class HealthUser {
       uuid: json['uuid'],
       publicKeyString: json['public_key'],
       consentTestResults: json['consent'],
-      exposureNotification: json['exposure_notification'],
+      consentExposureNotification: json['exposure_notification'],
       repost: json['re_post'],
       accounts: HealthUserAccount.listFromJson(json['accounts']),
       encryptedKey: json['encrypted_key'],
@@ -1261,7 +1261,7 @@ class HealthUser {
       'uuid': uuid,
       'public_key': publicKeyString,
       'consent': consentTestResults,
-      'exposure_notification': exposureNotification,
+      'exposure_notification': consentExposureNotification,
       're_post': repost,
       'accounts': HealthUserAccount.listToJson(accounts),
       'encrypted_key': encryptedKey,
@@ -1274,7 +1274,7 @@ class HealthUser {
       o.uuid == uuid &&
       o.publicKeyString == publicKeyString &&
       o.consentTestResults == consentTestResults &&
-      o.exposureNotification == exposureNotification &&
+      o.consentExposureNotification == consentExposureNotification &&
       o.repost == repost &&
       ListEquality().equals(o.accounts, accounts) &&
       o.encryptedKey == encryptedKey &&
@@ -1284,7 +1284,7 @@ class HealthUser {
     (uuid?.hashCode ?? 0) ^
     (publicKeyString?.hashCode ?? 0) ^
     (consentTestResults?.hashCode ?? 0) ^
-    (exposureNotification?.hashCode ?? 0) ^
+    (consentExposureNotification?.hashCode ?? 0) ^
     (repost?.hashCode ?? 0) ^
     ListEquality().hash(accounts) ^
     (encryptedKey?.hashCode ?? 0) ^
@@ -1305,7 +1305,7 @@ class HealthUser {
       publicKeyString: user.publicKeyString,
       publicKey: user.publicKey,
       consentTestResults: user.consentTestResults,
-      exposureNotification: user.exposureNotification,
+      consentExposureNotification: user.consentExposureNotification,
       repost: user.repost,
       accounts: user.accounts,
       encryptedKey: user.encryptedKey,

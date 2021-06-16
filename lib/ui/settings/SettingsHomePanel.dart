@@ -594,11 +594,11 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
     });
   }
 
-  void _updateHealthUser({bool consentTestResults, bool exposureNotification}){
+  void _updateHealthUser({bool consentTestResults, bool consentExposureNotification}){
     setState(() {
       _refreshingHealthUser = true;
     });
-    Health().loginUser(consentTestResults: consentTestResults, exposureNotification: exposureNotification).then((_) {
+    Health().loginUser(consentTestResults: consentTestResults, consentExposureNotification: consentExposureNotification).then((_) {
       if (mounted) {
         setState(() {
           _refreshingHealthUser = false;
@@ -695,9 +695,9 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
                 height: null,
                 borderRadius: borderRadius,
                 label: Localization().getStringEx("panel.settings.home.covid19.exposure_notifications", "Exposure Notifications"),
-                toggled: (Health().user?.exposureNotification == true),
+                toggled: (Health().user?.consentExposureNotification == true),
                 context: context,
-                onTap: _onExposureNotifications));
+                onTap: _onConsentExposureNotifications));
           }
           else if (code == 'provider_test_result') {
             contentList.add(ToggleRibbonButton(
@@ -873,18 +873,18 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   }
 
   
-  void _onExposureNotifications() {
+  void _onConsentExposureNotifications() {
     if (Connectivity().isNotOffline) {
       Analytics.instance.logSelect(target: "Exposure Notifications");
-      bool exposureNotification = Health().user?.exposureNotification ?? false;
-      if (Platform.isIOS && (exposureNotification != true) && (_permissionsRequested != true)) {
+      bool consentExposureNotification = Health().user?.consentExposureNotification ?? false;
+      if (Platform.isIOS && (consentExposureNotification != true) && (_permissionsRequested != true)) {
         _permissionsRequested = true;
         _requestPermisions().then((_) {
-          _updateHealthUser(exposureNotification: !exposureNotification);
+          _updateHealthUser(consentExposureNotification: !consentExposureNotification);
         });
       }
       else {
-        _updateHealthUser(exposureNotification: !exposureNotification);
+        _updateHealthUser(consentExposureNotification: !consentExposureNotification);
       }
     } else {
       AppAlert.showOfflineMessage(context);

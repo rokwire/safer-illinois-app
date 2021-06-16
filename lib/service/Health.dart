@@ -326,8 +326,8 @@ class Health with Service implements NotificationsListener {
     return this._isUserAuthenticated && (_user != null);
   }
 
-  bool get userExposureNotification {
-    return this.isUserLoggedIn && (_user?.exposureNotification ?? false);
+  bool get userConsentExposureNotification {
+    return this.isUserLoggedIn && (_user?.consentExposureNotification ?? false);
   }
 
   // User
@@ -419,7 +419,7 @@ class Health with Service implements NotificationsListener {
     return false;
   }
 
-  Future<HealthUser> loginUser({bool consentTestResults, bool exposureNotification, AsymmetricKeyPair<PublicKey, PrivateKey> keys}) async {
+  Future<HealthUser> loginUser({bool consentTestResults, bool consentExposureNotification, AsymmetricKeyPair<PublicKey, PrivateKey> keys}) async {
 
     if (!this._isUserAuthenticated) {
       return null;
@@ -471,10 +471,10 @@ class Health with Service implements NotificationsListener {
     }
     
     // Exposure Notification
-    if (exposureNotification != null) {
-      if (exposureNotification != user.exposureNotification) {
-        analyticsSettingsAttributes[Analytics.LogHealthSettingNotifyExposuresName] = exposureNotification;
-        user.exposureNotification = exposureNotification;
+    if (consentExposureNotification != null) {
+      if (consentExposureNotification != user.consentExposureNotification) {
+        analyticsSettingsAttributes[Analytics.LogHealthSettingConsentExposureNotifName] = consentExposureNotification;
+        user.consentExposureNotification = consentExposureNotification;
         userUpdated = true;
       }
     }
@@ -504,7 +504,7 @@ class Health with Service implements NotificationsListener {
       Analytics().logHealth( action: Analytics.LogHealthSettingChangedAction, attributes: analyticsSettingsAttributes, defaultAttributes: Analytics.DefaultAttributes);
     }
 
-    if (exposureNotification == true) {
+    if (consentExposureNotification == true) {
       if (BluetoothServices().status == BluetoothStatus.PermissionNotDetermined) {
         await BluetoothServices().requestStatus();
       }
