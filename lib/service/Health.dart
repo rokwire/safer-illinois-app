@@ -419,7 +419,7 @@ class Health with Service implements NotificationsListener {
     return false;
   }
 
-  Future<HealthUser> loginUser({bool consent, bool exposureNotification, AsymmetricKeyPair<PublicKey, PrivateKey> keys}) async {
+  Future<HealthUser> loginUser({bool consentTestResults, bool exposureNotification, AsymmetricKeyPair<PublicKey, PrivateKey> keys}) async {
 
     if (!this._isUserAuthenticated) {
       return null;
@@ -462,10 +462,10 @@ class Health with Service implements NotificationsListener {
     
     // Consent
     Map<String, dynamic> analyticsSettingsAttributes = {}; 
-    if (consent != null) {
-      if (consent != user.consent) {
-        analyticsSettingsAttributes[Analytics.LogHealthSettingConsentName] = consent;
-        user.consent = consent;
+    if (consentTestResults != null) {
+      if (consentTestResults != user.consentTestResults) {
+        analyticsSettingsAttributes[Analytics.LogHealthSettingConsentTestResultsName] = consentTestResults;
+        user.consentTestResults = consentTestResults;
         userUpdated = true;
       }
     }

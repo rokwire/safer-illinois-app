@@ -198,7 +198,7 @@ class _Settings2HomePanelState extends State<Settings2HomePanel> implements Noti
                   Container(height: 12,),
                   CustomRibbonButton(
                     height: null,
-                    value: (Health().user?.consent ?? false) ? 'Enabled' : 'Disabled',
+                    value: (Health().user?.consentTestResults ?? false) ? 'Enabled' : 'Disabled',
                     borderRadius: BorderRadius.all(Radius.circular(4)),
                     label: 'Automatic Test Results',
                     descriptionLabel: 'Learn more information about automatic test results and manage your settings.',

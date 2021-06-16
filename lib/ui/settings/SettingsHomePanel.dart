@@ -594,11 +594,11 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
     });
   }
 
-  void _updateHealthUser({bool consent, bool exposureNotification}){
+  void _updateHealthUser({bool consentTestResults, bool exposureNotification}){
     setState(() {
       _refreshingHealthUser = true;
     });
-    Health().loginUser(consent: consent, exposureNotification: exposureNotification).then((_) {
+    Health().loginUser(consentTestResults: consentTestResults, exposureNotification: exposureNotification).then((_) {
       if (mounted) {
         setState(() {
           _refreshingHealthUser = false;
@@ -704,9 +704,9 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
                 height: null,
                 borderRadius: borderRadius,
                 label: Localization().getStringEx("panel.settings.home.covid19.provider_test_result", "Health Provider Test Results and Vaccine Information"),
-                toggled: (Health().user?.consent == true),
+                toggled: (Health().user?.consentTestResults == true),
                 context: context,
-                onTap: _onProviderTestResult));
+                onTap: _onConsentTestResult));
           }
           else if (code == 'qr_code') {
             contentList.add(Padding(padding: EdgeInsets.only(left: 8, top: 16), child: _buildCovid19KeysSection(),));
@@ -901,11 +901,11 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
     }
   }
 
-  void _onProviderTestResult() {
+  void _onConsentTestResult() {
     if (Connectivity().isNotOffline) {
-      Analytics.instance.logSelect(target: "Health Provider Test Results");
-      bool consent = Health().user?.consent ?? false;
-      _updateHealthUser(consent: !consent);
+      Analytics.instance.logSelect(target: "Consent Test Results");
+      bool consentTestResults = Health().user?.consentTestResults ?? false;
+      _updateHealthUser(consentTestResults: !consentTestResults);
     } else {
       AppAlert.showOfflineMessage(context);
     }

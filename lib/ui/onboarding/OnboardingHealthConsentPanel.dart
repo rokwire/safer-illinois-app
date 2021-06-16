@@ -49,7 +49,7 @@ class OnboardingHealthConsentPanel extends StatefulWidget with OnboardingPanel {
 class _OnboardingHealthConsentPanelState extends State<OnboardingHealthConsentPanel>{
   bool _loading = false;
   bool _exposureNotification = false;
-  bool _consent = true;
+  bool _consentTestResults = true;
   bool _canContinue = false;
   bool _permissionsRequested = false;
   ScrollController _scrollController;
@@ -60,8 +60,8 @@ class _OnboardingHealthConsentPanelState extends State<OnboardingHealthConsentPa
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
     //19.06 - 5.1 Covid setup flow consents should be off by default
-    //_exposureNotification = Health().user?.consent ?? false;
-    //_consent = Health().user?.exposureNotification ?? false;
+    //_exposureNotification = Health().user?.exposureNotification ?? false;
+    //_consentTestResults = Health().user?.consentTestResults ?? true;
   }
 
   @override
@@ -159,7 +159,7 @@ class _OnboardingHealthConsentPanelState extends State<OnboardingHealthConsentPa
                     Container(height: 8,),
                     ToggleRibbonButton(
                       label: Localization().getStringEx("panel.health.onboarding.covid19.consent.check_box.label.allow", "I consent to allow my healthcare provider to provide my test results and vaccine information."),
-                      toggled: _consent,
+                      toggled: _consentTestResults,
                       context: context,
                       onTap: _onAllowTap,
                       height: null),
@@ -234,7 +234,7 @@ class _OnboardingHealthConsentPanelState extends State<OnboardingHealthConsentPa
     setState(() {
       _loading = true;
     });
-    Health().loginUser(consent: _consent, exposureNotification: _exposureNotification).then((user) {
+    Health().loginUser(consentTestResults: _consentTestResults, exposureNotification: _exposureNotification).then((user) {
       if (mounted) {
         setState(() {
           _loading = false;
@@ -286,7 +286,7 @@ class _OnboardingHealthConsentPanelState extends State<OnboardingHealthConsentPa
   void _onAllowTap(){
     Analytics.instance.logSelect(target: "concent to allow");
     setState(() {
-      _consent = !_consent;
+      _consentTestResults = !_consentTestResults;
     });
   }
 
