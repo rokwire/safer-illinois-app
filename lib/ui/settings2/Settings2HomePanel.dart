@@ -191,18 +191,27 @@ class _Settings2HomePanelState extends State<Settings2HomePanel> implements Noti
                     height: null,
                     borderRadius: BorderRadius.all(Radius.circular(4)),
                     label: 'Exposure Notifications',
-                    value: (Health().user?.exposureNotification ?? false) ? 'Enabled' : 'Disabled',
+                    value: (Health().user?.consentExposureNotification ?? false) ? 'Enabled' : 'Disabled',
                     descriptionLabel: 'Learn more information about exposure notifications and manage your settings.',
-                    onTap: _onExposureNotificationsTapped,
+                    onTap: _onConsentExposureNotificationsTapped,
                   ),
                   Container(height: 12,),
                   CustomRibbonButton(
                     height: null,
-                    value: (Health().user?.consent ?? false) ? 'Enabled' : 'Disabled',
+                    value: (Health().user?.consentTestResults ?? false) ? 'Enabled' : 'Disabled',
                     borderRadius: BorderRadius.all(Radius.circular(4)),
                     label: 'Automatic Test Results',
                     descriptionLabel: 'Learn more information about automatic test results and manage your settings.',
-                    onTap: _onConsentTapped,
+                    onTap: _onConsentTestResultsTapped,
+                  ),
+                  Container(height: 12,),
+                  CustomRibbonButton(
+                    height: null,
+                    value: (Health().user?.consentVaccineInformation ?? false) ? 'Enabled' : 'Disabled',
+                    borderRadius: BorderRadius.all(Radius.circular(4)),
+                    label: 'Automatic Vaccine Information',
+                    descriptionLabel: 'Learn more information about automatic vaccine information and manage your settings.',
+                    onTap: _onConsentVaccineInformationTapped,
                   ),
                   Container(height: 40,),
                   Text("System Settings",
@@ -606,15 +615,21 @@ class _Settings2HomePanelState extends State<Settings2HomePanel> implements Noti
     Navigator.push(context, CupertinoPageRoute(builder: (context) => Settings2TransferEncryptionKeyPanel()));
   }
 
-  void _onExposureNotificationsTapped(){
-    Analytics.instance.logSelect(target: "Exposure Notifications");
+  void _onConsentExposureNotificationsTapped(){
+    Analytics.instance.logSelect(target: "Consent Exposure Notifications");
     Navigator.push(context, CupertinoPageRoute(builder: (context) => Settings2ExposureNotificationsPanel()));
   }
 
-  void _onConsentTapped(){
-    Analytics.instance.logSelect(target: "Consent");
+  void _onConsentTestResultsTapped(){
+    Analytics.instance.logSelect(target: "Consent Test Results");
     Navigator.push(context, CupertinoPageRoute(builder: (context) => Settings2ConsentPanel()));
   }
+
+  void _onConsentVaccineInformationTapped(){
+    Analytics.instance.logSelect(target: "Consent Vaccine Information");
+    //TBD: Navigator.push(context, CupertinoPageRoute(builder: (context) => Settings2ConsentPanel()));
+  }
+  
 }
 
 class CustomRibbonButton extends StatelessWidget {

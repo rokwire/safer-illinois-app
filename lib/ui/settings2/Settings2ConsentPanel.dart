@@ -73,9 +73,9 @@ class _Settings2ConsentPanelState extends State<Settings2ConsentPanel> implement
                       height: null,
                       border: Border.all(width: 1, color: Styles().colors.surfaceAccent),
                       borderRadius: BorderRadius.all(Radius.circular(4)),
-                      toggled: Health().user.consent,
+                      toggled: Health().user.consentTestResults,
                       onTap: (){
-                        if(!Health().user.consent){
+                        if(!Health().user.consentTestResults){
                           _onConsentEnabled();
                         }
                         else{
@@ -214,7 +214,7 @@ class _Settings2ConsentPanelState extends State<Settings2ConsentPanel> implement
     _setState((){
       _isDisabling = true;
     });
-    Health().loginUser(consent: false).whenComplete((){
+    Health().loginUser(consentTestResults: false).whenComplete((){
       _setState((){
         _isDisabling = false;
       });
@@ -229,7 +229,7 @@ class _Settings2ConsentPanelState extends State<Settings2ConsentPanel> implement
     setState((){
       _isEnabling = true;
     });
-    Health().loginUser(consent: true).whenComplete((){
+    Health().loginUser(consentTestResults: true).whenComplete((){
       setState((){
         _isEnabling = false;
       });

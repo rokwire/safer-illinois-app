@@ -594,11 +594,11 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
     });
   }
 
-  void _updateHealthUser({bool consent, bool exposureNotification}){
+  void _updateHealthUser({bool consentTestResults, bool consentVaccineInformation, bool consentExposureNotification}){
     setState(() {
       _refreshingHealthUser = true;
     });
-    Health().loginUser(consent: consent, exposureNotification: exposureNotification).then((_) {
+    Health().loginUser(consentTestResults: consentTestResults, consentVaccineInformation: consentVaccineInformation, consentExposureNotification: consentExposureNotification).then((_) {
       if (mounted) {
         setState(() {
           _refreshingHealthUser = false;
@@ -695,18 +695,27 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
                 height: null,
                 borderRadius: borderRadius,
                 label: Localization().getStringEx("panel.settings.home.covid19.exposure_notifications", "Exposure Notifications"),
-                toggled: (Health().user?.exposureNotification == true),
+                toggled: (Health().user?.consentExposureNotification == true),
                 context: context,
-                onTap: _onExposureNotifications));
+                onTap: _onConsentExposureNotifications));
           }
           else if (code == 'provider_test_result') {
             contentList.add(ToggleRibbonButton(
                 height: null,
                 borderRadius: borderRadius,
-                label: Localization().getStringEx("panel.settings.home.covid19.provider_test_result", "Health Provider Test Results and Vaccine Information"),
-                toggled: (Health().user?.consent == true),
+                label: Localization().getStringEx("panel.settings.home.covid19.provider_test_result", "Health Provider Test Results"),
+                toggled: (Health().user?.consentTestResults == true),
                 context: context,
-                onTap: _onProviderTestResult));
+                onTap: _onConsentTestResult));
+          }
+          else if (code == 'provider_vaccine_info') {
+            contentList.add(ToggleRibbonButton(
+                height: null,
+                borderRadius: borderRadius,
+                label: Localization().getStringEx("panel.settings.home.covid19.provider_vaccine_info", "Health Provider Vaccine Information"),
+                toggled: (Health().user?.consentVaccineInformation == true),
+                context: context,
+                onTap: _onConsentVaccineInfo));
           }
           else if (code == 'qr_code') {
             contentList.add(Padding(padding: EdgeInsets.only(left: 8, top: 16), child: _buildCovid19KeysSection(),));
@@ -873,18 +882,18 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   }
 
   
-  void _onExposureNotifications() {
+  void _onConsentExposureNotifications() {
     if (Connectivity().isNotOffline) {
       Analytics.instance.logSelect(target: "Exposure Notifications");
-      bool exposureNotification = Health().user?.exposureNotification ?? false;
-      if (Platform.isIOS && (exposureNotification != true) && (_permissionsRequested != true)) {
+      bool consentExposureNotification = Health().user?.consentExposureNotification ?? false;
+      if (Platform.isIOS && (consentExposureNotification != true) && (_permissionsRequested != true)) {
         _permissionsRequested = true;
         _requestPermisions().then((_) {
-          _updateHealthUser(exposureNotification: !exposureNotification);
+          _updateHealthUser(consentExposureNotification: !consentExposureNotification);
         });
       }
       else {
-        _updateHealthUser(exposureNotification: !exposureNotification);
+        _updateHealthUser(consentExposureNotification: !consentExposureNotification);
       }
     } else {
       AppAlert.showOfflineMessage(context);
@@ -901,15 +910,26 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
     }
   }
 
-  void _onProviderTestResult() {
+  void _onConsentTestResult() {
     if (Connectivity().isNotOffline) {
-      Analytics.instance.logSelect(target: "Health Provider Test Results");
-      bool consent = Health().user?.consent ?? false;
-      _updateHealthUser(consent: !consent);
+      Analytics.instance.logSelect(target: "Consent Test Results");
+      bool consentTestResults = Health().user?.consentTestResults ?? false;
+      _updateHealthUser(consentTestResults: !consentTestResults);
     } else {
       AppAlert.showOfflineMessage(context);
     }
   }
+
+  void _onConsentVaccineInfo() {
+    if (Connectivity().isNotOffline) {
+      Analytics.instance.logSelect(target: "Consent Vaccine Information");
+      bool consentVaccineInformation = Health().user?.consentVaccineInformation ?? false;
+      _updateHealthUser(consentVaccineInformation: !consentVaccineInformation);
+    } else {
+      AppAlert.showOfflineMessage(context);
+    }
+  }
+  
 
   void _onTapCovid19Login() {
     if (Connectivity().isNotOffline) {
