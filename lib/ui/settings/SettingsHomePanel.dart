@@ -594,11 +594,11 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
     });
   }
 
-  void _updateHealthUser({bool consentTestResults, bool consentExposureNotification}){
+  void _updateHealthUser({bool consentTestResults, bool consentVaccineInformation, bool consentExposureNotification}){
     setState(() {
       _refreshingHealthUser = true;
     });
-    Health().loginUser(consentTestResults: consentTestResults, consentExposureNotification: consentExposureNotification).then((_) {
+    Health().loginUser(consentTestResults: consentTestResults, consentVaccineInformation: consentVaccineInformation, consentExposureNotification: consentExposureNotification).then((_) {
       if (mounted) {
         setState(() {
           _refreshingHealthUser = false;
@@ -703,10 +703,19 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
             contentList.add(ToggleRibbonButton(
                 height: null,
                 borderRadius: borderRadius,
-                label: Localization().getStringEx("panel.settings.home.covid19.provider_test_result", "Health Provider Test Results and Vaccine Information"),
+                label: Localization().getStringEx("panel.settings.home.covid19.provider_test_result", "Health Provider Test Results"),
                 toggled: (Health().user?.consentTestResults == true),
                 context: context,
                 onTap: _onConsentTestResult));
+          }
+          else if (code == 'provider_vaccine_info') {
+            contentList.add(ToggleRibbonButton(
+                height: null,
+                borderRadius: borderRadius,
+                label: Localization().getStringEx("panel.settings.home.covid19.provider_vaccine_info", "Health Provider Vaccine Information"),
+                toggled: (Health().user?.consentVaccineInformation == true),
+                context: context,
+                onTap: _onConsentVaccineInfo));
           }
           else if (code == 'qr_code') {
             contentList.add(Padding(padding: EdgeInsets.only(left: 8, top: 16), child: _buildCovid19KeysSection(),));
@@ -910,6 +919,17 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
       AppAlert.showOfflineMessage(context);
     }
   }
+
+  void _onConsentVaccineInfo() {
+    if (Connectivity().isNotOffline) {
+      Analytics.instance.logSelect(target: "Consent Vaccine Information");
+      bool consentVaccineInformation = Health().user?.consentVaccineInformation ?? false;
+      _updateHealthUser(consentVaccineInformation: !consentVaccineInformation);
+    } else {
+      AppAlert.showOfflineMessage(context);
+    }
+  }
+  
 
   void _onTapCovid19Login() {
     if (Connectivity().isNotOffline) {

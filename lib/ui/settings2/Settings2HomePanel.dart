@@ -204,6 +204,15 @@ class _Settings2HomePanelState extends State<Settings2HomePanel> implements Noti
                     descriptionLabel: 'Learn more information about automatic test results and manage your settings.',
                     onTap: _onConsentTestResultsTapped,
                   ),
+                  Container(height: 12,),
+                  CustomRibbonButton(
+                    height: null,
+                    value: (Health().user?.consentVaccineInformation ?? false) ? 'Enabled' : 'Disabled',
+                    borderRadius: BorderRadius.all(Radius.circular(4)),
+                    label: 'Automatic Vaccine Information',
+                    descriptionLabel: 'Learn more information about automatic vaccine information and manage your settings.',
+                    onTap: _onConsentVaccineInformationTapped,
+                  ),
                   Container(height: 40,),
                   Text("System Settings",
                     style: TextStyle(
@@ -607,14 +616,20 @@ class _Settings2HomePanelState extends State<Settings2HomePanel> implements Noti
   }
 
   void _onConsentExposureNotificationsTapped(){
-    Analytics.instance.logSelect(target: "Exposure Notifications");
+    Analytics.instance.logSelect(target: "Consent Exposure Notifications");
     Navigator.push(context, CupertinoPageRoute(builder: (context) => Settings2ExposureNotificationsPanel()));
   }
 
   void _onConsentTestResultsTapped(){
-    Analytics.instance.logSelect(target: "Consent");
+    Analytics.instance.logSelect(target: "Consent Test Results");
     Navigator.push(context, CupertinoPageRoute(builder: (context) => Settings2ConsentPanel()));
   }
+
+  void _onConsentVaccineInformationTapped(){
+    Analytics.instance.logSelect(target: "Consent Vaccine Information");
+    //TBD: Navigator.push(context, CupertinoPageRoute(builder: (context) => Settings2ConsentPanel()));
+  }
+  
 }
 
 class CustomRibbonButton extends StatelessWidget {

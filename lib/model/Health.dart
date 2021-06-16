@@ -1228,6 +1228,7 @@ class HealthUser {
   String publicKeyString;
   PublicKey _publicKey;
   bool consentTestResults;
+  bool consentVaccineInformation;
   bool consentExposureNotification;
   bool repost;
   List<HealthUserAccount> accounts;
@@ -1237,7 +1238,7 @@ class HealthUser {
   HealthUserAccount defaultAccount;
   Map<String, HealthUserAccount> accountsMap;
 
-  HealthUser({this.uuid, this.publicKeyString, PublicKey publicKey, this.consentTestResults, this.consentExposureNotification, this.repost, this.accounts, this.encryptedKey, this.encryptedBlob}) {
+  HealthUser({this.uuid, this.publicKeyString, PublicKey publicKey, this.consentTestResults, this.consentVaccineInformation, this.consentExposureNotification, this.repost, this.accounts, this.encryptedKey, this.encryptedBlob}) {
     _publicKey = publicKey;
     accountsMap = HealthUserAccount.mapFromList(accounts);
     defaultAccount = HealthUserAccount.defaultInList(accounts);
@@ -1248,6 +1249,7 @@ class HealthUser {
       uuid: json['uuid'],
       publicKeyString: json['public_key'],
       consentTestResults: json['consent'],
+      consentVaccineInformation: json['consent_vaccine'],
       consentExposureNotification: json['exposure_notification'],
       repost: json['re_post'],
       accounts: HealthUserAccount.listFromJson(json['accounts']),
@@ -1261,6 +1263,7 @@ class HealthUser {
       'uuid': uuid,
       'public_key': publicKeyString,
       'consent': consentTestResults,
+      'consent_vaccine': consentVaccineInformation,
       'exposure_notification': consentExposureNotification,
       're_post': repost,
       'accounts': HealthUserAccount.listToJson(accounts),
@@ -1274,6 +1277,7 @@ class HealthUser {
       o.uuid == uuid &&
       o.publicKeyString == publicKeyString &&
       o.consentTestResults == consentTestResults &&
+      o.consentVaccineInformation == consentVaccineInformation &&
       o.consentExposureNotification == consentExposureNotification &&
       o.repost == repost &&
       ListEquality().equals(o.accounts, accounts) &&
@@ -1284,6 +1288,7 @@ class HealthUser {
     (uuid?.hashCode ?? 0) ^
     (publicKeyString?.hashCode ?? 0) ^
     (consentTestResults?.hashCode ?? 0) ^
+    (consentVaccineInformation?.hashCode ?? 0) ^
     (consentExposureNotification?.hashCode ?? 0) ^
     (repost?.hashCode ?? 0) ^
     ListEquality().hash(accounts) ^
@@ -1305,6 +1310,7 @@ class HealthUser {
       publicKeyString: user.publicKeyString,
       publicKey: user.publicKey,
       consentTestResults: user.consentTestResults,
+      consentVaccineInformation: user.consentVaccineInformation,
       consentExposureNotification: user.consentExposureNotification,
       repost: user.repost,
       accounts: user.accounts,

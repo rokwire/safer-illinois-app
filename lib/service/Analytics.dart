@@ -203,6 +203,7 @@ class Analytics with Service implements NotificationsListener {
   static const String   LogHealthStatusName                      = "status";
   static const String   LogHealthPrevStatusName                  = "previous_status";
   static const String   LogHealthSettingConsentTestResultsName   = "consent_test_results";
+  static const String   LogHealthSettingConsentVaccineInfoName   = "consent_vaccine_information";
   static const String   LogHealthSettingConsentExposureNotifName = "notify_exposures";
   static const String   LogHealthProviderName                    = "provider";
   static const String   LogHealthLocationName                    = "location";
