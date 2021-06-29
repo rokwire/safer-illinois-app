@@ -326,8 +326,8 @@ class Health with Service implements NotificationsListener {
     return this._isUserAuthenticated && (_user != null);
   }
 
-  bool get userExposureNotification {
-    return this.isUserLoggedIn && (_user?.exposureNotification ?? false);
+  bool get userConsentExposureNotification {
+    return this.isUserLoggedIn && (_user?.consentExposureNotification ?? false);
   }
 
   // User
@@ -419,7 +419,7 @@ class Health with Service implements NotificationsListener {
     return false;
   }
 
-  Future<HealthUser> loginUser({bool consent, bool exposureNotification, AsymmetricKeyPair<PublicKey, PrivateKey> keys}) async {
+  Future<HealthUser> loginUser({bool consentTestResults, bool consentVaccineInformation, bool consentExposureNotification, AsymmetricKeyPair<PublicKey, PrivateKey> keys}) async {
 
     if (!this._isUserAuthenticated) {
       return null;
@@ -462,19 +462,30 @@ class Health with Service implements NotificationsListener {
     
     // Consent
     Map<String, dynamic> analyticsSettingsAttributes = {}; 
-    if (consent != null) {
-      if (consent != user.consent) {
-        analyticsSettingsAttributes[Analytics.LogHealthSettingConsentName] = consent;
-        user.consent = consent;
+
+    // Consent: Test Results
+    if (consentTestResults != null) {
+      if (consentTestResults != user.consentTestResults) {
+        analyticsSettingsAttributes[Analytics.LogHealthSettingConsentTestResultsName] = consentTestResults;
+        user.consentTestResults = consentTestResults;
         userUpdated = true;
       }
     }
     
-    // Exposure Notification
-    if (exposureNotification != null) {
-      if (exposureNotification != user.exposureNotification) {
-        analyticsSettingsAttributes[Analytics.LogHealthSettingNotifyExposuresName] = exposureNotification;
-        user.exposureNotification = exposureNotification;
+    // Consent: Vaccine Information
+    if (consentVaccineInformation != null) {
+      if (consentVaccineInformation != user.consentVaccineInformation) {
+        analyticsSettingsAttributes[Analytics.LogHealthSettingConsentVaccineInfoName] = consentVaccineInformation;
+        user.consentVaccineInformation = consentVaccineInformation;
+        userUpdated = true;
+      }
+    }
+
+    // Consent :Exposure Notification
+    if (consentExposureNotification != null) {
+      if (consentExposureNotification != user.consentExposureNotification) {
+        analyticsSettingsAttributes[Analytics.LogHealthSettingConsentExposureNotifName] = consentExposureNotification;
+        user.consentExposureNotification = consentExposureNotification;
         userUpdated = true;
       }
     }
@@ -504,7 +515,7 @@ class Health with Service implements NotificationsListener {
       Analytics().logHealth( action: Analytics.LogHealthSettingChangedAction, attributes: analyticsSettingsAttributes, defaultAttributes: Analytics.DefaultAttributes);
     }
 
-    if (exposureNotification == true) {
+    if (consentExposureNotification == true) {
       if (BluetoothServices().status == BluetoothStatus.PermissionNotDetermined) {
         await BluetoothServices().requestStatus();
       }

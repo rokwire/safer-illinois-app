@@ -74,9 +74,9 @@ class _Settings2ExposureNotificationsPanelState extends State<Settings2ExposureN
                       height: null,
                       border: Border.all(width: 1, color: Styles().colors.surfaceAccent),
                       borderRadius: BorderRadius.all(Radius.circular(4)),
-                      toggled: Health().user.exposureNotification,
+                      toggled: Health().user.consentExposureNotification,
                       onTap: (){
-                        if(!Health().user.exposureNotification){
+                        if(!Health().user.consentExposureNotification){
                           _onConsentEnabled();
                         }
                         else{
@@ -215,7 +215,7 @@ class _Settings2ExposureNotificationsPanelState extends State<Settings2ExposureN
     _setState((){
       _isDisabling = true;
     });
-    Health().loginUser(exposureNotification: false).whenComplete((){
+    Health().loginUser(consentExposureNotification: false).whenComplete((){
       _setState((){
         _isDisabling = false;
       });
@@ -230,7 +230,7 @@ class _Settings2ExposureNotificationsPanelState extends State<Settings2ExposureN
     setState((){
       _isEnabling = true;
     });
-    Health().loginUser(exposureNotification: true).whenComplete((){
+    Health().loginUser(consentExposureNotification: true).whenComplete((){
       setState((){
         _isEnabling = false;
       });

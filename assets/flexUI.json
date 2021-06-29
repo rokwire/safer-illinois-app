@@ -18,7 +18,7 @@
 		"settings.connected.netid": ["info", "disconnect", "connect"],
 		"settings.connected.phone": ["info", "disconnect", "verify"],
 		"settings.notifications": ["covid19"],
-		"settings.covid19": ["exposure_notifications", "provider_test_result", "qr_code"],
+		"settings.covid19": ["exposure_notifications", "provider_test_result", "provider_vaccine_info", "qr_code"],
 		"settings.privacy": ["statement"],
 		"settings.account": ["personal_info", "family_members"],
 
