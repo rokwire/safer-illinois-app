@@ -3,7 +3,7 @@ The official COVID-19 app of the University of Illinois. Powered by the [Rokwire
 
 ## Requirements
 
-### [Flutter](https://flutter.dev/docs/get-started/install) v2.0.2
+### [Flutter](https://flutter.dev/docs/get-started/install) v2.2.2
 
 ### [Android Studio](https://developer.android.com/studio) 3.6+
 
@@ -135,4 +135,3 @@ $ flutter build apk
 $ flutter build ios
 ```
 NB: You may need to update singing & capabilities content for Runner project by opening /ios/Runner.xcworkspace from Xcode
-
