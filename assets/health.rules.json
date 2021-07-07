@@ -77,15 +77,23 @@
 				"interval": { "min": 0, "max": 10, "scope": "future" }
 			},
 			"success": {
-				"condition": "require-test",
+				"condition": "require-vaccine",
 				"params": {
-					"interval": { "min": 11, "max": null, "scope": "future" }
+					"interval": { "scope": "past" },
+					"vaccine": "effective"
 				},
 				"success": null,
 				"fail": {
-					"code": "red",
-					"priority": 11,
-					"next_step": "test.now.step"
+					"condition": "require-test",
+					"params": {
+						"interval": { "min": 11, "max": null, "scope": "future" }
+					},
+					"success": null,
+					"fail": {
+						"code": "red",
+						"priority": 11,
+						"next_step": "test.now.step"
+					}
 				}
 			},
 			"fail": {
@@ -101,16 +109,24 @@
 				"interval": { "min": 0, "max": 8, "scope": "future" }
 			},
 			"success": {
-				"condition": "require-test",
+				"condition": "require-vaccine",
 				"params": {
-					"interval": { "min": 9, "max": null, "scope": "future" }
+					"interval": { "scope": "past" },
+					"vaccine": "effective"
 				},
 				"success": null,
 				"fail": {
-					"code": "red",
-					"priority": 11,
-					"next_step": "test.now.step",
-					"fcm_topic": "PCR.positive-IP"
+					"condition": "require-test",
+					"params": {
+						"interval": { "min": 9, "max": null, "scope": "future" }
+					},
+					"success": null,
+					"fail": {
+						"code": "red",
+						"priority": 11,
+						"next_step": "test.now.step",
+						"fcm_topic": "PCR.positive-IP"
+					}
 				}
 			},
 			"fail": {
@@ -244,7 +260,13 @@
 				"interval": { "scope": "past" },
 				"vaccine": "effective"
 			},
-			"success": "vaccinated",
+			"success": {
+				"code": "green",
+				"priority": -4,
+				"next_step_html": "vaccinated.step.html",
+				"reason": "vaccinated.reason",
+				"fcm_topic": "vaccinated"
+			},
 			"fail": {
 				"condition": "require-test",
 				"params": {
