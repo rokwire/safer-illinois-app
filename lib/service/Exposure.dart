@@ -264,7 +264,7 @@ class Exposure with Service implements NotificationsListener {
 
   bool get _serviceEnabled {
     return  (Config().settings['covid19ExposureMonitorEnabled'] == true) &&
-      (Health().userExposureNotification == true);
+      (Health().userConsentExposureNotification == true);
   }
 
   bool get _pluginEnabled {
@@ -1138,7 +1138,7 @@ class Exposure with Service implements NotificationsListener {
     }
     else if (exposures.isEmpty || reportedTEKs.isEmpty) {
       // no ContactWithPositive or PassedExposureScoring
-      return _buildTestResultExposureScoring(hasExposureNotificationsEnabled: Health().userExposureNotification);
+      return _buildTestResultExposureScoring(hasExposureNotificationsEnabled: Health().userConsentExposureNotification);
     }
 
     bool hasContactWithPositive, hasPassedExposureScoring;
@@ -1165,7 +1165,7 @@ class Exposure with Service implements NotificationsListener {
     return _buildTestResultExposureScoring(
       hasContactWithPositive: hasContactWithPositive,
       hasPassedExposureScoring: hasPassedExposureScoring,
-      hasExposureNotificationsEnabled: Health().userExposureNotification);
+      hasExposureNotificationsEnabled: Health().userConsentExposureNotification);
   }
 
   static int _buildTestResultExposureScoring({bool hasContactWithPositive, bool hasPassedExposureScoring, bool hasExposureNotificationsEnabled}) {

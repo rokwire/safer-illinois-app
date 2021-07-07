@@ -77,15 +77,23 @@
 				"interval": { "min": 0, "max": 10, "scope": "future" }
 			},
 			"success": {
-				"condition": "require-test",
+				"condition": "require-vaccine",
 				"params": {
-					"interval": { "min": 11, "max": null, "scope": "future" }
+					"interval": { "scope": "past" },
+					"vaccine": "effective"
 				},
 				"success": null,
 				"fail": {
-					"code": "red",
-					"priority": 11,
-					"next_step": "test.now.step"
+					"condition": "require-test",
+					"params": {
+						"interval": { "min": 11, "max": null, "scope": "future" }
+					},
+					"success": null,
+					"fail": {
+						"code": "red",
+						"priority": 11,
+						"next_step": "test.now.step"
+					}
 				}
 			},
 			"fail": {
@@ -101,16 +109,24 @@
 				"interval": { "min": 0, "max": 8, "scope": "future" }
 			},
 			"success": {
-				"condition": "require-test",
+				"condition": "require-vaccine",
 				"params": {
-					"interval": { "min": 9, "max": null, "scope": "future" }
+					"interval": { "scope": "past" },
+					"vaccine": "effective"
 				},
 				"success": null,
 				"fail": {
-					"code": "red",
-					"priority": 11,
-					"next_step": "test.now.step",
-					"fcm_topic": "PCR.positive-IP"
+					"condition": "require-test",
+					"params": {
+						"interval": { "min": 9, "max": null, "scope": "future" }
+					},
+					"success": null,
+					"fail": {
+						"code": "red",
+						"priority": 11,
+						"next_step": "test.now.step",
+						"fcm_topic": "PCR.positive-IP"
+					}
 				}
 			},
 			"fail": {
@@ -244,7 +260,13 @@
 				"interval": { "scope": "past" },
 				"vaccine": "effective"
 			},
-			"success": "vaccinated",
+			"success": {
+				"code": "green",
+				"priority": -4,
+				"next_step_html": "vaccinated.step.html",
+				"reason": "vaccinated.reason",
+				"fcm_topic": "vaccinated"
+			},
 			"fail": {
 				"condition": "require-test",
 				"params": {
@@ -342,17 +364,17 @@
 				"fail": {
 					"code": "yellow",
 					"priority": 12,
-					"next_step": "You are exempted from testing until {next_step_date}",
+					"next_step": "exempt-on.until.step",
 					"next_step_interval": "ExemptInterval",
-					"reason": "Your status changed to Yellow because you are exempted from testing until {next_step_date}",
+					"reason": "exempt-on.until.reason",
 					"fcm_topic": "exempt"
 				}
 			},
 			"fail": {
 				"code": "yellow",
 				"priority": 12,
-				"next_step": "You are exempted from testing",
-				"reason": "Your status changed to Yellow because you are exempted from testing",
+				"next_step": "exempt-on.step",
+				"reason": "exempt-on.reason",
 				"fcm_topic": "exempt"
 			}
 		},
@@ -367,14 +389,14 @@
 				"code": "green",
 				"priority": -4,
 				"next_step_html": "vaccinated.step.html",
-				"reason": "Your status changed to Green because your exempt from testing status was canceled",
+				"reason": "exempt-off.green.reason",
 				"fcm_topic": "vaccinated"
 			},
 			"fail": {
 				"code": "orange",
 				"priority": -1,
 				"next_step": "test.now.step",
-				"reason": "Your status changed to Orange because your exempt from testing status was canceled"
+				"reason": "exempt-off.orange.reason"
 			}
 		},
 		
@@ -388,7 +410,7 @@
 				"code": "green",
 				"priority": -4,
 				"next_step_html": "vaccinated.step.html",
-				"reason": "Your status changed to Green because your exempt from testing status was canceled",
+				"reason": "vaccinated.reason",
 				"fcm_topic": "vaccinated"
 			},
 			"fail": {
@@ -818,6 +840,12 @@
 			"vaccinated.reason": "Your status changed to Green because your vaccination is already effective.",
 			"quarantine-on.step": "Stay at home and avoid contacts",
 			"quarantine-on.reason": "Your status changed to Orange because the Public Health department placed you in Quarantine.",
+			"exempt-on.step": "You are exempted from testing",
+			"exempt-on.reason": "Your status changed to Yellow because you are exempted from testing",
+			"exempt-on.until.step": "You are exempted from testing until {next_step_date}",
+			"exempt-on.until.reason": "Your status changed to Yellow because you are exempted from testing until {next_step_date}",
+			"exempt-off.orange.reason": "Your status changed to Orange because your exempt from testing status was canceled",
+			"exempt-off.green.reason": "Your status changed to Green because your exempt from testing status was canceled",
 			"release.step": "Take a SHIELD Saliva Test",
 			"release.reason": "Your status changed to Orange because the Public Health department requires you to take a test.",
 
@@ -883,6 +911,12 @@
 			"vaccinated.reason": "Su estado cambió a Verde porque su vacunación ya es efectiva.",
 			"quarantine-on.step": "Quédese en casa y evite los contactos",
 			"quarantine-on.reason": "Su estado cambió a Orange porque el departamento de Salud Pública lo puso en cuarentena.",
+			"exempt-on.step": "Estas exenta de pruebas",
+			"exempt-on.reason": "Su estado cambió a amarillo porque está exento de la prueba",
+			"exempt-on.until.step": "Está exenta de realizar pruebas hasta {next_step_date}",
+			"exempt-on.until.reason": "Su estado cambió a amarillo porque está exento de la prueba hasta el {next_step_date}",
+			"exempt-off.orange.reason": "Su estado cambió a Orange porque se canceló su estado de exención de la prueba",
+			"exempt-off.green.reason": "Su estado cambió a verde porque se canceló su estado de exención de la prueba",
 			"release.step": "Realice una prueba de saliva SHIELD",
 			"release.reason": "Su estado cambió a Orange porque el departamento de Salud Pública requiere que tome una prueba.",
 
@@ -948,6 +982,12 @@
 			"vaccinated.reason": "您的狀態已更改為“綠色”，因為您的疫苗接種已經有效。",
 			"quarantine-on.step": "呆在家裡，避免接觸",
 			"quarantine-on.reason": "您的狀態更改為“橙色”，因為公共衛生部門已將您隔離。",
+			"exempt-on.step": "您免於測試",
+			"exempt-on.reason": "您的狀態更改為黃色，因為您免於測試",
+			"exempt-on.until.step": "您可以在 {next_step_date} 之前免於測試",
+			"exempt-on.until.reason": "您的狀態已更改為黃色，因為您可以在 {next_step_date} 之前免於測試",
+			"exempt-off.orange.reason": "您的狀態更改為橙色，因為您的免試狀態已被取消",
+			"exempt-off.green.reason": "您的狀態更改為綠色，因為您的免試狀態已被取消",
 			"release.step": "參加SHIELD唾液測試",
 			"release.reason": "您的狀態更改為“橙色”，因為公共衛生部門要求您進行測試。",
 
@@ -1013,6 +1053,12 @@
 			"vaccinated.reason": "予防接種がすでに有効になっているため、ステータスが緑に変わりました。",
 			"quarantine-on.step": "家にいて、他の人との接触を避けてください。",
 			"quarantine-on.reason": "Public Health departmentにより隔離状態に置かれているため、ステータスがオレンジに変更されました。",
+			"exempt-on.step": "あなたはテストから免除されています",
+			"exempt-on.reason": "テストが免除されているため、ステータスが黄色に変わりました",
+			"exempt-on.until.step": "{next_step_date}までテストが免除されます",
+			"exempt-on.until.reason": "{next_step_date}までテストが免除されているため、ステータスが黄色に変更されました",
+			"exempt-off.orange.reason": "テストステータスの免除がキャンセルされたため、ステータスがオレンジに変更されました",
+			"exempt-off.green.reason": "テストステータスの免除がキャンセルされたため、ステータスが緑に変更されました",
 			"release.step": "SHIELD唾液検査を受けてください",
 			"release.reason": "Public Health departmentにより隔離状態に置かれているため、ステータスがオレンジに変更されました。",
 		

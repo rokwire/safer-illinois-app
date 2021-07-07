@@ -6,6 +6,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.10.31] - 2021-07-17
+### Changed
+- Upgrade to Flutter 2.2.2 [#664](https://github.com/rokwire/safer-illinois-app/issues/664).
+- Health rules updated to handle properly PCR positive event on vaccinated users [#668](https://github.com/rokwire/safer-illinois-app/issues/668).
+### Fixed
+- Fix gradle build for Android [#670](https://github.com/rokwire/safer-illinois-app/issues/670).
+- Check string parameters match case insensitively [#668](https://github.com/rokwire/safer-illinois-app/issues/668).
+
+
+## [2.10.30] - 2021-06-16
+### Added
+- Added Consent Health Provider Vaccine Information flag and related UI [#661](https://github.com/rokwire/safer-illinois-app/issues/661).
+
 ## [2.10.29] - 2021-06-09
 ### Changed
 - Changed testing interval to once-weekly for building access [#655](https://github.com/rokwire/safer-illinois-app/issues/655).

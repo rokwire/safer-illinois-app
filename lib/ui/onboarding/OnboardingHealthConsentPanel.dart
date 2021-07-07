@@ -48,8 +48,9 @@ class OnboardingHealthConsentPanel extends StatefulWidget with OnboardingPanel {
 
 class _OnboardingHealthConsentPanelState extends State<OnboardingHealthConsentPanel>{
   bool _loading = false;
-  bool _exposureNotification = false;
-  bool _consent = true;
+  bool _consentTestResults = true;
+  bool _consentVaccineInformation = true;
+  bool _consentExposureNotification = false;
   bool _canContinue = false;
   bool _permissionsRequested = false;
   ScrollController _scrollController;
@@ -60,8 +61,9 @@ class _OnboardingHealthConsentPanelState extends State<OnboardingHealthConsentPa
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
     //19.06 - 5.1 Covid setup flow consents should be off by default
-    //_exposureNotification = Health().user?.consent ?? false;
-    //_consent = Health().user?.exposureNotification ?? false;
+    //_consentTestResults = Health().user?.consentTestResults ?? true;
+    //_consentVaccineInformation = Health().user?.consentVaccineInformation ?? true;
+    //_consentExposureNotification = Health().user?.consentExposureNotification ?? false;
   }
 
   @override
@@ -127,6 +129,7 @@ class _OnboardingHealthConsentPanelState extends State<OnboardingHealthConsentPa
                       style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 28, color: Styles().colors.fillColorPrimary),
                     )),
                     Container(height: 11,),
+
                     Semantics( header: true, hint: Localization().getStringEx("app.common.heading.two.hint","Header 2"),
                       child: Text(Localization().getStringEx("panel.health.onboarding.covid19.consent.label.description", "Exposure Notifications"),
                       style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color:Styles().colors.fillColorPrimary),
@@ -138,34 +141,53 @@ class _OnboardingHealthConsentPanelState extends State<OnboardingHealthConsentPa
                     ),
                     Container(height: 8,),
                     ToggleRibbonButton(
-                      label:  Localization().getStringEx("panel.health.onboarding.covid19.consent.check_box.label.participate","I consent to participate in the Exposure Notification System (requires Bluetooth to be ON)."),
-                      toggled: _exposureNotification,
-                      onTap: _onParticipateTap,
+                      label:  Localization().getStringEx("panel.health.onboarding.covid19.consent.check_box.label.exposure","I consent to participate in the Exposure Notification System (requires Bluetooth to be ON)."),
+                      toggled: _consentExposureNotification,
+                      onTap: _onConsentExposureNotificationTap,
                       context: context,
                       height: null),
+
                     Container(height: 24,),
+
                     Semantics( header: true, hint: Localization().getStringEx("app.common.heading.two.hint","Header 2"),
-                    child:
-                      Text(
-                        Localization().getStringEx("panel.health.onboarding.covid19.consent.label.content2", "Automatic Test Results"),
+                    child: Text(Localization().getStringEx("panel.health.onboarding.covid19.consent.label.content2", "Automatic Test Results"),
                         style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color:Styles().colors.fillColorPrimary),
-                      ),
-                    ),
+                    ),),
                     Container(height: 4,),
                     Text(
-                      Localization().getStringEx("panel.health.onboarding.covid19.consent.label.content3", "Test results for your healthcare provider can be automatically provided to the Safer Illinois app. The test results are encrypted so only you can see the actual results."),
+                      Localization().getStringEx("panel.health.onboarding.covid19.consent.label.content3", "I consent to connect test results from my healthcare provider with the Safer Illinois app."),
                       style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color:Styles().colors.fillColorPrimary),
                     ),
                     Container(height: 8,),
                     ToggleRibbonButton(
-                      label: Localization().getStringEx("panel.health.onboarding.covid19.consent.check_box.label.allow", "I consent to allow my healthcare provider to provide my test results and vaccine information."),
-                      toggled: _consent,
+                      label: Localization().getStringEx("panel.health.onboarding.covid19.consent.check_box.label.test", "I consent to allow my healthcare provider to provide my test results."),
+                      toggled: _consentTestResults,
                       context: context,
-                      onTap: _onAllowTap,
+                      onTap: _onConsentTestResultsTap,
                       height: null),
+
+                    Container(height: 24,),
+
+                    Semantics( header: true, hint: Localization().getStringEx("app.common.heading.two.hint","Header 2"),
+                    child: Text(Localization().getStringEx("panel.health.onboarding.covid19.consent.label.content4", "Automatic Vaccine Information"),
+                        style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color:Styles().colors.fillColorPrimary),
+                    ),),
+                    Container(height: 4,),
+                    Text(
+                      Localization().getStringEx("panel.health.onboarding.covid19.consent.label.content5", "I consent to connect vaccine information from my healthcare provider with the Safer Illinois app."),
+                      style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color:Styles().colors.fillColorPrimary),
+                    ),
+                    Container(height: 8,),
+                    ToggleRibbonButton(
+                      label: Localization().getStringEx("panel.health.onboarding.covid19.consent.check_box.label.vaccine", "I consent to allow my healthcare provider to provide my vaccine information."),
+                      toggled: _consentVaccineInformation,
+                      context: context,
+                      onTap: _onConsentVaccineInformationTap,
+                      height: null),
+
                     Container(height: 24,),
                     Text(
-                      Localization().getStringEx("panel.health.onboarding.covid19.consent.label.content4", "Your participation is voluntary and you can stop at any time."),
+                      Localization().getStringEx("panel.health.onboarding.covid19.consent.label.content6", "Your participation is voluntary and you can stop at any time."),
                       style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color:Styles().colors.fillColorPrimary),
                     ),
                     Container(height: 12,),
@@ -234,7 +256,7 @@ class _OnboardingHealthConsentPanelState extends State<OnboardingHealthConsentPa
     setState(() {
       _loading = true;
     });
-    Health().loginUser(consent: _consent, exposureNotification: _exposureNotification).then((user) {
+    Health().loginUser(consentTestResults: _consentTestResults, consentVaccineInformation: _consentVaccineInformation, consentExposureNotification: _consentExposureNotification).then((user) {
       if (mounted) {
         setState(() {
           _loading = false;
@@ -266,29 +288,37 @@ class _OnboardingHealthConsentPanelState extends State<OnboardingHealthConsentPa
     Onboarding().next(context, widget);
   }
 
-  void _onParticipateTap(){
-    Analytics.instance.logSelect(target: "concent to participate");
-    if (Platform.isIOS && (_exposureNotification != true) && (_permissionsRequested != true)) {
+  void _onConsentExposureNotificationTap(){
+    Analytics.instance.logSelect(target: "concent to participate exposure notification");
+    if (Platform.isIOS && (_consentExposureNotification != true) && (_permissionsRequested != true)) {
       _permissionsRequested = true;
       _requestPermisions().then((_) {
         setState(() {
-          _exposureNotification = !_exposureNotification;
+          _consentExposureNotification = !_consentExposureNotification;
         });
       });
     }
     else {
       setState(() {
-        _exposureNotification = !_exposureNotification;
+        _consentExposureNotification = !_consentExposureNotification;
       });
     }
   }
 
-  void _onAllowTap(){
-    Analytics.instance.logSelect(target: "concent to allow");
+  void _onConsentTestResultsTap(){
+    Analytics.instance.logSelect(target: "concent to test results");
     setState(() {
-      _consent = !_consent;
+      _consentTestResults = !_consentTestResults;
     });
   }
+
+  void _onConsentVaccineInformationTap(){
+    Analytics.instance.logSelect(target: "concent to vaccine information");
+    setState(() {
+      _consentVaccineInformation = !_consentVaccineInformation;
+    });
+  }
+  
 
   void _scrollListener() {
     if (!_canContinue && (_scrollController.offset >= _scrollController.position.maxScrollExtent) && !_scrollController.position.outOfRange) {

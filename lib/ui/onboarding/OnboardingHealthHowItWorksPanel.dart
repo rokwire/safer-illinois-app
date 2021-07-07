@@ -119,7 +119,7 @@ class OnboardingHealthHowItWorksPanel extends StatelessWidget with OnboardingPan
                         _Bullet(),
                         Expanded(
                           child: Text(
-                            Localization().getStringEx("panel.health.onboarding.covid19.how_it_works.line4.title", "Automatically receive test results from your healthcare provider."),
+                            Localization().getStringEx("panel.health.onboarding.covid19.how_it_works.line4.title", "Automatically receive test results and vaccine information from your healthcare provider."),
                             style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color:Styles().colors.fillColorPrimary),
                           ),
                         ),
