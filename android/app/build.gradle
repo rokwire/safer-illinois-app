@@ -172,4 +172,9 @@ dependencies {
     implementation 'com.github.weliem:blessed-android:1.19'
 
     implementation 'com.google.android.gms:play-services-vision-common:19.0.2'
+
+    // Temporary fix Gradle 4.2.0 &  https://stackoverflow.com/questions/67612499/could-not-find-com-google-firebasefirebase-ml-vision
+    implementation platform('com.google.firebase:firebase-bom:28.0.1')
+    implementation 'com.google.android.gms:play-services-vision:20.1.3'
+    // Endfix
 }
