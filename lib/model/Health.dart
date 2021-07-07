@@ -4003,18 +4003,18 @@ abstract class HealthRuleCondition {
           dynamic category = (conditionParams != null) ? conditionParams['category'] : null;
           if (category != null) {
             HealthTestRuleResult entryRuleResult = rules?.tests?.matchRuleResult(blob: entry?.blob);
-            return _matchValue(category, entryRuleResult?.category);
+            return _matchStringTarget(source: entryRuleResult?.category, target: category);
           }
         }
         else if (_matchValue(historyType, HealthHistoryType.action)) {
           dynamic type = (conditionParams != null) ? conditionParams['type'] : null;
-          if ((type != null) && !_matchValue(entry, entry?.blob?.actionType)) {
+          if ((type != null) && !_matchStringTarget(source: entry?.blob?.actionType, target: entry)) {
             return false;
           }
         }
         else if (_matchValue(historyType, HealthHistoryType.vaccine)) {
           dynamic vaccine = (conditionParams != null) ? conditionParams['vaccine'] : null;
-          if ((vaccine != null) && (entry?.blob?.vaccine != vaccine)) {
+          if ((vaccine != null) && !_matchStringTarget(source: entry?.blob?.vaccine, target: vaccine)) {
             return false;
           }
         }
