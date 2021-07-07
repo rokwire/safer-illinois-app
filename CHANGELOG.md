@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Changed
 - Upgrade to Flutter 2.2.2 [#664](https://github.com/rokwire/safer-illinois-app/issues/664).
+- Health rules updated to handle properly PCR positive event on vaccinated users [#668](https://github.com/rokwire/safer-illinois-app/issues/668).
+### Fixed
+- Check string parameters match case insensitively [#668](https://github.com/rokwire/safer-illinois-app/issues/668).
+
 
 ## [2.10.30] - 2021-06-16
 ### Added
