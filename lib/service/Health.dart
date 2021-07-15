@@ -592,6 +592,7 @@ class Health with Service implements NotificationsListener {
   Future<bool> setUserPrivateKey(PrivateKey privateKey) async {
     if (await _saveUserPrivateKey(privateKey)) {
       _userPrivateKey = privateKey;
+      _notify(notifyUserUpdated);
       _refresh(_RefreshOptions.fromList([_RefreshOption.history]));
       return true;
     }
