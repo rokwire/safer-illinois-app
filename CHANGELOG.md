@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Added
 - Fire user updated notification when updating user's private RSA key.
+### Changed
+- Updated test intervals for undergraduate students and others [#676](https://github.com/rokwire/safer-illinois-app/issues/676).
 
 ## [2.10.31] - 2021-07-17
 ### Changed
