@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Added
 - Fire user updated notification when updating user's private RSA key.
+- Added weekdays extension capability for health rule intervals [#678](https://github.com/rokwire/safer-illinois-app/issues/678).
 ### Changed
 - Updated test intervals for undergraduate students and others [#676](https://github.com/rokwire/safer-illinois-app/issues/676).
 

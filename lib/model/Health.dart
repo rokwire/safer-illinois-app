@@ -3577,6 +3577,10 @@ abstract class _HealthRuleInterval {
     else if (json is String) {
       return HealthRuleIntervalReference.fromJson(json);
     }
+    else if (json is List) {
+      try { return HealthRuleIntervalSet.fromJson(json.cast<dynamic>()); }
+      catch (e) { print(e?.toString()); }
+    }
     else if (json is Map) {
       if (HealthRuleIntervalCondition.isJsonCompatible(json)) {
         try { return HealthRuleIntervalCondition.fromJson(json.cast<String, dynamic>()); }
@@ -3590,7 +3594,7 @@ abstract class _HealthRuleInterval {
     return null;
   }
 
-  bool match(int value, { List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params });
+  bool match(int value, { DateTime orgDate, List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params });
   int  value({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params });
   bool valid({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params });
   int  scope({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params });
@@ -3607,6 +3611,21 @@ abstract class _HealthRuleInterval {
     }
     return result;
   }
+
+  static int applyWeekdayExtent(_HealthRuleInterval weekdayExtent, DateTime orgDate, int value, int step, { List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params } ) {
+    if ((weekdayExtent != null) && (orgDate != null) && (value != null) && (step != null)) {
+      //DateTime dateExt = orgDate.add(Duration(days: value + step));
+      DateTime dateExt = DateTime(orgDate.year, orgDate.month, orgDate.day + value + step, orgDate.hour, orgDate.minute, orgDate.second);
+      while (weekdayExtent.match(dateExt.weekday, orgDate: orgDate, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params)) {
+        value += step;
+        // dateExt = dateExt.add(Duration(days: step));
+        dateExt = DateTime(dateExt.year, dateExt.month, dateExt.day + step, orgDate.hour, orgDate.minute, orgDate.second);
+      }
+      return value;
+    }
+    return null;
+  }
+
 }
 
 enum HealthRuleIntervalOrigin { historyDate, referenceDate }
@@ -3631,7 +3650,7 @@ class HealthRuleIntervalValue extends _HealthRuleInterval {
   int get hashCode =>
     (_value?.hashCode ?? 0);
 
-  @override bool match(int value, { List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {return (_value == value); }
+  @override bool match(int value, { DateTime orgDate, List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {return (_value == value); }
   @override int  value({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params })            { return _value; }
   @override bool valid({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params })            { return (_value != null); }
   @override int  scope({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params })            { return null; }
@@ -3655,14 +3674,18 @@ class HealthRuleInterval extends _HealthRuleInterval {
   final int _scope;
   final bool _current;
   final HealthRuleIntervalOrigin _origin;
+  final _HealthRuleInterval _minWeekdaysExtent;
+  final _HealthRuleInterval _maxWeekdaysExtent;
   
-  HealthRuleInterval({_HealthRuleInterval min, _HealthRuleInterval max, _HealthRuleInterval value, int scope, bool current, HealthRuleIntervalOrigin origin}) :
+  HealthRuleInterval({_HealthRuleInterval min, _HealthRuleInterval max, _HealthRuleInterval value, int scope, bool current, HealthRuleIntervalOrigin origin, _HealthRuleInterval minWeekdaysExtent, _HealthRuleInterval maxWeekdaysExtent }) :
     _min = min,
     _max = max,
     _value = value,
     _scope = scope,
     _current = current,
-    _origin = origin;
+    _origin = origin,
+    _minWeekdaysExtent = minWeekdaysExtent,
+    _maxWeekdaysExtent = maxWeekdaysExtent;
 
   factory HealthRuleInterval.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthRuleInterval(
@@ -3672,6 +3695,8 @@ class HealthRuleInterval extends _HealthRuleInterval {
       scope: _scopeFromJson(json['scope']),
       current: json['current'],
       origin: _originFromJson(json['origin']),
+      minWeekdaysExtent: _HealthRuleInterval.fromJson(json['min-weekdays-extent']),
+      maxWeekdaysExtent: _HealthRuleInterval.fromJson(json['max-weekdays-extent']),
     ) : null;
   }
 
@@ -3682,7 +3707,9 @@ class HealthRuleInterval extends _HealthRuleInterval {
       (o._value == _value) &&
       (o._scope == _scope) &&
       (o._current == _current) &&
-      (o._origin == _origin);
+      (o._origin == _origin) &&
+      (o._minWeekdaysExtent == _minWeekdaysExtent) &&
+      (o._maxWeekdaysExtent == _maxWeekdaysExtent);
 
   int get hashCode =>
     (_min?.hashCode ?? 0) ^
@@ -3690,25 +3717,39 @@ class HealthRuleInterval extends _HealthRuleInterval {
     (_value?.hashCode ?? 0) ^
     (_scope?.hashCode ?? 0) ^
     (_current?.hashCode ?? 0) ^
-    (_origin?.hashCode ?? 0);
+    (_origin?.hashCode ?? 0) ^
+    (_minWeekdaysExtent?.hashCode ?? 0) ^
+    (_maxWeekdaysExtent?.hashCode ?? 0);
 
   @override
-  bool match(int value, { List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
+  bool match(int value, { DateTime orgDate, List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
     if (value != null) {
       if (_min != null) {
         int minValue = _min.value(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+        minValue = _HealthRuleInterval.applyWeekdayExtent(_minWeekdaysExtent, orgDate, minValue, -1, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params) ?? minValue;
         if ((minValue == null) || (minValue > value)) {
           return false;
         }
       }
       if (_max != null) {
         int maxValue = _max.value(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+        maxValue = _HealthRuleInterval.applyWeekdayExtent(_maxWeekdaysExtent, orgDate, maxValue, 1, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params) ?? maxValue;
         if ((maxValue == null) || (maxValue < value)) {
           return false;
         }
       }
       if (_value != null) {
         int valueValue = _value.value(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+
+        int minValue = _HealthRuleInterval.applyWeekdayExtent(_minWeekdaysExtent, orgDate, valueValue, -1, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+        if ((minValue != null) && (minValue > value)) {
+          return false;
+        }
+        int maxValue = _HealthRuleInterval.applyWeekdayExtent(_maxWeekdaysExtent, orgDate, valueValue,  1, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+        if ((maxValue != null) && (maxValue < value)) {
+          return false;
+        }
+
         if ((valueValue == null) || (valueValue != value)) {
           return false;
         }
@@ -3769,6 +3810,62 @@ class HealthRuleInterval extends _HealthRuleInterval {
 }
 
 ///////////////////////////////
+// HealthRuleIntervalSet
+
+class HealthRuleIntervalSet extends _HealthRuleInterval {
+  List<_HealthRuleInterval> _entries;
+
+  HealthRuleIntervalSet({List<_HealthRuleInterval> entries}) :
+    _entries = entries;
+
+  factory HealthRuleIntervalSet.fromJson(List<dynamic> json) {
+    List<_HealthRuleInterval> entries;
+    if (json != null) {
+      entries = <_HealthRuleInterval>[];
+      for (dynamic jsonEntry in json) {
+        _HealthRuleInterval entry = _HealthRuleInterval.fromJson(jsonEntry);
+        if (entry != null) {
+          entries.add(entry);
+        }
+      }
+    }
+    return (entries != null) ? HealthRuleIntervalSet(entries: entries) : null;
+  }
+
+  bool operator ==(o) =>
+    (o is HealthRuleIntervalSet) &&
+      DeepCollectionEquality().equals(o._entries, _entries);
+
+  int get hashCode =>
+    (DeepCollectionEquality().hash(_entries) ?? 0);
+
+  @override
+  bool match(int value, { DateTime orgDate, List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
+    for (_HealthRuleInterval entry in _entries) {
+      if (entry.match(value, orgDate: orgDate, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  @override
+  bool valid({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
+    for (_HealthRuleInterval entry in _entries) {
+      if (!entry.valid(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params)) {
+        return false;
+      }
+    }
+    return 0 < _entries.length;
+  }
+  
+  @override int  value({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) { return null; }
+  @override int  scope({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) { return null; }
+  @override bool current({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) { return null; }
+  @override HealthRuleIntervalOrigin origin({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) { return null; }
+}
+
+///////////////////////////////
 // HealthRuleIntervalReference
 
 class HealthRuleIntervalReference extends _HealthRuleInterval {
@@ -3794,8 +3891,8 @@ class HealthRuleIntervalReference extends _HealthRuleInterval {
   }
 
   @override
-  bool match(int value, { List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
-    return _referenceInterval(rules: rules, params: params)?.match(value, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params) ?? false;
+  bool match(int value, { DateTime orgDate, List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
+    return _referenceInterval(rules: rules, params: params)?.match(value, orgDate: orgDate, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params) ?? false;
   }
   
   @override bool valid({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params })   { return _referenceInterval(rules: rules, params: params)?.valid(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params) ?? false; }
@@ -3843,10 +3940,10 @@ class HealthRuleIntervalCondition extends _HealthRuleInterval with HealthRuleCon
     (failInterval?.hashCode ?? 0);
 
   @override
-  bool match(int value, { List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
+  bool match(int value, { DateTime orgDate, List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
     HealthRuleConditionResult conditionResult = evalCondition(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
     _HealthRuleInterval interval = (conditionResult?.result != null) ? (conditionResult.result ? successInterval : failInterval) : null;
-    return interval?.match(value, history: history, historyIndex: historyIndex, referenceIndex: conditionResult?.referenceIndex ?? referenceIndex, rules: rules, params: params) ?? false;
+    return interval?.match(value, orgDate: orgDate, history: history, historyIndex: historyIndex, referenceIndex: conditionResult?.referenceIndex ?? referenceIndex, rules: rules, params: params) ?? false;
   }
   
   @override
@@ -3996,7 +4093,7 @@ abstract class HealthRuleCondition {
       //#572 Building access calculation issue 
       //int difference = entryDateMidnightLocal.difference(originDateMidnightLocal).inDays;
       int difference = AppDateTime.midnightsDifferenceInDays(originDateMidnightLocal, entryDateMidnightLocal);
-      if (interval.match(difference, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params)) {
+      if (interval.match(difference, orgDate: originDateMidnightLocal, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params)) {
 
         // check filters before returning successfull match
         if (_matchValue(historyType, HealthHistoryType.test)) {
@@ -4047,7 +4144,7 @@ abstract class HealthRuleCondition {
       //#572 Building access calculation issue 
       //int difference = AppDateTime.todayMidnightLocal.difference(originDateMidnightLocal).inDays;
       int difference = AppDateTime.midnightsDifferenceInDays(originDateMidnightLocal, AppDateTime.todayMidnightLocal);
-      if (currentInterval.match(difference, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params)) {
+      if (currentInterval.match(difference, orgDate: originDateMidnightLocal, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params)) {
         return true;
       }
     }
