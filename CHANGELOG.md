@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+## [2.10.32] - 2021-08-02
 ### Added
 - Fire user updated notification when updating user's private RSA key.
 - Added weekdays extension capability for health rule intervals [#678](https://github.com/rokwire/safer-illinois-app/issues/678).
