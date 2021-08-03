@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+- Force onboarding from app config [#681](https://github.com/rokwire/safer-illinois-app/issues/681).
+
 ## [2.10.32] - 2021-08-02
 ### Added
 - Fire user updated notification when updating user's private RSA key.
