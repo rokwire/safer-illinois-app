@@ -116,6 +116,7 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> implements NotificationsListener {
 
+  String _lastRunVersion;
   String _upgradeRequiredVersion;
   String _upgradeAvailableVersion;
   Key key = UniqueKey();
@@ -128,6 +129,7 @@ class _AppState extends State<App> implements NotificationsListener {
       Onboarding.notifyFinished,
       Config.notifyUpgradeAvailable,
       Config.notifyUpgradeRequired,
+      Config.notifyOnboardingRequired,
       Organizations.notifyOrganizationChanged,
       Organizations.notifyEnvironmentChanged,
       UserProfile.notifyProfileDeleted,
@@ -135,18 +137,13 @@ class _AppState extends State<App> implements NotificationsListener {
 
     AppLivecycle.instance.ensureBinding();
 
+    _lastRunVersion = Storage().lastRunVersion;
     _upgradeRequiredVersion = Config().upgradeRequiredVersion;
     _upgradeAvailableVersion = Config().upgradeAvailableVersion;
     
-    // This is just a placeholder to take some action on app upgrade.
-    String lastRunVersion = Storage().lastRunVersion;
-    if ((lastRunVersion == null) || (lastRunVersion != Config().appVersion)) {
-      
-      // Force unboarding to concent vaccination (#651)
-      if (AppVersion.compareVersions(lastRunVersion, '2.10.28') < 0) {
-        Storage().onBoardingPassed = false;
-      }
-      
+    _checkForceOnboarding();
+
+    if ((_lastRunVersion == null) || (_lastRunVersion != Config().appVersion)) {
       Storage().lastRunVersion = Config().appVersion;
     }
 
@@ -211,6 +208,20 @@ class _AppState extends State<App> implements NotificationsListener {
     Navigator.pushAndRemoveUntil(context, routeToHome, (_) => false);
   }
 
+  bool _checkForceOnboarding() {
+    // Action: Force unboarding to concent vaccination (#651, #681)
+    String onboardingRequiredVersion = Config().onboardingRequiredVersion;
+    if ((Storage().onBoardingPassed == true) &&
+        (_lastRunVersion != null) &&
+        (onboardingRequiredVersion != null) &&
+        (AppVersion.compareVersions(_lastRunVersion, onboardingRequiredVersion) < 0) &&
+        (AppVersion.compareVersions(onboardingRequiredVersion, Config().appVersion) <= 0)) {
+      Storage().onBoardingPassed = false;
+      return true;
+    }
+    return false;
+  }
+
   // NotificationsListener
 
   @override
@@ -227,6 +238,11 @@ class _AppState extends State<App> implements NotificationsListener {
       setState(() {
         _upgradeAvailableVersion = param;
       });
+    }
+    else if (name == Config.notifyOnboardingRequired) {
+      if (_checkForceOnboarding()) {
+        _resetUI();
+      }
     }
     else if (name == Organizations.notifyOrganizationChanged) {
       _resetUI();
