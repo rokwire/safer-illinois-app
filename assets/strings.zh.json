@@ -626,7 +626,7 @@
 	"panel.health.covid19.history.label.verified": "已验证",
 	"panel.health.covid19.history.label.verification_pending": "等待验证",
 	"panel.health.covid19.history.message.clear_failed": "无法清除COVID-19事件历史记录",
-	"panel.health.covid19.history.button.repost_history.title": "再次请求我的最新测试",
+	"panel.health.covid19.history.button.repost_history.title": "再次請求我的疫苗和最新測試",
 	"panel.health.covid19.history.button.repost_history.hint": "",
 	"panel.health.covid19.history.message.request_tests": "您的请求已提.你应该在一小时内收到你的最新测验",
 

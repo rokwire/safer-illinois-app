@@ -205,7 +205,7 @@ class _HealthHistoryPanelState extends State<HealthHistoryPanel> implements Noti
         alignment: Alignment.center,
         children: <Widget>[
           ScalableRoundedButton(
-            label: Localization().getStringEx("panel.health.covid19.history.button.repost_history.title", "Request my latest test again"),
+            label: Localization().getStringEx("panel.health.covid19.history.button.repost_history.title", "Request my vaccine and latest test again"),
             hint: Localization().getStringEx("panel.health.covid19.history.button.repost_history.hint", ""),
             backgroundColor: Styles().colors.surface,
             fontSize: 16.0,

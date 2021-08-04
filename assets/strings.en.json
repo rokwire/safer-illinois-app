@@ -626,7 +626,7 @@
 	"panel.health.covid19.history.label.verified": "Verified",
 	"panel.health.covid19.history.label.verification_pending": "Verification Pending",
 	"panel.health.covid19.history.message.clear_failed": "Failed to clear COVID-19 event history",
-	"panel.health.covid19.history.button.repost_history.title": "Request my latest test again",
+	"panel.health.covid19.history.button.repost_history.title": "Request my vaccine and latest test again",
 	"panel.health.covid19.history.button.repost_history.hint": "",
 	"panel.health.covid19.history.message.request_tests": "Your request has been submitted. You should receive your latest test within an hour",
 

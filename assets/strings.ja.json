@@ -626,7 +626,7 @@
 	"panel.health.covid19.history.label.verified": "確認しました",
 	"panel.health.covid19.history.label.verification_pending": "Verification Pending",
 	"panel.health.covid19.history.message.clear_failed": "Failed to clear COVID-19 event history",
-	"panel.health.covid19.history.button.repost_history.title": "最新の検査結果を再度要求する",
+	"panel.health.covid19.history.button.repost_history.title": "ワクチンと最新の検査をもう一度リクエストしてください",
 	"panel.health.covid19.history.button.repost_history.hint": "",
 	"panel.health.covid19.history.message.request_tests": "要求は提出されました。1時間以内に最新の検査結果を受け取るはずです",
 

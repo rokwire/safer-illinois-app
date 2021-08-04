@@ -626,7 +626,7 @@
 	"panel.health.covid19.history.label.verified": "Verificado",
 	"panel.health.covid19.history.label.verification_pending": "Verificación pendiente",
 	"panel.health.covid19.history.message.clear_failed": "No se pudo borrar el historial de eventos de COVID-19",
-	"panel.health.covid19.history.button.repost_history.title": "Solicitar mi última prueba nuevamente",
+	"panel.health.covid19.history.button.repost_history.title": "Solicitar mi vacuna y la última prueba nuevamente",
 	"panel.health.covid19.history.button.repost_history.hint": "",
 	"panel.health.covid19.history.message.request_tests": "Su solicitud ha sido enviada. Debería recibir su última prueba en una hora",
 
