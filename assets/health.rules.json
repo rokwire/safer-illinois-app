@@ -94,30 +94,41 @@
 				"interval": { "min": 0, "max": 10, "scope": "future" }
 			},
 			"success": {
-				"condition": "require-vaccine",
+				"condition": "test-interval",
 				"params": {
-					"interval": { "scope": "past" },
-					"vaccine": "effective"
+					"interval": "UserTestMonitorInterval"
 				},
-				"success": null,
+				"success": "PCR.positive.finish",
 				"fail": {
-					"condition": "require-test",
+					"condition": "require-vaccine",
 					"params": {
-						"interval": { "min": 11, "max": null, "scope": "future" }
+						"interval": { "scope": "past" },
+						"vaccine": "effective"
 					},
 					"success": null,
-					"fail": {
-						"code": "red",
-						"priority": 11,
-						"next_step": "test.now.step"
-					}
+					"fail": "PCR.positive.finish"
 				}
 			},
+			"fail": "PCR.positive.quarantine"
+		},
+
+		"PCR.positive.finish": {
+			"condition": "require-test",
+			"params": {
+				"interval": { "min": 11, "max": null, "scope": "future" }
+			},
+			"success": null,
 			"fail": {
 				"code": "red",
 				"priority": 11,
-				"next_step_html": "positive.step.html"
+				"next_step": "test.now.step"
 			}
+		},
+
+		"PCR.positive.quarantine": {
+			"code": "red",
+			"priority": 11,
+			"next_step_html": "positive.step.html"
 		},
 
 		"PCR.positive-IP": {
@@ -126,33 +137,44 @@
 				"interval": { "min": 0, "max": 8, "scope": "future" }
 			},
 			"success": {
-				"condition": "require-vaccine",
+				"condition": "test-interval",
 				"params": {
-					"interval": { "scope": "past" },
-					"vaccine": "effective"
+					"interval": "UserTestMonitorInterval"
 				},
-				"success": null,
+				"success": "PCR.positive-IP.finish",
 				"fail": {
-					"condition": "require-test",
+					"condition": "require-vaccine",
 					"params": {
-						"interval": { "min": 9, "max": null, "scope": "future" }
+						"interval": { "scope": "past" },
+						"vaccine": "effective"
 					},
 					"success": null,
-					"fail": {
-						"code": "red",
-						"priority": 11,
-						"next_step": "test.now.step",
-						"fcm_topic": "PCR.positive-IP"
+					"fail": "PCR.positive-IP.finish"
 					}
-				}
 			},
+			"fail": "PCR.positive-IP.quarantine"
+		},
+
+		"PCR.positive-IP.finish": {
+			"condition": "require-test",
+			"params": {
+				"interval": { "min": 9, "max": null, "scope": "future" }
+			},
+			"success": null,
 			"fail": {
 				"code": "red",
 				"priority": 11,
-				"next_step_html": "positive-ip.step.html",
-				"event_explanation": "positive-ip.explanation",
+				"next_step": "test.now.step",
 				"fcm_topic": "PCR.positive-IP"
 			}
+		},
+
+		"PCR.positive-IP.quarantine": {
+			"code": "red",
+			"priority": 11,
+			"next_step_html": "positive-ip.step.html",
+			"event_explanation": "positive-ip.explanation",
+			"fcm_topic": "PCR.positive-IP"
 		},
 
 		"PCR.positive-NIP.0": {
@@ -255,6 +277,15 @@
 			}
 		},
 
+		"vaccinated-handler": {
+			"condition": "test-interval",
+			"params": {
+				"interval": "UserTestMonitorInterval"
+			},
+			"success": null,
+			"fail": "vaccinated"
+		},
+
 		"vaccinated": {
 			"code": "green",
 			"priority": 4,
@@ -280,30 +311,39 @@
 		},
 
 		"quarantine-off": {
-			"condition": "require-vaccine",
+			"condition": "test-interval",
 			"params": {
-				"interval": { "scope": "past" },
-				"vaccine": "effective"
+				"interval": "UserTestMonitorInterval"
 			},
-			"success": "vaccinated-force",
+			"success": "quarantine-off.unvaccinated",
 			"fail": {
-				"condition": "require-test",
+				"condition": "require-vaccine",
 				"params": {
-					"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
+					"interval": { "scope": "past" },
+					"vaccine": "effective"
 				},
-				"success": {
-					"code": "yellow",
-					"priority": -1,
-					"next_step": "test.resume.step",
-					"next_step_interval": "TestMonitorInterval",
-					"warning": "test.future.warning"
-					},
-				"fail": {
-					"code": "orange",
-					"priority": -1,
-					"next_step": "test.now.step",
-					"reason": "test.now.reason"
-				}
+				"success": "vaccinated-force",
+				"fail": "quarantine-off.unvaccinated"
+			}
+		},
+
+		"quarantine-off.unvaccinated": {
+			"condition": "require-test",
+			"params": {
+				"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
+			},
+			"success": {
+				"code": "yellow",
+				"priority": -1,
+				"next_step": "test.resume.step",
+				"next_step_interval": "TestMonitorInterval",
+				"warning": "test.future.warning"
+				},
+			"fail": {
+				"code": "orange",
+				"priority": -1,
+				"next_step": "test.now.step",
+				"reason": "test.now.reason"
 			}
 		},
 
@@ -371,15 +411,7 @@
 				"params": {
 					"interval": { "min": 0, "max": "ExemptInterval", "scope": "future" }
 				},
-				"success": {
-					"condition": "require-vaccine",
-					"params": {
-						"interval": { "scope": "past" },
-						"vaccine": "effective"
-					},
-					"success": "vaccinated",
-					"fail": "test-required"
-				},
+				"success": null,
 				"fail": {
 					"code": "yellow",
 					"priority": 12,
@@ -399,34 +431,52 @@
 		},
 
     "exempt-off": {
-			"condition": "require-vaccine",
+			"condition": "test-interval",
 			"params": {
-				"interval": { "scope": "past" },
-				"vaccine": "effective"
+				"interval": "UserTestMonitorInterval"
 			},
-			"success": "vaccinated-force",
+			"success": "exempt-off.unvaccinated",
 			"fail": {
-				"code": "orange",
-				"priority": -1,
-				"next_step": "test.now.step",
-				"reason": "exempt-off.orange.reason"
+				"condition": "require-vaccine",
+				"params": {
+					"interval": { "scope": "past" },
+					"vaccine": "effective"
+				},
+				"success": "vaccinated-force",
+				"fail": "exempt-off.unvaccinated"
 			}
 		},
 
+		"exempt-off.unvaccinated": {
+			"code": "orange",
+			"priority": -1,
+			"next_step": "test.now.step",
+			"reason": "exempt-off.orange.reason"
+		},
+
 		"release": {
-			"condition": "require-vaccine",
+			"condition": "test-interval",
 			"params": {
-				"interval": { "scope": "past" },
-				"vaccine": "effective"
+				"interval": "UserTestMonitorInterval"
 			},
-			"success": "vaccinated-force",
+			"success": "release.unvaccinated",
 			"fail": {
-				"code": "orange",
-				"priority": -1,
-				"next_step": "release.step",
-				"reason": "release.reason"
+				"condition": "require-vaccine",
+				"params": {
+					"interval": { "scope": "past" },
+					"vaccine": "effective"
+				},
+				"success": "vaccinated-force",
+				"fail": "release.unvaccinated"
 			}
 		}
+	},
+
+	"release.unvaccinated": {
+		"code": "orange",
+		"priority": -1,
+		"next_step": "release.step",
+		"reason": "release.reason"
 	},
 
 	"tests" : {
@@ -814,7 +864,7 @@
 		"rules": [
 			{
 				"vaccine": "effective",
-				"status": "vaccinated"
+				"status": "vaccinated-handler"
 			}
 		]
 	},
