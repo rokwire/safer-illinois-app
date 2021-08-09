@@ -119,7 +119,7 @@
 				"next_step_html": "positive.step.html"
 			}
 		},
-		
+
 		"PCR.positive-IP": {
 			"condition": "timeout",
 			"params": {
@@ -263,6 +263,14 @@
 			"fcm_topic": "vaccinated"
 		},
 		
+		"vaccinated-force": {
+			"code": "green",
+			"priority": -4,
+			"next_step_html": "vaccinated.step.html",
+			"reason": "vaccinated.reason",
+			"fcm_topic": "vaccinated"
+		},
+
 		"quarantine-on": {
 			"code": "orange",
 			"priority": 10,
@@ -277,13 +285,7 @@
 				"interval": { "scope": "past" },
 				"vaccine": "effective"
 			},
-			"success": {
-				"code": "green",
-				"priority": -4,
-				"next_step_html": "vaccinated.step.html",
-				"reason": "vaccinated.reason",
-				"fcm_topic": "vaccinated"
-			},
+			"success": "vaccinated-force",
 			"fail": {
 				"condition": "require-test",
 				"params": {
@@ -402,13 +404,7 @@
 				"interval": { "scope": "past" },
 				"vaccine": "effective"
 			},
-			"success": {
-				"code": "green",
-				"priority": -4,
-				"next_step_html": "vaccinated.step.html",
-				"reason": "exempt-off.green.reason",
-				"fcm_topic": "vaccinated"
-			},
+			"success": "vaccinated-force",
 			"fail": {
 				"code": "orange",
 				"priority": -1,
@@ -416,20 +412,14 @@
 				"reason": "exempt-off.orange.reason"
 			}
 		},
-		
+
 		"release": {
 			"condition": "require-vaccine",
 			"params": {
 				"interval": { "scope": "past" },
 				"vaccine": "effective"
 			},
-			"success": {
-				"code": "green",
-				"priority": -4,
-				"next_step_html": "vaccinated.step.html",
-				"reason": "vaccinated.reason",
-				"fcm_topic": "vaccinated"
-			},
+			"success": "vaccinated-force",
 			"fail": {
 				"code": "orange",
 				"priority": -1,
