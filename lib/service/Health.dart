@@ -695,6 +695,7 @@ class Health with Service implements NotificationsListener {
   }
 
   Future<int> _loadUserTestMonitorInterval() async {
+//TMP:  return 8;
     if (this._isUserAuthenticated && (Config().healthUrl != null)) {
       String url = "${Config().healthUrl}/covid19/uin-override";
       Response response = await Network().get(url, auth: Network.HealthUserAuth);
@@ -1663,7 +1664,7 @@ class Health with Service implements NotificationsListener {
   // Current Server Time
 
   Future<DateTime> getServerTimeUtc() async {
-    //TMP: return DateTime.now().toUtc();
+//TMP: return DateTime.now().toUtc();
     String url = (Config().healthUrl != null) ? "${Config().healthUrl}/covid19/time" : null;
     Response response = (url != null) ? await Network().get(url, auth: Network.AppAuth) : null;
     String responseBody = (response?.statusCode == 200) ? response.body : null;
