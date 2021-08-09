@@ -94,20 +94,20 @@
 				"interval": { "min": 0, "max": 10, "scope": "future" }
 			},
 			"success": {
-				"condition": "test-interval",
+				"condition": "require-vaccine",
 				"params": {
-					"interval": "UserTestMonitorInterval"
+					"interval": { "scope": "past" },
+					"vaccine": "effective"
 				},
-				"success": "PCR.positive.finish",
-				"fail": {
-					"condition": "require-vaccine",
+				"success": {
+					"condition": "test-interval",
 					"params": {
-						"interval": { "scope": "past" },
-						"vaccine": "effective"
+						"interval": "UserTestMonitorInterval"
 					},
-					"success": null,
-					"fail": "PCR.positive.finish"
-				}
+					"success": "PCR.positive.finish",
+					"fail": null
+				},
+				"fail": "PCR.positive.finish"
 			},
 			"fail": "PCR.positive.quarantine"
 		},
@@ -137,20 +137,20 @@
 				"interval": { "min": 0, "max": 8, "scope": "future" }
 			},
 			"success": {
-				"condition": "test-interval",
+				"condition": "require-vaccine",
 				"params": {
-					"interval": "UserTestMonitorInterval"
+					"interval": { "scope": "past" },
+					"vaccine": "effective"
 				},
-				"success": "PCR.positive-IP.finish",
-				"fail": {
-					"condition": "require-vaccine",
+				"success": {
+					"condition": "test-interval",
 					"params": {
-						"interval": { "scope": "past" },
-						"vaccine": "effective"
+						"interval": "UserTestMonitorInterval"
 					},
-					"success": null,
-					"fail": "PCR.positive-IP.finish"
-					}
+					"success": "PCR.positive-IP.finish",
+					"fail": null
+				},
+				"fail": "PCR.positive-IP.finish"
 			},
 			"fail": "PCR.positive-IP.quarantine"
 		},
@@ -282,7 +282,7 @@
 			"params": {
 				"interval": "UserTestMonitorInterval"
 			},
-			"success": null,
+			"success": "vaccinated-suspended",
 			"fail": "vaccinated"
 		},
 
@@ -302,6 +302,14 @@
 			"fcm_topic": "vaccinated"
 		},
 
+		"vaccinated-suspended": {
+			"code": null,
+			"priority": null,
+			"next_step": "vaccinated.suspended.step",
+			"event_explanation": "vaccinated.suspended.explanation",
+			"reason": "vaccinated.suspended.reason"
+		},
+
 		"quarantine-on": {
 			"code": "orange",
 			"priority": 10,
@@ -311,20 +319,20 @@
 		},
 
 		"quarantine-off": {
-			"condition": "test-interval",
+			"condition": "require-vaccine",
 			"params": {
-				"interval": "UserTestMonitorInterval"
+				"interval": { "scope": "past" },
+				"vaccine": "effective"
 			},
-			"success": "quarantine-off.unvaccinated",
-			"fail": {
-				"condition": "require-vaccine",
+			"success": {
+				"condition": "test-interval",
 				"params": {
-					"interval": { "scope": "past" },
-					"vaccine": "effective"
+					"interval": "UserTestMonitorInterval"
 				},
-				"success": "vaccinated-force",
-				"fail": "quarantine-off.unvaccinated"
-			}
+				"success": "quarantine-off.unvaccinated",
+				"fail": "vaccinated-force"
+				},
+			"fail": "quarantine-off.unvaccinated"
 		},
 
 		"quarantine-off.unvaccinated": {
@@ -431,20 +439,20 @@
 		},
 
     "exempt-off": {
-			"condition": "test-interval",
+			"condition": "require-vaccine",
 			"params": {
-				"interval": "UserTestMonitorInterval"
+				"interval": { "scope": "past" },
+				"vaccine": "effective"
 			},
-			"success": "exempt-off.unvaccinated",
-			"fail": {
-				"condition": "require-vaccine",
+			"success": {
+				"condition": "test-interval",
 				"params": {
-					"interval": { "scope": "past" },
-					"vaccine": "effective"
+					"interval": "UserTestMonitorInterval"
 				},
-				"success": "vaccinated-force",
-				"fail": "exempt-off.unvaccinated"
-			}
+				"success": "exempt-off.unvaccinated",
+				"fail": "vaccinated-force"
+				},
+			"fail": "exempt-off.unvaccinated"
 		},
 
 		"exempt-off.unvaccinated": {
@@ -455,20 +463,20 @@
 		},
 
 		"release": {
-			"condition": "test-interval",
+			"condition": "require-vaccine",
 			"params": {
-				"interval": "UserTestMonitorInterval"
+				"interval": { "scope": "past" },
+				"vaccine": "effective"
 			},
-			"success": "release.unvaccinated",
-			"fail": {
-				"condition": "require-vaccine",
+			"success": {
+				"condition": "test-interval",
 				"params": {
-					"interval": { "scope": "past" },
-					"vaccine": "effective"
+					"interval": "UserTestMonitorInterval"
 				},
-				"success": "vaccinated-force",
-				"fail": "release.unvaccinated"
-			}
+				"success": "release.unvaccinated",
+				"fail": "vaccinated-force"
+			},
+			"fail": "release.unvaccinated"
 		}
 	},
 
@@ -895,6 +903,9 @@
 			"exposure.reason": "Your status changed to Orange because you received an exposure notification.",
 			"vaccinated.step.html": "<h3>We have a verified record of your completed COVID-19 vaccination on file.</h3><h3>Your vaccination status replaces testing for compliance and building access until further notice.</h3><h3>Please get an on-campus COVID-19 test if you experience symptoms.</h3><h3>Continue to monitor university communications for any changes to your testing policy.</h3>",
 			"vaccinated.reason": "Your status changed to Green because your vaccination is already effective.",
+			"vaccinated.suspended.step": "Get a test now.",
+			"vaccinated.suspended.explanation": "Nevertheless your COVID-19 vaccination you are required to resume testing for compliance and building access until further notice.",
+			"vaccinated.suspended.reason": "Nevertheless your status change to Orange because you are required to resume testing.",
 			"quarantine-on.step": "Stay at home and avoid contacts",
 			"quarantine-on.reason": "Your status changed to Orange because the Public Health department placed you in Quarantine.",
 			"exempt-on.step": "You are exempted from testing",
@@ -966,6 +977,9 @@
 			"exposure.reason": "Su estado cambió a Naranja porque recibió una notificación de exposición.",
 			"vaccinated.step.html": "<h3>Tenemos un registro verificado de su vacunación COVID-19 completa en el archivo.</h3><h3>Su estado de vacunación reemplaza las pruebas de cumplimiento y acceso al edificio hasta nuevo aviso.</h3><h3>Hágase una prueba de COVID-19 en el campus si experimenta síntomas.</h3><h3>Continúe monitoreando las comunicaciones de la universidad para detectar cualquier cambio en su política de exámenes.</h3>",
 			"vaccinated.reason": "Su estado cambió a Verde porque su vacunación ya es efectiva.",
+			"vaccinated.suspended.step": "Hágase una prueba ahora.",
+			"vaccinated.suspended.explanation": "Sin embargo, su vacuna COVID-19 debe reanudar las pruebas de cumplimiento y acceso al edificio hasta nuevo aviso.",
+			"vaccinated.suspended.reason": "Sin embargo, su estado cambia a Orange porque debe reanudar las pruebas.",
 			"quarantine-on.step": "Quédese en casa y evite los contactos",
 			"quarantine-on.reason": "Su estado cambió a Orange porque el departamento de Salud Pública lo puso en cuarentena.",
 			"exempt-on.step": "Estas exenta de pruebas",
@@ -1037,6 +1051,9 @@
 			"exposure.reason": "您的狀態更改為橙色，因為您收到了曝光通知。",
 			"vaccinated.step.html": "<h3>我們記錄了您完成的COVID-19疫苗接種的經過驗證的記錄。</h3><h3>您的疫苗接種狀態將取代合規性測試和建立訪問權限，直至另行通知。</h3><h3>如果您出現症狀，請進行校園 COVID-19 測試。</h3><h3>繼續監控大學通訊，了解您的考試政策是否有任何變化。</h3>",
 			"vaccinated.reason": "您的狀態已更改為“綠色”，因為您的疫苗接種已經有效。",
+			"vaccinated.suspended.step": "立即進行測試。",
+			"vaccinated.suspended.explanation": "儘管如此，您需要重新進行 COVID-19 疫苗接種以確保合規性和建立訪問權限，直至另行通知。",
+			"vaccinated.suspended.reason": "儘管如此，您的狀態更改為橙色，因為您需要繼續測試。",
 			"quarantine-on.step": "呆在家裡，避免接觸",
 			"quarantine-on.reason": "您的狀態更改為“橙色”，因為公共衛生部門已將您隔離。",
 			"exempt-on.step": "您免於測試",
@@ -1108,6 +1125,9 @@
 			"exposure.reason": "接触通知を受信したため、ステータスがオレンジに変更されました。",
 			"vaccinated.step.html": "<h3>完了したCOVID-19ワクチン接種の確認済みの記録がファイルにあります。</h3><h3>あなたのワクチン接種状況は、追って通知があるまで、コンプライアンスと建物へのアクセスのテストに取って代わります。</h3><h3>症状が出た場合は、キャンパス内のCOVID-19検査を受けてください。</h3><h3>テストポリシーに変更がないか、大学のコミュニケーションを引き続き監視します。</h3>",
 			"vaccinated.reason": "予防接種がすでに有効になっているため、ステータスが緑に変わりました。",
+			"vaccinated.suspended.step": "今すぐテストを受けてください。",
+			"vaccinated.suspended.step.html": "それにもかかわらず、COVID-19ワクチン接種は、追って通知があるまで、コンプライアンスのテストとアクセスの構築を再開する必要があります。",
+			"vaccinated.suspended.reason": "それでも、テストを再開する必要があるため、ステータスはオレンジに変わります。",
 			"quarantine-on.step": "家にいて、他の人との接触を避けてください。",
 			"quarantine-on.reason": "Public Health departmentにより隔離状態に置かれているため、ステータスがオレンジに変更されました。",
 			"exempt-on.step": "あなたはテストから免除されています",
