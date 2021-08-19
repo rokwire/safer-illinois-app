@@ -66,6 +66,7 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.IOException;
+import java.util.concurrent.ConcurrentHashMap;
 
 import androidx.annotation.NonNull;
 import at.favre.lib.crypto.HKDF;
@@ -161,8 +162,8 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
 
         this.peripherals = new HashMap<>();
         this.peripheralsRPIs = new HashMap<>();
-        this.iosExposures = new HashMap<>();
-        this.androidExposures = new HashMap<>();
+        this.iosExposures = new ConcurrentHashMap<>();
+        this.androidExposures = new ConcurrentHashMap<>();
 
         this.i_TEK_map = loadTeksFromStorage();
         this.peripherals_bg = new HashMap<>();
@@ -493,7 +494,9 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
 
         // 1. Collect all iOS expired records (not updated after exposureTimeoutIntervalInMillis)
         if ((iosExposures != null) && !iosExposures.isEmpty()) {
-            for (String peripheralAddress : iosExposures.keySet()) {
+            Iterator<String> iosExposuresIterator = iosExposures.keySet().iterator();
+            while (iosExposuresIterator.hasNext()) {
+                String peripheralAddress = iosExposuresIterator.next();
                 ExposureRecord record = iosExposures.get(peripheralAddress);
                 if (record != null) {
                     long lastHeardInterval = currentTimestamp - record.getTimestampUpdated();
@@ -503,10 +506,10 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
                             expiredPeripheralAddress = new HashSet<>();
                         }
                         expiredPeripheralAddress.add(peripheralAddress);
-                    } else if(exposurePingIntervalInMillis <= lastHeardInterval) {
+                    } else if (exposurePingIntervalInMillis <= lastHeardInterval) {
                         Log.d(TAG, "ios exposure ping: " + peripheralAddress);
                         BluetoothPeripheral peripheral = (peripherals != null) ? peripherals.get(peripheralAddress) : null;
-                        if(peripheral != null) {
+                        if (peripheral != null) {
                             peripheral.readRemoteRssi();
                         }
                     }
@@ -517,8 +520,10 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
         if ((expiredPeripheralAddress != null) && !expiredPeripheralAddress.isEmpty()) {
             // Create copy so that to prevent crash with ConcurrentModificationException.
             Set<String> expiredPeripheralAddressCopy = new HashSet<>(expiredPeripheralAddress);
-            for (String address : expiredPeripheralAddressCopy) {
-                // remove expired records from iosExposures
+            // remove expired records from iosExposures
+            Iterator<String> expiredPeripheralIterator = expiredPeripheralAddressCopy.iterator();
+            while (expiredPeripheralIterator.hasNext()) {
+                String address = expiredPeripheralIterator.next();
                 disconnectIosPeripheral(address);
             }
         }
@@ -526,13 +531,15 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
         // 2. Collect all Android expired records (not updated after exposureTimeoutIntervalInMillis)
         Set<String> expiredRPIs = null;
         if((androidExposures != null) && !androidExposures.isEmpty()) {
-            for(String encodedRpi : androidExposures.keySet()) {
+            Iterator<String> androidExposuresIterator = androidExposures.keySet().iterator();
+            while (androidExposuresIterator.hasNext()) {
+                String encodedRpi = androidExposuresIterator.next();
                 ExposureRecord record = androidExposures.get(encodedRpi);
-                if(record != null) {
+                if (record != null) {
                     long lastHeardInterval = currentTimestamp - record.getTimestampUpdated();
-                    if(exposureTimeoutIntervalInMillis <= lastHeardInterval) {
+                    if (exposureTimeoutIntervalInMillis <= lastHeardInterval) {
                         Log.d(TAG, "Expired android exposure: " + encodedRpi);
-                        if(expiredRPIs == null) {
+                        if (expiredRPIs == null) {
                             expiredRPIs = new HashSet<>();
                         }
                         expiredRPIs.add(encodedRpi);
@@ -545,7 +552,9 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
             // Create copy so that to prevent crash with ConcurrentModificationException.
             Set<String> expiredRPIsCopy = new HashSet<>(expiredRPIs);
             // remove expired records from androidExposures
-            for (String encodedRpi : expiredRPIsCopy) {
+            Iterator<String> expiredRPIsIterator = expiredRPIsCopy.iterator();
+            while (expiredRPIsIterator.hasNext()) {
+                String encodedRpi = expiredRPIsIterator.next();
                 removeAndroidRpi(encodedRpi);
             }
         }
@@ -553,13 +562,13 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
 
     private void clearExposures() {
         if ((iosExposures != null) && !iosExposures.isEmpty()) {
-            Map<String, ExposureRecord> iosExposureCopy = new HashMap<>(iosExposures);
+            Map<String, ExposureRecord> iosExposureCopy = new ConcurrentHashMap<>(iosExposures);
             for (String address : iosExposureCopy.keySet()) {
                 disconnectIosPeripheral(address);
             }
         }
         if ((androidExposures != null) && !androidExposures.isEmpty()) {
-            Map<String, ExposureRecord> androidExposureCopy = new HashMap<>(androidExposures);
+            Map<String, ExposureRecord> androidExposureCopy = new ConcurrentHashMap<>(androidExposures);
             for (String encodedRpi : androidExposureCopy.keySet()) {
                 removeAndroidRpi(encodedRpi);
             }
