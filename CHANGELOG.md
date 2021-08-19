@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Changed
 - Disable vaccinated status if user has UserTestMonitorInterval defined [#684](https://github.com/rokwire/safer-illinois-app/issues/684).
+### Fixed
+- Android CME crash when processing exposures [#688](https://github.com/rokwire/safer-illinois-app/issues/688).
 
 ## [2.10.34] - 2021-08-04
 ### Changed
