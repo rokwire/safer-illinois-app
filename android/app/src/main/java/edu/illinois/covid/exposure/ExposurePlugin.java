@@ -505,10 +505,10 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
                             expiredPeripheralAddress = new HashSet<>();
                         }
                         expiredPeripheralAddress.add(peripheralAddress);
-                    } else if(exposurePingIntervalInMillis <= lastHeardInterval) {
+                    } else if (exposurePingIntervalInMillis <= lastHeardInterval) {
                         Log.d(TAG, "ios exposure ping: " + peripheralAddress);
                         BluetoothPeripheral peripheral = (peripherals != null) ? peripherals.get(peripheralAddress) : null;
-                        if(peripheral != null) {
+                        if (peripheral != null) {
                             peripheral.readRemoteRssi();
                         }
                     }
@@ -519,10 +519,10 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
         if ((expiredPeripheralAddress != null) && !expiredPeripheralAddress.isEmpty()) {
             // Create copy so that to prevent crash with ConcurrentModificationException.
             Set<String> expiredPeripheralAddressCopy = new HashSet<>(expiredPeripheralAddress);
+            // remove expired records from iosExposures
             Iterator<String> expiredPeripheralIterator = expiredPeripheralAddressCopy.iterator();
             while (expiredPeripheralIterator.hasNext()) {
                 String address = expiredPeripheralIterator.next();
-                // remove expired records from iosExposures
                 disconnectIosPeripheral(address);
             }
         }
@@ -534,11 +534,11 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
             while (androidExposuresIterator.hasNext()) {
                 String encodedRpi = androidExposuresIterator.next();
                 ExposureRecord record = androidExposures.get(encodedRpi);
-                if(record != null) {
+                if (record != null) {
                     long lastHeardInterval = currentTimestamp - record.getTimestampUpdated();
-                    if(exposureTimeoutIntervalInMillis <= lastHeardInterval) {
+                    if (exposureTimeoutIntervalInMillis <= lastHeardInterval) {
                         Log.d(TAG, "Expired android exposure: " + encodedRpi);
-                        if(expiredRPIs == null) {
+                        if (expiredRPIs == null) {
                             expiredRPIs = new HashSet<>();
                         }
                         expiredRPIs.add(encodedRpi);
