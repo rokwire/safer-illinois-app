@@ -493,7 +493,9 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
 
         // 1. Collect all iOS expired records (not updated after exposureTimeoutIntervalInMillis)
         if ((iosExposures != null) && !iosExposures.isEmpty()) {
-            for (String peripheralAddress : iosExposures.keySet()) {
+            Iterator<String> iosExposuresIterator = iosExposures.keySet().iterator();
+            while (iosExposuresIterator.hasNext()) {
+                String peripheralAddress = iosExposuresIterator.next();
                 ExposureRecord record = iosExposures.get(peripheralAddress);
                 if (record != null) {
                     long lastHeardInterval = currentTimestamp - record.getTimestampUpdated();
@@ -517,7 +519,9 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
         if ((expiredPeripheralAddress != null) && !expiredPeripheralAddress.isEmpty()) {
             // Create copy so that to prevent crash with ConcurrentModificationException.
             Set<String> expiredPeripheralAddressCopy = new HashSet<>(expiredPeripheralAddress);
-            for (String address : expiredPeripheralAddressCopy) {
+            Iterator<String> expiredPeripheralIterator = expiredPeripheralAddressCopy.iterator();
+            while (expiredPeripheralIterator.hasNext()) {
+                String address = expiredPeripheralIterator.next();
                 // remove expired records from iosExposures
                 disconnectIosPeripheral(address);
             }
@@ -526,7 +530,9 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
         // 2. Collect all Android expired records (not updated after exposureTimeoutIntervalInMillis)
         Set<String> expiredRPIs = null;
         if((androidExposures != null) && !androidExposures.isEmpty()) {
-            for(String encodedRpi : androidExposures.keySet()) {
+            Iterator<String> androidExposuresIterator = androidExposures.keySet().iterator();
+            while (androidExposuresIterator.hasNext()) {
+                String encodedRpi = androidExposuresIterator.next();
                 ExposureRecord record = androidExposures.get(encodedRpi);
                 if(record != null) {
                     long lastHeardInterval = currentTimestamp - record.getTimestampUpdated();
@@ -545,7 +551,9 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
             // Create copy so that to prevent crash with ConcurrentModificationException.
             Set<String> expiredRPIsCopy = new HashSet<>(expiredRPIs);
             // remove expired records from androidExposures
-            for (String encodedRpi : expiredRPIsCopy) {
+            Iterator<String> expiredRPIsIterator = expiredRPIsCopy.iterator();
+            while (expiredRPIsIterator.hasNext()) {
+                String encodedRpi = expiredRPIsIterator.next();
                 removeAndroidRpi(encodedRpi);
             }
         }
