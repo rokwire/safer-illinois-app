@@ -66,6 +66,7 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.IOException;
+import java.util.concurrent.ConcurrentHashMap;
 
 import androidx.annotation.NonNull;
 import at.favre.lib.crypto.HKDF;
@@ -161,8 +162,8 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
 
         this.peripherals = new HashMap<>();
         this.peripheralsRPIs = new HashMap<>();
-        this.iosExposures = new HashMap<>();
-        this.androidExposures = new HashMap<>();
+        this.iosExposures = new ConcurrentHashMap<>();
+        this.androidExposures = new ConcurrentHashMap<>();
 
         this.i_TEK_map = loadTeksFromStorage();
         this.peripherals_bg = new HashMap<>();
@@ -561,13 +562,13 @@ public class ExposurePlugin implements MethodChannel.MethodCallHandler, FlutterP
 
     private void clearExposures() {
         if ((iosExposures != null) && !iosExposures.isEmpty()) {
-            Map<String, ExposureRecord> iosExposureCopy = new HashMap<>(iosExposures);
+            Map<String, ExposureRecord> iosExposureCopy = new ConcurrentHashMap<>(iosExposures);
             for (String address : iosExposureCopy.keySet()) {
                 disconnectIosPeripheral(address);
             }
         }
         if ((androidExposures != null) && !androidExposures.isEmpty()) {
-            Map<String, ExposureRecord> androidExposureCopy = new HashMap<>(androidExposures);
+            Map<String, ExposureRecord> androidExposureCopy = new ConcurrentHashMap<>(androidExposures);
             for (String encodedRpi : androidExposureCopy.keySet()) {
                 removeAndroidRpi(encodedRpi);
             }
