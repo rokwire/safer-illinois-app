@@ -242,6 +242,30 @@
 		},
 
 		"test-required": {
+			"condition": "require-vaccine",
+			"params": {
+				"interval": { "scope": "past" },
+				"vaccine": "effective"
+			},
+			"success": {
+				"condition": "test-interval",
+				"params": {
+					"interval": "UserTestMonitorInterval"
+				},
+				"success": "test-required-vaccinated",
+				"fail": "test-required-default"
+			},
+			"fail": "test-required-default"
+		},
+
+		"test-required-vaccinated": {
+			"code": "orange",
+			"priority": 1,
+			"next_step_html": "test.now.vaccinated.step.html",
+			"reason": "test.now.reason"
+		},
+
+		"test-required-default": {
 			"code": "orange",
 			"priority": 1,
 			"next_step": "test.now.step",
@@ -305,8 +329,7 @@
 		"vaccinated-suspended": {
 			"code": null,
 			"priority": null,
-			"next_step": "vaccinated.suspended.step",
-			"event_explanation": "vaccinated.suspended.explanation",
+			"next_step_html": "test.now.vaccinated.step.html",
 			"reason": "vaccinated.suspended.reason"
 		},
 
@@ -888,6 +911,7 @@
 			"test.monitor.step.html": "<h1>Monitor your test results</h1><p>The university encourages you to be vaccinated if you are able to do so. Visit <a href='https://www.vaccinefinder.org'>vaccinefinder.org</a> to find nearby appointments.</p>",
 			"test.now.step": "Get a test now",
 			"test.now.reason": "Your status changed to Orange because you are past due for a test.",
+			"test.now.vaccinated.step.html": "<h2>Get a test now.</h2><h3>You have been identified as being in an area with a significant increase in positive COVID-19 cases over a short period of time. Starting now, you are required to receive an on-campus COVID-19 test every other day (even if you are fully vaccinated and your vaccination record has been verified) to maintain compliance and have “Granted” Building Access status until cases improve and you are notified otherwise.</h3>",
 			"test.another.asap.step": "Get another test asap",
 			"test.another.now.step.html": "<h3>Get your second test now.</h3><ul><li>Limit yourself to essential activities until you get the second negative result.</li><li>Your building access will change to Granted (Yellow) with the second negative test result.</li></ul><p>See <a href='https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'> testing schedule and rules</a>.</p>",
 			"test.after.step.html": "<h3>Get your second test after {next_step_date}. You must take two on-campus tests by Jan. 25.</h3><ul><li>Separate the tests by three days of quarantine:&nbsp;if the first test is on day one, the second test will be on day five.</li><li>Limit yourself to essential activities until you get the second negative result.</li><li>Your building access will change to Granted (Yellow) with the second negative test result.</li></ul><p>See <a href='https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'> testing schedule and rules</a>.</p>",
@@ -903,9 +927,7 @@
 			"exposure.reason": "Your status changed to Orange because you received an exposure notification.",
 			"vaccinated.step.html": "<h3>We have a verified record of your completed COVID-19 vaccination on file.</h3><h3>Your vaccination status replaces testing for compliance and building access until further notice.</h3><h3>Please get an on-campus COVID-19 test if you experience symptoms.</h3><h3>Continue to monitor university communications for any changes to your testing policy.</h3>",
 			"vaccinated.reason": "Your status changed to Green because your vaccination is already effective.",
-			"vaccinated.suspended.step": "Get a test now.",
-			"vaccinated.suspended.explanation": "Nevertheless your COVID-19 vaccination you are required to resume testing for compliance and building access until further notice.",
-			"vaccinated.suspended.reason": "Nevertheless your status change to Orange because you are required to resume testing.",
+			"vaccinated.suspended.reason": "Your status change to Orange because you have been identified as being in an area with a significant increase in positive COVID-19 cases over a short period of time.",
 			"quarantine-on.step": "Stay at home and avoid contacts",
 			"quarantine-on.reason": "Your status changed to Orange because the Public Health department placed you in Quarantine.",
 			"exempt-on.step": "You are exempted from testing",
@@ -962,6 +984,7 @@
 			"test.monitor.step.html": "<h1>Controle los resultados de su prueba</h1><p>La universidad le anima a vacunarse si puede hacerlo. Visite <a href='https://www.vaccinefinder.org'>vacunafinder.org</a> para encontrar citas cercanas.</p>",
 			"test.now.step": "Haz una prueba ahora",
 			"test.now.reason": "Su estado cambió a Naranja porque está atrasado en un examen.",
+			"test.now.vaccinated.step.html": "<h2>Hágase una prueba ahora.</h2><h3>Se ha identificado que se encuentra en un área con un aumento significativo de casos positivos de COVID-19 durante un corto período de tiempo. A partir de ahora, debe recibir una prueba de COVID-19 en el campus cada dos días (incluso si está completamente vacunado y su registro de vacunación ha sido verificado) para mantener el cumplimiento y tener el estado de Acceso al edificio “Otorgado” hasta que los casos mejoren y usted se notifica de otra manera.</h3>",
 			"test.another.asap.step": "Obtenga otra prueba lo antes posible",
 			"test.another.now.step.html": "<h3>Obtenga su segunda prueba ahora. Debes de tomar dos pruebas en el campus antes del 25 de enero.</h3><ul><li>Separe las pruebas con tres d&iacute;as de cuarentena: &nbsp;si la primera prueba es el d&iacute;a uno, la segunda prueba ser&aacute; el d&iacute;a cinco.</li><li>Lim&iacute;tese a las actividades esenciales hasta que obtenga el segundo resultado negativo.</li><li>El acceso al edificio cambiar&aacute; a Concedido (amarillo) con el segundo resultado negativo de la prueba.</li></ul><p>Ver el <a href='https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'>calendario y las reglas de las pruebas</a>.</p>",
 			"test.after.step.html": "<h3>Obtenga su segunda prueba despu&eacute;s del {next_step_date}. Debes de tomar dos pruebas en el campus antes del 25 de enero.</h3><ul><li>Separe las pruebas con tres d&iacute;as de cuarentena: &nbsp;si la primera prueba es el d&iacute;a uno, la segunda prueba ser&aacute; el d&iacute;a cinco.</li><li>Lim&iacute;tese a las actividades esenciales hasta que obtenga el segundo resultado negativo.</li><li>El acceso al edificio cambiar&aacute; a Concedido (amarillo) con el segundo resultado negativo de la prueba.</li></ul><p>Ver el <a href='https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'>calendario y las reglas de las pruebas</a>.</p>",
@@ -977,9 +1000,7 @@
 			"exposure.reason": "Su estado cambió a Naranja porque recibió una notificación de exposición.",
 			"vaccinated.step.html": "<h3>Tenemos un registro verificado de su vacunación COVID-19 completa en el archivo.</h3><h3>Su estado de vacunación reemplaza las pruebas de cumplimiento y acceso al edificio hasta nuevo aviso.</h3><h3>Hágase una prueba de COVID-19 en el campus si experimenta síntomas.</h3><h3>Continúe monitoreando las comunicaciones de la universidad para detectar cualquier cambio en su política de exámenes.</h3>",
 			"vaccinated.reason": "Su estado cambió a Verde porque su vacunación ya es efectiva.",
-			"vaccinated.suspended.step": "Hágase una prueba ahora.",
-			"vaccinated.suspended.explanation": "Sin embargo, su vacuna COVID-19 debe reanudar las pruebas de cumplimiento y acceso al edificio hasta nuevo aviso.",
-			"vaccinated.suspended.reason": "Sin embargo, su estado cambia a Orange porque debe reanudar las pruebas.",
+			"vaccinated.suspended.reason": "Su estado cambia a Naranja porque se ha identificado que se encuentra en un área con un aumento significativo de casos positivos de COVID-19 durante un corto período de tiempo.",
 			"quarantine-on.step": "Quédese en casa y evite los contactos",
 			"quarantine-on.reason": "Su estado cambió a Orange porque el departamento de Salud Pública lo puso en cuarentena.",
 			"exempt-on.step": "Estas exenta de pruebas",
@@ -1036,6 +1057,7 @@
 			"test.monitor.step.html": "<h1>監控您的測試結果</h1><p>如果您有能力，大學鼓勵您接種疫苗。 訪問 <a href='https://www.vaccinefinder.org'>vaccinefinder.org</a> 查找附近的約會。</p>",
 			"test.now.step": "立即獲得測試",
 			"test.now.reason": "您的狀態更改為“橙色”，因為您已逾期進行測試。",
+			"test.now.vaccinated.step.html": "<h2>立即進行測試。</h2><h3>您已被確定為在短時間內 COVID-19 陽性病例顯著增加的地區。 從現在開始，您必須每隔一天接受一次校內 COVID-19 測試（即使您已完全接種疫苗並且您的疫苗接種記錄已得到驗證）以保持合規性並具有“授予”建築物訪問權限狀態，直到病例有所改善並且您 另行通知。</h3>",
 			"test.another.asap.step": "盡快獲得另一個測試",
 			"test.another.now.step.html": "<h3>现在进行第二次测试. 你必须在1月25日之前检测两次.</h3><ul><li>两次测试之间需隔离三天：如果第一次测试在第一天，第二次测试将在第五天</li><li>在得到第二个阴性测试结果之前，尽量只做必要的出行</li><li>在第二个阴性结果出来后，您的建筑访问权限将更改为&ldquo;已授予&rdquo;（黄色）</li></ul><p><a href='https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'>见测试计划和规则</a>.</p>",
 			"test.after.step.html": "<h3>在{next_step_date}之后进行第二次测试. 你必须在1月25日之前检测两次.</h3><ul><li>两次测试之间需隔离三天：如果第一次测试在第一天，第二次测试将在第五天</li><li>在得到第二个阴性测试结果之前，尽量只做必要的出行</li><li>在第二个阴性结果出来后，您的建筑访问权限将更改为&ldquo;已授予&rdquo;（黄色）</li></ul><p><a href='https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'>见测试计划和规则</a>.</p>",
@@ -1051,9 +1073,7 @@
 			"exposure.reason": "您的狀態更改為橙色，因為您收到了曝光通知。",
 			"vaccinated.step.html": "<h3>我們記錄了您完成的COVID-19疫苗接種的經過驗證的記錄。</h3><h3>您的疫苗接種狀態將取代合規性測試和建立訪問權限，直至另行通知。</h3><h3>如果您出現症狀，請進行校園 COVID-19 測試。</h3><h3>繼續監控大學通訊，了解您的考試政策是否有任何變化。</h3>",
 			"vaccinated.reason": "您的狀態已更改為“綠色”，因為您的疫苗接種已經有效。",
-			"vaccinated.suspended.step": "立即進行測試。",
-			"vaccinated.suspended.explanation": "儘管如此，您需要重新進行 COVID-19 疫苗接種以確保合規性和建立訪問權限，直至另行通知。",
-			"vaccinated.suspended.reason": "儘管如此，您的狀態更改為橙色，因為您需要繼續測試。",
+			"vaccinated.suspended.reason": "您的狀態更改為橙色，因為您已被確定為在短時間內 COVID-19 陽性病例顯著增加的地區。",
 			"quarantine-on.step": "呆在家裡，避免接觸",
 			"quarantine-on.reason": "您的狀態更改為“橙色”，因為公共衛生部門已將您隔離。",
 			"exempt-on.step": "您免於測試",
@@ -1110,6 +1130,7 @@
 			"test.monitor.step.html": "<h1>検査結果をモニタリングする</h1><p>大学は、可能であれば予防接種を受けることを推奨しています。 <a href='https://www.vaccinefinder.org'>vaccinefinder.org</a> にアクセスして、近くの予定を見つけてください。</p>",
 			"test.now.step": "今検査を受ける",
 			"test.now.reason": "検査期日が過ぎたため、ステータスがオレンジに変更されました。",
+			"test.now.vaccinated.step.html": "<h2>今すぐテストを受けてください。</h2><h3>あなたは、短期間に陽性のCOVID-19症例が大幅に増加している地域にいると特定されました。 今から、コンプライアンスを維持し、ケースが改善してあなたが それ以外の場合は通知されます。</h3>",
 			"test.another.asap.step": "今すぐ別の検査を受ける",
 			"test.another.now.step.html": "<h3>2回目の検査をいま受ける。</h3><ul><li>2回目の陰性結果を受け取るまでは必要な行動だけに制限してください。</li><li>2回目の陰性結果とともに建物に入る許可が「GRANTED」（黄）に変更されます。</li></ul><p><a href='https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'> で検査予定とルールについての情報を確認してください。</a>.</p>",
 			"test.after.step.html": "<h3>2回目の検査を{next_step_date}の後で受ける。 1月25日までにキャンプの検査を２回受ける必要があります。</h3><ul><li>２つの検査の間に、３日間の隔離期間を設けて下さい。:&nbsp;１回目の検査を初日に受けた場合、２回目の検査は５日目になります。</li><li>2回目の陰性結果を受けるまでには必要な行動だけに制限してください。</li><li>2回目の陰性結果とともに建物に入る許可が「GRANTED」（黄）に変更されます。</li></ul><p><a href='https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'> で検査予定とルールについての情報を確認してください。</a>.</p>",
@@ -1125,9 +1146,7 @@
 			"exposure.reason": "接触通知を受信したため、ステータスがオレンジに変更されました。",
 			"vaccinated.step.html": "<h3>完了したCOVID-19ワクチン接種の確認済みの記録がファイルにあります。</h3><h3>あなたのワクチン接種状況は、追って通知があるまで、コンプライアンスと建物へのアクセスのテストに取って代わります。</h3><h3>症状が出た場合は、キャンパス内のCOVID-19検査を受けてください。</h3><h3>テストポリシーに変更がないか、大学のコミュニケーションを引き続き監視します。</h3>",
 			"vaccinated.reason": "予防接種がすでに有効になっているため、ステータスが緑に変わりました。",
-			"vaccinated.suspended.step": "今すぐテストを受けてください。",
-			"vaccinated.suspended.step.html": "それにもかかわらず、COVID-19ワクチン接種は、追って通知があるまで、コンプライアンスのテストとアクセスの構築を再開する必要があります。",
-			"vaccinated.suspended.reason": "それでも、テストを再開する必要があるため、ステータスはオレンジに変わります。",
+			"vaccinated.suspended.reason": "短期間に陽性のCOVID-19症例が大幅に増加している地域にいることが確認されたため、ステータスがオレンジに変わります。",
 			"quarantine-on.step": "家にいて、他の人との接触を避けてください。",
 			"quarantine-on.reason": "Public Health departmentにより隔離状態に置かれているため、ステータスがオレンジに変更されました。",
 			"exempt-on.step": "あなたはテストから免除されています",
