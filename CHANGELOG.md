@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Changed
+- Updated next step text for vaccinated users that are forced to resume testing [#692](https://github.com/rokwire/safer-illinois-app/issues/692).
 
 ## [2.10.35] - 2021-08-19
 ### Changed
