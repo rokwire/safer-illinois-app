@@ -1,7 +1,7 @@
 {
 	"defaults": {
 		"status": {
-			"code": "orange",
+			"code": "spanish-orange",
 			"next_step": "default.step"
 		}
 	},
