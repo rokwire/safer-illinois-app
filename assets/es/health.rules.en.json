@@ -1,0 +1,1040 @@
+{
+	"defaults": {
+		"status": {
+			"code": "spanish-orange",
+			"next_step": "default.step"
+		}
+	},
+	"intervals": {
+		"DefaultTestMonitorInterval": 4,
+		"UndergraduateTestMonitorInterval": 2,
+		"UserTestMonitorInterval": null,
+		"TestMonitorInterval": {
+			"condition": "test-interval",
+			"params": {
+				"interval": "UserTestMonitorInterval"
+			},
+			"success": "UserTestMonitorInterval",
+			"fail": {
+				"condition": "test-user",
+				"params": {
+					"card.role": "Undergraduate",
+					"card.student_level": "1U"
+				},
+				"success": "UndergraduateTestMonitorInterval",
+				"fail": "DefaultTestMonitorInterval"
+			}
+		},
+		"DefaultTestMonitorWeekdaysExtent": [
+			"Fri",
+			"Sat",
+			"Sun",
+			"Mon"
+		],
+		"UndergraduateTestMonitorWeekdaysExtent": [
+			"Sat",
+			"Sun"
+		],
+		"TestMonitorWeekdaysExtent": {
+			"condition": "test-user",
+			"params": {
+				"card.role": "Undergraduate",
+				"card.student_level": "1U"
+			},
+			"success": "UndergraduateTestMonitorWeekdaysExtent",
+			"fail": "DefaultTestMonitorWeekdaysExtent"
+		},
+		"Mon": 1,
+		"Tue": 2,
+		"Wed": 3,
+		"Thu": 4,
+		"Fri": 5,
+		"Sat": 6,
+		"Sun": 7
+	},
+	"constants": {
+		"FamilyMemberTestPrice": null
+	},
+	"codes": {
+		"list": [
+			{
+				"code": "green",
+				"color": "#1ACD00",
+				"name": "code.green.name",
+				"description": "code.green.description",
+				"long_description": "code.green.long_description"
+			},
+			{
+				"code": "yellow",
+				"color": "#FFCF1C",
+				"name": "code.yellow.name",
+				"description": "code.yellow.description",
+				"long_description": "code.yellow.long_description"
+			},
+			{
+				"code": "orange",
+				"color": "#F29835",
+				"name": "code.orange.name",
+				"description": "code.orange.description",
+				"long_description": "code.orange.long_description"
+			},
+			{
+				"code": "red",
+				"color": "#FF4F4F",
+				"name": "code.red.name",
+				"description": "code.red.description",
+				"long_description": "code.red.long_description",
+				"reports_exposures": true
+			}
+		],
+		"info": [
+			"code.general.info.1",
+			"code.general.info.2"
+		]
+	},
+	"statuses": {
+		"PCR.positive.0": {
+			"code": "red",
+			"priority": 11,
+			"next_step_html": "positive.step.html"
+		},
+		"PCR.positive": {
+			"condition": "timeout",
+			"params": {
+				"interval": {
+					"min": 0,
+					"max": 10,
+					"scope": "future"
+				}
+			},
+			"success": {
+				"condition": "require-vaccine",
+				"params": {
+					"interval": {
+						"scope": "past"
+					},
+					"vaccine": "effective"
+				},
+				"success": {
+					"condition": "test-interval",
+					"params": {
+						"interval": "UserTestMonitorInterval"
+					},
+					"success": "PCR.positive.finish",
+					"fail": null
+				},
+				"fail": "PCR.positive.finish"
+			},
+			"fail": "PCR.positive.quarantine"
+		},
+		"PCR.positive.finish": {
+			"condition": "require-test",
+			"params": {
+				"interval": {
+					"min": 11,
+					"max": null,
+					"scope": "future"
+				}
+			},
+			"success": null,
+			"fail": {
+				"code": "red",
+				"priority": 11,
+				"next_step": "test.now.step"
+			}
+		},
+		"PCR.positive.quarantine": {
+			"code": "red",
+			"priority": 11,
+			"next_step_html": "positive.step.html"
+		},
+		"PCR.positive-IP": {
+			"condition": "timeout",
+			"params": {
+				"interval": {
+					"min": 0,
+					"max": 8,
+					"scope": "future"
+				}
+			},
+			"success": {
+				"condition": "require-vaccine",
+				"params": {
+					"interval": {
+						"scope": "past"
+					},
+					"vaccine": "effective"
+				},
+				"success": {
+					"condition": "test-interval",
+					"params": {
+						"interval": "UserTestMonitorInterval"
+					},
+					"success": "PCR.positive-IP.finish",
+					"fail": null
+				},
+				"fail": "PCR.positive-IP.finish"
+			},
+			"fail": "PCR.positive-IP.quarantine"
+		},
+		"PCR.positive-IP.finish": {
+			"condition": "require-test",
+			"params": {
+				"interval": {
+					"min": 9,
+					"max": null,
+					"scope": "future"
+				}
+			},
+			"success": null,
+			"fail": {
+				"code": "red",
+				"priority": 11,
+				"next_step": "test.now.step",
+				"fcm_topic": "PCR.positive-IP"
+			}
+		},
+		"PCR.positive-IP.quarantine": {
+			"code": "red",
+			"priority": 11,
+			"next_step_html": "positive-ip.step.html",
+			"event_explanation": "positive-ip.explanation",
+			"fcm_topic": "PCR.positive-IP"
+		},
+		"PCR.positive-NIP.0": {
+			"condition": "timeout",
+			"params": {
+				"interval": {
+					"min": 0,
+					"max": 60,
+					"scope": "future"
+				}
+			},
+			"success": "test-required",
+			"fail": {
+				"code": "yellow",
+				"priority": 3,
+				"next_step_html": "positive-nip.step.html",
+				"next_step_interval": 60,
+				"event_explanation": "positive-nip.explanation",
+				"warning": "test.future.warning"
+			}
+		},
+		"PCR.positive-NIP": {
+			"condition": "require-test",
+			"params": {
+				"interval": {
+					"min": 0,
+					"max": "TestMonitorInterval",
+					"scope": "future",
+					"current": true
+				}
+			},
+			"success": {
+				"code": "yellow",
+				"priority": 1,
+				"next_step_html": "positive-nip.step.html",
+				"next_step_interval": "TestMonitorInterval",
+				"event_explanation": "positive-nip.explanation",
+				"warning": "test.future.warning"
+			},
+			"fail": "test-required"
+		},
+		"PCR.negative": "test-monitor",
+		"PCR.invalid": {
+			"condition": "require-test",
+			"params": {
+				"interval": {
+					"min": 0,
+					"max": 1,
+					"scope": "future",
+					"current": true
+				}
+			},
+			"success": {
+				"code": null,
+				"priority": 1,
+				"next_step": "test.another.asap.step",
+				"next_step_interval": 1,
+				"warning": "test.future.warning"
+			},
+			"fail": "test-required"
+		},
+		"test-monitor": {
+			"condition": "require-test",
+			"params": {
+				"interval": {
+					"min": 0,
+					"max": "TestMonitorInterval",
+					"max-weekdays-extent": "TestMonitorWeekdaysExtent",
+					"scope": "future",
+					"current": true
+				}
+			},
+			"success": {
+				"code": "yellow",
+				"priority": 1,
+				"next_step_html": "test.monitor.step.html",
+				"next_step_interval": "TestMonitorInterval",
+				"warning": "test.future.warning"
+			},
+			"fail": "test-required"
+		},
+		"test-required": {
+			"condition": "require-vaccine",
+			"params": {
+				"interval": {
+					"scope": "past"
+				},
+				"vaccine": "effective"
+			},
+			"success": {
+				"condition": "test-interval",
+				"params": {
+					"interval": "UserTestMonitorInterval"
+				},
+				"success": "test-required-vaccinated",
+				"fail": "test-required-default"
+			},
+			"fail": "test-required-default"
+		},
+		"test-required-vaccinated": {
+			"code": "orange",
+			"priority": 1,
+			"next_step_html": "test.now.vaccinated.step.html",
+			"reason": "test.now.reason"
+		},
+		"test-required-default": {
+			"code": "orange",
+			"priority": 1,
+			"next_step": "test.now.step",
+			"reason": "test.now.reason"
+		},
+		"symptoms-match": {
+			"code": "orange",
+			"priority": 1,
+			"next_step": "symptoms.step",
+			"reason": "symptoms.reason"
+		},
+		"exposure-match": {
+			"condition": "timeout",
+			"params": {
+				"interval": {
+					"min": 0,
+					"max": 3,
+					"scope": "future"
+				}
+			},
+			"success": {
+				"condition": "require-test",
+				"params": {
+					"interval": {
+						"min": 4,
+						"max": null,
+						"scope": "future"
+					}
+				},
+				"success": null,
+				"fail": "test-required"
+			},
+			"fail": {
+				"code": "orange",
+				"priority": 2,
+				"next_step_html": "exposure.step.html",
+				"next_step_interval": 4,
+				"reason": "exposure.reason"
+			}
+		},
+		"vaccinated-handler": {
+			"condition": "test-interval",
+			"params": {
+				"interval": "UserTestMonitorInterval"
+			},
+			"success": "vaccinated-suspended",
+			"fail": "vaccinated"
+		},
+		"vaccinated": {
+			"code": "green",
+			"priority": 4,
+			"next_step_html": "vaccinated.step.html",
+			"reason": "vaccinated.reason",
+			"fcm_topic": "vaccinated"
+		},
+		"vaccinated-force": {
+			"code": "green",
+			"priority": -4,
+			"next_step_html": "vaccinated.step.html",
+			"reason": "vaccinated.reason",
+			"fcm_topic": "vaccinated"
+		},
+		"vaccinated-suspended": {
+			"code": null,
+			"priority": null,
+			"next_step_html": "test.now.vaccinated.step.html",
+			"reason": "vaccinated.suspended.reason"
+		},
+		"quarantine-on": {
+			"code": "orange",
+			"priority": 10,
+			"next_step": "quarantine-on.step",
+			"reason": "quarantine-on.reason",
+			"fcm_topic": "quarantine-on"
+		},
+		"quarantine-off": {
+			"condition": "require-vaccine",
+			"params": {
+				"interval": {
+					"scope": "past"
+				},
+				"vaccine": "effective"
+			},
+			"success": {
+				"condition": "test-interval",
+				"params": {
+					"interval": "UserTestMonitorInterval"
+				},
+				"success": "quarantine-off.unvaccinated",
+				"fail": "vaccinated-force"
+			},
+			"fail": "quarantine-off.unvaccinated"
+		},
+		"quarantine-off.unvaccinated": {
+			"condition": "require-test",
+			"params": {
+				"interval": {
+					"min": 0,
+					"max": "TestMonitorInterval",
+					"scope": "future",
+					"current": true
+				}
+			},
+			"success": {
+				"code": "yellow",
+				"priority": -1,
+				"next_step": "test.resume.step",
+				"next_step_interval": "TestMonitorInterval",
+				"warning": "test.future.warning"
+			},
+			"fail": {
+				"code": "orange",
+				"priority": -1,
+				"next_step": "test.now.step",
+				"reason": "test.now.reason"
+			}
+		},
+		"force-test": {
+			"condition": "require-test",
+			"params": {
+				"interval": {
+					"min": 0,
+					"scope": "future"
+				}
+			},
+			"success": {
+				"condition": "timeout",
+				"params": {
+					"interval": {
+						"min": 0,
+						"max": 3,
+						"scope": "future",
+						"origin": "referenceDate"
+					}
+				},
+				"success": {
+					"condition": "require-test",
+					"params": {
+						"interval": {
+							"min": 4,
+							"scope": "future",
+							"origin": "referenceDate"
+						}
+					},
+					"success": null,
+					"fail": {
+						"code": "orange",
+						"priority": 4,
+						"next_step_html": "test.another.now.step.html",
+						"reason": "test.past.reason"
+					}
+				},
+				"fail": {
+					"code": "orange",
+					"priority": 4,
+					"next_step_html": "test.after.step.html",
+					"next_step_interval": {
+						"value": 3,
+						"origin": "referenceDate"
+					},
+					"reason": "test.after.reason"
+				}
+			},
+			"fail": {
+				"code": "orange",
+				"priority": 4,
+				"next_step_html": "test.multiple.step.html",
+				"reason": "test.required.reason"
+			}
+		},
+		"out-of-test-compliance": {
+			"condition": "require-test",
+			"params": {
+				"interval": {
+					"min": -1,
+					"max": 1,
+					"current": true
+				}
+			},
+			"success": {
+				"code": null,
+				"priority": 1,
+				"next_step_html": "test.monitor.step.html",
+				"next_step_interval": 1,
+				"warning": "test.future.warning"
+			},
+			"fail": "test-required"
+		},
+		"exempt-on": {
+			"condition": "test-interval",
+			"params": {
+				"interval": "ExemptInterval"
+			},
+			"success": {
+				"condition": "timeout",
+				"params": {
+					"interval": {
+						"min": 0,
+						"max": "ExemptInterval",
+						"scope": "future"
+					}
+				},
+				"success": null,
+				"fail": {
+					"code": "yellow",
+					"priority": 12,
+					"next_step": "exempt-on.until.step",
+					"next_step_interval": "ExemptInterval",
+					"reason": "exempt-on.until.reason",
+					"fcm_topic": "exempt"
+				}
+			},
+			"fail": {
+				"code": "yellow",
+				"priority": 12,
+				"next_step": "exempt-on.step",
+				"reason": "exempt-on.reason",
+				"fcm_topic": "exempt"
+			}
+		},
+		"exempt-off": {
+			"condition": "require-vaccine",
+			"params": {
+				"interval": {
+					"scope": "past"
+				},
+				"vaccine": "effective"
+			},
+			"success": {
+				"condition": "test-interval",
+				"params": {
+					"interval": "UserTestMonitorInterval"
+				},
+				"success": "exempt-off.unvaccinated",
+				"fail": "vaccinated-force"
+			},
+			"fail": "exempt-off.unvaccinated"
+		},
+		"exempt-off.unvaccinated": {
+			"code": "orange",
+			"priority": -1,
+			"next_step": "test.now.step",
+			"reason": "exempt-off.orange.reason"
+		},
+		"release": {
+			"condition": "require-vaccine",
+			"params": {
+				"interval": {
+					"scope": "past"
+				},
+				"vaccine": "effective"
+			},
+			"success": {
+				"condition": "test-interval",
+				"params": {
+					"interval": "UserTestMonitorInterval"
+				},
+				"success": "release.unvaccinated",
+				"fail": "vaccinated-force"
+			},
+			"fail": "release.unvaccinated"
+		}
+	},
+	"release.unvaccinated": {
+		"code": "orange",
+		"priority": -1,
+		"next_step": "release.step",
+		"reason": "release.reason"
+	},
+	"tests": {
+		"rules": [
+			{
+				"test_type": "Covid-19 test B1",
+				"category": "PCR",
+				"results": [
+					{
+						"result": "positive",
+						"category": "PCR.positive",
+						"status": "PCR.positive"
+					},
+					{
+						"result": "negative",
+						"category": "PCR.negative",
+						"status": "PCR.negative"
+					}
+				]
+			},
+			{
+				"test_type": "COVID-19 Antigen",
+				"category": "PCR",
+				"results": [
+					{
+						"result": "Positive",
+						"category": "PCR.positive",
+						"status": "PCR.positive"
+					},
+					{
+						"result": "Negative",
+						"category": "PCR.negative",
+						"status": "PCR.negative"
+					}
+				]
+			},
+			{
+				"test_type": "SARS-COV-2 BY PCR, BKR",
+				"category": "PCR",
+				"results": [
+					{
+						"result": "DETECTED",
+						"category": "PCR.positive",
+						"status": "PCR.positive"
+					},
+					{
+						"result": "Not Detected",
+						"category": "PCR.negative",
+						"status": "PCR.negative"
+					}
+				]
+			},
+			{
+				"test_type": "COVID-19 PCR",
+				"category": "PCR",
+				"results": [
+					{
+						"result": "POSITIVE",
+						"category": "PCR.positive",
+						"disclaimer_html": null,
+						"status": "PCR.positive"
+					},
+					{
+						"result": "POSITIVE-IP",
+						"category": "PCR.positive",
+						"disclaimer_html": null,
+						"status": "PCR.positive-IP"
+					},
+					{
+						"result": "POSITIVE-NIP",
+						"category": "PCR.negative",
+						"disclaimer_html": null,
+						"status": "PCR.positive-NIP"
+					},
+					{
+						"result": "NEGATIVE",
+						"category": "PCR.negative",
+						"disclaimer_html": null,
+						"status": "PCR.negative"
+					},
+					{
+						"result": "INVALID",
+						"category": "PCR.invalid",
+						"disclaimer_html": null,
+						"status": "PCR.invalid"
+					},
+					{
+						"result": "INCONCLUSIVE",
+						"category": "PCR.invalid",
+						"disclaimer_html": null,
+						"status": "PCR.invalid"
+					},
+					{
+						"result": "REJECTED",
+						"category": "PCR.invalid",
+						"disclaimer_html": null,
+						"status": "PCR.invalid"
+					}
+				]
+			},
+			{
+				"test_type": "SARS-COV-2 BY PCR",
+				"category": "PCR",
+				"results": [
+					{
+						"result": "DETECTED",
+						"category": "PCR.positive",
+						"status": "PCR.positive"
+					},
+					{
+						"result": "NOT DETECTED",
+						"category": "PCR.negative",
+						"status": "PCR.negative"
+					},
+					{
+						"result": "INVALID RESULT",
+						"category": "PCR.invalid",
+						"status": "PCR.invalid"
+					},
+					{
+						"result": "INDETERMINATE",
+						"category": "PCR.invalid",
+						"status": "PCR.invalid"
+					}
+				]
+			},
+			{
+				"test_type": "COVID19 BY RRT/PCR (IDPH/MDHHS STATE HEALTH LAB)",
+				"category": "PCR",
+				"results": [
+					{
+						"result": "DETECTED",
+						"category": "PCR.positive",
+						"status": "PCR.positive"
+					},
+					{
+						"result": "NOT DETECTED",
+						"category": "PCR.negative",
+						"status": "PCR.negative"
+					},
+					{
+						"result": " INDETERMINATE/INCONCLUSIVE",
+						"category": "PCR.invalid",
+						"status": "PCR.invalid"
+					}
+				]
+			},
+			{
+				"test_type": "COVID19 BY RRT/PCR (NON INTERFACED LAB)",
+				"category": "PCR",
+				"results": [
+					{
+						"result": "DETECTED",
+						"category": "PCR.positive",
+						"status": "PCR.positive"
+					},
+					{
+						"result": "NOT DETECTED",
+						"category": "PCR.negative",
+						"status": "PCR.negative"
+					},
+					{
+						"result": " INDETERMINATE/INCONCLUSIVE",
+						"category": "PCR.invalid",
+						"status": "PCR.invalid"
+					}
+				]
+			},
+			{
+				"test_type": "PRE PROCEDURAL SCREEN SARS-COV-2 PCR [1230105976]/ PRE PROCEDURE SCREEN SARS-COV-2 PCR",
+				"category": "PCR",
+				"results": [
+					{
+						"result": "DETECTED",
+						"category": "PCR.positive",
+						"status": "PCR.positive"
+					},
+					{
+						"result": "NOT DETECTED",
+						"category": "PCR.negative",
+						"status": "PCR.negative"
+					},
+					{
+						"result": "INVALID RESULT",
+						"category": "PCR.invalid",
+						"status": "PCR.invalid"
+					},
+					{
+						"result": " INDETERMINATE",
+						"category": "PCR.invalid",
+						"status": "PCR.invalid"
+					}
+				]
+			},
+			{
+				"test_type": "SEVERE ACUTE RESPIRATORY SYNDROME CORONAVIRUS 2 - MAYO COVID",
+				"category": "SAR",
+				"results": [
+					{
+						"result": "DETECTED",
+						"category": "SAR.positive",
+						"status": "PCR.positive"
+					},
+					{
+						"result": "NOT DETECTED",
+						"category": "SAR.negative",
+						"status": "PCR.negative"
+					},
+					{
+						"result": "INDETERMINATE/INCONCLUSIVE",
+						"category": "SAR.invalid",
+						"status": "PCR.invalid"
+					}
+				]
+			}
+		]
+	},
+	"symptoms": {
+		"rules": [
+			{
+				"counts": {
+					"gr-2.4-1": {
+						"min": 1
+					}
+				},
+				"status": "symptoms-match"
+			},
+			{
+				"counts": {
+					"gr-2.5-1": {
+						"min": 1
+					}
+				},
+				"status": "symptoms-match"
+			}
+		],
+		"groups": [
+			{
+				"id": null,
+				"name": "gr-2.4-0",
+				"group": "no-symptoms",
+				"visible": true,
+				"symptoms": [
+					{
+						"id": "b669503f-938b-11ea-8f2a-0a58a9feac2a",
+						"name": "symptoms.no-symptoms"
+					}
+				]
+			},
+			{
+				"id": null,
+				"name": "gr-2.4-1",
+				"visible": false,
+				"symptoms": [
+					{
+						"id": "b41b12cc-93be-11ea-ae23-0a58a9feac2a",
+						"name": "symptoms.fever"
+					},
+					{
+						"id": "8f83787b-93c9-11ea-ae23-0a58a9feac2a",
+						"name": "symptoms.chills"
+					},
+					{
+						"id": "191df3ae-93ca-11ea-ae23-0a58a9feac2a",
+						"name": "symptoms.shaking-or-shivering"
+					},
+					{
+						"id": "f3b23b65-93ca-11ea-ae23-0a58a9feac2a",
+						"name": "symptoms.shortness-of-breath"
+					},
+					{
+						"id": "05239c9e-93cb-11ea-ae23-0a58a9feac2a",
+						"name": "symptoms.difficulty-breathing"
+					},
+					{
+						"id": "9ee1831e-93ca-11ea-ae23-0a58a9feac2a",
+						"name": "symptoms.muscle-or-joint-pain"
+					},
+					{
+						"id": "d5afe77f-93ca-11ea-ae23-0a58a9feac2a",
+						"name": "symptoms.loss-of-taste-and-or-smell"
+					}
+				]
+			},
+			{
+				"id": null,
+				"name": "gr-2.5-1",
+				"visible": true,
+				"group": "have-symptoms",
+				"symptoms": [
+					{
+						"id": "7c76102e-7c99-4743-80a6-5f09503fe92a",
+						"name": "symptoms.fever-or-chills"
+					},
+					{
+						"id": "e35c8441-93ca-11ea-ae23-0a58a9feac2a",
+						"name": "symptoms.cough"
+					},
+					{
+						"id": "ef5ebc2f-7f0c-4373-9ae0-9d2095dd2e62",
+						"name": "symptoms.shortness-of-breath-or-difficulty-breathing"
+					},
+					{
+						"id": "d3859c19-fdf4-408c-8da5-7b882baa845d",
+						"name": "symptoms.fatigue"
+					},
+					{
+						"id": "7b3b3997-de7c-4a7d-8106-51aa1fbcbf5b",
+						"name": "symptoms.muscle-or-body-aches"
+					},
+					{
+						"id": "acda4f1e-93ca-11ea-ae23-0a58a9feac2a",
+						"name": "symptoms.headache"
+					},
+					{
+						"id": "0f8a0f45-4207-4823-8482-50ec141d1ddf",
+						"name": "symptoms.new-loss-of-taste-or-smell"
+					},
+					{
+						"id": "bad0cc3c-93ca-11ea-ae23-0a58a9feac2a",
+						"name": "symptoms.sore-throat"
+					},
+					{
+						"id": "09e1e994-387c-437b-aeca-5534b7f52ffa",
+						"name": "symptoms.congestion-or-runny-nose"
+					},
+					{
+						"id": "64f38a81-0591-4fd1-bb00-5395b8c0d97d",
+						"name": "symptoms.nausea-or-vomiting"
+					},
+					{
+						"id": "c7aa955f-02b5-46a5-ab47-d51850de2b3c",
+						"name": "symptoms.diarrhea"
+					}
+				]
+			}
+		]
+	},
+	"contact_trace": {
+		"rules": [
+			{
+				"duration": {
+					"min": 120
+				},
+				"status": "exposure-match"
+			}
+		]
+	},
+	"actions": {
+		"rules": [
+			{
+				"type": "quarantine-on",
+				"status": "quarantine-on"
+			},
+			{
+				"type": "quarantine-off",
+				"status": "quarantine-off"
+			},
+			{
+				"type": "exempt-on",
+				"status": "exempt-on"
+			},
+			{
+				"type": "exempt-off",
+				"status": "exempt-off"
+			},
+			{
+				"type": "out-of-test-compliance",
+				"status": "out-of-test-compliance"
+			},
+			{
+				"type": "test_pending",
+				"status": "test-monitor"
+			},
+			{
+				"type": "force-test",
+				"status": "force-test"
+			},
+			{
+				"type": "release",
+				"status": "release"
+			}
+		]
+	},
+	"vaccines": {
+		"rules": [
+			{
+				"vaccine": "effective",
+				"status": "vaccinated-handler"
+			}
+		]
+	},
+	"strings": {
+		"en": {
+			"default.step": "Take a SHIELD Saliva Test when you return to campus.",
+			"positive.step.html": "<h3>You have been placed in mandatory isolation.</h3><ul><h6><li>Stay home. Do not go to work, school, or public areas.</li></h6><h6><li>Separate yourself from others in your home.</li></h6><h6><li>Contact Champaign-Urbana Public Health District immediately at <a href='mailto:coronavirus@c-uphd.org'>coronavirus@c-uphd.org</a></li></h6><h6><li>More Info: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Quarantine and Isolation</a></li></h6></ul>",
+			"positive-ip.step.html": "<h3>Please self-isolate and you will be contacted by Public Health in the next 24 hours. Please contact the University’s COVID Wellness Answer Center at <a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a> or call <a href='tel:+1-217-333-1900'>217-333-1900</a> if you have questions.</h3>",
+			"positive-ip.explanation": "Your Saliva PCR test shows the VIRUS IS DETECTED. Due to the timing of this collection and the detection of virus, this is considered an INFECTIOUS POSITIVE. You require isolation to prevent viral spread to others.",
+			"positive-nip.step.html": "<h3>You are not required to self-isolate unless you have COVID-like symptoms and are directed to do so by your licensed health professional.</h3>",
+			"positive-nip.explanation": "Your Saliva PCR test shows the VIRUS IS DETECTED in your REPEAT POSITIVE at a NON-INFECTIOUS LEVEL.",
+			"test.monitor.step.html": "<h1>Monitor your test results</h1><p>The university encourages you to be vaccinated if you are able to do so. Visit <a href='https://www.vaccinefinder.org'>vaccinefinder.org</a> to find nearby appointments.</p>",
+			"test.now.step": "Get a test now",
+			"test.now.reason": "Your status changed to Orange because you are past due for a test.",
+			"test.now.vaccinated.step.html": "<h2>Get a test now.</h2><h3>You have been identified as being in an area with a significant increase in positive COVID-19 cases over a short period of time. Starting now, you are required to receive an on-campus COVID-19 test every other day (even if you are fully vaccinated and your vaccination record has been verified) to maintain compliance and have “Granted” Building Access status until cases improve and you are notified otherwise.</h3>",
+			"test.another.asap.step": "Get another test asap",
+			"test.another.now.step.html": "<h3>Get your second test now.</h3><ul><li>Limit yourself to essential activities until you get the second negative result.</li><li>Your building access will change to Granted (Yellow) with the second negative test result.</li></ul><p>See <a href='https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'> testing schedule and rules</a>.</p>",
+			"test.after.step.html": "<h3>Get your second test after {next_step_date}. You must take two on-campus tests by Jan. 25.</h3><ul><li>Separate the tests by three days of quarantine:&nbsp;if the first test is on day one, the second test will be on day five.</li><li>Limit yourself to essential activities until you get the second negative result.</li><li>Your building access will change to Granted (Yellow) with the second negative test result.</li></ul><p>See <a href='https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'> testing schedule and rules</a>.</p>",
+			"test.after.reason": "Your status changed to Orange because you are required to take another test.",
+			"test.required.reason": "Your status changed to Orange because you are required to get a test.",
+			"test.resume.step": "Resume testing on your assigned days",
+			"test.future.warning": "You will turn orange/access denied if no negative test by {next_step_date}.",
+			"test.past.reason": "Your status changed to Orange because you are past due for another test.",
+			"test.multiple.step.html": "<h3>You must take two on-campus tests by Jan. 25.</h3><ul><li>Separate the tests by three days of quarantine:&nbsp;if the first test is on day one, the second test will be on day five.</li><li>Limit yourself to essential activities until you get the second negative result.</li><li>Your building access will change to Granted (Yellow) with the second negative test result.</li></ul><p>See <a href=https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'> testing schedule and rules</a>.</p>",
+			"symptoms.step": "Take a COVID-19 test now",
+			"symptoms.reason": "Your status changed to Orange because you self-reported symptoms consistent with the virus.",
+			"exposure.step.html": "<h3>You have likely been exposed to a person who is infected with COVID-19.</h3><ul><h6><li>You must quarantine yourself immediately.</li></h6><h6><li>Stay home. Do not go to work, school, or public areas.</li></h6><h6><li>Separate yourself from others in your home.</li></h6><h6><li>Contact <a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a> for guidance.</li></h6><h6><li>Get tested after {next_step_date} to see if you have developed the disease.</li></h6><h6><li>More Info: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Quarantine and Isolation</a></li></h6></ul>",
+			"exposure.reason": "Your status changed to Orange because you received an exposure notification.",
+			"vaccinated.step.html": "<h3>We have a verified record of your completed COVID-19 vaccination on file.</h3><h3>Your vaccination status replaces testing for compliance and building access until further notice.</h3><h3>Please get an on-campus COVID-19 test if you experience symptoms.</h3><h3>Continue to monitor university communications for any changes to your testing policy.</h3>",
+			"vaccinated.reason": "Your status changed to Green because your vaccination is already effective.",
+			"vaccinated.suspended.reason": "Your status change to Orange because you have been identified as being in an area with a significant increase in positive COVID-19 cases over a short period of time.",
+			"quarantine-on.step": "Stay at home and avoid contacts",
+			"quarantine-on.reason": "Your status changed to Orange because the Public Health department placed you in Quarantine.",
+			"exempt-on.step": "You are exempted from testing",
+			"exempt-on.reason": "Your status changed to Yellow because you are exempted from testing",
+			"exempt-on.until.step": "You are exempted from testing until {next_step_date}",
+			"exempt-on.until.reason": "Your status changed to Yellow because you are exempted from testing until {next_step_date}",
+			"exempt-off.orange.reason": "Your status changed to Orange because your exempt from testing status was canceled",
+			"exempt-off.green.reason": "Your status changed to Green because your exempt from testing status was canceled",
+			"release.step": "Take a SHIELD Saliva Test",
+			"release.reason": "Your status changed to Orange because the Public Health department requires you to take a test.",
+			"symptoms.no-symptoms": "No symptoms",
+			"symptoms.fever": "Fever",
+			"symptoms.chills": "Chills",
+			"symptoms.shaking-or-shivering": "Shaking or Shivering",
+			"symptoms.shortness-of-breath": "Shortness of breath",
+			"symptoms.difficulty-breathing": "Difficulty breathing",
+			"symptoms.muscle-or-joint-pain": "Muscle or joint pain",
+			"symptoms.loss-of-taste-and-or-smell": "Loss of taste and/or smell",
+			"symptoms.fever-or-chills": "Fever or chills",
+			"symptoms.cough": "Cough",
+			"symptoms.shortness-of-breath-or-difficulty-breathing": "Shortness of breath or difficulty breathing",
+			"symptoms.fatigue": "Fatigue",
+			"symptoms.muscle-or-body-aches": "Muscle or body aches",
+			"symptoms.headache": "Headache",
+			"symptoms.new-loss-of-taste-or-smell": "New loss of taste or smell",
+			"symptoms.sore-throat": "Sore Throat",
+			"symptoms.congestion-or-runny-nose": "Congestion or runny nose",
+			"symptoms.nausea-or-vomiting": "Nausea or vomiting",
+			"symptoms.diarrhea": "Diarrhea",
+			"code.green.name": "Green",
+			"code.green.description": "Fully vaccinated",
+			"code.green.long_description": "Green: Fully vaccinated",
+			"code.yellow.name": "Yellow",
+			"code.yellow.description": "Recent Negative Test",
+			"code.yellow.long_description": "Yellow: Recent negative test",
+			"code.orange.name": "Orange",
+			"code.orange.description": "Test Required",
+			"code.orange.long_description": "Orange: First time user, Past due for test, Self-reported symptoms, Received exposure notification or Quarantined",
+			"code.red.name": "Red",
+			"code.red.description": "Positive Test",
+			"code.red.long_description": "Red: Positive test",
+			"code.general.info.1": "Default status for new users is set to Orange.",
+			"code.general.info.2": "An up-to-date on-campus negative test result will reset your COVID-19 status to Yellow, and Building Entry will change to Granted."
+		}
+	}
+}
