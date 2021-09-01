@@ -265,6 +265,8 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
         contentList.add(_buildSymptomCheckInSection());
       } else if (code == 'add_test_result') {
         contentList.add(_buildAddTestResultSection());
+      } else if (code == 'vaccination') {
+        contentList.add(_buildVaccinationSection());
       }
     }
 
@@ -543,7 +545,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
             borderColor: Styles().colors.fillColorSecondary,
             backgroundColor: Styles().colors.surface,
             textColor: Styles().colors.fillColorPrimary,
-            onTap: ()=> _onTapFindLocations(),
+            onTap: ()=> _onTapFindTestLocations(),
           )),
         )
       ],),
@@ -678,6 +680,146 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
     ));
   }
 
+  Widget _buildVaccinationSection() {
+
+    HealthHistory lastVaccineTaken;
+    int numberOfTakenVaccines = 0;
+
+    for (HealthHistory historyEntry in Health().history ?? []) {
+      if (historyEntry.isVaccine) {
+        if (historyEntry.blob?.vaccine?.toLowerCase() == HealthHistoryBlob.VaccineEffective?.toLowerCase()) {
+          // 5.2.4 When effective then hide the widget
+          return null;
+        }
+        else if (historyEntry.blob?.vaccine?.toLowerCase() == HealthHistoryBlob.VaccineTaken?.toLowerCase()) {
+          numberOfTakenVaccines++;
+          if (lastVaccineTaken == null) {
+            lastVaccineTaken = historyEntry;
+          }
+        }
+      }
+    }
+
+    String headingTitle = 'VACCINATION', headingDate;
+    String statusTitleText, statusTitleHtml;
+    String statusDescriptionText, statusDescriptionHtml;
+
+    if (lastVaccineTaken == null) {
+      statusTitleText = 'Get a vaccine now';
+      statusDescriptionText = """
+• COVID-19 vaccines are safe.
+• COVID-19 vaccines are effective.
+• Once you are fully vaccinated, you can start doing more.
+• COVID-19 vaccination is a safer way to help build protection.
+• None of the COVID-19 vaccines can make you sick with COVID-19.""";
+    }
+    else if (numberOfTakenVaccines == 1) {
+      headingDate = AppDateTime.formatDateTime(lastVaccineTaken?.dateUtc?.toLocal(), format:"MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode) ?? '';
+
+      DateTime nextDoseDate = lastVaccineTaken?.dateUtc?.add(Duration(days: 21));
+      String nextDoseDateStr = AppDateTime.formatDateTime(nextDoseDate?.toLocal(), format:"MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode) ?? '';
+
+      statusTitleText = 'Get your second vaccination';
+      statusDescriptionText = "Get your second dose of vaccine on $nextDoseDateStr.";
+    }
+    else {
+      headingDate = AppDateTime.formatDateTime(lastVaccineTaken?.dateUtc?.toLocal(), format:"MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode) ?? '';
+
+      DateTime vaccineEffectiveDate = lastVaccineTaken?.dateUtc?.add(Duration(days: 14));
+      String vaccineEffectiveDateStr = AppDateTime.formatDateTime(vaccineEffectiveDate?.toLocal(), format:"MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode) ?? '';
+
+      statusTitleText = 'Wait for vaccination to get effective';
+      statusDescriptionText = "Your vaccination will become effective after $vaccineEffectiveDateStr.";
+    }
+
+    List<Widget> contentWidgets = <Widget>[
+      Row(children: <Widget>[
+        Text(headingTitle ?? '', style: TextStyle(letterSpacing: 0.5, fontFamily: Styles().fontFamilies.bold, fontSize: 12, color: Styles().colors.fillColorPrimary),),
+        Expanded(child: Container(),),
+        Text(headingDate ?? '', style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 12, color: Styles().colors.textSurface),)
+      ],),
+    ];
+
+    if (AppString.isStringNotEmpty(statusTitleText)) {
+      contentWidgets.addAll(<Widget>[
+          Container(height: 12,),
+          Text(statusTitleText, style: TextStyle(fontFamily: Styles().fontFamilies.extraBold, fontSize: 20, color: Styles().colors.fillColorPrimary),),
+      ]);
+    }
+
+    if (AppString.isStringNotEmpty(statusTitleHtml)) {
+      contentWidgets.addAll(<Widget>[
+          Container(height: 12,),
+          Html(data: statusTitleHtml, onLinkTap: (url) => _onTapLink(url),
+            style: {
+              "body": Style(fontFamily: Styles().fontFamilies.medium, fontSize: FontSize(16), color: Styles().colors.fillColorPrimary, padding: EdgeInsets.zero, margin: EdgeInsets.zero)
+            },
+          ),
+      ]);
+    }
+
+    if (AppString.isStringNotEmpty(statusDescriptionText)) {
+      contentWidgets.addAll(<Widget>[
+          Container(height: 12,),
+          Text(statusDescriptionText, style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Styles().colors.fillColorPrimary),),
+      ]);
+    }
+
+    if (AppString.isStringNotEmpty(statusDescriptionHtml)) {
+      contentWidgets.addAll(<Widget>[
+          Container(height: 12,),
+          Html(data: statusDescriptionHtml, onLinkTap: (url) => _onTapLink(url),
+            style: {
+              "body": Style(fontFamily: Styles().fontFamilies.medium, fontSize: FontSize(16), color: Styles().colors.fillColorPrimary, padding: EdgeInsets.zero, margin: EdgeInsets.zero)
+            },
+          ),
+      ]);
+    }
+
+    List<Widget> contentList = <Widget>[
+      Stack(children: <Widget>[
+        Visibility(visible: true,
+          child: Padding(padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: contentWidgets),
+          ),
+        ),
+        Visibility(visible: (_isRefreshing == true),
+          child: Container(
+            height: 80,
+            child: Align(alignment: Alignment.center,
+              child: SizedBox(height: 24, width: 24,
+                  child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorSecondary), )
+              ),
+            ),
+          ),
+        ),
+      ],),
+    ];
+
+    if (numberOfTakenVaccines < 2) {
+      contentList.addAll(<Widget>[
+        Container(margin: EdgeInsets.only(top: 14, bottom: 14), height: 1, color: Styles().colors.fillColorPrimaryTransparent015,),
+
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Semantics(explicitChildNodes: true, child: ScalableRoundedButton(
+            label: "Make vaccination appointment",
+            hint: "",
+            borderColor: Styles().colors.fillColorSecondary,
+            backgroundColor: Styles().colors.surface,
+            textColor: Styles().colors.fillColorPrimary,
+            onTap: _onTapFindVaccineAppointment,
+          )),
+        )
+      ]);
+    }
+
+    return Semantics(container: true, child:
+      Container(padding: EdgeInsets.symmetric(vertical: 16), decoration: BoxDecoration(color: Styles().colors.surface, borderRadius: BorderRadius.all(Radius.circular(4)), boxShadow: [BoxShadow(color: Styles().colors.blackTransparent018, spreadRadius: 2.0, blurRadius: 6.0, offset: Offset(2, 2))] ), child:
+        Column(crossAxisAlignment: CrossAxisAlignment.start, children: contentList),
+    ));
+  }
+
   Widget _buildTileButtons() {
     List<Widget> contentList = [];
 
@@ -774,7 +916,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
         hint: Localization().getStringEx("panel.covid19home.button.find_test_locations.hint", ""),
         borderRadius: BorderRadius.circular(4),
         height: null,
-        onTap: ()=>_onTapFindLocations(),
+        onTap: ()=>_onTapFindTestLocations(),
       ),
     );
   }
@@ -929,10 +1071,19 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
     }
   }
 
-  void _onTapFindLocations() {
+  void _onTapFindTestLocations() {
     if (Connectivity().isNotOffline) {
       Analytics.instance.logSelect(target: "COVID-19 Find Test Locations");
       Navigator.push(context, CupertinoPageRoute(builder: (context) => HealthTestLocationsPanel()));
+    } else {
+      AppAlert.showOfflineMessage(context);
+    }
+  }
+
+  void _onTapFindVaccineAppointment() {
+    if (Connectivity().isNotOffline) {
+      Analytics.instance.logSelect(target: "COVID-19 Find Vaccine Appointment");
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => WebPanel(url: 'https://mymckinley.illinois.edu')));
     } else {
       AppAlert.showOfflineMessage(context);
     }
