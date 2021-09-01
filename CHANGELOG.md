@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Changed
 - Updated next step text for vaccinated users that are forced to resume testing [#692](https://github.com/rokwire/safer-illinois-app/issues/692).
+### Added
+- Added vaccination widget in Home panel [#696](https://github.com/rokwire/safer-illinois-app/issues/696).
 
 ## [2.10.35] - 2021-08-19
 ### Changed
