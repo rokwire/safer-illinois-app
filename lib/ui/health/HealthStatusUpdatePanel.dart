@@ -208,7 +208,7 @@ class _HealthStatusUpdatePanelState extends State<HealthStatusUpdatePanel> {
       }
       else if (reasonHistory.isVaccine) {
         if (reasonHistory.isVaccineEffective) {
-          reasonHistoryName = Localization().getStringEx("panel.health.status_update.label.reason.vaccine.effective.title", "Your vaccine is already effective.");
+          reasonHistoryName = Localization().getStringEx("panel.health.status_update.label.reason.vaccine.effective.title", "Your COVID-19 vaccination has been verified.");
         }
         else if (reasonHistory.isVaccineTaken) {
           reasonHistoryName = Localization().getStringEx("panel.health.status_update.label.reason.vaccine.taken.title", "Your vaccine is taken.");
