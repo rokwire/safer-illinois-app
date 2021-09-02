@@ -708,7 +708,7 @@
 	"panel.health.status_update.label.reason.symptoms.title": "You reported new symptoms",
 	"panel.health.status_update.label.reason.exposed.title": "You were exposed to someone who was likely infected",
 	"panel.health.status_update.label.reason.exposure.detail": "Duration of exposure: ",
-	"panel.health.status_update.label.reason.vaccine.effective.title": "Your vaccine is already effective.",
+	"panel.health.status_update.label.reason.vaccine.effective.title": "Your COVID-19 vaccination has been verified.",
 	"panel.health.status_update.label.reason.vaccine.taken.title": "Your vaccine is taken.",
 	"panel.health.status_update.label.reason.vaccine.title": "Your vaccine is applied.",
 	"panel.health.status_update.label.reason.action.title": "Health authorities require you to take an action.",
