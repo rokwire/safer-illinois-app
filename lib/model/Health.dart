@@ -126,11 +126,11 @@ class HealthStatusBlob {
   final String nextStepHtml;
   final DateTime nextStepDateUtc;
 
-  final String eventExplanation;
-  final String eventExplanationHtml;
-
   final String warning;
   final String warningHtml;
+
+  final String eventExplanation;
+  final String eventExplanationHtml;
 
   final String reason;
 
@@ -141,7 +141,12 @@ class HealthStatusBlob {
   static const String _nextStepDateMacro = '{next_step_date}';
   static const String _nextStepDateFormat = 'EEEE, MMM d';
 
-  HealthStatusBlob({this.code, this.priority, this.nextStep, this.nextStepHtml, this.nextStepDateUtc, this.eventExplanation, this.eventExplanationHtml, this.warning, this.warningHtml, this.reason, this.fcmTopic, this.historyBlob});
+  HealthStatusBlob({this.code, this.priority,
+    this.nextStep, this.nextStepHtml, this.nextStepDateUtc,
+    this.warning, this.warningHtml,
+    this.eventExplanation, this.eventExplanationHtml,
+    this.reason,
+    this.fcmTopic, this.historyBlob});
 
   factory HealthStatusBlob.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthStatusBlob(
@@ -150,10 +155,10 @@ class HealthStatusBlob {
       nextStep: json['next_step'],
       nextStepHtml: json['next_step_html'],
       nextStepDateUtc: healthDateTimeFromString(json['next_step_date']),
-      eventExplanation: json['event_explanation'],
-      eventExplanationHtml: json['event_explanation_html'],
       warning: json['warning'],
       warningHtml: json['warning_html'],
+      eventExplanation: json['event_explanation'],
+      eventExplanationHtml: json['event_explanation_html'],
       reason: json['reason'],
       fcmTopic: json['fcm_topic'],
       historyBlob: HealthHistoryBlob.fromJson(json['history_blob']),
@@ -167,10 +172,10 @@ class HealthStatusBlob {
       'next_step': nextStep,
       'next_step_html': nextStepHtml,
       'next_step_date': healthDateTimeToString(nextStepDateUtc),
-      'event_explanation': eventExplanation,
-      'event_explanation_html': eventExplanationHtml,
       'warning': warning,
       'warning_html': warningHtml,
+      'event_explanation': eventExplanation,
+      'event_explanation_html': eventExplanationHtml,
       'reason': reason,
       'fcm_topic': fcmTopic,
       'history_blob': historyBlob?.toJson(),
@@ -184,10 +189,10 @@ class HealthStatusBlob {
       (o.nextStep == nextStep) &&
       (o.nextStepHtml == nextStepHtml) &&
       (o.nextStepDateUtc == nextStepDateUtc) &&
-      (o.eventExplanation == eventExplanation) &&
-      (o.eventExplanationHtml == eventExplanationHtml) &&
       (o.warning == warning) &&
       (o.warningHtml == warningHtml) &&
+      (o.eventExplanation == eventExplanation) &&
+      (o.eventExplanationHtml == eventExplanationHtml) &&
       (o.reason == reason) &&
       DeepCollectionEquality().equals(o.fcmTopic, fcmTopic) &&
       (o.historyBlob == historyBlob);
@@ -199,10 +204,10 @@ class HealthStatusBlob {
     (nextStep?.hashCode ?? 0) ^
     (nextStepHtml?.hashCode ?? 0) ^
     (nextStepDateUtc?.hashCode ?? 0) ^
-    (eventExplanation?.hashCode ?? 0) ^
-    (eventExplanationHtml?.hashCode ?? 0) ^
     (warning?.hashCode ?? 0) ^
     (warningHtml?.hashCode ?? 0) ^
+    (eventExplanation?.hashCode ?? 0) ^
+    (eventExplanationHtml?.hashCode ?? 0) ^
     (reason?.hashCode ?? 0) ^
     (DeepCollectionEquality().hash(fcmTopic) ?? 0) ^
     (historyBlob?.hashCode ?? 0);
@@ -231,20 +236,20 @@ class HealthStatusBlob {
     return null;
   }
 
-  String get displayEventExplanation {
-    return _processMacros(eventExplanation);
-  }
-
-  String get displayEventExplanationHtml {
-    return _processMacros(eventExplanationHtml);
-  }
-
   String get displayWarning {
     return _processMacros(warning);
   }
 
   String get displayWarningHtml {
     return _processMacros(warningHtml);
+  }
+
+  String get displayEventExplanation {
+    return _processMacros(eventExplanation);
+  }
+
+  String get displayEventExplanationHtml {
+    return _processMacros(eventExplanationHtml);
   }
 
   String get displayReason {
