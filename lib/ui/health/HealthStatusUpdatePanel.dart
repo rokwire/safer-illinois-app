@@ -16,8 +16,12 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_html/style.dart';
 import 'package:illinois/model/Health.dart';
+import 'package:illinois/service/Connectivity.dart';
 import 'package:illinois/service/Health.dart';
+import 'package:illinois/ui/WebPanel.dart';
 import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Styles.dart';
@@ -25,6 +29,7 @@ import 'package:illinois/ui/health/HealthNextStepsPanel.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/ui/widgets/StatusInfoDialog.dart';
 import 'package:illinois/utils/Utils.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HealthStatusUpdatePanel extends StatefulWidget {
   final HealthStatus status;
@@ -154,36 +159,42 @@ class _HealthStatusUpdatePanelState extends State<HealthStatusUpdatePanel> {
           padding: EdgeInsets.symmetric(horizontal: 8),
           child: Container(height: 1, color: Styles().colors.surfaceAccent ,),
         ),
-        _buildReasonContent(),
+        _buildDetails(),
         ],
       ),
     );
   }
 
-  Widget _buildReasonContent(){
+  Widget _buildDetails(){
     String date = AppDateTime.formatDateTime(widget.status?.dateUtc?.toLocal(), format: "MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode);
-    String reasonStatusText = widget.status?.blob?.displayReason;
 
-    HealthHistoryBlob reasonHistory = widget.status?.blob?.historyBlob;
-    String reasonHistoryName;
-    Widget reasonHistoryDetail;
-    if (reasonHistory != null) {
-      if (reasonHistory.isTest) {
-        reasonHistoryName = reasonHistory.testType;
+    HealthHistoryBlob history = widget.status?.blob?.historyBlob;
+
+    String reasonText = widget.status?.blob?.displayStatusUpdateReason;
+    String reasonHtml = widget.status?.blob?.displayStatusUpdateReasonHtml;
+
+    String noticeText = widget.status?.blob?.displayStatusUpdateNotice;
+    String noticeHtml = widget.status?.blob?.displayStatusUpdateNoticeHtml;
+    Widget noticeDetailWidget;
+
+    if ((noticeText == null) && (noticeHtml == null) && (history != null)) {
+      // Build default notice content
+      if (history.isTest) {
+        noticeText = history.testType;
         
-        reasonHistoryDetail = Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+        noticeDetailWidget = Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
           Image.asset("images/icon-selected.png", excludeFromSemantics: true,),
           Container(width: 7,),
           Text(Localization().getStringEx("panel.health.status_update.label.reason.result", "Result:"), style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.bold)),
           Container(width: 5,),
-          Text(reasonHistory.testResult ?? '', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.regular)),
+          Text(history.testResult ?? '', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.regular)),
         ],);
       }
-      else if (reasonHistory.isSymptoms) {
-        reasonHistoryName = Localization().getStringEx("panel.health.status_update.label.reason.symptoms.title", "You reported new symptoms");
+      else if (history.isSymptoms) {
+        noticeText = Localization().getStringEx("panel.health.status_update.label.reason.symptoms.title", "You reported new symptoms");
         
         List<Widget> symptomLayouts = [];
-        List<HealthSymptom> symptoms = reasonHistory.symptoms;
+        List<HealthSymptom> symptoms = history.symptoms;
         if (symptoms?.isNotEmpty ?? false) {
           symptoms.forEach((HealthSymptom symptom){
             String symptomName = Health().rules?.localeString(symptom?.name) ?? symptom?.name;
@@ -193,45 +204,45 @@ class _HealthStatusUpdatePanelState extends State<HealthStatusUpdatePanel> {
           });
         }
 
-        reasonHistoryDetail = Column(mainAxisAlignment: MainAxisAlignment.center, children: symptomLayouts,);
+        noticeDetailWidget = Column(mainAxisAlignment: MainAxisAlignment.center, children: symptomLayouts,);
       }
-      else if (reasonHistory.isContactTrace) {
-        reasonHistoryName = Localization().getStringEx("panel.health.status_update.label.reason.exposed.title", "You were exposed to someone who was likely infected");
+      else if (history.isContactTrace) {
+        noticeText = Localization().getStringEx("panel.health.status_update.label.reason.exposed.title", "You were exposed to someone who was likely infected");
 
-        reasonHistoryDetail = Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+        noticeDetailWidget = Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
           Image.asset("images/icon-selected.png", excludeFromSemantics: true,),
           Container(width: 7,),
           Text(Localization().getStringEx("panel.health.status_update.label.reason.exposure.detail", "Duration of exposure: "), style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.bold)),
           Container(width: 5,),
-          Text(reasonHistory.traceDurationDisplayString ?? "", style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.regular)),
+          Text(history.traceDurationDisplayString ?? "", style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.regular)),
         ],);
       }
-      else if (reasonHistory.isVaccine) {
-        if (reasonHistory.isVaccineEffective) {
-          reasonHistoryName = Localization().getStringEx("panel.health.status_update.label.reason.vaccine.effective.title", "Your COVID-19 vaccination has been verified.");
+      else if (history.isVaccine) {
+        if (history.isVaccineEffective) {
+          noticeText = Localization().getStringEx("panel.health.status_update.label.reason.vaccine.effective.title", "Your COVID-19 vaccination has been verified.");
         }
-        else if (reasonHistory.isVaccineTaken) {
-          reasonHistoryName = Localization().getStringEx("panel.health.status_update.label.reason.vaccine.taken.title", "Your vaccine is taken.");
+        else if (history.isVaccineTaken) {
+          noticeText = Localization().getStringEx("panel.health.status_update.label.reason.vaccine.taken.title", "Your vaccine is taken.");
         }
         else {
-          reasonHistoryName = Localization().getStringEx("panel.health.status_update.label.reason.vaccine.title", "Your vaccine is applied.");
+          noticeText = Localization().getStringEx("panel.health.status_update.label.reason.vaccine.title", "Your vaccine is applied.");
         }
       }
-      else if (reasonHistory.isAction) {
-        reasonHistoryName = Localization().getStringEx("panel.health.status_update.label.reason.action.title", "Health authorities require you to take an action.");
+      else if (history.isAction) {
+        noticeText = Localization().getStringEx("panel.health.status_update.label.reason.action.title", "Health authorities require you to take an action.");
 
-        reasonHistoryDetail = Column(crossAxisAlignment: CrossAxisAlignment.center, children: <Widget>[
+        noticeDetailWidget = Column(crossAxisAlignment: CrossAxisAlignment.center, children: <Widget>[
           Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
             Image.asset("images/icon-selected.png", excludeFromSemantics: true,),
             Container(width: 7,),
-            Text(reasonHistory.localeActionTitle ?? Localization().getStringEx("panel.health.status_update.label.reason.action.detail", "Action Required: "), style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.bold)),
+            Text(history.localeActionTitle ?? Localization().getStringEx("panel.health.status_update.label.reason.action.detail", "Action Required: "), style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.bold)),
           ],),
-          Text(reasonHistory.localeActionText ?? "", style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.regular)),
+          Text(history.localeActionText ?? "", style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.regular)),
         ],);
       }
     }
 
-    if ((reasonStatusText != null) || (reasonHistoryName != null) || (reasonHistoryDetail != null)) {
+    if ((reasonText != null) || (reasonHtml != null) || (noticeText != null) || (noticeHtml != null) || (noticeDetailWidget != null)) {
       List<Widget> content = <Widget>[
         Container(height: 30,),
         Text(Localization().getStringEx("panel.health.status_update.label.reason.title", "STATUS CHANGED BECAUSE:"), textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.bold),),
@@ -245,25 +256,46 @@ class _HealthStatusUpdatePanelState extends State<HealthStatusUpdatePanel> {
         ]);
       }
 
-      if (reasonHistoryName != null) {
+      if ((noticeText != null) || (noticeHtml != null)) {
+        if (noticeText != null) {
+          content.add(Text(noticeText, textAlign: TextAlign.center, style: TextStyle(fontFamily: Styles().fontFamilies.extraBold, fontSize: 18, color: Colors.white, ),), );
+        }
+        if ((noticeText != null) && (noticeHtml != null)) {
+          content.add(Container(height: 9,));
+        }
+        if (noticeHtml != null) {
+          content.add(Html(data: noticeHtml, onLinkTap: (url) => _onTapLink(url),
+            style: {
+              "body": Style(fontFamily: Styles().fontFamilies.medium, fontSize: FontSize(18), color: Styles().colors.white, padding: EdgeInsets.zero, margin: EdgeInsets.zero),
+            },
+          ),);
+        }
+        content.add(Container(height: 9,));
+      }
+
+      if (noticeDetailWidget != null) {
         content.addAll(<Widget>[
-          Text(reasonHistoryName,textAlign: TextAlign.center,style: TextStyle(color: Colors.white, fontSize: 18, fontFamily: Styles().fontFamilies.extraBold),),
-          Container(height: 9,),
+          noticeDetailWidget,
         ]);
       }
 
-      if (reasonHistoryDetail != null) {
-        content.addAll(<Widget>[
-          reasonHistoryDetail,
-        ]);
-      }
+      if ((reasonText != null) || (reasonHtml != null)) {
+        content.add(Container(height: 60,));
+        if (reasonText != null) {
+          content.add(Text(reasonText, textAlign: TextAlign.center, style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 14, color: Styles().colors.white,),));
+        }
+        if ((reasonText != null) && (reasonHtml != null)) {
+          content.add(Container(height: 12,));
+        }
+        if (reasonHtml != null) {
+          content.add(Html(data: reasonHtml, onLinkTap: (url) => _onTapLink(url),
+            style: {
+              "body": Style(fontFamily: Styles().fontFamilies.medium, fontSize: FontSize(14), color: Styles().colors.white, padding: EdgeInsets.zero, margin: EdgeInsets.zero),
+            },
+          ),);
+        }
 
-      if (reasonStatusText != null) {
-        content.addAll(<Widget>[
-          Container(height: 60,),
-          Text(reasonStatusText, textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 14, fontFamily: Styles().fontFamilies.bold),),
-          Container(height: 30,),
-        ]);
+        content.add(Container(height: 30,));
       }
 
       return Container(
@@ -304,4 +336,18 @@ class _HealthStatusUpdatePanelState extends State<HealthStatusUpdatePanel> {
         ])
     );
   }*/
+
+  void _onTapLink(String url) {
+    if (Connectivity().isNotOffline) {
+      if (AppString.isStringNotEmpty(url)) {
+        if (AppUrl.launchInternal(url)) {
+          Navigator.push(context, CupertinoPageRoute(builder: (context) => WebPanel(url: url)));
+        } else {
+          launch(url);
+        }
+      }
+    } else {
+      AppAlert.showOfflineMessage(context);
+    }
+  }
 }

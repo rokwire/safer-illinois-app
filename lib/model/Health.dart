@@ -126,13 +126,17 @@ class HealthStatusBlob {
   final String nextStepHtml;
   final DateTime nextStepDateUtc;
 
-  final String eventExplanation;
-  final String eventExplanationHtml;
-
   final String warning;
   final String warningHtml;
 
-  final String reason;
+  final String eventExplanation;
+  final String eventExplanationHtml;
+
+  final String statusUpdateNotice;
+  final String statusUpdateNoticeHtml;
+
+  final String statusUpdateReason;
+  final String statusUpdateReasonHtml;
 
   final dynamic fcmTopic;
 
@@ -141,7 +145,13 @@ class HealthStatusBlob {
   static const String _nextStepDateMacro = '{next_step_date}';
   static const String _nextStepDateFormat = 'EEEE, MMM d';
 
-  HealthStatusBlob({this.code, this.priority, this.nextStep, this.nextStepHtml, this.nextStepDateUtc, this.eventExplanation, this.eventExplanationHtml, this.warning, this.warningHtml, this.reason, this.fcmTopic, this.historyBlob});
+  HealthStatusBlob({this.code, this.priority,
+    this.nextStep, this.nextStepHtml, this.nextStepDateUtc,
+    this.warning, this.warningHtml,
+    this.eventExplanation, this.eventExplanationHtml,
+    this.statusUpdateNotice, this.statusUpdateNoticeHtml,
+    this.statusUpdateReason, this.statusUpdateReasonHtml,
+    this.fcmTopic, this.historyBlob});
 
   factory HealthStatusBlob.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthStatusBlob(
@@ -150,11 +160,14 @@ class HealthStatusBlob {
       nextStep: json['next_step'],
       nextStepHtml: json['next_step_html'],
       nextStepDateUtc: healthDateTimeFromString(json['next_step_date']),
-      eventExplanation: json['event_explanation'],
-      eventExplanationHtml: json['event_explanation_html'],
       warning: json['warning'],
       warningHtml: json['warning_html'],
-      reason: json['reason'],
+      eventExplanation: json['event_explanation'],
+      eventExplanationHtml: json['event_explanation_html'],
+      statusUpdateNotice: json['notice'],
+      statusUpdateNoticeHtml: json['notice_html'],
+      statusUpdateReason: json['reason'],
+      statusUpdateReasonHtml: json['reason_html'],
       fcmTopic: json['fcm_topic'],
       historyBlob: HealthHistoryBlob.fromJson(json['history_blob']),
     ) : null;
@@ -167,11 +180,14 @@ class HealthStatusBlob {
       'next_step': nextStep,
       'next_step_html': nextStepHtml,
       'next_step_date': healthDateTimeToString(nextStepDateUtc),
-      'event_explanation': eventExplanation,
-      'event_explanation_html': eventExplanationHtml,
       'warning': warning,
       'warning_html': warningHtml,
-      'reason': reason,
+      'event_explanation': eventExplanation,
+      'event_explanation_html': eventExplanationHtml,
+      'notice': statusUpdateNotice,
+      'notice_html': statusUpdateNoticeHtml,
+      'reason': statusUpdateReason,
+      'reason_html': statusUpdateReasonHtml,
       'fcm_topic': fcmTopic,
       'history_blob': historyBlob?.toJson(),
     };
@@ -184,11 +200,14 @@ class HealthStatusBlob {
       (o.nextStep == nextStep) &&
       (o.nextStepHtml == nextStepHtml) &&
       (o.nextStepDateUtc == nextStepDateUtc) &&
-      (o.eventExplanation == eventExplanation) &&
-      (o.eventExplanationHtml == eventExplanationHtml) &&
       (o.warning == warning) &&
       (o.warningHtml == warningHtml) &&
-      (o.reason == reason) &&
+      (o.eventExplanation == eventExplanation) &&
+      (o.eventExplanationHtml == eventExplanationHtml) &&
+      (o.statusUpdateNotice == statusUpdateNotice) &&
+      (o.statusUpdateNoticeHtml == statusUpdateNoticeHtml) &&
+      (o.statusUpdateReason == statusUpdateReason) &&
+      (o.statusUpdateReasonHtml == statusUpdateReasonHtml) &&
       DeepCollectionEquality().equals(o.fcmTopic, fcmTopic) &&
       (o.historyBlob == historyBlob);
   }
@@ -199,14 +218,37 @@ class HealthStatusBlob {
     (nextStep?.hashCode ?? 0) ^
     (nextStepHtml?.hashCode ?? 0) ^
     (nextStepDateUtc?.hashCode ?? 0) ^
-    (eventExplanation?.hashCode ?? 0) ^
-    (eventExplanationHtml?.hashCode ?? 0) ^
     (warning?.hashCode ?? 0) ^
     (warningHtml?.hashCode ?? 0) ^
-    (reason?.hashCode ?? 0) ^
+    (eventExplanation?.hashCode ?? 0) ^
+    (eventExplanationHtml?.hashCode ?? 0) ^
+    (statusUpdateNotice?.hashCode ?? 0) ^
+    (statusUpdateNoticeHtml?.hashCode ?? 0) ^
+    (statusUpdateReason?.hashCode ?? 0) ^
+    (statusUpdateReasonHtml?.hashCode ?? 0) ^
     (DeepCollectionEquality().hash(fcmTopic) ?? 0) ^
     (historyBlob?.hashCode ?? 0);
 
+  factory HealthStatusBlob.fromRuleStatus(HealthRuleStatus ruleStatus, { HealthRulesSet rules, HealthStatusBlob previousStatusBlob, HealthHistoryBlob historyBlob }) {
+    return (ruleStatus != null) ? HealthStatusBlob(
+      code: (ruleStatus.code != null) ? ruleStatus.code : previousStatusBlob?.code,
+      priority: (ruleStatus.priority != null) ? ruleStatus.priority.abs() : previousStatusBlob?.priority,
+      nextStep: ((ruleStatus.nextStep != null) || (ruleStatus.nextStepHtml != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.nextStep) : previousStatusBlob?.nextStep,
+      nextStepHtml: ((ruleStatus.nextStep != null) || (ruleStatus.nextStepHtml != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.nextStepHtml) : previousStatusBlob?.nextStepHtml,
+      nextStepDateUtc: ((ruleStatus.nextStepInterval != null) || (ruleStatus.nextStep != null) || (ruleStatus.nextStepHtml != null) || (ruleStatus.code != null)) ? ruleStatus.nextStepDateUtc : previousStatusBlob?.nextStepDateUtc,
+      eventExplanation: ((ruleStatus.eventExplanation != null) || (ruleStatus.eventExplanationHtml != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.eventExplanation) : previousStatusBlob?.eventExplanation,
+      eventExplanationHtml: ((ruleStatus.eventExplanation != null) || (ruleStatus.eventExplanationHtml != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.eventExplanationHtml) : previousStatusBlob?.eventExplanationHtml,
+      warning: ((ruleStatus.warning != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.warning) : previousStatusBlob?.warning,
+      warningHtml: ((ruleStatus.warningHtml != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.warningHtml) : previousStatusBlob?.warningHtml,
+      statusUpdateNotice: ((ruleStatus.statusUpdateNotice != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.statusUpdateNotice) : previousStatusBlob?.statusUpdateNotice,
+      statusUpdateNoticeHtml: ((ruleStatus.statusUpdateNoticeHtml != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.statusUpdateNoticeHtml) : previousStatusBlob?.statusUpdateNoticeHtml,
+      statusUpdateReason: ((ruleStatus.statusUpdateReason != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.statusUpdateReason) : previousStatusBlob?.statusUpdateReason,
+      statusUpdateReasonHtml: ((ruleStatus.statusUpdateReasonHtml != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.statusUpdateReasonHtml) : previousStatusBlob?.statusUpdateReasonHtml,
+      fcmTopic: ((ruleStatus.fcmTopic != null) || (ruleStatus.code != null)) ?  ruleStatus.fcmTopic : previousStatusBlob?.fcmTopic,
+      historyBlob: historyBlob,
+    ) : null;
+  }
+  
   String get displayNextStep {
     return _processMacros(nextStep);
   }
@@ -231,14 +273,6 @@ class HealthStatusBlob {
     return null;
   }
 
-  String get displayEventExplanation {
-    return _processMacros(eventExplanation);
-  }
-
-  String get displayEventExplanationHtml {
-    return _processMacros(eventExplanationHtml);
-  }
-
   String get displayWarning {
     return _processMacros(warning);
   }
@@ -247,8 +281,28 @@ class HealthStatusBlob {
     return _processMacros(warningHtml);
   }
 
-  String get displayReason {
-    return _processMacros(reason);
+  String get displayEventExplanation {
+    return _processMacros(eventExplanation);
+  }
+
+  String get displayEventExplanationHtml {
+    return _processMacros(eventExplanationHtml);
+  }
+
+  String get displayStatusUpdateNotice {
+    return _processMacros(statusUpdateNotice);
+  }
+
+  String get displayStatusUpdateNoticeHtml {
+    return _processMacros(statusUpdateNoticeHtml);
+  }
+
+  String get displayStatusUpdateReason {
+    return _processMacros(statusUpdateReason);
+  }
+
+  String get displayStatusUpdateReasonHtml {
+    return _processMacros(statusUpdateReasonHtml);
   }
 
   String _processMacros(String value) {
@@ -3385,52 +3439,65 @@ class HealthRuleStatus extends _HealthRuleStatus {
   final _HealthRuleInterval nextStepInterval;
   final DateTime nextStepDateUtc;
 
-  final dynamic eventExplanation;
-  final dynamic eventExplanationHtml;
-
   final dynamic warning;
   final dynamic warningHtml;
 
-  final dynamic reason;
+  final dynamic eventExplanation;
+  final dynamic eventExplanationHtml;
+
+  final dynamic statusUpdateNotice;
+  final dynamic statusUpdateNoticeHtml;
+
+  final dynamic statusUpdateReason;
+  final dynamic statusUpdateReasonHtml;
 
   final dynamic fcmTopic;
 
   HealthRuleStatus({this.code, this.priority,
     this.nextStep, this.nextStepHtml, this.nextStepInterval, this.nextStepDateUtc,
+    this.warning, this.warningHtml,
     this.eventExplanation, this.eventExplanationHtml,
-    this.warning, this.warningHtml, this.reason, this.fcmTopic });
+    this.statusUpdateNotice, this.statusUpdateNoticeHtml,
+    this.statusUpdateReason, this.statusUpdateReasonHtml,
+    this.fcmTopic });
 
   factory HealthRuleStatus.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthRuleStatus(
-      code:                 json['code'],
-      priority:             json['priority'],
-      nextStep:             json['next_step'],
-      nextStepHtml:         json['next_step_html'],
-      nextStepInterval:     _HealthRuleInterval.fromJson(json['next_step_interval']),
-      eventExplanation:     json['event_explanation'],
-      eventExplanationHtml: json['event_explanation_html'],
-      warning:              json['warning'],
-      warningHtml:          json['warning_html'],
-      reason:               json['reason'],
-      fcmTopic:             json['fcm_topic']
+      code:                   json['code'],
+      priority:               json['priority'],
+      nextStep:               json['next_step'],
+      nextStepHtml:           json['next_step_html'],
+      nextStepInterval:       _HealthRuleInterval.fromJson(json['next_step_interval']),
+      warning:                json['warning'],
+      warningHtml:            json['warning_html'],
+      eventExplanation:       json['event_explanation'],
+      eventExplanationHtml:   json['event_explanation_html'],
+      statusUpdateNotice:     json['notice'],
+      statusUpdateNoticeHtml: json['notice_html'],
+      statusUpdateReason:     json['reason'],
+      statusUpdateReasonHtml: json['reason_html'],
+      fcmTopic:               json['fcm_topic']
     ) : null;
   }
 
   factory HealthRuleStatus.fromStatus(HealthRuleStatus status, { DateTime nextStepDateUtc, }) {
     
     return (status != null) ? HealthRuleStatus(
-      code:                 status.code,
-      priority:             status.priority,
-      nextStep:             status.nextStep,
-      nextStepHtml:         status.nextStepHtml,
-      nextStepInterval:     status.nextStepInterval,
-      nextStepDateUtc:      nextStepDateUtc ?? status.nextStepDateUtc,
-      eventExplanation:     status.eventExplanation,
-      eventExplanationHtml: status.eventExplanationHtml,
-      warning:              status.warning,
-      warningHtml:          status.warningHtml,
-      reason:               status.reason,
-      fcmTopic:             status.fcmTopic,
+      code:                   status.code,
+      priority:               status.priority,
+      nextStep:               status.nextStep,
+      nextStepHtml:           status.nextStepHtml,
+      nextStepInterval:       status.nextStepInterval,
+      nextStepDateUtc:        nextStepDateUtc ?? status.nextStepDateUtc,
+      warning:                status.warning,
+      warningHtml:            status.warningHtml,
+      eventExplanation:       status.eventExplanation,
+      eventExplanationHtml:   status.eventExplanationHtml,
+      statusUpdateNotice:     status.statusUpdateNotice,
+      statusUpdateNoticeHtml: status.statusUpdateNoticeHtml,
+      statusUpdateReason:     status.statusUpdateReason,
+      statusUpdateReasonHtml: status.statusUpdateReasonHtml,
+      fcmTopic:               status.fcmTopic,
     ) : null;
   }
 
@@ -3444,13 +3511,17 @@ class HealthRuleStatus extends _HealthRuleStatus {
       (o.nextStepInterval == nextStepInterval) &&
       (o.nextStepDateUtc == nextStepDateUtc) &&
 
-      (o.eventExplanation == eventExplanation) &&
-      (o.eventExplanationHtml == eventExplanationHtml) &&
-
       (o.warning == warning) &&
       (o.warningHtml == warningHtml) &&
 
-      (o.reason == reason) &&
+      (o.eventExplanation == eventExplanation) &&
+      (o.eventExplanationHtml == eventExplanationHtml) &&
+
+      (o.statusUpdateNotice == statusUpdateNotice) &&
+      (o.statusUpdateNoticeHtml == statusUpdateNoticeHtml) &&
+
+      (o.statusUpdateReason == statusUpdateReason) &&
+      (o.statusUpdateReasonHtml == statusUpdateReasonHtml) &&
 
       (o.fcmTopic == fcmTopic);
 
@@ -3463,13 +3534,17 @@ class HealthRuleStatus extends _HealthRuleStatus {
     (nextStepInterval?.hashCode ?? 0) ^
     (nextStepDateUtc?.hashCode ?? 0) ^
 
-    (eventExplanation?.hashCode ?? 0) ^
-    (eventExplanationHtml?.hashCode ?? 0) ^
-
     (warning?.hashCode ?? 0) ^
     (warningHtml?.hashCode ?? 0) ^
 
-    (reason?.hashCode ?? 0) ^
+    (eventExplanation?.hashCode ?? 0) ^
+    (eventExplanationHtml?.hashCode ?? 0) ^
+
+    (statusUpdateNotice?.hashCode ?? 0) ^
+    (statusUpdateNoticeHtml?.hashCode ?? 0) ^
+
+    (statusUpdateReason?.hashCode ?? 0) ^
+    (statusUpdateReasonHtml?.hashCode ?? 0) ^
 
     (fcmTopic?.hashCode ?? 0);
 
