@@ -212,6 +212,23 @@ class HealthStatusBlob {
     (DeepCollectionEquality().hash(fcmTopic) ?? 0) ^
     (historyBlob?.hashCode ?? 0);
 
+  factory HealthStatusBlob.fromRuleStatus(HealthRuleStatus ruleStatus, { HealthRulesSet rules, HealthStatusBlob previousStatusBlob, HealthHistoryBlob historyBlob }) {
+    return (ruleStatus != null) ? HealthStatusBlob(
+      code: (ruleStatus.code != null) ? ruleStatus.code : previousStatusBlob?.code,
+      priority: (ruleStatus.priority != null) ? ruleStatus.priority.abs() : previousStatusBlob?.priority,
+      nextStep: ((ruleStatus.nextStep != null) || (ruleStatus.nextStepHtml != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.nextStep) : previousStatusBlob?.nextStep,
+      nextStepHtml: ((ruleStatus.nextStep != null) || (ruleStatus.nextStepHtml != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.nextStepHtml) : previousStatusBlob?.nextStepHtml,
+      nextStepDateUtc: ((ruleStatus.nextStepInterval != null) || (ruleStatus.nextStep != null) || (ruleStatus.nextStepHtml != null) || (ruleStatus.code != null)) ? ruleStatus.nextStepDateUtc : previousStatusBlob?.nextStepDateUtc,
+      eventExplanation: ((ruleStatus.eventExplanation != null) || (ruleStatus.eventExplanationHtml != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.eventExplanation) : previousStatusBlob?.eventExplanation,
+      eventExplanationHtml: ((ruleStatus.eventExplanation != null) || (ruleStatus.eventExplanationHtml != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.eventExplanationHtml) : previousStatusBlob?.eventExplanationHtml,
+      warning: ((ruleStatus.warning != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.warning) : previousStatusBlob?.warning,
+      warningHtml: ((ruleStatus.warningHtml != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.warningHtml) : previousStatusBlob?.warningHtml,
+      statusUpdateReason: ((ruleStatus.statusUpdateReason != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.statusUpdateReason) : previousStatusBlob?.statusUpdateReason,
+      fcmTopic: ((ruleStatus.fcmTopic != null) || (ruleStatus.code != null)) ?  ruleStatus.fcmTopic : previousStatusBlob?.fcmTopic,
+      historyBlob: historyBlob,
+    ) : null;
+  }
+  
   String get displayNextStep {
     return _processMacros(nextStep);
   }
