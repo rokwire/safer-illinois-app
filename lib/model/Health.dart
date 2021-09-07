@@ -132,7 +132,7 @@ class HealthStatusBlob {
   final String eventExplanation;
   final String eventExplanationHtml;
 
-  final String reason;
+  final String statusUpdateReason;
 
   final dynamic fcmTopic;
 
@@ -145,7 +145,7 @@ class HealthStatusBlob {
     this.nextStep, this.nextStepHtml, this.nextStepDateUtc,
     this.warning, this.warningHtml,
     this.eventExplanation, this.eventExplanationHtml,
-    this.reason,
+    this.statusUpdateReason,
     this.fcmTopic, this.historyBlob});
 
   factory HealthStatusBlob.fromJson(Map<String, dynamic> json) {
@@ -159,7 +159,7 @@ class HealthStatusBlob {
       warningHtml: json['warning_html'],
       eventExplanation: json['event_explanation'],
       eventExplanationHtml: json['event_explanation_html'],
-      reason: json['reason'],
+      statusUpdateReason: json['status_update_reason'] ?? json['reason'],
       fcmTopic: json['fcm_topic'],
       historyBlob: HealthHistoryBlob.fromJson(json['history_blob']),
     ) : null;
@@ -176,7 +176,7 @@ class HealthStatusBlob {
       'warning_html': warningHtml,
       'event_explanation': eventExplanation,
       'event_explanation_html': eventExplanationHtml,
-      'reason': reason,
+      'status_update_reason': statusUpdateReason,
       'fcm_topic': fcmTopic,
       'history_blob': historyBlob?.toJson(),
     };
@@ -193,7 +193,7 @@ class HealthStatusBlob {
       (o.warningHtml == warningHtml) &&
       (o.eventExplanation == eventExplanation) &&
       (o.eventExplanationHtml == eventExplanationHtml) &&
-      (o.reason == reason) &&
+      (o.statusUpdateReason == statusUpdateReason) &&
       DeepCollectionEquality().equals(o.fcmTopic, fcmTopic) &&
       (o.historyBlob == historyBlob);
   }
@@ -208,7 +208,7 @@ class HealthStatusBlob {
     (warningHtml?.hashCode ?? 0) ^
     (eventExplanation?.hashCode ?? 0) ^
     (eventExplanationHtml?.hashCode ?? 0) ^
-    (reason?.hashCode ?? 0) ^
+    (statusUpdateReason?.hashCode ?? 0) ^
     (DeepCollectionEquality().hash(fcmTopic) ?? 0) ^
     (historyBlob?.hashCode ?? 0);
 
@@ -252,8 +252,8 @@ class HealthStatusBlob {
     return _processMacros(eventExplanationHtml);
   }
 
-  String get displayReason {
-    return _processMacros(reason);
+  String get displayStatusUpdateReason {
+    return _processMacros(statusUpdateReason);
   }
 
   String _processMacros(String value) {
@@ -3396,7 +3396,7 @@ class HealthRuleStatus extends _HealthRuleStatus {
   final dynamic eventExplanation;
   final dynamic eventExplanationHtml;
 
-  final dynamic reason;
+  final dynamic statusUpdateReason;
 
   final dynamic fcmTopic;
 
@@ -3404,7 +3404,7 @@ class HealthRuleStatus extends _HealthRuleStatus {
     this.nextStep, this.nextStepHtml, this.nextStepInterval, this.nextStepDateUtc,
     this.warning, this.warningHtml,
     this.eventExplanation, this.eventExplanationHtml,
-    this.reason,
+    this.statusUpdateReason,
     this.fcmTopic });
 
   factory HealthRuleStatus.fromJson(Map<String, dynamic> json) {
@@ -3418,7 +3418,7 @@ class HealthRuleStatus extends _HealthRuleStatus {
       warningHtml:          json['warning_html'],
       eventExplanation:     json['event_explanation'],
       eventExplanationHtml: json['event_explanation_html'],
-      reason:               json['reason'],
+      statusUpdateReason:   json['status_update_reason'] ?? json['reason'],
       fcmTopic:             json['fcm_topic']
     ) : null;
   }
@@ -3436,7 +3436,7 @@ class HealthRuleStatus extends _HealthRuleStatus {
       warningHtml:          status.warningHtml,
       eventExplanation:     status.eventExplanation,
       eventExplanationHtml: status.eventExplanationHtml,
-      reason:               status.reason,
+      statusUpdateReason:   status.statusUpdateReason,
       fcmTopic:             status.fcmTopic,
     ) : null;
   }
@@ -3457,7 +3457,7 @@ class HealthRuleStatus extends _HealthRuleStatus {
       (o.eventExplanation == eventExplanation) &&
       (o.eventExplanationHtml == eventExplanationHtml) &&
 
-      (o.reason == reason) &&
+      (o.statusUpdateReason == statusUpdateReason) &&
 
       (o.fcmTopic == fcmTopic);
 
@@ -3476,7 +3476,7 @@ class HealthRuleStatus extends _HealthRuleStatus {
     (eventExplanation?.hashCode ?? 0) ^
     (eventExplanationHtml?.hashCode ?? 0) ^
 
-    (reason?.hashCode ?? 0) ^
+    (statusUpdateReason?.hashCode ?? 0) ^
 
     (fcmTopic?.hashCode ?? 0);
 

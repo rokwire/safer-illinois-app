@@ -162,7 +162,7 @@ class _HealthStatusUpdatePanelState extends State<HealthStatusUpdatePanel> {
 
   Widget _buildReasonContent(){
     String date = AppDateTime.formatDateTime(widget.status?.dateUtc?.toLocal(), format: "MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode);
-    String reasonStatusText = widget.status?.blob?.displayReason;
+    String reasonText = widget.status?.blob?.displayStatusUpdateReason;
 
     HealthHistoryBlob reasonHistory = widget.status?.blob?.historyBlob;
     String reasonHistoryName;
@@ -231,7 +231,7 @@ class _HealthStatusUpdatePanelState extends State<HealthStatusUpdatePanel> {
       }
     }
 
-    if ((reasonStatusText != null) || (reasonHistoryName != null) || (reasonHistoryDetail != null)) {
+    if ((reasonText != null) || (reasonHistoryName != null) || (reasonHistoryDetail != null)) {
       List<Widget> content = <Widget>[
         Container(height: 30,),
         Text(Localization().getStringEx("panel.health.status_update.label.reason.title", "STATUS CHANGED BECAUSE:"), textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.bold),),
@@ -258,10 +258,10 @@ class _HealthStatusUpdatePanelState extends State<HealthStatusUpdatePanel> {
         ]);
       }
 
-      if (reasonStatusText != null) {
+      if (reasonText != null) {
         content.addAll(<Widget>[
           Container(height: 60,),
-          Text(reasonStatusText, textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 14, fontFamily: Styles().fontFamilies.bold),),
+          Text(reasonText, textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 14, fontFamily: Styles().fontFamilies.bold),),
           Container(height: 30,),
         ]);
       }
