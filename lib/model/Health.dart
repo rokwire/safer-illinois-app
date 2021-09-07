@@ -3390,11 +3390,11 @@ class HealthRuleStatus extends _HealthRuleStatus {
   final _HealthRuleInterval nextStepInterval;
   final DateTime nextStepDateUtc;
 
-  final dynamic eventExplanation;
-  final dynamic eventExplanationHtml;
-
   final dynamic warning;
   final dynamic warningHtml;
+
+  final dynamic eventExplanation;
+  final dynamic eventExplanationHtml;
 
   final dynamic reason;
 
@@ -3402,8 +3402,10 @@ class HealthRuleStatus extends _HealthRuleStatus {
 
   HealthRuleStatus({this.code, this.priority,
     this.nextStep, this.nextStepHtml, this.nextStepInterval, this.nextStepDateUtc,
+    this.warning, this.warningHtml,
     this.eventExplanation, this.eventExplanationHtml,
-    this.warning, this.warningHtml, this.reason, this.fcmTopic });
+    this.reason,
+    this.fcmTopic });
 
   factory HealthRuleStatus.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthRuleStatus(
@@ -3412,10 +3414,10 @@ class HealthRuleStatus extends _HealthRuleStatus {
       nextStep:             json['next_step'],
       nextStepHtml:         json['next_step_html'],
       nextStepInterval:     _HealthRuleInterval.fromJson(json['next_step_interval']),
-      eventExplanation:     json['event_explanation'],
-      eventExplanationHtml: json['event_explanation_html'],
       warning:              json['warning'],
       warningHtml:          json['warning_html'],
+      eventExplanation:     json['event_explanation'],
+      eventExplanationHtml: json['event_explanation_html'],
       reason:               json['reason'],
       fcmTopic:             json['fcm_topic']
     ) : null;
@@ -3430,10 +3432,10 @@ class HealthRuleStatus extends _HealthRuleStatus {
       nextStepHtml:         status.nextStepHtml,
       nextStepInterval:     status.nextStepInterval,
       nextStepDateUtc:      nextStepDateUtc ?? status.nextStepDateUtc,
-      eventExplanation:     status.eventExplanation,
-      eventExplanationHtml: status.eventExplanationHtml,
       warning:              status.warning,
       warningHtml:          status.warningHtml,
+      eventExplanation:     status.eventExplanation,
+      eventExplanationHtml: status.eventExplanationHtml,
       reason:               status.reason,
       fcmTopic:             status.fcmTopic,
     ) : null;
@@ -3449,11 +3451,11 @@ class HealthRuleStatus extends _HealthRuleStatus {
       (o.nextStepInterval == nextStepInterval) &&
       (o.nextStepDateUtc == nextStepDateUtc) &&
 
-      (o.eventExplanation == eventExplanation) &&
-      (o.eventExplanationHtml == eventExplanationHtml) &&
-
       (o.warning == warning) &&
       (o.warningHtml == warningHtml) &&
+
+      (o.eventExplanation == eventExplanation) &&
+      (o.eventExplanationHtml == eventExplanationHtml) &&
 
       (o.reason == reason) &&
 
@@ -3468,11 +3470,11 @@ class HealthRuleStatus extends _HealthRuleStatus {
     (nextStepInterval?.hashCode ?? 0) ^
     (nextStepDateUtc?.hashCode ?? 0) ^
 
-    (eventExplanation?.hashCode ?? 0) ^
-    (eventExplanationHtml?.hashCode ?? 0) ^
-
     (warning?.hashCode ?? 0) ^
     (warningHtml?.hashCode ?? 0) ^
+
+    (eventExplanation?.hashCode ?? 0) ^
+    (eventExplanationHtml?.hashCode ?? 0) ^
 
     (reason?.hashCode ?? 0) ^
 
