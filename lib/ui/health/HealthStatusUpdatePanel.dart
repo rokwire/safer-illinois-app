@@ -16,8 +16,12 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_html/style.dart';
 import 'package:illinois/model/Health.dart';
+import 'package:illinois/service/Connectivity.dart';
 import 'package:illinois/service/Health.dart';
+import 'package:illinois/ui/WebPanel.dart';
 import 'package:illinois/utils/AppDateTime.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/Styles.dart';
@@ -25,6 +29,7 @@ import 'package:illinois/ui/health/HealthNextStepsPanel.dart';
 import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/ui/widgets/StatusInfoDialog.dart';
 import 'package:illinois/utils/Utils.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HealthStatusUpdatePanel extends StatefulWidget {
   final HealthStatus status;
@@ -163,6 +168,7 @@ class _HealthStatusUpdatePanelState extends State<HealthStatusUpdatePanel> {
   Widget _buildReasonContent(){
     String date = AppDateTime.formatDateTime(widget.status?.dateUtc?.toLocal(), format: "MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode);
     String reasonText = widget.status?.blob?.displayStatusUpdateReason;
+    String reasonHtml = widget.status?.blob?.displayStatusUpdateReasonHtml;
 
     HealthHistoryBlob reasonHistory = widget.status?.blob?.historyBlob;
     String reasonHistoryName;
@@ -231,7 +237,7 @@ class _HealthStatusUpdatePanelState extends State<HealthStatusUpdatePanel> {
       }
     }
 
-    if ((reasonText != null) || (reasonHistoryName != null) || (reasonHistoryDetail != null)) {
+    if ((reasonText != null) || (reasonHtml != null) || (reasonHistoryName != null) || (reasonHistoryDetail != null)) {
       List<Widget> content = <Widget>[
         Container(height: 30,),
         Text(Localization().getStringEx("panel.health.status_update.label.reason.title", "STATUS CHANGED BECAUSE:"), textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: Styles().fontFamilies.bold),),
@@ -258,12 +264,27 @@ class _HealthStatusUpdatePanelState extends State<HealthStatusUpdatePanel> {
         ]);
       }
 
-      if (reasonText != null) {
-        content.addAll(<Widget>[
-          Container(height: 60,),
-          Text(reasonText, textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 14, fontFamily: Styles().fontFamilies.bold),),
-          Container(height: 30,),
-        ]);
+      if ((reasonText != null) || (reasonHtml != null)) {
+        content.add(Container(height: 60,));
+
+        if (reasonText != null) {
+          content.add(Text(reasonText, textAlign: TextAlign.center, style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 14, color: Styles().colors.white,),));
+        }
+        
+        if ((reasonText != null) && (reasonHtml != null)) {
+          content.add(Container(height: 12,));
+        }
+
+        if (reasonHtml != null) {
+          content.add(Html(data: reasonHtml, onLinkTap: (url) => _onTapLink(url),
+            style: {
+              "body": Style(fontFamily: Styles().fontFamilies.medium, fontSize: FontSize(14), color: Styles().colors.white, padding: EdgeInsets.zero, margin: EdgeInsets.zero),
+            },
+          ),
+);
+        }
+
+        content.add(Container(height: 30,));
       }
 
       return Container(
@@ -304,4 +325,18 @@ class _HealthStatusUpdatePanelState extends State<HealthStatusUpdatePanel> {
         ])
     );
   }*/
+
+  void _onTapLink(String url) {
+    if (Connectivity().isNotOffline) {
+      if (AppString.isStringNotEmpty(url)) {
+        if (AppUrl.launchInternal(url)) {
+          Navigator.push(context, CupertinoPageRoute(builder: (context) => WebPanel(url: url)));
+        } else {
+          launch(url);
+        }
+      }
+    } else {
+      AppAlert.showOfflineMessage(context);
+    }
+  }
 }
