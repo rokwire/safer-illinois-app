@@ -262,6 +262,8 @@ class Health with Service implements NotificationsListener {
   }
 
   Future<void> _refreshInternal(_RefreshOptions options) async {
+    //Log.d("Health._refreshInternal($options)");
+
     _refreshOptions = options;
     NotificationService().notify(notifyRefreshing);
 
@@ -1916,6 +1918,19 @@ class _RefreshOptions {
 
   _RefreshOptions difference(_RefreshOptions other) {
     return _RefreshOptions.fromSet(options?.difference(other?.options));
+  }
+
+  String toString() {
+    String list = '';
+    for (_RefreshOption option in _RefreshOption.values) {
+      if (options.contains(option)) {
+        if (list.isNotEmpty) {
+          list += ', ';
+        }
+        list += option.toString();
+      }
+    }
+    return '[$list]';
   }
 }
 
