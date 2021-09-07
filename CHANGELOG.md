@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Changed
 - Updated strings for vaccination effective status change [#698](https://github.com/rokwire/safer-illinois-app/issues/698).
+- Updated strings for next step for vaccinated users in UIN override list who has fulfilled their tests [#700](https://github.com/rokwire/safer-illinois-app/issues/700).
 
 ## [2.10.36] - 2021-09-01
 ### Changed
