@@ -164,11 +164,11 @@
 	"panel.onboarding.base.not_now.hint": "",
 	"panel.onboarding.base.not_now.title": "No en este momento",
 
-	"panel.settings.feedback.label.title": "Proporcionar comentarios",
+	"panel.settings.get_help.label.title": "Consigue Ayuda",
 
 	"panel.settings.privacy_statement.label.title": "Declaración de privacidad",
 
-	"panel.settings.label.offline.feedback": "Proporcionar un comentario no está disponible sin conexión.",
+	"panel.settings.label.offline.get_help": "No es posible obtener ayuda sin conexión.",
 
 	"panel.settings.home.settings.header": "Configuración",
 	"panel.settings.home.connect.not_logged_in.title": "Conéctate a Illinois",
@@ -213,10 +213,8 @@
 	"panel.settings.home.button.debug.hint": "",
 	"panel.settings.home.button.test.title": "Prueba",
 	"panel.settings.home.button.test.hint": "",
-	"panel.settings.home.feedback.title": "¡Necesitamos tus ideas!",
-	"panel.settings.home.feedback.description": "¿Estás disfrutando la aplicación? ¿Echando de menos algo? Toque en la parte inferior para enviar su idea",
-	"panel.settings.home.button.feedback.title": "Enviar comentarios",
-	"panel.settings.home.button.feedback.hint": "",
+	"panel.settings.home.button.get_help.title": "Consigue Ayuda",
+	"panel.settings.home.button.get_help.hint": "",
 	"panel.settings.home.covid19.exposure_notifications": "Notificaciones de exposición",
 	"panel.settings.home.covid19.provider_test_result": "Resultados de la prueba del proveedor de salud",
 	"panel.settings.home.covid19.provider_vaccine_info": "Información sobre vacunas del proveedor de salud",

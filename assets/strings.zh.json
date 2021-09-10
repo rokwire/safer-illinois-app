@@ -164,11 +164,11 @@
 	"panel.onboarding.base.not_now.hint": "",
 	"panel.onboarding.base.not_now.title": "暂时不",
 
-	"panel.settings.feedback.label.title": "提供反馈",
+	"panel.settings.get_help.label.title": "得到幫助",
 
 	"panel.settings.privacy_statement.label.title": "隐私声明",
 
-	"panel.settings.label.offline.feedback": "离线时无法提供反馈。",
+	"panel.settings.label.offline.get_help": "離線時無法獲得幫助。",
 
 	"panel.settings.home.settings.header": "设置",
 	"panel.settings.home.connect.not_logged_in.title": "連接到伊利諾伊州",
@@ -213,10 +213,8 @@
 	"panel.settings.home.button.debug.hint": "",
 	"panel.settings.home.button.test.title": "测试",
 	"panel.settings.home.button.test.hint": "",
-	"panel.settings.home.feedback.title": " 我们需要你的主意！",
-	"panel.settings.home.feedback.description": " 喜欢这个应用程序吗？我们遗漏了什么？点击底部提交您的想法。",
-	"panel.settings.home.button.feedback.title": "提交反馈",
-	"panel.settings.home.button.feedback.hint": "",
+	"panel.settings.home.button.get_help.title": "得到幫助",
+	"panel.settings.home.button.get_help.hint": "",
 	"panel.settings.home.covid19.exposure_notifications": "接触通知",
 	"panel.settings.home.covid19.provider_test_result": "健康提供者測試結果",
 	"panel.settings.home.covid19.provider_vaccine_info": "衛生提供者疫苗信息",

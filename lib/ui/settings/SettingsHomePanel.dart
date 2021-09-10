@@ -160,8 +160,8 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
       else if (code == 'account') {
         contentList.add(_buildAccount());
       }
-      else if (code == 'feedback') {
-        contentList.add(_buildFeedback(),);
+      else if (code == 'get_help') {
+        contentList.add(_buildGetHelp(),);
       }
     }
 
@@ -1139,55 +1139,40 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
     }
   }
 
-  // Feedback
+  // Get Help
 
-  Widget _buildFeedback(){
+  Widget _buildGetHelp(){
     return Column(
       children: <Widget>[
         Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-              Text(
-                Localization().getStringEx("panel.settings.home.feedback.title", "We need your ideas!"),
-                style: TextStyle(color: Styles().colors.fillColorPrimary, fontSize: 20),
-              ),
-              Container(height: 5,),
-              Text(
-                Localization().getStringEx("panel.settings.home.feedback.description", "Enjoying the app? Missing something? Tap on the bottom to submit your idea."),
-                style: TextStyle(fontFamily: Styles().fontFamilies.regular,color: Styles().colors.textBackground, fontSize: 16),
-              ),
-            ])
-        ),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          padding: EdgeInsets.only(left: 18, right: 18, top: 24, bottom: 6),
           child: ScalableRoundedButton(
-            label: Localization().getStringEx("panel.settings.home.button.feedback.title", "Submit Feedback"),
-            hint: Localization().getStringEx("panel.settings.home.button.feedback.hint", ""),
+            label: Localization().getStringEx("panel.settings.home.button.get_help.title", "Get Help"),
+            hint: Localization().getStringEx("panel.settings.home.button.get_help.hint", ""),
             backgroundColor: Styles().colors.background,
             fontSize: 16.0,
             textColor: Styles().colors.fillColorPrimary,
             borderColor: Styles().colors.fillColorSecondary,
             showExternalLink: true,
-            onTap: _onFeedbackClicked,
+            onTap: _onGetHelpClicked,
           ),
         ),
       ],
     );
   }
 
-  void _onFeedbackClicked() {
+  void _onGetHelpClicked() {
     if (Connectivity().isNotOffline) {
-      Analytics.instance.logSelect(target: "Provide Feedback");
+      Analytics.instance.logSelect(target: "Get Help");
 
-      if (Connectivity().isNotOffline && (Config().feedbackUrl != null)) {
-        String feedbackUrl = Config().feedbackUrl;
-
-        String panelTitle = Localization().getStringEx('panel.settings.feedback.label.title', 'PROVIDE FEEDBACK');
-        Navigator.push(
-            context, CupertinoPageRoute(builder: (context) => WebPanel(url: feedbackUrl, title: panelTitle,)));
+      if (Connectivity().isNotOffline && (Config().getHelpUrl != null)) {
+        Navigator.push(context, CupertinoPageRoute(builder: (context) => WebPanel(
+          url: Config().getHelpUrl,
+          title: Localization().getStringEx('panel.settings.get_help.label.title', 'Get Help'),)
+        ));
       }
       else {
-        AppAlert.showOfflineMessage(context, Localization().getStringEx('panel.settings.label.offline.feedback', 'Providing a Feedback is not available while offline.'));
+        AppAlert.showOfflineMessage(context, Localization().getStringEx('panel.settings.label.offline.get_help', 'Getting a help is not available while offline.'));
       }
     } else {
       AppAlert.showOfflineMessage(context);
@@ -1198,7 +1183,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
 
   Widget _buildDebug() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 18, vertical: 24),
+      padding: EdgeInsets.only(left: 18, right: 18, top: 6, bottom: 6),
       child: ScalableRoundedButton(
         label: Localization().getStringEx("panel.profile_info.button.debug.title", "Debug"),
         hint: Localization().getStringEx("panel.profile_info.button.debug.hint", ""),
@@ -1231,12 +1216,15 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   // Version Info
 
   Widget _buildVersionInfo(){
-    return Container(
-      alignment: Alignment.center,
-      child:  Text(
-        "Version: $_versionName",
-        style: TextStyle(color: Styles().colors.textBackground, fontFamily: Styles().fontFamilies.regular, fontSize: 16),
-    ));
+    return Padding(
+      padding: EdgeInsets.only(left: 18, right: 18, top: 6, bottom: 6),
+      child: Container(
+        alignment: Alignment.center,
+        child:  Text(
+          "Version: $_versionName",
+          style: TextStyle(color: Styles().colors.textBackground, fontFamily: Styles().fontFamilies.regular, fontSize: 16),
+      ))
+    ); 
   }
 
   void _loadVersionInfo() async {
