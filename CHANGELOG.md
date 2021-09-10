@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.11.0] - 2021-09-10
+
 ## [2.10.38] - 2021-09-08
 ### Fixed
 - Fixed Health model classes equality operators.
