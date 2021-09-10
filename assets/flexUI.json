@@ -11,7 +11,7 @@
 		"home.your_health" : [ "health_status", "tiles", "health_history", "find_test_location", "wellness_center", "_groups", "switch_account"],
 		"home.your_health.tiles": ["county_guidelines", "care_team"],
 	
-		"settings": ["user_info", "connect", "customizations", "connected", "notifications", "covid19", "privacy", "account", "feedback"],
+		"settings": ["user_info", "connect", "customizations", "connected", "notifications", "covid19", "privacy", "account", "get_help"],
 		"settings.connect": ["netid", "phone"],
 		"settings.customizations": ["roles"],
 		"settings.connected": ["netid", "phone"],

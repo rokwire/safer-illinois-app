@@ -359,7 +359,7 @@ class Config with Service implements NotificationsListener {
   Map<String, dynamic> get onboardingInfo          { return (_config != null) ? (_config['onboarding'] ?? {}) : {}; }
 
   String get assetsUrl              { return otherUniversityServices['assets_url']; }         // "https://rokwire-assets.s3.us-east-2.amazonaws.com"
-  String get feedbackUrl            { return otherUniversityServices['feedback_url']; }       // "https://forms.illinois.edu/sec/1971889"
+  String get getHelpUrl             { return otherUniversityServices['get_help_url']; }       // "https://forms.illinois.edu/sec/4961936"
   String get iCardUrl               { return otherUniversityServices['icard_url']; }          // "https://www.icard.uillinois.edu/rest/rw/rwIDData/rwCardInfo"
   String get privacyPolicyUrl       { return otherUniversityServices['privacy_policy_url']; } // "https://www.vpaa.uillinois.edu/resources/web_privacy"
   String get exposureLogUrl         { return otherUniversityServices['exposure_log_url']; }   // "http://ec2-18-191-37-235.us-east-2.compute.amazonaws.com:8003/PostSessionData"

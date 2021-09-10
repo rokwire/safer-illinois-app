@@ -164,11 +164,11 @@
 	"panel.onboarding.base.not_now.hint": "",
 	"panel.onboarding.base.not_now.title": "Not right now",
 
-	"panel.settings.feedback.label.title": "Provide Feedback",
+	"panel.settings.get_help.label.title": "Get Help",
 
 	"panel.settings.privacy_statement.label.title": "Privacy Statement",
 
-	"panel.settings.label.offline.feedback": "Providing a feedback is not available while offline.",
+	"panel.settings.label.offline.get_help": "Getting a help is not available while offline.",
 
 	"panel.settings.home.settings.header": "Settings",
 	"panel.settings.home.connect.not_logged_in.title": "Connect to Illinois",
@@ -213,10 +213,8 @@
 	"panel.settings.home.button.debug.hint": "",
 	"panel.settings.home.button.test.title": "Test",
 	"panel.settings.home.button.test.hint": "",
-	"panel.settings.home.feedback.title": "We need your ideas!",
-	"panel.settings.home.feedback.description": "Enjoying the app? Missing something? Tap on the bottom to submit your idea.",
-	"panel.settings.home.button.feedback.title": "Submit Feedback",
-	"panel.settings.home.button.feedback.hint": "",
+	"panel.settings.home.button.get_help.title": "Get Help",
+	"panel.settings.home.button.get_help.hint": "",
 	"panel.settings.home.covid19.exposure_notifications": "Exposure Notifications",
 	"panel.settings.home.covid19.provider_test_result": "Health Provider Test Results",
 	"panel.settings.home.covid19.provider_vaccine_info": "Health Provider Vaccine Information",
