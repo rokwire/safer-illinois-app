@@ -1,3 +1,4 @@
+{
 "default.step": "Take a SHIELD Saliva Test when you return to campus.",
 "positive.step.html": "<h3>You have been placed in mandatory isolation.</h3><ul><h6><li>Stay home. Do not go to work, school, or public areas.</li></h6><h6><li>Separate yourself from others in your home.</li></h6><h6><li>Contact Champaign-Urbana Public Health District immediately at <a href='mailto:coronavirus@c-uphd.org'>coronavirus@c-uphd.org</a></li></h6><h6><li>More Info: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Quarantine and Isolation</a></li></h6></ul>",
 "positive-ip.step.html": "<h3>Please self-isolate and you will be contacted by Public Health in the next 24 hours. Please contact the University’s COVID Wellness Answer Center at <a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a> or call <a href='tel:+1-217-333-1900'>217-333-1900</a> if you have questions.</h3>",
@@ -70,3 +71,4 @@
 "code.red.long_description": "Red: Positive test",
 "code.general.info.1": "Default status for new users is set to Orange.",
 "code.general.info.2": "An up-to-date on-campus negative test result will reset your COVID-19 status to Yellow, and Building Entry will change to Granted."
+}
