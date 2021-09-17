@@ -262,6 +262,8 @@ class Health with Service implements NotificationsListener {
   }
 
   Future<void> _refreshInternal(_RefreshOptions options) async {
+    //Log.d("Health._refreshInternal($options)");
+
     _refreshOptions = options;
     NotificationService().notify(notifyRefreshing);
 
@@ -827,20 +829,9 @@ class Health with Service implements NotificationsListener {
 
     HealthStatus status = HealthStatus(
       dateUtc: null,
-      blob: HealthStatusBlob(
-        code: defaultStatus.code,
-        priority: defaultStatus.priority,
-        nextStep: rules.localeString(defaultStatus.nextStep),
-        nextStepHtml: rules.localeString(defaultStatus.nextStepHtml),
-        nextStepDateUtc: null,
-        eventExplanation: rules.localeString(defaultStatus.eventExplanation),
-        eventExplanationHtml: rules.localeString(defaultStatus.eventExplanationHtml),
-        warning: rules.localeString(defaultStatus.warning),
-        warningHtml: rules.localeString(defaultStatus.warningHtml),
-        reason: rules.localeString(defaultStatus.reason),
-        fcmTopic: defaultStatus.fcmTopic,
-        historyBlob: null,
-      ),
+      blob: HealthStatusBlob.fromRuleStatus(defaultStatus,
+        rules: rules,
+      )
     );
 
     // Start from older
@@ -875,18 +866,9 @@ class Health with Service implements NotificationsListener {
         if ((ruleStatus != null) && ruleStatus.canUpdateStatus(blob: status.blob)) {
           status = HealthStatus(
             dateUtc: historyEntry.dateUtc,
-            blob: HealthStatusBlob(
-              code: (ruleStatus.code != null) ? ruleStatus.code : status.blob.code,
-              priority: (ruleStatus.priority != null) ? ruleStatus.priority.abs() : status.blob.priority,
-              nextStep: ((ruleStatus.nextStep != null) || (ruleStatus.nextStepHtml != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.nextStep) : status.blob.nextStep,
-              nextStepHtml: ((ruleStatus.nextStep != null) || (ruleStatus.nextStepHtml != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.nextStepHtml) : status.blob.nextStepHtml,
-              nextStepDateUtc: ((ruleStatus.nextStepInterval != null) || (ruleStatus.nextStep != null) || (ruleStatus.nextStepHtml != null) || (ruleStatus.code != null)) ? ruleStatus.nextStepDateUtc : status.blob.nextStepDateUtc,
-              eventExplanation: ((ruleStatus.eventExplanation != null) || (ruleStatus.eventExplanationHtml != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.eventExplanation) : status.blob.eventExplanation,
-              eventExplanationHtml: ((ruleStatus.eventExplanation != null) || (ruleStatus.eventExplanationHtml != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.eventExplanationHtml) : status.blob.eventExplanationHtml,
-              warning: ((ruleStatus.warning != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.warning) : status.blob.warning,
-              warningHtml: ((ruleStatus.warningHtml != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.warningHtml) : status.blob.warningHtml,
-              reason: ((ruleStatus.reason != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.reason) : status.blob.reason,
-              fcmTopic: ((ruleStatus.fcmTopic != null) || (ruleStatus.code != null)) ?  ruleStatus.fcmTopic : status.blob.fcmTopic,
+            blob: HealthStatusBlob.fromRuleStatus(ruleStatus,
+              rules: rules,
+              previousStatusBlob: status.blob,
               historyBlob: historyEntry.blob,
             ),
           );
@@ -1916,6 +1898,19 @@ class _RefreshOptions {
 
   _RefreshOptions difference(_RefreshOptions other) {
     return _RefreshOptions.fromSet(options?.difference(other?.options));
+  }
+
+  String toString() {
+    String list = '';
+    for (_RefreshOption option in _RefreshOption.values) {
+      if (options.contains(option)) {
+        if (list.isNotEmpty) {
+          list += ', ';
+        }
+        list += option.toString();
+      }
+    }
+    return '[$list]';
   }
 }
 

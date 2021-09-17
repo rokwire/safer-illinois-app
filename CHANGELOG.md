@@ -5,8 +5,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## [2.11.0] - 2021-09-10
+### Changed
+- "Feedback" section in Settings Home panel changed to "Get Help" [#705](https://github.com/rokwire/safer-illinois-app/issues/705).
+
+## [2.10.38] - 2021-09-08
+### Fixed
+- Fixed Health model classes equality operators.
+- Fixed Storage.healthUserTestMonitorInterval to be able to read null values.
+### Added
+- Added HealthRulesSet.toJson() getter.
+
+## [2.10.37] - 2021-09-07
+### Changed
+- Updated strings for vaccination effective status change [#698](https://github.com/rokwire/safer-illinois-app/issues/698).
+- Updated strings for next step for vaccinated users in UIN override list who has fulfilled their tests [#700](https://github.com/rokwire/safer-illinois-app/issues/700).
+- Defined notice, noticeHtml, reason and reasonHtml in health status definitions. Acknowledged for vaccination and vaccination suspension events. [#702](https://github.com/rokwire/safer-illinois-app/issues/702).
+
+## [2.10.36] - 2021-09-01
 ### Changed
 - Updated next step text for vaccinated users that are forced to resume testing [#692](https://github.com/rokwire/safer-illinois-app/issues/692).
+### Added
+- Added vaccination widget in Home panel [#696](https://github.com/rokwire/safer-illinois-app/issues/696).
 
 ## [2.10.35] - 2021-08-19
 ### Changed
