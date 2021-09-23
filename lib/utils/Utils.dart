@@ -109,6 +109,12 @@ class AppString {
     }
     return null;
   }
+
+  static List<String> _defaultLongOrdinals = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth'];
+  
+  static String localizedOrdinal(int value) {
+    return ((1 <= value) && (value <= _defaultLongOrdinals.length)) ? Localization().getStringEx('model.number.ordinal.long.$value', _defaultLongOrdinals[value - 1]) : null;
+  }
 }
 
 class AppCollection {
@@ -325,6 +331,18 @@ class AppJson {
 
   static List<dynamic> listValue(dynamic value) {
     try { return (value is List) ? value.cast<dynamic>() : null; }
+    catch(e) { print(e?.toString()); }
+    return null;
+  }
+
+  static List<String> listStringValue(dynamic value) {
+    try { return (value is List) ? value.cast<String>() : null; }
+    catch(e) { print(e?.toString()); }
+    return null;
+  }
+
+  static List<int> listIntValue(dynamic value) {
+    try { return (value is List) ? value.cast<int>() : null; }
     catch(e) { print(e?.toString()); }
     return null;
   }
