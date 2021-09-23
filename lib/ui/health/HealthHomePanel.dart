@@ -707,11 +707,10 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
     if (lastVaccineTaken == null) {
       statusTitleText = 'Get a vaccine now';
       statusDescriptionText = """
-• COVID-19 vaccines are safe.
-• COVID-19 vaccines are effective.
-• Once you are fully vaccinated, you can start doing more.
-• COVID-19 vaccination is a safer way to help build protection.
-• None of the COVID-19 vaccines can make you sick with COVID-19.""";
+• COVID-19 vaccines are safe
+• COVID-19 vaccines are effective
+• COVID-19 vaccines allow you to safely do more
+• COVID-19 vaccines build safer protection""";
     }
     else if (numberOfTakenVaccines == 1) {
       headingDate = AppDateTime.formatDateTime(lastVaccineTaken?.dateUtc?.toLocal(), format:"MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode) ?? '';
@@ -719,8 +718,8 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
       DateTime nextDoseDate = lastVaccineTaken?.dateUtc?.add(Duration(days: 21));
       String nextDoseDateStr = AppDateTime.formatDateTime(nextDoseDate?.toLocal(), format:"MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode) ?? '';
 
-      statusTitleText = 'Get your second vaccination';
-      statusDescriptionText = "Get your second dose of vaccine on $nextDoseDateStr.";
+      statusTitleText = 'Таке second vaccination';
+      statusDescriptionText = "Таке your second dose of vaccine on $nextDoseDateStr.";
     }
     else {
       headingDate = AppDateTime.formatDateTime(lastVaccineTaken?.dateUtc?.toLocal(), format:"MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode) ?? '';
@@ -808,7 +807,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
             borderColor: Styles().colors.fillColorSecondary,
             backgroundColor: Styles().colors.surface,
             textColor: Styles().colors.fillColorPrimary,
-            onTap: _onTapFindVaccineAppointment,
+            onTap: _onTapMakeVaccineAppointment,
           )),
         )
       ]);
@@ -1080,10 +1079,10 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
     }
   }
 
-  void _onTapFindVaccineAppointment() {
+  void _onTapMakeVaccineAppointment() {
     if (Connectivity().isNotOffline) {
-      Analytics.instance.logSelect(target: "COVID-19 Find Vaccine Appointment");
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => WebPanel(url: 'https://mymckinley.illinois.edu')));
+      Analytics.instance.logSelect(target: "COVID-19 Make Vaccine Appointment");
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => WebPanel(url: 'https://www.vaccines.gov')));
     } else {
       AppAlert.showOfflineMessage(context);
     }
