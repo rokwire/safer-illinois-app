@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## [2.11.1] - 2021-09-23
 ### Changed
 - Updated vaccination widget strings, load related values and URL from app config [#708](https://github.com/rokwire/safer-illinois-app/issues/708).
 
