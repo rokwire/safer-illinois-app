@@ -343,7 +343,7 @@
 	"panel.covid19home.vaccination.progress.description": "Obtenga su %s dosis de vacuna el %s.",
 	"panel.covid19home.vaccination.finished.title": "Espere a que la vacunación sea efectiva",
 	"panel.covid19home.vaccination.finished.description": "Su vacuna será efectiva después de %s.",
-	"panel.covid19home.vaccination.button.appointment.title": "Concierte una cita de vacunación",
+	"panel.covid19home.vaccination.button.appointment.title": "Haga una cita",
 	"panel.covid19home.vaccination.button.appointment.hint": "",
 
 	"panel.covid19_test_locations.header.title": "Lugares de prueba",

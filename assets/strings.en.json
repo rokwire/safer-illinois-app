@@ -343,7 +343,7 @@
 	"panel.covid19home.vaccination.progress.description": "Get your %s dose of vaccine on %s.",
 	"panel.covid19home.vaccination.finished.title": "Wait for vaccination to get effective",
 	"panel.covid19home.vaccination.finished.description": "Your vaccination will become effective after %s.",
-	"panel.covid19home.vaccination.button.appointment.title": "Make vaccination appointment",
+	"panel.covid19home.vaccination.button.appointment.title": "Make an appointment",
 	"panel.covid19home.vaccination.button.appointment.hint": "",
 
 	"panel.covid19_test_locations.header.title": "Test Locations",

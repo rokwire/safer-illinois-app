@@ -343,7 +343,7 @@
 	"panel.covid19home.vaccination.progress.description": "在%s上接種%s劑量的疫苗。",
 	"panel.covid19home.vaccination.finished.title": "等待疫苗接種生效",
 	"panel.covid19home.vaccination.finished.description": "您的疫苗接種將在%s後生效。",
-	"panel.covid19home.vaccination.button.appointment.title": "預約接種",
+	"panel.covid19home.vaccination.button.appointment.title": "預約",
 	"panel.covid19home.vaccination.button.appointment.hint": "",
 
 	"panel.covid19_test_locations.header.title": "测试位置",
