@@ -49,7 +49,6 @@ import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/ui/widgets/SectionTitlePrimary.dart';
 import 'package:illinois/ui/widgets/StatusInfoDialog.dart';
 import 'package:illinois/utils/Utils.dart';
-import 'package:sprintf/sprintf.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class HealthHomePanel extends StatefulWidget {
@@ -685,7 +684,6 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
   Widget _buildVaccinationSection() {
 
     HealthHistory lastVaccineTaken;
-    int numberOfTakenVaccines = 0;
     DateTime nowUtc = DateTime.now().toUtc();
 
     for (HealthHistory historyEntry in Health().history ?? []) {
@@ -695,7 +693,6 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
           return null;
         }
         else if (historyEntry.blob?.vaccine?.toLowerCase() == HealthHistoryBlob.VaccineTaken?.toLowerCase()) {
-          numberOfTakenVaccines++;
           if (lastVaccineTaken == null) {
             lastVaccineTaken = historyEntry;
           }
@@ -708,9 +705,6 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
     String statusTitleText, statusTitleHtml;
     String statusDescriptionText, statusDescriptionHtml;
     
-    //TMP: List<int> vaccinePeriods = AppJson.listIntValue(Config().settings['covid19VaccinePeriods']);
-    List<int>vaccinePeriods = [21, 14];
-
     if (lastVaccineTaken == null) {
       // No vaccine taken - promote it.
       statusTitleText = Localization().getStringEx('panel.covid19home.vaccination.none.title', 'Get a vaccine now');
@@ -720,30 +714,11 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
 • COVID-19 vaccines allow you to safely do more
 • COVID-19 vaccines build safer protection""");
     }
-    else if (vaccinePeriods == null) {
-      // Disable further processing if no periods defined.
-      return null;
-    }
-    else if (numberOfTakenVaccines < vaccinePeriods.length) {
-      // There is a next vaccine to to take: show when.
-      headingDate = AppDateTime.formatDateTime(lastVaccineTaken?.dateUtc?.toLocal(), format:"MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode) ?? '';
-
-      int nextDoseOffset = vaccinePeriods[numberOfTakenVaccines - 1];
-      DateTime nextDoseDate = lastVaccineTaken?.dateUtc?.add(Duration(days: nextDoseOffset));
-      String nextDoseDateStr = AppDateTime.formatDateTime(nextDoseDate?.toLocal(), format:"MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode) ?? '';
-
-      String ordinal = AppString.localizedOrdinal(numberOfTakenVaccines + 1) ?? '$numberOfTakenVaccines-th';
-      statusTitleText = sprintf(Localization().getStringEx('panel.covid19home.vaccination.progress.title', 'Get %s vaccination'), [ordinal]);
-      statusDescriptionText = sprintf(Localization().getStringEx('panel.covid19home.vaccination.progress.description', 'Get your %s dose of vaccine on %s.'), [ordinal, nextDoseDateStr]);
-    }
     else {
-      headingDate = AppDateTime.formatDateTime(lastVaccineTaken?.dateUtc?.toLocal(), format:"MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode) ?? '';
-
-      DateTime vaccineEffectiveDate = lastVaccineTaken?.dateUtc?.add(Duration(days: vaccinePeriods.last));
-      String vaccineEffectiveDateStr = AppDateTime.formatDateTime(vaccineEffectiveDate?.toLocal(), format:"MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode) ?? '';
-
-      statusTitleText = Localization().getStringEx('panel.covid19home.vaccination.finished.title', 'Wait for vaccination to get effective');
-      statusDescriptionText = sprintf(Localization().getStringEx('panel.covid19home.vaccination.finished.description', 'Your vaccination will become effective after %s.'), [vaccineEffectiveDateStr]);
+      // Vaccinated, but not effective yet.
+      headingDate = AppDateTime.formatDateTime(lastVaccineTaken?.dateUtc?.toLocal(), format:"MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode);
+      statusTitleText = Localization().getStringEx('panel.covid19home.vaccination.vaccinated.title', 'Vaccinated');
+      statusDescriptionText = Localization().getStringEx('panel.covid19home.vaccination.vaccinated.description', 'Your vaccination is not effective yet.');
     }
 
     List<Widget> contentWidgets = <Widget>[
@@ -810,7 +785,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
       ],),
     ];
 
-    if ((numberOfTakenVaccines < vaccinePeriods.length) && (Config().vaccinationAppointUrl != null)) {
+    if (Config().vaccinationAppointUrl != null) {
       contentList.addAll(<Widget>[
         Container(margin: EdgeInsets.only(top: 14, bottom: 14), height: 1, color: Styles().colors.fillColorPrimaryTransparent015,),
 

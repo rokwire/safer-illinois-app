@@ -109,12 +109,6 @@ class AppString {
     }
     return null;
   }
-
-  static List<String> _defaultLongOrdinals = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth'];
-  
-  static String localizedOrdinal(int value) {
-    return ((1 <= value) && (value <= _defaultLongOrdinals.length)) ? Localization().getStringEx('model.number.ordinal.long.$value', _defaultLongOrdinals[value - 1]) : null;
-  }
 }
 
 class AppCollection {
