@@ -1098,7 +1098,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
     if (Config().vaccinationAppointUrl != null) {
       if (Connectivity().isNotOffline) {
         Analytics.instance.logSelect(target: "COVID-19 Make Vaccine Appointment");
-        Navigator.push(context, CupertinoPageRoute(builder: (context) => WebPanel(url: 'https://www.vaccines.gov')));
+        Navigator.push(context, CupertinoPageRoute(builder: (context) => WebPanel(url: Config().vaccinationAppointUrl)));
       } else {
         AppAlert.showOfflineMessage(context);
       }
