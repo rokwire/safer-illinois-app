@@ -687,12 +687,12 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
     DateTime nowUtc = DateTime.now().toUtc();
 
     for (HealthHistory historyEntry in Health().history ?? []) {
-      if ((historyEntry.dateUtc != null) && historyEntry.dateUtc.isBefore(nowUtc) && historyEntry.isVaccine) {
-        if (historyEntry.blob?.vaccine?.toLowerCase() == HealthHistoryBlob.VaccineEffective?.toLowerCase()) {
+      if ((historyEntry.dateUtc != null) && historyEntry.dateUtc.isBefore(nowUtc) && historyEntry.isVaccine && (historyEntry.blob != null)) {
+        if (historyEntry.blob.isVaccineEffective) {
           // 5.2.4 When effective then hide the widget
           return null;
         }
-        else if (historyEntry.blob?.vaccine?.toLowerCase() == HealthHistoryBlob.VaccineTaken?.toLowerCase()) {
+        else if (historyEntry.blob.isVaccineTaken) {
           if (lastVaccineTaken == null) {
             lastVaccineTaken = historyEntry;
           }
