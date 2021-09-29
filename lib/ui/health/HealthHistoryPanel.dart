@@ -165,6 +165,7 @@ class _HealthHistoryPanelState extends State<HealthHistoryPanel> implements Noti
                     style: TextStyle(fontSize: 16, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface)),
                 Expanded(child: Container(),),
                 _buildRepostButton(),
+                Visibility(visible: !kReleaseMode || Organizations().isDevEnvironment, child: _buildRemoveMyInfoButton()),
                 Container(height: 10,),
               ],
             )));
@@ -530,11 +531,8 @@ class _HealthHistoryEntryState extends State<_HealthHistoryEntry> with SingleTic
         if (widget.historyEntry?.blob?.isVaccineEffective ?? false) {
           title = Localization().getStringEx("panel.health.covid19.history.label.vaccine.effective.title", "Vaccine Effective");
         }
-        else if (widget.historyEntry?.blob?.isVaccineTaken ?? false) {
-          title = Localization().getStringEx("panel.health.covid19.history.label.vaccine.taken.title", "Vaccine Taken");
-        }
         else {
-          title = Localization().getStringEx("panel.health.covid19.history.label.vaccine.title", "Vaccine Taken");
+          title = Localization().getStringEx("panel.health.covid19.history.label.vaccine.title", "Vaccine");
         }
         String providerTitle = widget.historyEntry?.blob?.provider ?? Localization().getStringEx("app.common.label.other", "Other");
         details.addAll(<Widget>[

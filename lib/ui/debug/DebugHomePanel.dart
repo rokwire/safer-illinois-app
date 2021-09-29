@@ -23,6 +23,7 @@ import 'package:flutter/services.dart';
 import 'package:illinois/model/Organization.dart';
 import 'package:illinois/service/Auth.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
+import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Organizations.dart';
@@ -57,6 +58,7 @@ class _DebugHomePanelState extends State<DebugHomePanel> implements Notification
 
   String _environment;
   bool _switchingEnvironment;
+  bool _removingHistory;
 
   @override
   void initState() {
@@ -218,13 +220,25 @@ class _DebugHomePanelState extends State<DebugHomePanel> implements Notification
               onTap: _onTapCreateEvent)),
       Padding(
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-          child: RoundedButton(
-              label: "COVID-19 Create Exposure",
+          child: Stack(children: [
+            RoundedButton(
+              label: "COVID-19 Clear History",
               backgroundColor: Styles().colors.background,
               fontSize: 16.0,
               textColor: Styles().colors.fillColorPrimary,
               borderColor: Styles().colors.fillColorPrimary,
-              onTap: _onTapTraceCovid19Exposure)),
+              onTap: _onTapClearHistory),
+            Visibility(visible:  _removingHistory == true, child:
+              Padding(padding: EdgeInsets.symmetric(vertical: 12), child:
+                Center(child: 
+                  Container(width: 24, height: 24, child:
+                    CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Styles().colors.fillColorPrimary)),
+                  ),
+                ),
+              ),
+            ),
+            
+          ],),),
       Padding(
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
           child: RoundedButton(
@@ -234,6 +248,15 @@ class _DebugHomePanelState extends State<DebugHomePanel> implements Notification
               textColor: Styles().colors.fillColorPrimary,
               borderColor: Styles().colors.fillColorPrimary,
               onTap: _onTapReportCovid19Symptoms)),
+      Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+          child: RoundedButton(
+              label: "COVID-19 Create Exposure",
+              backgroundColor: Styles().colors.background,
+              fontSize: 16.0,
+              textColor: Styles().colors.fillColorPrimary,
+              borderColor: Styles().colors.fillColorPrimary,
+              onTap: _onTapTraceCovid19Exposure)),
       Padding(
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
           child: RoundedButton(
@@ -381,12 +404,18 @@ class _DebugHomePanelState extends State<DebugHomePanel> implements Notification
       Navigator.push(context, CupertinoPageRoute(builder: (context) => DebugCreateEventPanel()));
   }
 
-  void _onTapTraceCovid19Exposure() {
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => DebugContactTraceReportPanel()));
+  void _onTapClearHistory() {
+    if (_removingHistory != true) {
+      showDialog(context: context, builder: (context) => _buildRemoveHistoryDialog(context));
+    }
   }
 
   void _onTapReportCovid19Symptoms() {
       Navigator.push(context, CupertinoPageRoute(builder: (context) => DebugSymptomsReportPanel()));
+  }
+
+  void _onTapTraceCovid19Exposure() {
+      Navigator.push(context, CupertinoPageRoute(builder: (context) => DebugContactTraceReportPanel()));
   }
 
   void _onTapCovid19Exposures() {
@@ -606,5 +635,83 @@ class _DebugHomePanelState extends State<DebugHomePanel> implements Notification
         _switchingEnvironment = false;
       });
     });
+  }
+
+
+  //////////////////////////
+  // Delete History
+
+  Widget _buildRemoveHistoryDialog(BuildContext context) {
+    return StatefulBuilder(builder: (context, setState) {
+      return ClipRRect(borderRadius: BorderRadius.all(Radius.circular(8)), child:
+        Dialog(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8),), child:
+          Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+            Row(children: <Widget>[
+              Expanded(child:
+                Container(decoration: BoxDecoration(color: Styles().colors.fillColorPrimary, borderRadius: BorderRadius.vertical(top: Radius.circular(8)),), child:
+                  Padding(padding: EdgeInsets.all(8), child:
+                    Row(children: <Widget>[
+                      Expanded(child:
+                        Center(child:
+                          Text("Clear COVID-19 event history?", style: TextStyle(fontSize: 20, color: Colors.white),),
+                        ),
+                      ),
+                      GestureDetector(onTap: () => Navigator.pop(context), child:
+                        Container(height: 30, width: 30, decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(15)), border: Border.all(color: Styles().colors.white, width: 2), ), child:
+                          Center(child:
+                            Text('\u00D7', style: TextStyle(fontSize: 24, color: Colors.white, ), ),
+                          ),
+                        ),
+                      ),
+                    ],),
+                  ),
+                ),
+              ),
+            ],),
+            Container(height: 26,),
+            Padding(padding: const EdgeInsets.symmetric(horizontal: 18), child:
+              Text("This will permanently remove all COVID-19 event history.", textAlign: TextAlign.left, style: TextStyle(fontFamily: Styles().fontFamilies.medium, fontSize: 16, color: Colors.black),),
+            ),
+            Container(height: 26,),
+            Text("Are you sure?", textAlign: TextAlign.center, style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color: Colors.black), ),
+            Container(height: 16,),
+            Padding(padding: const EdgeInsets.all(8.0), child:
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+                Expanded(child:
+                  RoundedButton(
+                    onTap: () { Navigator.pop(context); },
+                    backgroundColor: Colors.transparent,
+                    borderColor: Styles().colors.fillColorPrimary,
+                    textColor: Styles().colors.fillColorPrimary,
+                    label: 'No'),
+                ),
+                Container(width: 10,),
+                Expanded(child:
+                  RoundedButton(
+                    onTap: () => _onClearHistory(),
+                    backgroundColor: Styles().colors.fillColorSecondaryVariant,
+                    borderColor: Styles().colors.fillColorSecondaryVariant,
+                    textColor: Styles().colors.surface,
+                    label: 'Yes',
+                    height: 48,),
+                ),
+              ],),
+            ),
+          ],),
+        ),
+      );
+    },);
+  }
+
+  void _onClearHistory() {
+    Navigator.pop(context);
+
+    if (_removingHistory != true) {
+      setState(() { _removingHistory = true; });
+      Health().clearHistory().then((bool result) {
+        setState(() {_removingHistory = false;});
+        AppAlert.showDialogResult(context, (result == true) ? 'COVID-19 event history successfully cleared.' : 'Failed to clear COVID-19 event history.');
+      });
+    }
   }
 }

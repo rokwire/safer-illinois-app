@@ -732,7 +732,6 @@ class HealthHistoryBlob {
   final List<HealthEventExtra> extras;
 
   static const String VaccineEffective = "Effective";
-  static const String VaccineTaken = "Taken";
 
   HealthHistoryBlob({
     this.provider, this.providerId, this.location, this.locationId, this.countyId, this.testType, this.testResult,
@@ -862,10 +861,6 @@ class HealthHistoryBlob {
 
   bool get isVaccineEffective {
     return (vaccine != null) && (vaccine.toLowerCase() == VaccineEffective.toLowerCase());
-  }
-
-  bool get isVaccineTaken {
-    return (vaccine != null) && (vaccine.toLowerCase() == VaccineTaken.toLowerCase());
   }
 
   bool get isAction {
