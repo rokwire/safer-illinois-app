@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Deleted
 - Removed vaccine taken event handling [#715](https://github.com/rokwire/safer-illinois-app/issues/715).
+- Removed MicroBlink scan support [#717](https://github.com/rokwire/safer-illinois-app/issues/717).
 
 ## [2.11.2] - 2021-09-24
 ### Changed
