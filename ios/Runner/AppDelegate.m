@@ -38,7 +38,6 @@
 #import <GoogleMaps/GoogleMaps.h>
 #import <Firebase/Firebase.h>
 #import <ZXingObjC/ZXingObjC.h>
-#import <MicroBlink/Microblink.h>
 
 #import <UserNotifications/UserNotifications.h>
 #import <SafariServices/SafariServices.h>
@@ -59,7 +58,7 @@ NSString* _interfaceOrientationToString(UIInterfaceOrientation value);
 UIInterfaceOrientation _interfaceOrientationFromMask(UIInterfaceOrientationMask value);
 UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation value);
 
-@interface AppDelegate()<UINavigationControllerDelegate, UNUserNotificationCenterDelegate, CLLocationManagerDelegate, CBPeripheralManagerDelegate, FIRMessagingDelegate, PKAddPassesViewControllerDelegate, MBBlinkIdOverlayViewControllerDelegate> {
+@interface AppDelegate()<UINavigationControllerDelegate, UNUserNotificationCenterDelegate, CLLocationManagerDelegate, CBPeripheralManagerDelegate, FIRMessagingDelegate, PKAddPassesViewControllerDelegate> {
 }
 
 // Flutter
@@ -73,13 +72,6 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 // PassKit
 @property (nonatomic) PKAddPassesViewController *passViewController;
 @property (nonatomic) FlutterResult passFlutterResult;
-
-// BlinkId
-@property (nonatomic) bool blinkSDKInitialized;
-@property (nonatomic) MBBlinkIdCombinedRecognizer *blinkCombinedRecognizer;
-@property (nonatomic) MBPassportRecognizer *blinkPassportRecognizer;
-@property (nonatomic) UIViewController *blinkRecognizerRunnerViewController;
-@property (nonatomic) FlutterResult blinkFlutterResult;
 
 // Init Keys
 @property (nonatomic) NSDictionary* keys;
@@ -103,13 +95,6 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 
 	__weak typeof(self) weakSelf = self;
 	
-//	Initialize Google Maps SDK
-//	[GMSServices provideAPIKey:kGoogleAPIKey];
-
-//	Initialize MicroBlink SDK
-//	[MBMicroblinkSDK.sharedInstance setLicenseKey:kMicroBlinkLicenseKey];
-
-
 	// Initialize Firebase SDK
 	[FIRApp configure];
 	[FIRMessaging messaging].delegate = self;
@@ -263,9 +248,6 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 	else if ([call.method isEqualToString:@"addToWallet"]) {
 		[self handleAddToWalletWithParameters:parameters result:result];
 	}
-	else if ([call.method isEqualToString:@"microBlinkScan"]) {
-		[self handleMicroBlinkScanWithParameters:parameters result:result];
-	}
 	else if ([call.method isEqualToString:@"deviceId"]) {
 		[self handleDeviceIdWithParameters:parameters result:result];
 	}
@@ -294,16 +276,6 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 	if (0 < googleMapsAPIKey.length) {
 		[GMSServices provideAPIKey:googleMapsAPIKey];
 	}
-
-	// Initialize MicroBlink SDK
-	/*NSString *microBlinkLicenseKey = [_keys uiucConfigStringForPathKey:@"microblink.blink_id.license_key.ios"];
-	if (0 < microBlinkLicenseKey.length) {
-		@try {
-			[MBMicroblinkSDK.sharedInstance setLicenseKey:microBlinkLicenseKey];
-			_blinkSDKInitialized = YES;
-		}
-		@catch(NSException *e) { NSLog(@"%@", e); }
-	}*/
 
 	result(@(YES));
 }
@@ -412,11 +384,6 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 	[self addPassToWallet:cardData result:result];
 	result(nil);
 }
-
-- (void)handleMicroBlinkScanWithParameters:(NSDictionary*)parameters result:(FlutterResult)result {
-	[self microBlinkScanWithParameters:parameters result:result];
-}
-
 
 - (void)handleDeviceIdWithParameters:(NSDictionary*)parameters result:(FlutterResult)result {
 	result(self.deviceUUID.UUIDString);
@@ -816,199 +783,6 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 	}
 }
 
-#pragma mark MicroBlink
-
-- (void)microBlinkScanWithParameters:(NSDictionary*)parameters result:(FlutterResult)result {
-	if (_blinkFlutterResult != nil) {
-		NSLog(@"BlinkID: currently scanning");
-		result(nil);
-	}
-	else {
-		if (!_blinkSDKInitialized) {
-			NSString *microBlinkLicenseKey = [_keys uiucConfigStringForPathKey:@"microblink.blink_id.license_key.ios"];
-			if (0 < microBlinkLicenseKey.length) {
-				@try {
-					[MBMicroblinkSDK.sharedInstance setLicenseKey:microBlinkLicenseKey];
-					_blinkSDKInitialized = YES;
-				}
-				@catch(NSException *e) { NSLog(@"%@", e); }
-			}
-		}
-		
-		if (_blinkSDKInitialized) {
-			_blinkFlutterResult = result;
-			[self invokeBlinkScanWithParameters:parameters];
-		}
-		else {
-			NSLog(@"BlinkID: not initialized");
-			result(nil);
-		}
-	}
-}
-
-- (void)invokeBlinkScanWithParameters:(NSDictionary*)parameters {
-	NSMutableArray *recognizers = [[NSMutableArray alloc] init];
-	NSArray *recognizersParam = [parameters inaArrayForKey:@"recognizers" defaults:@[@"combined", @"passport"]];
-	for (NSString *recognizer in recognizersParam) {
-		if ([recognizer isEqualToString:@"combined"]) {
-			_blinkCombinedRecognizer = [[MBBlinkIdCombinedRecognizer alloc] init];
-			_blinkCombinedRecognizer.encodeFaceImage = TRUE;
-			[recognizers addObject:_blinkCombinedRecognizer];
-		}
-		else if ([recognizer isEqualToString:@"passport"]) {
-			_blinkPassportRecognizer = [[MBPassportRecognizer alloc] init];
-			_blinkPassportRecognizer.encodeFaceImage = TRUE;
-			[recognizers addObject:_blinkPassportRecognizer];
-		}
-	}
-
-	MBBlinkIdOverlaySettings* settings = [[MBBlinkIdOverlaySettings alloc] init];
-	MBRecognizerCollection *recognizerCollection = [[MBRecognizerCollection alloc] initWithRecognizers:recognizers];
-	MBBlinkIdOverlayViewController *overlayViewController = [[MBBlinkIdOverlayViewController alloc] initWithSettings:settings recognizerCollection:recognizerCollection delegate:self];
-	_blinkRecognizerRunnerViewController = [MBViewControllerFactory recognizerRunnerViewControllerWithOverlayViewController:overlayViewController];
-	
-	
-	[_navigationViewController.topViewController presentViewController:_blinkRecognizerRunnerViewController animated:YES completion:nil];
-}
-
-- (void)didMicroBlinkScanWithResult:(MBRecognizerResult*)result {
-
-	__weak typeof(self) weakSelf = self;
-	[_blinkRecognizerRunnerViewController dismissViewControllerAnimated:YES completion:^{
-
-		FlutterResult flutterResult = weakSelf.blinkFlutterResult;
-
-		weakSelf.blinkFlutterResult = nil;
-		weakSelf.blinkCombinedRecognizer = nil;
-		weakSelf.blinkPassportRecognizer = nil;
-		weakSelf.blinkRecognizerRunnerViewController = nil;
-		
-		NSDictionary *scanResult = nil;
-		if ([result isKindOfClass:[MBBlinkIdCombinedRecognizerResult class]]) {
-			scanResult = [self scanResultFromBlinkCombinedResult:(MBBlinkIdCombinedRecognizerResult*)result];
-		}
-		else if ([result isKindOfClass:[MBPassportRecognizerResult class]]) {
-			scanResult = [self scanResultFromBlinkPassportResult:(MBPassportRecognizerResult*)result];
-		}
-
-		if (flutterResult != nil) {
-			flutterResult(scanResult);
-		}
-	}];
-}
-
-- (NSDictionary*)scanResultFromBlinkCombinedResult:(MBBlinkIdCombinedRecognizerResult*)result {
-	NSString *base64FaceImage = [result.encodedFaceImage base64EncodedStringWithOptions:0];
-		
-	return (result != nil) ? @{
-		@"firstName": result.firstName ?: [NSNull null],
-		@"lastName": result.lastName ?: [NSNull null],
-		@"fullName": result.fullName ?: [NSNull null],
-		@"sex": result.sex ?: [NSNull null],
-		@"address": result.address ?: [NSNull null],
-		
-		@"dateOfBirth": [self scanStringBlinkDate:result.dateOfBirth] ?: [NSNull null],
-		@"dateOfExpiry": [self scanStringBlinkDate:result.dateOfExpiry] ?: [NSNull null],
-		@"dateOfIssue": [self scanStringBlinkDate:result.dateOfIssue] ?: [NSNull null],
-
-		@"documentNumber": result.documentNumber ?: [NSNull null],
-		
-		@"placeOfBirth": result.placeOfBirth ?: [NSNull null],
-		@"nationality": result.nationality ?: [NSNull null],
-		@"race": result.race ?: [NSNull null],
-		@"religion": result.religion ?: [NSNull null],
-		@"profession": result.profession ?: [NSNull null],
-		@"maritalStatus": result.maritalStatus ?: [NSNull null],
-		@"residentialStatus": result.residentialStatus ?: [NSNull null],
-		@"employer": result.employer ?: [NSNull null],
-		@"personalIdNumber": result.personalIdNumber ?: [NSNull null],
-		@"documentAdditionalNumber": result.documentAdditionalNumber ?: [NSNull null],
-		@"issuingAuthority": result.issuingAuthority ?: [NSNull null],
-		
-		@"mrz" : [self scanResultFromBlinkMrzResult:result.mrzResult] ?: [NSNull null],
-		@"driverLicenseDetailedInfo": [self scanResultFromBlinkDriverLicenseDetailedInfo:result.driverLicenseDetailedInfo] ?: [NSNull null],
-		
-		@"base64FaceImage": base64FaceImage ?: [NSNull null],
-	} : nil;
-}
-
-- (NSDictionary*)scanResultFromBlinkPassportResult:(MBPassportRecognizerResult*)result {
-	NSString *base64FaceImage = [result.encodedFaceImage base64EncodedStringWithOptions:0];
-
-	return (result != nil) ? @{
-		@"firstName": [NSNull null],
-		@"lastName": [NSNull null],
-		@"fullName": [NSNull null],
-		@"sex": [NSNull null],
-		@"address": [NSNull null],
-		
-		@"dateOfBirth": [NSNull null],
-		@"dateOfExpiry": [NSNull null],
-		@"dateOfIssue": [NSNull null],
-
-		@"documentNumber": [NSNull null],
-		
-		@"placeOfBirth": [NSNull null],
-		@"nationality": [NSNull null],
-		@"race": [NSNull null],
-		@"religion": [NSNull null],
-		@"profession": [NSNull null],
-		@"maritalStatus": [NSNull null],
-		@"residentialStatus": [NSNull null],
-		@"employer": [NSNull null],
-		@"personalIdNumber": [NSNull null],
-		@"documentAdditionalNumber": [NSNull null],
-		@"issuingAuthority": [NSNull null],
-
-		@"mrz" : [self scanResultFromBlinkMrzResult:result.mrzResult] ?: [NSNull null],
-		@"driverLicenseDetailedInfo": [NSNull null],
-		
-		@"base64FaceImage": base64FaceImage ?: [NSNull null],
-	} : nil;
-}
-
-- (NSDictionary*)scanResultFromBlinkMrzResult:(MBMrzResult*)result {
-	return (result != nil) ? @{
-		@"primaryID" : result.primaryID ?: [NSNull null],
-		@"secondaryID" : result.secondaryID ?: [NSNull null],
-		@"issuer" : result.issuer ?: [NSNull null],
-		@"issuerName" : result.issuerName ?: [NSNull null],
-		@"dateOfBirth": [self scanStringBlinkDate:result.dateOfBirth] ?: [NSNull null],
-		@"dateOfExpiry": [self scanStringBlinkDate:result.dateOfExpiry] ?: [NSNull null],
-		@"documentNumber" : result.documentNumber ?: [NSNull null],
-		@"nationality" : result.nationality ?: [NSNull null],
-		@"nationalityName" : result.nationalityName ?: [NSNull null],
-		@"gender" : result.gender ?: [NSNull null],
-		@"documentCode" : result.documentCode ?: [NSNull null],
-		@"alienNumber" : result.alienNumber ?: [NSNull null],
-		@"applicationReceiptNumber" : result.applicationReceiptNumber ?: [NSNull null],
-		@"immigrantCaseNumber" : result.immigrantCaseNumber ?: [NSNull null],
-
-		@"opt1" : result.opt1 ?: [NSNull null],
-		@"opt2" : result.opt2 ?: [NSNull null],
-		@"mrzText" : result.mrzText ?: [NSNull null],
-
-		@"sanitizedOpt1" : result.sanitizedOpt1 ?: [NSNull null],
-		@"sanitizedOpt2" : result.sanitizedOpt2 ?: [NSNull null],
-		@"sanitizedNationality" : result.sanitizedNationality ?: [NSNull null],
-		@"sanitizedIssuer" : result.sanitizedIssuer ?: [NSNull null],
-		@"sanitizedDocumentCode" : result.sanitizedDocumentCode ?: [NSNull null],
-		@"sanitizedDocumentNumber" : result.sanitizedDocumentNumber ?: [NSNull null],
-	} : nil;
-}
-
-- (NSDictionary*)scanResultFromBlinkDriverLicenseDetailedInfo:(MBDriverLicenseDetailedInfo*)info {
-	return (info != nil) ? @{
-		@"restrictions" : info.restrictions ?: [NSNull null],
-		@"endorsements" : info.endorsements ?: [NSNull null],
-		@"vehicleClass" : info.vehicleClass ?: [NSNull null],
-	} : nil;
-}
-
-- (NSString*)scanStringBlinkDate:(MBDateResult*)blinkDate {
-	return (blinkDate != nil) ? [NSString stringWithFormat:@"%02lu/%02lu/%04lu", blinkDate.month, blinkDate.day, blinkDate.year] : nil;
-}
-
 #pragma mark Device UUID
 
 - (NSUUID*)deviceUUID {
@@ -1165,41 +939,6 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 		}];
 	}
 }
-
-#pragma mark Encryption Key
-
-#pragma mark MBBlinkIdOverlayViewControllerDelegate
-
-- (void)blinkIdOverlayViewControllerDidFinishScanning:(MBBlinkIdOverlayViewController *)blinkIdOverlayViewController state:(MBRecognizerResultState)state {
-
-	if (state == MBRecognizerResultStateValid) {
-			MBRecognizerResult *result = nil;
-			if ((_blinkCombinedRecognizer.result != nil) && (_blinkCombinedRecognizer.result.resultState == MBRecognizerResultStateValid)) {
-				result = _blinkCombinedRecognizer.result;
-			}
-			else if ((_blinkPassportRecognizer.result != nil) && (_blinkPassportRecognizer.result.resultState == MBRecognizerResultStateValid)) {
-				result = _blinkPassportRecognizer.result;
-			}
-			
-			if (result != nil) {
-				[blinkIdOverlayViewController.recognizerRunnerViewController pauseScanning];
-				
-				__weak typeof(self) weakSelf = self;
-				dispatch_async(dispatch_get_main_queue(), ^{
-					[weakSelf didMicroBlinkScanWithResult:result];
-				});
-			}
-	}
-}
-
-- (void)blinkIdOverlayViewControllerDidTapClose:(nonnull MBBlinkIdOverlayViewController *)blinkIdOverlayViewController {
-		
-		__weak typeof(self) weakSelf = self;
-		dispatch_async(dispatch_get_main_queue(), ^{
-			[weakSelf didMicroBlinkScanWithResult:nil];
-		});
-}
-
 
 #pragma mark UINavigationControllerDelegate
 
