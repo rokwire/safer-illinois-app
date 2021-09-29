@@ -165,6 +165,7 @@ class _HealthHistoryPanelState extends State<HealthHistoryPanel> implements Noti
                     style: TextStyle(fontSize: 16, fontFamily: Styles().fontFamilies.regular, color: Styles().colors.textSurface)),
                 Expanded(child: Container(),),
                 _buildRepostButton(),
+                Visibility(visible: !kReleaseMode || Organizations().isDevEnvironment, child: _buildRemoveMyInfoButton()),
                 Container(height: 10,),
               ],
             )));
