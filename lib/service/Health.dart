@@ -936,8 +936,12 @@ class Health with Service implements NotificationsListener {
   }
 
   Future<bool> clearHistory() async {
+    List<HealthHistory> history = _history;
     if (await _clearNetHistory()) {
-      await _rebuildStatus();
+      if (!ListEquality().equals(history, _history)) {
+        _notify(notifyHistoryUpdated);
+        await _rebuildStatus();
+      }
       return true;
     }
     return false;
