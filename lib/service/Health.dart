@@ -1640,7 +1640,8 @@ class Health with Service implements NotificationsListener {
   // Vaccination
 
   bool get isVaccinated {
-    return (HealthHistory.mostRecentVaccine(_history, vaccine: HealthHistoryBlob.VaccineEffective) != null);
+    HealthHistory vaccine = HealthHistory.mostRecentVaccine(Health().history);
+    return (vaccine.blob != null) && (vaccine?.blob?.isVaccineEffective ?? false) && (vaccine.dateUtc != null) && vaccine.dateUtc.isBefore(DateTime.now().toUtc());
   }
 
   // Current Server Time

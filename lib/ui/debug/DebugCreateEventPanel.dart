@@ -295,7 +295,7 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
 
             Row(children: <Widget>[
               Expanded(child:
-                RoundedButton(label: "Vacc Effective",
+                RoundedButton(label: "Vaccine Effective",
                   textColor: Styles().colors.fillColorPrimary,
                   borderColor: Styles().colors.fillColorSecondary,
                   backgroundColor: Styles().colors.white,
@@ -306,14 +306,7 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
               ),
               Container(width: 4,),
               Expanded(child:
-                RoundedButton(label: "Vacc Taken",
-                  textColor: Styles().colors.fillColorPrimary,
-                  borderColor: Styles().colors.fillColorSecondary,
-                  backgroundColor: Styles().colors.white,
-                  fontFamily: Styles().fontFamilies.bold,
-                  fontSize: 16, borderWidth: 2, height: 42,
-                  onTap:() { _onPopulate(this._sampleVacineTakenBlob);  }
-                ),
+                Container()
               ),
             ],),
 
@@ -539,25 +532,6 @@ class _DebugCreateEventPanelState extends State<DebugCreateEventPanel> {
     return '''{
   "Date": "$dateString",
   "Vaccine": "${HealthHistoryBlob.VaccineEffective}",
-  "Extra": [
-    {"display_name": "Vaccine", "display_value": "Sputnik V"},
-    {"display_name": "2nd Dose", "display_value": "$dose2String"},
-    {"display_name": "1st Dose", "display_value": "$dose1String"}
-  ]
-}''';}
-
-  String get _sampleVacineTakenBlob {
-    DateTime nowLocal = DateTime.now();
-    String dateString = healthDateTimeToString(nowLocal.toUtc());
-
-    String dose2String = DateFormat("MMMM d, yyyy HH:mm").format(nowLocal);
-
-    DateTime dose1Local = nowLocal.subtract(Duration(days: 21));
-    String dose1String = DateFormat("MMMM d, yyyy HH:mm").format(dose1Local);
-
-    return '''{
-  "Date": "$dateString",
-  "Vaccine": "${HealthHistoryBlob.VaccineTaken}",
   "Extra": [
     {"display_name": "Vaccine", "display_value": "Sputnik V"},
     {"display_name": "2nd Dose", "display_value": "$dose2String"},

@@ -374,9 +374,6 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
       if (blob.isVaccineEffective) {
         historyTitle = Localization().getStringEx("panel.covid19home.label.vaccine.effective.title", "Vaccine Effective");
       }
-      else if (blob.isVaccineTaken) {
-        historyTitle = Localization().getStringEx("panel.covid19home.label.vaccine.taken.title", "Vaccine Taken");
-      }
       else {
         historyTitle = Localization().getStringEx("panel.covid19home.label.vaccine.title", "Vaccine");
       }
@@ -683,30 +680,14 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
 
   Widget _buildVaccinationSection() {
 
-    HealthHistory lastVaccineTaken;
-    DateTime nowUtc = DateTime.now().toUtc();
-
-    for (HealthHistory historyEntry in Health().history ?? []) {
-      if ((historyEntry.dateUtc != null) && historyEntry.dateUtc.isBefore(nowUtc) && historyEntry.isVaccine && (historyEntry.blob != null)) {
-        if (historyEntry.blob.isVaccineEffective) {
-          // 5.2.4 When effective then hide the widget
-          return null;
-        }
-        else if (historyEntry.blob.isVaccineTaken) {
-          if (lastVaccineTaken == null) {
-            lastVaccineTaken = historyEntry;
-          }
-        }
-      }
-    }
-
-    String headingTitle = Localization().getStringEx('panel.covid19home.vaccination.heading.title', 'VACCINATION');
     String headingDate;
     String statusTitleText, statusTitleHtml;
     String statusDescriptionText, statusDescriptionHtml;
+    String headingTitle = Localization().getStringEx('panel.covid19home.vaccination.heading.title', 'VACCINATION');
     
-    if (lastVaccineTaken == null) {
-      // No vaccine taken - promote it.
+    HealthHistory vaccine = HealthHistory.mostRecentVaccine(Health().history);
+    if (vaccine == null) {
+      // No vaccine at all - promote it.
       statusTitleText = Localization().getStringEx('panel.covid19home.vaccination.none.title', 'Get a vaccine now');
       statusDescriptionText = Localization().getStringEx('panel.covid19home.vaccination.none.description', """
 • COVID-19 vaccines are safe
@@ -714,9 +695,13 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
 • COVID-19 vaccines allow you to safely do more
 • COVID-19 vaccines build safer protection""");
     }
+    else if ((vaccine.blob != null) && (vaccine.blob.isVaccineEffective) && (vaccine.dateUtc != null) && vaccine.dateUtc.isBefore(DateTime.now().toUtc())) {
+      // 5.2.4 When effective then hide the widget
+      return null;
+    }
     else {
       // Vaccinated, but not effective yet.
-      headingDate = AppDateTime.formatDateTime(lastVaccineTaken?.dateUtc?.toLocal(), format:"MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode);
+      headingDate = AppDateTime.formatDateTime(vaccine.dateUtc?.toLocal(), format:"MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode) ?? '';
       statusTitleText = Localization().getStringEx('panel.covid19home.vaccination.vaccinated.title', 'Vaccinated');
       statusDescriptionText = Localization().getStringEx('panel.covid19home.vaccination.vaccinated.description', 'Your vaccination is not effective yet.');
     }
@@ -785,7 +770,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
       ],),
     ];
 
-    if (Config().vaccinationAppointUrl != null) {
+    if ((vaccine == null) && (Config().vaccinationAppointUrl != null)) {
       contentList.addAll(<Widget>[
         Container(margin: EdgeInsets.only(top: 14, bottom: 14), height: 1, color: Styles().colors.fillColorPrimaryTransparent015,),
 
