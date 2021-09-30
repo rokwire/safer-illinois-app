@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Changed
 - Show when the vaccine will become effective in vaccination widget [#720](https://github.com/rokwire/safer-illinois-app/issues/720).
+- Show upconing entries in history panel [#723](https://github.com/rokwire/safer-illinois-app/issues/723).
 
 ## [2.11.3] - 2021-09-29
 ### Deleted
