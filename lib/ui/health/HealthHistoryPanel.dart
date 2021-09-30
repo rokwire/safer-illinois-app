@@ -554,13 +554,22 @@ class _HealthHistoryEntryState extends State<_HealthHistoryEntry> with SingleTic
     }
 
     return Semantics(sortKey: OrdinalSortKey(1), container: true, child:
-      Container(decoration: BoxDecoration(color: Styles().colors.white, border: Border.all(color: Styles().colors.surfaceAccent,)), padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16), child:
-        Row(children: <Widget>[
-          Expanded(child:
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: contentList,)
+      Stack(children: [
+        Container(decoration: BoxDecoration(color: Styles().colors.white, border: Border.all(color: Styles().colors.surfaceAccent,)), padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16), child:
+          Row(children: <Widget>[
+            Expanded(child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: contentList,)
+            ),
+          ]),
+        ),
+        Visibility(visible: widget.historyEntry.dateUtc?.isAfter(DateTime.now().toUtc()) ?? false, child:
+          Align(alignment: Alignment.topRight, child:
+            Padding(padding: EdgeInsets.all(16), child:
+              Image.asset('images/icon-time3.png')
+            ),
           ),
-        ]),
-      ),
+        ),
+      ],),
     );
   }
 
