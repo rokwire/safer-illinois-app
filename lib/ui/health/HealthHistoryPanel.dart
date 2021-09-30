@@ -446,35 +446,19 @@ class _HealthHistoryEntryState extends State<_HealthHistoryEntry> with SingleTic
   Widget build(BuildContext context) {
     
     List<Widget> content = <Widget>[];
-    content.add(Container(height: 16,));
     content.add(_buildCommonInfo(),);
     
     if ((widget.historyEntry?.isTestVerified ?? false) || HealthEventExtra.listHasVisible(widget.historyEntry?.blob?.extras)) {
       content.add(_buildMoreButton());
       
-      if (_expanded) {
-        
-        Widget testResult = ((widget.historyEntry?.isTestVerified ?? false) && (widget.historyEntry?.blob?.testResult != null)) ? _buildTestResult() : null;
-        Widget additionalInfo = _buildAdditionalInfo();
-        
-        if (testResult != null) {
-          content.add(testResult);
-        }
-
-        if ((testResult != null) && (additionalInfo != null)) {
-          content.add(_buildSplitter());
-        }
-
-        if (additionalInfo != null) {
-          content.add(additionalInfo);
-        }
+      Widget exandedConent = _expanded ? _buildExpandedContent() : null;
+      if (exandedConent != null) {
+        content.add(exandedConent);
       }
     }
     
-    content.add(Container(height: 16,));
-    
     return Container(
-      padding: EdgeInsets.symmetric(),
+      padding: EdgeInsets.symmetric(vertical: 16),
       child: Column(children: content,),
     );
   }
@@ -570,7 +554,7 @@ class _HealthHistoryEntryState extends State<_HealthHistoryEntry> with SingleTic
     }
 
     return Semantics(sortKey: OrdinalSortKey(1), container: true, child:
-      Container(color: Styles().colors.white, padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16), child:
+      Container(decoration: BoxDecoration(color: Styles().colors.white, border: Border.all(color: Styles().colors.surfaceAccent,)), padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16), child:
         Row(children: <Widget>[
           Expanded(child:
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: contentList,)
@@ -668,17 +652,11 @@ class _HealthHistoryEntryState extends State<_HealthHistoryEntry> with SingleTic
     final Animatable<double> _halfTween = Tween<double>(begin: 0.0, end: 0.5);
     final Animatable<double> _easeInTween = CurveTween(curve: Curves.easeIn);
     Animation<double> _iconTurns = _controller.drive(_halfTween.chain(_easeInTween));
+    BorderSide borderSide = BorderSide(color: Styles().colors.surfaceAccent,);
 
-    return
-      Semantics(
-        sortKey: OrdinalSortKey(2),
-        container: true,
-        button: true,
-        child: InkWell(
-          onTap: (){
-            setState(() {
-              _expanded = !_expanded;
-            });
+    return Semantics(sortKey: OrdinalSortKey(2), container: true, button: true, child:
+      InkWell(onTap: () {
+            setState(() { _expanded = !_expanded; });
             if (_expanded) {
               _controller.forward();
             } else {
@@ -686,7 +664,7 @@ class _HealthHistoryEntryState extends State<_HealthHistoryEntry> with SingleTic
             }
           },
           child: Container(
-            decoration: BoxDecoration(color: Styles().colors.background, border: Border.all(color: Styles().colors.surfaceAccent,)),
+            decoration: BoxDecoration(color: Styles().colors.background, border: Border(left: borderSide, right: borderSide, bottom: /* _expanded ? BorderSide.none : */ borderSide)),
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             child: Row(children: <Widget>[
               Text(Localization().getStringEx("panel.health.covid19.history.label.more_info.title","More Info"),
@@ -694,12 +672,33 @@ class _HealthHistoryEntryState extends State<_HealthHistoryEntry> with SingleTic
               ),
               Expanded(child: Container(),),
               Container(width: 4,),
-              RotationTransition(
-                  turns: _iconTurns,
-                  child: Image.asset("images/icon-down-orange.png", color: Styles().colors.fillColorSecondary, excludeFromSemantics: true,)),
-
+              RotationTransition(turns: _iconTurns, child:
+                Image.asset("images/icon-down-orange.png", color: Styles().colors.fillColorSecondary, excludeFromSemantics: true,)),
             ],)
       )));
+  }
+
+  Widget _buildExpandedContent() {
+    List<Widget> expandedContent = <Widget>[];
+    
+    Widget testResult = ((widget.historyEntry?.isTestVerified ?? false) && (widget.historyEntry?.blob?.testResult != null)) ? _buildTestResult() : null;
+    Widget additionalInfo = _buildAdditionalInfo();
+    
+    if (testResult != null) {
+      expandedContent.add(testResult);
+    }
+
+    if ((testResult != null) && (additionalInfo != null)) {
+      expandedContent.add(_buildSplitter());
+    }
+
+    if (additionalInfo != null) {
+      expandedContent.add(additionalInfo);
+    }
+
+    return (0 < expandedContent.length) ? Container(
+      // decoration: BoxDecoration(color: Styles().colors.white, border: Border.all(color: Styles().colors.surfaceAccent,)),
+      child: Column(children: expandedContent,),) : null;
   }
 
   Widget _buildDetail(String title, String data, {GestureTapCallback onTapData, String onTapHint}) {
