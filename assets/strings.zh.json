@@ -340,6 +340,9 @@
 	"panel.covid19home.vaccination.none.description": "• COVID-19 疫苗是安全的\n• COVID-19 疫苗是有效的\n• COVID-19 疫苗可讓您安全地做更多事情\n• COVID-19 疫苗可建立更安全的保護",
 	"panel.covid19home.vaccination.vaccinated.title": "已接種",
 	"panel.covid19home.vaccination.vaccinated.description": "您的疫苗接種尚未生效。",
+	"panel.covid19home.vaccination.vaccinated.effective.0.description": "你的疫苗今天會有效。",
+	"panel.covid19home.vaccination.vaccinated.effective.1.description": "你的疫苗明天就會生效。",
+	"panel.covid19home.vaccination.vaccinated.effective.n.description": "您的疫苗將在 %s 天后生效。",
 	"panel.covid19home.vaccination.button.appointment.title": "預約",
 	"panel.covid19home.vaccination.button.appointment.hint": "",
 
