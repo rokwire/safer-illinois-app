@@ -126,13 +126,17 @@ class HealthStatusBlob {
   final String nextStepHtml;
   final DateTime nextStepDateUtc;
 
-  final String eventExplanation;
-  final String eventExplanationHtml;
-
   final String warning;
   final String warningHtml;
 
-  final String reason;
+  final String eventExplanation;
+  final String eventExplanationHtml;
+
+  final String statusUpdateNotice;
+  final String statusUpdateNoticeHtml;
+
+  final String statusUpdateReason;
+  final String statusUpdateReasonHtml;
 
   final dynamic fcmTopic;
 
@@ -141,7 +145,13 @@ class HealthStatusBlob {
   static const String _nextStepDateMacro = '{next_step_date}';
   static const String _nextStepDateFormat = 'EEEE, MMM d';
 
-  HealthStatusBlob({this.code, this.priority, this.nextStep, this.nextStepHtml, this.nextStepDateUtc, this.eventExplanation, this.eventExplanationHtml, this.warning, this.warningHtml, this.reason, this.fcmTopic, this.historyBlob});
+  HealthStatusBlob({this.code, this.priority,
+    this.nextStep, this.nextStepHtml, this.nextStepDateUtc,
+    this.warning, this.warningHtml,
+    this.eventExplanation, this.eventExplanationHtml,
+    this.statusUpdateNotice, this.statusUpdateNoticeHtml,
+    this.statusUpdateReason, this.statusUpdateReasonHtml,
+    this.fcmTopic, this.historyBlob});
 
   factory HealthStatusBlob.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthStatusBlob(
@@ -150,11 +160,14 @@ class HealthStatusBlob {
       nextStep: json['next_step'],
       nextStepHtml: json['next_step_html'],
       nextStepDateUtc: healthDateTimeFromString(json['next_step_date']),
-      eventExplanation: json['event_explanation'],
-      eventExplanationHtml: json['event_explanation_html'],
       warning: json['warning'],
       warningHtml: json['warning_html'],
-      reason: json['reason'],
+      eventExplanation: json['event_explanation'],
+      eventExplanationHtml: json['event_explanation_html'],
+      statusUpdateNotice: json['notice'],
+      statusUpdateNoticeHtml: json['notice_html'],
+      statusUpdateReason: json['reason'],
+      statusUpdateReasonHtml: json['reason_html'],
       fcmTopic: json['fcm_topic'],
       historyBlob: HealthHistoryBlob.fromJson(json['history_blob']),
     ) : null;
@@ -167,11 +180,14 @@ class HealthStatusBlob {
       'next_step': nextStep,
       'next_step_html': nextStepHtml,
       'next_step_date': healthDateTimeToString(nextStepDateUtc),
-      'event_explanation': eventExplanation,
-      'event_explanation_html': eventExplanationHtml,
       'warning': warning,
       'warning_html': warningHtml,
-      'reason': reason,
+      'event_explanation': eventExplanation,
+      'event_explanation_html': eventExplanationHtml,
+      'notice': statusUpdateNotice,
+      'notice_html': statusUpdateNoticeHtml,
+      'reason': statusUpdateReason,
+      'reason_html': statusUpdateReasonHtml,
       'fcm_topic': fcmTopic,
       'history_blob': historyBlob?.toJson(),
     };
@@ -184,11 +200,14 @@ class HealthStatusBlob {
       (o.nextStep == nextStep) &&
       (o.nextStepHtml == nextStepHtml) &&
       (o.nextStepDateUtc == nextStepDateUtc) &&
-      (o.eventExplanation == eventExplanation) &&
-      (o.eventExplanationHtml == eventExplanationHtml) &&
       (o.warning == warning) &&
       (o.warningHtml == warningHtml) &&
-      (o.reason == reason) &&
+      (o.eventExplanation == eventExplanation) &&
+      (o.eventExplanationHtml == eventExplanationHtml) &&
+      (o.statusUpdateNotice == statusUpdateNotice) &&
+      (o.statusUpdateNoticeHtml == statusUpdateNoticeHtml) &&
+      (o.statusUpdateReason == statusUpdateReason) &&
+      (o.statusUpdateReasonHtml == statusUpdateReasonHtml) &&
       DeepCollectionEquality().equals(o.fcmTopic, fcmTopic) &&
       (o.historyBlob == historyBlob);
   }
@@ -199,14 +218,37 @@ class HealthStatusBlob {
     (nextStep?.hashCode ?? 0) ^
     (nextStepHtml?.hashCode ?? 0) ^
     (nextStepDateUtc?.hashCode ?? 0) ^
-    (eventExplanation?.hashCode ?? 0) ^
-    (eventExplanationHtml?.hashCode ?? 0) ^
     (warning?.hashCode ?? 0) ^
     (warningHtml?.hashCode ?? 0) ^
-    (reason?.hashCode ?? 0) ^
+    (eventExplanation?.hashCode ?? 0) ^
+    (eventExplanationHtml?.hashCode ?? 0) ^
+    (statusUpdateNotice?.hashCode ?? 0) ^
+    (statusUpdateNoticeHtml?.hashCode ?? 0) ^
+    (statusUpdateReason?.hashCode ?? 0) ^
+    (statusUpdateReasonHtml?.hashCode ?? 0) ^
     (DeepCollectionEquality().hash(fcmTopic) ?? 0) ^
     (historyBlob?.hashCode ?? 0);
 
+  factory HealthStatusBlob.fromRuleStatus(HealthRuleStatus ruleStatus, { HealthRulesSet rules, HealthStatusBlob previousStatusBlob, HealthHistoryBlob historyBlob }) {
+    return (ruleStatus != null) ? HealthStatusBlob(
+      code: (ruleStatus.code != null) ? ruleStatus.code : previousStatusBlob?.code,
+      priority: (ruleStatus.priority != null) ? ruleStatus.priority.abs() : previousStatusBlob?.priority,
+      nextStep: ((ruleStatus.nextStep != null) || (ruleStatus.nextStepHtml != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.nextStep) : previousStatusBlob?.nextStep,
+      nextStepHtml: ((ruleStatus.nextStep != null) || (ruleStatus.nextStepHtml != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.nextStepHtml) : previousStatusBlob?.nextStepHtml,
+      nextStepDateUtc: ((ruleStatus.nextStepInterval != null) || (ruleStatus.nextStep != null) || (ruleStatus.nextStepHtml != null) || (ruleStatus.code != null)) ? ruleStatus.nextStepDateUtc : previousStatusBlob?.nextStepDateUtc,
+      eventExplanation: ((ruleStatus.eventExplanation != null) || (ruleStatus.eventExplanationHtml != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.eventExplanation) : previousStatusBlob?.eventExplanation,
+      eventExplanationHtml: ((ruleStatus.eventExplanation != null) || (ruleStatus.eventExplanationHtml != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.eventExplanationHtml) : previousStatusBlob?.eventExplanationHtml,
+      warning: ((ruleStatus.warning != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.warning) : previousStatusBlob?.warning,
+      warningHtml: ((ruleStatus.warningHtml != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.warningHtml) : previousStatusBlob?.warningHtml,
+      statusUpdateNotice: ((ruleStatus.statusUpdateNotice != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.statusUpdateNotice) : previousStatusBlob?.statusUpdateNotice,
+      statusUpdateNoticeHtml: ((ruleStatus.statusUpdateNoticeHtml != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.statusUpdateNoticeHtml) : previousStatusBlob?.statusUpdateNoticeHtml,
+      statusUpdateReason: ((ruleStatus.statusUpdateReason != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.statusUpdateReason) : previousStatusBlob?.statusUpdateReason,
+      statusUpdateReasonHtml: ((ruleStatus.statusUpdateReasonHtml != null) || (ruleStatus.code != null)) ? rules.localeString(ruleStatus.statusUpdateReasonHtml) : previousStatusBlob?.statusUpdateReasonHtml,
+      fcmTopic: ((ruleStatus.fcmTopic != null) || (ruleStatus.code != null)) ?  ruleStatus.fcmTopic : previousStatusBlob?.fcmTopic,
+      historyBlob: historyBlob,
+    ) : null;
+  }
+  
   String get displayNextStep {
     return _processMacros(nextStep);
   }
@@ -231,14 +273,6 @@ class HealthStatusBlob {
     return null;
   }
 
-  String get displayEventExplanation {
-    return _processMacros(eventExplanation);
-  }
-
-  String get displayEventExplanationHtml {
-    return _processMacros(eventExplanationHtml);
-  }
-
   String get displayWarning {
     return _processMacros(warning);
   }
@@ -247,8 +281,28 @@ class HealthStatusBlob {
     return _processMacros(warningHtml);
   }
 
-  String get displayReason {
-    return _processMacros(reason);
+  String get displayEventExplanation {
+    return _processMacros(eventExplanation);
+  }
+
+  String get displayEventExplanationHtml {
+    return _processMacros(eventExplanationHtml);
+  }
+
+  String get displayStatusUpdateNotice {
+    return _processMacros(statusUpdateNotice);
+  }
+
+  String get displayStatusUpdateNoticeHtml {
+    return _processMacros(statusUpdateNoticeHtml);
+  }
+
+  String get displayStatusUpdateReason {
+    return _processMacros(statusUpdateReason);
+  }
+
+  String get displayStatusUpdateReasonHtml {
+    return _processMacros(statusUpdateReasonHtml);
   }
 
   String _processMacros(String value) {
@@ -467,7 +521,7 @@ class HealthHistory implements Comparable<HealthHistory> {
         (this.blob?.providerId == event?.providerId) &&
         (this.blob?.testType == event?.blob?.testType) &&
         (this.blob?.testResult == event?.blob?.testResult) &&
-        (ListEquality().equals(this.blob.extras, event.blob.extras));
+        (DeepCollectionEquality().equals(this.blob.extras, event.blob.extras));
     }
     else if (event.isVaccine) {
       return this.isVaccine &&
@@ -482,8 +536,8 @@ class HealthHistory implements Comparable<HealthHistory> {
         (this.blob?.actionType == event?.blob?.actionType) &&
         (DeepCollectionEquality().equals(this.blob?.actionText, event?.blob?.actionText)) &&
         (DeepCollectionEquality().equals(this.blob?.actionTitle, event?.blob?.actionTitle)) &&
-        (MapEquality().equals(this.blob?.actionParams, event?.blob?.actionParams)) &&
-        (ListEquality().equals(this.blob.extras, event.blob.extras));
+        (DeepCollectionEquality().equals(this.blob?.actionParams, event?.blob?.actionParams)) &&
+        (DeepCollectionEquality().equals(this.blob.extras, event.blob.extras));
     }
     else {
       return false;
@@ -678,7 +732,6 @@ class HealthHistoryBlob {
   final List<HealthEventExtra> extras;
 
   static const String VaccineEffective = "Effective";
-  static const String VaccineTaken = "Taken";
 
   HealthHistoryBlob({
     this.provider, this.providerId, this.location, this.locationId, this.countyId, this.testType, this.testResult,
@@ -752,7 +805,7 @@ class HealthHistoryBlob {
       (o.testType == testType) &&
       (o.testResult == testResult) &&
 
-      ListEquality().equals(o.symptoms, symptoms) &&
+      DeepCollectionEquality().equals(o.symptoms, symptoms) &&
 
       (o.traceDuration == traceDuration) &&
       (o.traceTEK == traceTEK) &&
@@ -762,9 +815,9 @@ class HealthHistoryBlob {
       (o.actionType == actionType) &&
       DeepCollectionEquality().equals(o.actionTitle, actionTitle) &&
       DeepCollectionEquality().equals(o.actionText, actionText) &&
-      MapEquality().equals(o.actionParams, actionParams) &&
+      DeepCollectionEquality().equals(o.actionParams, actionParams) &&
 
-      ListEquality().equals(o.extras, extras);
+      DeepCollectionEquality().equals(o.extras, extras);
   }
 
   int get hashCode =>
@@ -776,7 +829,7 @@ class HealthHistoryBlob {
     (testType?.hashCode ?? 0) ^
     (testResult?.hashCode ?? 0) ^
 
-    ListEquality().hash(symptoms) ^
+    DeepCollectionEquality().hash(symptoms) ^
 
     (traceDuration?.hashCode ?? 0) ^
     (traceTEK?.hashCode ?? 0) ^
@@ -786,9 +839,9 @@ class HealthHistoryBlob {
     (actionType?.hashCode ?? 0) ^
     (DeepCollectionEquality().hash(actionTitle) ?? 0) ^
     (DeepCollectionEquality().hash(actionText) ?? 0) ^
-    (MapEquality().hash(actionParams) ?? 0) ^
+    (DeepCollectionEquality().hash(actionParams) ?? 0) ^
 
-    (ListEquality().hash(extras) ?? 0);
+    (DeepCollectionEquality().hash(extras) ?? 0);
 
   bool get isTest {
     return (testType != null) && (testResult != null);
@@ -808,10 +861,6 @@ class HealthHistoryBlob {
 
   bool get isVaccineEffective {
     return (vaccine != null) && (vaccine.toLowerCase() == VaccineEffective.toLowerCase());
-  }
-
-  bool get isVaccineTaken {
-    return (vaccine != null) && (vaccine.toLowerCase() == VaccineTaken.toLowerCase());
   }
 
   bool get isAction {
@@ -1280,7 +1329,7 @@ class HealthUser {
       o.consentVaccineInformation == consentVaccineInformation &&
       o.consentExposureNotification == consentExposureNotification &&
       o.repost == repost &&
-      ListEquality().equals(o.accounts, accounts) &&
+      DeepCollectionEquality().equals(o.accounts, accounts) &&
       o.encryptedKey == encryptedKey &&
       o.encryptedBlob == encryptedBlob;
 
@@ -1291,7 +1340,7 @@ class HealthUser {
     (consentVaccineInformation?.hashCode ?? 0) ^
     (consentExposureNotification?.hashCode ?? 0) ^
     (repost?.hashCode ?? 0) ^
-    ListEquality().hash(accounts) ^
+    DeepCollectionEquality().hash(accounts) ^
     (encryptedKey?.hashCode ?? 0) ^
     (encryptedBlob?.hashCode ?? 0);
 
@@ -2537,14 +2586,14 @@ class HealthSymptomsGroup {
       (o.name == name) &&
       (o.visible == visible) &&
       (o.group == group) &&
-      ListEquality().equals(o.symptoms, symptoms);
+      DeepCollectionEquality().equals(o.symptoms, symptoms);
 
   int get hashCode =>
     (id?.hashCode ?? 0) ^
     (name?.hashCode ?? 0) ^
     (visible?.hashCode ?? 0) ^
     (group?.hashCode ?? 0) ^
-    ListEquality().hash(symptoms);
+    DeepCollectionEquality().hash(symptoms);
 
   static Map<String, int> getCounts(List<HealthSymptomsGroup> groups, Set<String> selected) {
     Map<String, int> counts = Map<String, int>();
@@ -2646,6 +2695,21 @@ class HealthRulesSet {
     ) : null;
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'tests': tests?.toJson(),
+      'symptoms': symptoms?.toJson(),
+      'contact_trace': contactTrace?.toJson(),
+      'vaccines': vaccines?.toJson(),
+      'actions': actions?.toJson(),
+      'defaults': defaults?.toJson(),
+      'codes': codes?.toJson(),
+      'statuses': _HealthRuleStatus.mapToJson(statuses),
+      'intervals': _HealthRuleInterval.mapToJson(intervals),
+      'strings': strings,
+    };
+  }
+
   bool operator ==(o) {
     return (o is HealthRulesSet) &&
       (o.tests == tests) &&
@@ -2655,8 +2719,8 @@ class HealthRulesSet {
       (o.actions == actions) &&
       (o.defaults == defaults) &&
       (o.codes == codes) &&
-      MapEquality().equals(o.statuses, statuses) &&
-      MapEquality().equals(o.intervals, intervals) &&
+      DeepCollectionEquality().equals(o.statuses, statuses) &&
+      DeepCollectionEquality().equals(o.intervals, intervals) &&
       DeepCollectionEquality().equals(o.strings, strings);
   }
 
@@ -2668,8 +2732,8 @@ class HealthRulesSet {
     (actions?.hashCode ?? 0) ^
     (defaults?.hashCode ?? 0) ^
     (codes?.hashCode ?? 0) ^
-    MapEquality().hash(statuses) ^
-    MapEquality().hash(intervals) ^
+    DeepCollectionEquality().hash(statuses) ^
+    DeepCollectionEquality().hash(intervals) ^
     DeepCollectionEquality().hash(strings);
 
   _HealthRuleInterval _getInterval(String name) {
@@ -2719,6 +2783,12 @@ class HealthDefaultsSet {
     ) : null;
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'status': status?.toJson(),
+    };
+  }
+
   bool operator ==(o) =>
     (o is HealthDefaultsSet) &&
       (o.status == status);
@@ -2748,14 +2818,21 @@ class HealthCodesSet {
     ) : null;
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'list': HealthCodeData.listToJson(_codesList),
+      'info': _info
+    };
+  }
+
   bool operator ==(o) =>
     (o is HealthCodesSet) &&
-      ListEquality().equals(o._codesList, _codesList) &&
-      ListEquality().equals(o._info, _info);
+      DeepCollectionEquality().equals(o._codesList, _codesList) &&
+      DeepCollectionEquality().equals(o._info, _info);
 
   int get hashCode =>
-    ListEquality().hash(_codesList) ^
-    ListEquality().hash(_info);
+    DeepCollectionEquality().hash(_codesList) ^
+    DeepCollectionEquality().hash(_info);
 
   List<HealthCodeData> get list {
     return _codesList;
@@ -2807,6 +2884,18 @@ class HealthCodeData {
       visible: json['visible'],
       reportsExposures: json['reports_exposures']
     ) : null;
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'code': code,
+      'color': _colorString,
+      'name': _name,
+      'description': _description,
+      'long_description': _longDescription,
+      'visible': visible,
+      'reports_exposures': reportsExposures
+    };
   }
 
   bool operator ==(o) =>
@@ -2862,6 +2951,17 @@ class HealthCodeData {
     return values;
   }
 
+  static List<dynamic> listToJson(List<HealthCodeData> values) {
+    List<dynamic> json;
+    if (values != null) {
+      json = <dynamic>[];
+      for (HealthCodeData value in values) {
+        json.add(value?.toJson());
+      }
+    }
+    return json;
+  }
+
   static Map<String, HealthCodeData> mapFromList(List<HealthCodeData> list) {
     Map<String, HealthCodeData> map;
     if (list != null) {
@@ -2890,12 +2990,18 @@ class HealthTestRulesSet {
     ) : null;
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'rules': HealthTestRule.listToJson(_rules),
+    };
+  }
+
   bool operator ==(o) =>
     (o is HealthTestRulesSet) &&
-      ListEquality().equals(o._rules, _rules);
+      DeepCollectionEquality().equals(o._rules, _rules);
 
   int get hashCode =>
-    ListEquality().hash(_rules);
+    DeepCollectionEquality().hash(_rules);
 
   HealthTestRuleResult matchRuleResult({ HealthHistoryBlob blob, HealthRulesSet rules }) {
     if ((_rules != null) && (blob != null) && (blob.testType != null) && (blob.testResult != null)) {
@@ -2932,16 +3038,24 @@ class HealthTestRule {
     ) : null;
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'test_type': testType,
+      'category': category,
+      'results': HealthTestRuleResult.listToJson(results),
+    };
+  }
+
   bool operator ==(o) =>
     (o is HealthTestRule) &&
       (o.testType == testType) &&
       (o.category == category) &&
-      ListEquality().equals(o.results, results);
+      DeepCollectionEquality().equals(o.results, results);
 
   int get hashCode =>
     (testType?.hashCode ?? 0) ^
     (category?.hashCode ?? 0) ^
-    ListEquality().hash(results);
+    DeepCollectionEquality().hash(results);
 
   static List<HealthTestRule> listFromJson(List<dynamic> json) {
     List<HealthTestRule> values;
@@ -2953,6 +3067,17 @@ class HealthTestRule {
       }
     }
     return values;
+  }
+
+  static List<dynamic> listToJson(List<HealthTestRule> values) {
+    List<dynamic> json;
+    if (values != null) {
+      json = <dynamic>[];
+      for (HealthTestRule value in values) {
+        json.add(value?.toJson());
+      }
+    }
+    return json;
   }
 }
 
@@ -2976,12 +3101,21 @@ class HealthTestRuleResult {
     ) : null;
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'result': testResult,
+      'category': category,
+      'disclaimer_html': disclaimerHtml,
+      'status': status?.toJson(),
+    };
+  }
+
   bool operator ==(o) =>
     (o is HealthTestRuleResult) &&
       (o.testResult == testResult) &&
       (o.category == category) &&
       (o.disclaimerHtml == disclaimerHtml) &&
-      (status == status);
+      (o.status == status);
 
   int get hashCode =>
     (testResult?.hashCode ?? 0) ^
@@ -2999,6 +3133,17 @@ class HealthTestRuleResult {
       }
     }
     return values;
+  }
+
+  static List<dynamic> listToJson(List<HealthTestRuleResult> values) {
+    List<dynamic> json;
+    if (values != null) {
+      json = <dynamic>[];
+      for (HealthTestRuleResult value in values) {
+        json.add(value?.toJson());
+      }
+    }
+    return json;
   }
 
   static HealthTestRuleResult matchRuleResult(List<HealthTestRuleResult> results, { HealthHistoryBlob blob }) {
@@ -3033,14 +3178,21 @@ class HealthSymptomsRulesSet {
     ) : null;
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'rules': HealthSymptomsRule.listToJson(_rules),
+      'groups': HealthSymptomsGroup.listToJson(groups),
+    };
+  }
+
   bool operator ==(o) =>
     (o is HealthSymptomsRulesSet) &&
-      ListEquality().equals(o._rules, _rules) &&
-      ListEquality().equals(o.groups, groups);
+      DeepCollectionEquality().equals(o._rules, _rules) &&
+      DeepCollectionEquality().equals(o.groups, groups);
 
   int get hashCode =>
-    ListEquality().hash(_rules) ^
-    ListEquality().hash(groups);
+    DeepCollectionEquality().hash(_rules) ^
+    DeepCollectionEquality().hash(groups);
 
   HealthSymptomsRule matchRule({ HealthHistoryBlob blob, HealthRulesSet rules }) {
     if ((_rules != null) && (groups != null) && (blob?.symptomsIds != null)) {
@@ -3071,13 +3223,20 @@ class HealthSymptomsRule {
     ) : null;
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'counts': _HealthRuleInterval.mapToJson(counts),
+      'status': status?.toJson()
+    };
+  }
+
   bool operator ==(o) =>
     (o is HealthSymptomsRule) &&
-      MapEquality().equals(o.counts, counts) &&
+      DeepCollectionEquality().equals(o.counts, counts) &&
       (o.status == status);
 
   int get hashCode =>
-    MapEquality().hash(counts) ^
+    DeepCollectionEquality().hash(counts) ^
     (status?.hashCode ?? 0);
 
   static List<HealthSymptomsRule> listFromJson(List<dynamic> json) {
@@ -3090,6 +3249,17 @@ class HealthSymptomsRule {
       }
     }
     return values;
+  }
+
+  static List<dynamic> listToJson(List<HealthSymptomsRule> values) {
+    List<dynamic> json;
+    if (values != null) {
+      json = <dynamic>[];
+      for (HealthSymptomsRule value in values) {
+        json.add(value?.toJson());
+      }
+    }
+    return json;
   }
 
   bool _matchCounts(Map<String, int> testCounts, { HealthRulesSet rules }) {
@@ -3121,12 +3291,18 @@ class HealthContactTraceRulesSet {
     ) : null;
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'rules': HealthContactTraceRule.listToJson(_rules),
+    };
+  }
+
   bool operator ==(o) =>
     (o is HealthContactTraceRulesSet) &&
-      ListEquality().equals(o._rules, _rules);
+      DeepCollectionEquality().equals(o._rules, _rules);
 
   int get hashCode =>
-    ListEquality().hash(_rules);
+    DeepCollectionEquality().hash(_rules);
 
 
   HealthContactTraceRule matchRule({ HealthHistoryBlob blob, HealthRulesSet rules }) {
@@ -3166,6 +3342,13 @@ class HealthContactTraceRule {
     ) : null;
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'duration': duration?.toJson(),
+      'status': status?.toJson(),
+    };
+  }
+
   static List<HealthContactTraceRule> listFromJson(List<dynamic> json) {
     List<HealthContactTraceRule> values;
     if (json != null) {
@@ -3176,6 +3359,17 @@ class HealthContactTraceRule {
       }
     }
     return values;
+  }
+
+  static List<dynamic> listToJson(List<HealthContactTraceRule> values) {
+    List<dynamic> json;
+    if (values != null) {
+      json = <dynamic>[];
+      for (HealthContactTraceRule value in values) {
+        json.add(value?.toJson());
+      }
+    }
+    return json;
   }
 
   bool _matchBlob(HealthHistoryBlob blob, { HealthRulesSet rules }) {
@@ -3197,12 +3391,18 @@ class HealthVaccineRulesSet {
     ) : null;
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'rules': HealthVaccineRule.listToJson(_rules),
+    };
+  }
+
   bool operator ==(o) =>
     (o is HealthVaccineRulesSet) &&
-      ListEquality().equals(o._rules, _rules);
+      DeepCollectionEquality().equals(o._rules, _rules);
 
   int get hashCode =>
-    ListEquality().hash(_rules);
+    DeepCollectionEquality().hash(_rules);
 
   HealthVaccineRule matchRule({ HealthHistoryBlob blob, HealthRulesSet rules }) {
     if (_rules != null) {
@@ -3232,6 +3432,13 @@ class HealthVaccineRule {
     ) : null;
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'vaccine': vaccine,
+      'status': status?.toJson(),
+    };
+  }
+
   bool operator ==(o) =>
     (o is HealthVaccineRule) &&
       (o.vaccine == vaccine) &&
@@ -3253,6 +3460,17 @@ class HealthVaccineRule {
     return values;
   }
 
+  static List<dynamic> listToJson(List<HealthVaccineRule> values) {
+    List<dynamic> json;
+    if (values != null) {
+      json = <dynamic>[];
+      for (HealthVaccineRule value in values) {
+        json.add(value?.toJson());
+      }
+    }
+    return json;
+  }
+
   bool _matchBlob(HealthHistoryBlob blob, {HealthRulesSet rules}) {
     return (vaccine != null) && (vaccine.toLowerCase() == blob?.vaccine?.toLowerCase());
   }
@@ -3272,12 +3490,18 @@ class HealthActionRulesSet {
     ) : null;
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'rules': HealthActionRule.listToJson(_rules),
+    };
+  }
+
   bool operator ==(o) =>
     (o is HealthActionRulesSet) &&
-      ListEquality().equals(o._rules, _rules);
+      DeepCollectionEquality().equals(o._rules, _rules);
 
   int get hashCode =>
-    ListEquality().hash(_rules);
+    DeepCollectionEquality().hash(_rules);
 
   HealthActionRule matchRule({ HealthHistoryBlob blob, HealthRulesSet rules }) {
     if (_rules != null) {
@@ -3307,6 +3531,13 @@ class HealthActionRule {
     ) : null;
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'type': type,
+      'status': status?.toJson()
+    };
+  }
+
   bool operator ==(o) =>
     (o is HealthActionRule) &&
       (o.type == type) &&
@@ -3326,6 +3557,17 @@ class HealthActionRule {
       }
     }
     return values;
+  }
+
+  static List<dynamic> listToJson(List<HealthActionRule> values) {
+    List<dynamic> json;
+    if (values != null) {
+      json = <dynamic>[];
+      for (HealthActionRule value in values) {
+        json.add(value?.toJson());
+      }
+    }
+    return json;
   }
 
   bool _matchBlob(HealthHistoryBlob blob, {HealthRulesSet rules}) {
@@ -3357,6 +3599,8 @@ abstract class _HealthRuleStatus {
     return null;
   }
 
+  dynamic toJson();
+
   static Map<String, _HealthRuleStatus> mapFromJson(Map<String, dynamic> json) {
     Map<String, _HealthRuleStatus> result;
     if (json != null) {
@@ -3367,6 +3611,17 @@ abstract class _HealthRuleStatus {
       });
     }
     return result;
+  }
+
+  static Map<String, dynamic> mapToJson(Map<String, _HealthRuleStatus> values) {
+    Map<String, dynamic> json;
+    if (values != null) {
+      json = Map<String, dynamic>();
+      values.forEach((key, value) {
+        json[key] = value?.toJson();
+      });
+    }
+    return json;
   }
 
   HealthRuleStatus eval({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params });
@@ -3385,52 +3640,85 @@ class HealthRuleStatus extends _HealthRuleStatus {
   final _HealthRuleInterval nextStepInterval;
   final DateTime nextStepDateUtc;
 
-  final dynamic eventExplanation;
-  final dynamic eventExplanationHtml;
-
   final dynamic warning;
   final dynamic warningHtml;
 
-  final dynamic reason;
+  final dynamic eventExplanation;
+  final dynamic eventExplanationHtml;
+
+  final dynamic statusUpdateNotice;
+  final dynamic statusUpdateNoticeHtml;
+
+  final dynamic statusUpdateReason;
+  final dynamic statusUpdateReasonHtml;
 
   final dynamic fcmTopic;
 
   HealthRuleStatus({this.code, this.priority,
     this.nextStep, this.nextStepHtml, this.nextStepInterval, this.nextStepDateUtc,
+    this.warning, this.warningHtml,
     this.eventExplanation, this.eventExplanationHtml,
-    this.warning, this.warningHtml, this.reason, this.fcmTopic });
+    this.statusUpdateNotice, this.statusUpdateNoticeHtml,
+    this.statusUpdateReason, this.statusUpdateReasonHtml,
+    this.fcmTopic });
 
   factory HealthRuleStatus.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthRuleStatus(
-      code:                 json['code'],
-      priority:             json['priority'],
-      nextStep:             json['next_step'],
-      nextStepHtml:         json['next_step_html'],
-      nextStepInterval:     _HealthRuleInterval.fromJson(json['next_step_interval']),
-      eventExplanation:     json['event_explanation'],
-      eventExplanationHtml: json['event_explanation_html'],
-      warning:              json['warning'],
-      warningHtml:          json['warning_html'],
-      reason:               json['reason'],
-      fcmTopic:             json['fcm_topic']
+      code:                   json['code'],
+      priority:               json['priority'],
+      nextStep:               json['next_step'],
+      nextStepHtml:           json['next_step_html'],
+      nextStepInterval:       _HealthRuleInterval.fromJson(json['next_step_interval']),
+      warning:                json['warning'],
+      warningHtml:            json['warning_html'],
+      eventExplanation:       json['event_explanation'],
+      eventExplanationHtml:   json['event_explanation_html'],
+      statusUpdateNotice:     json['notice'],
+      statusUpdateNoticeHtml: json['notice_html'],
+      statusUpdateReason:     json['reason'],
+      statusUpdateReasonHtml: json['reason_html'],
+      fcmTopic:               json['fcm_topic']
     ) : null;
+  }
+
+  @override
+  dynamic toJson() {
+    return {
+      'code':                   code,
+      'priority':               priority,
+      'next_step':              nextStep,
+      'next_step_html':         nextStepHtml,
+      'next_step_interval':     nextStepInterval?.toJson(),
+      'warning':                warning,
+      'warning_html':           warningHtml,
+      'event_explanation':      eventExplanation,
+      'event_explanation_html': eventExplanationHtml,
+      'notice':                 statusUpdateNotice,
+      'notice_html':            statusUpdateNoticeHtml,
+      'reason':                 statusUpdateReason,
+      'reason_html':            statusUpdateReasonHtml,
+      'fcm_topic':              fcmTopic,
+    };
   }
 
   factory HealthRuleStatus.fromStatus(HealthRuleStatus status, { DateTime nextStepDateUtc, }) {
     
     return (status != null) ? HealthRuleStatus(
-      code:                 status.code,
-      priority:             status.priority,
-      nextStep:             status.nextStep,
-      nextStepHtml:         status.nextStepHtml,
-      nextStepInterval:     status.nextStepInterval,
-      nextStepDateUtc:      nextStepDateUtc ?? status.nextStepDateUtc,
-      eventExplanation:     status.eventExplanation,
-      eventExplanationHtml: status.eventExplanationHtml,
-      warning:              status.warning,
-      warningHtml:          status.warningHtml,
-      reason:               status.reason,
-      fcmTopic:             status.fcmTopic,
+      code:                   status.code,
+      priority:               status.priority,
+      nextStep:               status.nextStep,
+      nextStepHtml:           status.nextStepHtml,
+      nextStepInterval:       status.nextStepInterval,
+      nextStepDateUtc:        nextStepDateUtc ?? status.nextStepDateUtc,
+      warning:                status.warning,
+      warningHtml:            status.warningHtml,
+      eventExplanation:       status.eventExplanation,
+      eventExplanationHtml:   status.eventExplanationHtml,
+      statusUpdateNotice:     status.statusUpdateNotice,
+      statusUpdateNoticeHtml: status.statusUpdateNoticeHtml,
+      statusUpdateReason:     status.statusUpdateReason,
+      statusUpdateReasonHtml: status.statusUpdateReasonHtml,
+      fcmTopic:               status.fcmTopic,
     ) : null;
   }
 
@@ -3444,13 +3732,17 @@ class HealthRuleStatus extends _HealthRuleStatus {
       (o.nextStepInterval == nextStepInterval) &&
       (o.nextStepDateUtc == nextStepDateUtc) &&
 
-      (o.eventExplanation == eventExplanation) &&
-      (o.eventExplanationHtml == eventExplanationHtml) &&
-
       (o.warning == warning) &&
       (o.warningHtml == warningHtml) &&
 
-      (o.reason == reason) &&
+      (o.eventExplanation == eventExplanation) &&
+      (o.eventExplanationHtml == eventExplanationHtml) &&
+
+      (o.statusUpdateNotice == statusUpdateNotice) &&
+      (o.statusUpdateNoticeHtml == statusUpdateNoticeHtml) &&
+
+      (o.statusUpdateReason == statusUpdateReason) &&
+      (o.statusUpdateReasonHtml == statusUpdateReasonHtml) &&
 
       (o.fcmTopic == fcmTopic);
 
@@ -3463,13 +3755,17 @@ class HealthRuleStatus extends _HealthRuleStatus {
     (nextStepInterval?.hashCode ?? 0) ^
     (nextStepDateUtc?.hashCode ?? 0) ^
 
-    (eventExplanation?.hashCode ?? 0) ^
-    (eventExplanationHtml?.hashCode ?? 0) ^
-
     (warning?.hashCode ?? 0) ^
     (warningHtml?.hashCode ?? 0) ^
 
-    (reason?.hashCode ?? 0) ^
+    (eventExplanation?.hashCode ?? 0) ^
+    (eventExplanationHtml?.hashCode ?? 0) ^
+
+    (statusUpdateNotice?.hashCode ?? 0) ^
+    (statusUpdateNoticeHtml?.hashCode ?? 0) ^
+
+    (statusUpdateReason?.hashCode ?? 0) ^
+    (statusUpdateReasonHtml?.hashCode ?? 0) ^
 
     (fcmTopic?.hashCode ?? 0);
 
@@ -3503,6 +3799,11 @@ class HealthRuleReferenceStatus extends _HealthRuleStatus {
     return (json != null) ? HealthRuleReferenceStatus(
       reference: json,
     ) : null;
+  }
+
+  @override
+  dynamic toJson() {
+    return reference;
   }
 
   bool operator ==(o) =>
@@ -3539,6 +3840,16 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus with HealthRuleCondi
     ) : null;
   }
 
+  @override
+  dynamic toJson() {
+    return {
+      'condition': condition,
+      'params': conditionParams,
+      'success': successStatus?.toJson(),
+      'fail': failStatus?.toJson(),
+    };
+  }
+
   static bool isJsonCompatible(dynamic json) {
     return (json is Map) && (json['condition'] is String);
   }
@@ -3546,13 +3857,13 @@ class HealthRuleConditionalStatus extends _HealthRuleStatus with HealthRuleCondi
   bool operator ==(o) =>
     (o is HealthRuleConditionalStatus) &&
       (o.condition == condition) &&
-      (MapEquality().equals(o.conditionParams, conditionParams)) &&
+      (DeepCollectionEquality().equals(o.conditionParams, conditionParams)) &&
       (o.successStatus == successStatus) &&
       (o.failStatus == failStatus);
 
   int get hashCode =>
     (condition?.hashCode ?? 0) ^
-    (MapEquality().hash(conditionParams)) ^
+    (DeepCollectionEquality().hash(conditionParams)) ^
     (successStatus?.hashCode ?? 0) ^
     (failStatus?.hashCode ?? 0);
 
@@ -3577,6 +3888,10 @@ abstract class _HealthRuleInterval {
     else if (json is String) {
       return HealthRuleIntervalReference.fromJson(json);
     }
+    else if (json is List) {
+      try { return HealthRuleIntervalSet.fromJson(json.cast<dynamic>()); }
+      catch (e) { print(e?.toString()); }
+    }
     else if (json is Map) {
       if (HealthRuleIntervalCondition.isJsonCompatible(json)) {
         try { return HealthRuleIntervalCondition.fromJson(json.cast<String, dynamic>()); }
@@ -3590,7 +3905,9 @@ abstract class _HealthRuleInterval {
     return null;
   }
 
-  bool match(int value, { List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params });
+  dynamic toJson();
+
+  bool match(int value, { DateTime orgDate, List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params });
   int  value({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params });
   bool valid({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params });
   int  scope({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params });
@@ -3607,6 +3924,55 @@ abstract class _HealthRuleInterval {
     }
     return result;
   }
+
+  static Map<String, dynamic> mapToJson(Map<String, _HealthRuleInterval> values) {
+    Map<String, dynamic> json;
+    if (values != null) {
+      json = Map<String, dynamic>();
+      values.forEach((key, value) {
+        json[key] = value?.toJson();
+      });
+    }
+    return json;
+  }
+
+  static List<_HealthRuleInterval> listFromJson(List<dynamic> json) {
+    List<_HealthRuleInterval> values;
+    if (json != null) {
+      values = <_HealthRuleInterval>[];
+      for (dynamic entry in json) {
+        try { values.add(_HealthRuleInterval.fromJson(entry)); }
+        catch(e) { print(e?.toString()); }
+      }
+    }
+    return values;
+  }
+
+  static List<dynamic> listToJson(List<_HealthRuleInterval> values) {
+    List<dynamic> json;
+    if (values != null) {
+      json = <dynamic>[];
+      for (_HealthRuleInterval value in values) {
+        json.add(value?.toJson());
+      }
+    }
+    return json;
+  }
+
+  static int applyWeekdayExtent(_HealthRuleInterval weekdayExtent, DateTime orgDate, int value, int step, { List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params } ) {
+    if ((weekdayExtent != null) && (orgDate != null) && (value != null) && (step != null)) {
+      //DateTime dateExt = orgDate.add(Duration(days: value + step));
+      DateTime dateExt = DateTime(orgDate.year, orgDate.month, orgDate.day + value + step, orgDate.hour, orgDate.minute, orgDate.second);
+      while (weekdayExtent.match(dateExt.weekday, orgDate: orgDate, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params)) {
+        value += step;
+        // dateExt = dateExt.add(Duration(days: step));
+        dateExt = DateTime(dateExt.year, dateExt.month, dateExt.day + step, orgDate.hour, orgDate.minute, orgDate.second);
+      }
+      return value;
+    }
+    return null;
+  }
+
 }
 
 enum HealthRuleIntervalOrigin { historyDate, referenceDate }
@@ -3624,6 +3990,11 @@ class HealthRuleIntervalValue extends _HealthRuleInterval {
     return (json is int) ? HealthRuleIntervalValue(value: json) : null;
   }
 
+  @override
+  dynamic toJson() {
+    return _value;
+  }
+
   bool operator ==(o) =>
     (o is HealthRuleIntervalValue) &&
       (o._value == _value);
@@ -3631,7 +4002,7 @@ class HealthRuleIntervalValue extends _HealthRuleInterval {
   int get hashCode =>
     (_value?.hashCode ?? 0);
 
-  @override bool match(int value, { List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {return (_value == value); }
+  @override bool match(int value, { DateTime orgDate, List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {return (_value == value); }
   @override int  value({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params })            { return _value; }
   @override bool valid({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params })            { return (_value != null); }
   @override int  scope({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params })            { return null; }
@@ -3655,14 +4026,18 @@ class HealthRuleInterval extends _HealthRuleInterval {
   final int _scope;
   final bool _current;
   final HealthRuleIntervalOrigin _origin;
+  final _HealthRuleInterval _minWeekdaysExtent;
+  final _HealthRuleInterval _maxWeekdaysExtent;
   
-  HealthRuleInterval({_HealthRuleInterval min, _HealthRuleInterval max, _HealthRuleInterval value, int scope, bool current, HealthRuleIntervalOrigin origin}) :
+  HealthRuleInterval({_HealthRuleInterval min, _HealthRuleInterval max, _HealthRuleInterval value, int scope, bool current, HealthRuleIntervalOrigin origin, _HealthRuleInterval minWeekdaysExtent, _HealthRuleInterval maxWeekdaysExtent }) :
     _min = min,
     _max = max,
     _value = value,
     _scope = scope,
     _current = current,
-    _origin = origin;
+    _origin = origin,
+    _minWeekdaysExtent = minWeekdaysExtent,
+    _maxWeekdaysExtent = maxWeekdaysExtent;
 
   factory HealthRuleInterval.fromJson(Map<String, dynamic> json) {
     return (json != null) ? HealthRuleInterval(
@@ -3672,7 +4047,23 @@ class HealthRuleInterval extends _HealthRuleInterval {
       scope: _scopeFromJson(json['scope']),
       current: json['current'],
       origin: _originFromJson(json['origin']),
+      minWeekdaysExtent: _HealthRuleInterval.fromJson(json['min-weekdays-extent']),
+      maxWeekdaysExtent: _HealthRuleInterval.fromJson(json['max-weekdays-extent']),
     ) : null;
+  }
+
+  @override
+  dynamic toJson() {
+    return {
+      'min': _min?.toJson(),
+      'max': _max?.toJson(),
+      'value': _value?.toJson(),
+      'scope': _scopeToJson(_scope),
+      'current': _current,
+      'origin': _originToJson(_origin),
+      'min-weekdays-extent': _minWeekdaysExtent?.toJson(),
+      'max-weekdays-extent': _maxWeekdaysExtent?.toJson(),
+    };
   }
 
   bool operator ==(o) =>
@@ -3682,7 +4073,9 @@ class HealthRuleInterval extends _HealthRuleInterval {
       (o._value == _value) &&
       (o._scope == _scope) &&
       (o._current == _current) &&
-      (o._origin == _origin);
+      (o._origin == _origin) &&
+      (o._minWeekdaysExtent == _minWeekdaysExtent) &&
+      (o._maxWeekdaysExtent == _maxWeekdaysExtent);
 
   int get hashCode =>
     (_min?.hashCode ?? 0) ^
@@ -3690,25 +4083,39 @@ class HealthRuleInterval extends _HealthRuleInterval {
     (_value?.hashCode ?? 0) ^
     (_scope?.hashCode ?? 0) ^
     (_current?.hashCode ?? 0) ^
-    (_origin?.hashCode ?? 0);
+    (_origin?.hashCode ?? 0) ^
+    (_minWeekdaysExtent?.hashCode ?? 0) ^
+    (_maxWeekdaysExtent?.hashCode ?? 0);
 
   @override
-  bool match(int value, { List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
+  bool match(int value, { DateTime orgDate, List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
     if (value != null) {
       if (_min != null) {
         int minValue = _min.value(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+        minValue = _HealthRuleInterval.applyWeekdayExtent(_minWeekdaysExtent, orgDate, minValue, -1, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params) ?? minValue;
         if ((minValue == null) || (minValue > value)) {
           return false;
         }
       }
       if (_max != null) {
         int maxValue = _max.value(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+        maxValue = _HealthRuleInterval.applyWeekdayExtent(_maxWeekdaysExtent, orgDate, maxValue, 1, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params) ?? maxValue;
         if ((maxValue == null) || (maxValue < value)) {
           return false;
         }
       }
       if (_value != null) {
         int valueValue = _value.value(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+
+        int minValue = _HealthRuleInterval.applyWeekdayExtent(_minWeekdaysExtent, orgDate, valueValue, -1, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+        if ((minValue != null) && (minValue > value)) {
+          return false;
+        }
+        int maxValue = _HealthRuleInterval.applyWeekdayExtent(_maxWeekdaysExtent, orgDate, valueValue,  1, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+        if ((maxValue != null) && (maxValue < value)) {
+          return false;
+        }
+
         if ((valueValue == null) || (valueValue != value)) {
           return false;
         }
@@ -3755,6 +4162,22 @@ class HealthRuleInterval extends _HealthRuleInterval {
     return null;
   }
 
+  static String _scopeToJson(int value) {
+    if (value == FutureScope) {
+      return 'future';
+    }
+    else if (value == FutureAndCurrentScope) {
+      return 'future-and-current';
+    }
+    else if (value == PastScope) {
+      return 'past';
+    }
+    else if (value == PastAndCurrentScope) {
+      return 'past-and-current';
+    }
+    return null;
+  }
+
   static HealthRuleIntervalOrigin _originFromJson(dynamic value) {
     if (value == 'historyDate') {
       return HealthRuleIntervalOrigin.historyDate;
@@ -3766,6 +4189,70 @@ class HealthRuleInterval extends _HealthRuleInterval {
       return null;
     }
   }
+
+  static String _originToJson(HealthRuleIntervalOrigin value) {
+    if (value == HealthRuleIntervalOrigin.historyDate) {
+      return 'historyDate';
+    }
+    else if (value == HealthRuleIntervalOrigin.referenceDate) {
+      return 'referenceDate';
+    }
+    else {
+      return null;
+    }
+  }
+}
+
+///////////////////////////////
+// HealthRuleIntervalSet
+
+class HealthRuleIntervalSet extends _HealthRuleInterval {
+  List<_HealthRuleInterval> _entries;
+
+  HealthRuleIntervalSet({List<_HealthRuleInterval> entries}) :
+    _entries = entries;
+
+  factory HealthRuleIntervalSet.fromJson(List<dynamic> json) {
+    List<_HealthRuleInterval> entries = _HealthRuleInterval.listFromJson(json);
+    return (entries != null) ? HealthRuleIntervalSet(entries: entries) : null;
+  }
+
+  @override
+  dynamic toJson() {
+    return _HealthRuleInterval.listToJson(_entries);
+  }
+
+  bool operator ==(o) =>
+    (o is HealthRuleIntervalSet) &&
+      DeepCollectionEquality().equals(o._entries, _entries);
+
+  int get hashCode =>
+    (DeepCollectionEquality().hash(_entries) ?? 0);
+
+  @override
+  bool match(int value, { DateTime orgDate, List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
+    for (_HealthRuleInterval entry in _entries) {
+      if (entry.match(value, orgDate: orgDate, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  @override
+  bool valid({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
+    for (_HealthRuleInterval entry in _entries) {
+      if (!entry.valid(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params)) {
+        return false;
+      }
+    }
+    return 0 < _entries.length;
+  }
+  
+  @override int  value({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) { return null; }
+  @override int  scope({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) { return null; }
+  @override bool current({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) { return null; }
+  @override HealthRuleIntervalOrigin origin({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) { return null; }
 }
 
 ///////////////////////////////
@@ -3781,6 +4268,11 @@ class HealthRuleIntervalReference extends _HealthRuleInterval {
     return (json is String) ? HealthRuleIntervalReference(reference: json) : null;
   }
 
+  @override
+  dynamic toJson() {
+    return _reference;
+  }
+
   bool operator ==(o) =>
     (o is HealthRuleIntervalReference) &&
       (o._reference == _reference);
@@ -3794,8 +4286,8 @@ class HealthRuleIntervalReference extends _HealthRuleInterval {
   }
 
   @override
-  bool match(int value, { List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
-    return _referenceInterval(rules: rules, params: params)?.match(value, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params) ?? false;
+  bool match(int value, { DateTime orgDate, List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
+    return _referenceInterval(rules: rules, params: params)?.match(value, orgDate: orgDate, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params) ?? false;
   }
   
   @override bool valid({ List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params })   { return _referenceInterval(rules: rules, params: params)?.valid(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params) ?? false; }
@@ -3825,6 +4317,16 @@ class HealthRuleIntervalCondition extends _HealthRuleInterval with HealthRuleCon
     ) : null;
   }
 
+  @override
+  dynamic toJson() {
+    return {
+      'condition': condition,
+      'params': conditionParams,
+      'success': successInterval?.toJson(),
+      'fail': failInterval?.toJson(),
+    };
+  }
+
   static bool isJsonCompatible(dynamic json) {
     return (json is Map) && (json['condition'] is String);
   }
@@ -3832,21 +4334,21 @@ class HealthRuleIntervalCondition extends _HealthRuleInterval with HealthRuleCon
   bool operator ==(o) =>
     (o is HealthRuleIntervalCondition) &&
       (o.condition == condition) &&
-      (MapEquality().equals(o.conditionParams, conditionParams)) &&
+      (DeepCollectionEquality().equals(o.conditionParams, conditionParams)) &&
       (o.successInterval == successInterval) &&
       (o.failInterval == failInterval);
 
   int get hashCode =>
     (condition?.hashCode ?? 0) ^
-    (MapEquality().hash(conditionParams)) ^
+    (DeepCollectionEquality().hash(conditionParams)) ^
     (successInterval?.hashCode ?? 0) ^
     (failInterval?.hashCode ?? 0);
 
   @override
-  bool match(int value, { List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
+  bool match(int value, { DateTime orgDate, List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
     HealthRuleConditionResult conditionResult = evalCondition(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
     _HealthRuleInterval interval = (conditionResult?.result != null) ? (conditionResult.result ? successInterval : failInterval) : null;
-    return interval?.match(value, history: history, historyIndex: historyIndex, referenceIndex: conditionResult?.referenceIndex ?? referenceIndex, rules: rules, params: params) ?? false;
+    return interval?.match(value, orgDate: orgDate, history: history, historyIndex: historyIndex, referenceIndex: conditionResult?.referenceIndex ?? referenceIndex, rules: rules, params: params) ?? false;
   }
   
   @override
@@ -3996,7 +4498,7 @@ abstract class HealthRuleCondition {
       //#572 Building access calculation issue 
       //int difference = entryDateMidnightLocal.difference(originDateMidnightLocal).inDays;
       int difference = AppDateTime.midnightsDifferenceInDays(originDateMidnightLocal, entryDateMidnightLocal);
-      if (interval.match(difference, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params)) {
+      if (interval.match(difference, orgDate: originDateMidnightLocal, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params)) {
 
         // check filters before returning successfull match
         if (_matchValue(historyType, HealthHistoryType.test)) {
@@ -4047,7 +4549,7 @@ abstract class HealthRuleCondition {
       //#572 Building access calculation issue 
       //int difference = AppDateTime.todayMidnightLocal.difference(originDateMidnightLocal).inDays;
       int difference = AppDateTime.midnightsDifferenceInDays(originDateMidnightLocal, AppDateTime.todayMidnightLocal);
-      if (currentInterval.match(difference, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params)) {
+      if (currentInterval.match(difference, orgDate: originDateMidnightLocal, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params)) {
         return true;
       }
     }

@@ -7,8 +7,8 @@
 	},
 
 	"intervals": {
-		"DefaultTestMonitorInterval": 8,
-		"UndergraduateTestMonitorInterval": 8,
+		"DefaultTestMonitorInterval": 4,
+		"UndergraduateTestMonitorInterval": 2,
 		"UserTestMonitorInterval": null,
 
 		"TestMonitorInterval": {
@@ -19,7 +19,24 @@
 				"success": "UndergraduateTestMonitorInterval",
 				"fail": "DefaultTestMonitorInterval"
 			}
-		}
+		},
+
+		"DefaultTestMonitorWeekdaysExtent": ["Fri", "Sat", "Sun", "Mon"],
+		"UndergraduateTestMonitorWeekdaysExtent": ["Sat", "Sun"],
+
+		"TestMonitorWeekdaysExtent": {
+			"condition": "test-user", "params": { "card.role": "Undergraduate", "card.student_level": "1U" },
+			"success": "UndergraduateTestMonitorWeekdaysExtent",
+			"fail": "DefaultTestMonitorWeekdaysExtent"
+		},
+
+		"Mon": 1,
+		"Tue": 2,
+		"Wed": 3,
+		"Thu": 4,
+		"Fri": 5,
+		"Sat": 6,
+		"Sun": 7
 	},
 
 	"constants": {
@@ -82,27 +99,38 @@
 					"interval": { "scope": "past" },
 					"vaccine": "effective"
 				},
-				"success": null,
-				"fail": {
-					"condition": "require-test",
+				"success": {
+					"condition": "test-interval",
 					"params": {
-						"interval": { "min": 11, "max": null, "scope": "future" }
+						"interval": "UserTestMonitorInterval"
 					},
-					"success": null,
-					"fail": {
-						"code": "red",
-						"priority": 11,
-						"next_step": "test.now.step"
-					}
-				}
+					"success": "PCR.positive.finish",
+					"fail": null
+				},
+				"fail": "PCR.positive.finish"
 			},
+			"fail": "PCR.positive.quarantine"
+		},
+
+		"PCR.positive.finish": {
+			"condition": "require-test",
+			"params": {
+				"interval": { "min": 11, "max": null, "scope": "future" }
+			},
+			"success": null,
 			"fail": {
 				"code": "red",
 				"priority": 11,
-				"next_step_html": "positive.step.html"
+				"next_step": "test.now.step"
 			}
 		},
-		
+
+		"PCR.positive.quarantine": {
+			"code": "red",
+			"priority": 11,
+			"next_step_html": "positive.step.html"
+		},
+
 		"PCR.positive-IP": {
 			"condition": "timeout",
 			"params": {
@@ -114,28 +142,39 @@
 					"interval": { "scope": "past" },
 					"vaccine": "effective"
 				},
-				"success": null,
-				"fail": {
-					"condition": "require-test",
+				"success": {
+					"condition": "test-interval",
 					"params": {
-						"interval": { "min": 9, "max": null, "scope": "future" }
+						"interval": "UserTestMonitorInterval"
 					},
-					"success": null,
-					"fail": {
-						"code": "red",
-						"priority": 11,
-						"next_step": "test.now.step",
-						"fcm_topic": "PCR.positive-IP"
-					}
-				}
+					"success": "PCR.positive-IP.finish",
+					"fail": null
+				},
+				"fail": "PCR.positive-IP.finish"
 			},
+			"fail": "PCR.positive-IP.quarantine"
+		},
+
+		"PCR.positive-IP.finish": {
+			"condition": "require-test",
+			"params": {
+				"interval": { "min": 9, "max": null, "scope": "future" }
+			},
+			"success": null,
 			"fail": {
 				"code": "red",
 				"priority": 11,
-				"next_step_html": "positive-ip.step.html",
-				"event_explanation": "positive-ip.explanation",
+				"next_step": "test.now.step",
 				"fcm_topic": "PCR.positive-IP"
 			}
+		},
+
+		"PCR.positive-IP.quarantine": {
+			"code": "red",
+			"priority": 11,
+			"next_step_html": "positive-ip.step.html",
+			"event_explanation": "positive-ip.explanation",
+			"fcm_topic": "PCR.positive-IP"
 		},
 
 		"PCR.positive-NIP.0": {
@@ -190,19 +229,70 @@
 		"test-monitor": {
 			"condition": "require-test",
 			"params": {
-				"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
+				"interval": { "min": 0, "max": "TestMonitorInterval", "max-weekdays-extent": "TestMonitorWeekdaysExtent", "scope": "future", "current": true }
 			},
-			"success": {
-				"code": "yellow",
-				"priority": 1,
-				"next_step_html": "test.monitor.step.html",
-				"next_step_interval": "TestMonitorInterval",
-				"warning": "test.future.warning"
-			},
+			"success": "test-fulfilled",
 			"fail": "test-required"
 		},
 
+		"test-fulfilled": {
+			"condition": "require-vaccine",
+			"params": {
+				"interval": { "scope": "past" },
+				"vaccine": "effective"
+			},
+			"success": {
+				"condition": "test-interval",
+				"params": {
+					"interval": "UserTestMonitorInterval"
+				},
+				"success": "test-fulfilled-vaccinated",
+				"fail": "test-fulfilled-default"
+			},
+			"fail": "test-fulfilled-default"
+		},
+
+		"test-fulfilled-vaccinated": {
+			"code": "yellow",
+			"priority": 1,
+			"next_step_html": "test.monitor.vaccinated.step.html",
+			"next_step_interval": "TestMonitorInterval",
+			"warning": "test.future.warning"
+		},
+
+		"test-fulfilled-default": {
+			"code": "yellow",
+			"priority": 1,
+			"next_step_html": "test.monitor.step.html",
+			"next_step_interval": "TestMonitorInterval",
+			"warning": "test.future.warning"
+		},
+
 		"test-required": {
+			"condition": "require-vaccine",
+			"params": {
+				"interval": { "scope": "past" },
+				"vaccine": "effective"
+			},
+			"success": {
+				"condition": "test-interval",
+				"params": {
+					"interval": "UserTestMonitorInterval"
+				},
+				"success": "test-required-vaccinated",
+				"fail": "test-required-default"
+			},
+			"fail": "test-required-default"
+		},
+
+		"test-required-vaccinated": {
+			"code": "orange",
+			"priority": 1,
+			"next_step_html": "test.now.vaccinated.step.html",
+			"reason": "test.now.reason"
+		},
+
+		"test-required-default": {
 			"code": "orange",
 			"priority": 1,
 			"next_step": "test.now.step",
@@ -238,14 +328,41 @@
 			}
 		},
 
+		"vaccinated-handler": {
+			"condition": "test-interval",
+			"params": {
+				"interval": "UserTestMonitorInterval"
+			},
+			"success": "vaccinated-suspended",
+			"fail": "vaccinated"
+		},
+
 		"vaccinated": {
 			"code": "green",
 			"priority": 4,
 			"next_step_html": "vaccinated.step.html",
+			"notice": "vaccinated.notice",
 			"reason": "vaccinated.reason",
 			"fcm_topic": "vaccinated"
 		},
 		
+		"vaccinated-force": {
+			"code": "green",
+			"priority": -4,
+			"next_step_html": "vaccinated.step.html",
+			"notice": "vaccinated.notice",
+			"reason": "vaccinated.reason",
+			"fcm_topic": "vaccinated"
+		},
+
+		"vaccinated-suspended": {
+			"code": null,
+			"priority": null,
+			"next_step_html": "test.now.vaccinated.step.html",
+			"notice": "vaccinated.suspended.notice",
+			"reason": "vaccinated.suspended.reason"
+		},
+
 		"quarantine-on": {
 			"code": "orange",
 			"priority": 10,
@@ -261,30 +378,33 @@
 				"vaccine": "effective"
 			},
 			"success": {
-				"code": "green",
-				"priority": -4,
-				"next_step_html": "vaccinated.step.html",
-				"reason": "vaccinated.reason",
-				"fcm_topic": "vaccinated"
-			},
-			"fail": {
-				"condition": "require-test",
+				"condition": "test-interval",
 				"params": {
-					"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
+					"interval": "UserTestMonitorInterval"
 				},
-				"success": {
-					"code": "yellow",
-					"priority": -1,
-					"next_step": "test.resume.step",
-					"next_step_interval": "TestMonitorInterval",
-					"warning": "test.future.warning"
-					},
-				"fail": {
-					"code": "orange",
-					"priority": -1,
-					"next_step": "test.now.step",
-					"reason": "test.now.reason"
-				}
+				"success": "quarantine-off.unvaccinated",
+				"fail": "vaccinated-force"
+				},
+			"fail": "quarantine-off.unvaccinated"
+		},
+
+		"quarantine-off.unvaccinated": {
+			"condition": "require-test",
+			"params": {
+				"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
+			},
+			"success": {
+				"code": "yellow",
+				"priority": -1,
+				"next_step": "test.resume.step",
+				"next_step_interval": "TestMonitorInterval",
+				"warning": "test.future.warning"
+				},
+			"fail": {
+				"code": "orange",
+				"priority": -1,
+				"next_step": "test.now.step",
+				"reason": "test.now.reason"
 			}
 		},
 
@@ -332,14 +452,41 @@
 			"params": {
 				"interval": { "min": -1, "max": 1, "current": true }
 			},
-			"success": {
-				"code": null,
-				"priority": 1,
-				"next_step_html": "test.monitor.step.html",
-				"next_step_interval": 1,
-				"warning": "test.future.warning"
-			},
+			"success": "out-of-test-compliance-fulfilled",
 			"fail": "test-required"
+		},
+
+		"out-of-test-compliance-fulfilled": {
+			"condition": "require-vaccine",
+			"params": {
+				"interval": { "scope": "past" },
+				"vaccine": "effective"
+			},
+			"success": {
+				"condition": "test-interval",
+				"params": {
+					"interval": "UserTestMonitorInterval"
+				},
+				"success": "out-of-test-compliance-fulfilled-vaccinated",
+				"fail": "out-of-test-compliance-fulfilled-default"
+			},
+			"fail": "out-of-test-compliance-fulfilled-default"
+		},
+
+		"out-of-test-compliance-fulfilled-vaccinated": {
+			"code": null,
+			"priority": 1,
+			"next_step_html": "test.monitor.vaccinated.step.html",
+			"next_step_interval": 1,
+			"warning": "test.future.warning"
+		},
+
+		"out-of-test-compliance-fulfilled-default": {
+			"code": null,
+			"priority": 1,
+			"next_step_html": "test.monitor.step.html",
+			"next_step_interval": 1,
+			"warning": "test.future.warning"
 		},
 
 		"exempt-on": {
@@ -352,15 +499,7 @@
 				"params": {
 					"interval": { "min": 0, "max": "ExemptInterval", "scope": "future" }
 				},
-				"success": {
-					"condition": "require-vaccine",
-					"params": {
-						"interval": { "scope": "past" },
-						"vaccine": "effective"
-					},
-					"success": "vaccinated",
-					"fail": "test-required"
-				},
+				"success": null,
 				"fail": {
 					"code": "yellow",
 					"priority": 12,
@@ -386,20 +525,23 @@
 				"vaccine": "effective"
 			},
 			"success": {
-				"code": "green",
-				"priority": -4,
-				"next_step_html": "vaccinated.step.html",
-				"reason": "exempt-off.green.reason",
-				"fcm_topic": "vaccinated"
-			},
-			"fail": {
-				"code": "orange",
-				"priority": -1,
-				"next_step": "test.now.step",
-				"reason": "exempt-off.orange.reason"
-			}
+				"condition": "test-interval",
+				"params": {
+					"interval": "UserTestMonitorInterval"
+				},
+				"success": "exempt-off.unvaccinated",
+				"fail": "vaccinated-force"
+				},
+			"fail": "exempt-off.unvaccinated"
 		},
-		
+
+		"exempt-off.unvaccinated": {
+			"code": "orange",
+			"priority": -1,
+			"next_step": "test.now.step",
+			"reason": "exempt-off.orange.reason"
+		},
+
 		"release": {
 			"condition": "require-vaccine",
 			"params": {
@@ -407,19 +549,22 @@
 				"vaccine": "effective"
 			},
 			"success": {
-				"code": "green",
-				"priority": -4,
-				"next_step_html": "vaccinated.step.html",
-				"reason": "vaccinated.reason",
-				"fcm_topic": "vaccinated"
+				"condition": "test-interval",
+				"params": {
+					"interval": "UserTestMonitorInterval"
+				},
+				"success": "release.unvaccinated",
+				"fail": "vaccinated-force"
 			},
-			"fail": {
-				"code": "orange",
-				"priority": -1,
-				"next_step": "release.step",
-				"reason": "release.reason"
-			}
+			"fail": "release.unvaccinated"
 		}
+	},
+
+	"release.unvaccinated": {
+		"code": "orange",
+		"priority": -1,
+		"next_step": "release.step",
+		"reason": "release.reason"
 	},
 
 	"tests" : {
@@ -807,7 +952,7 @@
 		"rules": [
 			{
 				"vaccine": "effective",
-				"status": "vaccinated"
+				"status": "vaccinated-handler"
 			}
 		]
 	},
@@ -821,8 +966,10 @@
 			"positive-nip.step.html": "<h3>You are not required to self-isolate unless you have COVID-like symptoms and are directed to do so by your licensed health professional.</h3>",
 			"positive-nip.explanation": "Your Saliva PCR test shows the VIRUS IS DETECTED in your REPEAT POSITIVE at a NON-INFECTIOUS LEVEL.",
 			"test.monitor.step.html": "<h1>Monitor your test results</h1><p>The university encourages you to be vaccinated if you are able to do so. Visit <a href='https://www.vaccinefinder.org'>vaccinefinder.org</a> to find nearby appointments.</p>",
+			"test.monitor.vaccinated.step.html": "<h1>Monitor your test results</h1><h3>We have a verified record of your completed COVID-19 vaccination on file.</h3><p>You have been identified as being in an area with a significant increase in positive COVID-19 cases over a short period of time. You are required to receive an on-campus COVID-19 test to maintain compliance and have “Granted” Building Access status until cases improve and you are notified otherwise.</p>",
 			"test.now.step": "Get a test now",
 			"test.now.reason": "Your status changed to Orange because you are past due for a test.",
+			"test.now.vaccinated.step.html": "<h2>Get a test now.</h2><h3>You have been identified as being in an area with a significant increase in positive COVID-19 cases over a short period of time. Starting now, you are required to receive an on-campus COVID-19 test every other day (even if you are fully vaccinated and your vaccination record has been verified) to maintain compliance and have “Granted” Building Access status until cases improve and you are notified otherwise.</h3>",
 			"test.another.asap.step": "Get another test asap",
 			"test.another.now.step.html": "<h3>Get your second test now.</h3><ul><li>Limit yourself to essential activities until you get the second negative result.</li><li>Your building access will change to Granted (Yellow) with the second negative test result.</li></ul><p>See <a href='https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'> testing schedule and rules</a>.</p>",
 			"test.after.step.html": "<h3>Get your second test after {next_step_date}. You must take two on-campus tests by Jan. 25.</h3><ul><li>Separate the tests by three days of quarantine:&nbsp;if the first test is on day one, the second test will be on day five.</li><li>Limit yourself to essential activities until you get the second negative result.</li><li>Your building access will change to Granted (Yellow) with the second negative test result.</li></ul><p>See <a href='https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'> testing schedule and rules</a>.</p>",
@@ -837,7 +984,10 @@
 			"exposure.step.html": "<h3>You have likely been exposed to a person who is infected with COVID-19.</h3><ul><h6><li>You must quarantine yourself immediately.</li></h6><h6><li>Stay home. Do not go to work, school, or public areas.</li></h6><h6><li>Separate yourself from others in your home.</li></h6><h6><li>Contact <a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a> for guidance.</li></h6><h6><li>Get tested after {next_step_date} to see if you have developed the disease.</li></h6><h6><li>More Info: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Quarantine and Isolation</a></li></h6></ul>",
 			"exposure.reason": "Your status changed to Orange because you received an exposure notification.",
 			"vaccinated.step.html": "<h3>We have a verified record of your completed COVID-19 vaccination on file.</h3><h3>Your vaccination status replaces testing for compliance and building access until further notice.</h3><h3>Please get an on-campus COVID-19 test if you experience symptoms.</h3><h3>Continue to monitor university communications for any changes to your testing policy.</h3>",
-			"vaccinated.reason": "Your status changed to Green because your vaccination is already effective.",
+			"vaccinated.notice": "Your COVID-19 vaccination has been verified",
+			"vaccinated.reason": "We have a verified record of your completed COVID-19 vaccination on file; your status has changed to Green.",
+			"vaccinated.suspended.notice": "Your vaccination status is replaced by testing for compliance and building access.",
+			"vaccinated.suspended.reason": "Your status change to Orange because you have been identified as being in an area with a significant increase in positive COVID-19 cases over a short period of time.",
 			"quarantine-on.step": "Stay at home and avoid contacts",
 			"quarantine-on.reason": "Your status changed to Orange because the Public Health department placed you in Quarantine.",
 			"exempt-on.step": "You are exempted from testing",
@@ -892,8 +1042,10 @@
 			"positive-nip.step.html": "<h3>No es necesario que se aísle a sí mismo a menos que tenga síntomas similares a los de COVID y su profesional de la salud autorizado le indique que lo haga.</h3>",
 			"positive-nip.explanation": "Su prueba de PCR de saliva muestra que el VIRUS ESTÁ DETECTADO en su REPETICIÓN POSITIVA en un NIVEL NO INFECCIOSO.",
 			"test.monitor.step.html": "<h1>Controle los resultados de su prueba</h1><p>La universidad le anima a vacunarse si puede hacerlo. Visite <a href='https://www.vaccinefinder.org'>vacunafinder.org</a> para encontrar citas cercanas.</p>",
+			"test.monitor.vaccinated.step.html": "<h1>Controle los resultados de su prueba</h1><h3>Tenemos un registro verificado de su vacunación COVID-19 completa en el archivo.</h3><p>Se ha identificado que se encuentra en un área con un aumento significativo de casos positivos de COVID-19 durante un corto período de tiempo. Debe recibir una prueba COVID-19 en el campus para mantener el cumplimiento y tener el estado de Acceso al edificio “Concedido” hasta que los casos mejoren y se le notifique lo contrario.</p>",
 			"test.now.step": "Haz una prueba ahora",
 			"test.now.reason": "Su estado cambió a Naranja porque está atrasado en un examen.",
+			"test.now.vaccinated.step.html": "<h2>Hágase una prueba ahora.</h2><h3>Se ha identificado que se encuentra en un área con un aumento significativo de casos positivos de COVID-19 durante un corto período de tiempo. A partir de ahora, debe recibir una prueba de COVID-19 en el campus cada dos días (incluso si está completamente vacunado y su registro de vacunación ha sido verificado) para mantener el cumplimiento y tener el estado de Acceso al edificio “Otorgado” hasta que los casos mejoren y usted se notifica de otra manera.</h3>",
 			"test.another.asap.step": "Obtenga otra prueba lo antes posible",
 			"test.another.now.step.html": "<h3>Obtenga su segunda prueba ahora. Debes de tomar dos pruebas en el campus antes del 25 de enero.</h3><ul><li>Separe las pruebas con tres d&iacute;as de cuarentena: &nbsp;si la primera prueba es el d&iacute;a uno, la segunda prueba ser&aacute; el d&iacute;a cinco.</li><li>Lim&iacute;tese a las actividades esenciales hasta que obtenga el segundo resultado negativo.</li><li>El acceso al edificio cambiar&aacute; a Concedido (amarillo) con el segundo resultado negativo de la prueba.</li></ul><p>Ver el <a href='https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'>calendario y las reglas de las pruebas</a>.</p>",
 			"test.after.step.html": "<h3>Obtenga su segunda prueba despu&eacute;s del {next_step_date}. Debes de tomar dos pruebas en el campus antes del 25 de enero.</h3><ul><li>Separe las pruebas con tres d&iacute;as de cuarentena: &nbsp;si la primera prueba es el d&iacute;a uno, la segunda prueba ser&aacute; el d&iacute;a cinco.</li><li>Lim&iacute;tese a las actividades esenciales hasta que obtenga el segundo resultado negativo.</li><li>El acceso al edificio cambiar&aacute; a Concedido (amarillo) con el segundo resultado negativo de la prueba.</li></ul><p>Ver el <a href='https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'>calendario y las reglas de las pruebas</a>.</p>",
@@ -908,7 +1060,10 @@
 			"exposure.step.html": "<h3>Es probable que haya estado expuesto a una persona infectada con COVID-19.</h3><ul><h6><li>Debe ponerse en cuarentena inmediatamente.</li></h6><h6><li>Quedarse en casa. No vaya al trabajo, la escuela o áreas públicas.</li></h6><h6><li>Sepárate de las demás en tu casa.</li></h6><h6><li>Póngase en contacto con <a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a> para obtener orientación.</li></h6><h6><li>Hágase la prueba después del {next_step_date} para ver si ha desarrollado la enfermedad.</li></h6><h6><li>Más información: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>Cuarentena y aislamiento</a></li></h6></ul>",
 			"exposure.reason": "Su estado cambió a Naranja porque recibió una notificación de exposición.",
 			"vaccinated.step.html": "<h3>Tenemos un registro verificado de su vacunación COVID-19 completa en el archivo.</h3><h3>Su estado de vacunación reemplaza las pruebas de cumplimiento y acceso al edificio hasta nuevo aviso.</h3><h3>Hágase una prueba de COVID-19 en el campus si experimenta síntomas.</h3><h3>Continúe monitoreando las comunicaciones de la universidad para detectar cualquier cambio en su política de exámenes.</h3>",
-			"vaccinated.reason": "Su estado cambió a Verde porque su vacunación ya es efectiva.",
+			"vaccinated.notice": "Se ha verificado su vacuna COVID-19.",
+			"vaccinated.reason": "Tenemos un registro verificado de su vacunación COVID-19 completa en el archivo; su estado ha cambiado a verde.",
+			"vaccinated.suspended.notice": "Su estado de vacunación se reemplaza por pruebas de cumplimiento y acceso al edificio.",
+			"vaccinated.suspended.reason": "Su estado cambia a Naranja porque se ha identificado que se encuentra en un área con un aumento significativo de casos positivos de COVID-19 durante un corto período de tiempo.",
 			"quarantine-on.step": "Quédese en casa y evite los contactos",
 			"quarantine-on.reason": "Su estado cambió a Orange porque el departamento de Salud Pública lo puso en cuarentena.",
 			"exempt-on.step": "Estas exenta de pruebas",
@@ -963,8 +1118,10 @@
 			"positive-nip.step.html": "<h3>除非您有類似COVID的症狀並且由您的有執照的衛生專業人員指示這樣做，否則您無需自我隔離。</h3>",
 			"positive-nip.explanation": "您的唾液PCR測試顯示病毒在非陽性水平的重複陽性中被檢測到。",
 			"test.monitor.step.html": "<h1>監控您的測試結果</h1><p>如果您有能力，大學鼓勵您接種疫苗。 訪問 <a href='https://www.vaccinefinder.org'>vaccinefinder.org</a> 查找附近的約會。</p>",
+			"test.monitor.vaccinated.step.html": "<h1>監控您的測試結果</h1><h3>我們記錄了您完成的COVID-19疫苗接種的經過驗證的記錄。</h3><p>您已被確定為在短時間內 COVID-19 陽性病例顯著增加的地區。 您需要接受校內 COVID-19 測試以保持合規性並具有“授予”建築物訪問權限狀態，直到情況有所改善並且您收到其他通知。</p>",
 			"test.now.step": "立即獲得測試",
 			"test.now.reason": "您的狀態更改為“橙色”，因為您已逾期進行測試。",
+			"test.now.vaccinated.step.html": "<h2>立即進行測試。</h2><h3>您已被確定為在短時間內 COVID-19 陽性病例顯著增加的地區。 從現在開始，您必須每隔一天接受一次校內 COVID-19 測試（即使您已完全接種疫苗並且您的疫苗接種記錄已得到驗證）以保持合規性並具有“授予”建築物訪問權限狀態，直到病例有所改善並且您 另行通知。</h3>",
 			"test.another.asap.step": "盡快獲得另一個測試",
 			"test.another.now.step.html": "<h3>现在进行第二次测试. 你必须在1月25日之前检测两次.</h3><ul><li>两次测试之间需隔离三天：如果第一次测试在第一天，第二次测试将在第五天</li><li>在得到第二个阴性测试结果之前，尽量只做必要的出行</li><li>在第二个阴性结果出来后，您的建筑访问权限将更改为&ldquo;已授予&rdquo;（黄色）</li></ul><p><a href='https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'>见测试计划和规则</a>.</p>",
 			"test.after.step.html": "<h3>在{next_step_date}之后进行第二次测试. 你必须在1月25日之前检测两次.</h3><ul><li>两次测试之间需隔离三天：如果第一次测试在第一天，第二次测试将在第五天</li><li>在得到第二个阴性测试结果之前，尽量只做必要的出行</li><li>在第二个阴性结果出来后，您的建筑访问权限将更改为&ldquo;已授予&rdquo;（黄色）</li></ul><p><a href='https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'>见测试计划和规则</a>.</p>",
@@ -979,7 +1136,10 @@
 			"exposure.step.html": "<h3>您可能已經接觸了感染了COVID-19的人。</h3><ul><h6><li>您必須立即隔離自己。</li></h6><h6><li>您已被強制隔離。</li></h6><h6><li>與家中的其他人分開。</li></h6><h6><li>請與<a href='mailto:covidwellness@illinois.edu'> covidwellness@illinois.edu </a>聯繫以獲取指導。</li></h6><h6><li>在{next_step_date}之後進行測試，看看您是否已患上這種疾病。</li></h6><h6><li>更多信息: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>隔離與隔離</a></li></h6></ul>",
 			"exposure.reason": "您的狀態更改為橙色，因為您收到了曝光通知。",
 			"vaccinated.step.html": "<h3>我們記錄了您完成的COVID-19疫苗接種的經過驗證的記錄。</h3><h3>您的疫苗接種狀態將取代合規性測試和建立訪問權限，直至另行通知。</h3><h3>如果您出現症狀，請進行校園 COVID-19 測試。</h3><h3>繼續監控大學通訊，了解您的考試政策是否有任何變化。</h3>",
-			"vaccinated.reason": "您的狀態已更改為“綠色”，因為您的疫苗接種已經有效。",
+			"vaccinated.notice": "COVID-19ワクチン接種が確認されました。",
+			"vaccinated.reason": "我們有您完成的 COVID-19 疫苗接種的經過驗證的記錄存檔； 您的狀態已更改為綠色。",
+			"vaccinated.suspended.notice": "您的疫苗接種狀態將被合規性測試和建築物訪問所取代。",
+			"vaccinated.suspended.reason": "您的狀態更改為橙色，因為您已被確定為在短時間內 COVID-19 陽性病例顯著增加的地區。",
 			"quarantine-on.step": "呆在家裡，避免接觸",
 			"quarantine-on.reason": "您的狀態更改為“橙色”，因為公共衛生部門已將您隔離。",
 			"exempt-on.step": "您免於測試",
@@ -1034,8 +1194,10 @@
 			"positive-nip.step.html": "<h6>認可された医療従事者から指示された場合以外は自己隔離する必要やキャンパスで行う検査を60日間受ける必要はありません。Safer Illinoisアプリは、この期間にアクセスを許可するように設定されています。質問や困ったことがある場合は、<a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a> まで連絡してください。</h6>",
 			"positive-nip.explanation": "唾液PCR検査は、不感染性レベルにある場合、2回目の検査結果が陽性検査を出す可能性があります。",
 			"test.monitor.step.html": "<h1>検査結果をモニタリングする</h1><p>大学は、可能であれば予防接種を受けることを推奨しています。 <a href='https://www.vaccinefinder.org'>vaccinefinder.org</a> にアクセスして、近くの予定を見つけてください。</p>",
+			"test.monitor.vaccinated.step.html": "<h1>検査結果をモニタリングする</h1><h3>完了したCOVID-19ワクチン接種の確認済みの記録がファイルにあります。</h3><p>あなたは、短期間に陽性のCOVID-19症例が大幅に増加している地域にいると特定されました。 コンプライアンスを維持するためにキャンパス内のCOVID-19テストを受け、ケースが改善されて別の方法で通知されるまで「許可された」建物アクセスステータスを取得する必要があります。</p>",
 			"test.now.step": "今検査を受ける",
 			"test.now.reason": "検査期日が過ぎたため、ステータスがオレンジに変更されました。",
+			"test.now.vaccinated.step.html": "<h2>今すぐテストを受けてください。</h2><h3>あなたは、短期間に陽性のCOVID-19症例が大幅に増加している地域にいると特定されました。 今から、コンプライアンスを維持し、ケースが改善してあなたが それ以外の場合は通知されます。</h3>",
 			"test.another.asap.step": "今すぐ別の検査を受ける",
 			"test.another.now.step.html": "<h3>2回目の検査をいま受ける。</h3><ul><li>2回目の陰性結果を受け取るまでは必要な行動だけに制限してください。</li><li>2回目の陰性結果とともに建物に入る許可が「GRANTED」（黄）に変更されます。</li></ul><p><a href='https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'> で検査予定とルールについての情報を確認してください。</a>.</p>",
 			"test.after.step.html": "<h3>2回目の検査を{next_step_date}の後で受ける。 1月25日までにキャンプの検査を２回受ける必要があります。</h3><ul><li>２つの検査の間に、３日間の隔離期間を設けて下さい。:&nbsp;１回目の検査を初日に受けた場合、２回目の検査は５日目になります。</li><li>2回目の陰性結果を受けるまでには必要な行動だけに制限してください。</li><li>2回目の陰性結果とともに建物に入る許可が「GRANTED」（黄）に変更されます。</li></ul><p><a href='https://covid19.illinois.edu/spring-2021-return-to-campus-for-students/'> で検査予定とルールについての情報を確認してください。</a>.</p>",
@@ -1050,7 +1212,10 @@
 			"exposure.step.html": "<h3>ＣＯＶＩＤ-１９に感染している人と接触した可能性があります。</h3><ul><h6><li>直ちに隔離してください。</li></h6><h6><li>家にいてください。仕事や学校や公共の場へ行かないでください。</li></h6><h6><li>家にいる人から離れてください。</li></h6><h6><li>ガイダンスを受けるには<a href='mailto:covidwellness@illinois.edu'>covidwellness@illinois.edu</a>に連絡してください。</li></h6><h6><li>{next_step_date}の後で検査を受けて、自分が発症しているかどうかを確認してください。</li></h6><h6><li>より詳しい情報: <a href='https://covid19.illinois.edu/health-and-support/quarantine-and-isolation/'>隔離と孤立</a></li></h6></ul>",
 			"exposure.reason": "接触通知を受信したため、ステータスがオレンジに変更されました。",
 			"vaccinated.step.html": "<h3>完了したCOVID-19ワクチン接種の確認済みの記録がファイルにあります。</h3><h3>あなたのワクチン接種状況は、追って通知があるまで、コンプライアンスと建物へのアクセスのテストに取って代わります。</h3><h3>症状が出た場合は、キャンパス内のCOVID-19検査を受けてください。</h3><h3>テストポリシーに変更がないか、大学のコミュニケーションを引き続き監視します。</h3>",
-			"vaccinated.reason": "予防接種がすでに有効になっているため、ステータスが緑に変わりました。",
+			"vaccinated.notice": "您的 COVID-19 疫苗接種已通過驗證。",
+			"vaccinated.reason": "完了したCOVID-19ワクチン接種の確認済みの記録がファイルにあります。 ステータスが緑に変わりました。",
+			"vaccinated.suspended.notice": "予防接種のステータスは、コンプライアンスと建物へのアクセスのテストに置き換えられます。",
+			"vaccinated.suspended.reason": "短期間に陽性のCOVID-19症例が大幅に増加している地域にいることが確認されたため、ステータスがオレンジに変わります。",
 			"quarantine-on.step": "家にいて、他の人との接触を避けてください。",
 			"quarantine-on.reason": "Public Health departmentにより隔離状態に置かれているため、ステータスがオレンジに変更されました。",
 			"exempt-on.step": "あなたはテストから免除されています",

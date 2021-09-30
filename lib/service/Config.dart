@@ -41,6 +41,7 @@ class Config with Service implements NotificationsListener {
 
   static const String notifyUpgradeRequired     = "edu.illinois.rokwire.config.upgrade.required";
   static const String notifyUpgradeAvailable    = "edu.illinois.rokwire.config.upgrade.available";
+  static const String notifyOnboardingRequired  = "edu.illinois.rokwire.config.onboarding.required";
   static const String notifyConfigChanged       = "edu.illinois.rokwire.config.changed";
 
   Map<String, dynamic> _config;
@@ -94,6 +95,7 @@ class Config with Service implements NotificationsListener {
 
     if (_config != null) {
         _checkUpgrade();
+        _checkOnboarding();
         _updateFromNet();
     }
     else if (Organizations().organization != null) {
@@ -105,6 +107,7 @@ class Config with Service implements NotificationsListener {
         NotificationService().notify(notifyConfigChanged, null);
         
         _checkUpgrade();
+        _checkOnboarding();
       }
     }
     else {
@@ -164,7 +167,7 @@ class Config with Service implements NotificationsListener {
 
       for (int index = jsonList.length - 1; index >= 0; index--) {
         Map<String, dynamic> cfg = jsonList[index];
-        if (AppVersion.compareVersions(cfg['mobileAppVersion'], _packageInfo.version) <= 0) {
+        if (AppVersion.compareVersions(cfg['mobileAppVersion'], appVersion) <= 0) {
           _decodeSecretKeys(cfg);
           return cfg;
         }
@@ -196,6 +199,7 @@ class Config with Service implements NotificationsListener {
         NotificationService().notify(notifyConfigChanged, null);
 
         _checkUpgrade();
+        _checkOnboarding();
       }
     });
   }
@@ -239,7 +243,7 @@ class Config with Service implements NotificationsListener {
 
   String get upgradeRequiredVersion {
     dynamic requiredVersion = _upgradeStringEntry('required_version');
-    if ((requiredVersion is String) && (AppVersion.compareVersions(_packageInfo.version, requiredVersion) < 0)) {
+    if ((requiredVersion is String) && (AppVersion.compareVersions(appVersion, requiredVersion) < 0)) {
       return requiredVersion;
     }
     return null;
@@ -248,7 +252,7 @@ class Config with Service implements NotificationsListener {
   String get upgradeAvailableVersion {
     dynamic availableVersion = _upgradeStringEntry('available_version');
     bool upgradeAvailable = (availableVersion is String) &&
-        (AppVersion.compareVersions(_packageInfo.version, availableVersion) < 0) &&
+        (AppVersion.compareVersions(appVersion, availableVersion) < 0) &&
         !Storage().reportedUpgradeVersions.contains(availableVersion) &&
         !_reportedUpgradeVersions.contains(availableVersion);
     return upgradeAvailable ? availableVersion : null;
@@ -288,6 +292,23 @@ class Config with Service implements NotificationsListener {
     }
     else {
       return null;
+    }
+  }
+
+  // Onboarding
+
+  String get onboardingRequiredVersion {
+    dynamic requiredVersion = onboardingInfo['required_version'];
+    if ((requiredVersion is String) && (AppVersion.compareVersions(requiredVersion, appVersion) <= 0)) {
+      return requiredVersion;
+    }
+    return null;
+  }
+
+  void _checkOnboarding() {
+    String value;
+    if ((value = this.onboardingRequiredVersion) != null) {
+      NotificationService().notify(notifyOnboardingRequired, value);
     }
   }
 
@@ -333,12 +354,12 @@ class Config with Service implements NotificationsListener {
   Map<String, dynamic> get secretOsf               { return secretKeys['osf'] ?? {}; }
   Map<String, dynamic> get secretHealth            { return secretKeys['health'] ?? {}; }
   
-  Map<String, dynamic> get upgradeInfo             { return (_config != null) ? (_config['upgrade'] ?? {}) : {}; }
-
   Map<String, dynamic> get settings                { return (_config != null) ? (_config['settings'] ?? {}) : {}; }
+  Map<String, dynamic> get upgradeInfo             { return (_config != null) ? (_config['upgrade'] ?? {}) : {}; }
+  Map<String, dynamic> get onboardingInfo          { return (_config != null) ? (_config['onboarding'] ?? {}) : {}; }
 
   String get assetsUrl              { return otherUniversityServices['assets_url']; }         // "https://rokwire-assets.s3.us-east-2.amazonaws.com"
-  String get feedbackUrl            { return otherUniversityServices['feedback_url']; }       // "https://forms.illinois.edu/sec/1971889"
+  String get getHelpUrl             { return otherUniversityServices['get_help_url']; }       // "https://forms.illinois.edu/sec/4961936"
   String get iCardUrl               { return otherUniversityServices['icard_url']; }          // "https://www.icard.uillinois.edu/rest/rw/rwIDData/rwCardInfo"
   String get privacyPolicyUrl       { return otherUniversityServices['privacy_policy_url']; } // "https://www.vpaa.uillinois.edu/resources/web_privacy"
   String get exposureLogUrl         { return otherUniversityServices['exposure_log_url']; }   // "http://ec2-18-191-37-235.us-east-2.compute.amazonaws.com:8003/PostSessionData"
@@ -363,6 +384,7 @@ class Config with Service implements NotificationsListener {
   String get imagesServiceUrl       { return platformBuildingBlocks['images_service_url']; }  // "https://api-dev.rokwire.illinois.edu/images-service";
   
   String get osfBaseUrl             { return thirdPartyServices['osf_base_url']; }            // "https://ssproxy.osfhealthcare.org/fhir-proxy"
+  String get vaccinationAppointUrl  { return thirdPartyServices['vaccination_appointment_url']; }            // "https://ssproxy.osfhealthcare.org/fhir-proxy"
 
   String get rokwireApiKey          { return secretRokwire['api_key']; }
 
@@ -376,8 +398,8 @@ class Config with Service implements NotificationsListener {
 
   int get refreshTimeout            { return kReleaseMode ? (settings['refreshTimeout'] ?? 0) : 0; }
 
-  bool get residentRoleEnabled     { return false; }
-  bool get capitolStaffRoleEnabled { return (settings['roleCapitolStaffEnabled'] == true); }
+  bool get residentRoleEnabled      { return false; }
+  bool get capitolStaffRoleEnabled  { return (settings['roleCapitolStaffEnabled'] == true); }
 
 }
 

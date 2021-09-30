@@ -487,7 +487,7 @@ class Storage with Service {
   static const String _healthUserTestMonitorIntervalKey = 'health_user_test_monitor_interval';
 
   int get healthUserTestMonitorInterval {
-    return getInt(_healthUserTestMonitorIntervalKey);
+    return getInt(_healthUserTestMonitorIntervalKey, defaultValue: null);
   }
 
   set healthUserTestMonitorInterval(int value) {

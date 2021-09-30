@@ -6,6 +6,64 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.11.3] - 2021-09-29
+### Deleted
+- Removed vaccine taken event handling [#715](https://github.com/rokwire/safer-illinois-app/issues/715).
+- Removed MicroBlink scan support [#717](https://github.com/rokwire/safer-illinois-app/issues/717).
+
+## [2.11.2] - 2021-09-24
+### Changed
+- Updated vaccination widget content and strings [#711](https://github.com/rokwire/safer-illinois-app/issues/711).
+
+## [2.11.1] - 2021-09-23
+### Changed
+- Updated vaccination widget strings, load related values and URL from app config [#708](https://github.com/rokwire/safer-illinois-app/issues/708).
+
+## [2.11.0] - 2021-09-10
+### Changed
+- "Feedback" section in Settings Home panel changed to "Get Help" [#705](https://github.com/rokwire/safer-illinois-app/issues/705).
+
+## [2.10.38] - 2021-09-08
+### Fixed
+- Fixed Health model classes equality operators.
+- Fixed Storage.healthUserTestMonitorInterval to be able to read null values.
+### Added
+- Added HealthRulesSet.toJson() getter.
+
+## [2.10.37] - 2021-09-07
+### Changed
+- Updated strings for vaccination effective status change [#698](https://github.com/rokwire/safer-illinois-app/issues/698).
+- Updated strings for next step for vaccinated users in UIN override list who has fulfilled their tests [#700](https://github.com/rokwire/safer-illinois-app/issues/700).
+- Defined notice, noticeHtml, reason and reasonHtml in health status definitions. Acknowledged for vaccination and vaccination suspension events. [#702](https://github.com/rokwire/safer-illinois-app/issues/702).
+
+## [2.10.36] - 2021-09-01
+### Changed
+- Updated next step text for vaccinated users that are forced to resume testing [#692](https://github.com/rokwire/safer-illinois-app/issues/692).
+### Added
+- Added vaccination widget in Home panel [#696](https://github.com/rokwire/safer-illinois-app/issues/696).
+
+## [2.10.35] - 2021-08-19
+### Changed
+- Disable vaccinated status if user has UserTestMonitorInterval defined [#684](https://github.com/rokwire/safer-illinois-app/issues/684).
+### Fixed
+- Android: CME crash when processing exposures [#688](https://github.com/rokwire/safer-illinois-app/issues/688).
+- Android: RSE crash when scanning for exposures [#690](https://github.com/rokwire/safer-illinois-app/issues/690).
+
+## [2.10.34] - 2021-08-04
+### Changed
+- Button text for requesting vaccine and latest test [#680](https://github.com/rokwire/safer-illinois-app/issues/680).
+
+## [2.10.33] - 2021-08-03
+### Added
+- Force onboarding from app config [#681](https://github.com/rokwire/safer-illinois-app/issues/681).
+
+## [2.10.32] - 2021-08-02
+### Added
+- Fire user updated notification when updating user's private RSA key.
+- Added weekdays extension capability for health rule intervals [#678](https://github.com/rokwire/safer-illinois-app/issues/678).
+### Changed
+- Updated test intervals for undergraduate students and others [#676](https://github.com/rokwire/safer-illinois-app/issues/676).
+
 ## [2.10.31] - 2021-07-17
 ### Changed
 - Upgrade to Flutter 2.2.2 [#664](https://github.com/rokwire/safer-illinois-app/issues/664).
@@ -13,7 +71,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fix gradle build for Android [#670](https://github.com/rokwire/safer-illinois-app/issues/670).
 - Check string parameters match case insensitively [#668](https://github.com/rokwire/safer-illinois-app/issues/668).
-
 
 ## [2.10.30] - 2021-06-16
 ### Added

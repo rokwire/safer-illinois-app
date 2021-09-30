@@ -28,6 +28,7 @@ class NotificationCreator {
                         .setContentTitle(context.getString(R.string.exposure_notification_title))
                         .setSmallIcon(R.drawable.app_icon)
                         .setContentIntent(pendingIntent)
+                        .setOnlyAlertOnce(true)
                         .setTicker(context.getString(R.string.exposure_notification_ticker));
 
                 notification = builder.build();

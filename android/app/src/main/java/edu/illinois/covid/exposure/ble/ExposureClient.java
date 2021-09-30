@@ -106,6 +106,11 @@ public class ExposureClient extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand - " + startId);
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // This call is required to be made after startForegroundService() since API 26
+            startForegroundClientService();
+        }
+
         if (intent != null) {
             Bundle extras = intent.getExtras();
             if (extras != null) {
