@@ -557,14 +557,14 @@
 				"fail": "vaccinated-force"
 			},
 			"fail": "release.unvaccinated"
-		}
-	},
+		},
 
-	"release.unvaccinated": {
-		"code": "orange",
-		"priority": -1,
-		"next_step": "release.step",
-		"reason": "release.reason"
+		"release.unvaccinated": {
+			"code": "orange",
+			"priority": -1,
+			"next_step": "release.step",
+			"reason": "release.reason"
+		}
 	},
 
 	"tests" : {
