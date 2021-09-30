@@ -340,6 +340,9 @@
 	"panel.covid19home.vaccination.none.description": "• COVID-19 疫苗是安全的\n• COVID-19ワクチンは効果的です\n• COVID-19ワクチンはあなたが安全にもっと多くのことをすることを可能にします\n• COVID-19ワクチンはより安全な保護を構築します",
 	"panel.covid19home.vaccination.vaccinated.title": "ワクチン接種",
 	"panel.covid19home.vaccination.vaccinated.description": "あなたの予防接種はまだ効果的ではありません。",
+	"panel.covid19home.vaccination.vaccinated.effective.0.description": "あなたのワクチンは今日有効になります。",
+	"panel.covid19home.vaccination.vaccinated.effective.1.description": "あなたのワクチンは明日有効になります。",
+	"panel.covid19home.vaccination.vaccinated.effective.n.description": "あなたのワクチンは％s日後に有効になります。",
 	"panel.covid19home.vaccination.button.appointment.title": "予約する",
 	"panel.covid19home.vaccination.button.appointment.hint": "",
 

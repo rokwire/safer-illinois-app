@@ -340,6 +340,9 @@
 	"panel.covid19home.vaccination.none.description": "• COVID-19 vaccines are safe\n• COVID-19 vaccines are effective\n• COVID-19 vaccines allow you to safely do more\n• COVID-19 vaccines build safer protection",
 	"panel.covid19home.vaccination.vaccinated.title": "Vaccinated",
 	"panel.covid19home.vaccination.vaccinated.description": "Your vaccination is not effective yet.",
+	"panel.covid19home.vaccination.vaccinated.effective.0.description": "Your vaccine will be effective today.",
+	"panel.covid19home.vaccination.vaccinated.effective.1.description": "Your vaccine will be effective tomorrow.",
+	"panel.covid19home.vaccination.vaccinated.effective.n.description": "Your vaccine will be effective after %s days.",
 	"panel.covid19home.vaccination.button.appointment.title": "Make an appointment",
 	"panel.covid19home.vaccination.button.appointment.hint": "",
 
