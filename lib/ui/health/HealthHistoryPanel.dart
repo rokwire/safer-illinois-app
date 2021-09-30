@@ -55,7 +55,7 @@ class _HealthHistoryPanelState extends State<HealthHistoryPanel> implements Noti
       Health.notifyHistoryUpdated,
     ]);
 
-    _history = HealthHistory.pastList(Health().history);
+    _history = Health().history;
     _refreshHistory();
   }
 
@@ -75,7 +75,7 @@ class _HealthHistoryPanelState extends State<HealthHistoryPanel> implements Noti
     else if (name == Health.notifyHistoryUpdated) {
       if (mounted) {
         setState(() {
-          _history = HealthHistory.pastList(Health().history);
+          _history = Health().history;
         });
       }
     }
@@ -89,7 +89,7 @@ class _HealthHistoryPanelState extends State<HealthHistoryPanel> implements Noti
       Health().refreshStatus().then((_) {
         if (mounted) {
           setState(() {
-            _history = HealthHistory.pastList(Health().history);
+            _history = Health().history;
             _isRefreshing = false;
           });
         }
