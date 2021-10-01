@@ -732,6 +732,7 @@ class HealthHistoryBlob {
   final List<HealthEventExtra> extras;
 
   static const String VaccineEffective = "Effective";
+  static const String VaccineManifacturer = "Vaccine";
 
   HealthHistoryBlob({
     this.provider, this.providerId, this.location, this.locationId, this.countyId, this.testType, this.testResult,
@@ -861,6 +862,10 @@ class HealthHistoryBlob {
 
   bool get isVaccineEffective {
     return (vaccineStatus != null) && (vaccineStatus.toLowerCase() == VaccineEffective.toLowerCase());
+  }
+
+  String get vaccineManifacturer {
+    return HealthEventExtra.listEntry(extras, displayName: VaccineManifacturer)?.displayValue;
   }
 
   bool get isAction {
@@ -1235,6 +1240,18 @@ class HealthEventExtra {
       }
     }
     return false;
+  }
+
+  static HealthEventExtra listEntry(List<HealthEventExtra> values, { String displayName }) {
+    if (values != null) {
+      for (HealthEventExtra value in values) {
+        if ((displayName != null) && (displayName.toLowerCase() != value?.displayName?.toLowerCase())) {
+          continue;
+        }
+        return value;
+      }
+    }
+    return null;
   }
 }
 
@@ -4428,6 +4445,10 @@ abstract class HealthRuleCondition {
       // true / false / null
       result = _evalTestInterval(conditionParams, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
     }
+    else if (condition == 'test-vaccine') {
+      // true / false / null
+      result = _evalTestVaccine(conditionParams, history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+    }
   
     if (result is bool) {
       return HealthRuleConditionResult(result: result);
@@ -4559,6 +4580,22 @@ abstract class HealthRuleCondition {
   static bool _evalTestInterval(Map<String, dynamic> conditionParams, { List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
     dynamic interval = (conditionParams != null) ? _HealthRuleInterval.fromJson(conditionParams['interval']) : null;
     return interval?.valid(history: history, historyIndex: historyIndex, referenceIndex: referenceIndex, rules: rules, params: params);
+  }
+
+  static bool _evalTestVaccine(Map<String, dynamic> conditionParams, { List<HealthHistory> history, int historyIndex, int referenceIndex, HealthRulesSet rules, Map<String, dynamic> params }) {
+    String manifacturer = (conditionParams != null) ? conditionParams['manifacturer'] : null;
+    if (history != null) {
+      int originIndex = ((referenceIndex != null) && (0 <= referenceIndex) && (referenceIndex < history.length)) ? referenceIndex : historyIndex;
+      HealthHistory originEntry = ((originIndex != null) && (0 <= originIndex) && (originIndex < history.length)) ? history[originIndex] : null;
+      if (originEntry?.type != HealthHistoryType.vaccine) {
+        if ((manifacturer != null) && !_matchStringTarget(target: originEntry?.blob?.vaccineManifacturer, source: manifacturer)) {
+          return false;
+        }
+        return true;
+      }
+      return false;
+    }
+    return null;
   }
 
   static bool _evalTestUser(Map<String, dynamic> conditionParams, { HealthRulesSet rules, Map<String, dynamic> params }) {

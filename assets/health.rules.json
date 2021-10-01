@@ -20,7 +20,7 @@
 				"fail": "DefaultTestMonitorInterval"
 			}
 		},
-
+		
 		"DefaultTestMonitorWeekdaysExtent": ["Fri", "Sat", "Sun", "Mon"],
 		"UndergraduateTestMonitorWeekdaysExtent": ["Sat", "Sun"],
 
@@ -36,7 +36,20 @@
 		"Thu": 4,
 		"Fri": 5,
 		"Sat": 6,
-		"Sun": 7
+		"Sun": 7,
+
+		"VaccineBoosterInterval": {
+			"condition": "test-vaccine", "params": { "manifacturer": "Phizer"},
+			"success": "PhizerBoosterInterval",
+			"fail": {
+				"condition": "test-vaccine", "params": { "manifacturer": "Moderna"},
+				"success": "ModernaBoosterInterval",
+				"fail": "DefaultBoosterInterval"
+			}
+		},
+		"PhizerBoosterInterval": 180,
+		"ModernaBoosterInterval": 180,
+		"DefaultBoosterInterval": 180
 	},
 
 	"constants": {
@@ -334,6 +347,22 @@
 				"interval": "UserTestMonitorInterval"
 			},
 			"success": "vaccinated-suspended",
+			"fail": {
+				"condition": "test-interval",
+				"params": {
+					"interval": "VaccineBoosterInterval"
+				},
+				"success": "vaccinated-booster",
+				"fail": "vaccinated"
+			}
+		},
+
+		"vaccinated-booster": {
+			"condition": "timeout",
+			"params": {
+				"interval": { "min": 0, "max": "VaccineBoosterInterval", "scope": "future" }
+			},
+			"success": null,
 			"fail": "vaccinated"
 		},
 
@@ -344,6 +373,15 @@
 			"notice": "vaccinated.notice",
 			"reason": "vaccinated.reason",
 			"fcm_topic": "vaccinated"
+		},
+		
+		"vaccinated-restore": {
+			"condition": "timeout",
+			"params": {
+				"interval": { "min": 0, "max": "VaccineBoosterInterval", "scope": "future" }
+			},
+			"success": null,
+			"fail": "vaccinated-force"
 		},
 		
 		"vaccinated-force": {
@@ -362,7 +400,7 @@
 			"notice": "vaccinated.suspended.notice",
 			"reason": "vaccinated.suspended.reason"
 		},
-
+		
 		"quarantine-on": {
 			"code": "orange",
 			"priority": 10,
@@ -383,7 +421,7 @@
 					"interval": "UserTestMonitorInterval"
 				},
 				"success": "quarantine-off.unvaccinated",
-				"fail": "vaccinated-force"
+				"fail": "vaccinated-restore"
 				},
 			"fail": "quarantine-off.unvaccinated"
 		},
@@ -530,7 +568,7 @@
 					"interval": "UserTestMonitorInterval"
 				},
 				"success": "exempt-off.unvaccinated",
-				"fail": "vaccinated-force"
+				"fail": "vaccinated-restore"
 				},
 			"fail": "exempt-off.unvaccinated"
 		},
@@ -554,7 +592,7 @@
 					"interval": "UserTestMonitorInterval"
 				},
 				"success": "release.unvaccinated",
-				"fail": "vaccinated-force"
+				"fail": "vaccinated-restore"
 			},
 			"fail": "release.unvaccinated"
 		},
