@@ -49,6 +49,7 @@ import 'package:illinois/ui/widgets/RoundedButton.dart';
 import 'package:illinois/ui/widgets/SectionTitlePrimary.dart';
 import 'package:illinois/ui/widgets/StatusInfoDialog.dart';
 import 'package:illinois/utils/Utils.dart';
+import 'package:sprintf/sprintf.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class HealthHomePanel extends StatefulWidget {
@@ -685,8 +686,9 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
     String statusDescriptionText, statusDescriptionHtml;
     String headingTitle = Localization().getStringEx('panel.covid19home.vaccination.heading.title', 'VACCINATION');
     
-    HealthHistory vaccine = HealthHistory.mostRecentVaccine(Health().history);
-    if (vaccine == null) {
+    HealthHistory recentVaccine = getRecentVaccine();
+    
+    if (recentVaccine == null) {
       // No vaccine at all - promote it.
       statusTitleText = Localization().getStringEx('panel.covid19home.vaccination.none.title', 'Get a vaccine now');
       statusDescriptionText = Localization().getStringEx('panel.covid19home.vaccination.none.description', """
@@ -695,15 +697,35 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
 • COVID-19 vaccines allow you to safely do more
 • COVID-19 vaccines build safer protection""");
     }
-    else if ((vaccine.blob != null) && (vaccine.blob.isVaccineEffective) && (vaccine.dateUtc != null) && vaccine.dateUtc.isBefore(DateTime.now().toUtc())) {
-      // 5.2.4 When effective then hide the widget
-      return null;
-    }
     else {
-      // Vaccinated, but not effective yet.
-      headingDate = AppDateTime.formatDateTime(vaccine.dateUtc?.toLocal(), format:"MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode) ?? '';
+      headingDate = AppDateTime.formatDateTime(recentVaccine.dateUtc?.toLocal(), format:"MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode);
       statusTitleText = Localization().getStringEx('panel.covid19home.vaccination.vaccinated.title', 'Vaccinated');
-      statusDescriptionText = Localization().getStringEx('panel.covid19home.vaccination.vaccinated.description', 'Your vaccination is not effective yet.');
+
+      if ((recentVaccine.blob?.isVaccineEffective ?? false) && (recentVaccine.dateUtc != null)) {
+        DateTime now = DateTime.now();
+        if (recentVaccine.dateUtc.isBefore(now.toUtc())) {
+          // 5.2.4 When effective then hide the widget
+          return null;
+        }
+        else {
+          // Vaccinated, but not effective yet.
+          int delayInDays = AppDateTime.midnight(recentVaccine.dateUtc.toLocal()).difference(AppDateTime.midnight(now)).inDays;
+          
+          if (delayInDays > 1) {
+            statusDescriptionText = sprintf(Localization().getStringEx('panel.covid19home.vaccination.vaccinated.effective.n.description', 'Your vaccine will be effective after %s days.'), [delayInDays]);  
+          }
+          else if (delayInDays == 1) {
+            statusDescriptionText = Localization().getStringEx('panel.covid19home.vaccination.vaccinated.effective.1.description', 'Your vaccine will be effective tomorrow.');  
+          }
+          else {
+            statusDescriptionText = Localization().getStringEx('panel.covid19home.vaccination.vaccinated.effective.0.description', 'Your vaccine will be effective today.');  
+          }
+        }
+      }
+      else {
+        // Vaccinated, unknown status or date.
+        statusDescriptionText = Localization().getStringEx('panel.covid19home.vaccination.vaccinated.description', 'Your vaccination is not effective yet.');
+      }
     }
 
     List<Widget> contentWidgets = <Widget>[
@@ -770,7 +792,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
       ],),
     ];
 
-    if ((vaccine == null) && (Config().vaccinationAppointUrl != null)) {
+    if ((recentVaccine == null) && (Config().vaccinationAppointUrl != null)) {
       contentList.addAll(<Widget>[
         Container(margin: EdgeInsets.only(top: 14, bottom: 14), height: 1, color: Styles().colors.fillColorPrimaryTransparent015,),
 
@@ -792,6 +814,23 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
       Container(padding: EdgeInsets.symmetric(vertical: 16), decoration: BoxDecoration(color: Styles().colors.surface, borderRadius: BorderRadius.all(Radius.circular(4)), boxShadow: [BoxShadow(color: Styles().colors.blackTransparent018, spreadRadius: 2.0, blurRadius: 6.0, offset: Offset(2, 2))] ), child:
         Column(crossAxisAlignment: CrossAxisAlignment.start, children: contentList),
     ));
+  }
+
+  HealthHistory getRecentVaccine() {
+    HealthHistory mostRecentVaccine;
+    if (Health().history != null) {
+      for (HealthHistory historyEntry in Health().history) {
+        if (historyEntry.isVaccine) {
+          if (historyEntry.blob?.isVaccineEffective ?? false) {
+            return historyEntry;
+          }
+          else if (mostRecentVaccine == null) {
+            mostRecentVaccine = historyEntry;
+          }
+        }
+      }
+    }
+    return mostRecentVaccine;
   }
 
   Widget _buildTileButtons() {

@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.11.5] - 2021-10-01
+### Fixed
+- Fixed null pointer crash [#725](https://github.com/rokwire/safer-illinois-app/issues/725).
+
+## [2.11.4] - 2021-10-01
+### Changed
+- Show when the vaccine will become effective in vaccination widget [#720](https://github.com/rokwire/safer-illinois-app/issues/720).
+- Show upconing entries in history panel [#723](https://github.com/rokwire/safer-illinois-app/issues/723).
+
 ## [2.11.3] - 2021-09-29
 ### Deleted
 - Removed vaccine taken event handling [#715](https://github.com/rokwire/safer-illinois-app/issues/715).
