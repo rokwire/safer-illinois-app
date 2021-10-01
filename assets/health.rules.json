@@ -39,15 +39,15 @@
 		"Sun": 7,
 
 		"VaccineBoosterInterval": {
-			"condition": "test-vaccine", "params": { "manifacturer": "Phizer"},
-			"success": "PhizerBoosterInterval",
+			"condition": "test-vaccine", "params": { "manifacturer": "Pfizer"},
+			"success": "PfizerBoosterInterval",
 			"fail": {
 				"condition": "test-vaccine", "params": { "manifacturer": "Moderna"},
 				"success": "ModernaBoosterInterval",
 				"fail": "DefaultBoosterInterval"
 			}
 		},
-		"PhizerBoosterInterval": 180,
+		"PfizerBoosterInterval": 180,
 		"ModernaBoosterInterval": 180,
 		"DefaultBoosterInterval": 180
 	},
