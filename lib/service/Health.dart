@@ -1158,7 +1158,7 @@ class Health with Service implements NotificationsListener {
         blob: HealthHistoryBlob(
           provider: event?.provider,
           providerId: event?.providerId,
-          vaccine: event?.blob?.vaccine,
+          vaccineStatus: event?.blob?.vaccineStatus,
           extras: event?.blob?.extras,
         ),
         publicKey: _user?.publicKey
@@ -1239,7 +1239,7 @@ class Health with Service implements NotificationsListener {
             status: _status?.blob?.code,
             prevStatus: _previousStatus?.blob?.code,
             attributes: {
-              Analytics.LogHealthVaccineName: event.blob?.vaccine
+              Analytics.LogHealthVaccineStatusName: event.blob?.vaccineStatus
           });
         }
         else if (event.isAction) {

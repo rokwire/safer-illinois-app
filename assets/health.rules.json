@@ -97,7 +97,7 @@
 				"condition": "require-vaccine",
 				"params": {
 					"interval": { "scope": "past" },
-					"vaccine": "effective"
+					"status": "effective"
 				},
 				"success": {
 					"condition": "test-interval",
@@ -140,7 +140,7 @@
 				"condition": "require-vaccine",
 				"params": {
 					"interval": { "scope": "past" },
-					"vaccine": "effective"
+					"status": "effective"
 				},
 				"success": {
 					"condition": "test-interval",
@@ -239,7 +239,7 @@
 			"condition": "require-vaccine",
 			"params": {
 				"interval": { "scope": "past" },
-				"vaccine": "effective"
+				"status": "effective"
 			},
 			"success": {
 				"condition": "test-interval",
@@ -272,7 +272,7 @@
 			"condition": "require-vaccine",
 			"params": {
 				"interval": { "scope": "past" },
-				"vaccine": "effective"
+				"status": "effective"
 			},
 			"success": {
 				"condition": "test-interval",
@@ -375,7 +375,7 @@
 			"condition": "require-vaccine",
 			"params": {
 				"interval": { "scope": "past" },
-				"vaccine": "effective"
+				"status": "effective"
 			},
 			"success": {
 				"condition": "test-interval",
@@ -460,7 +460,7 @@
 			"condition": "require-vaccine",
 			"params": {
 				"interval": { "scope": "past" },
-				"vaccine": "effective"
+				"status": "effective"
 			},
 			"success": {
 				"condition": "test-interval",
@@ -522,7 +522,7 @@
 			"condition": "require-vaccine",
 			"params": {
 				"interval": { "scope": "past" },
-				"vaccine": "effective"
+				"status": "effective"
 			},
 			"success": {
 				"condition": "test-interval",
@@ -546,7 +546,7 @@
 			"condition": "require-vaccine",
 			"params": {
 				"interval": { "scope": "past" },
-				"vaccine": "effective"
+				"status": "effective"
 			},
 			"success": {
 				"condition": "test-interval",
@@ -951,7 +951,7 @@
 	"vaccines": {
 		"rules": [
 			{
-				"vaccine": "effective",
+				"vaccine_status": "effective",
 				"status": "vaccinated-handler"
 			}
 		]
