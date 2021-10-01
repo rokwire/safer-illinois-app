@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Added
 - Added SECURITY.md.
+- Added booster intervals for vaccines [#729](https://github.com/rokwire/safer-illinois-app/issues/729).
 
 ## [2.12.0] - 2021-09-30
 

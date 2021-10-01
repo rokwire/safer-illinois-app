@@ -856,7 +856,7 @@ class Health with Service implements NotificationsListener {
         }
         else if (historyEntry.isVaccine) {
           HealthVaccineRule vaccineRule = rules.vaccines.matchRule(blob: historyEntry?.blob, rules: rules);
-          ruleStatus = vaccineRule?.status?.eval(history: history, historyIndex: index, rules: rules, params: _buildParams(params, historyEntry.blob?.actionParams));
+          ruleStatus = vaccineRule?.status?.eval(history: history, historyIndex: index, rules: rules, params: params);
         }
         else if (historyEntry.isAction) {
           HealthActionRule actionRule = rules.actions.matchRule(blob: historyEntry?.blob, rules: rules);
@@ -1158,7 +1158,7 @@ class Health with Service implements NotificationsListener {
         blob: HealthHistoryBlob(
           provider: event?.provider,
           providerId: event?.providerId,
-          vaccine: event?.blob?.vaccine,
+          vaccineStatus: event?.blob?.vaccineStatus,
           extras: event?.blob?.extras,
         ),
         publicKey: _user?.publicKey
@@ -1239,7 +1239,7 @@ class Health with Service implements NotificationsListener {
             status: _status?.blob?.code,
             prevStatus: _previousStatus?.blob?.code,
             attributes: {
-              Analytics.LogHealthVaccineName: event.blob?.vaccine
+              Analytics.LogHealthVaccineStatusName: event.blob?.vaccineStatus
           });
         }
         else if (event.isAction) {
