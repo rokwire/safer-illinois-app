@@ -856,7 +856,7 @@ class Health with Service implements NotificationsListener {
         }
         else if (historyEntry.isVaccine) {
           HealthVaccineRule vaccineRule = rules.vaccines.matchRule(blob: historyEntry?.blob, rules: rules);
-          ruleStatus = vaccineRule?.status?.eval(history: history, historyIndex: index, rules: rules, params: _buildParams(params, historyEntry.blob?.actionParams));
+          ruleStatus = vaccineRule?.status?.eval(history: history, historyIndex: index, rules: rules, params: params);
         }
         else if (historyEntry.isAction) {
           HealthActionRule actionRule = rules.actions.matchRule(blob: historyEntry?.blob, rules: rules);
