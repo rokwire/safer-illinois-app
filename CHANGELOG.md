@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.11.5] - 2021-10-01
+### Fixed
+- Fixed null pointer crash [#725](https://github.com/rokwire/safer-illinois-app/issues/725).
+
 ## [2.12.1] - 2021-10-01
 ### Added
 - Added SECURITY.md.
