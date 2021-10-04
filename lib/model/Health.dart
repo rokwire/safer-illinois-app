@@ -4649,7 +4649,7 @@ abstract class HealthRuleCondition {
     if (history != null) {
       int originIndex = ((referenceIndex != null) && (0 <= referenceIndex) && (referenceIndex < history.length)) ? referenceIndex : historyIndex;
       HealthHistory originEntry = ((originIndex != null) && (0 <= originIndex) && (originIndex < history.length)) ? history[originIndex] : null;
-      if (originEntry?.type != HealthHistoryType.vaccine) {
+      if (originEntry?.type == HealthHistoryType.vaccine) {
         if ((manifacturer != null) && !_matchStringTarget(target: originEntry?.blob?.vaccineManifacturer, source: manifacturer)) {
           return false;
         }
