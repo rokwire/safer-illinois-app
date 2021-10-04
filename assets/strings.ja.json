@@ -343,6 +343,8 @@
 	"panel.covid19home.vaccination.vaccinated.effective.0.description": "あなたのワクチンは今日有効になります。",
 	"panel.covid19home.vaccination.vaccinated.effective.1.description": "あなたのワクチンは明日有効になります。",
 	"panel.covid19home.vaccination.vaccinated.effective.n.description": "あなたのワクチンは％s日後に有効になります。",
+	"panel.covid19home.vaccination.expired.title": "ワクチンの有効期限が切れました",
+	"panel.covid19home.vaccination.expired.description": "今すぐブースター用量を入手してください。",
 	"panel.covid19home.vaccination.button.appointment.title": "予約する",
 	"panel.covid19home.vaccination.button.appointment.hint": "",
 
