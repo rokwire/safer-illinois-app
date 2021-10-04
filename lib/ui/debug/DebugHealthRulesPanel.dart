@@ -84,13 +84,14 @@ class _DebugHealthRulesPanelState extends State<DebugHealthRulesPanel>{
 
       Health().loadRulesJson(countyId: _selectedCountyId).then((Map<String, dynamic> rules) {
         if (mounted) {
-          if ((rules != null) && (Health().userTestMonitorInterval != null)) {
+          int userTestMonitorInterval = Health().userOverride?.effectiveTestInterval;
+          if ((rules != null) && (userTestMonitorInterval != null)) {
             dynamic intervals = rules['intervals'];
             if (intervals == null) {
               rules['intervals'] = intervals = {};
             }
             if (intervals is Map) {
-              intervals[HealthRulesSet.UserTestMonitorInterval] = Health().userTestMonitorInterval;
+              intervals[HealthRulesSet.UserTestMonitorInterval] = userTestMonitorInterval;
             }
           }
 

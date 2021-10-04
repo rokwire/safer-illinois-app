@@ -46,6 +46,7 @@ class Health with Service implements NotificationsListener {
   static const String notifyStatusUpdated              = "edu.illinois.rokwire.health.status.updated";
   static const String notifyHistoryUpdated             = "edu.illinois.rokwire.health.history.updated";
   static const String notifyUserAccountCanged          = "edu.illinois.rokwire.health.user.account.changed";
+  static const String notifyUserOverrideChanged        = "edu.illinois.rokwire.health.iser.override.changed";
   static const String notifyCountyChanged              = "edu.illinois.rokwire.health.county.changed";
   static const String notifyRulesChanged               = "edu.illinois.rokwire.health.rules.changed";
   static const String notifyBuildingAccessRulesChanged = "edu.illinois.rokwire.health.building_access_rules.changed";
@@ -61,7 +62,7 @@ class Health with Service implements NotificationsListener {
   HealthUser _user;
   PrivateKey _userPrivateKey;
   String _userAccountId;
-  int _userTestMonitorInterval;
+  HealthUserOverride _userOverride;
 
   HealthStatus _status;
   List<HealthHistory> _history;
@@ -116,7 +117,7 @@ class Health with Service implements NotificationsListener {
     _user = _loadUserFromStorage();
     _userPrivateKey = await _loadUserPrivateKey();
     _userAccountId = Storage().healthUserAccountId;
-    _userTestMonitorInterval = Storage().healthUserTestMonitorInterval;
+    _userOverride = _loadUserOverrideFromStorage();
 
     _status = _loadStatusFromStorage();
     _history = await _loadHistoryFromCache();
@@ -146,7 +147,7 @@ class Health with Service implements NotificationsListener {
     _user = null;
     _userPrivateKey = null;
     _userAccountId = null;
-    _userTestMonitorInterval = null;
+    _userOverride = null;
     _servicePublicKey = null;
 
     _status = null;
@@ -202,14 +203,14 @@ class Health with Service implements NotificationsListener {
 
     if (this._isUserAuthenticated) {
       _refreshUserPrivateKey().then((_) {
-        _refresh(_RefreshOptions.fromList([_RefreshOption.user, _RefreshOption.userInterval, _RefreshOption.history, _RefreshOption.familyMembers]));
+        _refresh(_RefreshOptions.fromList([_RefreshOption.user, _RefreshOption.userOverride, _RefreshOption.history, _RefreshOption.familyMembers]));
       });
     }
     else {
       _userPrivateKey = null;
       _clearUser();
       _clearUserAccountId();
-      _clearUserTestMonitorInterval();
+      _clearUserOverride();
       _clearStatus();
       _clearHistory();
       _clearFamilyMembers();
@@ -227,11 +228,11 @@ class Health with Service implements NotificationsListener {
   }
 
   Future<void> refreshStatus() async {
-    return _refresh(_RefreshOptions.fromList([_RefreshOption.userInterval, _RefreshOption.history, _RefreshOption.rules, _RefreshOption.buildingAccessRules]));
+    return _refresh(_RefreshOptions.fromList([_RefreshOption.userOverride, _RefreshOption.history, _RefreshOption.rules, _RefreshOption.buildingAccessRules]));
   }
 
   Future<void> refreshStatusAndUser() async {
-    return _refresh(_RefreshOptions.fromList([_RefreshOption.user, _RefreshOption.userInterval, _RefreshOption.history, _RefreshOption.rules, _RefreshOption.buildingAccessRules]));
+    return _refresh(_RefreshOptions.fromList([_RefreshOption.user, _RefreshOption.userOverride, _RefreshOption.history, _RefreshOption.rules, _RefreshOption.buildingAccessRules]));
   }
 
   Future<void> refreshUser() async {
@@ -271,7 +272,7 @@ class Health with Service implements NotificationsListener {
       options.user ? _refreshUser() : Future<void>.value(),
       options.userPrivateKey ? _refreshUserPrivateKey() : Future<void>.value(),
       
-      options.userInterval ? _refreshUserTestMonitorInterval() : Future<void>.value(),
+      options.userOverride ? _refreshUserOverride() : Future<void>.value(),
       options.status ? _refreshStatus() : Future<void>.value(),
       options.history ? _refreshHistory() : Future<void>.value(),
       
@@ -282,7 +283,7 @@ class Health with Service implements NotificationsListener {
       options.familyMembers ? _refreshFamilyMembers() : Future<void>.value(),
     ]);
     
-    if (options.history || options.rules || options.userInterval) {
+    if (options.history || options.rules || options.userOverride) {
       await _rebuildStatus();
       await _logProcessedEvents();
     }
@@ -528,7 +529,7 @@ class Health with Service implements NotificationsListener {
     }
 
     if (userReset == true) {
-      await _refresh(_RefreshOptions.fromList([_RefreshOption.userInterval, _RefreshOption.history]));
+      await _refresh(_RefreshOptions.fromList([_RefreshOption.userOverride, _RefreshOption.history]));
     }
     
     return user;
@@ -540,7 +541,7 @@ class Health with Service implements NotificationsListener {
       await _clearHistory();
       _clearStatus();
       _clearUserAccountId();
-      _clearUserTestMonitorInterval();
+      _clearUserOverride();
       _clearFamilyMembers();
       return true;
     }
@@ -669,10 +670,10 @@ class Health with Service implements NotificationsListener {
 
       _beginNotificationsCache();
       _clearStatus();
-      _clearUserTestMonitorInterval();
+      _clearUserOverride();
       _clearFamilyMembers();
       await _clearHistory();
-      await _refresh(_RefreshOptions.fromList([_RefreshOption.userInterval, _RefreshOption.history, _RefreshOption.familyMembers]));
+      await _refresh(_RefreshOptions.fromList([_RefreshOption.userOverride, _RefreshOption.history, _RefreshOption.familyMembers]));
       _endNotificationsCache();
     }
   }
@@ -681,37 +682,47 @@ class Health with Service implements NotificationsListener {
     _applyUserAccount(null);
   }
 
-  // User test monitor interval
+  // User override
 
-  int get userTestMonitorInterval {
-    return _userTestMonitorInterval;
+  HealthUserOverride get userOverride {
+    return _userOverride;
   }
 
-  Future<void> _refreshUserTestMonitorInterval() async {
+  Future<void> _refreshUserOverride() async {
     try {
-      Storage().healthUserTestMonitorInterval = _userTestMonitorInterval = await _loadUserTestMonitorInterval();
+      HealthUserOverride userOverride = await _loadUserTestMonitorInterval();
+      if (_userOverride != userOverride) {
+        _saveUserOverrideToStorage(_userOverride = userOverride);
+        _notify(notifyUserOverrideChanged);
+      }
     }
     catch (e) {
       print(e?.toString());
     }
   }
 
-  Future<int> _loadUserTestMonitorInterval() async {
-//TMP:  return 8;
+  Future<HealthUserOverride> _loadUserTestMonitorInterval() async {
     if (this._isUserAuthenticated && (Config().healthUrl != null)) {
-      String url = "${Config().healthUrl}/covid19/uin-override";
+      String url = "${Config().healthUrl}/covid19/v2/uin-override";
       Response response = await Network().get(url, auth: Network.HealthUserAuth);
       if (response?.statusCode == 200) {
-        Map<String, dynamic> responseJson = AppJson.decodeMap(response.body);
-        return (responseJson != null) ? responseJson['interval'] : null;
+        return HealthUserOverride.fromJson(AppJson.decodeMap(response.body));
       }
       throw Exception("${response?.statusCode ?? '000'} ${response?.body ?? 'Unknown error occured'}");
     }
     throw Exception("User not logged in");
   }
 
-  void _clearUserTestMonitorInterval() {
-    Storage().healthUserTestMonitorInterval = _userTestMonitorInterval = null;
+  void _clearUserOverride() {
+    Storage().healthUserOverride = _userOverride = null;
+  }
+
+  static HealthUserOverride _loadUserOverrideFromStorage() {
+    return HealthUserOverride.fromJson(AppJson.decodeMap(Storage().healthUserOverride));
+  }
+
+  static void _saveUserOverrideToStorage(HealthUserOverride userOverride) {
+    Storage().healthUserOverride = AppJson.encode(userOverride?.toJson());
   }
 
   // Status
@@ -813,7 +824,8 @@ class Health with Service implements NotificationsListener {
   }
 
   HealthStatus _evalStatus() {
-    Map<String, dynamic> params = (_userTestMonitorInterval != null) ? { HealthRulesSet.UserTestMonitorInterval : _userTestMonitorInterval } : null;
+    int userTestMonitorInterval = _userOverride?.effectiveTestInterval;
+    Map<String, dynamic> params = (userTestMonitorInterval != null) ? { HealthRulesSet.UserTestMonitorInterval : userTestMonitorInterval } : null;
     return _buildStatus(rules: _rules, history: _history, params: params);
   }
 
@@ -1890,7 +1902,7 @@ class _RefreshOptions {
 
   bool get user { return options.contains(_RefreshOption.user); }
   bool get userPrivateKey { return options.contains(_RefreshOption.userPrivateKey); }
-  bool get userInterval { return options.contains(_RefreshOption.userInterval); }
+  bool get userOverride { return options.contains(_RefreshOption.userOverride); }
 
   bool get status { return options.contains(_RefreshOption.status); }
   bool get history { return options.contains(_RefreshOption.history); }
@@ -1922,7 +1934,7 @@ class _RefreshOptions {
 enum _RefreshOption {
   user,
   userPrivateKey,
-  userInterval,
+  userOverride,
 
   status,
   history,

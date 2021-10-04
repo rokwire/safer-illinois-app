@@ -1645,6 +1645,68 @@ class HealthOSFAuth {
 }
 
 ///////////////////////////////
+// HealthUserOverride
+
+class HealthUserOverride {
+  final int testInterval;
+  final DateTime testIntervalStartDateUtc;
+  final DateTime testIntervalEndDateUtc;
+  final bool vaccinationExempt;
+  
+  HealthUserOverride({this.testInterval, this.testIntervalStartDateUtc, this.testIntervalEndDateUtc, this.vaccinationExempt });
+
+  factory HealthUserOverride.fromJson(Map<String, dynamic> json) {
+    return (json != null) ? HealthUserOverride(
+      testInterval: AppJson.intValue(json['interval']),
+      testIntervalStartDateUtc: healthDateTimeFromString(AppJson.stringValue(json['activation'])),
+      testIntervalEndDateUtc: healthDateTimeFromString(AppJson.stringValue(json['expiration'])),
+      vaccinationExempt: AppJson.boolValue(json['exempt']),
+    ) : null;
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'interval': testInterval,
+      'activation': healthDateTimeToString(testIntervalStartDateUtc),
+      'expiration': healthDateTimeToString(testIntervalEndDateUtc),
+      "exempt" : vaccinationExempt
+    };
+  }
+
+  bool operator ==(o) {
+    return (o is HealthUserOverride) &&
+      (o.testInterval == testInterval) &&
+      (o.testIntervalStartDateUtc == testIntervalStartDateUtc) &&
+      (o.testIntervalEndDateUtc == testIntervalEndDateUtc) &&
+      (o.vaccinationExempt == vaccinationExempt);
+  }
+
+  int get hashCode =>
+    (testInterval?.hashCode ?? 0) ^
+    (testIntervalStartDateUtc?.hashCode ?? 0) ^
+    (testIntervalEndDateUtc?.hashCode ?? 0) ^
+    (vaccinationExempt?.hashCode ?? 0);
+
+  int get effectiveTestInterval {
+    if (testInterval == null) {
+      return null;
+    }
+    else {
+      DateTime nowUtc = ((testIntervalStartDateUtc != null) || (testIntervalEndDateUtc != null)) ? DateTime.now().toUtc() : null;
+      if ((testIntervalStartDateUtc != null) && testIntervalStartDateUtc.isBefore(nowUtc)) {
+        return null;
+      }
+      if ((testIntervalEndDateUtc != null) && testIntervalEndDateUtc.isAfter(nowUtc)) {
+        return null;
+      }
+      return testInterval;
+    }
+  }
+}
+
+
+
+///////////////////////////////
 // HealthServiceProvider
 
 class HealthServiceProvider {
