@@ -706,8 +706,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
       DateTime now = DateTime.now();
       if (recentVaccine.dateUtc.isBefore(now.toUtc())) {
         // Check if vaccine booster interval has expired
-        int vaccineBoosterInterval = Health().rules?.getInterval(HealthRulesSet.VaccineBoosterInterval)?.value(history: Health().history, historyIndex: recentVaccineIndex, rules: Health().rules);
-        DateTime vaccineExpireDateLocal = ((vaccineBoosterInterval != null) && (0 < vaccineBoosterInterval)) ? recentVaccine.getDateMidnightLocal(offsetInDays: vaccineBoosterInterval + 1) : null;
+        DateTime vaccineExpireDateLocal = HealthHistory.getVaccineExpireDateLocal(history: Health().history, vaccineIndex: recentVaccineIndex, rules: Health().rules);
         if ((vaccineExpireDateLocal == null) || now.isBefore(vaccineExpireDateLocal)) {
           // 5.2.4 When effective then hide the widget
           return null;

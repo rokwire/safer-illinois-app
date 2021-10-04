@@ -696,14 +696,23 @@ class HealthHistory implements Comparable<HealthHistory> {
     return null;
   }
 
-  static HealthHistory mostRecentVaccine(List<HealthHistory> history, { String vaccineStatus }) {
+  static int mostRecentVaccineIndex(List<HealthHistory> history, { String vaccineStatus }) {
     if (history != null) {
       for (int index = 0; index < history.length; index++) {
         HealthHistory historyEntry = history[index];
         if (historyEntry.isVaccine && ((vaccineStatus == null) || (historyEntry.blob?.vaccineStatus?.toLowerCase() == vaccineStatus?.toLowerCase()))) {
-          return historyEntry;
+          return index;
         }
       }
+    }
+    return null;
+  }
+
+  static DateTime getVaccineExpireDateLocal({List<HealthHistory> history, int vaccineIndex, HealthRulesSet rules }) {
+    HealthHistory vaccine = ((history != null) && (vaccineIndex != null) && (0 <= vaccineIndex) && (vaccineIndex < history.length)) ? history[vaccineIndex] : null;
+    if (vaccine?.blob?.isVaccineEffective ?? false) {
+      int vaccineBoosterInterval = rules?.getInterval(HealthRulesSet.VaccineBoosterInterval)?.value(history: history, historyIndex: vaccineIndex, rules: rules);
+      return ((vaccineBoosterInterval != null) && (vaccineBoosterInterval > 0)) ? vaccine.getDateMidnightLocal(offsetInDays: vaccineBoosterInterval + 1) : null;
     }
     return null;
   }
