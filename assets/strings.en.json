@@ -343,6 +343,8 @@
 	"panel.covid19home.vaccination.vaccinated.effective.0.description": "Your vaccine will be effective today.",
 	"panel.covid19home.vaccination.vaccinated.effective.1.description": "Your vaccine will be effective tomorrow.",
 	"panel.covid19home.vaccination.vaccinated.effective.n.description": "Your vaccine will be effective after %s days.",
+	"panel.covid19home.vaccination.expired.title": "Vaccine Expired",
+	"panel.covid19home.vaccination.expired.description": "Get a booster dose now.",
 	"panel.covid19home.vaccination.button.appointment.title": "Make an appointment",
 	"panel.covid19home.vaccination.button.appointment.hint": "",
 

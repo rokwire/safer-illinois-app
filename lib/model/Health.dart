@@ -513,6 +513,10 @@ class HealthHistory implements Comparable<HealthHistory> {
     return (dateUtc != null) ? AppDateTime.midnight(dateUtc.toLocal()) : null;
   }
 
+  DateTime getDateMidnightLocal({int offsetInDays}) {
+    return (dateUtc != null) ? AppDateTime.midnight(dateUtc.toLocal(), offsetInDays: offsetInDays) : null;
+  }
+
   bool matchPendingEvent(HealthPendingEvent event) {
     if (event.isTest) {
       return this.isTest &&
@@ -2752,6 +2756,7 @@ class HealthRulesSet {
 
 
   static const String UserTestMonitorInterval = 'UserTestMonitorInterval';
+  static const String VaccineBoosterInterval = 'VaccineBoosterInterval';
   static const String FamilyMemberTestPrice = 'FamilyMemberTestPrice';
 
   HealthRulesSet({this.tests, this.symptoms, this.contactTrace, this.vaccines, this.actions, this.defaults, HealthCodesSet codes, this.statuses, this.intervals, Map<String, dynamic> constants, Map<String, dynamic> strings}) :
@@ -2815,7 +2820,7 @@ class HealthRulesSet {
     DeepCollectionEquality().hash(intervals) ^
     DeepCollectionEquality().hash(strings);
 
-  _HealthRuleInterval _getInterval(String name) {
+  _HealthRuleInterval getInterval(String name) {
     return (intervals != null) ? intervals[name] : null; 
   }
 
@@ -4361,7 +4366,7 @@ class HealthRuleIntervalReference extends _HealthRuleInterval {
 
   _HealthRuleInterval _referenceInterval({HealthRulesSet rules, Map<String, dynamic> params }) {
     _HealthRuleInterval referenceParamInterval = (params != null) ? _HealthRuleInterval.fromJson(params[_reference]) : null;
-    return (referenceParamInterval != null) ? referenceParamInterval : rules?._getInterval(_reference);
+    return (referenceParamInterval != null) ? referenceParamInterval : rules?.getInterval(_reference);
   }
 
   @override
