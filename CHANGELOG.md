@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added vaccination exempt support in UIN Overrides [#733](https://github.com/rokwire/safer-illinois-app/issues/733).
 - Check for expired vaccines in vaccination widget and isVaccinated getter [#729](https://github.com/rokwire/safer-illinois-app/issues/729).
+### Changed
+- Simplify VaccineBoosterInterval logic until we really need different intervals for different manufacturers [#737](https://github.com/rokwire/safer-illinois-app/issues/737).
+### Deleted
+- Remove "max-weekdays-extent" from test monitor interval until it is required [#737](https://github.com/rokwire/safer-illinois-app/issues/737).
 
 ## [2.11.5] - 2021-10-01
 ### Fixed
