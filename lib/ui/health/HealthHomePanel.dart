@@ -74,6 +74,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
       Health.notifyStatusUpdated,
       Health.notifyHistoryUpdated,
       Health.notifyUserAccountCanged,
+      Health.notifyUserOverrideChanged,
     ]);
 
     _refresh();
@@ -92,6 +93,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
         (name == Health.notifyStatusUpdated) ||
         (name == Health.notifyHistoryUpdated) ||
         (name == Health.notifyUserAccountCanged) ||
+        (name == Health.notifyUserOverrideChanged) ||
         (name == FlexUI.notifyChanged))
     {
       if (mounted) {
