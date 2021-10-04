@@ -10,6 +10,7 @@
 		"DefaultTestMonitorInterval": 4,
 		"UndergraduateTestMonitorInterval": 2,
 		"UserTestMonitorInterval": null,
+		"VaccineBoosterInterval": 180,
 
 		"TestMonitorInterval": {
 			"condition": "test-interval", "params": { "interval": "UserTestMonitorInterval" },
@@ -19,26 +20,7 @@
 				"success": "UndergraduateTestMonitorInterval",
 				"fail": "DefaultTestMonitorInterval"
 			}
-		},
-		
-		"DefaultTestMonitorWeekdaysExtent": ["Fri", "Sat", "Sun", "Mon"],
-		"UndergraduateTestMonitorWeekdaysExtent": ["Sat", "Sun"],
-
-		"TestMonitorWeekdaysExtent": {
-			"condition": "test-user", "params": { "card.role": "Undergraduate", "card.student_level": "1U" },
-			"success": "UndergraduateTestMonitorWeekdaysExtent",
-			"fail": "DefaultTestMonitorWeekdaysExtent"
-		},
-
-		"Mon": 1,
-		"Tue": 2,
-		"Wed": 3,
-		"Thu": 4,
-		"Fri": 5,
-		"Sat": 6,
-		"Sun": 7,
-
-		"VaccineBoosterInterval": 180
+		}
 	},
 
 	"constants": {
@@ -231,7 +213,7 @@
 		"test-monitor": {
 			"condition": "require-test",
 			"params": {
-				"interval": { "min": 0, "max": "TestMonitorInterval", "max-weekdays-extent": "TestMonitorWeekdaysExtent", "scope": "future", "current": true }
+				"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
 			},
 			"success": "test-fulfilled",
 			"fail": "test-required"
