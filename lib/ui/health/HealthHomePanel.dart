@@ -681,13 +681,23 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
 
   Widget _buildVaccinationSection() {
 
+    if (Health().userOverride?.vaccinationExempt == true) {
+      // 2.2 If true then we would hide the Vaccine widget
+      return null;
+    }
+    
+    HealthHistory recentVaccine = getRecentVaccine();
+    DateTime now = (recentVaccine != null) ? DateTime.now() : null;
+    if ((recentVaccine?.blob?.isVaccineEffective ?? false) && (recentVaccine?.dateUtc?.isBefore(now.toUtc()) ?? false)) {
+      // 5.2.4 When effective then hide the widget
+      return null;
+    }
+
     String headingDate;
     String statusTitleText, statusTitleHtml;
     String statusDescriptionText, statusDescriptionHtml;
     String headingTitle = Localization().getStringEx('panel.covid19home.vaccination.heading.title', 'VACCINATION');
-    
-    HealthHistory recentVaccine = getRecentVaccine();
-    
+
     if (recentVaccine == null) {
       // No vaccine at all - promote it.
       statusTitleText = Localization().getStringEx('panel.covid19home.vaccination.none.title', 'Get a vaccine now');
@@ -702,24 +712,18 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
       statusTitleText = Localization().getStringEx('panel.covid19home.vaccination.vaccinated.title', 'Vaccinated');
 
       if ((recentVaccine.blob?.isVaccineEffective ?? false) && (recentVaccine.dateUtc != null)) {
-        DateTime now = DateTime.now();
-        if (recentVaccine.dateUtc.isBefore(now.toUtc())) {
-          // 5.2.4 When effective then hide the widget
-          return null;
+        // Vaccinated, but not effective yet.
+        // We already know that "recentVaccine.dateUtc.isAfter(now.toUtc())"
+        int delayInDays = AppDateTime.midnight(recentVaccine.dateUtc.toLocal()).difference(AppDateTime.midnight(now)).inDays;
+        
+        if (delayInDays > 1) {
+          statusDescriptionText = sprintf(Localization().getStringEx('panel.covid19home.vaccination.vaccinated.effective.n.description', 'Your vaccine will be effective after %s days.'), [delayInDays]);  
+        }
+        else if (delayInDays == 1) {
+          statusDescriptionText = Localization().getStringEx('panel.covid19home.vaccination.vaccinated.effective.1.description', 'Your vaccine will be effective tomorrow.');  
         }
         else {
-          // Vaccinated, but not effective yet.
-          int delayInDays = AppDateTime.midnight(recentVaccine.dateUtc.toLocal()).difference(AppDateTime.midnight(now)).inDays;
-          
-          if (delayInDays > 1) {
-            statusDescriptionText = sprintf(Localization().getStringEx('panel.covid19home.vaccination.vaccinated.effective.n.description', 'Your vaccine will be effective after %s days.'), [delayInDays]);  
-          }
-          else if (delayInDays == 1) {
-            statusDescriptionText = Localization().getStringEx('panel.covid19home.vaccination.vaccinated.effective.1.description', 'Your vaccine will be effective tomorrow.');  
-          }
-          else {
-            statusDescriptionText = Localization().getStringEx('panel.covid19home.vaccination.vaccinated.effective.0.description', 'Your vaccine will be effective today.');  
-          }
+          statusDescriptionText = Localization().getStringEx('panel.covid19home.vaccination.vaccinated.effective.0.description', 'Your vaccine will be effective today.');  
         }
       }
       else {
