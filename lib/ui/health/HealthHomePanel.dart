@@ -690,6 +690,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
     bool shouldMakeAppointment;
 
     bool exemptFromVaccination = (Health().userOverride?.vaccinationExempt == true);
+    bool vaccinationSuspended = (Health().userOverride?.effectiveTestInterval != null);
     int recentVaccineIndex = !exemptFromVaccination ? getRecentVaccineIndex(Health().history) : null;
     HealthHistory recentVaccine = ((recentVaccineIndex != null) && (0 <= recentVaccineIndex) && (recentVaccineIndex < Health().history.length)) ? Health().history[recentVaccineIndex] : null;
     if (exemptFromVaccination) {
@@ -713,20 +714,28 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
         // Check if vaccine booster interval has expired
         DateTime vaccineExpireDateLocal = HealthHistory.getVaccineExpireDateLocal(history: Health().history, vaccineIndex: recentVaccineIndex, rules: Health().rules);
         if ((vaccineExpireDateLocal == null) || now.isBefore(vaccineExpireDateLocal)) {
-          // 5.2.4 When effective then hide the widget
-          return null;
+          if (!vaccinationSuspended) {
+            // 5.2.4 When effective then hide the widget
+            return null;
+          }
+          else {
+            // Vaccinated status suspended
+            statusTitleText = Localization().getStringEx('panel.covid19home.vaccination.suspended.title', 'Vaccination status suspended');
+            statusDescriptionText = Localization().getStringEx('panel.covid19home.vaccination.suspended.description', 'You are currently effectively vaccinated but are required to continue taking tests until further notice.');
+          }
         }
         else {
+          // Vaccine expired
           headingDate = AppDateTime.formatDateTime(vaccineExpireDateLocal, format:"MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode);
           statusTitleText = Localization().getStringEx('panel.covid19home.vaccination.expired.title', 'Vaccine Expired');
           statusDescriptionText = Localization().getStringEx('panel.covid19home.vaccination.expired.description', 'Get a booster dose now.');
         }
       }
       else {
+        // Vaccinated, but not effective yet.
         headingDate = AppDateTime.formatDateTime(recentVaccine.dateUtc?.toLocal(), format:"MMMM dd, yyyy", locale: Localization().currentLocale?.languageCode);
         statusTitleText = Localization().getStringEx('panel.covid19home.vaccination.vaccinated.title', 'Vaccinated');
 
-        // Vaccinated, but not effective yet.
         int delayInDays = AppDateTime.midnightsDifferenceInDays(AppDateTime.todayMidnightLocal, recentVaccine.dateMidnightLocal);
         
         if (delayInDays > 1) {

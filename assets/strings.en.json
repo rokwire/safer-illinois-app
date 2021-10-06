@@ -347,6 +347,8 @@
 	"panel.covid19home.vaccination.expired.description": "Get a booster dose now.",
 	"panel.covid19home.vaccination.exempt.title": "Exempt from vaccination",
 	"panel.covid19home.vaccination.exempt.description": "You are currently exempt from taking COVID-19 vaccines but are required to continue taking tests.",
+	"panel.covid19home.vaccination.suspended.title": "Vaccination status suspended",
+	"panel.covid19home.vaccination.suspended.description": "You are currently effectively vaccinated but are required to continue taking tests until further notice.",
 	"panel.covid19home.vaccination.button.appointment.title": "Make an appointment",
 	"panel.covid19home.vaccination.button.appointment.hint": "",
 
