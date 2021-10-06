@@ -683,19 +683,20 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
 
   Widget _buildVaccinationSection() {
 
-    if (Health().userOverride?.vaccinationExempt == true) {
-      // 2.2 If true then we would hide the Vaccine widget
-      return null;
-    }
-    
     String headingDate;
     String statusTitleText, statusTitleHtml;
     String statusDescriptionText, statusDescriptionHtml;
     String headingTitle = Localization().getStringEx('panel.covid19home.vaccination.heading.title', 'VACCINATION');
 
-    int recentVaccineIndex = getRecentVaccineIndex(Health().history);
+    bool exemptOfVaccination = (Health().userOverride?.vaccinationExempt == true);
+    int recentVaccineIndex = !exemptOfVaccination ? getRecentVaccineIndex(Health().history) : null;
     HealthHistory recentVaccine = ((recentVaccineIndex != null) && (0 <= recentVaccineIndex) && (recentVaccineIndex < Health().history.length)) ? Health().history[recentVaccineIndex] : null;
-    if (recentVaccine == null) {
+    if (exemptOfVaccination) {
+      // 2.2. if "Exempt" is true, just to say "You are currently exempt from taking COVID-19 vaccines but are required to continue taking tests."
+      statusTitleText = Localization().getStringEx('panel.covid19home.vaccination.exempt.title', 'Exempt from vaccination');
+      statusDescriptionText = Localization().getStringEx('panel.covid19home.vaccination.exempt.description', 'You are currently exempt from taking COVID-19 vaccines but are required to continue taking tests.');
+    }
+    else if (recentVaccine == null) {
       // No vaccined at all - promote it.
       statusTitleText = Localization().getStringEx('panel.covid19home.vaccination.none.title', 'Get a vaccine now');
       statusDescriptionText = Localization().getStringEx('panel.covid19home.vaccination.none.description', """

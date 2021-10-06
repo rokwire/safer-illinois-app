@@ -345,6 +345,8 @@
 	"panel.covid19home.vaccination.vaccinated.effective.n.description": "您的疫苗將在 %s 天后生效。",
 	"panel.covid19home.vaccination.expired.title": "疫苗過期",
 	"panel.covid19home.vaccination.expired.description": "立即接種加強劑量。",
+	"panel.covid19home.vaccination.exempt.title": "免於接種",
+	"panel.covid19home.vaccination.exempt.description": "您目前可以免於接種 COVID-19 疫苗，但需要繼續接受檢測。",
 	"panel.covid19home.vaccination.button.appointment.title": "預約",
 	"panel.covid19home.vaccination.button.appointment.hint": "",
 
