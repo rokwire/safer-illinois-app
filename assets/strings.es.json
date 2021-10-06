@@ -345,6 +345,10 @@
 	"panel.covid19home.vaccination.vaccinated.effective.n.description": "Su vacuna será efectiva después de %s días.",
 	"panel.covid19home.vaccination.expired.title": "Vacuna caducada",
 	"panel.covid19home.vaccination.expired.description": "Obtenga una dosis de refuerzo ahora.",
+	"panel.covid19home.vaccination.exempt.title": "Exenta de vacunación",
+	"panel.covid19home.vaccination.exempt.description": "Actualmente está exento de recibir las vacunas COVID-19, pero debe continuar realizando las pruebas.",
+	"panel.covid19home.vaccination.suspended.title": "Estado de vacunación suspendido",
+	"panel.covid19home.vaccination.suspended.description": "Actualmente está vacunado de manera efectiva, pero debe continuar realizando las pruebas hasta nuevo aviso.",
 	"panel.covid19home.vaccination.button.appointment.title": "Haga una cita",
 	"panel.covid19home.vaccination.button.appointment.hint": "",
 

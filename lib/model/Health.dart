@@ -1706,10 +1706,10 @@ class HealthUserOverride {
     }
     else {
       DateTime nowUtc = ((testIntervalStartDateUtc != null) || (testIntervalEndDateUtc != null)) ? DateTime.now().toUtc() : null;
-      if ((testIntervalStartDateUtc != null) && testIntervalStartDateUtc.isBefore(nowUtc)) {
+      if ((testIntervalStartDateUtc != null) && testIntervalStartDateUtc.isAfter(nowUtc)) {
         return null;
       }
-      if ((testIntervalEndDateUtc != null) && testIntervalEndDateUtc.isAfter(nowUtc)) {
+      if ((testIntervalEndDateUtc != null) && testIntervalEndDateUtc.isBefore(nowUtc)) {
         return null;
       }
       return testInterval;
