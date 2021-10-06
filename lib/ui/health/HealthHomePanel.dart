@@ -687,17 +687,19 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
     String statusTitleText, statusTitleHtml;
     String statusDescriptionText, statusDescriptionHtml;
     String headingTitle = Localization().getStringEx('panel.covid19home.vaccination.heading.title', 'VACCINATION');
+    bool shouldMakeAppointment;
 
-    bool exemptOfVaccination = (Health().userOverride?.vaccinationExempt == true);
-    int recentVaccineIndex = !exemptOfVaccination ? getRecentVaccineIndex(Health().history) : null;
+    bool exemptFromVaccination = (Health().userOverride?.vaccinationExempt == true);
+    int recentVaccineIndex = !exemptFromVaccination ? getRecentVaccineIndex(Health().history) : null;
     HealthHistory recentVaccine = ((recentVaccineIndex != null) && (0 <= recentVaccineIndex) && (recentVaccineIndex < Health().history.length)) ? Health().history[recentVaccineIndex] : null;
-    if (exemptOfVaccination) {
+    if (exemptFromVaccination) {
       // 2.2. if "Exempt" is true, just to say "You are currently exempt from taking COVID-19 vaccines but are required to continue taking tests."
       statusTitleText = Localization().getStringEx('panel.covid19home.vaccination.exempt.title', 'Exempt from vaccination');
       statusDescriptionText = Localization().getStringEx('panel.covid19home.vaccination.exempt.description', 'You are currently exempt from taking COVID-19 vaccines but are required to continue taking tests.');
     }
     else if (recentVaccine == null) {
       // No vaccined at all - promote it.
+      shouldMakeAppointment = true;
       statusTitleText = Localization().getStringEx('panel.covid19home.vaccination.none.title', 'Get a vaccine now');
       statusDescriptionText = Localization().getStringEx('panel.covid19home.vaccination.none.description', """
 • COVID-19 vaccines are safe
@@ -809,7 +811,7 @@ class _HealthHomePanelState extends State<HealthHomePanel> implements Notificati
       ],),
     ];
 
-    if ((recentVaccine == null) && (Config().vaccinationAppointUrl != null)) {
+    if ((shouldMakeAppointment == true) && (Config().vaccinationAppointUrl != null)) {
       contentList.addAll(<Widget>[
         Container(margin: EdgeInsets.only(top: 14, bottom: 14), height: 1, color: Styles().colors.fillColorPrimaryTransparent015,),
 
