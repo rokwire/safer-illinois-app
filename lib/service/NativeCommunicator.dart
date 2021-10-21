@@ -142,15 +142,6 @@ class NativeCommunicator with Service {
     }
   }
 
-  Future<dynamic> microBlinkScan({List<String> recognizers}) async {
-    try {
-      return await _platformChannel.invokeMethod('microBlinkScan', { 'recognizers' : recognizers });
-    } on PlatformException catch (e) {
-      print(e.message);
-    }
-    return null;
-  }
-
   Future<List<DeviceOrientation>> enabledOrientations(List<DeviceOrientation> orientationsList) async {
     List<DeviceOrientation> result;
     try {

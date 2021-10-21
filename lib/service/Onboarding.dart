@@ -26,8 +26,6 @@ import 'package:illinois/ui/onboarding/OnboardingHealthFinalPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingHealthHowItWorksPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingHealthIntroPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingHealthQrCodePanel.dart';
-import 'package:illinois/ui/onboarding/OnboardingResidentInfoPanel.dart';
-import 'package:illinois/ui/onboarding/OnboardingReviewScanPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingAuthBluetoothPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginPhoneConfirmPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingGetStartedPanel.dart';
@@ -164,8 +162,6 @@ class Onboarding extends Service implements NotificationsListener{
       case "login_phone": return OnboardingLoginPhonePanel(onboardingContext: context);
       case "verify_phone": return OnboardingLoginPhoneVerifyPanel(onboardingContext: context);
       case "confirm_phone": return OnboardingLoginPhoneConfirmPanel(onboardingContext: context);
-      case "resident_info": return OnboardingResidentInfoPanel(onboardingContext: context);
-      case "review_scan": return OnboardingReviewScanPanel(onboardingContext: context);
       case "health_intro": return OnboardingHealthIntroPanel(onboardingContext: context);
       case "health_how_it_works": return OnboardingHealthHowItWorksPanel(onboardingContext: context);
       case "health_disclosure": return OnBoardingHealthDisclosurePanel(onboardingContext: context);
@@ -206,12 +202,6 @@ class Onboarding extends Service implements NotificationsListener{
     }
     else if (panel is OnboardingLoginPhoneConfirmPanel) {
       return 'confirm_phone';
-    }
-    else if (panel is OnboardingResidentInfoPanel) {
-      return 'resident_info';
-    }
-    else if (panel is OnboardingReviewScanPanel) {
-      return 'review_scan';
     }
     else if (panel is OnboardingHealthIntroPanel) {
       return 'health_intro';

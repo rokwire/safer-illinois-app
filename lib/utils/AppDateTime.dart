@@ -67,8 +67,8 @@ class AppDateTime {
     }
   }
 
-  static DateTime midnight(DateTime date) {
-    return (date != null) ? DateTime(date.year, date.month, date.day) : null;
+  static DateTime midnight(DateTime date, {int offsetInDays}) {
+    return (date != null) ? DateTime(date.year, date.month, date.day + (offsetInDays ?? 0)) : null;
   }
 
   static DateTime get todayMidnightLocal {

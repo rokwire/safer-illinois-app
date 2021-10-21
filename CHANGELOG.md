@@ -6,6 +6,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.12.3] - 2021-10-06
+### Changed
+- Handled exempt of vaccination and vaccintation suspended status in vaccination widget [#739](https://github.com/rokwire/safer-illinois-app/issues/739).
+
+## [2.12.2] - 2021-10-04
+### Added
+- Added vaccination exempt support in UIN Overrides [#733](https://github.com/rokwire/safer-illinois-app/issues/733).
+- Check for expired vaccines in vaccination widget and isVaccinated getter [#729](https://github.com/rokwire/safer-illinois-app/issues/729).
+### Changed
+- Simplify VaccineBoosterInterval logic until we really need different intervals for different manufacturers [#737](https://github.com/rokwire/safer-illinois-app/issues/737).
+### Deleted
+- Remove "max-weekdays-extent" from test monitor interval until it is required [#737](https://github.com/rokwire/safer-illinois-app/issues/737).
+
+## [2.11.5] - 2021-10-01
+### Fixed
+- Fixed null pointer crash [#725](https://github.com/rokwire/safer-illinois-app/issues/725).
+
+## [2.12.1] - 2021-10-01
+### Added
+- Added SECURITY.md.
+- Added booster intervals for vaccines [#729](https://github.com/rokwire/safer-illinois-app/issues/729).
+
+## [2.12.0] - 2021-09-30
+
+## [2.11.4] - 2021-10-01
+### Changed
+- Show when the vaccine will become effective in vaccination widget [#720](https://github.com/rokwire/safer-illinois-app/issues/720).
+- Show upconing entries in history panel [#723](https://github.com/rokwire/safer-illinois-app/issues/723).
+
+## [2.11.3] - 2021-09-29
+### Deleted
+- Removed vaccine taken event handling [#715](https://github.com/rokwire/safer-illinois-app/issues/715).
+- Removed MicroBlink scan support [#717](https://github.com/rokwire/safer-illinois-app/issues/717).
+
+## [2.11.2] - 2021-09-24
+### Changed
+- Updated vaccination widget content and strings [#711](https://github.com/rokwire/safer-illinois-app/issues/711).
+
+## [2.11.1] - 2021-09-23
+### Changed
+- Updated vaccination widget strings, load related values and URL from app config [#708](https://github.com/rokwire/safer-illinois-app/issues/708).
+
 ## [2.11.0] - 2021-09-10
 ### Changed
 - "Feedback" section in Settings Home panel changed to "Get Help" [#705](https://github.com/rokwire/safer-illinois-app/issues/705).

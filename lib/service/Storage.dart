@@ -484,14 +484,14 @@ class Storage with Service {
     setString(_healthUserStatusKey, value);
   }
 
-  static const String _healthUserTestMonitorIntervalKey = 'health_user_test_monitor_interval';
+  static const String _healthUserOverrideKey = 'health_user_override';
 
-  int get healthUserTestMonitorInterval {
-    return getInt(_healthUserTestMonitorIntervalKey, defaultValue: null);
+  String get healthUserOverride {
+    return getString(_healthUserOverrideKey, defaultValue: null);
   }
 
-  set healthUserTestMonitorInterval(int value) {
-    setInt(_healthUserTestMonitorIntervalKey, value);
+  set healthUserOverride(String value) {
+    setString(_healthUserOverrideKey, value);
   }
 
   static const String _healthUserAccountIdKey = 'health_user_account_id';

@@ -328,6 +328,18 @@ class AppJson {
     catch(e) { print(e?.toString()); }
     return null;
   }
+
+  static List<String> listStringValue(dynamic value) {
+    try { return (value is List) ? value.cast<String>() : null; }
+    catch(e) { print(e?.toString()); }
+    return null;
+  }
+
+  static List<int> listIntValue(dynamic value) {
+    try { return (value is List) ? value.cast<int>() : null; }
+    catch(e) { print(e?.toString()); }
+    return null;
+  }
 }
 
 class AppFile {

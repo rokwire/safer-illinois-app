@@ -384,6 +384,7 @@ class Config with Service implements NotificationsListener {
   String get imagesServiceUrl       { return platformBuildingBlocks['images_service_url']; }  // "https://api-dev.rokwire.illinois.edu/images-service";
   
   String get osfBaseUrl             { return thirdPartyServices['osf_base_url']; }            // "https://ssproxy.osfhealthcare.org/fhir-proxy"
+  String get vaccinationAppointUrl  { return thirdPartyServices['vaccination_appointment_url']; }            // "https://ssproxy.osfhealthcare.org/fhir-proxy"
 
   String get rokwireApiKey          { return secretRokwire['api_key']; }
 
@@ -397,8 +398,8 @@ class Config with Service implements NotificationsListener {
 
   int get refreshTimeout            { return kReleaseMode ? (settings['refreshTimeout'] ?? 0) : 0; }
 
-  bool get residentRoleEnabled     { return false; }
-  bool get capitolStaffRoleEnabled { return (settings['roleCapitolStaffEnabled'] == true); }
+  bool get residentRoleEnabled      { return false; }
+  bool get capitolStaffRoleEnabled  { return (settings['roleCapitolStaffEnabled'] == true); }
 
 }
 
