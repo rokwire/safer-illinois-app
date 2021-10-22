@@ -895,7 +895,7 @@
 	"panel.groups_settings.category.default_text": "Select a category..",
 	"panel.groups_settings.category.hint": "Double tap to show categories options",
 	"panel.groups_create.tags.label.tag": " tag, ",
-	"panel.groups_create.tags.label.tag.hint": "double tab to remove tag",
+	"panel.groups_create.tags.label.tag.hint": "double tap to remove tag",
 	"panel.groups_settings.privacy.title": "Privacy",
 	"panel.groups_settings.privacy.title.description": "SELECT PRIVACY",
 	"panel.groups_settings.privacy.hint.default": "Select privacy setting..",
