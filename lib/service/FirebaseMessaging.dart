@@ -38,7 +38,6 @@ import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/Service.dart';
 import 'package:illinois/service/Storage.dart';
 import 'package:illinois/service/UserProfile.dart';
-import 'package:illinois/service/LocalNotifications.dart';
 import 'package:illinois/utils/Utils.dart';
 
 const String _channelId = "Notifications_Channel_ID";
@@ -46,6 +45,7 @@ const String _channelId = "Notifications_Channel_ID";
 class FirebaseMessaging with Service implements NotificationsListener {
 
   static const String notifyToken                 = "edu.illinois.rokwire.firebase.messaging.token";
+  static const String notifyForegroundMessage     = "edu.illinois.rokwire.firebase.messaging.message.foreground";
   static const String notifyPopupMessage          = "edu.illinois.rokwire.firebase.messaging.message.popup";
   static const String notifyConfigUpdate          = "edu.illinois.rokwire.firebase.messaging.config.update";
   static const String notifySettingUpdated        = "edu.illinois.rokwire.firebase.messaging.setting.updated";
@@ -111,7 +111,6 @@ class FirebaseMessaging with Service implements NotificationsListener {
       UserProfile.notifyProfileDeleted,
       Health.notifyUserUpdated,
       Health.notifyStatusUpdated,
-      LocalNotifications.notifySelected,
       AppLivecycle.notifyStateChanged,
     ]);
   }
@@ -195,9 +194,6 @@ class FirebaseMessaging with Service implements NotificationsListener {
     }
     else if (name == Health.notifyStatusUpdated) {
       _updateHealthStatusSubscriptions(status: Health().status);
-    }
-    else if (name == LocalNotifications.notifySelected) {
-      _processDataMessage(AppJson.decode(param));
     }
     else if (name == AppLivecycle.notifyStateChanged) {
       _onAppLivecycleStateChanged(param); 
@@ -342,8 +338,13 @@ class FirebaseMessaging with Service implements NotificationsListener {
           if (AppString.isStringNotEmpty(title) || AppString.isStringNotEmpty(body)) {
             Log.d("FCM: Android notification message");
             //Explicitly show it only when in foreground
-            String notificationPayload = (data != null) ? json.encode(data) : null;
-            LocalNotifications().showNotification(title: title, message: body, payload: notificationPayload);
+            NotificationService().notify(notifyForegroundMessage, {
+              "title": title,
+              "body": body,
+              "onComplete": (){
+                _processDataMessage(message);
+              }
+            });
           }
           else if (data != null) {
             Log.d("FCM: Android data message");

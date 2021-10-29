@@ -35,7 +35,6 @@ import 'package:illinois/service/OSFHealth.dart';
 import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/service/Storage.dart';
-import 'package:illinois/service/LocalNotifications.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/service/UserProfile.dart';
 
@@ -88,7 +87,6 @@ class Services {
     LocationServices(),
     BluetoothServices(),
     NativeCommunicator(),
-    LocalNotifications(),
     DeepLink(),
 
     Localization(),
