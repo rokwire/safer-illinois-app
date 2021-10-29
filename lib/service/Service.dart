@@ -24,7 +24,6 @@ import 'package:illinois/service/Connectivity.dart';
 import 'package:illinois/service/FirebaseService.dart';
 import 'package:illinois/service/FirebaseCrashlytics.dart';
 import 'package:illinois/service/DeepLink.dart';
-import 'package:illinois/service/Exposure.dart';
 import 'package:illinois/service/FirebaseMessaging.dart';
 import 'package:illinois/service/FlexUI.dart';
 import 'package:illinois/service/Health.dart';
@@ -100,7 +99,6 @@ class Services {
     Analytics(),
     FirebaseMessaging(),
     Health(),
-    Exposure(),
     OSFHealth(),
     
     FlexUI(),

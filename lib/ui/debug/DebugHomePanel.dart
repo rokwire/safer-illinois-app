@@ -31,8 +31,6 @@ import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/service/Storage.dart';
 import 'package:illinois/ui/debug/DebugCreateEventPanel.dart';
 import 'package:illinois/ui/debug/DebugDirectionsPanel.dart';
-import 'package:illinois/ui/debug/DebugExposureLogsPanel.dart';
-import 'package:illinois/ui/debug/DebugExposurePanel.dart';
 import 'package:illinois/ui/debug/DebugHealthKeysPanel.dart';
 import 'package:illinois/ui/debug/DebugSymptomsReportPanel.dart';
 import 'package:illinois/ui/debug/DebugContactTraceReportPanel.dart';
@@ -257,24 +255,6 @@ class _DebugHomePanelState extends State<DebugHomePanel> implements Notification
               textColor: Styles().colors.fillColorPrimary,
               borderColor: Styles().colors.fillColorPrimary,
               onTap: _onTapTraceCovid19Exposure)),
-      Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-          child: RoundedButton(
-              label: "COVID-19 Exposures",
-              backgroundColor: Styles().colors.background,
-              fontSize: 16.0,
-              textColor: Styles().colors.fillColorPrimary,
-              borderColor: Styles().colors.fillColorPrimary,
-              onTap: _onTapCovid19Exposures)),
-      Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-          child: RoundedButton(
-              label: "COVID-19 Exposure Logs",
-              backgroundColor: Styles().colors.background,
-              fontSize: 16.0,
-              textColor: Styles().colors.fillColorPrimary,
-              borderColor: Styles().colors.fillColorPrimary,
-              onTap: _onTapCovid19ExposureLogs)),
       Padding(padding: EdgeInsets.only(top: 10), child: Container()),
     ]);
 
@@ -416,14 +396,6 @@ class _DebugHomePanelState extends State<DebugHomePanel> implements Notification
 
   void _onTapTraceCovid19Exposure() {
       Navigator.push(context, CupertinoPageRoute(builder: (context) => DebugContactTraceReportPanel()));
-  }
-
-  void _onTapCovid19Exposures() {
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => DebugExposurePanel()));
-  }
-
-  void _onTapCovid19ExposureLogs() {
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => DebugExposureLogsPanel()));
   }
 
   void _onTapCovid19Rules(){

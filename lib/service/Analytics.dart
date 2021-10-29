@@ -193,13 +193,10 @@ class Analytics with Service implements NotificationsListener {
   static const String   LogHealthProviderTestProcessedAction     = "provider_test_processed";
   static const String   LogHealthManualTestSubmittedAction       = "manual_test_submitted";
   static const String   LogHealthSymptomsSubmittedAction         = "symptoms_submitted";
-  static const String   LogHealthContactTraceProcessedAction     = "contact_trace_processed";
-  static const String   LogHealthContactTraceTestAction          = "contact_trace_test";
   static const String   LogHealthActionProcessedAction           = "action_processed";
   static const String   LogHealthVaccinationAction               = "vaccination";
   static const String   LogHealthReportExposuresAction           = "report_exposures";
   static const String   LogHealthCheckExposuresAction            = "check_exposures";
-  static const String   LogHealthExposureStatisticsAction        = "exposure_statistics";
   static const String   LogHealthStatusName                      = "status";
   static const String   LogHealthPrevStatusName                  = "previous_status";
   static const String   LogHealthSettingConsentTestResultsName   = "consent_test_results";
@@ -218,20 +215,6 @@ class Analytics with Service implements NotificationsListener {
   static const String   LogHealthActionTextName                  = "action_text";
   static const String   LogHealthActionParamsName                = "action_params";
   static const String   LogHealthActionTimestampName             = "action_timestamp";
-  static const String   LogHealthExposureScoreName               = "exposure_score";
-  static const String   LogRpiSeen6HoursName                     = "rpi_seen_6_hour";
-  static const String   LogRpiSeen24HoursName                    = "rpi_seen_24_hour";
-  static const String   LogRpiSeen168HoursName                   = "rpi_seen_168_hour";
-  static const String   LogRpiMatches6HoursName                  = "rpi_matches_6_hour";
-  static const String   LogRpiMatches24HoursName                 = "rpi_matches_24_hour";
-  static const String   LogRpiMatches168HoursName                = "rpi_matches_168_hour";
-  static const String   LogExposureUpTime6HoursName              = "exposure_uptime_6_hour";
-  static const String   LogExposureUpTime24HoursName             = "exposure_uptime_24_hour";
-  static const String   LogExposureUpTime168HoursName            = "exposure_uptime_168_hour";
-  static const String   LogTestFrequency168HoursName             = "test_frequency_168_hour";
-  static const String   LogExposureNotification168HoursName      = "exposure_notification_168_hour";
-  static const String   LogTestResult168HoursName                = "test_result_168_hour";
-  static const String   LogEpochName                             = "epoch";
 
   // Event Attributes
   static const String   LogAttributeUrl                    = "url";
