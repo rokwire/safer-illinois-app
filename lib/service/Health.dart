@@ -462,6 +462,11 @@ class Health with Service implements NotificationsListener {
       }
     }
 
+    // Consent: Exposure Notification (backward support)
+    if (user.consentExposureNotification == null) {
+      user.consentExposureNotification = false;
+    }
+
     // Save
     if (userUpdated == true) {
       bool userSaved = await _saveUserToNet(user);
