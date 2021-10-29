@@ -534,39 +534,6 @@ class Storage with Service {
     setString(_healthFamilyMembersKey, value);
   }
   /////////////
-  // Exposure
-
-  static const String _exposureStartedKey = 'exposure_started';
-
-  bool get exposureStarted {
-    return getBool(_exposureStartedKey, defaultValue: true);
-  }
-
-  set exposureStarted(bool value) {
-    setBool(_exposureStartedKey, value);
-  }
-
-  static const String _exposureReportTargetTimestampKey = 'exposure_report_target_timestamp';
-
-  int get exposureReportTargetTimestamp {
-    return getInt(_exposureReportTargetTimestampKey, defaultValue: null);
-  }
-
-  set exposureReportTargetTimestamp(int value) {
-    setInt(_exposureReportTargetTimestampKey, value);
-  }
-
-  static const String _exposureLastReportedTimestampKey = 'exposure_last_reported_timestamp';
-
-  int get exposureLastReportedTimestamp {
-    return getInt(_exposureLastReportedTimestampKey, defaultValue: null);
-  }
-
-  set exposureLastReportedTimestamp(int value) {
-    setInt(_exposureLastReportedTimestampKey, value);
-  }
-
-  /////////////
   // Http Proxy
 
   static const String _httpProxyEnabledKey = 'http_proxy_enabled';

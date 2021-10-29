@@ -14,17 +14,13 @@
  * limitations under the License.
  */
 
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Auth.dart';
-import 'package:illinois/service/BluetoothServices.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
-import 'package:illinois/service/LocationServices.dart';
 import 'package:illinois/service/Onboarding.dart';
 import 'package:illinois/service/Styles.dart';
 import 'package:illinois/ui/onboarding/OnboardingBackButton.dart';
@@ -50,9 +46,7 @@ class _OnboardingHealthConsentPanelState extends State<OnboardingHealthConsentPa
   bool _loading = false;
   bool _consentTestResults = true;
   bool _consentVaccineInformation = true;
-  bool _consentExposureNotification = false;
   bool _canContinue = false;
-  bool _permissionsRequested = false;
   ScrollController _scrollController;
 
   @override
@@ -63,7 +57,6 @@ class _OnboardingHealthConsentPanelState extends State<OnboardingHealthConsentPa
     //19.06 - 5.1 Covid setup flow consents should be off by default
     //_consentTestResults = Health().user?.consentTestResults ?? true;
     //_consentVaccineInformation = Health().user?.consentVaccineInformation ?? true;
-    //_consentExposureNotification = Health().user?.consentExposureNotification ?? false;
   }
 
   @override
@@ -129,25 +122,6 @@ class _OnboardingHealthConsentPanelState extends State<OnboardingHealthConsentPa
                       style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 28, color: Styles().colors.fillColorPrimary),
                     )),
                     Container(height: 11,),
-
-                    Semantics( header: true, hint: Localization().getStringEx("app.common.heading.two.hint","Header 2"),
-                      child: Text(Localization().getStringEx("panel.health.onboarding.covid19.consent.label.description", "Exposure Notifications"),
-                      style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 16, color:Styles().colors.fillColorPrimary),
-                    )),
-                    Container(height: 4,),
-                    Text(
-                      Localization().getStringEx("panel.health.onboarding.covid19.consent.label.content1", "If you consent to exposure notifications, you allow your phone to send an anonymous Bluetooth signal to nearby Safer Illinois app users who are also using this feature. Your phone will receive and record a signal from their phones as well. If one of those users tests positive for COVID-19 in the next 14 days, the app will alert you to your potential exposure and advise you on next steps. Your identity and health status will remain anonymous, as will the identity and health status of all other users."),
-                      style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color:Styles().colors.fillColorPrimary),
-                    ),
-                    Container(height: 8,),
-                    ToggleRibbonButton(
-                      label:  Localization().getStringEx("panel.health.onboarding.covid19.consent.check_box.label.exposure","I consent to participate in the Exposure Notification System (requires Bluetooth to be ON)."),
-                      toggled: _consentExposureNotification,
-                      onTap: _onConsentExposureNotificationTap,
-                      context: context,
-                      height: null),
-
-                    Container(height: 24,),
 
                     Semantics( header: true, hint: Localization().getStringEx("app.common.heading.two.hint","Header 2"),
                     child: Text(Localization().getStringEx("panel.health.onboarding.covid19.consent.label.content2", "Automatic Test Results"),
@@ -256,7 +230,7 @@ class _OnboardingHealthConsentPanelState extends State<OnboardingHealthConsentPa
     setState(() {
       _loading = true;
     });
-    Health().loginUser(consentTestResults: _consentTestResults, consentVaccineInformation: _consentVaccineInformation, consentExposureNotification: _consentExposureNotification).then((user) {
+    Health().loginUser(consentTestResults: _consentTestResults, consentVaccineInformation: _consentVaccineInformation).then((user) {
       if (mounted) {
         setState(() {
           _loading = false;
@@ -288,23 +262,6 @@ class _OnboardingHealthConsentPanelState extends State<OnboardingHealthConsentPa
     Onboarding().next(context, widget);
   }
 
-  void _onConsentExposureNotificationTap(){
-    Analytics.instance.logSelect(target: "concent to participate exposure notification");
-    if (Platform.isIOS && (_consentExposureNotification != true) && (_permissionsRequested != true)) {
-      _permissionsRequested = true;
-      _requestPermisions().then((_) {
-        setState(() {
-          _consentExposureNotification = !_consentExposureNotification;
-        });
-      });
-    }
-    else {
-      setState(() {
-        _consentExposureNotification = !_consentExposureNotification;
-      });
-    }
-  }
-
   void _onConsentTestResultsTap(){
     Analytics.instance.logSelect(target: "concent to test results");
     setState(() {
@@ -326,16 +283,6 @@ class _OnboardingHealthConsentPanelState extends State<OnboardingHealthConsentPa
       setState(() {
         _canContinue = true;
       });
-    }
-  }
-
-  Future<void> _requestPermisions() async {
-    if (BluetoothServices().status == BluetoothStatus.PermissionNotDetermined) {
-      await BluetoothServices().requestStatus();
-    }
-
-    if (await LocationServices().status == LocationServicesStatus.PermissionNotDetermined) {
-      await LocationServices().requestPermission();
     }
   }
 }

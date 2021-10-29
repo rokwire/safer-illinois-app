@@ -23,10 +23,7 @@ import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/Auth.dart';
-import 'package:illinois/service/BluetoothServices.dart';
 import 'package:illinois/service/Config.dart';
-import 'package:illinois/service/Exposure.dart';
-import 'package:illinois/service/LocationServices.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Network.dart';
 import 'package:illinois/service/NotificationService.dart';
@@ -57,8 +54,6 @@ class Health with Service implements NotificationsListener {
   static const String _rulesFileName                   = "rules.json";
   static const String _historyFileName                 = "history.json";
 
-  static const int    _exposureStatisticsLogInterval   = 6 * 60 * 60 * 1000; // 6 hours
-
   HealthUser _user;
   PrivateKey _userPrivateKey;
   String _userAccountId;
@@ -81,7 +76,6 @@ class Health with Service implements NotificationsListener {
   _RefreshOptions _refreshOptions;
   Set<String> _pendingNotifications;
   DateTime _pausedDateTime;
-  Timer _exposureStatisticsLogTimer;
 
   // Singletone Instance
 
@@ -128,14 +122,7 @@ class Health with Service implements NotificationsListener {
 
     _familyMembers = _loadFamilyMembersFromStorage();
 
-    _exposureStatisticsLogTimer = Timer.periodic(Duration(milliseconds: _exposureStatisticsLogInterval), (_) {
-      _logExposureStatistics();
-    });
-
-    _refresh(_RefreshOptions.all()).then((_) {
-      _logExposureStatistics();
-    });
-
+    _refresh(_RefreshOptions.all());
   }
 
   @override
@@ -158,9 +145,6 @@ class Health with Service implements NotificationsListener {
     _buildingAccessRules = null;
 
     _familyMembers = null;
-
-    _exposureStatisticsLogTimer.cancel();
-    _exposureStatisticsLogTimer = null;
   }
 
   @override
@@ -191,9 +175,7 @@ class Health with Service implements NotificationsListener {
       if (_pausedDateTime != null) {
         Duration pausedDuration = DateTime.now().difference(_pausedDateTime);
         if (Config().refreshTimeout < pausedDuration.inSeconds) {
-          _refresh(_RefreshOptions.all()).then((_) {
-            _logExposureStatistics();
-          });
+          _refresh(_RefreshOptions.all());
         }
       }
     }
@@ -329,10 +311,6 @@ class Health with Service implements NotificationsListener {
     return this._isUserAuthenticated && (_user != null);
   }
 
-  bool get userConsentExposureNotification {
-    return this.isUserLoggedIn && (_user?.consentExposureNotification ?? false);
-  }
-
   // User
 
   HealthUser get user {
@@ -422,7 +400,7 @@ class Health with Service implements NotificationsListener {
     return false;
   }
 
-  Future<HealthUser> loginUser({bool consentTestResults, bool consentVaccineInformation, bool consentExposureNotification, AsymmetricKeyPair<PublicKey, PrivateKey> keys}) async {
+  Future<HealthUser> loginUser({bool consentTestResults, bool consentVaccineInformation, AsymmetricKeyPair<PublicKey, PrivateKey> keys}) async {
 
     if (!this._isUserAuthenticated) {
       return null;
@@ -484,15 +462,6 @@ class Health with Service implements NotificationsListener {
       }
     }
 
-    // Consent :Exposure Notification
-    if (consentExposureNotification != null) {
-      if (consentExposureNotification != user.consentExposureNotification) {
-        analyticsSettingsAttributes[Analytics.LogHealthSettingConsentExposureNotifName] = consentExposureNotification;
-        user.consentExposureNotification = consentExposureNotification;
-        userUpdated = true;
-      }
-    }
-
     // Save
     if (userUpdated == true) {
       bool userSaved = await _saveUserToNet(user);
@@ -516,16 +485,6 @@ class Health with Service implements NotificationsListener {
 
     if (analyticsSettingsAttributes != null) {
       Analytics().logHealth( action: Analytics.LogHealthSettingChangedAction, attributes: analyticsSettingsAttributes, defaultAttributes: Analytics.DefaultAttributes);
-    }
-
-    if (consentExposureNotification == true) {
-      if (BluetoothServices().status == BluetoothStatus.PermissionNotDetermined) {
-        await BluetoothServices().requestStatus();
-      }
-
-      if (await LocationServices().status == LocationServicesStatus.PermissionNotDetermined) {
-        await LocationServices().requestPermission();
-      }
     }
 
     if (userReset == true) {
@@ -811,16 +770,6 @@ class Health with Service implements NotificationsListener {
       _notify(notifyStatusUpdated);
     }
     _applyBuildingAccessForStatus(status);
-    _updateExposureReportTarget(status);
-  }
-
-  void _updateExposureReportTarget(HealthStatus status) {
-    if ((status?.blob?.reportsExposures(rules: _rules) == true) &&
-        /*status?.blob?.historyBlob?.isTest && */
-        (status?.dateUtc != null))
-    {
-      Exposure().reportTargetTimestamp = status.dateUtc.millisecondsSinceEpoch;
-    }
   }
 
   HealthStatus _evalStatus() {
@@ -1207,12 +1156,8 @@ class Health with Service implements NotificationsListener {
   Future<void> _logProcessedEvents() async {
     if ((_processedEvents != null) && (0 < _processedEvents.length)) {
 
-      int exposureTestReportDays = Config().settings['covid19ExposureTestReportDays'];
       for (HealthPendingEvent event in _processedEvents) {
         if (event.isTest) {
-          HealthHistory previousTest = HealthHistory.mostRecentTest(_history, beforeDateUtc: event.blob?.dateUtc, onPosition: 2);
-          int score = await Exposure().evalTestResultExposureScoring(previousTestDateUtc: previousTest?.dateUtc);
-          
           Analytics().logHealth(
             action: Analytics.LogHealthProviderTestProcessedAction,
             status: _status?.blob?.code,
@@ -1221,29 +1166,7 @@ class Health with Service implements NotificationsListener {
               Analytics.LogHealthProviderName: event.provider,
               Analytics.LogHealthTestTypeName: event.blob?.testType,
               Analytics.LogHealthTestResultName: event.blob?.testResult,
-              Analytics.LogHealthExposureScoreName: score,
           });
-          
-          if (exposureTestReportDays != null)  {
-            DateTime maxDateUtc = event?.blob?.dateUtc;
-            DateTime minDateUtc = maxDateUtc?.subtract(Duration(days: exposureTestReportDays));
-            if ((maxDateUtc != null) && (minDateUtc != null)) {
-              HealthHistory contactTrace = HealthHistory.mostRecentContactTrace(_history, minDateUtc: minDateUtc, maxDateUtc: maxDateUtc);
-              if (contactTrace != null) {
-                Analytics().logHealth(
-                  action: Analytics.LogHealthContactTraceTestAction,
-                  status: _status?.blob?.code,
-                  prevStatus: _previousStatus?.blob?.code,
-                  attributes: {
-                    Analytics.LogHealthExposureTimestampName: contactTrace.dateUtc?.toIso8601String(),
-                    Analytics.LogHealthDurationName: contactTrace.blob?.traceDuration,
-                    Analytics.LogHealthProviderName: event.provider,
-                    Analytics.LogHealthTestTypeName: event.blob?.testType,
-                    Analytics.LogHealthTestResultName: event.blob?.testResult,
-                });
-              }
-            }
-          }
         }
         else if (event.isVaccine) {
           Analytics().logHealth(
@@ -1422,7 +1345,7 @@ class Health with Service implements NotificationsListener {
 
   // Contact Trace
 
-  // Used only from debug panel, see Exposure.checkExposures
+  // Used only from debug panel
   Future<bool> processContactTrace({DateTime dateUtc, int duration}) async {
     
     HealthHistory history = await _addHistory(await HealthHistory.encryptedFromBlob(
@@ -1437,17 +1360,7 @@ class Health with Service implements NotificationsListener {
     if (history != null) {
       _notify(notifyHistoryUpdated);
 
-      HealthStatus previousStatus = _status;
       await _rebuildStatus();
-
-      Analytics().logHealth(
-        action: Analytics.LogHealthContactTraceProcessedAction,
-        status: previousStatus?.blob?.code,
-        prevStatus: _status?.blob?.code,
-        attributes: {
-          Analytics.LogHealthDurationName: duration,
-          Analytics.LogHealthExposureTimestampName: dateUtc?.toIso8601String(),
-      });
 
       return true;
     }
@@ -1811,75 +1724,6 @@ class Health with Service implements NotificationsListener {
     String responseString = (response?.statusCode == 200) ? response.body : null;
     Map<String,dynamic> responseJson = (responseString != null) ? AppJson.decode(responseString) : null;
     return (responseJson != null) ? HealthServiceLocation.fromJson(responseJson) : null;
-  }
-
-  // Exposure Statistics Log
-
-  Future<void> _logExposureStatistics() async {
-    String userId = this._userId;
-    if (AppString.isStringNotEmpty(userId)) {
-      String storageEntry = "lastEpoch.$userId";
-      int lastEpoch = Storage().getInt(storageEntry);
-      int currEpoch = DateTime.now().toUtc().millisecondsSinceEpoch ~/ _exposureStatisticsLogInterval;
-      if (currEpoch != lastEpoch) {
-        // need to send lastEpoch's data
-        await _sendExposureStatistics(lastEpoch ?? (currEpoch - 1));
-        Storage().setInt(storageEntry, currEpoch);
-      }
-    }
-  }
-
-  Future<void> _sendExposureStatistics(int epoch) async {
-
-    DateTime maxDateUtc = DateTime.fromMillisecondsSinceEpoch((epoch + 1) * _exposureStatisticsLogInterval);
-    
-    int testFrequency168Hours = HealthHistory.retrieveNumTests(_history, 168, maxDateUtc: maxDateUtc);
-    
-    int  exposureUpTime6Hours = await Exposure().evalExposureUpTime(6);
-    int  exposureUpTime24Hours = await Exposure().evalExposureUpTime(24);
-    int  exposureUpTime168Hours = await Exposure().evalExposureUpTime(168);
-
-    List socialActivity6Hours = await Exposure().evalSocialActivity(6, maxDateUtc: maxDateUtc);
-    List socialActivity24Hours = await Exposure().evalSocialActivity(24, maxDateUtc: maxDateUtc);
-    List socialActivity168Hours = await Exposure().evalSocialActivity(168, maxDateUtc: maxDateUtc);
-    
-    bool contactTrace168Hours;
-    String testResult168Hours;
-    DateTime cutoffDate = DateTime.now().toUtc().subtract(Duration(hours: 168));
-
-    HealthHistory mostRecentContactTrace = HealthHistory.mostRecentContactTrace(_history, maxDateUtc: maxDateUtc);
-    if (mostRecentContactTrace == null ||
-        mostRecentContactTrace.dateUtc.isBefore(cutoffDate)) {
-      contactTrace168Hours = false;
-    } else {
-      contactTrace168Hours = true;
-    }
-
-    HealthHistory mostRecentTest = HealthHistory.mostRecentTest(_history, beforeDateUtc: maxDateUtc);
-    if (mostRecentTest == null ||
-        mostRecentTest.dateUtc.isBefore(cutoffDate)) {
-      testResult168Hours = null;
-    } else {
-      testResult168Hours = mostRecentTest.blob?.testResult;
-    }
-    Analytics().logHealth(
-      action: Analytics.LogHealthExposureStatisticsAction,
-      attributes: {
-        Analytics.LogTestFrequency168HoursName: testFrequency168Hours,
-        Analytics.LogRpiSeen6HoursName: (socialActivity6Hours != null) ? socialActivity6Hours[0] : null,
-        Analytics.LogRpiSeen24HoursName: (socialActivity24Hours != null) ? socialActivity24Hours[0] : null,
-        Analytics.LogRpiSeen168HoursName: (socialActivity168Hours != null) ? socialActivity168Hours[0] : null,
-        Analytics.LogRpiMatches6HoursName: (socialActivity6Hours != null) ? socialActivity6Hours[1] : null,
-        Analytics.LogRpiMatches24HoursName: (socialActivity24Hours != null) ? socialActivity24Hours[1] : null,
-        Analytics.LogRpiMatches168HoursName: (socialActivity168Hours != null) ? socialActivity168Hours[1] : null,
-        Analytics.LogExposureUpTime6HoursName : exposureUpTime6Hours,
-        Analytics.LogExposureUpTime24HoursName : exposureUpTime24Hours,
-        Analytics.LogExposureUpTime168HoursName : exposureUpTime168Hours,
-        Analytics.LogExposureNotification168HoursName: contactTrace168Hours,
-        Analytics.LogTestResult168HoursName: testResult168Hours,
-        Analytics.LogEpochName: epoch,
-      }
-    );
   }
 }
 

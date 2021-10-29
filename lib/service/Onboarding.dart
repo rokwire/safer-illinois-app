@@ -26,13 +26,10 @@ import 'package:illinois/ui/onboarding/OnboardingHealthFinalPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingHealthHowItWorksPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingHealthIntroPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingHealthQrCodePanel.dart';
-import 'package:illinois/ui/onboarding/OnboardingAuthBluetoothPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginPhoneConfirmPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingGetStartedPanel.dart';
-import 'package:illinois/ui/onboarding/OnboardingAuthLocationPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginNetIdPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginPhonePanel.dart';
-import 'package:illinois/ui/onboarding/OnboardingAuthNotificationsPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingOrganizationsPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingRolesPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginPhoneVerifyPanel.dart';
@@ -154,9 +151,6 @@ class Onboarding extends Service implements NotificationsListener{
     switch (name) {
       case "get_started": return OnboardingGetStartedPanel(onboardingContext: context);
       case "organization": return OnboardingOrganizationsPanel(onboardingContext: context);
-      case "notifications_auth": return OnboardingAuthNotificationsPanel(onboardingContext: context);
-      case "location_auth": return OnboardingAuthLocationPanel(onboardingContext: context);
-      case "bluetooth_auth": return OnboardingAuthBluetoothPanel(onboardingContext: context);
       case "roles": return OnboardingRolesPanel(onboardingContext: context);
       case "login_netid": return OnboardingLoginNetIdPanel(onboardingContext: context);
       case "login_phone": return OnboardingLoginPhonePanel(onboardingContext: context);
@@ -178,15 +172,6 @@ class Onboarding extends Service implements NotificationsListener{
     }
     if(panel is OnboardingOrganizationsPanel){
       return 'organization';
-    }
-    else if (panel is OnboardingAuthNotificationsPanel) {
-      return 'notifications_auth';
-    }
-    else if (panel is OnboardingAuthLocationPanel) {
-      return 'location_auth';
-    }
-    else if (panel is OnboardingAuthBluetoothPanel) {
-      return 'bluetooth_auth';
     }
     else if (panel is OnboardingRolesPanel) {
       return 'roles';

@@ -1,7 +1,6 @@
 {
 	"content": {
 		"onboarding": ["get_started",  "organization", "health_disclosure",
-			"notifications_auth", "location_auth", "bluetooth_auth",
 			"roles", "login_netid", "login_phone", "verify_phone", "confirm_phone",
 			"health_intro", "health_how_it_works", "health_consent", "health_qrcode", "health_final"],
 
@@ -18,7 +17,7 @@
 		"settings.connected.netid": ["info", "disconnect", "connect"],
 		"settings.connected.phone": ["info", "disconnect", "verify"],
 		"settings.notifications": ["covid19"],
-		"settings.covid19": ["exposure_notifications", "provider_test_result", "provider_vaccine_info", "qr_code"],
+		"settings.covid19": ["provider_test_result", "provider_vaccine_info", "qr_code"],
 		"settings.privacy": ["statement"],
 		"settings.account": ["personal_info", "family_members"],
 

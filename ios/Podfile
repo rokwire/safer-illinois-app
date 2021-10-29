@@ -34,7 +34,6 @@ target 'Runner' do
 
     pod 'GoogleMaps', '3.3.0'
     pod 'ZXingObjC', '3.6.4'
-    pod 'HKDFKit', '0.0.3'
 
 #   'Firebase/MLVisionBarcodeModel' is required by 'firebase_ml_vision' plugin from pubspec.yaml.
 #   Unable to include it in the podfile due to a conflict with FirebaseCore version number.
