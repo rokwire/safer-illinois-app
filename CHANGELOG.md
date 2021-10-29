@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Deleted
+- Removed Exposure plugins, service and related UI [#742](https://github.com/rokwire/safer-illinois-app/issues/742).
+
 ### Changed
 - Update encrypt plugin to latest available version [#745](https://github.com/rokwire/safer-illinois-app/issues/745).
 
