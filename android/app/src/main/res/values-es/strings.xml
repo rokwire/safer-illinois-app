@@ -44,10 +44,4 @@
 
     <!-- MapActivity -->
     <string name="mapTitle">Mapas</string>
-
-    <!-- Exposure -->
-    <string name="exposure_notification_channel_description">Sistema de notificación de exposición</string>
-    <string name="exposure_notification_title">Comprobación del sistema de notificación de exposición</string>
-    <string name="exposure_notification_ticker">Comprobación del sistema de notificación de exposición</string>
-    <string name="exposure_request_bluetooth_on_message">Permitir notificaciones de exposición. ¿Quieres activar Bluetooth?</string>
 </resources>

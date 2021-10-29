@@ -26,6 +26,7 @@ import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
+import 'package:illinois/ui/onboarding/OnboardingNotificationPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingUpgradePanel.dart';
 
 import 'package:illinois/service/Log.dart';
@@ -119,6 +120,7 @@ class _AppState extends State<App> implements NotificationsListener {
   String _lastRunVersion;
   String _upgradeRequiredVersion;
   String _upgradeAvailableVersion;
+  Map<String, dynamic> _configNotification;
   Key key = UniqueKey();
 
   @override
@@ -130,6 +132,7 @@ class _AppState extends State<App> implements NotificationsListener {
       Config.notifyUpgradeAvailable,
       Config.notifyUpgradeRequired,
       Config.notifyOnboardingRequired,
+      Config.notifyNotificationAvailable,
       Organizations.notifyOrganizationChanged,
       Organizations.notifyEnvironmentChanged,
       UserProfile.notifyProfileDeleted,
@@ -140,6 +143,7 @@ class _AppState extends State<App> implements NotificationsListener {
     _lastRunVersion = Storage().lastRunVersion;
     _upgradeRequiredVersion = Config().upgradeRequiredVersion;
     _upgradeAvailableVersion = Config().upgradeAvailableVersion;
+    _configNotification = _checkConfigNotification();
     
     _checkForceOnboarding();
 
@@ -188,6 +192,9 @@ class _AppState extends State<App> implements NotificationsListener {
     else if (_upgradeAvailableVersion != null) {
       return OnboardingUpgradePanel(availableVersion:_upgradeAvailableVersion);
     }
+    else if (_configNotification != null) {
+      return OnboardingNotificationPanel(notification: _configNotification, onClose: _onConfigNotificationClosed);
+    }
     else if (!Storage().onBoardingPassed) {
       return Onboarding().startPanel;
     }
@@ -222,6 +229,31 @@ class _AppState extends State<App> implements NotificationsListener {
     return false;
   }
 
+  Map<String, dynamic> _checkConfigNotification([Map<String, dynamic> notificationParam]) {
+    Map<String, dynamic> notification = notificationParam ?? Config().notification;
+    String notificationId = (notification != null) ? AppJson.stringValue(notification['id']) : null;
+    bool displayOnce = (notification != null) ? AppJson.boolValue(notification['display_once']) : false;
+    if ((displayOnce == true) && (notificationId != null)) {
+      Set<String> reportedNotifications = Storage().reportedConfigNotifictions;
+      if ((reportedNotifications != null) && reportedNotifications.contains(notificationId)) {
+        return null;
+      }
+    }
+    return notification;
+  }
+
+  void _onConfigNotificationClosed(Map<String, dynamic> notification) {
+
+    String notificationId = (notification != null) ? AppJson.stringValue(notification['id']) : null;
+    if (notificationId != null) {
+      Storage().reportedConfigNotifiction = notificationId;
+    }
+
+    setState(() {
+      _configNotification = null;
+    });
+  }
+
   // NotificationsListener
 
   @override
@@ -243,6 +275,11 @@ class _AppState extends State<App> implements NotificationsListener {
       if (_checkForceOnboarding()) {
         _resetUI();
       }
+    }
+    else if (name == Config.notifyNotificationAvailable) {
+      setState(() {
+        _configNotification = _checkConfigNotification(param);
+      });
     }
     else if (name == Organizations.notifyOrganizationChanged) {
       _resetUI();

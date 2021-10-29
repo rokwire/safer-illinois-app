@@ -44,10 +44,4 @@
 
     <!-- MapActivity -->
     <string name="mapTitle">マップ</string>
-
-    <!-- Exposure -->
-    <string name="exposure_notification_channel_description">接触通知システム</string>
-    <string name="exposure_notification_title">接触通知システムのチェック</string>
-    <string name="exposure_notification_ticker">接触通知システムのチェック</string>
-    <string name="exposure_request_bluetooth_on_message">接触通知を許可します。 Bluetoothをオンにしますか？</string>
 </resources>

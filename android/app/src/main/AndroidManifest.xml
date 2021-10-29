@@ -28,20 +28,11 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <!-- Android 10 (API level 29) or higher -->
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
-    <!-- Android 9 (API level 28) or higher -->
-    <!-- Foreground service used for Exposure BLE scan -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-    <!-- For using location derived from bluetooth beacons -->
-    <uses-permission android:name="android.permission.BLUETOOTH"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
     <!-- Use zxing 3.3.0 because we have minSdk < 24 -->
     <uses-sdk tools:overrideLibrary="com.google.zxing.client.android" />
     <!-- save_in_gallery flutter plugin -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
-    <!-- Exposure BLE -->
-    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true" />
 
     <application
         android:name="edu.illinois.covid.App"
@@ -112,14 +103,5 @@
             android:theme="@style/DefaultTheme"
             android:screenOrientation="portrait"
             android:configChanges="orientation|keyboardHidden"/>
-
-        <service android:name="edu.illinois.covid.exposure.ble.ExposureServer"/>
-        <service android:name="edu.illinois.covid.exposure.ble.ExposureClient"/>
-
-        <receiver android:name="edu.illinois.covid.exposure.ble.scan.ExposureBleReceiver">
-            <intent-filter>
-                <action android:name="edu.illinois.rokwire.exposure.ble.scan.ACTION_FOUND" />
-            </intent-filter>
-        </receiver>
     </application>
 </manifest>

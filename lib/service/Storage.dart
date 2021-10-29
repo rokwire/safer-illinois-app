@@ -275,6 +275,24 @@ class Storage with Service {
     setString(lastRunVersionKey, value);
   }
 
+  ////////////////////////
+  // Config Notifications
+
+  static const String reportedConfigNotifictionsKey  = 'reported_config_notifications';
+
+  Set<String> get reportedConfigNotifictions {
+    List<String> list = getStringList(reportedConfigNotifictionsKey);
+    return (list != null) ? Set.from(list) : null;
+  }
+
+  set reportedConfigNotifiction(String notificationId) {
+    if (notificationId != null) {
+      Set<String> notifications = reportedConfigNotifictions ?? Set<String>();
+      notifications.add(notificationId);
+      setStringList(reportedConfigNotifictionsKey, notifications.toList());
+    }
+  }
+
   ////////////////
   // Auth
 
@@ -484,14 +502,14 @@ class Storage with Service {
     setString(_healthUserStatusKey, value);
   }
 
-  static const String _healthUserTestMonitorIntervalKey = 'health_user_test_monitor_interval';
+  static const String _healthUserOverrideKey = 'health_user_override';
 
-  int get healthUserTestMonitorInterval {
-    return getInt(_healthUserTestMonitorIntervalKey, defaultValue: null);
+  String get healthUserOverride {
+    return getString(_healthUserOverrideKey, defaultValue: null);
   }
 
-  set healthUserTestMonitorInterval(int value) {
-    setInt(_healthUserTestMonitorIntervalKey, value);
+  set healthUserOverride(String value) {
+    setString(_healthUserOverrideKey, value);
   }
 
   static const String _healthUserAccountIdKey = 'health_user_account_id';
@@ -533,39 +551,6 @@ class Storage with Service {
   set healthFamilyMembers(String value) {
     setString(_healthFamilyMembersKey, value);
   }
-  /////////////
-  // Exposure
-
-  static const String _exposureStartedKey = 'exposure_started';
-
-  bool get exposureStarted {
-    return getBool(_exposureStartedKey, defaultValue: true);
-  }
-
-  set exposureStarted(bool value) {
-    setBool(_exposureStartedKey, value);
-  }
-
-  static const String _exposureReportTargetTimestampKey = 'exposure_report_target_timestamp';
-
-  int get exposureReportTargetTimestamp {
-    return getInt(_exposureReportTargetTimestampKey, defaultValue: null);
-  }
-
-  set exposureReportTargetTimestamp(int value) {
-    setInt(_exposureReportTargetTimestampKey, value);
-  }
-
-  static const String _exposureLastReportedTimestampKey = 'exposure_last_reported_timestamp';
-
-  int get exposureLastReportedTimestamp {
-    return getInt(_exposureLastReportedTimestampKey, defaultValue: null);
-  }
-
-  set exposureLastReportedTimestamp(int value) {
-    setInt(_exposureLastReportedTimestampKey, value);
-  }
-
   /////////////
   // Http Proxy
 
