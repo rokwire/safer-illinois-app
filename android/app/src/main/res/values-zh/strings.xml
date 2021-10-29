@@ -44,10 +44,4 @@
 
     <!-- MapActivity -->
     <string name="mapTitle">地圖</string>
-
-    <!-- Exposure -->
-    <string name="exposure_notification_channel_description">曝光通知系統</string>
-    <string name="exposure_notification_title">曝光通知系統檢查</string>
-    <string name="exposure_notification_ticker">曝光通知系統檢查</string>
-    <string name="exposure_request_bluetooth_on_message">允許曝光通知. 您要開啟藍牙嗎?</string>
 </resources>

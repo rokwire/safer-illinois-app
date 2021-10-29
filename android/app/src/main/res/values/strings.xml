@@ -44,10 +44,4 @@
 
     <!-- MapActivity -->
     <string name="mapTitle">Maps</string>
-
-    <!-- Exposure -->
-    <string name="exposure_notification_channel_description">Exposure Notification system</string>
-    <string name="exposure_notification_title">Exposure Notification system checking</string>
-    <string name="exposure_notification_ticker">Exposure Notification system checking</string>
-    <string name="exposure_request_bluetooth_on_message">Allow exposure notifications. Do you want to turn on Bluetooth?</string>
 </resources>
