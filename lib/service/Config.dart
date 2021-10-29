@@ -39,10 +39,11 @@ class Config with Service implements NotificationsListener {
 
   static const String _configFileName           = "config.json";
 
-  static const String notifyUpgradeRequired     = "edu.illinois.rokwire.config.upgrade.required";
-  static const String notifyUpgradeAvailable    = "edu.illinois.rokwire.config.upgrade.available";
-  static const String notifyOnboardingRequired  = "edu.illinois.rokwire.config.onboarding.required";
-  static const String notifyConfigChanged       = "edu.illinois.rokwire.config.changed";
+  static const String notifyUpgradeRequired        = "edu.illinois.rokwire.config.upgrade.required";
+  static const String notifyUpgradeAvailable       = "edu.illinois.rokwire.config.upgrade.available";
+  static const String notifyOnboardingRequired     = "edu.illinois.rokwire.config.onboarding.required";
+  static const String notifyNotificationAvailable  = "edu.illinois.rokwire.config.notification.available";
+  static const String notifyConfigChanged          = "edu.illinois.rokwire.config.changed";
 
   Map<String, dynamic> _config;
   
@@ -96,6 +97,7 @@ class Config with Service implements NotificationsListener {
     if (_config != null) {
         _checkUpgrade();
         _checkOnboarding();
+        _checkNotification();
         _updateFromNet();
     }
     else if (Organizations().organization != null) {
@@ -108,6 +110,7 @@ class Config with Service implements NotificationsListener {
         
         _checkUpgrade();
         _checkOnboarding();
+        _checkNotification();
       }
     }
     else {
@@ -200,6 +203,7 @@ class Config with Service implements NotificationsListener {
 
         _checkUpgrade();
         _checkOnboarding();
+        _checkNotification();
       }
     });
   }
@@ -312,6 +316,15 @@ class Config with Service implements NotificationsListener {
     }
   }
 
+  // Notification
+
+  void _checkNotification() {
+    Map<String, dynamic> value;
+    if ((value = this.notification) != null) {
+      NotificationService().notify(notifyNotificationAvailable, value);
+    }
+  }
+
   // Assets cache path
 
   Directory get appDocumentsDir {
@@ -357,6 +370,7 @@ class Config with Service implements NotificationsListener {
   Map<String, dynamic> get settings                { return (_config != null) ? (_config['settings'] ?? {}) : {}; }
   Map<String, dynamic> get upgradeInfo             { return (_config != null) ? (_config['upgrade'] ?? {}) : {}; }
   Map<String, dynamic> get onboardingInfo          { return (_config != null) ? (_config['onboarding'] ?? {}) : {}; }
+  Map<String, dynamic> get notification            { return (_config != null) ? _config['notification'] : null; }
 
   String get assetsUrl              { return otherUniversityServices['assets_url']; }         // "https://rokwire-assets.s3.us-east-2.amazonaws.com"
   String get getHelpUrl             { return otherUniversityServices['get_help_url']; }       // "https://forms.illinois.edu/sec/4961936"
