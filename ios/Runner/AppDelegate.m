@@ -24,7 +24,6 @@
 #import "MapView.h"
 #import "MapController.h"
 #import "MapDirectionsController.h"
-#import "ExposurePlugin.h"
 #import "GalleryPlugin.h"
 
 #import "NSArray+InaTypedValue.h"
@@ -108,10 +107,7 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 	MapViewFactory *factory = [[MapViewFactory alloc] initWithMessenger:registrar.messenger];
 	[registrar registerViewFactory:factory withId:@"mapview"];
 	
-	// Setup ExposurePlugin
-	[ExposurePlugin registerWithRegistrar:[self registrarForPlugin:@"ExposurePlugin"]];
-
-	// Setup ExposurePlugin
+	// Setup GalleryPlugin
 	[GalleryPlugin registerWithRegistrar:[self registrarForPlugin:@"GalleryPlugin"]];
 	
 	// Setup supported & preffered orientation
