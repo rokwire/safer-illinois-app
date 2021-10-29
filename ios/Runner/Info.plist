@@ -36,13 +36,13 @@
 			</array>
 		</dict>
 	</array>
+	<key>CFBundleVersion</key>
+	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>https</string>
 		<string>http</string>
 	</array>
-	<key>CFBundleVersion</key>
-	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -55,9 +55,9 @@
 	<key>NSAppleMusicUsageDescription</key>
 	<string>Allow access to Media Library.</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Bluetooth will be used to enable the  COVID-19 exposure notification system.</string>
+	<string>Allow access to Bluetooth.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>Bluetooth will be used to enable the  COVID-19 exposure notification system.</string>
+	<string>Allow access to Bluetooth.</string>
 	<key>NSCalendarsUsageDescription</key>
 	<string>Your calendar will be used to let you set reminders for important events.</string>
 	<key>NSCameraUsageDescription</key>
@@ -65,13 +65,13 @@
 	<key>NSContactsUsageDescription</key>
 	<string>Allow access to Contacts.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>No location data will be sent or received by this app. The location services are on so that Bluetooth can run in background.</string>
+	<string>Your location will be used to provide nearby health test locations.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>No location data will be sent or received by this app. The location services are on so that Bluetooth can run in background.</string>
+	<string>Your location will be used to provide nearby health test locations.</string>
 	<key>NSLocationUsageDescription</key>
-	<string>No location data will be sent or received by this app. The location services are on so that Bluetooth can run in background.</string>
+	<string>Your location will be used to provide nearby health test locations.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>No location data will be sent or received by this app. The location services are on so that Bluetooth can run in background.</string>
+	<string>Your location will be used to provide nearby health test locations.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Allow access to Microphone.</string>
 	<key>NSMotionUsageDescription</key>
@@ -86,11 +86,6 @@
 	<string>Allow sending data to Apple’s speech recognition servers.</string>
 	<key>UIBackgroundModes</key>
 	<array>
-		<string>audio</string>
-		<string>bluetooth-central</string>
-		<string>bluetooth-peripheral</string>
-		<string>fetch</string>
-		<string>location</string>
 		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>

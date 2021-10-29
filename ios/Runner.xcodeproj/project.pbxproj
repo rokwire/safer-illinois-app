@@ -64,7 +64,6 @@
 		B6201F5B24E2D8080050F7DC /* GalleryPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = B6201F5A24E2D8080050F7DC /* GalleryPlugin.m */; };
 		B681B2B923DEFD9E00093A67 /* NSData+InaHex.m in Sources */ = {isa = PBXBuildFile; fileRef = B681B2B823DEFD9E00093A67 /* NSData+InaHex.m */; };
 		B6BDCD37242CCF5F002F7364 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = B6BDCD39242CCF5F002F7364 /* Localizable.strings */; };
-		B6EA372423A7EF76001D78A5 /* Bluetooth+InaUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = B6EA372323A7EF76001D78A5 /* Bluetooth+InaUtils.m */; };
 		BB7BF12F5D3356D25889D23A /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE7B5BCF89DF9B7AC1FD247B /* Pods_Runner.framework */; };
 /* End PBXBuildFile section */
 
@@ -181,8 +180,6 @@
 		B6BDCD38242CCF5F002F7364 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		B6BDCD3F242CDC89002F7364 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
 		B6BDCD40242CDCA6002F7364 /* zh */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = zh; path = zh.lproj/Localizable.strings; sourceTree = "<group>"; };
-		B6EA372223A7EF76001D78A5 /* Bluetooth+InaUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Bluetooth+InaUtils.h"; sourceTree = "<group>"; };
-		B6EA372323A7EF76001D78A5 /* Bluetooth+InaUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Bluetooth+InaUtils.m"; sourceTree = "<group>"; };
 		CAFE96D496EF0DB9C396C975 /* Pods-Runner.profile-dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile-dev.xcconfig"; path = "Pods/Target Support Files/Pods-Runner/Pods-Runner.profile-dev.xcconfig"; sourceTree = "<group>"; };
 		CE7B5BCF89DF9B7AC1FD247B /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E5C7A80130AEBA15C71E4EAB /* Pods-Runner.debug-dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug-dev.xcconfig"; path = "Pods/Target Support Files/Pods-Runner/Pods-Runner.debug-dev.xcconfig"; sourceTree = "<group>"; };
@@ -265,8 +262,6 @@
 		26FA06BB22CCA8B5003B78E4 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
-				B6EA372223A7EF76001D78A5 /* Bluetooth+InaUtils.h */,
-				B6EA372323A7EF76001D78A5 /* Bluetooth+InaUtils.m */,
 				269F83F022D744E200CC11A4 /* CGGeometry+InaUtils.h */,
 				269F83F122D744E200CC11A4 /* CGGeometry+InaUtils.m */,
 				268F647822DF050400A85AFD /* CLLocationCoordinate2D+InaUtils.h */,
@@ -718,7 +713,6 @@
 				26C90CF02361D13E0092E07F /* NSDictionary+UIUCConfig.m in Sources */,
 				269F83F222D744E200CC11A4 /* CGGeometry+InaUtils.m in Sources */,
 				26BF10AF257F8EA800171227 /* MapDirectionsController.m in Sources */,
-				B6EA372423A7EF76001D78A5 /* Bluetooth+InaUtils.m in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
 				268F647D22DF09D900A85AFD /* NSArray+InaTypedValue.m in Sources */,
 				2696995D22C38B4000B3290E /* AppKeys.m in Sources */,
