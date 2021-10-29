@@ -18,7 +18,6 @@
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/Auth.dart';
-import 'package:illinois/service/BluetoothServices.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/Connectivity.dart';
 import 'package:illinois/service/FirebaseService.dart';
@@ -85,7 +84,6 @@ class Services {
     AppLivecycle(),
     Connectivity(),
     LocationServices(),
-    BluetoothServices(),
     NativeCommunicator(),
     DeepLink(),
 
