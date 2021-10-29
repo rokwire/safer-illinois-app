@@ -125,19 +125,6 @@ class OnboardingHealthHowItWorksPanel extends StatelessWidget with OnboardingPan
                         ),
                       ],
                     ),
-                    Container(height: 16,),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        _Bullet(),
-                        Expanded(
-                          child: Text(
-                            Localization().getStringEx("panel.health.onboarding.covid19.how_it_works.line5.title", "Allow your phone to send exposure notifications when you’ve been in proximity to people who test positive."),
-                            style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color:Styles().colors.fillColorPrimary),
-                          ),
-                        ),
-                      ],
-                    ),
                   ],
                 )
               ),

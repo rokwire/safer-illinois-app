@@ -362,7 +362,6 @@ class Config with Service implements NotificationsListener {
   String get getHelpUrl             { return otherUniversityServices['get_help_url']; }       // "https://forms.illinois.edu/sec/4961936"
   String get iCardUrl               { return otherUniversityServices['icard_url']; }          // "https://www.icard.uillinois.edu/rest/rw/rwIDData/rwCardInfo"
   String get privacyPolicyUrl       { return otherUniversityServices['privacy_policy_url']; } // "https://www.vpaa.uillinois.edu/resources/web_privacy"
-  String get exposureLogUrl         { return otherUniversityServices['exposure_log_url']; }   // "http://ec2-18-191-37-235.us-east-2.compute.amazonaws.com:8003/PostSessionData"
 
   String get oidcAuthUrl            { return oidc['auth_url']; }                              // "https://shibboleth.illinois.edu/idp/profile/oidc/authorize"
   String get oidcTokenUrl           { return oidc['token_url']; }                             // "https://{oidc_client_id}:{oidc_client_secret}@shibboleth.illinois.edu/idp/profile/oidc/token"

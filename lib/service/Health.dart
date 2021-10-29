@@ -23,9 +23,7 @@ import 'package:illinois/model/Health.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/AppLivecycle.dart';
 import 'package:illinois/service/Auth.dart';
-import 'package:illinois/service/BluetoothServices.dart';
 import 'package:illinois/service/Config.dart';
-import 'package:illinois/service/LocationServices.dart';
 import 'package:illinois/service/NativeCommunicator.dart';
 import 'package:illinois/service/Network.dart';
 import 'package:illinois/service/NotificationService.dart';
@@ -313,10 +311,6 @@ class Health with Service implements NotificationsListener {
     return this._isUserAuthenticated && (_user != null);
   }
 
-  bool get userConsentExposureNotification {
-    return this.isUserLoggedIn && (_user?.consentExposureNotification ?? false);
-  }
-
   // User
 
   HealthUser get user {
@@ -406,7 +400,7 @@ class Health with Service implements NotificationsListener {
     return false;
   }
 
-  Future<HealthUser> loginUser({bool consentTestResults, bool consentVaccineInformation, bool consentExposureNotification, AsymmetricKeyPair<PublicKey, PrivateKey> keys}) async {
+  Future<HealthUser> loginUser({bool consentTestResults, bool consentVaccineInformation, AsymmetricKeyPair<PublicKey, PrivateKey> keys}) async {
 
     if (!this._isUserAuthenticated) {
       return null;
@@ -468,15 +462,6 @@ class Health with Service implements NotificationsListener {
       }
     }
 
-    // Consent :Exposure Notification
-    if (consentExposureNotification != null) {
-      if (consentExposureNotification != user.consentExposureNotification) {
-        analyticsSettingsAttributes[Analytics.LogHealthSettingConsentExposureNotifName] = consentExposureNotification;
-        user.consentExposureNotification = consentExposureNotification;
-        userUpdated = true;
-      }
-    }
-
     // Save
     if (userUpdated == true) {
       bool userSaved = await _saveUserToNet(user);
@@ -500,16 +485,6 @@ class Health with Service implements NotificationsListener {
 
     if (analyticsSettingsAttributes != null) {
       Analytics().logHealth( action: Analytics.LogHealthSettingChangedAction, attributes: analyticsSettingsAttributes, defaultAttributes: Analytics.DefaultAttributes);
-    }
-
-    if (consentExposureNotification == true) {
-      if (BluetoothServices().status == BluetoothStatus.PermissionNotDetermined) {
-        await BluetoothServices().requestStatus();
-      }
-
-      if (await LocationServices().status == LocationServicesStatus.PermissionNotDetermined) {
-        await LocationServices().requestPermission();
-      }
     }
 
     if (userReset == true) {
@@ -1370,7 +1345,7 @@ class Health with Service implements NotificationsListener {
 
   // Contact Trace
 
-  // Used only from debug panel, see Exposure.checkExposures
+  // Used only from debug panel
   Future<bool> processContactTrace({DateTime dateUtc, int duration}) async {
     
     HealthHistory history = await _addHistory(await HealthHistory.encryptedFromBlob(

@@ -1304,7 +1304,6 @@ class HealthUser {
   PublicKey _publicKey;
   bool consentTestResults;
   bool consentVaccineInformation;
-  bool consentExposureNotification;
   bool repost;
   List<HealthUserAccount> accounts;
   String encryptedKey;
@@ -1313,7 +1312,7 @@ class HealthUser {
   HealthUserAccount defaultAccount;
   Map<String, HealthUserAccount> accountsMap;
 
-  HealthUser({this.uuid, this.publicKeyString, PublicKey publicKey, this.consentTestResults, this.consentVaccineInformation, this.consentExposureNotification, this.repost, this.accounts, this.encryptedKey, this.encryptedBlob}) {
+  HealthUser({this.uuid, this.publicKeyString, PublicKey publicKey, this.consentTestResults, this.consentVaccineInformation, this.repost, this.accounts, this.encryptedKey, this.encryptedBlob}) {
     _publicKey = publicKey;
     accountsMap = HealthUserAccount.mapFromList(accounts);
     defaultAccount = HealthUserAccount.defaultInList(accounts);
@@ -1325,7 +1324,6 @@ class HealthUser {
       publicKeyString: json['public_key'],
       consentTestResults: json['consent'],
       consentVaccineInformation: json['consent_vaccine'],
-      consentExposureNotification: json['exposure_notification'],
       repost: json['re_post'],
       accounts: HealthUserAccount.listFromJson(json['accounts']),
       encryptedKey: json['encrypted_key'],
@@ -1339,7 +1337,6 @@ class HealthUser {
       'public_key': publicKeyString,
       'consent': consentTestResults,
       'consent_vaccine': consentVaccineInformation,
-      'exposure_notification': consentExposureNotification,
       're_post': repost,
       'accounts': HealthUserAccount.listToJson(accounts),
       'encrypted_key': encryptedKey,
@@ -1353,7 +1350,6 @@ class HealthUser {
       o.publicKeyString == publicKeyString &&
       o.consentTestResults == consentTestResults &&
       o.consentVaccineInformation == consentVaccineInformation &&
-      o.consentExposureNotification == consentExposureNotification &&
       o.repost == repost &&
       DeepCollectionEquality().equals(o.accounts, accounts) &&
       o.encryptedKey == encryptedKey &&
@@ -1364,7 +1360,6 @@ class HealthUser {
     (publicKeyString?.hashCode ?? 0) ^
     (consentTestResults?.hashCode ?? 0) ^
     (consentVaccineInformation?.hashCode ?? 0) ^
-    (consentExposureNotification?.hashCode ?? 0) ^
     (repost?.hashCode ?? 0) ^
     DeepCollectionEquality().hash(accounts) ^
     (encryptedKey?.hashCode ?? 0) ^
@@ -1386,7 +1381,6 @@ class HealthUser {
       publicKey: user.publicKey,
       consentTestResults: user.consentTestResults,
       consentVaccineInformation: user.consentVaccineInformation,
-      consentExposureNotification: user.consentExposureNotification,
       repost: user.repost,
       accounts: user.accounts,
       encryptedKey: user.encryptedKey,

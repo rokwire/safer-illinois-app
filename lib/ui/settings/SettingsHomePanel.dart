@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:illinois/service/AppNavigation.dart';
 import 'package:illinois/service/Auth.dart';
-import 'package:illinois/service/BluetoothServices.dart';
 import 'package:illinois/service/Connectivity.dart';
 import 'package:illinois/service/Health.dart';
-import 'package:illinois/service/LocationServices.dart';
 import 'package:illinois/service/Organizations.dart';
 import 'package:illinois/ui/onboarding/OnboardingLoginPhoneVerifyPanel.dart';
 import 'package:illinois/ui/settings/SettingsFamilyMembersPanel.dart';
@@ -76,8 +73,6 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
   bool _loadingHealthUserKeys;
   bool _scanningHealthUserKeys;
   bool _resetingHealthUserKeys;
-
-  bool _permissionsRequested;
 
   GlobalKey _qrCodeButtonKey = GlobalKey();
   Size _qrCodeProgressSize = Size(20, 20);
@@ -594,11 +589,11 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
     });
   }
 
-  void _updateHealthUser({bool consentTestResults, bool consentVaccineInformation, bool consentExposureNotification}){
+  void _updateHealthUser({bool consentTestResults, bool consentVaccineInformation}){
     setState(() {
       _refreshingHealthUser = true;
     });
-    Health().loginUser(consentTestResults: consentTestResults, consentVaccineInformation: consentVaccineInformation, consentExposureNotification: consentExposureNotification).then((_) {
+    Health().loginUser(consentTestResults: consentTestResults, consentVaccineInformation: consentVaccineInformation,).then((_) {
       if (mounted) {
         setState(() {
           _refreshingHealthUser = false;
@@ -690,16 +685,7 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
         for (int index = 0; index < codes.length; index++) {
           String code = codes[index];
           BorderRadius borderRadius = _borderRadiusFromIndex(index, codes.length);
-          if (code == 'exposure_notifications') {
-            contentList.add(ToggleRibbonButton(
-                height: null,
-                borderRadius: borderRadius,
-                label: Localization().getStringEx("panel.settings.home.covid19.exposure_notifications", "Exposure Notifications"),
-                toggled: (Health().user?.consentExposureNotification == true),
-                context: context,
-                onTap: _onConsentExposureNotifications));
-          }
-          else if (code == 'provider_test_result') {
+          if (code == 'provider_test_result') {
             contentList.add(ToggleRibbonButton(
                 height: null,
                 borderRadius: borderRadius,
@@ -878,35 +864,6 @@ class _SettingsHomePanelState extends State<SettingsHomePanel> implements Notifi
       }
     } on Exception catch (e) {
       print(e.toString());
-    }
-  }
-
-  
-  void _onConsentExposureNotifications() {
-    if (Connectivity().isNotOffline) {
-      Analytics.instance.logSelect(target: "Exposure Notifications");
-      bool consentExposureNotification = Health().user?.consentExposureNotification ?? false;
-      if (Platform.isIOS && (consentExposureNotification != true) && (_permissionsRequested != true)) {
-        _permissionsRequested = true;
-        _requestPermisions().then((_) {
-          _updateHealthUser(consentExposureNotification: !consentExposureNotification);
-        });
-      }
-      else {
-        _updateHealthUser(consentExposureNotification: !consentExposureNotification);
-      }
-    } else {
-      AppAlert.showOfflineMessage(context);
-    }
-  }
-
-  Future<void> _requestPermisions() async {
-    if (BluetoothServices().status == BluetoothStatus.PermissionNotDetermined) {
-      await BluetoothServices().requestStatus();
-    }
-
-    if (await LocationServices().status == LocationServicesStatus.PermissionNotDetermined) {
-      await LocationServices().requestPermission();
     }
   }
 

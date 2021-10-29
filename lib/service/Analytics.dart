@@ -195,8 +195,6 @@ class Analytics with Service implements NotificationsListener {
   static const String   LogHealthSymptomsSubmittedAction         = "symptoms_submitted";
   static const String   LogHealthActionProcessedAction           = "action_processed";
   static const String   LogHealthVaccinationAction               = "vaccination";
-  static const String   LogHealthReportExposuresAction           = "report_exposures";
-  static const String   LogHealthCheckExposuresAction            = "check_exposures";
   static const String   LogHealthStatusName                      = "status";
   static const String   LogHealthPrevStatusName                  = "previous_status";
   static const String   LogHealthSettingConsentTestResultsName   = "consent_test_results";
@@ -207,8 +205,6 @@ class Analytics with Service implements NotificationsListener {
   static const String   LogHealthTestTypeName                    = "test_type";
   static const String   LogHealthTestResultName                  = "test_result";
   static const String   LogHealthSymptomsName                    = "symptoms";
-  static const String   LogHealthDurationName                    = "duration";
-  static const String   LogHealthExposureTimestampName           = "exposure_timestamp";
   static const String   LogHealthVaccineStatusName               = "vaccine_status";
   static const String   LogHealthActionTypeName                  = "action_type";
   static const String   LogHealthActionTitleName                 = "action_title";
