@@ -275,6 +275,24 @@ class Storage with Service {
     setString(lastRunVersionKey, value);
   }
 
+  ////////////////////////
+  // Config Notifications
+
+  static const String reportedConfigNotifictionsKey  = 'reported_config_notifications';
+
+  Set<String> get reportedConfigNotifictions {
+    List<String> list = getStringList(reportedConfigNotifictionsKey);
+    return (list != null) ? Set.from(list) : null;
+  }
+
+  set reportedConfigNotifiction(String notificationId) {
+    if (notificationId != null) {
+      Set<String> notifications = reportedConfigNotifictions ?? Set<String>();
+      notifications.add(notificationId);
+      setStringList(reportedConfigNotifictionsKey, notifications.toList());
+    }
+  }
+
   ////////////////
   // Auth
 
