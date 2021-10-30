@@ -131,15 +131,11 @@ class _OnBoardingHealthDisclosurePanelState extends State<OnBoardingHealthDisclo
                               style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 14, color:Styles().colors.textSurface),
                             )),
                         Container(height: 4,),
-                        _section1Entry(Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content1", "1. Bluetooth to enable opt-in exposure notifications of close contact with individuals that test positive for COVID-19."), section1Splitter),
+                        _section1Entry(Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content1", "1. Camera to allow a user to import their personal encryption key (QR code) into the app."), section1Splitter),
                         Container(height: 2,),
-                        _section1Entry(Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content2", "2. Camera to allow a user to import their personal encryption key (QR code) into the app."), section1Splitter),
+                        _section1Entry(Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content2", "2. Photos and Videos to allow a user to import their personal encryption key (QR code) into the app."), section1Splitter),
                         Container(height: 2,),
-                        _section1Entry(Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content3", "3. Photos and Videos to allow a user to import their personal encryption key (QR code) into the app."), section1Splitter),
-                        Container(height: 2,),
-                        _section1Entry(Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content4", "4. Files (external storage read and write) to allow a user to import their personal encryption key (QR code) into the app."), section1Splitter),
-                        Container(height: 2,),
-                        _section1Entry(Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content5", "5. Location services on your device must be turned on to activate the Bluetooth low energy technology necessary for the exposure notification function of the Application to work in the background. However, the Application does not access, collect, or store any location data, including GPS data. If location services on your device are turned off, the Application will perform the limited functions of storing and providing information about COVID-19 test results, any voluntarily reported symptoms, and building access status."), section1Splitter),
+                        _section1Entry(Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content3", "3. Files (external storage read and write) to allow a user to import their personal encryption key (QR code) into the app."), section1Splitter),
 
                         Container(height: 20,),
                         Semantics( header: true, hint: Localization().getStringEx("app.common.heading.two.hint","Header 2"),
@@ -196,28 +192,6 @@ class _OnBoardingHealthDisclosurePanelState extends State<OnBoardingHealthDisclo
                         ),
                         Text(
                           Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content14", "  - READ_EXTERNAL_STORAGE"),
-                          style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 20, color:Styles().colors.textSurface),
-                        ),
-
-                        Container(height: 10,),
-                        Semantics( header: true, hint: Localization().getStringEx("app.common.heading.three.hint","Header 3"),
-                            child: Text(Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.description8", "Opt-in exposure notification participation"),
-                              style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 18, color:Styles().colors.textSurface),
-                            )),
-                        Text(
-                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content18", "Your phone transmits and receives anonymous identifying numbers via Bluetooth. This identifier is stored on any phones that come close to you.  If someone tests positive for COVID-19, their phone tells our servers the anonymous numbers they have sent for the last 14 days.  Your phone will check if you were near that infected users' phone long enough to warrant an exposure notification. This is all done anonymously. Your location is never tracked or stored on our servers. If you have elected to use Exposure Notification, Location Services, and Bluetooth, these capabilities will run in the background when the app is not in use. The following permissions are used to enable this:"),
-                          style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color:Styles().colors.textSurface),
-                        ),
-                        Text(
-                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content19", "  - BLUETOOTH"),
-                          style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 20, color:Styles().colors.textSurface),
-                        ),
-                        Text(
-                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content20", "  - BLUETOOTH_ADMIN"),
-                          style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 20, color:Styles().colors.textSurface),
-                        ),
-                        Text(
-                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content21", "  - LOCATION"),
                           style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 20, color:Styles().colors.textSurface),
                         ),
 

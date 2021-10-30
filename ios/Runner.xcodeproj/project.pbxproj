@@ -49,12 +49,10 @@
 		26B462C2258126BB0035CA6D /* maps-icon-marker-origin-large@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 26B462C0258126BB0035CA6D /* maps-icon-marker-origin-large@2x.png */; };
 		26BF10AF257F8EA800171227 /* MapDirectionsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 26BF10AE257F8EA800171227 /* MapDirectionsController.m */; };
 		26BF10B2257F923E00171227 /* MapRoute.m in Sources */ = {isa = PBXBuildFile; fileRef = 26BF10B1257F923E00171227 /* MapRoute.m */; };
-		26C07E2E247677A600E28D43 /* ExposurePlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 26C07E2D247677A600E28D43 /* ExposurePlugin.m */; };
 		26C90CED2361CF480092E07F /* NSDictionary+InaPathKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 26C90CEC2361CF480092E07F /* NSDictionary+InaPathKey.m */; };
 		26C90CF02361D13E0092E07F /* NSDictionary+UIUCConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 26C90CEE2361D13E0092E07F /* NSDictionary+UIUCConfig.m */; };
 		26DD091D2563DE0D003E7F70 /* audio.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 26DD091C2563DE0D003E7F70 /* audio.mp3 */; };
 		26DD091F2563DF35003E7F70 /* silence.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 26DD091E2563DF35003E7F70 /* silence.mp3 */; };
-		26ECB3232487938C00479487 /* CommonCrypto+UIUCUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 26ECB3222487938C00479487 /* CommonCrypto+UIUCUtils.m */; };
 		26ECB3262487AD0900479487 /* Security+UIUCUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 26ECB3252487AD0900479487 /* Security+UIUCUtils.m */; };
 		26FA06BE22CCA9B5003B78E4 /* NSDictionary+InaTypedValue.m in Sources */ = {isa = PBXBuildFile; fileRef = 26FA06BC22CCA9B5003B78E4 /* NSDictionary+InaTypedValue.m */; };
 		26FAB1C922EB3502008E987C /* NSDictionary+UIUCExplore.m in Sources */ = {isa = PBXBuildFile; fileRef = 26FAB1C822EB3502008E987C /* NSDictionary+UIUCExplore.m */; };
@@ -66,7 +64,6 @@
 		B6201F5B24E2D8080050F7DC /* GalleryPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = B6201F5A24E2D8080050F7DC /* GalleryPlugin.m */; };
 		B681B2B923DEFD9E00093A67 /* NSData+InaHex.m in Sources */ = {isa = PBXBuildFile; fileRef = B681B2B823DEFD9E00093A67 /* NSData+InaHex.m */; };
 		B6BDCD37242CCF5F002F7364 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = B6BDCD39242CCF5F002F7364 /* Localizable.strings */; };
-		B6EA372423A7EF76001D78A5 /* Bluetooth+InaUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = B6EA372323A7EF76001D78A5 /* Bluetooth+InaUtils.m */; };
 		BB7BF12F5D3356D25889D23A /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE7B5BCF89DF9B7AC1FD247B /* Pods_Runner.framework */; };
 /* End PBXBuildFile section */
 
@@ -146,8 +143,6 @@
 		26BF10AE257F8EA800171227 /* MapDirectionsController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MapDirectionsController.m; sourceTree = "<group>"; };
 		26BF10B0257F923E00171227 /* MapRoute.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapRoute.h; sourceTree = "<group>"; };
 		26BF10B1257F923E00171227 /* MapRoute.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MapRoute.m; sourceTree = "<group>"; };
-		26C07E2C247677A600E28D43 /* ExposurePlugin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ExposurePlugin.h; sourceTree = "<group>"; };
-		26C07E2D247677A600E28D43 /* ExposurePlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ExposurePlugin.m; sourceTree = "<group>"; };
 		26C90CEB2361CF480092E07F /* NSDictionary+InaPathKey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+InaPathKey.h"; sourceTree = "<group>"; };
 		26C90CEC2361CF480092E07F /* NSDictionary+InaPathKey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+InaPathKey.m"; sourceTree = "<group>"; };
 		26C90CEE2361D13E0092E07F /* NSDictionary+UIUCConfig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+UIUCConfig.m"; sourceTree = "<group>"; };
@@ -158,8 +153,6 @@
 		26E0DD712525C46D002B7B11 /* Debug-Dev.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "Debug-Dev.xcconfig"; path = "Flutter/Debug-Dev.xcconfig"; sourceTree = "<group>"; };
 		26E0DD722525C46D002B7B11 /* Dev.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Dev.xcconfig; path = Flutter/Dev.xcconfig; sourceTree = "<group>"; };
 		26E0DD772525C5BF002B7B11 /* build.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = build.sh; sourceTree = "<group>"; };
-		26ECB3212487938C00479487 /* CommonCrypto+UIUCUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CommonCrypto+UIUCUtils.h"; sourceTree = "<group>"; };
-		26ECB3222487938C00479487 /* CommonCrypto+UIUCUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "CommonCrypto+UIUCUtils.m"; sourceTree = "<group>"; };
 		26ECB3242487AD0900479487 /* Security+UIUCUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Security+UIUCUtils.h"; sourceTree = "<group>"; };
 		26ECB3252487AD0900479487 /* Security+UIUCUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Security+UIUCUtils.m"; sourceTree = "<group>"; };
 		26FA06BC22CCA9B5003B78E4 /* NSDictionary+InaTypedValue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+InaTypedValue.m"; sourceTree = "<group>"; };
@@ -187,8 +180,6 @@
 		B6BDCD38242CCF5F002F7364 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		B6BDCD3F242CDC89002F7364 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
 		B6BDCD40242CDCA6002F7364 /* zh */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = zh; path = zh.lproj/Localizable.strings; sourceTree = "<group>"; };
-		B6EA372223A7EF76001D78A5 /* Bluetooth+InaUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Bluetooth+InaUtils.h"; sourceTree = "<group>"; };
-		B6EA372323A7EF76001D78A5 /* Bluetooth+InaUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Bluetooth+InaUtils.m"; sourceTree = "<group>"; };
 		CAFE96D496EF0DB9C396C975 /* Pods-Runner.profile-dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile-dev.xcconfig"; path = "Pods/Target Support Files/Pods-Runner/Pods-Runner.profile-dev.xcconfig"; sourceTree = "<group>"; };
 		CE7B5BCF89DF9B7AC1FD247B /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E5C7A80130AEBA15C71E4EAB /* Pods-Runner.debug-dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug-dev.xcconfig"; path = "Pods/Target Support Files/Pods-Runner/Pods-Runner.debug-dev.xcconfig"; sourceTree = "<group>"; };
@@ -271,8 +262,6 @@
 		26FA06BB22CCA8B5003B78E4 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
-				B6EA372223A7EF76001D78A5 /* Bluetooth+InaUtils.h */,
-				B6EA372323A7EF76001D78A5 /* Bluetooth+InaUtils.m */,
 				269F83F022D744E200CC11A4 /* CGGeometry+InaUtils.h */,
 				269F83F122D744E200CC11A4 /* CGGeometry+InaUtils.m */,
 				268F647822DF050400A85AFD /* CLLocationCoordinate2D+InaUtils.h */,
@@ -309,8 +298,6 @@
 				26C90CEE2361D13E0092E07F /* NSDictionary+UIUCConfig.m */,
 				269F83ED22D73EB400CC11A4 /* NSDate+UIUCUtils.h */,
 				269F83EA22D73EB400CC11A4 /* NSDate+UIUCUtils.m */,
-				26ECB3212487938C00479487 /* CommonCrypto+UIUCUtils.h */,
-				26ECB3222487938C00479487 /* CommonCrypto+UIUCUtils.m */,
 				26ECB3242487AD0900479487 /* Security+UIUCUtils.h */,
 				26ECB3252487AD0900479487 /* Security+UIUCUtils.m */,
 			);
@@ -369,8 +356,6 @@
 				2696997F22C3A14A00B3290E /* MapView.m */,
 				2626D94C22DCB80000F6BC2F /* MapMarkerView.h */,
 				2626D94D22DCB80000F6BC2F /* MapMarkerView.m */,
-				26C07E2C247677A600E28D43 /* ExposurePlugin.h */,
-				26C07E2D247677A600E28D43 /* ExposurePlugin.m */,
 				B6201F5924E2D8080050F7DC /* GalleryPlugin.h */,
 				B6201F5A24E2D8080050F7DC /* GalleryPlugin.m */,
 				26B34034233112320031CF70 /* FlutterCompletion.h */,
@@ -618,7 +603,6 @@
 				"${BUILT_PRODUCTS_DIR}/GoogleDataTransport/GoogleDataTransport.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac/GoogleToolboxForMac.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleUtilities/GoogleUtilities.framework",
-				"${BUILT_PRODUCTS_DIR}/HKDFKit/HKDFKit.framework",
 				"${BUILT_PRODUCTS_DIR}/MTBBarcodeScanner/MTBBarcodeScanner.framework",
 				"${BUILT_PRODUCTS_DIR}/Mantle/Mantle.framework",
 				"${BUILT_PRODUCTS_DIR}/PromisesObjC/FBLPromises.framework",
@@ -663,7 +647,6 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleDataTransport.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/HKDFKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MTBBarcodeScanner.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Mantle.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FBLPromises.framework",
@@ -730,7 +713,6 @@
 				26C90CF02361D13E0092E07F /* NSDictionary+UIUCConfig.m in Sources */,
 				269F83F222D744E200CC11A4 /* CGGeometry+InaUtils.m in Sources */,
 				26BF10AF257F8EA800171227 /* MapDirectionsController.m in Sources */,
-				B6EA372423A7EF76001D78A5 /* Bluetooth+InaUtils.m in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
 				268F647D22DF09D900A85AFD /* NSArray+InaTypedValue.m in Sources */,
 				2696995D22C38B4000B3290E /* AppKeys.m in Sources */,
@@ -741,7 +723,6 @@
 				B681B2B923DEFD9E00093A67 /* NSData+InaHex.m in Sources */,
 				26FA06BE22CCA9B5003B78E4 /* NSDictionary+InaTypedValue.m in Sources */,
 				2626D94B22DC99C800F6BC2F /* NSString+InaJson.m in Sources */,
-				26C07E2E247677A600E28D43 /* ExposurePlugin.m in Sources */,
 				26C90CED2361CF480092E07F /* NSDictionary+InaPathKey.m in Sources */,
 				26ECB3262487AD0900479487 /* Security+UIUCUtils.m in Sources */,
 				26FAB1C922EB3502008E987C /* NSDictionary+UIUCExplore.m in Sources */,
@@ -751,7 +732,6 @@
 				26B3403A2331195C0031CF70 /* UILabel+InaMeasure.m in Sources */,
 				26FAB1CC22EB35C7008E987C /* NSDate+InaUtils.m in Sources */,
 				2696998022C3A14A00B3290E /* MapView.m in Sources */,
-				26ECB3232487938C00479487 /* CommonCrypto+UIUCUtils.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

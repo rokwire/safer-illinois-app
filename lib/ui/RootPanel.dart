@@ -63,6 +63,7 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
     super.initState();
     NotificationService().subscribe(this, [
       AppLivecycle.notifyStateChanged,
+      FirebaseMessaging.notifyForegroundMessage,
       FirebaseMessaging.notifyPopupMessage,
       FirebaseMessaging.notifyCovid19Notification,
       Localization.notifyStringsUpdated,
@@ -91,6 +92,9 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
   void onNotification(String name, dynamic param) {
     if (name == AppLivecycle.notifyStateChanged) {
       _onAppLivecycleStateChanged(param); 
+    }
+    else if (name == FirebaseMessaging.notifyForegroundMessage){
+      _onFirebaseForegroundMessage(param);
     }
     else if (name == FirebaseMessaging.notifyPopupMessage) {
       _onFirebasePopupMessage(param);
@@ -230,6 +234,16 @@ class _RootPanelState extends State<RootPanel> with SingleTickerProviderStateMix
         ),
       ),
     );
+  }
+
+  void _onFirebaseForegroundMessage(Map<String, dynamic> content) {
+    String body = content["body"];
+    Function completion = content["onComplete"];
+    AppAlert.showDialogResult(context, body).then((value){
+      if(completion != null){
+        completion();
+      }
+    });
   }
 
   void _onFirebasePopupMessage(Map<String, dynamic> content) {

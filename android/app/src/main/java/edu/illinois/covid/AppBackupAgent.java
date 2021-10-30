@@ -32,9 +32,6 @@ public class AppBackupAgent extends BackupAgentHelper {
 
         SharedPreferencesBackupHelper encryptionHelper = new SharedPreferencesBackupHelper(this, Constants.ENCRYPTION_SHARED_PREFS_FILE_NAME);
         addHelper(PREFS_BACKUP_KEY, encryptionHelper);
-
-        SharedPreferencesBackupHelper exposureTeksHelper = new SharedPreferencesBackupHelper(this, Constants.EXPOSURE_TEKS_SHARED_PREFS_FILE_NAME);
-        addHelper(PREFS_BACKUP_KEY, exposureTeksHelper);
     }
 
     public static void requestBackup(Context context) {

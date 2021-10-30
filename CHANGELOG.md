@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.12.4] - 2021-10-29
+### Added
+- Implemented config notifications [#744](https://github.com/rokwire/safer-illinois-app/issues/744).
+### Deleted
+- Removed Exposure plugins, service and related UI [#742](https://github.com/rokwire/safer-illinois-app/issues/742).
+### Changed
+- Update encrypt plugin to latest available version [#745](https://github.com/rokwire/safer-illinois-app/issues/745).
+
 ## [2.12.3] - 2021-10-06
 ### Changed
 - Handled exempt of vaccination and vaccintation suspended status in vaccination widget [#739](https://github.com/rokwire/safer-illinois-app/issues/739).

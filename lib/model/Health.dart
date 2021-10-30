@@ -328,10 +328,6 @@ class HealthStatusBlob {
     return (nextStep?.toLowerCase()?.contains("test") ?? false) ||
       (nextStepHtml?.toLowerCase()?.contains("test") ?? false);  
   }
-
-  bool reportsExposures({HealthRulesSet rules}) {
-    return (rules?.codes[code]?.reportsExposures == true);
-  }
 }
 
 ////////////////////////////////
@@ -2958,9 +2954,8 @@ class HealthCodeData {
   final String _description;
   final String _longDescription;
   final bool visible;
-  final bool reportsExposures;
 
-  HealthCodeData({this.code, String color, String name, String description, String longDescription, this.visible, this.reportsExposures}) :
+  HealthCodeData({this.code, String color, String name, String description, String longDescription, this.visible,}) :
     _colorString = color,
     _color = UiColors.fromHex(color),
     _name = name,
@@ -2975,7 +2970,6 @@ class HealthCodeData {
       description: json['description'],
       longDescription: json['long_description'],
       visible: json['visible'],
-      reportsExposures: json['reports_exposures']
     ) : null;
   }
 
@@ -2987,7 +2981,6 @@ class HealthCodeData {
       'description': _description,
       'long_description': _longDescription,
       'visible': visible,
-      'reports_exposures': reportsExposures
     };
   }
 
@@ -2998,8 +2991,7 @@ class HealthCodeData {
       (o._name == _name) &&
       (o._description == _description) &&
       (o._longDescription == _longDescription) &&
-      (o.visible == visible) &&
-      (o.reportsExposures == reportsExposures);
+      (o.visible == visible);
 
   int get hashCode =>
     (code?.hashCode ?? 0) ^
@@ -3007,8 +2999,7 @@ class HealthCodeData {
     (_name?.hashCode ?? 0) ^
     (_description?.hashCode ?? 0) ^
     (_longDescription?.hashCode ?? 0) ^
-    (visible?.hashCode ?? 0) ^
-    (reportsExposures?.hashCode ?? 0);
+    (visible?.hashCode ?? 0);
 
   Color get color {
     return _color;
