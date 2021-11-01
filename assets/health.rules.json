@@ -10,6 +10,7 @@
 		"DefaultTestMonitorInterval": 4,
 		"UndergraduateTestMonitorInterval": 2,
 		"UserTestMonitorInterval": null,
+		"VaccineBoosterInterval": 180,
 
 		"TestMonitorInterval": {
 			"condition": "test-interval", "params": { "interval": "UserTestMonitorInterval" },
@@ -19,24 +20,7 @@
 				"success": "UndergraduateTestMonitorInterval",
 				"fail": "DefaultTestMonitorInterval"
 			}
-		},
-
-		"DefaultTestMonitorWeekdaysExtent": ["Fri", "Sat", "Sun", "Mon"],
-		"UndergraduateTestMonitorWeekdaysExtent": ["Sat", "Sun"],
-
-		"TestMonitorWeekdaysExtent": {
-			"condition": "test-user", "params": { "card.role": "Undergraduate", "card.student_level": "1U" },
-			"success": "UndergraduateTestMonitorWeekdaysExtent",
-			"fail": "DefaultTestMonitorWeekdaysExtent"
-		},
-
-		"Mon": 1,
-		"Tue": 2,
-		"Wed": 3,
-		"Thu": 4,
-		"Fri": 5,
-		"Sat": 6,
-		"Sun": 7
+		}
 	},
 
 	"constants": {
@@ -71,8 +55,7 @@
 				"color": "#FF4F4F",
 				"name": "code.red.name",
 				"description": "code.red.description",
-				"long_description": "code.red.long_description",
-				"reports_exposures": true
+				"long_description": "code.red.long_description"
 			}
 		],
 		"info": [
@@ -97,7 +80,7 @@
 				"condition": "require-vaccine",
 				"params": {
 					"interval": { "scope": "past" },
-					"vaccine": "effective"
+					"status": "effective"
 				},
 				"success": {
 					"condition": "test-interval",
@@ -140,7 +123,7 @@
 				"condition": "require-vaccine",
 				"params": {
 					"interval": { "scope": "past" },
-					"vaccine": "effective"
+					"status": "effective"
 				},
 				"success": {
 					"condition": "test-interval",
@@ -229,7 +212,7 @@
 		"test-monitor": {
 			"condition": "require-test",
 			"params": {
-				"interval": { "min": 0, "max": "TestMonitorInterval", "max-weekdays-extent": "TestMonitorWeekdaysExtent", "scope": "future", "current": true }
+				"interval": { "min": 0, "max": "TestMonitorInterval", "scope": "future", "current": true }
 			},
 			"success": "test-fulfilled",
 			"fail": "test-required"
@@ -239,7 +222,7 @@
 			"condition": "require-vaccine",
 			"params": {
 				"interval": { "scope": "past" },
-				"vaccine": "effective"
+				"status": "effective"
 			},
 			"success": {
 				"condition": "test-interval",
@@ -272,7 +255,7 @@
 			"condition": "require-vaccine",
 			"params": {
 				"interval": { "scope": "past" },
-				"vaccine": "effective"
+				"status": "effective"
 			},
 			"success": {
 				"condition": "test-interval",
@@ -334,6 +317,22 @@
 				"interval": "UserTestMonitorInterval"
 			},
 			"success": "vaccinated-suspended",
+			"fail": {
+				"condition": "test-interval",
+				"params": {
+					"interval": "VaccineBoosterInterval"
+				},
+				"success": "vaccinated-booster",
+				"fail": "vaccinated"
+			}
+		},
+
+		"vaccinated-booster": {
+			"condition": "timeout",
+			"params": {
+				"interval": { "min": 0, "max": "VaccineBoosterInterval", "scope": "future" }
+			},
+			"success": null,
 			"fail": "vaccinated"
 		},
 
@@ -344,6 +343,15 @@
 			"notice": "vaccinated.notice",
 			"reason": "vaccinated.reason",
 			"fcm_topic": "vaccinated"
+		},
+		
+		"vaccinated-restore": {
+			"condition": "timeout",
+			"params": {
+				"interval": { "min": 0, "max": "VaccineBoosterInterval", "scope": "future" }
+			},
+			"success": null,
+			"fail": "vaccinated-force"
 		},
 		
 		"vaccinated-force": {
@@ -362,7 +370,7 @@
 			"notice": "vaccinated.suspended.notice",
 			"reason": "vaccinated.suspended.reason"
 		},
-
+		
 		"quarantine-on": {
 			"code": "orange",
 			"priority": 10,
@@ -375,7 +383,7 @@
 			"condition": "require-vaccine",
 			"params": {
 				"interval": { "scope": "past" },
-				"vaccine": "effective"
+				"status": "effective"
 			},
 			"success": {
 				"condition": "test-interval",
@@ -383,7 +391,7 @@
 					"interval": "UserTestMonitorInterval"
 				},
 				"success": "quarantine-off.unvaccinated",
-				"fail": "vaccinated-force"
+				"fail": "vaccinated-restore"
 				},
 			"fail": "quarantine-off.unvaccinated"
 		},
@@ -460,7 +468,7 @@
 			"condition": "require-vaccine",
 			"params": {
 				"interval": { "scope": "past" },
-				"vaccine": "effective"
+				"status": "effective"
 			},
 			"success": {
 				"condition": "test-interval",
@@ -522,7 +530,7 @@
 			"condition": "require-vaccine",
 			"params": {
 				"interval": { "scope": "past" },
-				"vaccine": "effective"
+				"status": "effective"
 			},
 			"success": {
 				"condition": "test-interval",
@@ -530,7 +538,7 @@
 					"interval": "UserTestMonitorInterval"
 				},
 				"success": "exempt-off.unvaccinated",
-				"fail": "vaccinated-force"
+				"fail": "vaccinated-restore"
 				},
 			"fail": "exempt-off.unvaccinated"
 		},
@@ -546,7 +554,7 @@
 			"condition": "require-vaccine",
 			"params": {
 				"interval": { "scope": "past" },
-				"vaccine": "effective"
+				"status": "effective"
 			},
 			"success": {
 				"condition": "test-interval",
@@ -554,7 +562,7 @@
 					"interval": "UserTestMonitorInterval"
 				},
 				"success": "release.unvaccinated",
-				"fail": "vaccinated-force"
+				"fail": "vaccinated-restore"
 			},
 			"fail": "release.unvaccinated"
 		},
@@ -951,7 +959,7 @@
 	"vaccines": {
 		"rules": [
 			{
-				"vaccine": "effective",
+				"vaccine_status": "effective",
 				"status": "vaccinated-handler"
 			}
 		]

@@ -457,7 +457,7 @@ class _HealthStatusPanelState extends State<HealthStatusPanel> implements Notifi
             ),
           ),
         ),
-        Visibility(visible: Health().isVaccinated && FlexUI().hasFeature('vaccination_badge'), child:
+        Visibility(visible: FlexUI().hasFeature('vaccination_badge') && Health().isVaccinated, child:
           Container(width: screenWidth, height: _photoSize, child:
             Align(alignment: Alignment.bottomRight, child:
               Padding(padding: EdgeInsets.only(right: vaccinatedPaddingWidth), child:

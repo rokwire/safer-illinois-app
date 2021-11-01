@@ -18,7 +18,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:illinois/service/Analytics.dart';
 import 'package:illinois/service/Auth.dart';
-import 'package:illinois/service/Exposure.dart';
 import 'package:illinois/service/Health.dart';
 import 'package:illinois/service/Localization.dart';
 import 'package:illinois/service/UserProfile.dart';
@@ -46,7 +45,6 @@ class _SettingsPersonalInfoPanelState extends State<SettingsPersonalInfoPanel> {
     bool piiDeleted = await Auth().deleteUserPiiData();
     if(piiDeleted) {
       await Health().deleteUser();
-      await Exposure().deleteUser();
       await UserProfile().deleteProfile();
       // Auth().logout() - invoked by UserProfile().deleteProfile()
     }

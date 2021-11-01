@@ -52,7 +52,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import edu.illinois.covid.exposure.ExposurePlugin;
 import edu.illinois.covid.gallery.GalleryPlugin;
 
 import edu.illinois.covid.maps.MapActivity;
@@ -74,8 +73,6 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
     private static final String NATIVE_CHANNEL = "edu.illinois.covid/core";
     private static MainActivity instance = null;
 
-    private ExposurePlugin exposurePlugin;
-
     private HashMap keys;
 
     private int preferredScreenOrientation;
@@ -92,15 +89,6 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
 
         instance = this;
         initScreenOrientation();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        // when activity is killed by user through the app manager, stop all exposure-related services
-        if (exposurePlugin != null) {
-            exposurePlugin.handleStop();
-        }
     }
 
     public static MainActivity getInstance() {
@@ -152,8 +140,6 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
                 .getRegistry()
                 .registerViewFactory("mapview", new MapViewFactory(this, flutterEngine.getDartExecutor().getBinaryMessenger()));
 
-        exposurePlugin = new ExposurePlugin(this);
-        flutterEngine.getPlugins().add(exposurePlugin);
         galleryPlugin = new GalleryPlugin(this);
         flutterEngine.getPlugins().add(galleryPlugin);
     }
@@ -224,10 +210,6 @@ public class MainActivity extends FlutterActivity implements MethodChannel.Metho
                 public void onResult(boolean granted) {
                     if (granted) {
                         result.success("allowed");
-
-                        if (exposurePlugin != null) {
-                            exposurePlugin.onLocationPermissionGranted();
-                        }
                     } else {
                         result.success("denied");
                     }

@@ -6,9 +6,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.12.5] - 2021-11-01
+### Changed
+- Fixes, improvements and extensions of config notifications [#744](https://github.com/rokwire/safer-illinois-app/issues/744).
+
+## [2.12.4] - 2021-10-29
+### Added
+- Implemented config notifications [#744](https://github.com/rokwire/safer-illinois-app/issues/744).
+### Deleted
+- Removed Exposure plugins, service and related UI [#742](https://github.com/rokwire/safer-illinois-app/issues/742).
+### Changed
+- Update encrypt plugin to latest available version [#745](https://github.com/rokwire/safer-illinois-app/issues/745).
+
+## [2.12.3] - 2021-10-06
+### Changed
+- Handled exempt of vaccination and vaccintation suspended status in vaccination widget [#739](https://github.com/rokwire/safer-illinois-app/issues/739).
+
+## [2.12.2] - 2021-10-04
+### Added
+- Added vaccination exempt support in UIN Overrides [#733](https://github.com/rokwire/safer-illinois-app/issues/733).
+- Check for expired vaccines in vaccination widget and isVaccinated getter [#729](https://github.com/rokwire/safer-illinois-app/issues/729).
+### Changed
+- Simplify VaccineBoosterInterval logic until we really need different intervals for different manufacturers [#737](https://github.com/rokwire/safer-illinois-app/issues/737).
+### Deleted
+- Remove "max-weekdays-extent" from test monitor interval until it is required [#737](https://github.com/rokwire/safer-illinois-app/issues/737).
+
 ## [2.11.5] - 2021-10-01
 ### Fixed
 - Fixed null pointer crash [#725](https://github.com/rokwire/safer-illinois-app/issues/725).
+
+## [2.12.1] - 2021-10-01
+### Added
+- Added SECURITY.md.
+- Added booster intervals for vaccines [#729](https://github.com/rokwire/safer-illinois-app/issues/729).
+
+## [2.12.0] - 2021-09-30
 
 ## [2.11.4] - 2021-10-01
 ### Changed

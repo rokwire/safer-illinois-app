@@ -26,6 +26,7 @@ import 'package:illinois/service/UserProfile.dart';
 import 'package:illinois/service/Config.dart';
 import 'package:illinois/service/NotificationService.dart';
 import 'package:illinois/service/Service.dart';
+import 'package:illinois/ui/onboarding/OnboardingNotificationPanel.dart';
 import 'package:illinois/ui/onboarding/OnboardingUpgradePanel.dart';
 
 import 'package:illinois/service/Log.dart';
@@ -119,6 +120,8 @@ class _AppState extends State<App> implements NotificationsListener {
   String _lastRunVersion;
   String _upgradeRequiredVersion;
   String _upgradeAvailableVersion;
+  Map<String, dynamic> _configNotification;
+  DateTime _pausedDateTime;
   Key key = UniqueKey();
 
   @override
@@ -130,9 +133,11 @@ class _AppState extends State<App> implements NotificationsListener {
       Config.notifyUpgradeAvailable,
       Config.notifyUpgradeRequired,
       Config.notifyOnboardingRequired,
+      Config.notifyNotificationAvailable,
       Organizations.notifyOrganizationChanged,
       Organizations.notifyEnvironmentChanged,
       UserProfile.notifyProfileDeleted,
+      AppLivecycle.notifyStateChanged,
     ]);
 
     AppLivecycle.instance.ensureBinding();
@@ -140,6 +145,7 @@ class _AppState extends State<App> implements NotificationsListener {
     _lastRunVersion = Storage().lastRunVersion;
     _upgradeRequiredVersion = Config().upgradeRequiredVersion;
     _upgradeAvailableVersion = Config().upgradeAvailableVersion;
+    _configNotification = _checkConfigNotification();
     
     _checkForceOnboarding();
 
@@ -188,6 +194,9 @@ class _AppState extends State<App> implements NotificationsListener {
     else if (_upgradeAvailableVersion != null) {
       return OnboardingUpgradePanel(availableVersion:_upgradeAvailableVersion);
     }
+    else if (_configNotification != null) {
+      return OnboardingNotificationPanel(notification: _configNotification, onClose: _onConfigNotificationClosed);
+    }
     else if (!Storage().onBoardingPassed) {
       return Onboarding().startPanel;
     }
@@ -222,6 +231,37 @@ class _AppState extends State<App> implements NotificationsListener {
     return false;
   }
 
+  Map<String, dynamic> _checkConfigNotification({Map<String, dynamic> notification, String requiredDisplay}) {
+    notification = notification ?? Config().notification;
+    
+    String notificationId = (notification != null) ? AppJson.stringValue(notification['id']) : null;
+    String display = (notification != null) ? AppJson.stringValue(notification['display']) : null;
+    if ((display == 'once') && (notificationId != null)) {
+      Set<String> reportedNotifications = Storage().reportedConfigNotifictions;
+      if ((reportedNotifications != null) && reportedNotifications.contains(notificationId)) {
+        return null; // already displayed
+      }
+    }
+
+    if ((requiredDisplay != null) && (requiredDisplay != display)) {
+      return null; // not match
+    }
+
+    return notification;
+  }
+
+  void _onConfigNotificationClosed(Map<String, dynamic> notification) {
+
+    String notificationId = (notification != null) ? AppJson.stringValue(notification['id']) : null;
+    if (notificationId != null) {
+      Storage().reportedConfigNotifiction = notificationId;
+    }
+
+    setState(() {
+      _configNotification = null;
+    });
+  }
+
   // NotificationsListener
 
   @override
@@ -244,6 +284,11 @@ class _AppState extends State<App> implements NotificationsListener {
         _resetUI();
       }
     }
+    else if (name == Config.notifyNotificationAvailable) {
+      setState(() {
+        _configNotification = _checkConfigNotification(notification: param);
+      });
+    }
     else if (name == Organizations.notifyOrganizationChanged) {
       _resetUI();
     }
@@ -253,5 +298,27 @@ class _AppState extends State<App> implements NotificationsListener {
     else if (name == UserProfile.notifyProfileDeleted) {
       _resetUI();
     }
+    else if (name == AppLivecycle.notifyStateChanged) {
+      _onAppLivecycleStateChanged(param); 
+    }
   }
+
+  void _onAppLivecycleStateChanged(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      _pausedDateTime = DateTime.now();
+    }
+    else if (state == AppLifecycleState.resumed) {
+      if (_pausedDateTime != null) {
+        Duration pausedDuration = DateTime.now().difference(_pausedDateTime);
+        if (Config().refreshTimeout < pausedDuration.inSeconds) {
+          if (Storage().onBoardingPassed) {
+            setState(() {
+              _configNotification = _checkConfigNotification(requiredDisplay: 'verbose') ?? _configNotification;
+            });
+          }
+        }
+      }
+    }
+  }
+
 }

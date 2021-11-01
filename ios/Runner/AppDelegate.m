@@ -24,7 +24,6 @@
 #import "MapView.h"
 #import "MapController.h"
 #import "MapDirectionsController.h"
-#import "ExposurePlugin.h"
 #import "GalleryPlugin.h"
 
 #import "NSArray+InaTypedValue.h"
@@ -32,7 +31,6 @@
 #import "NSDictionary+UIUCConfig.h"
 #import "CGGeometry+InaUtils.h"
 #import "UIColor+InaParse.h"
-#import "Bluetooth+InaUtils.h"
 #import "Security+UIUCUtils.h"
 
 #import <GoogleMaps/GoogleMaps.h>
@@ -42,7 +40,6 @@
 #import <UserNotifications/UserNotifications.h>
 #import <SafariServices/SafariServices.h>
 #import <PassKit/PassKit.h>
-#import <CoreBluetooth/CoreBluetooth.h>
 
 static NSString* const kFIRMessagingFCMTokenNotification = @"com.firebase.iid.notif.fcm-token";
 
@@ -58,7 +55,7 @@ NSString* _interfaceOrientationToString(UIInterfaceOrientation value);
 UIInterfaceOrientation _interfaceOrientationFromMask(UIInterfaceOrientationMask value);
 UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation value);
 
-@interface AppDelegate()<UINavigationControllerDelegate, UNUserNotificationCenterDelegate, CLLocationManagerDelegate, CBPeripheralManagerDelegate, FIRMessagingDelegate, PKAddPassesViewControllerDelegate> {
+@interface AppDelegate()<UINavigationControllerDelegate, UNUserNotificationCenterDelegate, CLLocationManagerDelegate, FIRMessagingDelegate, PKAddPassesViewControllerDelegate> {
 }
 
 // Flutter
@@ -84,9 +81,6 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 @property (nonatomic) CLLocationManager *clLocationManager;
 @property (nonatomic) NSMutableSet<FlutterResult> *locationFlutterResults;
 
-// Bluetooth Services
-@property (nonatomic) CBPeripheralManager *peripheralManager;
-@property (nonatomic) NSMutableSet<FlutterResult> *bluetoothFlutterResults;
 @end
 
 @implementation AppDelegate
@@ -108,10 +102,7 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 	MapViewFactory *factory = [[MapViewFactory alloc] initWithMessenger:registrar.messenger];
 	[registrar registerViewFactory:factory withId:@"mapview"];
 	
-	// Setup ExposurePlugin
-	[ExposurePlugin registerWithRegistrar:[self registrarForPlugin:@"ExposurePlugin"]];
-
-	// Setup ExposurePlugin
+	// Setup GalleryPlugin
 	[GalleryPlugin registerWithRegistrar:[self registrarForPlugin:@"GalleryPlugin"]];
 	
 	// Setup supported & preffered orientation
@@ -242,9 +233,6 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 	else if ([call.method isEqualToString:@"location_services_permission"]) {
 		[self handleLocationServicesWithParameters:parameters result:result];
 	}
-	else if ([call.method isEqualToString:@"bluetooth_authorization"]) {
-		[self handleBluetoothAuthorizationWithParameters:parameters result:result];
-	}
 	else if ([call.method isEqualToString:@"addToWallet"]) {
 		[self handleAddToWalletWithParameters:parameters result:result];
 	}
@@ -363,20 +351,6 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 		result(nil);
 	}
 }
-
-- (void)handleBluetoothAuthorizationWithParameters:(NSDictionary*)parameters result:(FlutterResult)result {
-	NSString *method = [parameters inaStringForKey:@"method"];
-	if ([method isEqualToString:@"query"]) {
-		[self queryBluetoothAuthorizationWithFlutterResult:result];
-	}
-	else if ([method isEqualToString:@"request"]) {
-		[self requestBluetoothAuthorizationWithFlutterResult:result];
-	}
-	else {
-		result(nil);
-	}
-}
-
 
 - (void)handleAddToWalletWithParameters:(NSDictionary*)parameters result:(FlutterResult)result {
 	NSString *base64CardData = [parameters inaStringForKey:@"cardBase64Data"];
@@ -693,46 +667,6 @@ UIInterfaceOrientationMask _interfaceOrientationToMask(UIInterfaceOrientation va
 			flutterResult([self.class locationServicesPermisionFromAuthorizationStatus:status]);
 		}
 	}
-}
-
-#pragma mark Bluetooth Authorization
-
-- (void)queryBluetoothAuthorizationWithFlutterResult:(FlutterResult)flutterResult {
-	flutterResult(InaBluetoothAuthorizationStatusToString(InaBluetooth.peripheralAuthorizationStatus));
-}
-
-- (void)requestBluetoothAuthorizationWithFlutterResult:(FlutterResult)flutterResult {
-	if (InaBluetooth.peripheralAuthorizationStatus == InaBluetoothAuthorizationStatusNotDetermined) {
-		if (_bluetoothFlutterResults == nil) {
-			_bluetoothFlutterResults = [[NSMutableSet alloc] init];
-		}
-		[_bluetoothFlutterResults addObject:flutterResult];
-		if (_peripheralManager == nil) {
-			_peripheralManager = [[CBPeripheralManager alloc] initWithDelegate:self queue:nil];
-		}
-	}
-	else {
-		flutterResult(InaBluetoothAuthorizationStatusToString(InaBluetooth.peripheralAuthorizationStatus));
-	}
-}
-
-- (void)didBluetoothServicesPermision {
-	_peripheralManager.delegate = nil;
-	_peripheralManager = nil;
-	
-	NSSet<FlutterResult> *flutterResults = _bluetoothFlutterResults;
-	_bluetoothFlutterResults = nil;
-
-	NSString *status = InaBluetoothAuthorizationStatusToString(InaBluetooth.peripheralAuthorizationStatus);
-	for (FlutterResult flutterResult in flutterResults) {
-		flutterResult(status);
-	}
-}
-
-#pragma mark CBPeripheralManagerDelegate
-
-- (void)peripheralManagerDidUpdateState:(CBPeripheralManager*)peripheral {
-	[self didBluetoothServicesPermision];
 }
 
 #pragma mark Deep Links
