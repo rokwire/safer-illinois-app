@@ -121,6 +121,7 @@ class _AppState extends State<App> implements NotificationsListener {
   String _upgradeRequiredVersion;
   String _upgradeAvailableVersion;
   Map<String, dynamic> _configNotification;
+  DateTime _pausedDateTime;
   Key key = UniqueKey();
 
   @override
@@ -136,6 +137,7 @@ class _AppState extends State<App> implements NotificationsListener {
       Organizations.notifyOrganizationChanged,
       Organizations.notifyEnvironmentChanged,
       UserProfile.notifyProfileDeleted,
+      AppLivecycle.notifyStateChanged,
     ]);
 
     AppLivecycle.instance.ensureBinding();
@@ -229,16 +231,22 @@ class _AppState extends State<App> implements NotificationsListener {
     return false;
   }
 
-  Map<String, dynamic> _checkConfigNotification([Map<String, dynamic> notificationParam]) {
-    Map<String, dynamic> notification = notificationParam ?? Config().notification;
+  Map<String, dynamic> _checkConfigNotification({Map<String, dynamic> notification, String requiredDisplay}) {
+    notification = notification ?? Config().notification;
+    
     String notificationId = (notification != null) ? AppJson.stringValue(notification['id']) : null;
-    bool displayOnce = (notification != null) ? AppJson.boolValue(notification['display_once']) : false;
-    if ((displayOnce == true) && (notificationId != null)) {
+    String display = (notification != null) ? AppJson.stringValue(notification['display']) : null;
+    if ((display == 'once') && (notificationId != null)) {
       Set<String> reportedNotifications = Storage().reportedConfigNotifictions;
       if ((reportedNotifications != null) && reportedNotifications.contains(notificationId)) {
-        return null;
+        return null; // already displayed
       }
     }
+
+    if ((requiredDisplay != null) && (requiredDisplay != display)) {
+      return null; // not match
+    }
+
     return notification;
   }
 
@@ -278,7 +286,7 @@ class _AppState extends State<App> implements NotificationsListener {
     }
     else if (name == Config.notifyNotificationAvailable) {
       setState(() {
-        _configNotification = _checkConfigNotification(param);
+        _configNotification = _checkConfigNotification(notification: param);
       });
     }
     else if (name == Organizations.notifyOrganizationChanged) {
@@ -290,5 +298,27 @@ class _AppState extends State<App> implements NotificationsListener {
     else if (name == UserProfile.notifyProfileDeleted) {
       _resetUI();
     }
+    else if (name == AppLivecycle.notifyStateChanged) {
+      _onAppLivecycleStateChanged(param); 
+    }
   }
+
+  void _onAppLivecycleStateChanged(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      _pausedDateTime = DateTime.now();
+    }
+    else if (state == AppLifecycleState.resumed) {
+      if (_pausedDateTime != null) {
+        Duration pausedDuration = DateTime.now().difference(_pausedDateTime);
+        if (Config().refreshTimeout < pausedDuration.inSeconds) {
+          if (Storage().onBoardingPassed) {
+            setState(() {
+              _configNotification = _checkConfigNotification(requiredDisplay: 'verbose') ?? _configNotification;
+            });
+          }
+        }
+      }
+    }
+  }
+
 }
