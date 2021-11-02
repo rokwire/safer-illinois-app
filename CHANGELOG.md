@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.12.6] - 2021-11-02
+### Changed
+- Android: Update to API level 30 [#752](https://github.com/rokwire/safer-illinois-app/issues/752).
+
 ## [2.12.5] - 2021-11-01
 ### Changed
 - Fixes, improvements and extensions of config notifications [#744](https://github.com/rokwire/safer-illinois-app/issues/744).
