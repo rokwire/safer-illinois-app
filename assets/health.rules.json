@@ -10,7 +10,7 @@
 		"DefaultTestMonitorInterval": 4,
 		"UndergraduateTestMonitorInterval": 2,
 		"UserTestMonitorInterval": null,
-		"VaccineBoosterInterval": 180,
+		"VaccineBoosterInterval": null,
 
 		"TestMonitorInterval": {
 			"condition": "test-interval", "params": { "interval": "UserTestMonitorInterval" },
@@ -391,8 +391,15 @@
 					"interval": "UserTestMonitorInterval"
 				},
 				"success": "quarantine-off.unvaccinated",
-				"fail": "vaccinated-restore"
-				},
+				"fail": {
+					"condition": "test-interval",
+					"params": {
+						"interval": "VaccineBoosterInterval"
+					},
+					"success": "vaccinated-restore",
+					"fail": "vaccinated-force"
+				}
+			},
 			"fail": "quarantine-off.unvaccinated"
 		},
 
