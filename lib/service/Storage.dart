@@ -288,8 +288,10 @@ class Storage with Service {
   set reportedConfigNotifiction(String notificationId) {
     if (notificationId != null) {
       Set<String> notifications = reportedConfigNotifictions ?? Set<String>();
-      notifications.add(notificationId);
-      setStringList(reportedConfigNotifictionsKey, notifications.toList());
+      if (!notifications.contains(notificationId)) {
+        notifications.add(notificationId);
+        setStringList(reportedConfigNotifictionsKey, notifications.toList());
+      }
     }
   }
 

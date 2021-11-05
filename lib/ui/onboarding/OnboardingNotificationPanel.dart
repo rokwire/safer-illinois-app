@@ -34,7 +34,7 @@ import 'package:url_launcher/url_launcher.dart';
   "title":"Lorem Ipsum"
   "text":"Sed elit est, tincidunt quis porttitor nec, convallis eget turpis. Integer pulvinar, purus a mattis aliquam, mauris diam pellentesque est, nec laoreet nisi ligula pellentesque ante. Etiam lacinia aliquet nibh vel laoreet.",
   "can_close":true,
-  "display_once":false,
+  "display":"once" | "verbose" | "default" | null,
   "buttons":[
     {"title":"Vivamus Aliquam", "url":"https://illinois.edu", "url~android":"market://details?id=edu.illinois.rokwire", "url~ios":"itms-apps://itunes.apple.com/us/app/apple-store/id1476075513"}
   ],
@@ -81,37 +81,54 @@ class _OnboardingNotificationPanelState extends State<OnboardingNotificationPane
   }
 
   Widget _buildContent() {
-    String title = _notificationText('title');
-    bool titleIsHtml = title?.contains(RegExp(r'<>')) ?? false;
-    
-    String text = _notificationText('text');
-    bool textIsHtml = text?.contains(RegExp(r'<>')) ?? false;
-    
+
+    Widget titleWidget = _titleWidget;
+    Widget bodyWidget = _bodyWidget;    
     List<dynamic> buttons = AppJson.listValue(_notificationEntry('buttons'));
 
     return Padding(padding: EdgeInsets.symmetric(horizontal: 32, vertical: 32), child:
-      Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-        Expanded(flex: 1, child: Container()),
-        AppString.isStringNotEmpty(title) ? 
-          Padding(padding: EdgeInsets.only(bottom: 40), child:
-            titleIsHtml ?
-              Html(data: title ?? '',
-                onLinkTap: (url) => _onTapLink(url),
-                style: { "body": Style(color: Styles().colors.fillColorPrimary, fontFamily: Styles().fontFamilies.extraBold, fontSize: FontSize(36), padding: EdgeInsets.zero, margin: EdgeInsets.zero), },) :
-              Text(title ?? '', style: TextStyle(color: Styles().colors.fillColorPrimary, fontFamily: Styles().fontFamilies.extraBold, fontSize: 36, ),),
-          ) : Container(),
-          AppString.isStringNotEmpty(text) ?
-            Padding(padding: EdgeInsets.only(), child:
-              textIsHtml ?
-                Html(data: text ?? '',
-                  onLinkTap: (url) => _onTapLink(url),
-                  style: { "body": Style(color: Styles().colors.textBackground, fontFamily: Styles().fontFamilies.medium, fontSize: FontSize(20), padding: EdgeInsets.zero, margin: EdgeInsets.zero), },) :
-                Text(AppString.getDefaultEmptyString(value: text), style: TextStyle(color: Styles().colors.textBackground, fontFamily: Styles().fontFamilies.medium, fontSize: 20, ),),
-            ) : Container(),
+      SingleChildScrollView(child:
+        Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+          Container(height: MediaQuery.of(context).size.height / 8),
+          (titleWidget != null) ? Padding(padding: EdgeInsets.only(bottom: 40), child: titleWidget) : Container(),
+          (bodyWidget != null) ? Padding(padding: EdgeInsets.only(), child: bodyWidget) : Container(),
           _buildButtons(buttons),
-        Expanded(flex: 2, child: Container()),
-      ],),
+          Container(height: MediaQuery.of(context).size.height / 4),
+        ],),
+      ),
     );
+  }
+
+  Widget get _titleWidget {
+    String titleText = _notificationText('title');
+    String titleHtml = _notificationText('title_html');
+    if (AppString.isStringNotEmpty(titleHtml)) {
+      return Html(data: titleHtml,
+        onLinkTap: (url) => _onTapLink(url),
+        style: { "body": Style(color: Styles().colors.fillColorPrimary, fontFamily: Styles().fontFamilies.extraBold, fontSize: FontSize(36), textAlign: TextAlign.center, padding: EdgeInsets.zero, margin: EdgeInsets.zero), },);
+    }
+    else if (AppString.isStringNotEmpty(titleText)) {
+      return Text(titleText ?? '', style: TextStyle(color: Styles().colors.fillColorPrimary, fontFamily: Styles().fontFamilies.extraBold, fontSize: 36, ), textAlign: TextAlign.center);
+    }
+    else {
+      return null;
+    }
+  }
+
+  Widget get _bodyWidget {
+    String bodyText = _notificationText('body');
+    String bodyHtml = _notificationText('body_html');
+    if (AppString.isStringNotEmpty(bodyHtml)) {
+      return Html(data: bodyHtml,
+        onLinkTap: (url) => _onTapLink(url),
+        style: { "body": Style(color: Styles().colors.textBackground, fontFamily: Styles().fontFamilies.medium, fontSize: FontSize(20), padding: EdgeInsets.zero, margin: EdgeInsets.zero), },);
+    }
+    else if (AppString.isStringNotEmpty(bodyText)) {
+      return Text(bodyText, style: TextStyle(color: Styles().colors.textBackground, fontFamily: Styles().fontFamilies.medium, fontSize: 20, ));
+    }
+    else {
+      return null;
+    }
   }
 
   Widget _buildButtons(List<dynamic> buttonsJsonContent) {
