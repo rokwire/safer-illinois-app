@@ -402,16 +402,16 @@
 	"panel.health.onboarding.covid19.intro.label.description": "Manage your health to help keep our Illinois community safe",
 	"panel.health.onboarding.covid19.intro.button.continue.title": "Continue",
 	"panel.health.onboarding.covid19.intro.button.continue.hint": "",
-	"panel.health.onboarding.covid19.how_it_works.heading.title": "How it works",
 
+	"panel.health.onboarding.covid19.how_it_works.heading.title": "How it works",
 	"panel.health.onboarding.covid19.how_it_works.line1.title": "Testing and limiting exposure are key to slowing the spread of COVID-19.",
 	"panel.health.onboarding.covid19.how_it_works.line2.title": "You can use this app to:",
 	"panel.health.onboarding.covid19.how_it_works.line3.title": "Self-report your COVID-19 symptoms and in doing so update your status.",
 	"panel.health.onboarding.covid19.how_it_works.line4.title": "Automatically receive test results and vaccine information from your healthcare provider.",
 	"panel.health.onboarding.covid19.how_it_works.button.next.title": "Next",
 	"panel.health.onboarding.covid19.how_it_works.button.next.hint": "",
-	"panel.health.onboarding.covid19.disclosure.label.title": "Information Usage Disclosure",
 
+	"panel.health.onboarding.covid19.disclosure.label.title": "Information Usage Disclosure",
 	"panel.health.onboarding.covid19.disclosure.label.description1": "The Safer Illinois app uses:",
 	"panel.health.onboarding.covid19.disclosure.label.splitter1": ". ",
 	"panel.health.onboarding.covid19.disclosure.label.content1": "1. Camera to allow a user to import their personal encryption key (QR code) into the app.",
@@ -433,8 +433,8 @@
 	"panel.health.onboarding.covid19.disclosure.button.disclosure.title": "Next",
 	"panel.health.onboarding.covid19.disclosure.button.scroll_to_continue.title": "Scroll to Continue",
 	"panel.health.onboarding.covid19.disclosure.button.disclosure.hint": "",
-	"panel.health.onboarding.covid19.consent.label.title": "Consent for COVID-19 features",
 
+	"panel.health.onboarding.covid19.consent.label.title": "Consent for COVID-19 features",
 	"panel.health.onboarding.covid19.consent.check_box.label.test": "I consent to allow my healthcare provider to provide my test results.",
 	"panel.health.onboarding.covid19.consent.check_box.label.vaccine": "I consent to allow my healthcare provider to provide my vaccine information.",
 	"panel.health.onboarding.covid19.consent.label.content2": "Automatic Test Results",
@@ -446,16 +446,16 @@
 	"panel.health.onboarding.covid19.consent.button.consent.hint": "",
 	"panel.health.onboarding.covid19.consent.button.scroll_to_continue.title": "Scroll to Continue",
 	"panel.health.onboarding.covid19.consent.label.error.login": "Unable to login in Health",
-	"panel.health.onboarding.covid19.resident_info.label.title": "Verify your identity with a government-issued ID",
 
+	"panel.health.onboarding.covid19.resident_info.label.title": "Verify your identity with a government-issued ID",
 	"panel.health.onboarding.covid19.resident_info.label.description": "After verifying you will receive a color-coded health status based on your county guidelines, symptoms, and any COVID-19 related tests.",
 	"panel.health.onboarding.covid19.resident_info.button.passport.title": "Passport",
 	"panel.health.onboarding.covid19.resident_info.button.passport.hint": "",
 	"panel.health.onboarding.covid19.resident_info.button.drivers_license.title": "Driver's License",
 	"panel.health.onboarding.covid19.resident_info.button.drivers_license.hint": "",
 	"panel.health.onboarding.covid19.resident_info.button.verify_later.title": "Verify later",
-	"panel.health.onboarding.covid19.review_scan.label.title": "Review your scan",
 
+	"panel.health.onboarding.covid19.review_scan.label.title": "Review your scan",
 	"panel.health.onboarding.covid19.review_scan.label.name.title": "Name",
 	"panel.health.onboarding.covid19.review_scan.label.birth_year.title": "Birth Year",
 	"panel.health.onboarding.covid19.review_scan.message.failed": "Failed to apply scanned data",
@@ -463,8 +463,8 @@
 	"panel.health.onboarding.covid19.review_scan.button.rescan.hint": "",
 	"panel.health.onboarding.covid19.review_scan.button.use_scan.title": "Use This Scan",
 	"panel.health.onboarding.covid19.review_scan.button.use_scan.hint": "",
+	
 	"panel.health.onboarding.covid19.county.label.title": "What counties do you live and work in?",
-
 	"panel.health.onboarding.covid19.county.label.description": "Select all that apply",
 	"panel.health.onboarding.covid19.county.button.add_county.label": "Add Another County",
 	"panel.health.onboarding.covid19.county.button.add_county.hint": "",
@@ -473,21 +473,21 @@
 	"panel.health.onboarding.covid19.county.select.label": "SELECT A COUNTY",
 	"panel.health.onboarding.covid19.county.dropdown.select.default.label": "Select a county...",
 	"panel.health.onboarding.covid19.county.alert.unique.message": "Please, select different county in each field!",
-	"panel.health.onboarding.covid19.providers.label.title": "Who are your current healthcare providers?",
 
+	"panel.health.onboarding.covid19.providers.label.title": "Who are your current healthcare providers?",
 	"panel.health.onboarding.covid19.providers.label.description": "Select all that apply",
 	"panel.health.onboarding.covid19.providers.button.next.title": "Next",
 	"panel.health.onboarding.covid19.providers.button.next.hint": "",
-	"panel.health.onboarding.covid19.final.label.title": "You’re all set!",
 
+	"panel.health.onboarding.covid19.final.label.title": "You’re all set!",
 	"panel.health.onboarding.covid19.final.label.description": "You've been verified, and a status card has been added to your profile.",
 	"panel.health.onboarding.covid19.final.label.bottom.description": "You can now use this app as your companion in the fight against COVID-19.",
 	"panel.health.onboarding.covid19.final.label.unverified.description": "You can now use this app as your companion in the fight against COVID-19.",
 	"panel.health.onboarding.covid19.final.label.unverified.bottom.description": "To access your COVID-19 status, you will need to upload a Government ID. You can add this any time in the COVID-19 settings.",
 	"panel.health.onboarding.covid19.final.button.continue.title": "Get started",
 	"panel.health.onboarding.covid19.final.button.continue.hint": "",
-	"panel.health.onboarding.covid19.login.netid.label.title": "Connect your NetID",
 
+	"panel.health.onboarding.covid19.login.netid.label.title": "Connect your NetID",
 	"panel.health.onboarding.covid19.login.phone.label.title": "Verify your phone number",
 	"panel.health.onboarding.covid19.login.netid.label.title.hint": "Header 1",
 	"panel.health.onboarding.covid19.login.phone.label.title.hint": "Header 1",
@@ -503,10 +503,10 @@
 	"panel.health.onboarding.covid19.login.netid.button.dont_continue.hint": "Skip verification",
 	"panel.health.onboarding.covid19.login.phone.button.dont_continue.hint": "Skip verification",
 	"panel.health.onboarding.covid19.login.label.error.login": "Unable to login in Health",
+
 	"panel.health.covid19.about.heading.title": "About",
 
 	"panel.health.covid19.add_test.heading.title": "Add Test Result",
-
 	"panel.health.covid19.add_test.label.where_question": "Where was the test taken?",
 	"panel.health.covid19.add_test.label.information": "Why is this information needed?",
 	"panel.health.covid19.add_test.label.provider.title": "Healthcare Provider",
@@ -521,8 +521,8 @@
 	"panel.health.covid19.add_test.label.info.manually.text3": "will be reviewed and verified by a public healthcare provider. Once verified, status changes may occur.",
 	"panel.health.covid19.add_test.label.manual_tests_disabled": "Test results from this health care provider will automatically appear if you have consented to Health Provider Test Results in settings and you are connected with your NetID.",
 	"panel.health.covid19.add_test.message.no_result_found": "No results found",
-	"panel.health.covid19.care_team.heading.title": "Your Care Team",
 
+	"panel.health.covid19.care_team.heading.title": "Your Care Team",
 	"panel.health.covid19.care_team.label.question": "Help When You Need It",
 	"panel.health.covid19.care_team.label.description": "Reach out to someone on your COVID-19 care team. They’re here to help.",
 	"panel.health.covid19.care_team.label.status": "Current Status:",
@@ -547,8 +547,8 @@
 	"panel.health.covid19.care_team.label.mc_kiney.link": "McKinley Mental Health Program",
 	"panel.health.covid19.care_team.label.virtual_counseling.link": "Virtual Counseling",
 	"panel.health.covid19.care_team.label.virtual_counseling.description": "(Requires UnitedHealthcare Student Resources coverage.)",
-	"panel.health.covid19.debug.keys.heading.title.": "COVID-19 Keys",
 
+	"panel.health.covid19.debug.keys.heading.title.": "COVID-19 Keys",
 	"panel.health.covid19.debug.keys.label.public_key": "RSA Public Key:",
 	"panel.health.covid19.debug.keys.label.private_key": "RSA Private Key:",
 	"panel.health.covid19.debug.keys.label.aes_key": "AES Key:",
@@ -562,8 +562,8 @@
 	"panel.health.covid19.debug.keys.button.encript.title": "Encrypt",
 	"panel.health.covid19.debug.keys.button.decript.title": "Decrypt",
 	"panel.health.covid19.debug.keys.label.error.refres.title": "Refresh Failed",
-	"panel.health.covid19.debug.trace.heading.title": "COVID-19 Contact Trace",
 
+	"panel.health.covid19.debug.trace.heading.title": "COVID-19 Contact Trace",
 	"panel.health.covid19.debug.trace.label.contact": "Trace COVID-19 Contact",
 	"panel.health.covid19.debug.trace.label.date": "Date",
 	"panel.health.covid19.debug.trace.label.duration": "Duration",
@@ -571,8 +571,8 @@
 	"panel.health.covid19.debug.trace.message.date.text": "Please select a date",
 	"panel.health.covid19.debug.trace.message.duration.text": "Please enter an integer duration",
 	"panel.health.covid19.debug.trace.error.submit.text": "Failed to submit contact trace data.",
-	"panel.health.covid19.history.header.title": "Your COVID-19 Event History",
 
+	"panel.health.covid19.history.header.title": "Your COVID-19 Event History",
 	"panel.health.covid19.history.label.empty.title": "No History",
 	"panel.health.covid19.history.label.description": "View your COVID-19 event history.",
 	"panel.health.covid19.history.label.provider.hint": "provider: ",
@@ -600,8 +600,8 @@
 	"panel.health.covid19.history.button.repost_history.title": "Request my vaccine and latest test again",
 	"panel.health.covid19.history.button.repost_history.hint": "",
 	"panel.health.covid19.history.message.request_tests": "Your request has been submitted. You should receive your latest test within an hour",
-	"panel.health.covid19.qr_code.label.qr_image_label": "Safer Illinois COVID-19 Code",
 
+	"panel.health.covid19.qr_code.label.qr_image_label": "Safer Illinois COVID-19 Code",
 	"panel.health.covid19.qr_code.label.save_error": "Unable to save the QR code.",
 	"panel.health.covid19.qr_code.button.continue.hint": "",
 	"panel.health.covid19.qr_code.primary.heading.title": "Your COVID-19 Encryption Key",
@@ -622,8 +622,8 @@
 	"panel.health.covid19.qr_code.dialog.refresh_qr_code.title": "Reset my COVID-19 Secret QRcode",
 	"panel.health.covid19.qr_code.dialog.refresh_qr_code.description": "Doing this will provide you a new COVID-19 Secret QRcode but your previous COVID-19 event history will be lost, continue?",
 	"panel.health.covid19.qr_code.dialog.refresh_qr_code.confirm": "Are you sure?",
-	"panel.health.covid19.alert.no_qr_code.msg": "There is no QR Code",
 
+	"panel.health.covid19.alert.no_qr_code.msg": "There is no QR Code",
 	"panel.health.covid19.alert.save.success.msg": "Successfully saved qr code in ",
 	"panel.health.covid19.alert.save.success.pictures": "Pictures",
 	"panel.health.covid19.alert.save.success.gallery": "Gallery",
@@ -635,8 +635,8 @@
 	"panel.health.covid19.alert.qr_code.transfer.failed.msg": "Failed to transfer COVID-19 secret.",
 	"panel.health.covid19.qr_code.button.continue.title": "Continue",
 	"panel.health.covid19.qr_code.button.transfer_later.title": "Transfer Later",
-	"panel.health.report_test.heading.title": "Manually Enter Result",
 
+	"panel.health.report_test.heading.title": "Manually Enter Result",
 	"panel.health.report_test.label.date": "TEST DATE AND TIME",
 	"panel.health.report_test.label.provider": "HEALTHCARE PROVIDER",
 	"panel.health.report_test.label.date.location": "TEST LOCATION",
@@ -658,10 +658,10 @@
 	"panel.health.report_test.error.create.message": "Unable to create test",
 	"panel.health.report_test.missing.image.message": "Please upload image",
 	"panel.health.report_test.future_date.forbidden.message": "You cannot submit a test in the future",
+
 	"widget.health.onboarding.indicator9.label.hint": "Covid-19 Onboarding process",
 
 	"panel.health.status_update.heading.title": "Status Update",
-
 	"panel.health.status_update.label.status_change": "Based on your results, your status has changed from ",
 	"panel.health.status_update.label.status_change.to": " to ",
 	"panel.health.status_update.label.next_steps": "NEXT STEPS",
@@ -684,27 +684,27 @@
 	"panel.health.status_update.label.reason.action.title": "Health authorities require you to take an action.",
 	"panel.health.status_update.label.reason.action.detail": "Action Required: ",
 	"panel.health.status_update.button.info.title": "Info ",
-	"panel.health.next_steps.button.continue.title.find_locatio": "Find location",
 
+	"panel.health.next_steps.button.continue.title.find_locatio": "Find location",
 	"panel.health.next_steps.button.continue.title.care_team": "Get in Touch with Care Team",
 	"panel.health.next_steps.label.next_steps": "Your Next Steps",
-	"panel.health.symptoms.heading.title": "Are you experiencing any of these symptoms?",
 
+	"panel.health.symptoms.heading.title": "Are you experiencing any of these symptoms?",
 	"panel.health.symptoms.label.error.loading": "Failed to load symptoms.",
 	"panel.health.symptoms.button.submit.title": "Submit",
 	"panel.health.symptoms.label.success.submit.message": "Your symptoms have been processed.",
 	"panel.health.symptoms.label.error.submit": "Failed to submit symptoms.",
 	"panel.health.symptoms.label.error.no_selection": "Please select at least one symptom",
-	"panel.settings.pending_family_member.label.text.statement1": "%s seeks your authorization to participate in Shield CU COVID-19 testing",
 
+	"panel.settings.pending_family_member.label.text.statement1": "%s seeks your authorization to participate in Shield CU COVID-19 testing",
 	"panel.settings.pending_family_member.label.text.statement2": "If you approve, your University account will be billed %s for each test taken.",
 	"panel.settings.pending_family_member.label.text.terms.title": "Terms and Conditions",
 	"panel.settings.pending_family_member.label.text.terms.html": "<p>The person named above has self-identified as a family or household member (“Family Member”) and has requested access to the COVID-19 testing services provided by the University of Illinois (“University”). By touching the “I Approve” button below, you agree that:</p><p>1. You are a University employee currently eligible for COVID-19 testing by the University;<br>2. Family Member is a family member in your household; and<br>3. You are responsible for any unpaid fees incurred by Family Member in obtaining COVID-19 testing services from the University.</p><p>You also agree that you are accepting responsibility on behalf of the Family Member if the Family Member is a minor under age 18 and you are the parent or legal guardian of the Family Member.</p><p>If you believe the person named above is improperly requesting access and/or has improperly obtained your University Identification Number (UIN), please contact <a href='mailto:shieldcu@illinois.edu'>shieldcu@illinois.edu</a>.</p>",
 	"panel.settings.pending_family_member.button.approve.title": "I Approve",
 	"panel.settings.pending_family_member.button.disapprove.title": "I Disapprove",
 	"panel.settings.pending_family_member.label.text.error": "Failed to submit",
-	"panel.settings.family_members.heading.title": "Family Members",
 
+	"panel.settings.family_members.heading.title": "Family Members",
 	"panel.settings.family_members.label.load_failed": "Failed to load family members",
 	"panel.settings.family_members.label.submit_failed": "Failed to update status",
 	"panel.settings.family_members.label.empty": "No family members",
@@ -714,8 +714,8 @@
 	"panel.settings.family_members.label.status.unknown": "UNKNOWN",
 	"panel.settings.family_members.button.accept.title": "Accept",
 	"panel.settings.family_members.button.revoke.title": "Revoke",
-	"panel.groups_admin.header.title": "Admin view",
 
+	"panel.groups_admin.header.title": "Admin view",
 	"panel.groups_admin.label.members": "Members",
 	"panel.groups_admin.label.upcoming_events": "Upcoming events",
 	"panel.groups_admin.label.no_upcoming_events": "No upcoming events",
@@ -736,8 +736,8 @@
 	"panel.groups_admin.button.edit.title": "Edit",
 	"panel.groups_admin.button.cancel.title": "Cancel",
 	"panel.groups_admin.button.remove.title": "Remove event",
-	"panel.groups_create.label.heading": "Create a group",
 
+	"panel.groups_create.label.heading": "Create a group",
 	"panel.groups_create.label.discoverability": "Discoverability",
 	"panel.groups_create.label.privacy": "Privacy",
 	"panel.groups_create.name.title": "NAME YOUR GROUP",
@@ -766,15 +766,15 @@
 	"panel.common.privacy_title.public":  "Public",
 	"panel.groups_create.privacy.description": "Anyone who uses the Illinois app can find this group. Only admins can see whose in the group.",
 	"panel.groups_create.button.create.title": "Create Group",
-	"panel.group_create_post.label.title": "New Post",
 
+	"panel.group_create_post.label.title": "New Post",
 	"panel.group_create_post.label.post": "post",
 	"panel.group_create_post.label.post.hint": "",
 	"panel.group_create_post.post.field.description": "Write a comment",
 	"panel.group_create_post.post.field.hint": "",
 	"panel.group_create_post.post.field.empty":  "Unable to create post",
-	"panel.group_detail.label.options": "Options",
 
+	"panel.group_detail.label.options": "Options",
 	"panel.group_detail.label.error_message": "Failed to load group data.",
 	"panel.group_detail.members.count.empty": "No Current Members",
 	"panel.group_detail.members.count.one": "1 Current Member",
@@ -811,16 +811,16 @@
 	"panel.group_detail.button.edit_event.title": "Edit Event",
 	"panel.group_detail.button.remove.title": "Remove",
 	"panel.group_detail.button.delete.title": "Delete",
-	"panel.groups_search.header.title": "Search",
 
+	"panel.groups_search.header.title": "Search",
 	"panel.groups_search.field.search.title": "Search",
 	"panel.groups_search.field.search.hint": "",
 	"panel.groups_search.button.clear.title": "Clear",
 	"panel.groups_search.button.clear.hint": "",
 	"panel.groups_search.button.search.title": "Search",
 	"panel.groups_search.button.search.hint": "",
-	"panel.groups_home.label.all_categories": "All categories",
 
+	"panel.groups_home.label.all_categories": "All categories",
 	"panel.groups_home.label.heading": "Groups",
 	"panel.groups_home.button.all_groups.title": "All groups",
 	"panel.groups_home.button.my_groups.title": "My groups",
@@ -829,14 +829,13 @@
 	"panel.groups_home.label.no_results": "There are no groups for the desired filter",
 	"panel.groups_home.label.pending": "Pending",
 	"panel.groups_home.label.category": "CATEGORY",
-	"panel.groups_settings.label.heading": "Group Settings",
 
+	"panel.groups_settings.label.heading": "Group Settings",
 	"panel.groups_settings.label.heading.general_info": "General group information",
 	"panel.groups_settings.label.heading.discoverability": "Discoverability",
 	"panel.group_settings.add_image": "Add cover image",
 	"panel.group_settings.add_image.hint": "",
 	"panel.groups_settings.name.title": "GROUP NAME",
-
 	"panel.groups_settings.name.field": "NAME FIELD",
 	"panel.groups_settings.name.field.hint": "",
 	"panel.groups_settings.name.error.message": "A group with this name already exists. Please try a different name.",
@@ -866,42 +865,43 @@
 	"panel.groups_settings.membership.button.question.title": "Membership question",
 	"panel.groups_settings.button.update.title": "Update Settings",
 	"panel.groups_create.tags.label.update_error": "Unable to update the group",
+
 	"model.explore.time.today": "Today",
 	"model.explore.time.tomorrow": "Tomorrow",
 	"model.explore.time.at": "at",
 	"model.explore.time.all_day": "All Day",
-	"logic.date_time.greeting.morning": "Good morning",
 
+	"logic.date_time.greeting.morning": "Good morning",
 	"logic.date_time.greeting.afternoon": "Good afternoon",
 	"logic.date_time.greeting.evening": "Good evening",
 	"logic.date_time.greeting.day": "Good day",
-	"logic.polls.unable_to_load_poll": "Unable to load poll",
 
+	"logic.polls.unable_to_load_poll": "Unable to load poll",
 	"logic.polls.no_polls_with_pin": "There are no polls with this 4 Digit Poll #",
 	"logic.polls.multiple_polls_with_pin": "There are multiple opened polls with this 4 Digit Poll #",
-	"logic.general.internal_error": "Internal Error Occurred",
 
+	"logic.general.internal_error": "Internal Error Occurred",
 	"logic.general.invalid_response": "Invalid server response",
 	"logic.general.response_error": "Response Error: %s %s",
+
 	"app.exit_dialog.message": "Are you sure you want to exit?",
 
 	"app.common.heading.hint": "Header ",
-
 	"app.common.heading.one.hint": "Header 1",
 	"app.common.heading.two.hint": "Header 2",
 	"app.common.heading.three.hint": "Header 3",
-	"app.common.label.cancelled": "Cancelled",
 
+	"app.common.label.cancelled": "Cancelled",
 	"app.common.label.other": "Other",
 	"app.common.label.county": "County",
 	"app.common.label.read_more": "Read more",
-	"app.common.yes": "Yes",
 
+	"app.common.yes": "Yes",
 	"app.common.no": "No",
+
 	"app.common.hint.external_link": "External link",
 
 	"com.illinois.features2.entry.disable_location_awareness": "Disable location awareness",
-
 	"com.illinois.features2.entry.dont_store_location": "Don't store your location",
 	"com.illinois.features2.entry.remove_preferences": "Remove your preferences",
 	"com.illinois.features2.entry.log_out": "Log you off system",
