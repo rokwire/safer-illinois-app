@@ -36,7 +36,7 @@ class OnBoardingHealthDisclosurePanel extends StatefulWidget with OnboardingPane
   OnBoardingHealthDisclosurePanel({this.onboardingContext});
 
   bool get onboardingCanDisplay {
-    return (onboardingContext != null && onboardingContext['skipOnboarding'] != true) && Platform.isAndroid;
+    return Platform.isAndroid;
   }
 
   @override
