@@ -1089,6 +1089,7 @@
     "exempt-off.green.reason": "Tu estado ha cambiado a Verde porque tu estado de exento para hacerte las pruebas fue cancelado",
     "release.step": "Hazte la prueba de saliva de SHIELD",
     "release.reason": "Tu estado ha cambiado a Naranja porque el Departamento de salud pública requiere que te hagas la prueba.",
+
     "symptoms.no-symptoms": "Sin síntomas",
     "symptoms.fever": "Fiebre",
     "symptoms.chills": "Escalofríos",
@@ -1108,6 +1109,7 @@
     "symptoms.congestion-or-runny-nose": "Congestión o rinorrea",
     "symptoms.nausea-or-vomiting": "Náuseas o vómito",
     "symptoms.diarrhea": "Diarrea",
+
     "code.green.name": "Verde",
     "code.green.description": "Vacunación completa",
     "code.green.long_description": "Verde: Vacunación completa",
@@ -1163,6 +1165,7 @@
     "exempt-off.green.reason": "您的状态已更改为绿色，因为您的检测豁免已被取消",
     "release.step": "接受SHIELD唾液检测",
     "release.reason": "您的状态已更改为橙色，因为公共卫生部门要求您接受检测。",
+
     "symptoms.no-symptoms": "无症狀",
     "symptoms.fever": "发热",
     "symptoms.chills": "发冷",
@@ -1182,6 +1185,7 @@
     "symptoms.congestion-or-runny-nose": "鼻塞或流鼻涕",
     "symptoms.nausea-or-vomiting": "恶心或呕吐",
     "symptoms.diarrhea": "腹泻",
+
     "code.green.name": "绿色",
     "code.green.description": "已完成疫苗接种",
     "code.green.long_description": "绿色：已完成疫苗接种",
