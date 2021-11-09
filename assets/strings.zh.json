@@ -1,6 +1,7 @@
 {
 	"app.title": "Safer Illinois",
 	"app.offline.message.title": "您似乎离线了",
+
 	"dialog.yes.title": "是",
 	"dialog.yes.hint": "",
 	"dialog.no.title": "否",
@@ -13,6 +14,7 @@
 	"dialog.continue.hint": "",
 	"dialog.close.title": "关闭",
 	"dialog.close.hint": "",
+
 	"tabbar.home.title": "主页",
 	"tabbar.home.hint": "主页",
 	"tabbar.explore.title": "查看",
@@ -23,6 +25,7 @@
 	"tabbar.browse.hint": "浏览頁面",
 	"tabbar.wallet.title": "钱包",
 	"tabbar.wallet.hint": "钱包页面",
+
 	"headerbar.home.title": "主页",
 	"headerbar.home.hint": "主页",
 	"headerbar.menu.title": "菜单",
@@ -39,17 +42,21 @@
 	"headerbar.saved.title": "已保存",
 	"headerbar.saved.hint": "",
 	"headerbar.teams.title": "队伍",
+
 	"toggle_button.status.checked": "已勾选",
 	"toggle_button.status.unchecked": "取消勾选",
 	"toggle_button.status.checkbox": "复选框",
+
 	"panel.onboarding.button.continue.title": "继续",
 	"panel.onboarding.button.continue.hint": "",
+
 	"panel.onboarding.get_started.image.welcome.title": "欢迎来到伊利诺伊州",
 	"panel.onboarding.get_started.image.welcome.hint": "",
 	"panel.onboarding.get_started.button.get_started.title": "开始使用",
 	"panel.onboarding.get_started.button.get_started.hint": "",
 	"panel.onboarding.get_started.image.safer_in_illinois.title": "让伊利诺伊州更安全",
 	"panel.onboarding.get_started.image.powered.title": "由 Rokwire 提供技术支持",
+
 	"panel.onboarding.roles.label.title": "您是谁？",
 	"panel.onboarding.roles.label.title.hint": "标题 1",
 	"panel.onboarding.roles.label.description": "请选择",
@@ -64,6 +71,7 @@
 	"panel.onboarding.roles.button.continue.enabled.title": "确认",
 	"panel.onboarding.roles.button.continue.disabled.title": "请选择",
 	"panel.onboarding.roles.button.continue.hint": "",
+
 	"panel.onboarding.login.netid.label.title": "连接您的NetID",
 	"panel.onboarding.login.phone.label.title": "验证您的电话号码",
 	"panel.onboarding.login.netid.label.title.hint": "标题 1",
@@ -79,6 +87,7 @@
 	"panel.onboarding.login.phone.button.dont_continue.title": "稍后",
 	"panel.onboarding.login.netid.button.dont_continue.hint": "跳过验证",
 	"panel.onboarding.login.phone.button.dont_continue.hint": "跳过验证",
+
 	"panel.onboarding.verify_phone.title": "验证您的电话号码",
 	"panel.onboarding.verify_phone.title.hint": "",
 	"panel.onboarding.verify_phone.description": "请选择接收一次性验证码的方式，以验证您的电话号码。",
@@ -94,6 +103,7 @@
 	"panel.onboarding.verify_phone.validation.phone_number.text": "请输入您的电话号码",
 	"panel.onboarding.verify_phone.validation.channel_selection.text": "请选择验证方法",
 	"panel.onboarding.verify_phone.validation.server_error.text": "请输入有效的电话号码",
+
 	"panel.onboarding.confirm_phone.title": "确认您输入的验证码",
 	"panel.onboarding.confirm_phone.title.hint": "",
 	"panel.onboarding.confirm_phone.description.send": "一次性验证码已發送到%s。 请在下方輸入您的验证码以继续。",
@@ -109,6 +119,7 @@
 	"panel.onboarding.confirm_phone.validation.phone_number.text": "请输入您的验证码",
 	"panel.onboarding.confirm_phone.validation.server_error.text": "无法验证代码",
 	"panel.onboarding.confirm_phone.validation.has_not_uin.text": "您的电话号码已通过验证，但并不在授权用戶名单中。 请您联系所属单位管理員，将您的电话号码添加至名单中。",
+
 	"panel.onboarding.upgrade.required.label.title": "应用程式需要升级",
 	"panel.onboarding.upgrade.required.label.description": "%s应用程式%s版本需要升级到%s或者更新的版本。",
 	"panel.onboarding.upgrade.available.label.title": "有可用升级",
@@ -119,11 +130,16 @@
 	"panel.onboarding.upgrade.button.not_now.hint": "",
 	"panel.onboarding.upgrade.button.dont_show.title": "不再显示",
 	"panel.onboarding.upgrade.button.dont_show.hint": "",
+
 	"panel.onboarding.base.not_now.hint": "",
 	"panel.onboarding.base.not_now.title": "稍后",
+
 	"panel.settings.get_help.label.title": "获得帮助",
+
 	"panel.settings.privacy_statement.label.title": "隐私声明",
+
 	"panel.settings.label.offline.get_help": "离线时无法取得帮助。",
+
 	"panel.settings.home.settings.header": "设置",
 	"panel.settings.home.connect.not_logged_in.title": "连接到伊利诺伊",
 	"panel.settings.home.connect.not_logged_in.netid.description.part_1": "您是一名",
@@ -179,23 +195,25 @@
 	"panel.settings.home.covid19.alert.qr_code.scan.failed.msg": "无法读取二维码。",
 	"panel.settings.home.covid19.alert.qr_code.transfer.succeeded.msg": "COVID-19密钥传输成功。",
 	"panel.settings.home.covid19.alert.qr_code.transfer.failed.msg": "COVID-19密钥传输失败。",
-	"panel.settings.home.covid19.alert.reset.prompt": "您会获得一个新的COVID-19二维码密钥，但您以前的COVID-19事件记录将会丢失，是否确定要继续？",
-	"panel.settings.home.covid19.alert.reset.failed": "COVID-19二维码密钥重置失败",
-	"panel.settings.home.covid19.text.user.fail": "无法取得用户的COVID-19设置。",
-	"panel.settings.home.covid19.text.keys.checking": "正在核对COVID-19密钥...",
-	"panel.settings.home.covid19.text.keys.missing.public": "缺少COVID-19公钥",
-	"panel.settings.home.covid19.text.keys.missing.private": "缺少COVID-19私钥",
-	"panel.settings.home.covid19.text.keys.mismatch": "COVID-19密匙未能成功配对",
-	"panel.settings.home.covid19.text.keys.paired": "COVID-19密匙有效并配对成功",
-	"panel.settings.home.covid19.text.keys.reset": "重置COVID-19密钥对。",
-	"panel.settings.home.covid19.text.keys.transfer_or_reset": "从您的其他手机传输COVID-19私钥，或重置COVID-19密钥对。",
-	"panel.settings.home.covid19.text.keys.qr_code": "显示您的COVID-19二维码密钥。",
-	"panel.settings.home.covid19.button.retry.title": "重试",
-	"panel.settings.home.covid19.button.reset.title": "重置",
-	"panel.settings.home.covid19.button.load.title": "加载",
-	"panel.settings.home.covid19.button.scan.title": "扫描",
-	"panel.settings.home.covid19.button.qr_code.title": "二维码",
+		"panel.settings.home.covid19.alert.reset.prompt": "您会获得一个新的COVID-19二维码密钥，但您以前的COVID-19事件记录将会丢失，是否确定要继续？",
+		"panel.settings.home.covid19.alert.reset.failed": "COVID-19二维码密钥重置失败",
+		"panel.settings.home.covid19.text.user.fail": "无法取得用户的COVID-19设置。",
+		"panel.settings.home.covid19.text.keys.checking": "正在核对COVID-19密钥...",
+		"panel.settings.home.covid19.text.keys.missing.public": "缺少COVID-19公钥",
+		"panel.settings.home.covid19.text.keys.missing.private": "缺少COVID-19私钥",
+		"panel.settings.home.covid19.text.keys.mismatch": "COVID-19密匙未能成功配对",
+		"panel.settings.home.covid19.text.keys.paired": "COVID-19密匙有效并配对成功",
+		"panel.settings.home.covid19.text.keys.reset": "重置COVID-19密钥对。",
+		"panel.settings.home.covid19.text.keys.transfer_or_reset": "从您的其他手机传输COVID-19私钥，或重置COVID-19密钥对。",
+		"panel.settings.home.covid19.text.keys.qr_code": "显示您的COVID-19二维码密钥。",
+		"panel.settings.home.covid19.button.retry.title": "重试",
+		"panel.settings.home.covid19.button.reset.title": "重置",
+		"panel.settings.home.covid19.button.load.title": "加载",
+		"panel.settings.home.covid19.button.scan.title": "扫描",
+		"panel.settings.home.covid19.button.qr_code.title": "二维码",
+
 	"panel.settings.label.offline.phone_ver": "离线时无法验证电话号码。",
+
 	"panel.profile_info.header.title": "个人信息",
 	"panel.profile_info.net_id.title": "NetID",
 	"panel.profile_info.full_name.title": "姓名",
@@ -214,6 +232,7 @@
 	"panel.profile_info.dialog.remove_my_information.yes.title": "确定",
 	"panel.profile_info.dialog.remove_my_information.no.title": "取消",
 	"panel.profile_info.dialog.remove_my_information.message.failed": "无法删除您的信息",
+
 	"panel.covid19_passport.header.title": "COVID-19",
 	"panel.covid19_passport.button.close.title": "关闭",
 	"panel.covid19_passport.label.status.empty": "此县没有可用状态",
@@ -235,11 +254,13 @@
 	"panel.covid19_passport.label.capitol_staff": "訪客",
 	"panel.covid19_passport.button.info.title": "信息",
 	"panel.covid19_passport.icon.vaccine.effective.title": "疫苗有效",
+
 	"panel.covid19_guidelines.header.title": "县指引",
 	"panel.covid19_guidelines.description.title": "遵从现行指引，帮助遏止新冠肺炎的疫情扩散。",
 	"panel.covid19_guidelines.status.title": "基于您在此县的%s状态，现行指引包括：",
 	"panel.covid19_guidelines.label.county.empty": "选择一个县...",
 	"panel.covid19_guidelines.no.status": "此县没有关于您的状态的具体指引。",
+
 	"panel.covid19home.header.title": "Safer Illinois 主页",
 	"panel.covid19home.top_heading.title": "保持健康",
 	"panel.covid19home.label.next_step.title": "下一步",
@@ -263,7 +284,7 @@
 	"panel.covid19home.label.result.title": "新增检测结果",
 	"panel.covid19home.label.result.description": "保持状态更新。",
 	"panel.covid19home.label.status.title": "当前状态：",
-	"panel.covid19home.label.status.na": "無法使用",
+		"panel.covid19home.label.status.na": "無法使用",
 	"panel.covid19home.button.show_status_card.title": "显示状态卡",
 	"panel.covid19home.label.campus_updates.title": "校园最新资讯",
 	"panel.covid19home.button.about.title": "关于",
@@ -282,6 +303,7 @@
 	"panel.covid19home.switch_account.default.suffix": " (默认值)",
 	"panel.covid19home.button.groups.title": "群组",
 	"panel.covid19home.button.groups.hint": "",
+
 	"panel.covid19home.vaccination.heading.title": "疫苗",
 	"panel.covid19home.vaccination.none.title": "立即接种疫苗",
 	"panel.covid19home.vaccination.none.description": "• 新冠肺炎疫苗是安全的\n• 新冠肺炎疫苗是有效的\n• 新冠肺炎疫苗让你能安全活动\n• 新冠肺炎疫苗能建立更健全的保护网",
@@ -298,6 +320,7 @@
 	"panel.covid19home.vaccination.suspended.description": "您目前在疫苗有效保护期内，但必须继续接受检测，直至收到另行通知。",
 	"panel.covid19home.vaccination.button.appointment.title": "预约",
 	"panel.covid19home.vaccination.button.appointment.hint": "",
+
 	"panel.covid19_test_locations.header.title": "检测点",
 	"panel.covid19_test_locations.label.contact.title": "联系人",
 	"panel.covid19_test_locations.distance.text": "英里距离",
@@ -320,14 +343,17 @@
 	"panel.covid19_test_locations.wait_time.status.label.red": "等候时间较长",
 	"panel.covid19_test_locations.wait_time.status.label.yellow": "等候时间中等",
 	"panel.covid19_test_locations.wait_time.status.label.green": "等候时间较短",
+
 	"panel.covid19.button.health_history.title": "查看健康记录",
 	"panel.covid19.button.health_history.hint": "",
 	"panel.covid19.button.covid_wellness_center.title": "新冠肺炎健康资讯中心 (COVID Wellness Answer Center)",
 	"panel.covid19.button.covid_wellness_center.hint": "",
+
 	"panel.covid19_wellness_center.header.title": "新冠肺炎健康资讯中心 (COVID Wellness Center)",
 	"panel.covid19_wellness_center.label.description": "如果你对应用程序有问题或将获得检测结果，请联系新冠肺炎健康资讯中心 (COVID Wellness Answer Center) 寻求帮助。",
 	"panel.covid19_wellness_center.label.email": "电邮至新冠肺炎健康资讯中心：",
 	"panel.covid19_wellness_center.label.phone": "致电新冠肺炎健康资讯中心：",
+
 	"panel.covid19.qr_code.title": "COVID-19 二维码",
 	"panel.covid19.qr_code.description.heading.1": "如您需于多个设备上使用 Safer Illinois 应用程式，请使用此二维码来传输解码您的COVID-19健康信息所需的密钥。",
 	"panel.covid19.qr_code.description.heading.2": "保存此二维码，以便您在丢失或更换手机时，可以在新手机上恢复您的COVID-19健康信息。",
@@ -340,37 +366,43 @@
 	"panel.covid19.qr_code.description.on_boarding.heading.2": "您可以暂时跳过此步骤，稍后再在「设置」中查看并保存二维码",
 	"panel.covid19.qr_code.button.skip.title.": "跳过",
 	"panel.covid19.qr_code.button.skip.hint.": "跳过保存",
-	"panel.covid19.transfer.title": "传输加密密钥",
-	"panel.covid19.transfer.label.qr_image_label": "Safer Illinois COVID-19二维码",
-	"panel.covid19.transfer.label.save_error": "无法保存二维码。",
-	"panel.covid19.transfer.button.continue.hint": "",
-	"panel.covid19.transfer.primary.heading.title": "你的COVID-19加密密钥",
-	"panel.covid19.transfer.primary.button.save.title": "保存加密密钥",
-	"panel.covid19.transfer.primary.button.save.hint": "",
-	"panel.covid19.transfer.secondary.heading.title": "找不到COVID-19加密密钥",
-	"panel.covid19.transfer.secondary.button.scan.heading": "如果您需要添加第二台设备：",
-	"panel.covid19.transfer.secondary.button.scan.description": "如果您仍然能使用您的主设备，您可以直接扫描该设备上的COVID-19加密密钥二维码.",
-	"panel.covid19.transfer.secondary.button.scan.title": "扫描二维码",
-	"panel.covid19.transfer.secondary.button.retrieve.heading": "如果您使用的是替换设备:",
-	"panel.covid19.transfer.secondary.button.retrieve.description": "如果您已不能使用您的主设备，但曾将您的二维码保存到云端，您可以从云端照片中恢复您的COVID-19加密密钥来完成传输。",
-	"panel.covid19.transfer.secondary.button.retrieve.title": "恢复您的二维码",
-	"panel.covid19.transfer.alert.no_qr_code.msg": "没有二维码",
-	"panel.covid19.transfer.alert.save.success.msg": "已成功将二维码保存到",
-	"panel.covid19.transfer.alert.save.success.pictures": "图片",
-	"panel.covid19.transfer.alert.save.success.gallery": "图片库",
-	"panel.covid19.transfer.alert.save.fail.msg": "无法将二维码保存到",
-	"panel.covid19.transfer.alert.qr_code.scan.failed.msg": "无法读取二维码。",
-	"panel.covid19.transfer.alert.qr_code.invalid.msg": "二维码无效。",
-	"panel.covid19.transfer.alert.qr_code.not_match.msg": "COVID-19密钥与现有RSA公钥不匹配。",
-	"panel.covid19.transfer.alert.qr_code.transfer.succeeded.msg": "COVID-19密钥传输成功。",
-	"panel.covid19.transfer.alert.qr_code.transfer.failed.msg": "无法传输COVID-19密钥。",
+
+		"panel.covid19.transfer.title": "传输加密密钥",
+		"panel.covid19.transfer.label.qr_image_label": "Safer Illinois COVID-19二维码",
+		"panel.covid19.transfer.label.save_error": "无法保存二维码。",
+		"panel.covid19.transfer.button.continue.hint": "",
+		"panel.covid19.transfer.primary.heading.title": "你的COVID-19加密密钥",
+		"panel.covid19.transfer.primary.button.save.title": "保存加密密钥",
+		"panel.covid19.transfer.primary.button.save.hint": "",
+		"panel.covid19.transfer.secondary.heading.title": "找不到COVID-19加密密钥",
+		"panel.covid19.transfer.secondary.button.scan.heading": "如果您需要添加第二台设备：",
+		"panel.covid19.transfer.secondary.button.scan.description": "如果您仍然能使用您的主设备，您可以直接扫描该设备上的COVID-19加密密钥二维码.",
+		"panel.covid19.transfer.secondary.button.scan.title": "扫描二维码",
+		"panel.covid19.transfer.secondary.button.retrieve.heading": "如果您使用的是替换设备:",
+		"panel.covid19.transfer.secondary.button.retrieve.description": "如果您已不能使用您的主设备，但曾将您的二维码保存到云端，您可以从云端照片中恢复您的COVID-19加密密钥来完成传输。",
+		"panel.covid19.transfer.secondary.button.retrieve.title": "恢复您的二维码",
+		"panel.covid19.transfer.alert.no_qr_code.msg": "没有二维码",
+		"panel.covid19.transfer.alert.save.success.msg": "已成功将二维码保存到",
+		"panel.covid19.transfer.alert.save.success.pictures": "图片",
+		"panel.covid19.transfer.alert.save.success.gallery": "图片库",
+		"panel.covid19.transfer.alert.save.fail.msg": "无法将二维码保存到",
+		"panel.covid19.transfer.alert.qr_code.scan.failed.msg": "无法读取二维码。",
+		"panel.covid19.transfer.alert.qr_code.invalid.msg": "二维码无效。",
+		"panel.covid19.transfer.alert.qr_code.not_match.msg": "COVID-19密钥与现有RSA公钥不匹配。",
+		"panel.covid19.transfer.alert.qr_code.transfer.succeeded.msg": "COVID-19密钥传输成功。",
+		"panel.covid19.transfer.alert.qr_code.transfer.failed.msg": "无法传输COVID-19密钥。",
+
 	"panel.debug.header.title": "调试",
+
 	"panel.debug_messaging.header.title": "通讯",
+
 	"panel.web.offline.message": "您需要连接网络才能执行此操作。 请检查您的互联网连接。",
+
 	"panel.health.onboarding.covid19.intro.label.title": "加入抗击新冠肺炎的战斗。",
 	"panel.health.onboarding.covid19.intro.label.description": "管理您的健康，帮助确保我们伊利诺伊社区的安全",
 	"panel.health.onboarding.covid19.intro.button.continue.title": "继续",
 	"panel.health.onboarding.covid19.intro.button.continue.hint": "",
+
 	"panel.health.onboarding.covid19.how_it_works.heading.title": "运作原理",
 	"panel.health.onboarding.covid19.how_it_works.line1.title": "接受检测和限制接触是减缓新冠肺炎扩散的关键。",
 	"panel.health.onboarding.covid19.how_it_works.line2.title": "您可以使用此应用程序：",
@@ -378,12 +410,14 @@
 	"panel.health.onboarding.covid19.how_it_works.line4.title": "自动从您的医疗保健提供单位接收检测结果和疫苗相关信息。",
 	"panel.health.onboarding.covid19.how_it_works.button.next.title": "继续",
 	"panel.health.onboarding.covid19.how_it_works.button.next.hint": "",
+
 	"panel.health.onboarding.covid19.disclosure.label.title": "信息使用和披露",
 	"panel.health.onboarding.covid19.disclosure.label.description1": "Safer Illinois 应用程式使用：",
 	"panel.health.onboarding.covid19.disclosure.label.splitter1": ".",
 	"panel.health.onboarding.covid19.disclosure.label.content1": "1. 相机，以允许用户将其个人加密密钥（二维码）导入到应用程式中。",
 	"panel.health.onboarding.covid19.disclosure.label.content2": "2. 照片与视频，以允许用户将其个人加密密钥（二维码）导入到应用程式中。",
 	"panel.health.onboarding.covid19.disclosure.label.content3": "3. 文件（外部存储及读写），以允许用户将其个人加密密钥（二维码）导入到应用程式中。",
+	"panel.health.onboarding.covid19.disclosure.label.content4": "4. Location services on your device must be turned on to provide navigation to COVID-19 test sites. However, the Application does not access, collect, or store any location data, including GPS data. If location services on your device are turned off, the Application will perform the limited functions of storing and providing information about COVID-19 test results, any voluntarily reported symptoms, and building access status.",
 	"panel.health.onboarding.covid19.disclosure.label.description2": "我们如何使用您的个人信息",
 	"panel.health.onboarding.covid19.disclosure.label.description3": "为提供您的新冠肺炎检测结果，我们需要您以下的个人信息。",
 	"panel.health.onboarding.covid19.disclosure.label.content8": "姓名、电邮、学生编号 (UIN)、电话号码，和学生注册信息",
@@ -396,10 +430,14 @@
 	"panel.health.onboarding.covid19.disclosure.label.content12": "  - 摄像头",
 	"panel.health.onboarding.covid19.disclosure.label.content13": "- 写入_外部存储",
 	"panel.health.onboarding.covid19.disclosure.label.content14": "- 读取_外部存储",
+	"panel.health.onboarding.covid19.disclosure.label.description8": "Navigation to COVID-19 test sites",
+	"panel.health.onboarding.covid19.disclosure.label.content18": "Your location is never tracked or stored on our servers. Location Services will run in the background when the app is not in use. The following permissions are used to enable this:",
+	"panel.health.onboarding.covid19.disclosure.label.content19": "  - LOCATION",	
 	"panel.health.onboarding.covid19.disclosure.check_box.label.acknowledge": "接受",
 	"panel.health.onboarding.covid19.disclosure.button.disclosure.title": "继续",
 	"panel.health.onboarding.covid19.disclosure.button.scroll_to_continue.title": "下滑以继续",
 	"panel.health.onboarding.covid19.disclosure.button.disclosure.hint": "",
+	
 	"panel.health.onboarding.covid19.consent.label.title": "COVID-19功能的许可",
 	"panel.health.onboarding.covid19.consent.check_box.label.test": "我同意并允许我的医疗保健提供单位提供我的检测结果。",
 	"panel.health.onboarding.covid19.consent.check_box.label.vaccine": "我同意并允许我的医疗保健提供单位提供我的疫苗接种记录。",
@@ -412,6 +450,7 @@
 	"panel.health.onboarding.covid19.consent.button.consent.hint": "",
 	"panel.health.onboarding.covid19.consent.button.scroll_to_continue.title": "下滑以继续",
 	"panel.health.onboarding.covid19.consent.label.error.login": "无法登录Health",
+
 	"panel.health.onboarding.covid19.resident_info.label.title": "使用政府签发的身份证明文件来验证您的身份",
 	"panel.health.onboarding.covid19.resident_info.label.description": "通过验证后，您将会收到一个代表您健康状态的颜色码。此颜色码是以您的所在县指南、出现的症状，以及与新冠肺炎相关的检测结果为基准。",
 	"panel.health.onboarding.covid19.resident_info.button.passport.title": "護照",
@@ -419,6 +458,7 @@
 	"panel.health.onboarding.covid19.resident_info.button.drivers_license.title": "驾照",
 	"panel.health.onboarding.covid19.resident_info.button.drivers_license.hint": "",
 	"panel.health.onboarding.covid19.resident_info.button.verify_later.title": "稍后验证",
+
 	"panel.health.onboarding.covid19.review_scan.label.title": "查看您的扫描",
 	"panel.health.onboarding.covid19.review_scan.label.name.title": "姓名",
 	"panel.health.onboarding.covid19.review_scan.label.birth_year.title": "出生年份",
@@ -427,6 +467,7 @@
 	"panel.health.onboarding.covid19.review_scan.button.rescan.hint": "",
 	"panel.health.onboarding.covid19.review_scan.button.use_scan.title": "使用此扫描",
 	"panel.health.onboarding.covid19.review_scan.button.use_scan.hint": "",
+
 	"panel.health.onboarding.covid19.county.label.title": "您在哪个县生活和工作？",
 	"panel.health.onboarding.covid19.county.label.description": "选择所有适用项",
 	"panel.health.onboarding.covid19.county.button.add_county.label": "添加另一个县",
@@ -436,10 +477,12 @@
 	"panel.health.onboarding.covid19.county.select.label": "选择县",
 	"panel.health.onboarding.covid19.county.dropdown.select.default.label": "选择县...",
 	"panel.health.onboarding.covid19.county.alert.unique.message": "请在每个栏位中选择不同的县!",
+
 	"panel.health.onboarding.covid19.providers.label.title": "您当前的医疗保健提供单位是谁？",
 	"panel.health.onboarding.covid19.providers.label.description": "选择所有适用选项",
 	"panel.health.onboarding.covid19.providers.button.next.title": "继续",
 	"panel.health.onboarding.covid19.providers.button.next.hint": "",
+
 	"panel.health.onboarding.covid19.final.label.title": "一切准备就绪！",
 	"panel.health.onboarding.covid19.final.label.description": "您已通过验证，状态卡已被添加到您的个人资料中。",
 	"panel.health.onboarding.covid19.final.label.bottom.description": "现在开始，此应用程序将与您并肩作战，与您一同击退新冠肺炎。",
@@ -447,6 +490,7 @@
 	"panel.health.onboarding.covid19.final.label.unverified.bottom.description": "要检阅您的COVID-19状态，您需要上传由政府部门发出的身份证明文件。您可以随时在COVID-19设置中上传此信息。",
 	"panel.health.onboarding.covid19.final.button.continue.title": "使用入门",
 	"panel.health.onboarding.covid19.final.button.continue.hint": "",
+
 	"panel.health.onboarding.covid19.login.netid.label.title": "连接您的NetID",
 	"panel.health.onboarding.covid19.login.phone.label.title": "验证您的电话号码",
 	"panel.health.onboarding.covid19.login.netid.label.title.hint": "标题 1",
@@ -463,7 +507,9 @@
 	"panel.health.onboarding.covid19.login.netid.button.dont_continue.hint": "跳过验证",
 	"panel.health.onboarding.covid19.login.phone.button.dont_continue.hint": "跳过验证",
 	"panel.health.onboarding.covid19.login.label.error.login": "无法登录Health",
+
 	"panel.health.covid19.about.heading.title": "关于",
+
 	"panel.health.covid19.add_test.heading.title": "添加检测结果",
 	"panel.health.covid19.add_test.label.where_question": "您是在哪里接受检测?",
 	"panel.health.covid19.add_test.label.information": "为什么需要这些信息?",
@@ -479,6 +525,7 @@
 	"panel.health.covid19.add_test.label.info.manually.text3": "将由公共医疗机构进行审查和验证。检测结果通过验证后，您的建康状态可能会被更改。",
 	"panel.health.covid19.add_test.label.manual_tests_disabled": "如果您已在设置中同意并允许您的医疗保健提供单位提供您的检测结果，并且您已经连接NetID，来自此单位的检测结果将自动显示。",
 	"panel.health.covid19.add_test.message.no_result_found": "未找到结果",
+
 	"panel.health.covid19.care_team.heading.title": "您的护理团队",
 	"panel.health.covid19.care_team.label.question": "获得帮助",
 	"panel.health.covid19.care_team.label.description": "联系您的COVID-19护理团队，他们乐意伸出援手。",
@@ -504,6 +551,7 @@
 	"panel.health.covid19.care_team.label.mc_kiney.link": "McKinley心理健康计划 (McKinley Mental Health Program)",
 	"panel.health.covid19.care_team.label.virtual_counseling.link": "虚拟咨询服务",
 	"panel.health.covid19.care_team.label.virtual_counseling.description": "（需要有UnitedHealthcare学生资源计划保障）",
+
 	"panel.health.covid19.debug.keys.heading.title.": "COVID-19密钥",
 	"panel.health.covid19.debug.keys.label.public_key": "RSA公钥：",
 	"panel.health.covid19.debug.keys.label.private_key": "RSA私钥：",
@@ -518,6 +566,7 @@
 	"panel.health.covid19.debug.keys.button.encript.title": "加密",
 	"panel.health.covid19.debug.keys.button.decript.title": "解密",
 	"panel.health.covid19.debug.keys.label.error.refres.title": "无法刷新",
+
 	"panel.health.covid19.debug.trace.heading.title": "新冠肺炎接触者追踪",
 	"panel.health.covid19.debug.trace.label.contact": "追踪新冠肺炎接触者",
 	"panel.health.covid19.debug.trace.label.date": "日期",
@@ -526,6 +575,7 @@
 	"panel.health.covid19.debug.trace.message.date.text": "请选择日期",
 	"panel.health.covid19.debug.trace.message.duration.text": "请以整数输入时长",
 	"panel.health.covid19.debug.trace.error.submit.text": "无法提交接触者追踪数据。",
+
 	"panel.health.covid19.history.header.title": "你的COVID-19事件记录",
 	"panel.health.covid19.history.label.empty.title": "没有记录",
 	"panel.health.covid19.history.label.description": "查看您的COVID-19事件记录。",
@@ -554,6 +604,7 @@
 	"panel.health.covid19.history.button.repost_history.title": "再次要求获取我的疫苗和最近的检测信息",
 	"panel.health.covid19.history.button.repost_history.hint": "",
 	"panel.health.covid19.history.message.request_tests": "您的请求已经发出。您应该会在一小时内收到最新的检测结果",
+
 	"panel.health.covid19.qr_code.label.qr_image_label": "Safer Illinois COVID-19二维码",
 	"panel.health.covid19.qr_code.label.save_error": "无法保存二维码。",
 	"panel.health.covid19.qr_code.button.continue.hint": "",
@@ -575,18 +626,20 @@
 	"panel.health.covid19.qr_code.dialog.refresh_qr_code.title": "重置我的COVID-19二维码密钥",
 	"panel.health.covid19.qr_code.dialog.refresh_qr_code.description": "您会获得一个新的COVID-19二维码密钥，但您以前的COVID-19事件记录将会丢失，是否确定要继续？",
 	"panel.health.covid19.qr_code.dialog.refresh_qr_code.confirm": "确定继续?",
+
 	"panel.health.covid19.alert.no_qr_code.msg": "没有二维码",
 	"panel.health.covid19.alert.save.success.msg": "二维码保存成功 ",
 	"panel.health.covid19.alert.save.success.pictures": "图片",
 	"panel.health.covid19.alert.save.success.gallery": "图片库",
 	"panel.health.covid19.alert.save.fail.msg": "无法将二维码保存到图片库",
 	"panel.health.covid19.alert.qr_code.scan.failed.msg": "無法讀取QR碼.",
-	"panel.health.covid19.alert.qr_code.invalid.msg": "无效的二维码.",
-	"panel.health.covid19.alert.qr_code.not_match.msg": "COVID-19密钥与现有公钥RSA密钥不匹配。",
+		"panel.health.covid19.alert.qr_code.invalid.msg": "无效的二维码.",
+		"panel.health.covid19.alert.qr_code.not_match.msg": "COVID-19密钥与现有公钥RSA密钥不匹配。",
 	"panel.health.covid19.qr_code.alert.qr_code.transfer.succeeded.msg": "COVID-19密钥传输成功。",
 	"panel.health.covid19.alert.qr_code.transfer.failed.msg": "无法传输COVID-19密钥。",
 	"panel.health.covid19.qr_code.button.continue.title": "繼續",
 	"panel.health.covid19.qr_code.button.transfer_later.title": "稍后传输",
+
 	"panel.health.report_test.heading.title": "手动输入结果",
 	"panel.health.report_test.label.date": "测试日期和时间",
 	"panel.health.report_test.label.provider": "医疗保健提供单位",
@@ -609,7 +662,9 @@
 	"panel.health.report_test.error.create.message": "无法添加检测",
 	"panel.health.report_test.missing.image.message": "请上传图片",
 	"panel.health.report_test.future_date.forbidden.message": "您不能添加未进行的检测",
+
 	"widget.health.onboarding.indicator9.label.hint": "Covid-19入职流程",
+
 	"panel.health.status_update.heading.title": "状态更新",
 	"panel.health.status_update.label.status_change": "根据您的检测结果，您的状态已从 ",
 	"panel.health.status_update.label.status_change.to": " 更改为 ",
@@ -633,15 +688,18 @@
 	"panel.health.status_update.label.reason.action.title": "卫生部门要求你采取行动。",
 	"panel.health.status_update.label.reason.action.detail": "待办行动：",
 	"panel.health.status_update.button.info.title": "信息",
+
 	"panel.health.next_steps.button.continue.title.find_locatio": "查找位置",
 	"panel.health.next_steps.button.continue.title.care_team": "联系护理团队",
 	"panel.health.next_steps.label.next_steps": "您的下一步",
+
 	"panel.health.symptoms.heading.title": "您有出现这些症状吗？",
 	"panel.health.symptoms.label.error.loading": "无法加载症状。",
 	"panel.health.symptoms.button.submit.title": "提交",
 	"panel.health.symptoms.label.success.submit.message": "您的症状已经提交。",
 	"panel.health.symptoms.label.error.submit": "无法提交症状。",
 	"panel.health.symptoms.label.error.no_selection": "请选择至少一个症状",
+
 	"panel.settings.pending_family_member.label.text.statement1": "%s 寻求您的授权以参加Shield CU COVID-19检测",
 	"panel.settings.pending_family_member.label.text.statement2": "如果您同意，每次检测的费用%s 将入帐到您的大学帐户。",
 	"panel.settings.pending_family_member.label.text.terms.title": "条款及细则",
@@ -649,6 +707,7 @@
 	"panel.settings.pending_family_member.button.approve.title": "我同意",
 	"panel.settings.pending_family_member.button.disapprove.title": "我不同意",
 	"panel.settings.pending_family_member.label.text.error": "无法提交",
+
 	"panel.settings.family_members.heading.title": "家庭成員",
 	"panel.settings.family_members.label.load_failed": "无法加载家庭成员",
 	"panel.settings.family_members.label.submit_failed": "无法更新状态",
@@ -659,6 +718,7 @@
 	"panel.settings.family_members.label.status.unknown": "未知",
 	"panel.settings.family_members.button.accept.title": "接受",
 	"panel.settings.family_members.button.revoke.title": "取消",
+
 	"panel.groups_admin.header.title": "管理界面",
 	"panel.groups_admin.label.members": "成员",
 	"panel.groups_admin.label.upcoming_events": "活动预告",
@@ -680,6 +740,7 @@
 	"panel.groups_admin.button.edit.title": "编辑",
 	"panel.groups_admin.button.cancel.title": "取消",
 	"panel.groups_admin.button.remove.title": "删除活动",
+
 	"panel.groups_create.label.heading": "创建群组",
 	"panel.groups_create.label.discoverability": "易搜寻度",
 	"panel.groups_create.label.privacy": "隐私",
@@ -709,12 +770,14 @@
 	"panel.common.privacy_title.public": "公开",
 	"panel.groups_create.privacy.description": "所有Illinois应用程式的用户都可以搜索到此群组。只有管理员可以查看群组成员。",
 	"panel.groups_create.button.create.title": "创建群组",
+
 	"panel.group_create_post.label.title": "发布帖文",
 	"panel.group_create_post.label.post": "发布",
 	"panel.group_create_post.label.post.hint": "",
 	"panel.group_create_post.post.field.description": "撰写评论",
 	"panel.group_create_post.post.field.hint": "",
 	"panel.group_create_post.post.field.empty": "无法创建帖文",
+
 	"panel.group_detail.label.options": "选项",
 	"panel.group_detail.label.error_message": "无法加载群组数据。",
 	"panel.group_detail.members.count.empty": "暂时没有成员",
@@ -743,7 +806,6 @@
 	"panel.group_detail.button.dialog.cancel_request.title": "取消请求",
 	"panel.group_detail.label.confirm.leave": "您确定要退出此群组吗？",
 	"panel.group_detail.button.back.title": "返回",
-	"panel.group_detail.button.leave.title": "退出",
 	"panel.group_detail.button.leave_group.title": "退出群组",
 	"panel.group_detail.button.previous_post.title": "查看以前的帖文",
 	"panel.group_detail.button.add_post.title": "添加公开帖文…",
@@ -753,6 +815,7 @@
 	"panel.group_detail.button.edit_event.title": "编辑活动",
 	"panel.group_detail.button.remove.title": "删除",
 	"panel.group_detail.button.delete.title": "删除",
+
 	"panel.groups_search.header.title": "搜索",
 	"panel.groups_search.field.search.title": "搜索",
 	"panel.groups_search.field.search.hint": "",
@@ -760,6 +823,7 @@
 	"panel.groups_search.button.clear.hint": "",
 	"panel.groups_search.button.search.title": "搜索",
 	"panel.groups_search.button.search.hint": "",
+
 	"panel.groups_home.label.all_categories": "所有类别",
 	"panel.groups_home.label.heading": "群组",
 	"panel.groups_home.button.all_groups.title": "所有群组",
@@ -769,6 +833,7 @@
 	"panel.groups_home.label.no_results": "没有附合筛选条件的群组",
 	"panel.groups_home.label.pending": "处理中",
 	"panel.groups_home.label.category": "类别",
+
 	"panel.groups_settings.label.heading": "群组设置",
 	"panel.groups_settings.label.heading.general_info": "一般群组信息",
 	"panel.groups_settings.label.heading.discoverability": "易搜寻度",
@@ -804,32 +869,42 @@
 	"panel.groups_settings.membership.button.question.title": "会员资格问题",
 	"panel.groups_settings.button.update.title": "更新设置",
 	"panel.groups_create.tags.label.update_error": "无法更新群组",
+
 	"model.explore.time.today": "今天",
 	"model.explore.time.tomorrow": "明天",
 	"model.explore.time.at": "在",
 	"model.explore.time.all_day": "全天",
+
 	"logic.date_time.greeting.morning": "早上好",
 	"logic.date_time.greeting.afternoon": "下午好",
 	"logic.date_time.greeting.evening": "晚上好",
 	"logic.date_time.greeting.day": "您好",
+
 	"logic.polls.unable_to_load_poll": "无法加载投票",
 	"logic.polls.no_polls_with_pin": "没有投票使用此四位数的投票代码#",
 	"logic.polls.multiple_polls_with_pin": "有多于一个正在进行的投票使用此四位数的投票代码#",
+
 	"logic.general.internal_error": "发生内部错误",
 	"logic.general.invalid_response": "服务器响应无效",
 	"logic.general.response_error": "响应错误: %s %s",
+
 	"app.exit_dialog.message": "您确定要退出吗？",
+
 	"app.common.heading.hint": "标题",
 	"app.common.heading.one.hint": "标题 1",
 	"app.common.heading.two.hint": "标题2",
 	"app.common.heading.three.hint": "标题3",
+
 	"app.common.label.cancelled": "已取消",
 	"app.common.label.other": "其他",
 	"app.common.label.county": "县",
 	"app.common.label.read_more": "阅读更多",
+
 	"app.common.yes": "确定",
 	"app.common.no": "取消",
+
 	"app.common.hint.external_link": "外部链接",
+
 	"com.illinois.features2.entry.disable_location_awareness": "关闭位置识别功能",
 	"com.illinois.features2.entry.dont_store_location": "不要存储的我的位置",
 	"com.illinois.features2.entry.remove_preferences": "删除偏好设置",
