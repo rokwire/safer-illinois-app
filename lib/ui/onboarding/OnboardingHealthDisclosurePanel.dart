@@ -136,6 +136,8 @@ class _OnBoardingHealthDisclosurePanelState extends State<OnBoardingHealthDisclo
                         _section1Entry(Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content2", "2. Photos and Videos to allow a user to import their personal encryption key (QR code) into the app."), section1Splitter),
                         Container(height: 2,),
                         _section1Entry(Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content3", "3. Files (external storage read and write) to allow a user to import their personal encryption key (QR code) into the app."), section1Splitter),
+                        Container(height: 2,),
+                        _section1Entry(Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content4", "4. Location services on your device must be turned on to provide navigation to COVID-19 test sites. However, the Application does not access, collect, or store any location data, including GPS data. If location services on your device are turned off, the Application will perform the limited functions of storing and providing information about COVID-19 test results, any voluntarily reported symptoms, and building access status."), section1Splitter),
 
                         Container(height: 20,),
                         Semantics( header: true, hint: Localization().getStringEx("app.common.heading.two.hint","Header 2"),
@@ -192,6 +194,20 @@ class _OnBoardingHealthDisclosurePanelState extends State<OnBoardingHealthDisclo
                         ),
                         Text(
                           Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content14", "  - READ_EXTERNAL_STORAGE"),
+                          style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 20, color:Styles().colors.textSurface),
+                        ),
+
+                        Container(height: 10,),
+                        Semantics( header: true, hint: Localization().getStringEx("app.common.heading.three.hint","Header 3"),
+                            child: Text(Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.description8", "Navigation to COVID-19 test sites"),
+                              style: TextStyle(fontFamily: Styles().fontFamilies.bold, fontSize: 18, color:Styles().colors.textSurface),
+                            )),
+                        Text(
+                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content18", "Your location is never tracked or stored on our servers. Location Services will run in the background when the app is not in use. The following permissions are used to enable this:"),
+                          style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 16, color:Styles().colors.textSurface),
+                        ),
+                        Text(
+                          Localization().getStringEx("panel.health.onboarding.covid19.disclosure.label.content19", "  - LOCATION"),
                           style: TextStyle(fontFamily: Styles().fontFamilies.regular, fontSize: 20, color:Styles().colors.textSurface),
                         ),
 
