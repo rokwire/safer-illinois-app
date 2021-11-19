@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.12.8] - 2021-11-09
+### Added
+- Added back location to Information Usage Disclosure [#762](https://github.com/rokwire/safer-illinois-app/issues/762).
+
 ## [2.12.7] - 2021-11-03
 ### Fixed
 - Android: Fix browser permissions for devices with API level >= 30 [#756](https://github.com/rokwire/safer-illinois-app/issues/756).
