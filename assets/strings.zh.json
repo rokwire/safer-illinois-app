@@ -312,7 +312,7 @@
 	"panel.covid19home.vaccination.vaccinated.effective.0.description": "你的疫苗会于今天生效。",
 	"panel.covid19home.vaccination.vaccinated.effective.1.description": "你的疫苗会于明天生效。",
 	"panel.covid19home.vaccination.vaccinated.effective.n.description": "你的疫苗会于%s天后生效。",
-	"panel.covid19home.vaccination.e.title": "疫苗有效保护期已过",
+	"panel.covid19home.vaccination.expired.title": "疫苗有效保护期已过",
 	"panel.covid19home.vaccination.expired.description": "立即接种加强针。",
 	"panel.covid19home.vaccination.exempt.title": "豁免接种疫苗",
 	"panel.covid19home.vaccination.exempt.description": "您目前获豁免接种新冠肺炎疫苗，但必须继续接受检测。",

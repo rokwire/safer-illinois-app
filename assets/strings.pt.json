@@ -290,7 +290,7 @@
 	"panel.covid19home.vaccination.vaccinated.effective.0.description": "A sua vacina terá eficácia a partir de hoje.",
 	"panel.covid19home.vaccination.vaccinated.effective.1.description": "A sua vacina terá eficácia a partir de amanhã.",
 	"panel.covid19home.vaccination.vaccinated.effective.n.description": "A sua vacina terá eficácia após %s dias.",
-	"panel.covid19home.vaccination.e.title": "Vacina vencida",
+	"panel.covid19home.vaccination.expired.title": "Vacina vencida",
 	"panel.covid19home.vaccination.expired.description": "Tome uma dose de reforço já.",
 	"panel.covid19home.vaccination.exempt.title": "Isento da vacinação",
 	"panel.covid19home.vaccination.exempt.description": "No momento, você está isento de tomar as vacinas contra a COVID-19, mas deve continuar a fazer os testes.",

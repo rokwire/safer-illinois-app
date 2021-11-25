@@ -312,7 +312,7 @@
 	"panel.covid19home.vaccination.vaccinated.effective.0.description": "Your vaccine will be effective today.",
 	"panel.covid19home.vaccination.vaccinated.effective.1.description": "Your vaccine will be effective tomorrow.",
 	"panel.covid19home.vaccination.vaccinated.effective.n.description": "Your vaccine will be effective after %s days.",
-	"panel.covid19home.vaccination.e.title": "Vaccine еxpired",
+	"panel.covid19home.vaccination.expired.title": "Vaccine еxpired",
 	"panel.covid19home.vaccination.expired.description": "Get a booster dose now.",
 	"panel.covid19home.vaccination.exempt.title": "Exempt from vaccination",
 	"panel.covid19home.vaccination.exempt.description": "You are currently exempt from taking COVID-19 vaccines but are required to continue taking tests.",
