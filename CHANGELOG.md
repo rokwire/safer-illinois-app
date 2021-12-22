@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+- Added "force-test-2022" action in health rules, some status names and string keys updated to keep consistency with previous "force-test" action [#766](https://github.com/rokwire/safer-illinois-app/issues/766).
+
 ### Changed
 - Revisions of translations of text strings -- Translation Studies Course [#759](https://github.com/rokwire/safer-illinois-app/issues/759).
 
