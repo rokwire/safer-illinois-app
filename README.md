@@ -1,8 +1,8 @@
 # Safer Illinois App
 The official COVID-19 app of the University of Illinois. Powered by the [Rokwire Platform](https://rokwire.org/).
 
-For academic references, please cite our formal release on Zenodo.
-![https://zenodo.org/badge/doi/10.5281/zenodo.4619823.svg](https://doi.org/10.5281/zenodo.4619823)
+For academic references, please cite our formal release on Zenodo.  
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4619823.svg)](https://doi.org/10.5281/zenodo.4619823)
 
 ## Requirements
 
