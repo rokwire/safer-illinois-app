@@ -2,7 +2,7 @@
 The official COVID-19 app of the University of Illinois. Powered by the [Rokwire Platform](https://rokwire.org/).
 
 For academic references, please cite our formal release on Zenodo.
-[![doi/10.5281/zenodo.4619823](https://zenodo.org/badge/doi/10.5281/zenodo.4619823.svg)](https://doi.org/10.5281/zenodo.4619823)
+![https://zenodo.org/badge/doi/10.5281/zenodo.4619823.svg](https://doi.org/10.5281/zenodo.4619823)
 
 ## Requirements
 
